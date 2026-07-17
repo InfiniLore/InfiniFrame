@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using JetBrains.Annotations;
-using System.Runtime.InteropServices;
 
 namespace InfiniTests;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -46,17 +45,20 @@ public sealed partial class InfiniFrameTestWindow : IDisposable {
         catch (ObjectDisposedException) {
         }
 
-        if (_windowThread is null)
+        if (_windowThread is null) {
+            DisposeWindowAfterThreadExit();
             return;
+        }
 
         try {
-            TimeSpan firstJoinTimeout =
-                OperatingSystem.IsWindows() &&
-                RuntimeInformation.ProcessArchitecture == Architecture.Arm64
-                    ? TimeSpan.FromSeconds(2)
-                    : TimeSpan.FromSeconds(3);
-
-            if (_windowThread.Join(firstJoinTimeout)) return;
+            // A test must never return while its native window thread is still alive. In particular,
+            // WebView2 controller creation is noticeably slower on Windows ARM64 runners. The old
+            // ARM64-specific 2 + 2 second best-effort joins could leave a live STA thread behind and
+            // let it call managed delegates after the test (or test host) had started tearing down.
+            if (_windowThread.Join(TimeSpan.FromSeconds(5))) {
+                DisposeWindowAfterThreadExit();
+                return;
+            }
 
             try {
                 Window.Close();
@@ -66,7 +68,13 @@ public sealed partial class InfiniFrameTestWindow : IDisposable {
             catch (ObjectDisposedException) {
             }
 
-            _windowThread.Join(TimeSpan.FromSeconds(2));
+            if (!_windowThread.Join(TimeSpan.FromSeconds(10))) {
+                throw new TimeoutException(
+                    "The InfiniFrame test window thread did not terminate after its window was closed."
+                );
+            }
+
+            DisposeWindowAfterThreadExit();
         }
         catch (ThreadInterruptedException) {
         }
@@ -74,6 +82,12 @@ public sealed partial class InfiniFrameTestWindow : IDisposable {
         }
         catch (ObjectDisposedException) {
         }
+    }
+
+    private void DisposeWindowAfterThreadExit() {
+        // Native callbacks may only be unrooted once WaitForClose has returned on the STA thread.
+        // Disposing earlier can race an in-flight reverse P/Invoke during WebView2 teardown.
+        if (Window is IDisposable disposableWindow) disposableWindow.Dispose();
     }
 
     [MustDisposeResource]

@@ -25,6 +25,7 @@ public class InfiniFrameWindowFeatureLifecycle(
     
     private int _lifecycleState = (int)LifecycleStatus.Undefined;
     private int _messageLoopStarted;
+    private int _messageLoopExited;
     private int _disposed;
     private int _nativeCallbackRootReleased;
     private readonly TaskCompletionSource _closed = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -54,6 +55,18 @@ public class InfiniFrameWindowFeatureLifecycle(
     private void Dispose(bool disposing) {
         if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
 
+        // MarkAsClosed is invoked from the native closed callback, before WaitForExit has
+        // returned. Deleting the native instance or unrooting reverse-P/Invoke delegates at
+        // that point would race the remainder of WindowProc/WebView2 teardown. If a native
+        // message loop is active, its finally block completes this deferred disposal.
+        if (window.InstanceHandle != IntPtr.Zero ||
+            (Volatile.Read(ref _messageLoopStarted) != 0 && Volatile.Read(ref _messageLoopExited) == 0))
+            return;
+
+        CleanupClosedHandleAndCallbacks(disposing);
+    }
+
+    private void CleanupClosedHandleAndCallbacks(bool disposing) {
         IntPtr handle = Interlocked.Exchange(ref _cleanupHandle, IntPtr.Zero);
 
         try {
@@ -204,6 +217,9 @@ public class InfiniFrameWindowFeatureLifecycle(
         }
         finally {
             MarkAsClosed();
+            Volatile.Write(ref _messageLoopExited, 1);
+            if (Volatile.Read(ref _disposed) != 0)
+                CleanupClosedHandleAndCallbacks(true);
         }
     }
 
@@ -266,10 +282,10 @@ public class InfiniFrameWindowFeatureLifecycle(
         IntPtr handle = window.InstanceHandle;
         window.InstanceHandle = IntPtr.Zero;
 
-        if (OperatingSystem.IsLinux() && handle != IntPtr.Zero) {
-            // Destructor is intentionally NOT called here — MarkAsClosed runs inside the GTK "destroy" signal handler.
-            // Calling InfiniFrameNative.Destructor from inside a GTK signal handler triggers a SIGABRT in WebKit or a
-            // deadlock when the next WebKitWebView is created. The native object is freed later via CleanupNativeHandle.
+        if (handle != IntPtr.Zero) {
+            // Destructor is intentionally NOT called here. MarkAsClosed runs inside the native
+            // closed/destroy callback on every platform. The native object remains owned by this
+            // lifecycle instance until WaitForExit has unwound and CleanupNativeHandle is called.
             _ = Interlocked.CompareExchange(ref _cleanupHandle, handle, IntPtr.Zero);
         }
 

@@ -159,42 +159,75 @@ jobs:
                         core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
                         core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
 
-            -   name: Run Tests (x64)
+            -   name: Run Tests
+                shell: pwsh
                 run: |
                     echo "Running tests on Windows..."
                     $exitCode = 0
 
-                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf `
-                      --configuration Release `
-                      --no-build `
-                      --no-restore `
-                      --framework net8.0 `
-                      /p:NativeArch=${{ matrix.arch }} `
-                      /p:InfiniFrameSkipNativeBuild=true `
-                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
-                    if ($LASTEXITCODE -ne 0) { $exitCode = $LASTEXITCODE }
+                    foreach ($framework in @("net8.0", "net9.0", "net10.0")) {
+                      $testArgs = @(
+                        "test",
+                        "--solution", "InfiniFrame.GitHubActions.Testing.slnf",
+                        "--configuration", "Release",
+                        "--no-build",
+                        "--no-restore",
+                        "--framework", $framework,
+                        "/p:NativeArch=${{ matrix.arch }}",
+                        "/p:InfiniFrameSkipNativeBuild=true",
+                        "/p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}"
+                      )
 
-                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf `
-                      --configuration Release `
-                      --no-build `
-                      --no-restore `
-                      --framework net9.0 `
-                      /p:NativeArch=${{ matrix.arch }} `
-                      /p:InfiniFrameSkipNativeBuild=true `
-                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
-                    if ($LASTEXITCODE -ne 0) { $exitCode = $LASTEXITCODE }
+                      if ("${{ matrix.arch }}" -eq "arm64") {
+                        $frameworkDiagRoot = Join-Path $env:GITHUB_WORKSPACE "artifacts\testdiag\$framework"
+                        New-Item -ItemType Directory -Force -Path $frameworkDiagRoot | Out-Null
+                        $testArgs += @(
+                          "--diagnostic",
+                          "--diagnostic-synchronous-write",
+                          "--diagnostic-output-directory", $frameworkDiagRoot
+                        )
+                      }
 
-                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf `
-                      --configuration Release `
-                      --no-build `
-                      --no-restore `
-                      --framework net10.0 `
-                      /p:NativeArch=${{ matrix.arch }} `
-                      /p:InfiniFrameSkipNativeBuild=true `
-                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
-                    if ($LASTEXITCODE -ne 0) { $exitCode = $LASTEXITCODE }
+                      & dotnet @testArgs
+                      if ($LASTEXITCODE -ne 0) { $exitCode = $LASTEXITCODE }
+                    }
 
                     exit $exitCode
+
+            -   name: Collect ARM64 Windows Event Logs
+                if: always() && matrix.arch == 'arm64'
+                shell: pwsh
+                run: |
+                    $output = Join-Path $env:GITHUB_WORKSPACE "artifacts\windows-event-log.txt"
+                    try {
+                      Get-WinEvent -FilterHashtable @{
+                        LogName = "Application"
+                        StartTime = (Get-Date).AddHours(-1)
+                      } -ErrorAction Stop |
+                        Where-Object {
+                          $_.ProviderName -in @("Application Error", ".NET Runtime", "Windows Error Reporting")
+                        } |
+                        Select-Object TimeCreated, ProviderName, Id, LevelDisplayName, Message |
+                        Format-List | Out-File -FilePath $output -Width 4096
+                    }
+                    catch {
+                      "Could not collect the Windows Application event log: $($_.Exception.Message)" |
+                        Out-File -FilePath $output
+                    }
+
+            -   name: Upload ARM64 Crash Diagnostics
+                if: always() && matrix.arch == 'arm64'
+                uses: actions/upload-artifact@v7
+                with:
+                    name: windows-arm64-test-crash-diagnostics
+                    if-no-files-found: warn
+                    retention-days: 14
+                    path: |
+                        artifacts/crashdumps
+                        artifacts/testdiag
+                        artifacts/testresults
+                        artifacts/windows-event-log.txt
+                        TestResults
 
             -   name: Pack Tool E2E
                 uses: ./.github/actions/packtool-e2e
