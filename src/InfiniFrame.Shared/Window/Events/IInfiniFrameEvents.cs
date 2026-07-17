@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.NativeBridge.Delegates;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -87,10 +88,9 @@ public interface IInfiniFrameEvents : IHasInfiniFrameEventsStore {
     ///     Handles a custom scheme URL request and returns the response data.
     /// </summary>
     /// <param name="url">The URL being requested.</param>
-    /// <param name="numBytes">The number of bytes in the response data.</param>
-    /// <param name="contentType">The content type of the response.</param>
-    /// <returns>A pointer to the response data buffer.</returns>
-    IntPtr OnCustomScheme(string url, out int numBytes, out string? contentType);
+    /// <param name="response">Caller-owned ABI descriptor populated with an explicitly owned response.</param>
+    /// <returns>Non-zero if a response was produced; otherwise zero.</returns>
+    int OnCustomScheme(string url, ref CustomSchemeResponse response);
     
     /// <summary>
     ///     Populates this event store from a builder's event store.

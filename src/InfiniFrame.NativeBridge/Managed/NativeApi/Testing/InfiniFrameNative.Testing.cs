@@ -29,6 +29,16 @@ public partial class InfiniFrameNativeTesting {
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     private static partial InfiniFrameNativeInteropStatus FreeInitParamsNative(IntPtr parameters);
 
+    /// <summary>Cross-platform native consumer used to verify the custom-scheme ABI and release callback.</summary>
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeTests_ConsumeCustomSchemeResponse", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus ConsumeCustomSchemeResponse(
+        IntPtr callback,
+        out ulong contentLength,
+        out uint byteSum,
+        out int valid
+    );
+
     /// <summary>
     ///     Native test helper that checks if a Windows message indicates a color scheme change.
     /// </summary>

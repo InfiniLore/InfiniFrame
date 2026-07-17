@@ -1,0 +1,9 @@
+# Process-lifetime allocations retained by the .NET runtime and its global crypto/ICU dependencies.
+# Keep this list narrow so leaks whose allocation stack enters InfiniFrame.Native remain visible.
+leak:libcoreclr.so
+leak:libclrjit.so
+leak:libSystem.Security.Cryptography.Native.OpenSsl.so
+leak:libcrypto.so
+leak:libssl.so
+leak:libicuuc.so
+leak:libicui18n.so

@@ -39,15 +39,47 @@ using DebugEventCallback = void (*)(
     AutoString platformPayload
 );
 
+/** Version 1 custom-scheme response body kinds. Kind 2 is reserved for a future pull-based stream ABI. */
+enum class CustomSchemeBodyKind : uint32_t {
+    Buffered = 1,
+    Stream = 2
+};
+
+using ReleaseCustomSchemeResponseCallback = void (*)(void* ownerContext);
+
+/**
+ * @brief Versioned custom-scheme response descriptor shared with .NET.
+ *
+ * The native caller owns this descriptor. The producer owns Body, ContentTypeUtf8, and OwnerContext until native calls
+ * Release(OwnerContext) exactly once. Native must not free any field directly. ReservedRead/ReservedSeek are ABI space
+ * for a future streaming body kind and must be null for buffered responses.
+ */
+struct CustomSchemeResponse {
+    static constexpr uint32_t CurrentAbiVersion = 1;
+    static constexpr uint64_t MaxBufferedBodyBytes = 256ULL * 1024ULL * 1024ULL;
+
+    uint32_t StructSize;
+    uint32_t AbiVersion;
+    uint32_t StatusCode;
+    uint32_t BodyKind;
+    uint64_t ContentLength;
+    const uint8_t* Body;
+    const char* ContentTypeUtf8;
+    void* OwnerContext;
+    ReleaseCustomSchemeResponseCallback Release;
+    void* ReservedRead;
+    void* ReservedSeek;
+};
+
+static_assert(sizeof(uintptr_t) != 8 || sizeof(CustomSchemeResponse) == 72, "Unexpected 64-bit response ABI layout");
+
 /**
  * @brief Called when the WebView requests a custom-scheme resource.
- * The handler must return a heap-allocated buffer and set outNumBytes and outContentType.
- * @param url UTF-8 URL of the requested resource
- * @param outNumBytes Output: byte length of the returned buffer
- * @param outContentType Output: MIME type string (e.g. "text/html")
- * @return Heap-allocated response body; ownership is transferred to the caller
+ * @param url Platform-native URL (UTF-16 on Windows, UTF-8 on Unix); borrowed for the duration of the call
+ * @param response Caller-owned, zero-initialized output descriptor
+ * @return Non-zero if a response was produced; zero for not found or handler failure
  */
-using WebResourceRequestedCallback = void* (*)(AutoString url, int* outNumBytes, AutoString* outContentType);
+using WebResourceRequestedCallback = int (*)(AutoString url, CustomSchemeResponse* response);
 
 /**
  * @brief Called once per monitor during a GetAllMonitors enumeration.

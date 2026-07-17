@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#include <cstdlib>
 #include <exception>
 
 #include <gio/gio.h>
@@ -9,6 +8,7 @@
 
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
 #include "Runtime/Platform/Linux/WebKit/WebKit.Gtk.Internal.h"
+#include "Runtime/Shared/WebView/CustomSchemeResponse.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -32,27 +32,37 @@ namespace gtk_webkit {
             }
 
             const gchar* uri = webkit_uri_scheme_request_get_uri(request);
-            int numBytes = 0;
-            AutoString contentType = nullptr;
-            void* dotNetResponse = webResourceRequestedCallback(const_cast<AutoString>(uri), &numBytes, &contentType);
-            if (numBytes < 0 || (dotNetResponse == nullptr && numBytes > 0)) {
-                free(contentType);
+            CustomSchemeResponse managedResponse{};
+            const int handled = webResourceRequestedCallback(const_cast<AutoString>(uri), &managedResponse);
+            infiniframe::CustomSchemeResponseLease responseLease(managedResponse);
+            if (handled == 0) {
+                FinishCustomSchemeError(request, G_IO_ERROR_NOT_FOUND, "Custom scheme resource was not found.");
+                return;
+            }
+            if (!infiniframe::IsValidBufferedCustomSchemeResponse(managedResponse)) {
                 FinishCustomSchemeError(
                     request, G_IO_ERROR_FAILED, "Custom scheme handler returned an invalid response."
                 );
                 return;
             }
 
-            GInputStream* stream = g_memory_input_stream_new_from_data(dotNetResponse, numBytes, nullptr);
+            // GBytes copies producer-owned memory. The producer can therefore be released immediately after finish.
+            GBytes* bytes = g_bytes_new(managedResponse.Body, static_cast<gsize>(managedResponse.ContentLength));
+            if (bytes == nullptr) {
+                FinishCustomSchemeError(request, G_IO_ERROR_FAILED, "Could not copy custom scheme response data.");
+                return;
+            }
+            GInputStream* stream = g_memory_input_stream_new_from_bytes(bytes);
+            g_bytes_unref(bytes);
             if (stream == nullptr) {
-                free(contentType);
                 FinishCustomSchemeError(request, G_IO_ERROR_FAILED, "Could not create custom scheme response stream.");
                 return;
             }
 
-            webkit_uri_scheme_request_finish(request, reinterpret_cast<GInputStream*>(stream), -1, contentType);
+            webkit_uri_scheme_request_finish(
+                request, stream, static_cast<gint64>(managedResponse.ContentLength), managedResponse.ContentTypeUtf8
+            );
             g_object_unref(stream);
-            free(contentType);
         } catch (const std::exception& ex) {
             g_warning("[InfiniFrame/Linux] custom-scheme-request failed: %s", ex.what());
             FinishCustomSchemeError(request, G_IO_ERROR_FAILED, "Custom scheme handler failed.");

@@ -143,30 +143,36 @@ void InfiniFrameWindow::AttachCustomSchemeHandler() {
 
                     if (it != m_impl->_customSchemeNames.end() &&
                         m_impl->_customSchemeCallback != nullptr) {
-                        int numBytes;
-                        AutoString contentType = nullptr;
-                        wil::unique_cotaskmem dotNetResponse(m_impl->_customSchemeCallback(
-                            const_cast<AutoString>(uriString.c_str()), &numBytes, &contentType
+                        CustomSchemeResponse managedResponse{};
+                        const int handled = m_impl->_customSchemeCallback(
+                            const_cast<AutoString>(uriString.c_str()), &managedResponse
+                        );
+                        infiniframe::CustomSchemeResponseLease responseLease(managedResponse);
+                        if (handled == 0 || !infiniframe::IsValidBufferedCustomSchemeResponse(managedResponse))
+                            return S_OK;
+
+                        std::wstring contentTypeWS = Utf8ToWide(
+                            reinterpret_cast<AutoString>(const_cast<char*>(managedResponse.ContentTypeUtf8))
+                        );
+                        if (contentTypeWS.empty())
+                            return S_OK;
+
+                        wil::com_ptr<IStream> dataStream;
+                        dataStream.attach(SHCreateMemStream(
+                            reinterpret_cast<const BYTE*>(managedResponse.Body),
+                            static_cast<UINT>(managedResponse.ContentLength)
                         ));
-                        auto freeContentType =
-                            wil::scope_exit([&contentType] { CoTaskMemFree(contentType); });
+                        if (!dataStream)
+                            return S_OK;
 
-                        if (dotNetResponse != nullptr && contentType != nullptr) {
-                            std::wstring contentTypeWS = contentType;
-
-                            wil::com_ptr<IStream> dataStream;
-                            dataStream.attach(SHCreateMemStream(
-                                reinterpret_cast<const BYTE*>(dotNetResponse.get()), numBytes
-                            ));
-                            if (!dataStream)
-                                return S_OK;
-                            wil::com_ptr<ICoreWebView2WebResourceResponse> response;
-                            auto responseHeaders = infiniframe::BuildCorsResponseHeaders<wchar_t>(
-                                contentTypeWS, requestOrigin
-                            );
-                            m_impl->_webviewEnvironment->CreateWebResourceResponse(
-                                dataStream.get(), 200, L"OK", responseHeaders.c_str(), &response
-                            );
+                        wil::com_ptr<ICoreWebView2WebResourceResponse> response;
+                        auto responseHeaders = infiniframe::BuildCorsResponseHeaders<wchar_t>(
+                            contentTypeWS, requestOrigin
+                        );
+                        if (SUCCEEDED(m_impl->_webviewEnvironment->CreateWebResourceResponse(
+                                dataStream.get(), static_cast<int>(managedResponse.StatusCode), L"OK",
+                                responseHeaders.c_str(), &response
+                            )) && response) {
                             args->put_Response(response.get());
                         }
                     }

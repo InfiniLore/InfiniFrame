@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Runtime/Shared/Window/InfiniFrame.h"
 #include "Api/Exports/Exports.h"
+#include "Runtime/Shared/WebView/CustomSchemeResponse.h"
 #ifdef _WIN32
 #include "Runtime/Platform/Windows/DarkMode.h"
 #endif
@@ -110,6 +111,43 @@ EXPORTED InteropStatus InfiniFrameNativeTests_FreeInitParams(InfiniFrameInitPara
         delete[] params->NotificationRegistrationId;
 
         delete params;
+    });
+}
+
+EXPORTED InteropStatus InfiniFrameNativeTests_ConsumeCustomSchemeResponse(
+    void* callbackPointer,
+    uint64_t* contentLength,
+    uint32_t* byteSum,
+    int* valid
+) {
+    if (contentLength != nullptr) *contentLength = 0;
+    if (byteSum != nullptr) *byteSum = 0;
+    if (valid != nullptr) *valid = 0;
+
+    return RunExportStatus([&] {
+        if (!EnsureNotNull(callbackPointer, "callbackPointer") ||
+            !EnsureNotNull(contentLength, "contentLength", ::InteropStatus::OutParameterSetToInvalidNull) ||
+            !EnsureNotNull(byteSum, "byteSum", ::InteropStatus::OutParameterSetToInvalidNull) ||
+            !EnsureNotNull(valid, "valid", ::InteropStatus::OutParameterSetToInvalidNull)) {
+            return;
+        }
+
+        auto callback = reinterpret_cast<WebResourceRequestedCallback>(callbackPointer);
+        CustomSchemeResponse response{};
+#ifdef _WIN32
+        wchar_t testUrl[] = L"test://platform-abi";
+#else
+        char testUrl[] = "test://platform-abi";
+#endif
+        const int handled = callback(testUrl, &response);
+        infiniframe::CustomSchemeResponseLease responseLease(response);
+        if (handled == 0 || !infiniframe::IsValidBufferedCustomSchemeResponse(response)) return;
+
+        uint32_t sum = 0;
+        for (uint64_t i = 0; i < response.ContentLength; ++i) sum += response.Body[i];
+        *contentLength = response.ContentLength;
+        *byteSum = sum;
+        *valid = 1;
     });
 }
 
