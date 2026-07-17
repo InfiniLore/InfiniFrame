@@ -30,7 +30,7 @@ public class NativeInvokeTests {
         window.InstanceHandle.Returns(instanceHandle);
         window.ManagedThreadId.Returns(Environment.CurrentManagedThreadId);
         invokeFeature.When(i => i.Invoke(Arg.Any<Action>()))
-            .Do(c => c.Arg<Action>()());
+            .Do(c => c.Arg<Action>()!());
         return window;
     }
 

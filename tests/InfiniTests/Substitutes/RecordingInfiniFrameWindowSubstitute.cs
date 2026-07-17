@@ -31,13 +31,13 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
             .Returns(ValueTask.CompletedTask)
             .AndDoes(callInfo => {
                 lock (_sentWebMessagesLock) {
-                    _sentWebMessages.Add(callInfo.Arg<string>());
+                    _sentWebMessages.Add(callInfo.Arg<string>()!);
                 }
             });
         Window.Features.WebMessaging.When(webMessaging => webMessaging.SendWebMessage(Arg.Any<string>()))
             .Do(callInfo => {
                 lock (_sentWebMessagesLock) {
-                    _sentWebMessages.Add(callInfo.Arg<string>());
+                    _sentWebMessages.Add(callInfo.Arg<string>()!);
                 }
             });
 
