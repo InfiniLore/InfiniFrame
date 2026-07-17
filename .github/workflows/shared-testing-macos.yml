@@ -22,116 +22,8 @@ on:
                 default: false
 
 jobs:
-    build-x64:
-        name: Build macOS x64
-        runs-on: macos-15-intel
-        timeout-minutes: 120
-        permissions:
-            contents: read
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v7
-                with:
-                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
-                    fetch-depth: 1
-
-            -   name: Setup dependencies
-                uses: ./.github/actions/setup-dependencies
-                with:
-                    cache-dotnet: false
-
-            -   name: Setup native dependencies
-                uses: ./.github/actions/setup-dependencies-native
-                with:
-                    brew-cache-key: macos-15-intel-x64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
-                    brew-restore-key: macos-15-intel-x64-brew-native-
-
-            -   name: Download Testing Native Build Artifacts
-                uses: ./.github/actions/download-native-binaries
-                with:
-                    artifact-type: testing
-
-            -   name: Restore
-                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=x64
-
-            -   name: Build Release
-                run: |
-                    dotnet build InfiniFrame.GitHubActions.Testing.slnf \
-                      --configuration Release \
-                      --no-restore \
-                      -p:SolutionDir=${{ github.workspace }}/ \
-                      -p:NativeArch=x64 \
-                      -p:InfiniFrameSkipNativeBuild=true \
-                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
-
-            -   name: Upload x64 Build Outputs
-                uses: actions/upload-artifact@v7
-                with:
-                    name: build-x64
-                    path: |
-                        **/bin/**
-                        **/obj/**
-                        src/InfiniFrame.NativeBridge/artifacts/native/**
-                    if-no-files-found: error
-                    retention-days: 1
-
-    build-arm64:
-        name: Build macOS arm64
-        runs-on: macos-latest
-        timeout-minutes: 120
-        permissions:
-            contents: read
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v7
-                with:
-                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
-                    fetch-depth: 1
-
-            -   name: Setup dependencies
-                uses: ./.github/actions/setup-dependencies
-                with:
-                    cache-dotnet: false
-
-            -   name: Setup native dependencies
-                uses: ./.github/actions/setup-dependencies-native
-                with:
-                    brew-cache-key: macos-latest-arm64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
-                    brew-restore-key: macos-latest-arm64-brew-native-
-
-            -   name: Download Testing Native Build Artifacts
-                uses: ./.github/actions/download-native-binaries
-                with:
-                    artifact-type: testing
-
-            -   name: Restore
-                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=arm64
-
-            -   name: Build Release
-                run: |
-                    dotnet build InfiniFrame.GitHubActions.Testing.slnf \
-                      --configuration Release \
-                      --no-restore \
-                      -p:SolutionDir=${{ github.workspace }}/ \
-                      -p:NativeArch=arm64 \
-                      -p:InfiniFrameSkipNativeBuild=true \
-                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
-
-            -   name: Upload arm64 Build Outputs
-                uses: actions/upload-artifact@v7
-                with:
-                    name: build-arm64
-                    path: |
-                        **/bin/**
-                        **/obj/**
-                        src/InfiniFrame.NativeBridge/artifacts/native/**
-                    if-no-files-found: error
-                    retention-days: 1
-
     test-x64:
         name: CI Testing - macOS/x64/${{ matrix.framework }}
-        needs: build-x64
-        if: always()
         runs-on: macos-15-intel
         timeout-minutes: 120
         env:
@@ -178,11 +70,23 @@ jobs:
                     brew-cache-key: macos-15-intel-x64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
                     brew-restore-key: macos-15-intel-x64-brew-native-
 
-            -   name: Download x64 Build Outputs
-                uses: actions/download-artifact@v8
+            -   name: Download Testing Native Build Artifacts
+                uses: ./.github/actions/download-native-binaries
                 with:
-                    name: build-x64
-                    path: .
+                    artifact-type: testing
+
+            -   name: Restore
+                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=x64
+
+            -   name: Build Release
+                run: |
+                    dotnet build InfiniFrame.GitHubActions.Testing.slnf \
+                      --configuration Release \
+                      --no-restore \
+                      -p:SolutionDir=${{ github.workspace }}/ \
+                      -p:NativeArch=x64 \
+                      -p:InfiniFrameSkipNativeBuild=true \
+                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
             -   name: Export Actions Runtime
                 uses: actions/github-script@v9
@@ -210,23 +114,57 @@ jobs:
                     mkdir -p "artifacts/testresults/${{ matrix.framework }}"
                     test_exit_code=0
 
-                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
-                      --configuration Release \
-                      --no-build \
-                      --no-restore \
-                      --framework "${{ matrix.framework }}" \
-                      -p:NativeArch=x64 \
-                      -p:InfiniFrameSkipNativeBuild=true \
-                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
-                      --results-directory "artifacts/testresults/${{ matrix.framework }}" \
-                      --report-trx \
-                      --diagnostic \
-                      --diagnostic-output-directory "artifacts/testdiag/${{ matrix.framework }}" \
-                      --diagnostic-file-prefix "mtp-${{ matrix.framework }}" \
-                      --diagnostic-verbosity Information \
-                      --output Detailed \
-                      --github-reporter-style full \
-                      --no-ansi || test_exit_code=$?
+                    test_projects=(
+                      tests/InfiniTests.InfiniFrame.Js/InfiniTests.InfiniFrame.Js.csproj
+                      tests/InfiniTests.InfiniFrame.Blazor/InfiniTests.InfiniFrame.Blazor.csproj
+                      tests/InfiniTests.InfiniFrame.WebServer/InfiniTests.InfiniFrame.WebServer.csproj
+                      tests/InfiniTests.InfiniFrame.Shared/InfiniTests.InfiniFrame.Shared.csproj
+                      tests/InfiniTests.InfiniFrame.NativeBridge/InfiniTests.InfiniFrame.NativeBridge.csproj
+                      tests/InfiniTests.InfiniFrame.BlazorWebView/InfiniTests.InfiniFrame.BlazorWebView.csproj
+                      tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj
+                    )
+
+                    run_project() {
+                        local project="$1"
+                        local project_name
+                        local project_exit_code=0
+                        project_name="$(basename "$project" .csproj)"
+
+                        echo "--- ${project} (${{ matrix.framework }}) ---"
+                        mkdir -p "artifacts/testdiag/${{ matrix.framework }}/${project_name}"
+                        mkdir -p "artifacts/testresults/${{ matrix.framework }}/${project_name}"
+
+                        dotnet test "$project" \
+                          --configuration Release \
+                          --no-build \
+                          --no-restore \
+                          --framework "${{ matrix.framework }}" \
+                          -p:NativeArch=x64 \
+                          -p:InfiniFrameSkipNativeBuild=true \
+                          -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
+                          --results-directory "artifacts/testresults/${{ matrix.framework }}/${project_name}" \
+                          -- \
+                          --report-trx \
+                          --diagnostic \
+                          --diagnostic-output-directory "artifacts/testdiag/${{ matrix.framework }}/${project_name}" \
+                          --diagnostic-file-prefix "mtp-${{ matrix.framework }}-${project_name}" \
+                          --diagnostic-verbosity Information \
+                          --output Detailed \
+                          --github-reporter-style full \
+                          --no-ansi || project_exit_code=$?
+
+                        if [ "$project_exit_code" -ne 0 ]; then
+                            test_exit_code="$project_exit_code"
+                        fi
+                    }
+
+                    for project in "${test_projects[@]}"; do
+                        run_project "$project"
+                    done
+
+                    if [ "${{ matrix.framework }}" = "net10.0" ]; then
+                        run_project tests/InfiniTests.InfiniFrame.Tools.Pack/InfiniTests.InfiniFrame.Tools.Pack.csproj
+                    fi
 
                     echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Finished ${{ matrix.framework }} with exit code $test_exit_code"
 
@@ -322,8 +260,6 @@ jobs:
 
     test-arm64:
         name: CI Testing - macOS/arm64/${{ matrix.framework }}
-        needs: build-arm64
-        if: always()
         runs-on: macos-latest
         timeout-minutes: 120
         env:
@@ -370,11 +306,23 @@ jobs:
                     brew-cache-key: macos-latest-arm64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
                     brew-restore-key: macos-latest-arm64-brew-native-
 
-            -   name: Download arm64 Build Outputs
-                uses: actions/download-artifact@v8
+            -   name: Download Testing Native Build Artifacts
+                uses: ./.github/actions/download-native-binaries
                 with:
-                    name: build-arm64
-                    path: .
+                    artifact-type: testing
+
+            -   name: Restore
+                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=arm64
+
+            -   name: Build Release
+                run: |
+                    dotnet build InfiniFrame.GitHubActions.Testing.slnf \
+                      --configuration Release \
+                      --no-restore \
+                      -p:SolutionDir=${{ github.workspace }}/ \
+                      -p:NativeArch=arm64 \
+                      -p:InfiniFrameSkipNativeBuild=true \
+                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
             -   name: Export Actions Runtime
                 uses: actions/github-script@v9
@@ -402,23 +350,57 @@ jobs:
                     mkdir -p "artifacts/testresults/${{ matrix.framework }}"
                     test_exit_code=0
 
-                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
-                      --configuration Release \
-                      --no-build \
-                      --no-restore \
-                      --framework "${{ matrix.framework }}" \
-                      -p:NativeArch=arm64 \
-                      -p:InfiniFrameSkipNativeBuild=true \
-                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
-                      --results-directory "artifacts/testresults/${{ matrix.framework }}" \
-                      --report-trx \
-                      --diagnostic \
-                      --diagnostic-output-directory "artifacts/testdiag/${{ matrix.framework }}" \
-                      --diagnostic-file-prefix "mtp-${{ matrix.framework }}" \
-                      --diagnostic-verbosity Information \
-                      --output Detailed \
-                      --github-reporter-style full \
-                      --no-ansi || test_exit_code=$?
+                    test_projects=(
+                      tests/InfiniTests.InfiniFrame.Js/InfiniTests.InfiniFrame.Js.csproj
+                      tests/InfiniTests.InfiniFrame.Blazor/InfiniTests.InfiniFrame.Blazor.csproj
+                      tests/InfiniTests.InfiniFrame.WebServer/InfiniTests.InfiniFrame.WebServer.csproj
+                      tests/InfiniTests.InfiniFrame.Shared/InfiniTests.InfiniFrame.Shared.csproj
+                      tests/InfiniTests.InfiniFrame.NativeBridge/InfiniTests.InfiniFrame.NativeBridge.csproj
+                      tests/InfiniTests.InfiniFrame.BlazorWebView/InfiniTests.InfiniFrame.BlazorWebView.csproj
+                      tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj
+                    )
+
+                    run_project() {
+                        local project="$1"
+                        local project_name
+                        local project_exit_code=0
+                        project_name="$(basename "$project" .csproj)"
+
+                        echo "--- ${project} (${{ matrix.framework }}) ---"
+                        mkdir -p "artifacts/testdiag/${{ matrix.framework }}/${project_name}"
+                        mkdir -p "artifacts/testresults/${{ matrix.framework }}/${project_name}"
+
+                        dotnet test "$project" \
+                          --configuration Release \
+                          --no-build \
+                          --no-restore \
+                          --framework "${{ matrix.framework }}" \
+                          -p:NativeArch=arm64 \
+                          -p:InfiniFrameSkipNativeBuild=true \
+                          -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
+                          --results-directory "artifacts/testresults/${{ matrix.framework }}/${project_name}" \
+                          -- \
+                          --report-trx \
+                          --diagnostic \
+                          --diagnostic-output-directory "artifacts/testdiag/${{ matrix.framework }}/${project_name}" \
+                          --diagnostic-file-prefix "mtp-${{ matrix.framework }}-${project_name}" \
+                          --diagnostic-verbosity Information \
+                          --output Detailed \
+                          --github-reporter-style full \
+                          --no-ansi || project_exit_code=$?
+
+                        if [ "$project_exit_code" -ne 0 ]; then
+                            test_exit_code="$project_exit_code"
+                        fi
+                    }
+
+                    for project in "${test_projects[@]}"; do
+                        run_project "$project"
+                    done
+
+                    if [ "${{ matrix.framework }}" = "net10.0" ]; then
+                        run_project tests/InfiniTests.InfiniFrame.Tools.Pack/InfiniTests.InfiniFrame.Tools.Pack.csproj
+                    fi
 
                     echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Finished ${{ matrix.framework }} with exit code $test_exit_code"
 
@@ -537,11 +519,13 @@ jobs:
                     brew-cache-key: macos-15-intel-x64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
                     brew-restore-key: macos-15-intel-x64-brew-native-
 
-            -   name: Download x64 Build Outputs
-                uses: actions/download-artifact@v8
+            -   name: Download Testing Native Build Artifacts
+                uses: ./.github/actions/download-native-binaries
                 with:
-                    name: build-x64
-                    path: .
+                    artifact-type: testing
+
+            -   name: Restore Pack Tool
+                run: dotnet restore src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj /p:NoWarn=NU1503 /p:NativeArch=x64
 
             -   name: Pack Tool E2E
                 uses: ./.github/actions/packtool-e2e
@@ -582,11 +566,13 @@ jobs:
                     brew-cache-key: macos-latest-arm64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
                     brew-restore-key: macos-latest-arm64-brew-native-
 
-            -   name: Download arm64 Build Outputs
-                uses: actions/download-artifact@v8
+            -   name: Download Testing Native Build Artifacts
+                uses: ./.github/actions/download-native-binaries
                 with:
-                    name: build-arm64
-                    path: .
+                    artifact-type: testing
+
+            -   name: Restore Pack Tool
+                run: dotnet restore src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj /p:NoWarn=NU1503 /p:NativeArch=arm64
 
             -   name: Pack Tool E2E
                 uses: ./.github/actions/packtool-e2e
