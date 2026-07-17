@@ -186,8 +186,17 @@ public class InfiniFrameWindowFeatureLifecycle(
         try {
             logger.LogDebug("Starting message loop for window.");
             if (OperatingSystem.IsLinux()) {
+                // The GTK close request and its native closed callback can complete between
+                // IsClosed() above and this call. Capture the owned native handle once; never
+                // re-read InstanceHandle after the callback is allowed to clear it.
+                IntPtr waitHandle = window.InstanceHandle;
+                if (waitHandle == IntPtr.Zero) {
+                    _closed.Task.GetAwaiter().GetResult();
+                    return;
+                }
+
                 Volatile.Write(ref _messageLoopStarted, 1);
-                InfiniFrameNativeInteropStatus status = InfiniFrameNative.WaitForExit(window.InstanceHandle);
+                InfiniFrameNativeInteropStatus status = InfiniFrameNative.WaitForExit(waitHandle);
                 if (status != InfiniFrameNativeInteropStatus.Success) {
                     int linuxLastError = Marshal.GetLastPInvokeError();
                     string linuxMessage = InfiniFrameNative.GetLastErrorMessage() ?? "No native error message provided.";
