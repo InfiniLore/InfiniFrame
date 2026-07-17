@@ -33,7 +33,7 @@ jobs:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || env.TARGET_SHA }}
 
             -   name: Setup Node
-                uses: actions/setup-node@v6
+                uses: actions/setup-node@v7
                 with:
                     node-version: 24
 
