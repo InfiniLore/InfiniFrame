@@ -1,9 +1,17 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 
-namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
-
+namespace InfiniTests.InfiniFrame.NativeBridge.Managed;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 [NotInParallelInfiniTests]
 public class NativeLifetimeStressTests {
+    // Keep the stress deterministic across Linux runners with very different CPU counts.
+    private const int ConcurrentFeatureCallerCount = 4;
+
     [Test]
     [DefaultInfiniTestsTimeout(20_000)]
     public async Task FeatureCallsRacingClose_DoNotReachFreedNativeInstance(CancellationToken ct) {
@@ -12,7 +20,7 @@ public class NativeLifetimeStressTests {
         using var stop = CancellationTokenSource.CreateLinkedTokenSource(ct);
         int completedCalls = 0;
 
-        Task[] callers = Enumerable.Range(0, Math.Max(4, Environment.ProcessorCount))
+        Task[] callers = Enumerable.Range(0, ConcurrentFeatureCallerCount)
             .Select(workerIndex => Task.Run(() => {
                 _ = workerIndex;
                 while (!stop.IsCancellationRequested) {

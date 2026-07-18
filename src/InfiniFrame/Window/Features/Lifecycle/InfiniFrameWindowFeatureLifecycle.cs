@@ -199,8 +199,24 @@ public class InfiniFrameWindowFeatureLifecycle(
             logger.LogDebug("Starting message loop for window.");
             if (OperatingSystem.IsLinux()) {
                 Volatile.Write(ref _messageLoopStarted, 1);
-                NativeInvoke.InvokeSyncForLifecycle(logger, window, window.ManagedThreadId,
-                    NativeHandleAccess.WaitForExit, InfiniFrameNative.WaitForExit);
+                NativeHandleLease lease;
+                try {
+                    lease = window.AcquireNativeHandle(NativeHandleAccess.WaitForExit);
+                }
+                catch (ObjectDisposedException) when (IsClosed()) {
+                    _closed.Task.GetAwaiter().GetResult();
+                    return;
+                }
+
+                using (lease) {
+                    InfiniFrameNativeInteropStatus status = InfiniFrameNative.WaitForExit(lease.Handle);
+                    if (status != InfiniFrameNativeInteropStatus.Success) {
+                        int linuxLastError = Marshal.GetLastPInvokeError();
+                        string linuxMessage = InfiniFrameNative.GetLastErrorMessage() ?? "No native error message provided.";
+                        throw new ApplicationException(
+                            $"Native WaitForExit failed with status {status}. Error #{linuxLastError}. {linuxMessage}");
+                    }
+                }
             }
             else {
                 NativeInvoke.InvokeSyncForLifecycle(logger, window, window.ManagedThreadId,

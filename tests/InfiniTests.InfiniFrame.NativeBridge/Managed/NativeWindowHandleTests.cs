@@ -10,6 +10,9 @@ namespace InfiniTests.InfiniFrame.NativeBridge.Managed;
 // ---------------------------------------------------------------------------------------------------------------------
 
 public class NativeWindowHandleTests {
+    // Keep the stress deterministic across Linux runners with very different CPU counts.
+    private const int ConcurrentWorkerCount = 4;
+
     private sealed class TestOwner(IntPtr value) : INativeWindowHandleOwner, IDisposable {
         private readonly NativeWindowHandle _handle = new(value, ownsHandle: false);
         private int _closed;
@@ -32,7 +35,7 @@ public class NativeWindowHandleTests {
         using var owner = new TestOwner(value);
         int successfulAcquisitions = 0;
 
-        Task[] workers = Enumerable.Range(0, Math.Max(4, Environment.ProcessorCount))
+        Task[] workers = Enumerable.Range(0, ConcurrentWorkerCount)
             .Select(_ => Task.Run(() => {
                 for (int i = 0; i < 2_000; i++) {
                     try {
