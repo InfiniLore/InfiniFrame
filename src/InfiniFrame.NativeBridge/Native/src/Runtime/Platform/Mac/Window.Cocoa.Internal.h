@@ -33,6 +33,7 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     bool _chromeless = false;
     bool _webviewReady = false;
     bool _isClosingOrClosed = false;
+    bool _windowClosed = false;
 
     // Messages queued while WKWebView is still loading (e.g. sent from WindowCreated handler).
     // Flushed on the first didFinishNavigation callback.

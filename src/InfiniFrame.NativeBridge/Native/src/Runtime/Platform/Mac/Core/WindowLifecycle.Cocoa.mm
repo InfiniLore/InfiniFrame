@@ -55,14 +55,10 @@ void InfiniFrameWindow::Close()
 
 void InfiniFrameWindow::WaitForExit()
 {
-    // NOTE: [NSApp run] must be called from the main thread. If the caller
-    // is not on the main thread, the caller must arrange for dispatch.
-    if (![NSApp isRunning]) {
-        [NSApp run];
-        return;
-    }
-
-    __block bool windowClosed = false;
+    // Do not call [NSApp run] here. Test hosts and embedding applications can already
+    // own the main CFRunLoop; starting a nested application run loop may terminate the
+    // process when the last test window closes. Pump only until this window closes.
+    __block bool windowClosed = m_impl->_windowClosed;
     id observer = [[NSNotificationCenter defaultCenter]
         addObserverForName: NSWindowWillCloseNotification
         object: m_impl->_window
@@ -82,6 +78,7 @@ void InfiniFrameWindow::WaitForExit()
 void InfiniFrameWindow::CloseWebView()
 {
     m_impl->_isClosingOrClosed = true;
+    m_impl->_windowClosed = true;
     m_impl->_webviewReady = false;
     m_impl->_pendingWebMessages.clear();
 
