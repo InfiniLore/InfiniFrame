@@ -21,8 +21,7 @@ public class CrossThreadWindowLifecycleTests {
 
     [Test]
     [SkipOnWindows]
-    [SkipOnMacOs]
-    [DefaultInfiniTestsTimeout(15_000)]
+    [DefaultInfiniTestsTimeout(30_000)]
     public async Task RepeatedCreateCloseAcrossManagedThreads_DoesNotFail(CancellationToken ct) {
         // Arrange
         const int iterations = 6;
@@ -36,8 +35,7 @@ public class CrossThreadWindowLifecycleTests {
 
     [Test]
     [SkipOnWindows]
-    [SkipOnMacOs]
-    [DefaultInfiniTestsTimeout(15_000)]
+    [DefaultInfiniTestsTimeout(30_000)]
     public async Task ParallelCreateCloseAcrossManagedThreads_DoesNotFail(CancellationToken ct) {
         // Arrange
         Task[] operations = Enumerable.Range(0, 4)

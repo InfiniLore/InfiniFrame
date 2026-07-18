@@ -203,8 +203,10 @@ jobs:
         permissions:
             contents: read
         env:
-            INFINIFRAME_NATIVE_DIAGNOSTICS: '1'
-            ASAN_OPTIONS: abort_on_error=1:detect_leaks=1:strict_string_checks=1
+            # ASan must own fatal-signal handling. LeakSanitizer is unavailable on GitHub's
+            # Apple Silicon runtime and aborts before test discovery when enabled.
+            INFINIFRAME_NATIVE_DIAGNOSTICS: '0'
+            ASAN_OPTIONS: abort_on_error=1:detect_leaks=0:strict_string_checks=1
             UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
 
         steps:

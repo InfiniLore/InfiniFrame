@@ -204,6 +204,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
                 backing: NSBackingStoreBuffered
                 defer: true];
         }
+
         else
         {
             this->m_impl->_window = [[NSWindow alloc]
@@ -215,6 +216,12 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
                 backing: NSBackingStoreBuffered
                 defer: true];
         }
+
+        // InfiniFrame owns the alloc/init retain and releases it deterministically in
+        // ~InfiniFrameWindow. The Cocoa default may release a closed NSWindow itself;
+        // leaving that enabled makes _window a dangling pointer before managed SafeHandle
+        // teardown and causes a second release at the next autorelease-pool drain.
+        [this->m_impl->_window setReleasedWhenClosed:NO];
 
         this->m_impl->_transparentEnabled = params->Transparent;
 
@@ -396,6 +403,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
             }
             [m_impl->_windowDelegate release];
             m_impl->_windowDelegate = nil;
+            m_impl->_dialog.reset();
         });
         throw;
     }
@@ -425,6 +433,7 @@ InfiniFrameWindow::~InfiniFrameWindow()
     // SafeHandle finalization and managed disposal can release the native window from a
     // non-AppKit thread. All Cocoa/WebKit teardown must therefore occur on the main queue.
     DispatchToMainSync(^{
+        infiniframe::macos::LogLifecycle("window-destruct-main-begin", this);
         m_impl->_isClosingOrClosed = true;
         m_impl->_webviewReady = false;
         m_impl->_pendingWebMessages.clear();
@@ -449,6 +458,7 @@ InfiniFrameWindow::~InfiniFrameWindow()
         m_impl->_urlSchemeHandlers.clear();
 
         if (m_impl->_webview != nil) {
+            infiniframe::macos::LogLifecycle("window-destruct-webview", this);
             [m_impl->_webview stopLoading];
             m_impl->_webview.UIDelegate = nil;
             m_impl->_webview.navigationDelegate = nil;
@@ -473,6 +483,7 @@ InfiniFrameWindow::~InfiniFrameWindow()
         m_impl->_webviewConfiguration = nil;
 
         if (m_impl->_window != nil) {
+            infiniframe::macos::LogLifecycle("window-destruct-nswindow", this);
             // The delegate stores a raw InfiniFrameWindow pointer. Detach it before
             // closing or releasing the NSWindow so Cocoa cannot call a destroyed instance.
             m_impl->_window.delegate = nil;
@@ -484,8 +495,13 @@ InfiniFrameWindow::~InfiniFrameWindow()
         [m_impl->_windowDelegate release];
         m_impl->_windowDelegate = nil;
 
+        // InfiniFrameDialog owns NSImage instances and must be destroyed on AppKit's thread.
+        infiniframe::macos::LogLifecycle("window-destruct-dialog", this);
+        m_impl->_dialog.reset();
+
         m_impl->_windowClosed.store(true, std::memory_order_release);
         m_impl->_windowClosedCondition.notify_all();
+        infiniframe::macos::LogLifecycle("window-destruct-main-complete", this);
     });
     infiniframe::macos::LogLifecycle("window-destruct-complete", this);
 }
