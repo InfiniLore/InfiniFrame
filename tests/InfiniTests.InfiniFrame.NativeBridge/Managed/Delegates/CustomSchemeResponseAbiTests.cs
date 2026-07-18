@@ -55,6 +55,9 @@ public class CustomSchemeResponseAbiTests {
                 throw new InvalidOperationException($"Native ABI validation failed at request {i}.");
         }
 
+        // Native code only sees the unmanaged thunks, so keep their delegate owners rooted through the last callback.
+        GC.KeepAlive(response);
+        GC.KeepAlive(release);
         await Assert.That(Volatile.Read(ref releaseCount)).IsEqualTo(requestCount);
     }
 
@@ -83,6 +86,9 @@ public class CustomSchemeResponseAbiTests {
         }, ct)).ToArray();
 
         await Task.WhenAll(requests);
+        // The worker closures capture the function pointer, not the delegate that owns its unmanaged thunk.
+        GC.KeepAlive(response);
+        GC.KeepAlive(release);
         await Assert.That(Volatile.Read(ref releaseCount)).IsEqualTo(requestCount);
     }
 
