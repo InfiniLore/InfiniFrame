@@ -13,11 +13,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public partial class InfiniFrameEvents : IInfiniFrameEvents {
 
-    // Active callback roots keyed by window id (used while the window is alive).
+    // Native receives function pointers during construction. Keep their targets alive until the
+    // native window has fully exited its message loop and lifecycle cleanup releases the root.
     private static readonly ConcurrentDictionary<Guid, InfiniFrameEvents> NativeCallbackRoots = new();
-    // Retired callback roots are kept briefly to tolerate late reverse P/Invoke calls during teardown.
-    private static readonly ConcurrentQueue<RetiredCallbackRoot> RetiredCallbackRoots = new();
-    private static readonly TimeSpan RetiredCallbackRootLifetime = TimeSpan.FromSeconds(30);
 
     /// <inheritdoc cref="IHasInfiniFrameEventsStore.EventsStore"/>
     public IInfiniFrameEventsStore EventsStore { get; }
@@ -39,9 +37,6 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     private CppWebMessageReceivedDelegate WebMessageReceivedHandler { get; }
     private CppWebResourceRequestedDelegate CustomSchemeHandler { get; }
 
-    // ReSharper disable once NotAccessedPositionalProperty.Local
-    private readonly record struct RetiredCallbackRoot(DateTime ExpiresAtUtc, InfiniFrameEvents Events);
-    
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
@@ -49,17 +44,18 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         EventsStore = eventsStore;
         Logger = logger;
 
-        ClosedHandler = OnWindowClosed;
-        ClosingHandler = OnWindowClosing;
-        DebugEventHandler = OnDebugEvent;
-        FocusInHandler = OnFocusIn;
-        FocusOutHandler = OnFocusOut;
-        MaximizedHandler = OnMaximized;
-        MinimizedHandler = OnMinimized;
-        MovedHandler = OnLocationChanged;
-        ResizedHandler = OnSizeChanged;
-        RestoredHandler = OnRestored;
-        WebMessageReceivedHandler = OnWebMessageReceived;
+        ClosedHandler = () => InvokeNativeCallback("window closed", OnWindowClosed);
+        ClosingHandler = () => InvokeNativeCallback("window closing", OnWindowClosing, static () => (byte)0);
+        DebugEventHandler = (kind, message, level, uri, statusCode, timestamp, platformPayload) =>
+            InvokeNativeCallback("debug event", () => OnDebugEvent(kind, message, level, uri, statusCode, timestamp, platformPayload));
+        FocusInHandler = () => InvokeNativeCallback("window focus in", OnFocusIn);
+        FocusOutHandler = () => InvokeNativeCallback("window focus out", OnFocusOut);
+        MaximizedHandler = () => InvokeNativeCallback("window maximized", OnMaximized);
+        MinimizedHandler = () => InvokeNativeCallback("window minimized", OnMinimized);
+        MovedHandler = (left, top) => InvokeNativeCallback("window moved", () => OnLocationChanged(left, top));
+        ResizedHandler = (width, height) => InvokeNativeCallback("window resized", () => OnSizeChanged(width, height));
+        RestoredHandler = () => InvokeNativeCallback("window restored", OnRestored);
+        WebMessageReceivedHandler = (message, origin) => InvokeNativeCallback("web message received", () => OnWebMessageReceived(message, origin));
         CustomSchemeHandler = OnCustomScheme;
     }
     
@@ -68,8 +64,6 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     // -----------------------------------------------------------------------------------------------------------------
     public void AssignToWindow(IInfiniFrameWindow window) {
         ArgumentNullException.ThrowIfNull(window);
-        CleanupExpiredRetiredCallbackRoots();
-
         if (CallbackRootId != Guid.Empty) {
             NativeCallbackRoots.TryRemove(CallbackRootId, out _);
         }
@@ -191,16 +185,27 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         if (CallbackRootId == Guid.Empty) return;
 
         NativeCallbackRoots.TryRemove(CallbackRootId, out _);
-        RetiredCallbackRoots.Enqueue(new RetiredCallbackRoot(DateTime.UtcNow + RetiredCallbackRootLifetime, this));
         CallbackRootId = Guid.Empty;
-
-        CleanupExpiredRetiredCallbackRoots();
     }
 
-    private static void CleanupExpiredRetiredCallbackRoots() {
-        DateTime now = DateTime.UtcNow;
-        while (RetiredCallbackRoots.TryPeek(out RetiredCallbackRoot entry) && entry.ExpiresAtUtc <= now) {
-            RetiredCallbackRoots.TryDequeue(out _);
+    private void InvokeNativeCallback(string callbackName, Action callback) {
+        try {
+            callback();
+        }
+        catch (Exception ex) {
+            // Managed handler exceptions must never cross a reverse P/Invoke boundary.
+            Logger.LogError(ex, "Unhandled exception in native callback {CallbackName}.", callbackName);
+        }
+    }
+
+    private TResult InvokeNativeCallback<TResult>(string callbackName, Func<TResult> callback, Func<TResult> fallback) {
+        try {
+            return callback();
+        }
+        catch (Exception ex) {
+            // Managed handler exceptions must never cross a reverse P/Invoke boundary.
+            Logger.LogError(ex, "Unhandled exception in native callback {CallbackName}.", callbackName);
+            return fallback();
         }
     }
 }

@@ -45,20 +45,18 @@ public sealed record OrderedResultEvent<TPayload, TResult> {
     /// </summary>
     /// <param name="window">The window instance to pass to each handler.</param>
     /// <param name="payload">The payload to pass to each handler.</param>
-    /// <returns>An array of results from each handler, with null values for handlers that threw non-fatal exceptions.</returns>
+    /// <returns>An array of results in registration order.</returns>
+    /// <remarks>
+    ///     Handler exceptions are not swallowed. Invocation stops at the failing handler and the
+    ///     exception is propagated to the caller, which owns the dispatch boundary policy.
+    /// </remarks>
     public TResult?[] Invoke(IInfiniFrameWindow window, TPayload payload) {
         var results = new TResult?[_handlers.Length];
         for (int i = 0; i < _handlers.Length; i++) {
             Func<IInfiniFrameWindow, TPayload, TResult> handler = _handlers[i];
-            
-            try {
-                results[i] = handler(window, payload);
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException) {
-                results[i] = default;
-            }
+            results[i] = handler(window, payload);
         }
 
-        return results.ToArray();
+        return results;
     }
 }
