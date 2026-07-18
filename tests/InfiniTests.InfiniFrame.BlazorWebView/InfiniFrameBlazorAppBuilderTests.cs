@@ -178,7 +178,7 @@ public class InfiniFrameBlazorAppBuilderTests {
         var invokeFeature = Substitute.For<IInfiniFrameWindowFeatureInvoke>();
         window.Features.Returns(features);
         features.Invoke.Returns(invokeFeature);
-        invokeFeature.When(x => x.Invoke(Arg.Any<Action>()))
+        invokeFeature.When(x => _ = x.Invoke(Arg.Any<Action>()))
             .Do(_ => throw new InvalidOperationException("Invoke should not be used during Run() shutdown."));
 
         ServiceProvider services = new ServiceCollection()
