@@ -26,13 +26,6 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
 
     private readonly Channel<string> _channel;
     private readonly CancellationTokenSource _messagePumpShutdown = new();
-    
-    #if NET9_0_OR_GREATER
-    private readonly Lock _lifecycleLock = new();
-    #else
-    private readonly object _lifecycleLock = new();
-    #endif
-    
     private readonly int _messageQueueCapacity;
     private readonly BoundedChannelFullMode _messageQueueFullMode;
     private int _disposeStarted;
@@ -227,10 +220,10 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             return;
         }
 
-        lock (_lifecycleLock) {
-            if (IsDisposingOrDisposed) return;
-            MessageReceived(messageOriginUrl, state.Message);
-        }
+        // The callback runs on the native UI thread. Do not hold a lifecycle lock while dispatching
+        // messages because the pump synchronously invokes that same thread to send responses.
+        if (IsDisposingOrDisposed) return;
+        MessageReceived(messageOriginUrl, state.Message);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -241,32 +234,25 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     }
 
     protected override void SendMessage(string message) {
-        lock (_lifecycleLock) {
-            if (IsDisposingOrDisposed || _messagePumpShutdown.IsCancellationRequested) {
-                LazyLogger.Value?.LogTrace("Discarded outbound WebView message because the manager is shutting down.");
-                return;
-            }
-
-            if (_channel.Writer.TryWrite(message)) return;
-
-            LazyLogger.Value?.LogWarning(
-                "Discarded outbound WebView message because the bounded queue is unavailable or full. QueueCapacity: {QueueCapacity}, FullMode: {FullMode}",
-                _messageQueueCapacity,
-                _messageQueueFullMode);
+        if (IsDisposingOrDisposed || _messagePumpShutdown.IsCancellationRequested) {
+            LazyLogger.Value?.LogTrace("Discarded outbound WebView message because the manager is shutting down.");
+            return;
         }
+
+        if (_channel.Writer.TryWrite(message)) return;
+
+        LazyLogger.Value?.LogWarning(
+            "Discarded outbound WebView message because the bounded queue is unavailable or full. QueueCapacity: {QueueCapacity}, FullMode: {FullMode}",
+            _messageQueueCapacity,
+            _messageQueueFullMode);
     }
 
     private async Task MessagePump() {
         try {
             while (await _channel.Reader.WaitToReadAsync(_messagePumpShutdown.Token)) {
                 while (_channel.Reader.TryRead(out string? message)) {
-                    ValueTask send;
-                    lock (_lifecycleLock) {
-                        if (IsDisposingOrDisposed || _messagePumpShutdown.IsCancellationRequested) return;
-                        send = LazyWindow.Value.SendWebMessageAsync(message, _messagePumpShutdown.Token);
-                    }
-
-                    await send.ConfigureAwait(false);
+                    if (IsDisposingOrDisposed || _messagePumpShutdown.IsCancellationRequested) return;
+                    await LazyWindow.Value.SendWebMessageAsync(message, _messagePumpShutdown.Token).ConfigureAwait(false);
                 }
             }
         }
@@ -287,10 +273,8 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     protected override async ValueTask DisposeAsyncCore() {
         if (Interlocked.Exchange(ref _disposeStarted, 1) != 0) return;
 
-        lock (_lifecycleLock) {
-            _channel.Writer.TryComplete();
-            _messagePumpShutdown.Cancel();
-        }
+        _channel.Writer.TryComplete();
+        _messagePumpShutdown.Cancel();
 
         try {
             // Some tests build and dispose of the app without ever creating a native window.
