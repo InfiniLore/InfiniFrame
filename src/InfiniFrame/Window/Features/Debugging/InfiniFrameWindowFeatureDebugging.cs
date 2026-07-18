@@ -16,15 +16,15 @@ public sealed class InfiniFrameWindowFeatureDebugging(
     IInfiniFrameWindow window,
     ILogger<InfiniFrameWindowFeatureDebugging> logger
 ) : IInfiniFrameWindowFeatureDebugging {
-    
+
     /// <inheritdoc cref="IInfiniFrameWindowFeatureDebugging.IsDevToolsEnabled"/>
     public bool IsDevToolsEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetDevToolsEnabled
     );
-    
+
     /// <inheritdoc cref="IInfiniFrameWindowFeatureDebugging.SupportsWebInspectorAttach"/>
     public bool SupportsWebInspectorAttach => MacOsWebInspectorUtility.IsSupportedPlatform();
 
@@ -57,16 +57,16 @@ public sealed class InfiniFrameWindowFeatureDebugging(
 
         bool originalValue = NativeInvoke.InvokeSyncWithValidation<bool>(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.GetDevToolsEnabled
         );
-        
+
         if (originalValue == enabled) return;
-        
+
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetDevToolsEnabled,
             enabled

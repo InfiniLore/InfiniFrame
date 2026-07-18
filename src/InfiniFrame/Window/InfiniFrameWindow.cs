@@ -30,13 +30,6 @@ public sealed class InfiniFrameWindow(
     /// <inheritdoc cref="IInfiniFrameWindow.MainProgramHandle" />
     public IntPtr MainProgramHandle => LazyMainProgramHandle.Value;
 
-    public IntPtr InstanceHandle {
-        get {
-            NativeWindowHandle? handle = Volatile.Read(ref _instanceHandle);
-            return handle is null || handle.IsClosed || handle.IsInvalid ? IntPtr.Zero : handle.DangerousGetHandle();
-        }
-    }
-
     public InfiniFrameWindowLifecycleState LifecycleState
         => (InfiniFrameWindowLifecycleState)Volatile.Read(ref _lifecycleState);
 
@@ -46,13 +39,10 @@ public sealed class InfiniFrameWindow(
         get {
             if (LifecycleState != InfiniFrameWindowLifecycleState.Running) return IntPtr.Zero;
 
-            IntPtr instanceHandle = InstanceHandle;
-            if (instanceHandle == IntPtr.Zero) return IntPtr.Zero;
-
             try {
-                if (OperatingSystem.IsWindows()) return NativeInvoke.InvokeSyncWithValidation<IntPtr>(logger, instanceHandle, ManagedThreadId, InfiniFrameNative.GetWindowHandleWin32);
-                if (OperatingSystem.IsMacOS()) return NativeInvoke.InvokeSyncWithValidation<IntPtr>(logger, instanceHandle, ManagedThreadId, InfiniFrameNative.GetWindowHandleMac);
-                if (OperatingSystem.IsLinux()) return NativeInvoke.InvokeSyncWithValidation<IntPtr>(logger, instanceHandle, ManagedThreadId, InfiniFrameNative.GetWindowHandleLinux);
+                if (OperatingSystem.IsWindows()) return NativeInvoke.InvokeSyncWithValidation<IntPtr>(logger, this, ManagedThreadId, InfiniFrameNative.GetWindowHandleWin32);
+                if (OperatingSystem.IsMacOS()) return NativeInvoke.InvokeSyncWithValidation<IntPtr>(logger, this, ManagedThreadId, InfiniFrameNative.GetWindowHandleMac);
+                if (OperatingSystem.IsLinux()) return NativeInvoke.InvokeSyncWithValidation<IntPtr>(logger, this, ManagedThreadId, InfiniFrameNative.GetWindowHandleLinux);
 
                 throw new PlatformNotSupportedException();
             }
@@ -110,17 +100,15 @@ public sealed class InfiniFrameWindow(
             throw new InvalidOperationException("A native handle is already assigned.");
         }
 
-        NativeWindowHandleRegistry.Register(handle, this);
         if (Interlocked.CompareExchange(ref _lifecycleState,
                 (int)InfiniFrameWindowLifecycleState.Running,
                 (int)InfiniFrameWindowLifecycleState.Initializing) == (int)InfiniFrameWindowLifecycleState.Initializing)
             return;
 
-        // A very early native closed callback won the transition. Keep ownership registered
+        // A very early native closed callback won the transition. Keep ownership
         // for deferred teardown but never resurrect the window back to Running.
         if (LifecycleState >= InfiniFrameWindowLifecycleState.NativeClosed) return;
 
-        NativeWindowHandleRegistry.Unregister(handle, this);
         Interlocked.Exchange(ref _instanceHandle, null).Dispose();
         throw new InvalidOperationException($"Cannot assign a native handle in state {LifecycleState}.");
     }
@@ -144,11 +132,8 @@ public sealed class InfiniFrameWindow(
 
     void IInfiniFrameWindow.ReleaseNativeHandle() {
         NativeWindowHandle? handle = Interlocked.Exchange(ref _instanceHandle, null);
-        if (handle is null) return;
 
-        IntPtr raw = handle.DangerousGetHandle();
-        NativeWindowHandleRegistry.Unregister(raw, this);
-        handle.Dispose();
+        handle?.Dispose();
     }
 
     public NativeHandleLease AcquireNativeHandle(NativeHandleAccess access = NativeHandleAccess.Feature) {

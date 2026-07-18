@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
@@ -14,7 +14,7 @@ namespace InfiniFrame;
 /// </summary>
 public static class HasInfiniFrameEventsStoreExtensions {
     /// <summary>
-    ///     Registers a handler that is invoked when the window location changes.
+    ///     Registers a handler invoked when the window location changes.
     /// </summary>
     /// <param name="obj">The object with an events store.</param>
     /// <param name="handler">The handler to invoke with the window and new location.</param>
@@ -258,7 +258,7 @@ public static class HasInfiniFrameEventsStoreExtensions {
 
         NativeInvoke.InvokeSyncWithValidation(
             NullLogger.Instance,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.AddCustomSchemeName,
             schemeLower

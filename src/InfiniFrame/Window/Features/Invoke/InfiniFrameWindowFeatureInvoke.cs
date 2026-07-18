@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
@@ -15,7 +15,7 @@ public class InfiniFrameWindowFeatureInvoke(
     /// <inheritdoc cref="IInfiniFrameWindowFeatureInvoke.Invoke"/>
     public void Invoke(Action callback) {
         ArgumentNullException.ThrowIfNull(callback);
-        
-        NativeInvoke.InvokeSyncWithValidation(logger, window.InstanceHandle, window.ManagedThreadId, callback);
+
+        NativeInvoke.InvokeSyncWithValidation(logger, window, window.ManagedThreadId, callback);
     }
 }

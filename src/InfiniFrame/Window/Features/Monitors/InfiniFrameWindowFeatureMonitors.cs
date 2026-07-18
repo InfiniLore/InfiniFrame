@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
@@ -14,24 +14,28 @@ public class InfiniFrameWindowFeatureMonitors(
     ILogger<InfiniFrameWindowFeatureMonitors> logger
 ) : IInfiniFrameWindowFeatureMonitors {
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     /// <inheritdoc cref="IInfiniFrameWindowFeatureMonitors.GetMonitors"/>
     public IEnumerable<InfiniMonitor> GetMonitors() {
+        // ReSharper disable once ConvertIfStatementToReturnStatement
         if (window.IsClosedOrClosing()) return [];
 
         return MonitorsUtility.GetMonitors(window);
     }
 
     /// <inheritdoc cref="IInfiniFrameWindowFeatureMonitors.GetMainMonitor"/>
-    public InfiniMonitor GetMainMonitor() 
+    public InfiniMonitor GetMainMonitor()
         => GetMonitors().FirstOrDefault();
 
     /// <inheritdoc cref="IInfiniFrameWindowFeatureMonitors.GetMainMonitorScreenDpi"/>
     public int GetMainMonitorScreenDpi() {
         if (window.IsClosedOrClosing()) return -1;
-        
+
         return (int)NativeInvoke.InvokeSyncWithValidation<uint>(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.GetScreenDpi
         );

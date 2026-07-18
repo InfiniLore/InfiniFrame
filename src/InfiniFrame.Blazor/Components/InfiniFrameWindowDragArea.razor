@@ -2,6 +2,7 @@
 @* Imports
 @* ------------------------------------------------------------------------------------------------------------------ *@
 @using InfiniFrame.NativeBridge
+@using InfiniFrame.NativeBridge.Handles
 @using Microsoft.AspNetCore.Components.Web
 @using System.Drawing
 
@@ -91,11 +92,16 @@
             Rectangle bounds = Window.Features.State.CachedPreMaximizedBounds;
             Window.Features.State.CachedPreMaximizedBounds = Rectangle.Empty;
 
+            using NativeHandleLease lease = Window.AcquireNativeHandle();
             Window.Invoke(() => {
                 int targetX = (int)(args.ScreenX - bounds.Width / 2f);
                 int targetY = (int)(args.ScreenY - 10);
-                InfiniFrameNative.SetSize(Window.InstanceHandle, bounds.Width, bounds.Height);
-                InfiniFrameNative.SetPosition(Window.InstanceHandle, targetX, targetY);
+                
+                // ReSharper disable once AccessToDisposedClosure
+                InfiniFrameNative.SetSize(lease.Handle, bounds.Width, bounds.Height);
+                
+                // ReSharper disable once AccessToDisposedClosure
+                InfiniFrameNative.SetPosition(lease.Handle, targetX, targetY);
             });
         }
 

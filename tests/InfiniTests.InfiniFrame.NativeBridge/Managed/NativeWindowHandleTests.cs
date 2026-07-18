@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge.Handles;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InfiniTests.InfiniFrame.NativeBridge.Managed;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -20,23 +21,22 @@ public class NativeWindowHandleTests {
 
         public void Dispose() {
             Volatile.Write(ref _closed, 1);
-            NativeWindowHandleRegistry.Unregister(value, this);
             _handle.Dispose();
         }
     }
 
     [Test]
+    [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
     public async Task ConcurrentAcquireAndShutdown_NeverReturnsAStaleHandle(CancellationToken ct = default) {
         IntPtr value = new(0x123456);
         using var owner = new TestOwner(value);
-        NativeWindowHandleRegistry.Register(value, owner);
         int successfulAcquisitions = 0;
 
         Task[] workers = Enumerable.Range(0, Math.Max(4, Environment.ProcessorCount))
             .Select(_ => Task.Run(() => {
                 for (int i = 0; i < 2_000; i++) {
                     try {
-                        using NativeHandleLease lease = NativeWindowHandleRegistry.Acquire(value);
+                        using NativeHandleLease lease = owner.AcquireNativeHandle();
                         if (lease.Handle != value) throw new InvalidOperationException("Stale handle acquired.");
                         Interlocked.Increment(ref successfulAcquisitions);
                         Thread.Yield();
@@ -53,7 +53,7 @@ public class NativeWindowHandleTests {
         await Task.WhenAll(workers);
 
         await Assert.That(successfulAcquisitions).IsGreaterThanOrEqualTo(0);
-        await Assert.That(() => NativeWindowHandleRegistry.Acquire(value)).Throws<ObjectDisposedException>();
+        await Assert.That(() => owner.AcquireNativeHandle()).Throws<ObjectDisposedException>();
     }
 
     [Test]

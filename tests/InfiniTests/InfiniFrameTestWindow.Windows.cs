@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.NativeBridge.Handles;
 using InfiniFrame.Utilities;
 using JetBrains.Annotations;
 using System.Runtime.Versioning;
@@ -29,8 +30,9 @@ public sealed partial class InfiniFrameTestWindow {
                 IInfiniFrameWindow window = windowBuilder.Build();
 
                 if (TestWindowTracingEnabled) {
+                    using NativeHandleLease lease = window.AcquireNativeHandle();
                     Console.Error.WriteLine(
-                        $"[InfiniFrameWindowTestUtility] window initialized instance=0x{window.InstanceHandle.ToInt64():X} hwnd=0x{window.WindowHandle.ToInt64():X} thread={Environment.CurrentManagedThreadId}");
+                        $"[InfiniFrameWindowTestUtility] window initialized instance=0x{lease.Handle.ToInt64():X} hwnd=0x{window.WindowHandle.ToInt64():X} thread={Environment.CurrentManagedThreadId}");
                 }
 
                 windowSource.SetResult(window);

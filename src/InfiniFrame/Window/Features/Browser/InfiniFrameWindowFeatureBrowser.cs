@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
@@ -14,12 +14,12 @@ public class InfiniFrameWindowFeatureBrowser(
     IInfiniFrameWindow window,
     ILogger<InfiniFrameWindowFeatureBrowser> logger
 ) : IInfiniFrameWindowFeatureBrowser {
-    
+
     /// <inheritdoc cref="IInfiniFrameWindowFeatureBrowser.IsContextMenuEnabled"/>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsContextMenuEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetContextMenuEnabled
     );
@@ -28,7 +28,7 @@ public class InfiniFrameWindowFeatureBrowser(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsMediaAutoplayEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetMediaAutoplayEnabled
     );
@@ -37,7 +37,7 @@ public class InfiniFrameWindowFeatureBrowser(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? UserAgent => NativeInvoke.InvokeSyncWithValidation<string?>(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetUserAgent);
 
@@ -45,7 +45,7 @@ public class InfiniFrameWindowFeatureBrowser(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsFileSystemAccessEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetFileSystemAccessEnabled
     );
@@ -54,7 +54,7 @@ public class InfiniFrameWindowFeatureBrowser(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsWebSecurityEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetWebSecurityEnabled
     );
@@ -63,7 +63,7 @@ public class InfiniFrameWindowFeatureBrowser(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsJavascriptClipboardAccessEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetJavascriptClipboardAccessEnabled
     );
@@ -72,7 +72,7 @@ public class InfiniFrameWindowFeatureBrowser(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsMediaStreamEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetMediaStreamEnabled
     );
@@ -81,7 +81,7 @@ public class InfiniFrameWindowFeatureBrowser(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsIgnoreCertificateErrorsEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
-        window.InstanceHandle, 
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetIgnoreCertificateErrorsEnabled
     );
@@ -90,7 +90,7 @@ public class InfiniFrameWindowFeatureBrowser(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool GrantBrowserPermissions => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetGrantBrowserPermissions
     );
@@ -99,14 +99,14 @@ public class InfiniFrameWindowFeatureBrowser(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsSmoothScrollingEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
-        window.InstanceHandle, 
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetSmoothScrollingEnabled
     );
 
     /// <inheritdoc cref="IInfiniFrameWindowFeatureBrowser.BrowserControlInitParameters"/>
     public string? BrowserControlInitParameters => window.Configuration.StartupParameters.BrowserControlInitParameters;
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -116,16 +116,16 @@ public class InfiniFrameWindowFeatureBrowser(
 
         bool originalValue = NativeInvoke.InvokeSyncWithValidation<bool>(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.GetContextMenuEnabled
         );
-        
+
         if (originalValue == enabled) return;
-        
+
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetContextMenuEnabled,
             enabled
@@ -136,20 +136,20 @@ public class InfiniFrameWindowFeatureBrowser(
     public void EnableMediaAutoplay(bool enabled = true) {
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetMediaAutoplayEnabled,
             enabled
         );
     }
-    
+
     /// <inheritdoc cref="IInfiniFrameWindowFeatureBrowser.SetUserAgent"/>
     public void SetUserAgent(string? userAgent) {
         if (string.IsNullOrWhiteSpace(userAgent)) userAgent = string.Empty;
-        
+
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetUserAgent,
             userAgent
@@ -168,7 +168,7 @@ public class InfiniFrameWindowFeatureBrowser(
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             callback: () => InfiniFrameNative.SetWebView2RuntimePath_win32(window.MainProgramHandle, data)
         );
@@ -186,7 +186,7 @@ public class InfiniFrameWindowFeatureBrowser(
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.ClearBrowserAutoFill
         );

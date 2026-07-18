@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
@@ -19,7 +19,7 @@ public class InfiniFrameWindowFeatureSize(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Size Size => NativeInvoke.InvokeSyncWithValidation(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         callback: (IntPtr handle, out Size value) => {
             InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetSize(handle, out int width, out int height);
@@ -32,7 +32,7 @@ public class InfiniFrameWindowFeatureSize(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int Height => NativeInvoke.InvokeSyncWithValidation(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetSize(handle, out _, out value)
     );
@@ -41,7 +41,7 @@ public class InfiniFrameWindowFeatureSize(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int Width => NativeInvoke.InvokeSyncWithValidation(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetSize(handle, out value, out _)
     );
@@ -51,7 +51,7 @@ public class InfiniFrameWindowFeatureSize(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Size MaxSize => NativeInvoke.InvokeSyncWithValidation(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         callback: (IntPtr handle, out Size value) => {
             InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetMaxSize(handle, out int width, out int height);
@@ -64,7 +64,7 @@ public class InfiniFrameWindowFeatureSize(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int MaxHeight => NativeInvoke.InvokeSyncWithValidation(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMaxSize(handle, out _, out value)
     );
@@ -73,7 +73,7 @@ public class InfiniFrameWindowFeatureSize(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int MaxWidth => NativeInvoke.InvokeSyncWithValidation(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMaxSize(handle, out value, out _)
     );
@@ -82,7 +82,7 @@ public class InfiniFrameWindowFeatureSize(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Size MinSize => NativeInvoke.InvokeSyncWithValidation(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         callback: (IntPtr handle, out Size value) => {
             InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetMinSize(handle, out int width, out int height);
@@ -95,7 +95,7 @@ public class InfiniFrameWindowFeatureSize(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int MinHeight => NativeInvoke.InvokeSyncWithValidation(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMinSize(handle, out _, out value)
     );
@@ -104,7 +104,7 @@ public class InfiniFrameWindowFeatureSize(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int MinWidth => NativeInvoke.InvokeSyncWithValidation(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMinSize(handle, out value, out _)
     );
@@ -113,7 +113,7 @@ public class InfiniFrameWindowFeatureSize(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsResizable => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetResizable
     );
@@ -128,7 +128,7 @@ public class InfiniFrameWindowFeatureSize(
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetSize,
             width,
@@ -147,14 +147,14 @@ public class InfiniFrameWindowFeatureSize(
 
         (int width, int _) = NativeInvoke.InvokeSyncWithValidation<int, int>(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.GetSize
         );
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetSize,
             width,
@@ -168,7 +168,7 @@ public class InfiniFrameWindowFeatureSize(
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetMaxSize,
             maxWidth,
@@ -190,7 +190,7 @@ public class InfiniFrameWindowFeatureSize(
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetMinSize,
             minWidth,
@@ -212,14 +212,14 @@ public class InfiniFrameWindowFeatureSize(
 
         (int _, int height) = NativeInvoke.InvokeSyncWithValidation<int, int>(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.GetSize
         );
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetSize,
             width,
@@ -231,13 +231,13 @@ public class InfiniFrameWindowFeatureSize(
 
         (int width, int height) = NativeInvoke.InvokeSyncWithValidation<int, int>(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.GetSize
         );
         (int originalX, int originalY) = NativeInvoke.InvokeSyncWithValidation<int, int>(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.GetPosition
         );
@@ -324,7 +324,7 @@ public class InfiniFrameWindowFeatureSize(
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetSize,
             width,
@@ -332,7 +332,7 @@ public class InfiniFrameWindowFeatureSize(
         );
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetPosition,
             x,
@@ -343,7 +343,7 @@ public class InfiniFrameWindowFeatureSize(
     public void SetResizable(bool resizable = true) {
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetResizable,
             resizable

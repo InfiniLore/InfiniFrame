@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
@@ -15,11 +15,11 @@ public class InfiniFrameWindowFeatureFilePickerDialogs(
     internal const string DefaultFilePickerTitle = "Choose file";
     internal const string DefaultFolderPickerTitle = "Select folder";
     internal const string DefaultSaveFilePickerTitle = "Save file";
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    
+
     /// <inheritdoc cref="IInfiniFrameWindowFeatureFilePickerDialogs.ShowOpenFile"/>
     public string?[] ShowOpenFile(string title = DefaultFilePickerTitle, string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null)
         => ShowOpenDialog(false, title, defaultPath, multiSelect, filters);
@@ -39,7 +39,7 @@ public class InfiniFrameWindowFeatureFilePickerDialogs(
     /// <inheritdoc cref="IInfiniFrameWindowFeatureFilePickerDialogs.ShowSaveFile"/>
     public string? ShowSaveFile(string title = DefaultSaveFilePickerTitle, string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null) {
         if (window.IsClosedOrClosing()) return null;
-        
+
         defaultPath ??= Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         filters ??= [];
 
@@ -47,7 +47,7 @@ public class InfiniFrameWindowFeatureFilePickerDialogs(
 
         string? result = NativeInvoke.InvokeSyncWithValidation<string, string, string[], int, string?, string>(
             logger,
-            window.InstanceHandle, 
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.ShowSaveFile,
             title,
@@ -59,14 +59,14 @@ public class InfiniFrameWindowFeatureFilePickerDialogs(
 
         return result;
     }
-    
+
     /// <inheritdoc cref="IInfiniFrameWindowFeatureFilePickerDialogs.ShowSaveFileAsync"/>
     public Task<string?> ShowSaveFileAsync(string title = DefaultSaveFilePickerTitle, string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default)
         => ShowOpenDialogAsync(workItem: () => ShowSaveFile(title, defaultPath, filters), ct);
 
     private string?[] ShowOpenDialog(bool foldersOnly, string title, string? defaultPath, bool multiSelect, (string Name, string[] Extensions)[]? filters) {
         if (window.IsClosedOrClosing()) return [];
-        
+
         defaultPath ??= Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         filters ??= [];
 
@@ -76,7 +76,7 @@ public class InfiniFrameWindowFeatureFilePickerDialogs(
         if (foldersOnly) {
             results = NativeInvoke.InvokeSyncWithValidation<string, string, bool, string?[]>(
                 logger,
-                window.InstanceHandle, 
+                window,
                 window.ManagedThreadId,
                 InfiniFrameNative.ShowOpenFolder,
                 title,
@@ -87,7 +87,7 @@ public class InfiniFrameWindowFeatureFilePickerDialogs(
         else {
             results = NativeInvoke.InvokeSyncWithValidation<string, string, bool, string[], int, string?[]>(
                 logger,
-                window.InstanceHandle,
+                window,
                 window.ManagedThreadId,
                 InfiniFrameNative.ShowOpenFile,
                 title,
@@ -100,13 +100,13 @@ public class InfiniFrameWindowFeatureFilePickerDialogs(
 
         return results ?? [];
     }
-    
+
     private static Task<TResult> ShowOpenDialogAsync<TResult>(Func<TResult> workItem, CancellationToken ct = default) =>
         ct.IsCancellationRequested
             ? Task.FromCanceled<TResult>(ct)
             // Dialog calls are intentionally offloaded for Blazor flows where synchronous dialog invocation is unsafe.
             : Task.Run(workItem, ct);
-    
+
     private static string[] GetNativeFilters((string Name, string[] Extensions)[] filters, bool empty = false) {
         string[] nativeFilters = [];
         if (!empty && filters is { Length: > 0 }) {

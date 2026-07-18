@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
@@ -21,7 +21,7 @@ public class InfiniFrameWindowFeaturePosition(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Point Location => NativeInvoke.InvokeSyncWithValidation(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         callback: (IntPtr handle, out Point value) => {
             InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetPosition(handle, out int left, out int top);
@@ -34,7 +34,7 @@ public class InfiniFrameWindowFeaturePosition(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int Top => NativeInvoke.InvokeSyncWithValidation(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetPosition(handle, out _, out value)
     );
@@ -44,7 +44,7 @@ public class InfiniFrameWindowFeaturePosition(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int Left => NativeInvoke.InvokeSyncWithValidation(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetPosition(handle, out value, out _)
     );
@@ -59,7 +59,7 @@ public class InfiniFrameWindowFeaturePosition(
 
         (int oldLeft, int oldTop) = NativeInvoke.InvokeSyncWithValidation<int, int>(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.GetPosition
         );
@@ -67,7 +67,7 @@ public class InfiniFrameWindowFeaturePosition(
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetPosition,
             left,
@@ -85,7 +85,7 @@ public class InfiniFrameWindowFeaturePosition(
 
         (int oldLeft, int top) = NativeInvoke.InvokeSyncWithValidation<int, int>(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.GetPosition
         );
@@ -93,7 +93,7 @@ public class InfiniFrameWindowFeaturePosition(
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetPosition,
             left,
@@ -107,7 +107,7 @@ public class InfiniFrameWindowFeaturePosition(
 
         (int left, int oldTop) = NativeInvoke.InvokeSyncWithValidation<int, int>(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.GetPosition
         );
@@ -115,7 +115,7 @@ public class InfiniFrameWindowFeaturePosition(
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetPosition,
             left,
@@ -129,14 +129,14 @@ public class InfiniFrameWindowFeaturePosition(
 
         (int oldLeft, int oldTop) = NativeInvoke.InvokeSyncWithValidation<int, int>(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.GetPosition
         );
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetPosition,
             oldLeft + left,
@@ -157,7 +157,7 @@ public class InfiniFrameWindowFeaturePosition(
         logger.LogDebug(".Center()");
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.Center
         );
@@ -168,14 +168,14 @@ public class InfiniFrameWindowFeaturePosition(
         ImmutableArray<InfiniMonitor> monitors = MonitorsUtility.GetMonitors(window);
         (int x, int y) = NativeInvoke.InvokeSyncWithValidation<int, int>(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.GetPosition
         );
 
         (int width, int height) = NativeInvoke.InvokeSyncWithValidation<int, int>(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.GetSize
         );
@@ -189,7 +189,7 @@ public class InfiniFrameWindowFeaturePosition(
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetPosition,
             newLocation.X,
@@ -208,7 +208,7 @@ public class InfiniFrameWindowFeaturePosition(
 
         (int width, int height) = NativeInvoke.InvokeSyncWithValidation<int, int>(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.GetSize
         );
@@ -217,7 +217,7 @@ public class InfiniFrameWindowFeaturePosition(
         var newLocation = new Point(area.X + area.Width / 2 - width / 2, area.Y + area.Height / 2 - height / 2);
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetPosition,
             newLocation.X,
@@ -267,7 +267,7 @@ public class InfiniFrameWindowFeaturePosition(
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetPosition,
             left,

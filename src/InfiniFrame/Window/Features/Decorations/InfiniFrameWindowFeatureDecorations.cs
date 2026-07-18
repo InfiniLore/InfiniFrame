@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
@@ -15,46 +15,46 @@ public class InfiniFrameWindowFeatureDecorations(
     IInfiniFrameWindowBuilder originalBuilder,
     ILogger<InfiniFrameWindowFeatureDecorations> logger
 ) : IInfiniFrameWindowFeatureDecorations {
-    
+
     /// <inheritdoc cref="IInfiniFrameWindowFeatureDecorations.IsChromeless"/>
     public bool IsChromeless => window.Configuration.StartupParameters.Chromeless;
 
     /// <inheritdoc cref="IInfiniFrameWindowFeatureDecorations.LimitLinuxWindowTitleLength"/>
     public bool LimitLinuxWindowTitleLength { get; set; } = originalBuilder.Features.Decorations.LimitLinuxWindowTitleLength;
-    
+
     /// <inheritdoc cref="IInfiniFrameWindowFeatureDecorations.IsTransparent"/>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsTransparent {
         get {
             // On Windows, the transparency can only be set at startup
             if (OperatingSystem.IsWindows()) return window.Configuration.StartupParameters.Transparent;
-            
+
             // On other platforms, the transparency can be changed at any time
             if (window.Features.Lifecycle.IsClosedOrClosing()) return false;
-            
+
             return NativeInvoke.InvokeSyncWithValidation<bool>(
                 logger,
-                window.InstanceHandle,
+                window,
                 window.ManagedThreadId,
                 InfiniFrameNative.GetTransparentEnabled
             );
         }
     }
-    
+
     /// <inheritdoc cref="IInfiniFrameWindowFeatureDecorations.Title"/>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? Title => NativeInvoke.InvokeSyncWithValidation<string?>(
-        logger, 
-        window.InstanceHandle, 
+        logger,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetTitle
     );
-    
+
     /// <inheritdoc cref="IInfiniFrameWindowFeatureDecorations.IconFilePath"/>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? IconFilePath => NativeInvoke.InvokeSyncWithValidation<string?>(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetIconFileName
     );
@@ -73,32 +73,32 @@ public class InfiniFrameWindowFeatureDecorations(
         logger.LogDebug("Invoking InfiniFrameNative.SetTransparentEnabled({value})", enabled);
         NativeInvoke.InvokeSyncWithoutValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetTransparentEnabled,
             enabled
         );
     }
-    
+
     /// <inheritdoc cref="IInfiniFrameWindowFeatureDecorations.SetTitle"/>
     public void SetTitle(string? title) {
         if (window.Features.Lifecycle.IsClosedOrClosing()) return;
-        
+
         string? oldTitle = NativeInvoke.InvokeSyncWithValidation<string?>(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.GetTitle
         );
-        
+
         if (title == oldTitle) return;
-        
+
         logger.LogDebug("Invoking InfiniFrameNative.SetTitle({title})", title);
         string? newTitle = TitleStringUtility.Validate(title, LimitLinuxWindowTitleLength);
-        
+
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetTitle,
             newTitle
@@ -122,7 +122,7 @@ public class InfiniFrameWindowFeatureDecorations(
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetIconFile,
             resolvedIconFilePath
@@ -133,6 +133,6 @@ public class InfiniFrameWindowFeatureDecorations(
     /// <inheritdoc cref="IInfiniFrameWindowFeatureDecorations.SetLimitLinuxWindowTitleLength"/>
     public void SetLimitLinuxWindowTitleLength(bool enabled = true) {
         LimitLinuxWindowTitleLength = enabled;
-    } 
+    }
 
 }

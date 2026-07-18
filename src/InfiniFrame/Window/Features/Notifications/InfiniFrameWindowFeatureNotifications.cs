@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
@@ -15,29 +15,29 @@ public class InfiniFrameWindowFeatureNotifications(
     IInfiniFrameWindow window,
     ILogger<InfiniFrameWindowFeatureNotifications> logger
 ) : IInfiniFrameWindowFeatureNotifications {
-    
+
     public string? NotificationRegistrationId => window.Configuration.StartupParameters.NotificationRegistrationId;
 
     [SupportedOSPlatform("windows")]
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool NotificationsEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetNotificationsEnabled
     );
 
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     /// <inheritdoc cref="IInfiniFrameWindowFeatureNotifications.ShowNotification"/>
     public void ShowNotification(string title, string body) {
         if (window.IsClosedOrClosing()) return;
-        
+
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle, 
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.ShowNotification,
             title,
@@ -48,10 +48,10 @@ public class InfiniFrameWindowFeatureNotifications(
     /// <inheritdoc cref="IInfiniFrameWindowFeatureNotifications.ShowMessage"/>
     public InfiniFrameDialogResult ShowMessage(string title, string? text, InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok, InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info) {
         if (window.IsClosedOrClosing()) return InfiniFrameDialogResult.Cancel;
-        
+
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle, 
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.ShowMessage,
             title,
@@ -60,7 +60,7 @@ public class InfiniFrameWindowFeatureNotifications(
             icon,
             out InfiniFrameDialogResult result
         );
-        
+
         return result;
     }
 }

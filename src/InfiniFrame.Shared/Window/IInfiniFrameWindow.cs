@@ -41,11 +41,6 @@ public interface IInfiniFrameWindow : IHasInfiniFrameEventsStore, INativeWindowH
     /// </summary>
     IntPtr MainProgramHandle { get; }
     
-    /// <summary>
-    ///     Gets a non-owning snapshot of the native instance handle. Internal native calls acquire a lifetime lease.
-    /// </summary>
-    IntPtr InstanceHandle { get; }
-
     /// <summary>Gets the current window lifecycle state.</summary>
     InfiniFrameWindowLifecycleState LifecycleState { get; }
 

@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using FluentValidation;
@@ -153,7 +153,7 @@ public class InfiniFrameWindowFeatureLifecycle(
                 window.AssignNativeHandle(handle);
 
                 if (OperatingSystem.IsLinux()) {
-                    NativeInvoke.InvokeSyncWithValidation(logger, handle, window.ManagedThreadId, () => {
+                    NativeInvoke.InvokeSyncWithValidation(logger, window, window.ManagedThreadId, () => {
                         window.SetManagedThreadId(Environment.CurrentManagedThreadId);
                     });
                 }
@@ -198,34 +198,15 @@ public class InfiniFrameWindowFeatureLifecycle(
         try {
             logger.LogDebug("Starting message loop for window.");
             if (OperatingSystem.IsLinux()) {
-                // The GTK close request and its native closed callback can complete between
-                // IsClosed() above and this call. Capture the owned native handle once; never
-                // re-read InstanceHandle after the callback is allowed to clear it.
-                IntPtr waitHandle = window.InstanceHandle;
-                if (waitHandle == IntPtr.Zero) {
-                    _closed.Task.GetAwaiter().GetResult();
-                    return;
-                }
-
                 Volatile.Write(ref _messageLoopStarted, 1);
-                NativeInvoke.InvokeSyncForLifecycle(logger, waitHandle, window.ManagedThreadId,
+                NativeInvoke.InvokeSyncForLifecycle(logger, window, window.ManagedThreadId,
                     NativeHandleAccess.WaitForExit, InfiniFrameNative.WaitForExit);
             }
             else {
-                IntPtr waitHandle = window.InstanceHandle;
-                if (waitHandle == IntPtr.Zero) {
-                    _closed.Task.GetAwaiter().GetResult();
-                    return;
-                }
-                NativeInvoke.InvokeSyncForLifecycle(logger, waitHandle, window.ManagedThreadId,
-                    NativeHandleAccess.WaitForExit, () => {
-                    if (IsClosed()) {
-                        logger.LogDebug("Window closed whilst dispatching to the window thread. Skipping WaitForExit call.");
-                        return;
-                    }
-
+                NativeInvoke.InvokeSyncForLifecycle(logger, window, window.ManagedThreadId,
+                    NativeHandleAccess.WaitForExit, handle => {
                     Volatile.Write(ref _messageLoopStarted, 1);
-                    InfiniFrameNative.WaitForExit(waitHandle);
+                    return InfiniFrameNative.WaitForExit(handle);
                 });
             }
         }
@@ -272,16 +253,8 @@ public class InfiniFrameWindowFeatureLifecycle(
         logger.LogDebug(".Close()");
         window.Events.OnWindowClosingRequested();
 
-        IntPtr handle = window.InstanceHandle;
-        if (handle == IntPtr.Zero) {
-            logger.LogDebug("Skipping Close because window is not initialized");
-            window.MarkNativeClosed();
-            _closed.TrySetResult();
-            return;
-        }
-
         try {
-            NativeInvoke.InvokeSyncForLifecycle(logger, handle, window.ManagedThreadId,
+            NativeInvoke.InvokeSyncForLifecycle(logger, window, window.ManagedThreadId,
                 NativeHandleAccess.Close, InfiniFrameNative.Close);
         }
         finally {

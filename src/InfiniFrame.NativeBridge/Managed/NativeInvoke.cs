@@ -31,23 +31,23 @@ internal static partial class NativeInvoke {
     ///     Invokes a synchronous callback on the window thread with validation of arguments and native status.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The action to execute.</param>
     internal static void InvokeSyncWithValidation(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         Action callback
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => {
+            callback: _ => {
                 callback();
                 return InfiniFrameNativeInteropStatus.Success;
             });
@@ -59,23 +59,23 @@ internal static partial class NativeInvoke {
     ///     Invokes a synchronous callback on the window thread with validation and a window handle parameter.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute, receiving the window handle.</param>
     internal static void InvokeSyncWithValidation(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         Func<IntPtr, InfiniFrameNativeInteropStatus> callback
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => callback(windowInstanceHandle)
+            callback: handle => callback(handle)
         );
 
         EnsureSuccess(logger, status);
@@ -85,23 +85,23 @@ internal static partial class NativeInvoke {
     ///     Invokes a synchronous callback on the window thread with validation.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     internal static void InvokeSyncWithValidation(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         Func<InfiniFrameNativeInteropStatus> callback
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback);
+            callback: _ => callback());
 
         EnsureSuccess(logger, status);
     }
@@ -111,25 +111,25 @@ internal static partial class NativeInvoke {
     /// </summary>
     /// <typeparam name="T">The type of the output value.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute, producing an output value.</param>
     /// <returns>The output value from the callback.</returns>
     internal static T? InvokeSyncWithValidation<T>(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         FuncWithOut<T> callback
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
         (InfiniFrameNativeInteropStatus Status, T? Value) result = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => {
-                InfiniFrameNativeInteropStatus status = callback(windowInstanceHandle, out T value);
+            callback: handle => {
+                InfiniFrameNativeInteropStatus status = callback(handle, out T value);
                 return (status, value);
             });
 
@@ -142,25 +142,25 @@ internal static partial class NativeInvoke {
     /// </summary>
     /// <typeparam name="T">The type of the argument.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg">The argument to pass.</param>
     internal static void InvokeSyncWithValidation<T>(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         FuncWithArgs<T> callback,
         T arg
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => callback(windowInstanceHandle, arg)
+            callback: handle => callback(handle, arg)
         );
 
         EnsureSuccess(logger, status);
@@ -172,27 +172,27 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T1">The type of the first argument.</typeparam>
     /// <typeparam name="T2">The type of the second argument.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
     /// <param name="arg2">The second argument.</param>
     internal static void InvokeSyncWithValidation<T1, T2>(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         FuncWithArgs<T1, T2> callback,
         T1 arg1,
         T2 arg2
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => callback(windowInstanceHandle, arg1, arg2)
+            callback: handle => callback(handle, arg1, arg2)
         );
 
         EnsureSuccess(logger, status);
@@ -204,26 +204,26 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T1">The type of the first output value.</typeparam>
     /// <typeparam name="T2">The type of the second output value.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <returns>A tuple containing the two output values.</returns>
     internal static (T1?, T2?) InvokeSyncWithValidation<T1, T2>(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         GetSizeFunc<T1, T2> callback
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
         T1? arg1 = default;
         T2? arg2 = default;
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => callback(windowInstanceHandle, out arg1, out arg2)
+            callback: handle => callback(handle, out arg1, out arg2)
         );
 
         EnsureSuccess(logger, status);
@@ -238,7 +238,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T2">The type of the second argument.</typeparam>
     /// <typeparam name="T3">The type of the third argument.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
@@ -246,7 +246,7 @@ internal static partial class NativeInvoke {
     /// <param name="arg3">The third argument.</param>
     internal static void InvokeSyncWithValidation<T1, T2, T3>(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         FuncWithArgs<T1, T2, T3> callback,
         T1 arg1,
@@ -254,13 +254,13 @@ internal static partial class NativeInvoke {
         T3 arg3
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => callback(windowInstanceHandle, arg1, arg2, arg3)
+            callback: handle => callback(handle, arg1, arg2, arg3)
         );
 
         EnsureSuccess(logger, status);
@@ -274,7 +274,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T3">The type of the third argument.</typeparam>
     /// <typeparam name="T4">The type of the fourth argument.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
@@ -283,7 +283,7 @@ internal static partial class NativeInvoke {
     /// <param name="arg4">The fourth argument.</param>
     internal static void InvokeSyncWithValidation<T1, T2, T3, T4>(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         FuncWithArgs<T1, T2, T3, T4> callback,
         T1 arg1,
@@ -292,13 +292,13 @@ internal static partial class NativeInvoke {
         T4 arg4
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => callback(windowInstanceHandle, arg1, arg2, arg3, arg4)
+            callback: handle => callback(handle, arg1, arg2, arg3, arg4)
         );
 
         EnsureSuccess(logger, status);
@@ -312,7 +312,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T3">The type of the third argument.</typeparam>
     /// <typeparam name="T4">The type of the output value.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
@@ -321,7 +321,7 @@ internal static partial class NativeInvoke {
     /// <returns>The output value from the callback.</returns>
     internal static T4? InvokeSyncWithValidation<T1, T2, T3, T4>(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         ShowOpenDialogFoldersFunc<T1, T2, T3, T4> callback,
         T1 arg1,
@@ -329,15 +329,15 @@ internal static partial class NativeInvoke {
         T3 arg3
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
         T4? arg4 = default;
         
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => callback(windowInstanceHandle, arg1, arg2, arg3, out arg4)
+            callback: handle => callback(handle, arg1, arg2, arg3, out arg4)
         );
         
         EnsureSuccess(logger, status);
@@ -352,18 +352,18 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T3">The type of the third output value.</typeparam>
     /// <typeparam name="T4">The type of the fourth output value.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <returns>A tuple containing the four output values.</returns>
     internal static (T1?, T2?, T3?, T4?) InvokeSyncWithValidation<T1, T2, T3, T4>(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         GetWindowRectangleFunc<T1, T2, T3, T4> callback
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(windowHandleOwner);
         
         T1? arg1 = default;
         T2? arg2 = default;
@@ -372,9 +372,9 @@ internal static partial class NativeInvoke {
         
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => callback(windowInstanceHandle, out arg1, out arg2, out arg3, out arg4)
+            callback: handle => callback(handle, out arg1, out arg2, out arg3, out arg4)
         );
 
         EnsureSuccess(logger, status);
@@ -390,7 +390,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T4">The type of the fourth argument.</typeparam>
     /// <typeparam name="T5">The type of the fifth argument.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
@@ -400,7 +400,7 @@ internal static partial class NativeInvoke {
     /// <param name="arg5">The fifth argument.</param>
     internal static void InvokeSyncWithValidation<T1, T2, T3, T4, T5>(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         FuncWithArgs<T1, T2, T3, T4, T5> callback,
         T1 arg1,
@@ -410,13 +410,13 @@ internal static partial class NativeInvoke {
         T5 arg5
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => callback(windowInstanceHandle, arg1, arg2, arg3, arg4, arg5)
+            callback: handle => callback(handle, arg1, arg2, arg3, arg4, arg5)
         );
 
         EnsureSuccess(logger, status);
@@ -431,7 +431,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T4">The type of the fourth argument.</typeparam>
     /// <typeparam name="T5">The type of the output value.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
@@ -441,7 +441,7 @@ internal static partial class NativeInvoke {
     /// <param name="arg5">The output value.</param>
     internal static void InvokeSyncWithValidation<T1, T2, T3, T4, T5>(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         ShowMessageFunc<T1, T2, T3, T4, T5> callback,
         T1 arg1,
@@ -451,16 +451,16 @@ internal static partial class NativeInvoke {
         out T5? arg5
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(windowHandleOwner);
         
         arg5 = default;
         T5? arg5Temp = default;
         
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => callback(windowInstanceHandle, arg1, arg2, arg3, arg4, out arg5Temp)
+            callback: handle => callback(handle, arg1, arg2, arg3, arg4, out arg5Temp)
         );
 
         arg5 = arg5Temp;
@@ -477,7 +477,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T5">The type of the fifth argument.</typeparam>
     /// <typeparam name="T6">The type of the sixth argument.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
@@ -488,7 +488,7 @@ internal static partial class NativeInvoke {
     /// <param name="arg6">The sixth argument.</param>
     internal static void InvokeSyncWithValidation<T1, T2, T3, T4, T5, T6>(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         FuncWithArgs<T1, T2, T3, T4, T5, T6> callback,
         T1 arg1,
@@ -499,13 +499,13 @@ internal static partial class NativeInvoke {
         T6 arg6
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => callback(windowInstanceHandle, arg1, arg2, arg3, arg4, arg5, arg6)
+            callback: handle => callback(handle, arg1, arg2, arg3, arg4, arg5, arg6)
         );
 
         EnsureSuccess(logger, status);
@@ -521,7 +521,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T5">The type of the fifth argument.</typeparam>
     /// <typeparam name="T6">The type of the output value.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
@@ -532,7 +532,7 @@ internal static partial class NativeInvoke {
     /// <returns>The output value from the callback.</returns>
     internal static T6? InvokeSyncWithValidation<T1, T2, T3, T4, T5, T6>(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         ShowSaveFileFunc<T1, T2, T3, T4, T5, T6> callback,
         T1 arg1,
@@ -542,14 +542,14 @@ internal static partial class NativeInvoke {
         T5 arg5
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(windowHandleOwner);
         
         T6? arg6 = default;
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => callback(windowInstanceHandle, arg1, arg2, arg3, arg4, arg5, out arg6));
+            callback: handle => callback(handle, arg1, arg2, arg3, arg4, arg5, out arg6));
         
         EnsureSuccess(logger, status);
         return arg6;
@@ -566,7 +566,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T6">The type of the sixth argument.</typeparam>
     /// <typeparam name="T7">The type of the seventh argument.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
@@ -578,7 +578,7 @@ internal static partial class NativeInvoke {
     /// <param name="arg7">The seventh argument.</param>
     internal static void InvokeSyncWithValidation<T1, T2, T3, T4, T5, T6, T7>(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         FuncWithArgs<T1, T2, T3, T4, T5, T6, T7> callback,
         T1 arg1,
@@ -590,13 +590,13 @@ internal static partial class NativeInvoke {
         T7 arg7
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => callback(windowInstanceHandle, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+            callback: handle => callback(handle, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
         );
 
         EnsureSuccess(logger, status);
@@ -614,7 +614,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T7">The type of the seventh argument.</typeparam>
     /// <typeparam name="T8">The type of the eighth argument.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
@@ -627,7 +627,7 @@ internal static partial class NativeInvoke {
     /// <param name="arg8">The eighth argument.</param>
     internal static void InvokeSyncWithValidation<T1, T2, T3, T4, T5, T6, T7, T8>(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         FuncWithArgs<T1, T2, T3, T4, T5, T6, T7, T8> callback,
         T1 arg1,
@@ -640,14 +640,14 @@ internal static partial class NativeInvoke {
         T8 arg8
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => callback(
-                windowInstanceHandle,
+            callback: handle => callback(
+                handle,
                 arg1,
                 arg2,
                 arg3,
@@ -666,12 +666,12 @@ internal static partial class NativeInvoke {
     ///     Invokes a synchronous callback on the window thread without argument validation, but with error checking.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The action to execute.</param>
     internal static void InvokeSyncWithoutValidation(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         Action callback
     ) {
@@ -679,9 +679,9 @@ internal static partial class NativeInvoke {
 
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => {
+            callback: _ => {
                 callback();
                 return InfiniFrameNativeInteropStatus.Success;
             }
@@ -694,12 +694,12 @@ internal static partial class NativeInvoke {
     ///     Invokes a synchronous callback on the window thread without argument validation, with error checking.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute, receiving the window handle.</param>
     internal static void InvokeSyncWithoutValidation(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         Func<IntPtr, InfiniFrameNativeInteropStatus> callback
     ) {
@@ -707,9 +707,9 @@ internal static partial class NativeInvoke {
 
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => callback(windowInstanceHandle)
+            callback: handle => callback(handle)
         );
 
         EnsureSuccess(logger, status);
@@ -719,12 +719,12 @@ internal static partial class NativeInvoke {
     ///     Invokes a synchronous callback on the window thread without argument validation, with error checking.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     internal static void InvokeSyncWithoutValidation(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         Func<InfiniFrameNativeInteropStatus> callback
     ) {
@@ -732,9 +732,9 @@ internal static partial class NativeInvoke {
 
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback
+            callback: _ => callback()
         );
 
         EnsureSuccess(logger, status);
@@ -745,13 +745,13 @@ internal static partial class NativeInvoke {
     /// </summary>
     /// <typeparam name="T">The type of the output value.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <returns>The output value from the callback.</returns>
     internal static T? InvokeSyncWithoutValidation<T>(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         FuncWithOut<T> callback
     ) {
@@ -759,10 +759,10 @@ internal static partial class NativeInvoke {
 
         (InfiniFrameNativeInteropStatus Status, T? Value) result = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => {
-                InfiniFrameNativeInteropStatus status = callback(windowInstanceHandle, out T value);
+            callback: handle => {
+                InfiniFrameNativeInteropStatus status = callback(handle, out T value);
                 return (status, value);
             });
 
@@ -775,13 +775,13 @@ internal static partial class NativeInvoke {
     /// </summary>
     /// <typeparam name="T">The type of the argument.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg">The argument to pass.</param>
     internal static void InvokeSyncWithoutValidation<T>(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         FuncWithArgs<T> callback,
         T arg
@@ -790,9 +790,9 @@ internal static partial class NativeInvoke {
 
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            callback: () => callback(windowInstanceHandle, arg)
+            callback: handle => callback(handle, arg)
         );
 
         EnsureSuccess(logger, status);
@@ -804,20 +804,21 @@ internal static partial class NativeInvoke {
     /// </summary>
     /// <typeparam name="TResult">The return type of the callback.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowInstanceHandle">The native window handle.</param>
+    /// <param name="windowHandleOwner">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="access">The access level required for the native window handle.</param>
     /// <returns>The result of the callback.</returns>
     private static TResult? ExecuteInvokeSync<TResult>(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
-        Func<TResult> callback,
+        Func<IntPtr, TResult> callback,
         NativeHandleAccess access = NativeHandleAccess.Feature
     ) {
-        using NativeHandleLease lease = NativeWindowHandleRegistry.Acquire(windowInstanceHandle, access);
-        ObjectDisposedException.ThrowIf(lease.Handle != windowInstanceHandle, "InfiniFrameWindow");
+        ArgumentNullException.ThrowIfNull(windowHandleOwner);
+        using NativeHandleLease lease = windowHandleOwner.AcquireNativeHandle(access);
+        IntPtr nativeHandle = lease.Handle;
 
         TResult? result = default;
         Exception? callbackException = null;
@@ -831,7 +832,7 @@ internal static partial class NativeInvoke {
         if (!OperatingSystem.IsLinux() && Environment.CurrentManagedThreadId == managedThreadId) {
             try {
                 logger.LogTrace("Executing callback on same thread");
-                result = callback();
+                result = callback(nativeHandle);
             }
             catch (Exception ex) {
                 callbackException = ex;
@@ -844,9 +845,9 @@ internal static partial class NativeInvoke {
         // Otherwise, we need to execute it on the window thread.
         else {
             logger.LogTrace("Executing callback on window thread. Marshalling to C++ native cobebase.");
-            InfiniFrameNative.Invoke(windowInstanceHandle, callback: () => {
+            InfiniFrameNative.Invoke(nativeHandle, callback: () => {
                 try {
-                    result = callback();
+                    result = callback(nativeHandle);
                 }
                 catch (Exception ex) {
                     callbackException = ex;
@@ -867,7 +868,7 @@ internal static partial class NativeInvoke {
 
     internal static void InvokeSyncForLifecycle(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         NativeHandleAccess access,
         Func<IntPtr, InfiniFrameNativeInteropStatus> callback
@@ -875,22 +876,22 @@ internal static partial class NativeInvoke {
         ArgumentNullException.ThrowIfNull(callback);
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
-            windowInstanceHandle,
+            windowHandleOwner,
             managedThreadId,
-            () => callback(windowInstanceHandle),
+            handle => callback(handle),
             access);
         EnsureSuccess(logger, status);
     }
 
     internal static void InvokeSyncForLifecycle(
         ILogger logger,
-        IntPtr windowInstanceHandle,
+        INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         NativeHandleAccess access,
         Action callback
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        _ = ExecuteInvokeSync<object?>(logger, windowInstanceHandle, managedThreadId, () => {
+        _ = ExecuteInvokeSync<object?>(logger, windowHandleOwner, managedThreadId, _ => {
             callback();
             return null;
         }, access);
