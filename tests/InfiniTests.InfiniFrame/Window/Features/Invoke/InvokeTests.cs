@@ -42,14 +42,17 @@ public class InvokeTests {
             entered.SetResult();
             Thread.Sleep(250);
         }, TimeSpan.FromSeconds(5), ct);
-        await entered.Task;
+        // macOS UI tests begin on the AppKit main queue. Do not capture that queue here:
+        // the continuation must enqueue the short-timeout operation while the callback
+        // above is still blocking the main queue, not after its sleep has completed.
+        await entered.Task.ConfigureAwait(false);
 
         InfiniFrameDispatchResult result = await window.DispatchAsync(
             () => lateCallbackRan = true,
             TimeSpan.FromMilliseconds(25),
-            ct);
-        await blocker;
-        await Task.Delay(50, ct);
+            ct).ConfigureAwait(false);
+        await blocker.ConfigureAwait(false);
+        await Task.Delay(50, ct).ConfigureAwait(false);
 
         await Assert.That(result).IsEqualTo(InfiniFrameDispatchResult.TimedOut);
         await Assert.That(lateCallbackRan).IsFalse();
