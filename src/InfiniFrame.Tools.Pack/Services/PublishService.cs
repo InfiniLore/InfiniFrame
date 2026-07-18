@@ -296,6 +296,14 @@ internal static class PublishService {
         List<string> args = [
             "publish",
             projectPath,
+            // Pack runs nested dotnet builds and owns their complete lifetime. Persistent
+            // MSBuild/Roslyn servers can outlive a canceled publish (and have done so on
+            // Windows ARM64 CI), retaining locks and stalling later tests. Keep this build
+            // isolated and single-node so ProcessRunner can terminate it deterministically.
+            "--disable-build-servers",
+            "-maxcpucount:1",
+            "-nodeReuse:false",
+            "-p:UseSharedCompilation=false",
             "-c", options.Configuration,
             "-r", rid,
             "-f", framework,
