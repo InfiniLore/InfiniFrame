@@ -26,29 +26,27 @@ function(infiniframe_configure_linux_target target_name common_sources test_sour
     )
 
     find_package(PkgConfig REQUIRED)
-    pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
-    pkg_check_modules(WEBKIT2 REQUIRED webkit2gtk-4.1)
-    pkg_check_modules(LIBNOTIFY REQUIRED libnotify)
+    pkg_check_modules(GTK3 REQUIRED IMPORTED_TARGET gtk+-3.0)
+    pkg_check_modules(WEBKIT2 REQUIRED IMPORTED_TARGET webkit2gtk-4.1)
+    pkg_check_modules(LIBNOTIFY REQUIRED IMPORTED_TARGET libnotify)
 
     target_include_directories(${target_name} PRIVATE
             "${CMAKE_SOURCE_DIR}"
             "${CMAKE_SOURCE_DIR}/src"
-            ${GTK3_INCLUDE_DIRS}
-            ${WEBKIT2_INCLUDE_DIRS}
-            ${LIBNOTIFY_INCLUDE_DIRS}
     )
 
     target_link_libraries(${target_name} PRIVATE
             simdutf::simdutf
             simdjson::simdjson
-            ${GTK3_LIBRARIES}
-            ${WEBKIT2_LIBRARIES}
-            ${LIBNOTIFY_LIBRARIES}
+            PkgConfig::GTK3
+            PkgConfig::WEBKIT2
+            PkgConfig::LIBNOTIFY
     )
 
     target_compile_options(${target_name} PRIVATE
             -Wall -Wextra
-            -O2
-            -fPIC
+            $<$<CONFIG:Release>:-O2>
+            $<$<CONFIG:RelWithDebInfo>:-O2>
+            $<$<CONFIG:MinSizeRel>:-Os>
     )
 endfunction()

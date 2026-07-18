@@ -23,17 +23,20 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 # ----------------------------------------------------------------------------------------------------------------------
 include("${CMAKE_SOURCE_DIR}/.cmake/NativeDependencies.cmake")
 include("${CMAKE_SOURCE_DIR}/.cmake/Embed.InfiniFrameJs.cmake")
+include("${CMAKE_SOURCE_DIR}/.cmake/BuildOptions.cmake")
 
 include("${CMAKE_SOURCE_DIR}/.cmake/Platform.Windows.cmake")
 include("${CMAKE_SOURCE_DIR}/.cmake/Platform.MacOS.cmake")
 include("${CMAKE_SOURCE_DIR}/.cmake/Platform.Linux.cmake")
 
+infiniframe_configure_compiler_cache()
 infiniframe_setup_dependencies()
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Source Files
 # ----------------------------------------------------------------------------------------------------------------------
 set(COMMON_SOURCES
+        src/Embedded/Embedded.cpp
         src/Runtime/Shared/Window/WindowEvents.cpp
         src/Runtime/Shared/Window/WindowState.cpp
         src/Api/Exports/Exports.CustomSchemes.cpp
@@ -139,7 +142,6 @@ set(MAC_SOURCES
 
 set(HEADER_FILES
         src/Embedded/Embedded.h
-        src/Embedded/InfiniFrameJs/InfiniFrameJs.h
         src/Runtime/Shared/WebView/CustomSchemeResponse.h
         src/Api/Exports/Exports.h
         src/Api/Utilities/ExportErrorState.h
@@ -223,13 +225,4 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
 endif ()
 
 # ----------------------------------------------------------------------------------------------------------------------
-# Precompiled Headers
-# ----------------------------------------------------------------------------------------------------------------------
-if (NOT APPLE)
-    target_precompile_headers(${PROJECT_NAME} PRIVATE
-            <string>
-            <memory>
-            <functional>
-            <expected>
-    )
-endif ()
+infiniframe_enable_fast_build_settings(${PROJECT_NAME})

@@ -15,14 +15,8 @@ foreach(i RANGE 0 ${LAST} 2)
     endif()
 endforeach()
 
-# Generate timestamp
-string(TIMESTAMP GENERATED_AT "%Y-%m-%d %H:%M:%S UTC" UTC)
-
 # Header file
-file(WRITE "${OUTPUT_HEADER}" "// -----------------------------------------------------------------------------
-// Auto-generated file. Do not edit manually.
-// Generated at: ${GENERATED_AT}
-// -----------------------------------------------------------------------------
+file(WRITE "${OUTPUT_HEADER}" "// Auto-generated file. Do not edit manually.
 #pragma once
 
 // ReSharper disable once CppUnusedIncludeDirective
@@ -33,12 +27,9 @@ extern const size_t GInfiniframeJsSize;
 ")
 
 # Source file
-file(WRITE "${OUTPUT_SOURCE}" "// -----------------------------------------------------------------------------
-// Auto-generated file. Do not edit manually.
-// Generated at: ${GENERATED_AT}
-// -----------------------------------------------------------------------------
+file(WRITE "${OUTPUT_SOURCE}" "// Auto-generated file. Do not edit manually.
 
-#include \"src/Embedded/InfiniFrameJs/InfiniFrameJs.h\"
+#include \"InfiniFrameJs.h\"
 
 alignas(16) const unsigned char GInfiniframeJsData[] = {${BYTES}};
 

@@ -58,7 +58,7 @@
         <Content Remove="Native/**/*" />
         <None Remove="Native/**/*" />
         <None Include="Native/**/*.*"
-              Exclude="Native/build/**/*;Native/packages/**/*;Native/cmake-build-*/**/*;"
+              Exclude="Native/build/**/*;Native/packages/**/*;Native/cmake-build-*/**/*;Native/src/Embedded/InfiniFrameJs/**/*;"
               Pack="false" />
 
         <Compile Remove="build/**/*" />
@@ -67,11 +67,11 @@
         <None Remove="build/**/*" />
 
         <NativeSource Include="Native/**/*.cpp"
-                      Exclude="Native/build/**/*;Native/packages/**/*;Native/cmake-build-*/**/*" />
+                      Exclude="Native/build/**/*;Native/packages/**/*;Native/cmake-build-*/**/*;Native/src/Embedded/InfiniFrameJs/**/*" />
         <NativeSource Include="Native/**/*.h"
-                      Exclude="Native/build/**/*;Native/packages/**/*;Native/cmake-build-*/**/*" />
+                      Exclude="Native/build/**/*;Native/packages/**/*;Native/cmake-build-*/**/*;Native/src/Embedded/InfiniFrameJs/**/*" />
         <NativeSource Include="Native/**/*.mm"
-                      Exclude="Native/build/**/*;Native/packages/**/*;Native/cmake-build-*/**/*" />
+                      Exclude="Native/build/**/*;Native/packages/**/*;Native/cmake-build-*/**/*;Native/src/Embedded/InfiniFrameJs/**/*" />
         <NativeBuildInput Include="@(NativeSource)" />
         <NativeBuildInput Include="Native/**/CMakeLists.txt"
                           Exclude="Native/build/**/*;Native/packages/**/*;Native/cmake-build-*/**/*" />
