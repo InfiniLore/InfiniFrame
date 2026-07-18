@@ -111,7 +111,7 @@ public class OrderedResultEventTests {
     }
 
     [Test]
-    public async Task Invoke_HandlerThrowsRegularException_SlotIsDefault(CancellationToken ct = default) {
+    public async Task Invoke_HandlerThrowsRegularException_PropagatesAndStopsDispatch(CancellationToken ct = default) {
         // Arrange
         var evt = new OrderedResultEvent<int, string>();
         var window = Substitute.For<IInfiniFrameWindow>();
@@ -119,14 +119,8 @@ public class OrderedResultEventTests {
         evt.Add((_, _) => throw new InvalidOperationException("boom"));
         evt.Add((_, _) => "after");
 
-        // Act — exception is swallowed; failing slot becomes default(string?) = null
-        string?[] result = evt.Invoke(window, 0);
-
-        // Assert
-        await Assert.That(result.Length).IsEqualTo(3);
-        await Assert.That(result[0]).IsEqualTo("before");
-        await Assert.That(result[1]).IsNull();
-        await Assert.That(result[2]).IsEqualTo("after");
+        // Act & Assert
+        await Assert.That(() => evt.Invoke(window, 0)).Throws<InvalidOperationException>();
     }
 
     [Test]
@@ -136,7 +130,7 @@ public class OrderedResultEventTests {
         var window = Substitute.For<IInfiniFrameWindow>();
         evt.Add((_, _) => throw new OperationCanceledException());
 
-        // Act & Assert — OperationCanceledException is NOT swallowed
+        // Act & Assert
         await Assert.That(() => evt.Invoke(window, 0)).Throws<OperationCanceledException>();
     }
 

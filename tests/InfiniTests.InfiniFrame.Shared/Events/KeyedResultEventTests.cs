@@ -183,7 +183,7 @@ public class KeyedResultEventTests {
     }
 
     [Test]
-    public async Task TryInvoke_HandlerReturnsNull_ReturnsFalse(CancellationToken ct = default) {
+    public async Task TryInvoke_HandlerReturnsNull_ReturnsTrueWithNullResult(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedResultEvent<string, int, string>();
         var window = Substitute.For<IInfiniFrameWindow>();
@@ -192,24 +192,20 @@ public class KeyedResultEventTests {
         // Act
         bool success = evt.TryInvoke("key", window, 0, out string? result);
 
-        // Assert — null result is treated as failure
-        await Assert.That(success).IsFalse();
+        // Assert — a registered handler completed successfully, even when its result is null.
+        await Assert.That(success).IsTrue();
         await Assert.That(result).IsNull();
     }
 
     [Test]
-    public async Task TryInvoke_HandlerThrowsRegularException_ReturnsFalseAndResultIsDefault(CancellationToken ct = default) {
+    public async Task TryInvoke_HandlerThrowsRegularException_PropagatesException(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedResultEvent<string, int, string>();
         var window = Substitute.For<IInfiniFrameWindow>();
         evt.Add("key", handler: (_, _) => throw new InvalidOperationException("boom"));
 
-        // Act — exception is swallowed; result is default
-        bool success = evt.TryInvoke("key", window, 0, out string? result);
-
-        // Assert
-        await Assert.That(success).IsFalse();
-        await Assert.That(result).IsNull();
+        // Act & Assert
+        await Assert.That(() => { evt.TryInvoke("key", window, 0, out _); }).Throws<InvalidOperationException>();
     }
 
     [Test]
@@ -219,7 +215,7 @@ public class KeyedResultEventTests {
         var window = Substitute.For<IInfiniFrameWindow>();
         evt.Add("key", handler: (_, _) => throw new OperationCanceledException());
 
-        // Act & Assert — OperationCanceledException is NOT swallowed
+        // Act & Assert
         await Assert.That(() => {evt.TryInvoke("key", window, 0, out _);}).Throws<OperationCanceledException>();
     }
 
