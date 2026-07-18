@@ -48,6 +48,7 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         if (x.UserAgent != y.UserAgent) return false;
         if (x.BrowserControlInitParameters != y.BrowserControlInitParameters) return false;
         if (x.NotificationRegistrationId != y.NotificationRegistrationId) return false;
+        if (x.WindowsAppUserModelId != y.WindowsAppUserModelId) return false;
         if (x.RemoteDebuggingPort != y.RemoteDebuggingPort) return false;
         if (x.NativeParent != y.NativeParent) return false;
         if (x.Left != y.Left) return false;
@@ -103,6 +104,7 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         hashCode.Add(obj.UserAgent);
         hashCode.Add(obj.BrowserControlInitParameters);
         hashCode.Add(obj.NotificationRegistrationId);
+        hashCode.Add(obj.WindowsAppUserModelId);
         hashCode.Add(obj.RemoteDebuggingPort);
         hashCode.Add(obj.NativeParent);
 

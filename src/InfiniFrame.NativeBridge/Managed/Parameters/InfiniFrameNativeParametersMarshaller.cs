@@ -32,6 +32,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal IntPtr UserAgent;
         internal IntPtr BrowserControlInitParameters;
         internal IntPtr NotificationRegistrationId;
+        internal IntPtr WindowsAppUserModelId;
         internal int RemoteDebuggingPort;
         internal IntPtr NativeParent;
         internal IntPtr ClosingHandler;
@@ -117,6 +118,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 UserAgent = ToUtf8Ptr(managed.UserAgent),
                 BrowserControlInitParameters = ToUtf8Ptr(managed.BrowserControlInitParameters),
                 NotificationRegistrationId = ToUtf8Ptr(managed.NotificationRegistrationId),
+                WindowsAppUserModelId = ToUtf8Ptr(managed.WindowsAppUserModelId),
                 RemoteDebuggingPort = managed.RemoteDebuggingPort,
                 NativeParent = managed.NativeParent,
                 ClosingHandler = ToFunctionPtr(managed.ClosingHandler),
@@ -203,6 +205,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
             Marshal.FreeCoTaskMem(_unmanaged.UserAgent);
             Marshal.FreeCoTaskMem(_unmanaged.BrowserControlInitParameters);
             Marshal.FreeCoTaskMem(_unmanaged.NotificationRegistrationId);
+            Marshal.FreeCoTaskMem(_unmanaged.WindowsAppUserModelId);
         }
     }
 

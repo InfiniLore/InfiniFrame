@@ -37,6 +37,7 @@ public static class Program {
                 // .SetChromeless(true)
                 // .SetResizable(true)
                 .SetIconFile("favicon.ico")
+                .SetWindowsAppUserModelId("InfiniLore.InfiniFrameExample.BlazorWebView")
                 // .Center()
                 // .SetUseOsDefaultSize(true)
                 // .SetUseOsDefaultLocation(true);

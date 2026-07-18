@@ -4,6 +4,7 @@
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
 using Microsoft.Extensions.Logging.Abstractions;
+using System.Runtime.InteropServices;
 
 namespace InfiniTests.InfiniFrame.Shared.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -61,5 +62,21 @@ public class NativeInvokeTests {
 
         // Assert
         await Assert.That(received).IsEqualTo(expectedHandle);
+    }
+
+    [Test]
+    public async Task InvokeWithValidation_Success_IgnoresAndClearsStaleLastError(CancellationToken ct = default) {
+        var owner = new TestHandleOwner(123456);
+
+        NativeInvoke.InvokeSyncWithValidation(
+            NullLogger.Instance,
+            owner,
+            Environment.CurrentManagedThreadId,
+            callback: () => {
+                Marshal.SetLastPInvokeError(203);
+                return InfiniFrameNativeInteropStatus.Success;
+            });
+
+        await Assert.That(Marshal.GetLastPInvokeError()).IsEqualTo(0);
     }
 }

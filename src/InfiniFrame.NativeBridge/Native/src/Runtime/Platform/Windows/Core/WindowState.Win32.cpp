@@ -272,7 +272,7 @@ void InfiniFrameWindow::SetTitle(AutoString title) {
     SetWindowText(m_impl->_hWnd, wideTitle.c_str());
     if (m_impl->_notificationsEnabled) {
         WinToastLib::WinToast::instance()->setAppName(wideTitle.c_str());
-        if (m_impl->_notificationRegistrationId.empty())
+        if (m_impl->_windowsAppUserModelId.empty() && m_impl->_notificationRegistrationId.empty())
             WinToastLib::WinToast::instance()->setAppUserModelId(wideTitle.c_str());
     }
 }

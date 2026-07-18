@@ -36,6 +36,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         (*new_params)->UserAgent = DuplicateString(params->UserAgent);
         (*new_params)->BrowserControlInitParameters = DuplicateString(params->BrowserControlInitParameters);
         (*new_params)->NotificationRegistrationId = DuplicateString(params->NotificationRegistrationId);
+        (*new_params)->WindowsAppUserModelId = DuplicateString(params->WindowsAppUserModelId);
         (*new_params)->RemoteDebuggingPort = params->RemoteDebuggingPort;
 
         (*new_params)->ParentInstance = params->ParentInstance;
@@ -103,6 +104,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_FreeInitParams(InfiniFrameInitPara
         delete[] params->UserAgent;
         delete[] params->BrowserControlInitParameters;
         delete[] params->NotificationRegistrationId;
+        delete[] params->WindowsAppUserModelId;
 
         delete params;
     });

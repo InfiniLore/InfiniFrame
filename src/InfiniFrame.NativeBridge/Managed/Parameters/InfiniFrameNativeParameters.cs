@@ -69,6 +69,10 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     internal string? NotificationRegistrationId;
 
+    ///<summary>WINDOWS: OPTIONAL: Explicit application identity used by the taskbar for grouping and pinning.</summary>
+    [MarshalAs(UnmanagedType.LPUTF8Str)]
+    internal string? WindowsAppUserModelId;
+
     ///<summary>OPTIONAL: Windows-only remote debugging port for loopback endpoint. 0 disables remote debugging.</summary>
     [MarshalAs(UnmanagedType.I4)]
     internal int RemoteDebuggingPort;

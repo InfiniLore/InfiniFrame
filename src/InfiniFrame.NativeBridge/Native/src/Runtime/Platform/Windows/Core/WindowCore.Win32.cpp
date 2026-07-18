@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include <format>
+#include <shobjidl_core.h>
 #include <stdexcept>
 #include <string>
 
@@ -112,13 +113,25 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         );
     }
 
+    if (initParams->WindowsAppUserModelId != nullptr && initParams->WindowsAppUserModelId[0] != L'\0') {
+        const std::wstring appUserModelId = ToUTF16String(initParams->WindowsAppUserModelId);
+        m_impl->_windowsAppUserModelId = appUserModelId;
+        const HRESULT result = SetCurrentProcessExplicitAppUserModelID(appUserModelId.c_str());
+        if (FAILED(result)) {
+            throw std::runtime_error(
+                std::format(
+                    "Could not set Windows AppUserModelID (HRESULT 0x{:08X}).",
+                    static_cast<unsigned long>(result)
+                )
+            );
+        }
+    }
+
     // Initialize window title and optional toast notification identity.
     if (initParams->Title != nullptr) {
         m_impl->_windowTitle = ToUTF16String(initParams->Title);
         if (initParams->NotificationsEnabled) {
             WinToast::instance()->setAppName(m_impl->_windowTitle.c_str());
-            if (m_impl->_notificationRegistrationId.empty())
-                WinToast::instance()->setAppUserModelId(m_impl->_windowTitle.c_str());
         }
     }
 
@@ -265,8 +278,12 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         SetTopmost(true);
 
     if (initParams->NotificationsEnabled) {
-        if (!m_impl->_notificationRegistrationId.empty())
+        if (!m_impl->_windowsAppUserModelId.empty())
+            WinToast::instance()->setAppUserModelId(m_impl->_windowsAppUserModelId.c_str());
+        else if (!m_impl->_notificationRegistrationId.empty())
             WinToast::instance()->setAppUserModelId(m_impl->_notificationRegistrationId.c_str());
+        else
+            WinToast::instance()->setAppUserModelId(m_impl->_windowTitle.c_str());
 
         m_impl->_toastHandler = std::make_unique<WinToastHandler>(this);
         WinToast::instance()->initialize();

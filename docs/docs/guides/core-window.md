@@ -75,7 +75,12 @@ All configuration methods are chainable and must be called before `Build()`.
 builder
     .SetTitle("My Application")
     .SetIconFile("assets/icon.ico")  // Windows and Linux only; .ico on Windows, .png on Linux
+    .SetWindowsAppUserModelId("MyCompany.MyApplication") // Windows taskbar identity
 ```
+
+`SetWindowsAppUserModelId` assigns an explicit process identity before the first window is shown. Use one stable,
+whitespace-free ID of at most 128 characters for every window in the process. For installed Windows applications,
+configure shortcuts with the same AppUserModelID so pinned taskbar items group with the running application.
 
 ### Size and Position
 
@@ -218,13 +223,13 @@ InfiniFrame exposes additive runtime diagnostics and debug events under `window.
 
 ### Debug Tooling Matrix
 
-| Capability | Windows (WebView2) | Linux (WebKitGTK) | macOS (WKWebView) |
-|---|---|---|---|
-| Local DevTools toggle | ✅ | ✅ | ✅ |
-| Remote debugging endpoint | ✅ | ✅ | ❌ |
-| Web Inspector attach mode | ❌ | ❌ | ✅ (macOS 13.3+) |
-| Script error forwarding | ✅ (navigation failure mapped) | ✅ | ✅ |
-| Navigation diagnostics | ✅ | ✅ | ✅ |
+| Capability                | Windows (WebView2)            | Linux (WebKitGTK) | macOS (WKWebView) |
+|---------------------------|-------------------------------|-------------------|-------------------|
+| Local DevTools toggle     | ✅                             | ✅                 | ✅                 |
+| Remote debugging endpoint | ✅                             | ✅                 | ❌                 |
+| Web Inspector attach mode | ❌                             | ❌                 | ✅ (macOS 13.3+)   |
+| Script error forwarding   | ✅ (navigation failure mapped) | ✅                 | ✅                 |
+| Navigation diagnostics    | ✅                             | ✅                 | ✅                 |
 
 ### Guarantees vs best effort
 

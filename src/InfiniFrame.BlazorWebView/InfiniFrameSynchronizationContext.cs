@@ -237,18 +237,43 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
     ) {
         // Anything run on the sync context should actually be dispatched as far as InfiniFrame
         // is concerned, so that it's safe to interact with the native window/WebView.
-        LazyWindow.Value.Invoke(() => {
+        Exception? callbackException = null;
+        void ExecuteCallback() {
             SynchronizationContext? original = Current;
             try {
                 SetSynchronizationContext(this);
                 d?.Invoke(state);
+                completion?.TrySetResult(null!);
+            }
+            catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
+                callbackException = exception;
+                if (completion is not null)
+                    completion.TrySetException(exception);
+                else
+                    throw;
             }
             finally {
                 SetSynchronizationContext(original);
-
-                completion?.SetResult(null!);
             }
-        });
+        }
+
+        InfiniFrameDispatchResult result = LazyWindow.Value.Features.Invoke.Invoke(ExecuteCallback);
+        if (result == InfiniFrameDispatchResult.WindowClosed) {
+            // Renderer disposal is scheduled after the native window has closed. There is no UI thread left to
+            // dispatch to, but the serialized callback must still run or Blazor's DisposeAsync never completes.
+            ExecuteCallback();
+            return;
+        }
+
+        if (result == InfiniFrameDispatchResult.Completed) return;
+
+        var dispatchException = callbackException ?? new InvalidOperationException(
+            $"Could not execute an InfiniFrame synchronization callback. Dispatch result: {result}."
+        );
+        if (completion is not null)
+            completion.TrySetException(dispatchException);
+        else
+            DispatchException(dispatchException);
     }
 
     private void ExecuteBackground(InfiniFrameSynchronizationWorkItem item) {

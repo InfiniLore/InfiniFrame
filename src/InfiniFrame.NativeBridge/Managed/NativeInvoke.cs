@@ -903,12 +903,15 @@ internal static partial class NativeInvoke {
     /// <param name="logger">The logger instance.</param>
     /// <param name="status">The status returned from the native call.</param>
     private static void EnsureSuccess(ILogger logger, InfiniFrameNativeInteropStatus status) {
-        int fallbackLastError = Marshal.GetLastPInvokeError();
-
-        if (status is InfiniFrameNativeInteropStatus.Success && fallbackLastError is 0) {
-            logger.LogTrace("Native interop call succeeded with no error.");
+        if (status is InfiniFrameNativeInteropStatus.Success) {
+            // The explicit interop status is authoritative. A managed callback executed inside a native dispatch can
+            // leave an unrelated Win32 last-error value on the thread even though the enclosing operation succeeded.
+            Marshal.SetLastPInvokeError(0);
+            logger.LogTrace("Native interop call succeeded.");
             return;
         }
+
+        int fallbackLastError = Marshal.GetLastPInvokeError();
 
         string sanitizedStatus = Sanitize(status.ToString());
         logger.LogCritical("Native interop call failed with unknown status state. Fallback last error {FallbackLastError} whilst the received status is {FallbackStatus}", fallbackLastError, sanitizedStatus);

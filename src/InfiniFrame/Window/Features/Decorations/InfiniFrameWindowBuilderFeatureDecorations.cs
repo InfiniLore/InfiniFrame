@@ -21,6 +21,9 @@ public class InfiniFrameWindowBuilderFeatureDecorations : IInfiniFrameWindowBuil
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.IconFilePath"/>
     public string? IconFilePath { get; private set; }
 
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.WindowsAppUserModelId"/>
+    public string? WindowsAppUserModelId { get; private set; }
+
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.LimitLinuxWindowTitleLength"/>
     public bool LimitLinuxWindowTitleLength { get; private set; }
 
@@ -47,6 +50,11 @@ public class InfiniFrameWindowBuilderFeatureDecorations : IInfiniFrameWindowBuil
         IconFilePath = iconFilePath;
     }
 
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.SetWindowsAppUserModelId"/>
+    public void SetWindowsAppUserModelId(string? appUserModelId) {
+        WindowsAppUserModelId = appUserModelId;
+    }
+
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.SetLimitLinuxWindowTitleLength"/>
     public void SetLimitLinuxWindowTitleLength(bool enabled) {
         LimitLinuxWindowTitleLength = enabled;
@@ -59,6 +67,7 @@ public class InfiniFrameWindowBuilderFeatureDecorations : IInfiniFrameWindowBuil
         parameters.WindowIconFile = IconFileUtility.TryResolveIconFilePath(IconFilePath, out string? resolvedIconFilePath)
             ? resolvedIconFilePath
             : null;
+        parameters.WindowsAppUserModelId = WindowsAppUserModelId;
         // parameters.LimitLinuxWindowTitleLength = LimitLinuxWindowTitleLength; // Not a C++ parameter.
     }
 }
