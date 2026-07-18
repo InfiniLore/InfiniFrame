@@ -3,6 +3,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 
 #include <simdjson.h>
+#include <chrono>
+#include <cstdio>
+#include <cstdlib>
 #include <stdexcept>
 
 #include "../Delegates/AppDelegate.h"
@@ -95,6 +98,9 @@ void InfiniFrameWindow::Register()
 
 InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl(std::make_unique<Impl>())
 {
+    const bool traceTimings = std::getenv("INFINIFRAME_MACOS_TRACE_TIMINGS") != nullptr;
+    const auto constructionStartedAt = std::chrono::steady_clock::now();
+    __block std::chrono::steady_clock::time_point webViewStartedAt;
     auto* params = initParams;
     DispatchToMainSync(^{
         this->m_impl->_windowTitle = params->Title ? params->Title : "";
@@ -241,6 +247,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
             this->m_impl->AddCustomScheme(scheme.c_str(), this->m_impl->_customSchemeCallback);
         }
 
+        webViewStartedAt = std::chrono::steady_clock::now();
         this->AttachWebView();
 
         this->m_impl->SetUserAgent(params->UserAgent);
@@ -315,6 +322,23 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
         this->Show(isAlreadyShown);
         this->SetFullScreen(params->FullScreen);
     });
+
+    if (traceTimings) {
+        const auto constructionFinishedAt = std::chrono::steady_clock::now();
+        const auto totalMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(
+            constructionFinishedAt - constructionStartedAt
+        ).count();
+        const auto webViewMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(
+            constructionFinishedAt - webViewStartedAt
+        ).count();
+
+        std::fprintf(
+            stderr,
+            "[InfiniFrame macOS timing] window construction=%lldms webview-and-show=%lldms\\n",
+            static_cast<long long>(totalMilliseconds),
+            static_cast<long long>(webViewMilliseconds)
+        );
+    }
 }
 
 InfiniFrameWindow::~InfiniFrameWindow()

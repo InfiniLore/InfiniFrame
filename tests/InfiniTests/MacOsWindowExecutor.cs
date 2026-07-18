@@ -9,6 +9,7 @@ namespace InfiniTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class MacOsWindowExecutor : ITestExecutor {
+    private const string NativeWindowTestNamespace = "InfiniTests.InfiniFrame.Window";
     private const string LibDispatch = "/usr/lib/system/libdispatch.dylib";
     private const string LibSystem = "/usr/lib/libSystem.dylib";
 
@@ -16,6 +17,10 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
     private static readonly DispatchWorkCallback DispatchWork = InvokeDispatchWork;
     private static readonly IntPtr DispatchWorkPointer = Marshal.GetFunctionPointerForDelegate(DispatchWork);
     private static readonly TimeSpan MainQueueTimeout = TimeSpan.FromSeconds(30);
+
+    // AppKit and the test host share one main queue. Keep a lease for the complete async test lifetime so
+    // continuations from separate tests cannot interleave on that queue.
+    private static readonly SemaphoreSlim MainQueueTestLease = new(1, 1);
 
     [DllImport(LibDispatch)]
     private static extern void dispatch_async_f(IntPtr queue, IntPtr context, IntPtr work);
@@ -25,7 +30,7 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void DispatchWorkCallback(IntPtr context);
-    
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate IntPtr DispatchGetMainQueueCallback();
 
@@ -36,12 +41,30 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
         TestContext context,
         Func<ValueTask> action
     ) {
-        if (!OperatingSystem.IsMacOS() || pthread_main_np() == 1) {
+        if (!OperatingSystem.IsMacOS() || !RequiresMainQueue(context) || pthread_main_np() == 1) {
             await action();
             return;
         }
 
-        await DispatchToMainQueueAsync(action);
+        await MainQueueTestLease.WaitAsync();
+        try {
+            await DispatchToMainQueueAsync(action);
+        }
+        finally {
+            MainQueueTestLease.Release();
+        }
+    }
+
+    private static bool RequiresMainQueue(TestContext context) {
+        if (context.Metadata.TestDetails.HasAttribute<RunOnMacOsMainThreadAttribute>()) {
+            return true;
+        }
+
+        string? testNamespace = context.Metadata.TestDetails.Class.ClassType.Namespace;
+        return testNamespace is not null && (
+            testNamespace.Equals(NativeWindowTestNamespace, StringComparison.Ordinal) ||
+            testNamespace.StartsWith(NativeWindowTestNamespace + ".", StringComparison.Ordinal)
+        );
     }
 
     private static IntPtr ResolveMainQueue() {
