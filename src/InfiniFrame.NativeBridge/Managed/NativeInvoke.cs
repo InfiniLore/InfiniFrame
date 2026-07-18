@@ -31,7 +31,7 @@ internal static partial class NativeInvoke {
     ///     Invokes a synchronous callback on the window thread with validation of arguments and native status.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The action to execute.</param>
     internal static void InvokeSyncWithValidation(
@@ -59,7 +59,7 @@ internal static partial class NativeInvoke {
     ///     Invokes a synchronous callback on the window thread with validation and a window handle parameter.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute, receiving the window handle.</param>
     internal static void InvokeSyncWithValidation(
@@ -85,7 +85,7 @@ internal static partial class NativeInvoke {
     ///     Invokes a synchronous callback on the window thread with validation.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     internal static void InvokeSyncWithValidation(
@@ -111,7 +111,7 @@ internal static partial class NativeInvoke {
     /// </summary>
     /// <typeparam name="T">The type of the output value.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute, producing an output value.</param>
     /// <returns>The output value from the callback.</returns>
@@ -142,7 +142,7 @@ internal static partial class NativeInvoke {
     /// </summary>
     /// <typeparam name="T">The type of the argument.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg">The argument to pass.</param>
@@ -172,7 +172,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T1">The type of the first argument.</typeparam>
     /// <typeparam name="T2">The type of the second argument.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
@@ -204,7 +204,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T1">The type of the first output value.</typeparam>
     /// <typeparam name="T2">The type of the second output value.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <returns>A tuple containing the two output values.</returns>
@@ -238,7 +238,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T2">The type of the second argument.</typeparam>
     /// <typeparam name="T3">The type of the third argument.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
@@ -274,7 +274,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T3">The type of the third argument.</typeparam>
     /// <typeparam name="T4">The type of the fourth argument.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
@@ -312,7 +312,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T3">The type of the third argument.</typeparam>
     /// <typeparam name="T4">The type of the output value.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
@@ -352,7 +352,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T3">The type of the third output value.</typeparam>
     /// <typeparam name="T4">The type of the fourth output value.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <returns>A tuple containing the four output values.</returns>
@@ -390,7 +390,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T4">The type of the fourth argument.</typeparam>
     /// <typeparam name="T5">The type of the fifth argument.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
@@ -431,7 +431,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T4">The type of the fourth argument.</typeparam>
     /// <typeparam name="T5">The type of the output value.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
@@ -477,7 +477,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T5">The type of the fifth argument.</typeparam>
     /// <typeparam name="T6">The type of the sixth argument.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
@@ -521,7 +521,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T5">The type of the fifth argument.</typeparam>
     /// <typeparam name="T6">The type of the output value.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
@@ -566,7 +566,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T6">The type of the sixth argument.</typeparam>
     /// <typeparam name="T7">The type of the seventh argument.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
@@ -614,7 +614,7 @@ internal static partial class NativeInvoke {
     /// <typeparam name="T7">The type of the seventh argument.</typeparam>
     /// <typeparam name="T8">The type of the eighth argument.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg1">The first argument.</param>
@@ -666,7 +666,7 @@ internal static partial class NativeInvoke {
     ///     Invokes a synchronous callback on the window thread without argument validation, but with error checking.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The action to execute.</param>
     internal static void InvokeSyncWithoutValidation(
@@ -694,7 +694,7 @@ internal static partial class NativeInvoke {
     ///     Invokes a synchronous callback on the window thread without argument validation, with error checking.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute, receiving the window handle.</param>
     internal static void InvokeSyncWithoutValidation(
@@ -719,7 +719,7 @@ internal static partial class NativeInvoke {
     ///     Invokes a synchronous callback on the window thread without argument validation, with error checking.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     internal static void InvokeSyncWithoutValidation(
@@ -745,7 +745,7 @@ internal static partial class NativeInvoke {
     /// </summary>
     /// <typeparam name="T">The type of the output value.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <returns>The output value from the callback.</returns>
@@ -775,7 +775,7 @@ internal static partial class NativeInvoke {
     /// </summary>
     /// <typeparam name="T">The type of the argument.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="arg">The argument to pass.</param>
@@ -804,7 +804,7 @@ internal static partial class NativeInvoke {
     /// </summary>
     /// <typeparam name="TResult">The return type of the callback.</typeparam>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="windowHandleOwner">The native window handle.</param>
+    /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="access">The access level required for the native window handle.</param>
