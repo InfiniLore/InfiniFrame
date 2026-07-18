@@ -10,7 +10,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.State;
 public class ToggleMaximizedTests {
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs]
     [SkipOnLinux]
     public async Task AtWindowStage_DirectAssignment(CancellationToken ct) {
         // Arrange
@@ -27,7 +26,6 @@ public class ToggleMaximizedTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs]
     [SkipOnLinux]
     public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct) {
         // Arrange

@@ -10,7 +10,6 @@ namespace InfiniTests.InfiniFrame.Window;
 [NotInParallelInfiniTests]
 public class WindowIntegrationTests {
     [Test]
-    [SkipOnMacOs]
     [SkipOnLinux]
     public async Task FullscreenAndResize_Interaction_RemainsDeterministic(CancellationToken ct = default) {
         // Arrange
@@ -39,7 +38,6 @@ public class WindowIntegrationTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [SkipOnLinux("Maximize verification is unsupported on Linux")]
     public async Task MaximizeAndMove_Interaction_RemainsDeterministic(CancellationToken ct = default) {
         // Arrange
@@ -69,7 +67,6 @@ public class WindowIntegrationTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [SkipOnLinux]
     public async Task ConcurrentResizeMoveStateCalls_ResultInDeterministicFinalState(CancellationToken ct = default) {
         // Arrange

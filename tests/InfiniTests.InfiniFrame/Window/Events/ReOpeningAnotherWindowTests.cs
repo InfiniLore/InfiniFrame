@@ -9,7 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 public class ReOpeningAnotherWindowTests {
     [Test]
-    [SkipOnMacOs]
     [SkipOnWindowsArm]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_CloseMultipleWindows_DoesNotPreventSubsequentWindowCreation(CancellationToken ct = default) {

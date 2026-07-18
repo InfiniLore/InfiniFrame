@@ -13,7 +13,6 @@ public class WindowTests {
     // Tests
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task NativeHandleLease_IsDefined(CancellationToken ct = default) {
         // Arrange
@@ -27,7 +26,6 @@ public class WindowTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task MainProgramHandle_IsDefined(CancellationToken ct = default) {
         // Arrange
@@ -41,7 +39,6 @@ public class WindowTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task WindowHandle_IsDefined(CancellationToken ct = default) {
         // Arrange
@@ -56,7 +53,6 @@ public class WindowTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task WindowHandle_WhenClosed_IsZero(CancellationToken ct = default) {
         // Arrange

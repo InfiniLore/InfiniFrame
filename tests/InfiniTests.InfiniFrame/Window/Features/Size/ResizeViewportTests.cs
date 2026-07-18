@@ -13,7 +13,6 @@ public sealed class ResizeViewportTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs]
     [SkipOnLinux]
     [SkipOnWindowsArm("Test is flaky on ARM")]
     [DefaultInfiniTestsTimeout(35_000)]

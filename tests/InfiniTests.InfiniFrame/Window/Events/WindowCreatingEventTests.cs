@@ -9,7 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowCreatingEventTests {
     [Test]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task AtBuilderStage_EventFiresOnce(CancellationToken ct = default) {
         // Arrange

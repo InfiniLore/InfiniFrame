@@ -15,7 +15,6 @@ public class ParentChildWindowTests {
     private static extern IntPtr GetWindow(IntPtr hWnd, uint uCmd);
 
     [Test]
-    [SkipOnMacOs]
     [SkipOnWindowsArm]
     // Rider can schedule the net8 test host last while all target frameworks are cold-starting WebView2.
     // This integration test creates two native browser windows, so use a 30-second total budget.
@@ -41,7 +40,6 @@ public class ParentChildWindowTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [SkipOnWindowsArm]
     [DefaultInfiniTestsTimeout(6_000)]
     [NotInParallelInfiniTests]

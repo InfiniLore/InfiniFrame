@@ -47,7 +47,6 @@ public class SetLeftTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [SkipOnLinux]
     [NotInParallelInfiniTests]
     [Arguments(360)]
@@ -71,7 +70,6 @@ public class SetLeftTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [SkipOnLinux]
     [NotInParallelInfiniTests]
     [Arguments(380)]

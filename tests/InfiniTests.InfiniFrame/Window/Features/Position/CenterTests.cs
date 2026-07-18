@@ -10,7 +10,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.Position;
 public class CenterTests {
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs]
     [SkipOnLinux]
     public async Task AtWindowStage_DirectAssignment(CancellationToken ct) {
         // Arrange
@@ -32,7 +31,6 @@ public class CenterTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs]
     [SkipOnLinux]
     public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct) {
         // Arrange

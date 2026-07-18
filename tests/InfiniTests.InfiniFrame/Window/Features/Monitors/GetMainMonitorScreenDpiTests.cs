@@ -9,7 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.Monitors;
 // ---------------------------------------------------------------------------------------------------------------------
 public class GetMainMonitorScreenDpiTests {
     [Test]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment(CancellationToken ct) {
         // Arrange
@@ -24,7 +23,6 @@ public class GetMainMonitorScreenDpiTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct) {
         // Arrange

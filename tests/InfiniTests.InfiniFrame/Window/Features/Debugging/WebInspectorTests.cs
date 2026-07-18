@@ -35,7 +35,7 @@ public class WebInspectorTests {
     [Test]
     [Arguments(true)]
     [Arguments(false)]
-    [SkipOnMacOs]
+    [SkipOnMacOs("This test verifies the non-macOS unsupported-platform behavior")]
     public async Task AtBuilderStage_DirectAssignment_UnhappyFlow(bool value, CancellationToken ct) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -79,7 +79,7 @@ public class WebInspectorTests {
     [Test]
     [Arguments(true)]
     [Arguments(false)]
-    [SkipOnMacOs]
+    [SkipOnMacOs("This test verifies the non-macOS unsupported-platform behavior")]
     public async Task AtBuilderStage_ExtensionAssignment_UnhappyFlow(bool value, CancellationToken ct) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();

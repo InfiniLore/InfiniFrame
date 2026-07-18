@@ -48,7 +48,6 @@ public class IconFileTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [SkipOnLinux]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment_InvalidPath_DoesNotReplaceCurrentIcon(CancellationToken ct) {
@@ -68,7 +67,6 @@ public class IconFileTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [SkipOnLinux]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment_InvalidPath_ReturnsSameWindow(CancellationToken ct) {

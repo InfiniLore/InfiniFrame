@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using System.Diagnostics.CodeAnalysis;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -10,14 +9,11 @@ namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 // ---------------------------------------------------------------------------------------------------------------------
 public class CloseTests {
     [Test]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(1_000)]
-    [SuppressMessage("ReSharper", "MethodSupportsCancellation")]
-    // Sometimes fails on CI due to timing issues
+    [DefaultInfiniTestsTimeout(5_000)]
     public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct = default) {
         // Arrange
-        var windowClosingTcs = new TaskCompletionSource<bool>();
+        var windowClosingTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         using var windowUtility = InfiniFrameTestWindow.Create(
             builder: builder => builder.EventsStore.WindowClosingRequested.Add(_ => {
                 windowClosingTcs.TrySetResult(true);
@@ -28,15 +24,13 @@ public class CloseTests {
 
         // Act
         window.Close();
-        await Task.Delay(1_000, ct);
 
         // Assert
-        bool windowClosing = await windowClosingTcs.Task.WaitAsync(TimeSpan.FromSeconds(1));
+        bool windowClosing = await windowClosingTcs.Task.WaitAsync(TimeSpan.FromSeconds(3), ct);
         await Assert.That(windowClosing).IsTrue();
     }
 
     [Test]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     [DefaultInfiniTestsTimeout(2_000)]
     public async Task AtWindowStage_DirectAssignment(CancellationToken ct) {

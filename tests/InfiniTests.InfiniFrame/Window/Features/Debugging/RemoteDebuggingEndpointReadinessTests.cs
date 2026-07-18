@@ -11,7 +11,7 @@ namespace InfiniTests.InfiniFrame.Window.Features.Debugging;
 // ---------------------------------------------------------------------------------------------------------------------
 public class RemoteDebuggingEndpointReadinessTests {
     [Test]
-    [SkipOnMacOs]
+    [SkipOnMacOs("Remote TCP debugging endpoints are not supported by WKWebView")]
     [NotInParallelInfiniTests]
     // WebView2 startup and browser-process shutdown are substantially slower on native
     // Windows ARM64 runners. The assertions below already use bounded polling, so the

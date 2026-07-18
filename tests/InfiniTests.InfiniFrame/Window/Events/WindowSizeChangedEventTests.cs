@@ -9,7 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowSizeChangedEventTests {
     [Test]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_SetSize_RaisesEvent(CancellationToken ct = default) {
         // Arrange

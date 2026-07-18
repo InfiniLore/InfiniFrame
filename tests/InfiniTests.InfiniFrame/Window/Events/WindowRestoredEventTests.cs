@@ -9,7 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowRestoredEventTests {
     [Test]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_RestoreFromMaximized_RaisesEvent(CancellationToken ct = default) {
         // Arrange
@@ -38,7 +37,6 @@ public class WindowRestoredEventTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [SkipOnLinux("desktop-state dependent under WSLg/local Linux runs")]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_RestoreFromMinimized_RaisesEvent(CancellationToken ct = default) {

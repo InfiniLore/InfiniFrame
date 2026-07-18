@@ -9,7 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 // ---------------------------------------------------------------------------------------------------------------------
 public class IsClosedOrClosingTests {
     [Test]
-    [SkipOnMacOs]
     [DefaultInfiniTestsTimeout(6_000)]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct = default) {
@@ -31,7 +30,6 @@ public class IsClosedOrClosingTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [DefaultInfiniTestsTimeout(6_000)]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment(CancellationToken ct = default) {

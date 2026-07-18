@@ -9,7 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowMinimizedEventTests {
     [Test]
-    [SkipOnMacOs]
     [SkipOnLinux("desktop-state dependent under WSLg/local Linux runs")]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_SetMinimized_RaisesEvent(CancellationToken ct = default) {

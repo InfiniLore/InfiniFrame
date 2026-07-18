@@ -73,7 +73,6 @@ public class InvokeTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment(CancellationToken ct) {
         // Arrange
@@ -91,7 +90,6 @@ public class InvokeTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct) {
         // Arrange

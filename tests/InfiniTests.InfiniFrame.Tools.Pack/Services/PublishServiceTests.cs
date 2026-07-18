@@ -120,7 +120,7 @@ public class PublishServiceTests {
     }
 
     [Test]
-    [SkipOnMacOs("4 Hours lost on trying to fix this on macOs... too much time to spent on this.")]
+    [SkipOnMacOs("The pack fixture does not yet produce a valid macOS single-file app bundle")]
     public async Task PublishAsync_ReturnsSuccessAndSingleFileOutput_WhenProjectIncludesInfiniFrame() {
         SharedPublishFixture fixture = await ExecuteWithTimeout(
             GetOrCreateSharedPublishFixtureAsync(),
@@ -134,7 +134,7 @@ public class PublishServiceTests {
     }
 
     [Test]
-    [SkipOnMacOs("4 Hours lost on trying to fix this on macOs... too much time to spent on this.")]
+    [SkipOnMacOs("The pack fixture does not yet produce a launchable macOS app bundle")]
     public async Task PublishAsync_LaunchedPackedApp_InitializesBootstrapAndExitsSuccessfully() {
         SharedPublishFixture fixture = await ExecuteWithTimeout(
             GetOrCreateSharedPublishFixtureAsync(),
