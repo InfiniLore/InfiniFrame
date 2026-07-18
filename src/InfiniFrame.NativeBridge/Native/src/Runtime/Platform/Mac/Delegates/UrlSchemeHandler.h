@@ -24,6 +24,8 @@
     NSObject<WKURLSchemeHandler>{
         @public
     WebResourceRequestedCallback requestHandler; /// Callback that produces the response body and MIME type
-
+        @private
+    NSMutableSet* activeTasks;
     }
+- (void)invalidate;
 @ end

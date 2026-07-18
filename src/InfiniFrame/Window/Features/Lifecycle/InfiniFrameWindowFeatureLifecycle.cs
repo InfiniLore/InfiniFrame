@@ -170,6 +170,7 @@ public class InfiniFrameWindowFeatureLifecycle(
         catch {
             window.ReleaseNativeHandle();
             window.MarkDisposed();
+            ReleaseNativeCallbackRootOnce();
             throw;
         }
         finally {

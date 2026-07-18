@@ -2,6 +2,8 @@ param(
     [string]$Configuration = "Debug",
     [string]$Arch = "x64",
     [string]$EnableTestExports = "",
+    [ValidateSet("None", "AddressUndefined", "Thread")]
+    [string]$Sanitizer = "None",
     [switch]$Clean
 )
 
@@ -99,6 +101,7 @@ try {
     Write-Host "Architecture : $Arch"
     Write-Host "Platform     : $Platform"
     Write-Host "Test Exports : $EnableTestExports"
+    Write-Host "Sanitizer    : $Sanitizer"
     Write-Host "========================================="
 
     Write-Host ""
@@ -173,6 +176,7 @@ try {
     }
 
     $CMakeArgs += "-DINFINIFRAME_BUILD_TEST_EXPORTS=$EnableTestExportsCMakeValue"
+    $CMakeArgs += "-DINFINIFRAME_SANITIZER=$Sanitizer"
 
     Write-Host ""
     Write-Host "CMake Configure Arguments:"

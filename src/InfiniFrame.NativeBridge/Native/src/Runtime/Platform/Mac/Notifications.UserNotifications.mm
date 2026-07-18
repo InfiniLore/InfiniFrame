@@ -22,4 +22,5 @@ void InfiniFrameWindow::ShowNotification(AutoString title, AutoString body)
     [center addNotificationRequest: request withCompletionHandler: ^(NSError * _Nullable error) {
         (void)error;
     }];
+    [objNotificationContent release];
 }

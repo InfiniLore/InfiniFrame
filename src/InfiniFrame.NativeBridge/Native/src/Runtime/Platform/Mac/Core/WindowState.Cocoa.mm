@@ -5,12 +5,23 @@
 #include "../Window.Cocoa.Internal.h"
 
 #include "Runtime/Shared/Utilities/StringCopy.h"
+#include <stdexcept>
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 
 static const int MAX_WINDOW_DIMENSION = 10000;
+
+static NSString* RequireUtf8String(const AutoStringConst value, const char* argumentName)
+{
+    if (value == nullptr)
+        throw std::invalid_argument(std::string(argumentName) + " is null.");
+    NSString* result = [NSString stringWithUTF8String:value];
+    if (result == nil)
+        throw std::invalid_argument(std::string(argumentName) + " is not valid UTF-8.");
+    return result;
+}
 
 void InfiniFrameWindow::ApplyMediaAutoplayConfiguration()
 {
@@ -151,7 +162,7 @@ void InfiniFrameWindow::NavigateToString(AutoString content)
     if (m_impl->_isClosingOrClosed || m_impl->_webview == nil)
         return;
 
-    [m_impl->_webview loadHTMLString: [NSString stringWithUTF8String: content] baseURL: nil];
+    [m_impl->_webview loadHTMLString:RequireUtf8String(content, "content") baseURL:nil];
 }
 
 void InfiniFrameWindow::NavigateToUrl(AutoString url)
@@ -159,8 +170,10 @@ void InfiniFrameWindow::NavigateToUrl(AutoString url)
     if (m_impl->_isClosingOrClosed || m_impl->_webview == nil)
         return;
 
-    NSString* nsurlstring = [NSString stringWithUTF8String: url];
+    NSString* nsurlstring = RequireUtf8String(url, "url");
     NSURL *nsurl = [NSURL URLWithString: nsurlstring];
+    if (nsurl == nil)
+        throw std::invalid_argument("url is not a valid URL.");
     NSURLRequest *nsrequest = [NSURLRequest requestWithURL: nsurl];
     [m_impl->_webview loadRequest: nsrequest];
 }
@@ -177,7 +190,7 @@ void InfiniFrameWindow::Restore()
 
 static std::string BuildMacWebMessageJs(AutoString message) {
     @autoreleasepool {
-        NSString* nsmessage = [NSString stringWithUTF8String: message];
+        NSString* nsmessage = RequireUtf8String(message, "message");
 
         NSData* data = [
             NSJSONSerialization
@@ -225,7 +238,7 @@ void InfiniFrameWindow::SendWebMessage(AutoString message)
         return;
     }
 
-    NSString* nsmessage = [NSString stringWithUTF8String: message];
+    NSString* nsmessage = RequireUtf8String(message, "message");
 
     NSData* data = [
         NSJSONSerialization
@@ -287,10 +300,11 @@ void InfiniFrameWindow::SetZoomEnabled(bool enabled)
 
 void InfiniFrameWindow::SetIconFile(AutoString filename)
 {
-    NSString* path = [NSString stringWithUTF8String: filename];
+    NSString* path = RequireUtf8String(filename, "filename");
     NSImage* icon = [[NSImage alloc] initWithContentsOfFile: path];
     if (icon != nil)
         [[m_impl->_window standardWindowButton: NSWindowDocumentIconButton] setImage: icon];
+    [icon release];
 
     m_impl->_iconFileName = filename ? filename : "";
 }
@@ -403,7 +417,7 @@ void InfiniFrameWindow::SetMaxSize(int width, int height)
 void InfiniFrameWindow::SetTitle(AutoString title)
 {
     m_impl->_windowTitle = title ? title : "";
-    [m_impl->_window setTitle: [NSString stringWithUTF8String: title]];
+    [m_impl->_window setTitle:RequireUtf8String(title, "title")];
 }
 
 void InfiniFrameWindow::SetTopmost(bool topmost)

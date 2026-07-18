@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 
 #import "UiDelegate.h"
+#include "../MacDiagnostics.h"
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -12,7 +13,22 @@
 - (void)userContentController:(WKUserContentController *)userContentController
         didReceiveScriptMessage:(WKScriptMessage *)message
 {
-    char *messageUtf8 = const_cast<char *>([message.body UTF8String]);
+    if (infiniFrame == nullptr || webMessageReceivedCallback == nullptr) return;
+
+    NSString* messageText = nil;
+    if ([message.body isKindOfClass:[NSString class]]) {
+        messageText = (NSString *)message.body;
+    } else if ([NSJSONSerialization isValidJSONObject:message.body]) {
+        NSData* json = [NSJSONSerialization dataWithJSONObject:message.body options:0 error:nil];
+        if (json != nil)
+            messageText = [[[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding] autorelease];
+    }
+    if (messageText == nil)
+        messageText = [message.body description];
+    if (messageText == nil)
+        messageText = @"";
+
+    char *messageUtf8 = const_cast<char *>([messageText UTF8String]);
     NSString* source = message.frameInfo.request.URL.absoluteString;
 
     if (source == nil) {
@@ -27,6 +43,7 @@
     }
 
     char* sourceUtf8 = source == nil ? nullptr : const_cast<char*>([source UTF8String]);
+    infiniframe::macos::NativeCallbackScope callbackScope;
     webMessageReceivedCallback(messageUtf8, sourceUtf8);
 }
 
@@ -84,6 +101,7 @@
     NSTextField* input = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 200, 24)];
     [input setStringValue:defaultText];
     [alert setAccessoryView:input];
+    [input release];
 
     [alert beginSheetModalForWindow:window completionHandler:^void (NSModalResponse response) {
         [input validateEditing];
@@ -114,8 +132,9 @@
         type:(WKMediaCaptureType)type
         decisionHandler:(void (^)(WKPermissionDecision decision))decisionHandler
 {
-    bool grantPermissions;
-    infiniFrame->GetGrantBrowserPermissions(&grantPermissions);
+    bool grantPermissions = false;
+    if (infiniFrame != nullptr)
+        infiniFrame->GetGrantBrowserPermissions(&grantPermissions);
     decisionHandler(grantPermissions ? WKPermissionDecisionGrant : WKPermissionDecisionPrompt);
 }
 @end

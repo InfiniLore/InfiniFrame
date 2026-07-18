@@ -6,12 +6,17 @@
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
+#include <exception>
 #include <stdexcept>
 
 #include "../Delegates/AppDelegate.h"
+#include "../Delegates/NavigationDelegate.h"
+#include "../Delegates/UiDelegate.h"
+#include "../Delegates/UrlSchemeHandler.h"
 #include "Runtime/Shared/Window/InfiniFrameDialog.h"
 #include "Runtime/Shared/Window/InfiniFrameWindow.h"
 #include "../NSWindowBorderless.h"
+#include "../MacDiagnostics.h"
 #include "../Window.Cocoa.Internal.h"
 #include "../Delegates/WindowDelegate.h"
 
@@ -25,20 +30,34 @@ static void DispatchToMainSync(void (^block)()) {
     if ([NSThread isMainThread]) {
         block();
     } else {
-        dispatch_sync(dispatch_get_main_queue(), block);
+        __block std::exception_ptr exception;
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            try {
+                block();
+            } catch (...) {
+                exception = std::current_exception();
+            }
+        });
+        if (exception != nullptr)
+            std::rethrow_exception(exception);
     }
 }
 
 void InfiniFrameWindow::Register()
 {
+    infiniframe::macos::InstallDiagnostics();
+    infiniframe::macos::LogLifecycle("register", nullptr);
     DispatchToMainSync(^{
         static dispatch_once_t registerOnceToken;
         dispatch_once(&registerOnceToken, ^{
             @autoreleasepool {
-                AppDelegate *appDelegate = [[[AppDelegate alloc] init] autorelease];
-
                 NSApplication *application = [NSApplication sharedApplication];
-                [application setDelegate: appDelegate];
+                // NSApplication's delegate is not an ownership boundary on every supported
+                // SDK. Keep our delegate alive for the process lifetime, and do not replace an
+                // embedding application's delegate.
+                static AppDelegate *appDelegate = [[AppDelegate alloc] init];
+                if ([application delegate] == nil)
+                    [application setDelegate: appDelegate];
                 [application setActivationPolicy: NSApplicationActivationPolicyRegular];
 
                 NSString *appName = [[NSProcessInfo processInfo] processName];
@@ -91,6 +110,8 @@ void InfiniFrameWindow::Register()
                 [mainSubMenu addItem: quitMenuItem];
 
                 [NSApp setMainMenu: mainMenu];
+                if (![application isRunning])
+                    [application finishLaunching];
             }
         });
     });
@@ -98,11 +119,14 @@ void InfiniFrameWindow::Register()
 
 InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl(std::make_unique<Impl>())
 {
+    infiniframe::macos::LogLifecycle("window-construct-begin", this);
     const bool traceTimings = std::getenv("INFINIFRAME_MACOS_TRACE_TIMINGS") != nullptr;
     const auto constructionStartedAt = std::chrono::steady_clock::now();
     __block std::chrono::steady_clock::time_point webViewStartedAt;
     auto* params = initParams;
+    try {
     DispatchToMainSync(^{
+      @autoreleasepool {
         this->m_impl->_windowTitle = params->Title ? params->Title : "";
 
         if (params->StartUrl != nullptr)
@@ -216,9 +240,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
         [this->m_impl->_window setCollectionBehavior:
             [this->m_impl->_window collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
 
-        WindowDelegate *windowDelegate = [WindowDelegate new];
-        windowDelegate->infiniFrame = this;
-        this->m_impl->_window.delegate = windowDelegate;
+        this->m_impl->_windowDelegate = [[WindowDelegate alloc] init];
+        this->m_impl->_windowDelegate->infiniFrame = this;
+        this->m_impl->_window.delegate = this->m_impl->_windowDelegate;
 
         this->SetTitle(const_cast<AutoString>(this->m_impl->_windowTitle.c_str()));
 
@@ -278,7 +302,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
                 std::string_view key = field.unescaped_key().value();
                 auto value = field.value();
 
-                NSString *preferenceKey = [[NSString alloc] initWithBytes:key.data() length:key.length() encoding:NSUTF8StringEncoding];
+                NSString *preferenceKey = [[[NSString alloc] initWithBytes:key.data() length:key.length() encoding:NSUTF8StringEncoding] autorelease];
+                if (preferenceKey == nil)
+                    throw std::invalid_argument("Browser preference name is not valid UTF-8.");
 
                 switch (value.type()) {
                     case simdjson::ondemand::json_type::number: {
@@ -303,9 +329,11 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
                     case simdjson::ondemand::json_type::string: {
                         std::string_view strVal;
                         if (value.get(strVal) == simdjson::SUCCESS) {
-                            NSString *preferenceValue = [[NSString alloc] initWithBytes:strVal.data()
+                            NSString *preferenceValue = [[[NSString alloc] initWithBytes:strVal.data()
                                                                                  length:strVal.length()
-                                                                               encoding:NSUTF8StringEncoding];
+                                                                               encoding:NSUTF8StringEncoding] autorelease];
+                            if (preferenceValue == nil)
+                                throw std::invalid_argument("Browser preference value is not valid UTF-8.");
                             this->m_impl->SetPreference(preferenceKey, preferenceValue);
                         }
                         break;
@@ -321,7 +349,56 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
         bool isAlreadyShown = params->Minimized || params->Maximized;
         this->Show(isAlreadyShown);
         this->SetFullScreen(params->FullScreen);
+      }
     });
+    }
+    catch (...) {
+        // A C++ constructor that throws does not run InfiniFrameWindow::~InfiniFrameWindow.
+        // Tear down every Cocoa object created so far before m_impl itself is destroyed.
+        DispatchToMainSync(^{
+            if (m_impl->_parentWillCloseObserver != nil) {
+                [[NSNotificationCenter defaultCenter] removeObserver:m_impl->_parentWillCloseObserver];
+                m_impl->_parentWillCloseObserver = nil;
+            }
+            if (m_impl->_nativeParentWindow != nil && m_impl->_window != nil)
+                [m_impl->_nativeParentWindow removeChildWindow:m_impl->_window];
+            m_impl->_nativeParentWindow = nil;
+
+            if (m_impl->_webviewConfiguration != nil)
+                [m_impl->_webviewConfiguration.userContentController removeScriptMessageHandlerForName:@"infiniFrameInterop"];
+            for (UrlSchemeHandler* handler : m_impl->_urlSchemeHandlers) {
+                [handler invalidate];
+                [handler release];
+            }
+            m_impl->_urlSchemeHandlers.clear();
+            if (m_impl->_webview != nil) {
+                [m_impl->_webview stopLoading];
+                m_impl->_webview.UIDelegate = nil;
+                m_impl->_webview.navigationDelegate = nil;
+                [m_impl->_webview removeFromSuperview];
+            }
+            if (m_impl->_windowDelegate != nil) m_impl->_windowDelegate->infiniFrame = nullptr;
+            if (m_impl->_uiDelegate != nil) m_impl->_uiDelegate->infiniFrame = nullptr;
+            if (m_impl->_navigationDelegate != nil) m_impl->_navigationDelegate->infiniFrame = nullptr;
+            [m_impl->_uiDelegate release];
+            m_impl->_uiDelegate = nil;
+            [m_impl->_navigationDelegate release];
+            m_impl->_navigationDelegate = nil;
+            [m_impl->_webview release];
+            m_impl->_webview = nil;
+            [m_impl->_webviewConfiguration release];
+            m_impl->_webviewConfiguration = nil;
+            if (m_impl->_window != nil) {
+                m_impl->_window.delegate = nil;
+                [m_impl->_window close];
+                [m_impl->_window release];
+                m_impl->_window = nil;
+            }
+            [m_impl->_windowDelegate release];
+            m_impl->_windowDelegate = nil;
+        });
+        throw;
+    }
 
     if (traceTimings) {
         const auto constructionFinishedAt = std::chrono::steady_clock::now();
@@ -339,13 +416,18 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
             static_cast<long long>(webViewMilliseconds)
         );
     }
+    infiniframe::macos::LogLifecycle("window-construct-complete", this);
 }
 
 InfiniFrameWindow::~InfiniFrameWindow()
 {
+    infiniframe::macos::LogLifecycle("window-destruct-begin", this);
     // SafeHandle finalization and managed disposal can release the native window from a
     // non-AppKit thread. All Cocoa/WebKit teardown must therefore occur on the main queue.
     DispatchToMainSync(^{
+        m_impl->_isClosingOrClosed = true;
+        m_impl->_webviewReady = false;
+        m_impl->_pendingWebMessages.clear();
         if (m_impl->_parentWillCloseObserver != nil) {
             [[NSNotificationCenter defaultCenter] removeObserver:m_impl->_parentWillCloseObserver];
             m_impl->_parentWillCloseObserver = nil;
@@ -360,20 +442,35 @@ InfiniFrameWindow::~InfiniFrameWindow()
             [m_impl->_webviewConfiguration.userContentController removeScriptMessageHandlerForName:@"infiniFrameInterop"];
         }
 
+        for (UrlSchemeHandler* handler : m_impl->_urlSchemeHandlers) {
+            [handler invalidate];
+            [handler release];
+        }
+        m_impl->_urlSchemeHandlers.clear();
+
         if (m_impl->_webview != nil) {
+            [m_impl->_webview stopLoading];
             m_impl->_webview.UIDelegate = nil;
             m_impl->_webview.navigationDelegate = nil;
+            [m_impl->_webview removeFromSuperview];
         }
+
+        if (m_impl->_windowDelegate != nil)
+            m_impl->_windowDelegate->infiniFrame = nullptr;
+        if (m_impl->_uiDelegate != nil)
+            m_impl->_uiDelegate->infiniFrame = nullptr;
+        if (m_impl->_navigationDelegate != nil)
+            m_impl->_navigationDelegate->infiniFrame = nullptr;
 
         [m_impl->_uiDelegate release];
         m_impl->_uiDelegate = nil;
         [m_impl->_navigationDelegate release];
         m_impl->_navigationDelegate = nil;
 
-        [m_impl->_webviewConfiguration release];
-        m_impl->_webviewConfiguration = nil;
         [m_impl->_webview release];
         m_impl->_webview = nil;
+        [m_impl->_webviewConfiguration release];
+        m_impl->_webviewConfiguration = nil;
 
         if (m_impl->_window != nil) {
             // The delegate stores a raw InfiniFrameWindow pointer. Detach it before
@@ -383,7 +480,14 @@ InfiniFrameWindow::~InfiniFrameWindow()
             [m_impl->_window release];
             m_impl->_window = nil;
         }
+
+        [m_impl->_windowDelegate release];
+        m_impl->_windowDelegate = nil;
+
+        m_impl->_windowClosed.store(true, std::memory_order_release);
+        m_impl->_windowClosedCondition.notify_all();
     });
+    infiniframe::macos::LogLifecycle("window-destruct-complete", this);
 }
 
 InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() noexcept { return m_impl.get(); }

@@ -11,6 +11,30 @@ namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Delegates;
 // ---------------------------------------------------------------------------------------------------------------------
 public class CustomSchemeResponseAbiTests {
     [Test]
+    public async Task ReversePInvokeStrings_UsePlatformNativeEncoding(CancellationToken ct = default) {
+        Type[] delegates = [
+            typeof(CppWebMessageReceivedDelegate),
+            typeof(CppWebResourceRequestedDelegate),
+            typeof(CppDebugEventDelegate)
+        ];
+
+        foreach (Type delegateType in delegates) {
+            var interop = delegateType.GetCustomAttributes(typeof(UnmanagedFunctionPointerAttribute), false)
+                .Cast<UnmanagedFunctionPointerAttribute>()
+                .Single();
+            // Auto is UTF-16 on Windows and UTF-8 on Unix, matching AutoString in Basic.h.
+            await Assert.That(interop.CharSet).IsEqualTo(CharSet.Auto);
+        }
+    }
+
+    [Test]
+    public async Task ClosingCallback_UsesOneByteCancellationResult(CancellationToken ct = default) {
+        Type returnType = typeof(CppClosingDelegate).GetMethod("Invoke")!.ReturnType;
+
+        await Assert.That(returnType).IsEqualTo(typeof(byte));
+    }
+
+    [Test]
     public async Task Layout_MatchesNativeVersionOneAbi(CancellationToken ct = default) {
         int expectedSize = IntPtr.Size == 8 ? 72 : 48;
 

@@ -3,6 +3,9 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 
+#include <atomic>
+#include <condition_variable>
+#include <mutex>
 #include <vector>
 
 #include <Cocoa/Cocoa.h>
@@ -14,6 +17,8 @@
 
 @class UiDelegate;
 @class NavigationDelegate;
+@class WindowDelegate;
+@class UrlSchemeHandler;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -25,15 +30,19 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     WKWebViewConfiguration* _webviewConfiguration = nil;
     UiDelegate* _uiDelegate = nil;
     NavigationDelegate* _navigationDelegate = nil;
+    WindowDelegate* _windowDelegate = nil;
     NSWindow* _nativeParentWindow = nil;
     id _parentWillCloseObserver = nil;
+    std::vector<UrlSchemeHandler*> _urlSchemeHandlers;
 
     std::string _temporaryFilesPath;
 
     bool _chromeless = false;
     bool _webviewReady = false;
     bool _isClosingOrClosed = false;
-    bool _windowClosed = false;
+    std::atomic<bool> _windowClosed = false;
+    std::mutex _windowClosedMutex;
+    std::condition_variable _windowClosedCondition;
 
     // Messages queued while WKWebView is still loading (e.g. sent from WindowCreated handler).
     // Flushed on the first didFinishNavigation callback.

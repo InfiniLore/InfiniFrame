@@ -27,8 +27,10 @@ void InfiniFrameWindow::AttachWebView()
         [[WKUserContentController alloc] init];
 
     [userContentController addUserScript:script];
+    [script release];
 
     m_impl->_webviewConfiguration.userContentController = userContentController;
+    [userContentController release];
 
     m_impl->_webview = [
         [WKWebView alloc]

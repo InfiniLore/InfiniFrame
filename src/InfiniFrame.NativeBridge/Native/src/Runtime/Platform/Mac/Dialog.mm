@@ -29,7 +29,7 @@ NSString* warningBase64 = @"iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNS
 /**
  * @brief Decode a base64-encoded PNG string into an NSImage.
  * @param base64 Base64 string (no line breaks)
- * @return Autoreleased NSImage; caller must retain if stored beyond the current autorelease pool
+ * @return Retained NSImage; caller owns and must release it
  */
 NSImage* getIcon(NSString* base64) {
   NSData *imageData = [[NSData alloc] initWithBase64EncodedString:base64 options:0];
@@ -143,7 +143,7 @@ AutoString InfiniFrameDialog::ShowSaveFile(AutoString title, AutoString defaultP
 }
 
 DialogResult InfiniFrameDialog::ShowMessage(AutoString title, AutoString text, DialogButtons buttons, DialogIcon icon) {
-  NSAlert* alert = [[NSAlert alloc] init];
+  NSAlert* alert = [[[NSAlert alloc] init] autorelease];
   [alert setMessageText:[NSString stringWithUTF8String:title]];
   [alert setInformativeText:[NSString stringWithUTF8String:text]];
 

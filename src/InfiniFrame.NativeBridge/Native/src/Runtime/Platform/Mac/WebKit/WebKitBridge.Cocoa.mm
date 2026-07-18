@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 
 #include <vector>
+#include <stdexcept>
 
 #include "../Window.Cocoa.Internal.h"
 
@@ -42,7 +43,10 @@ void InfiniFrameWindow::Impl::SetUserAgent(AutoString userAgent)
     if (userAgent != nullptr)
     {
         _userAgent = userAgent;
-        [_webview setCustomUserAgent: [NSString stringWithUTF8String: userAgent]];
+        NSString* value = [NSString stringWithUTF8String:userAgent];
+        if (value == nil)
+            throw std::invalid_argument("userAgent is not valid UTF-8.");
+        [_webview setCustomUserAgent:value];
     }
     else
     {

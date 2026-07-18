@@ -9,6 +9,29 @@ set(INFINIFRAME_COMPILER_CACHE "AUTO" CACHE STRING
         "Compiler cache launcher: AUTO, OFF, or an executable path")
 set_property(CACHE INFINIFRAME_COMPILER_CACHE PROPERTY STRINGS AUTO OFF)
 
+set(INFINIFRAME_SANITIZER "None" CACHE STRING
+        "Native sanitizer instrumentation: None, AddressUndefined, or Thread")
+set_property(CACHE INFINIFRAME_SANITIZER PROPERTY STRINGS None AddressUndefined Thread)
+
+function(infiniframe_enable_sanitizers target_name)
+    if (INFINIFRAME_SANITIZER STREQUAL "None")
+        return()
+    endif ()
+
+    if (MSVC)
+        message(FATAL_ERROR "INFINIFRAME_SANITIZER is currently supported only with Clang/GCC")
+    elseif (INFINIFRAME_SANITIZER STREQUAL "AddressUndefined")
+        target_compile_options(${target_name} PRIVATE
+                -fsanitize=address,undefined -fno-omit-frame-pointer -fno-optimize-sibling-calls)
+        target_link_options(${target_name} PRIVATE -fsanitize=address,undefined)
+    elseif (INFINIFRAME_SANITIZER STREQUAL "Thread")
+        target_compile_options(${target_name} PRIVATE -fsanitize=thread -fno-omit-frame-pointer)
+        target_link_options(${target_name} PRIVATE -fsanitize=thread)
+    else ()
+        message(FATAL_ERROR "Unknown INFINIFRAME_SANITIZER value '${INFINIFRAME_SANITIZER}'")
+    endif ()
+endfunction()
+
 function(infiniframe_configure_compiler_cache)
     if (DEFINED CMAKE_CXX_COMPILER_LAUNCHER AND NOT "${CMAKE_CXX_COMPILER_LAUNCHER}" STREQUAL "")
         message(STATUS "Using preconfigured C++ compiler launcher: ${CMAKE_CXX_COMPILER_LAUNCHER}")

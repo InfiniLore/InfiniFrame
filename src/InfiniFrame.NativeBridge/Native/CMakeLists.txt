@@ -7,6 +7,9 @@ project(InfiniFrame.Native
 
 if (APPLE)
     enable_language(OBJCXX)
+    if (NOT DEFINED CMAKE_OSX_DEPLOYMENT_TARGET OR CMAKE_OSX_DEPLOYMENT_TARGET STREQUAL "")
+        set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0" CACHE STRING "Minimum supported macOS version" FORCE)
+    endif ()
 endif ()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -120,6 +123,7 @@ set(MAC_SOURCES
         src/Runtime/Platform/Mac/Delegates/WindowDelegate.h
         src/Runtime/Platform/Mac/NSWindowBorderless.h
         src/Runtime/Platform/Mac/Window.Cocoa.Internal.h
+        src/Runtime/Platform/Mac/MacDiagnostics.h
         
         src/Runtime/Platform/Mac/Core/UiDispatcher.Cocoa.mm
         src/Runtime/Platform/Mac/Core/WindowCore.Cocoa.mm
@@ -133,6 +137,7 @@ set(MAC_SOURCES
         src/Runtime/Platform/Mac/Delegates/WindowDelegate.mm
         src/Runtime/Platform/Mac/Dialog.mm
         src/Runtime/Platform/Mac/Monitors.Cocoa.mm
+        src/Runtime/Platform/Mac/MacDiagnostics.mm
         src/Runtime/Platform/Mac/NSWindowBorderless.mm
         src/Runtime/Platform/Mac/Notifications.UserNotifications.mm
         src/Runtime/Platform/Mac/WebKit/WebKitBridge.Cocoa.mm

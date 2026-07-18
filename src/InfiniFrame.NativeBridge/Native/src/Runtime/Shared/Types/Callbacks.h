@@ -113,7 +113,7 @@ using MovedCallback = void (*)(int x, int y);
 
 /**
  * @brief Called when the user attempts to close the window.
- * @return true to allow the window to close, false to cancel closing
+ * @return true to cancel closing, false to allow the window to close
  */
 using ClosingCallback = bool (*)();
 

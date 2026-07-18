@@ -8,6 +8,8 @@
 
 #ifdef _WIN32
 #define EXPORTED __declspec(dllexport)
+#elif defined(__GNUC__)
+#define EXPORTED __attribute__((visibility("default")))
 #else
 #define EXPORTED
 #endif
