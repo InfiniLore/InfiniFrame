@@ -40,6 +40,7 @@ infiniframe_setup_dependencies()
 # ----------------------------------------------------------------------------------------------------------------------
 set(COMMON_SOURCES
         src/Embedded/Embedded.cpp
+        src/Api/Utilities/ExportErrorState.cpp
         src/Runtime/Shared/Window/WindowEvents.cpp
         src/Runtime/Shared/Window/WindowState.cpp
         src/Api/Exports/Exports.CustomSchemes.cpp
