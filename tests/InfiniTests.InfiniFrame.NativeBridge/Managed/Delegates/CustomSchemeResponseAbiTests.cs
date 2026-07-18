@@ -10,10 +10,6 @@ namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Delegates;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class CustomSchemeResponseAbiTests {
-    private static int _releaseCount;
-    private static readonly CppReleaseCustomSchemeResponseDelegate ReleaseCallback = Release;
-    private static readonly CppWebResourceRequestedDelegate ResponseCallback = CreateResponse;
-
     [Test]
     public async Task Layout_MatchesNativeVersionOneAbi(CancellationToken ct = default) {
         int expectedSize = IntPtr.Size == 8 ? 72 : 48;
@@ -40,8 +36,17 @@ public class CustomSchemeResponseAbiTests {
     [Test]
     public async Task NativeConsumer_OnCurrentPlatform_ValidatesCopiesAndReleasesExactlyOnce(CancellationToken ct = default) {
         const int requestCount = 10_000;
-        _releaseCount = 0;
-        IntPtr callback = Marshal.GetFunctionPointerForDelegate(ResponseCallback);
+        int releaseCount = 0;
+        CppReleaseCustomSchemeResponseDelegate release = ownerContext => {
+            Marshal.FreeCoTaskMem(ownerContext);
+            
+            // ReSharper disable once AccessToModifiedClosure
+            Interlocked.Increment(ref releaseCount);
+        };
+        IntPtr releaseCallback = Marshal.GetFunctionPointerForDelegate(release);
+        CppWebResourceRequestedDelegate response = (_, ref value)
+            => CreateResponse(releaseCallback, ref value);
+        IntPtr callback = Marshal.GetFunctionPointerForDelegate(response);
 
         for (int i = 0; i < requestCount; i++) {
             InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.ConsumeCustomSchemeResponse(
@@ -50,10 +55,39 @@ public class CustomSchemeResponseAbiTests {
                 throw new InvalidOperationException($"Native ABI validation failed at request {i}.");
         }
 
-        await Assert.That(_releaseCount).IsEqualTo(requestCount);
+        await Assert.That(Volatile.Read(ref releaseCount)).IsEqualTo(requestCount);
     }
 
-    private static int CreateResponse(string url, ref CustomSchemeResponse response) {
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task NativeConsumer_ConcurrentCallbacks_KeepEachResponseAliveUntilNativeRelease(CancellationToken ct = default) {
+        const int requestCount = 1_024;
+        int releaseCount = 0;
+        CppReleaseCustomSchemeResponseDelegate release = ownerContext => {
+            Marshal.FreeCoTaskMem(ownerContext);
+            
+            // ReSharper disable once AccessToModifiedClosure
+            Interlocked.Increment(ref releaseCount);
+        };
+        IntPtr releaseCallback = Marshal.GetFunctionPointerForDelegate(release);
+        CppWebResourceRequestedDelegate response = (_, ref value)
+            => CreateResponse(releaseCallback, ref value);
+        IntPtr callback = Marshal.GetFunctionPointerForDelegate(response);
+
+        Task[] requests = Enumerable.Range(0, requestCount).Select(_ => Task.Run(() => {
+            ct.ThrowIfCancellationRequested();
+            InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.ConsumeCustomSchemeResponse(
+                callback, out ulong length, out uint byteSum, out int valid);
+            if (status != InfiniFrameNativeInteropStatus.Success || valid != 1 || length != 4 || byteSum != 10)
+                throw new InvalidOperationException("Concurrent native ABI validation failed.");
+        }, ct)).ToArray();
+
+        await Task.WhenAll(requests);
+        await Assert.That(Volatile.Read(ref releaseCount)).IsEqualTo(requestCount);
+    }
+
+    // ReSharper disable once RedundantAssignment
+    private static int CreateResponse(IntPtr releaseCallback, ref CustomSchemeResponse response) {
         byte[] contentType = "application/test\0"u8.ToArray();
         const int bodyLength = 4;
         IntPtr storage = Marshal.AllocCoTaskMem(bodyLength + contentType.Length);
@@ -68,13 +102,8 @@ public class CustomSchemeResponseAbiTests {
             Body = storage,
             ContentTypeUtf8 = IntPtr.Add(storage, bodyLength),
             OwnerContext = storage,
-            Release = Marshal.GetFunctionPointerForDelegate(ReleaseCallback)
+            Release = releaseCallback
         };
         return 1;
-    }
-
-    private static void Release(IntPtr ownerContext) {
-        Marshal.FreeCoTaskMem(ownerContext);
-        Interlocked.Increment(ref _releaseCount);
     }
 }

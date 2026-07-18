@@ -36,15 +36,36 @@ public class WaitForCloseTests {
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
-        // Act
-        Task waitTask = Task.Run(async () => {
-            await window.Features.Lifecycle.WaitForCloseAsync(ct);
-        }, ct);
+        // Act:
+        // The synchronous API owns the platform message loop. The async API only observes
+        // the native closed callback and therefore never occupies a worker thread.
+        Task messageLoop = Task.Run(window.WaitForClose, ct);
+        Task waitTask = window.Features.Lifecycle.WaitForCloseAsync(ct).AsTask();
         await Task.Delay(200, ct);
         await window.Features.Lifecycle.CloseAsync(ct);
 
         // Assert
         await waitTask.WaitAsync(TimeSpan.FromSeconds(4), ct);
+        await messageLoop.WaitAsync(TimeSpan.FromSeconds(4), ct);
         await Assert.That(window.Features.Lifecycle.IsClosedOrClosing()).IsTrue();
+    }
+
+    [Test]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
+    public async Task WaitForCloseAsync_CancellationOnlyCancelsTheCallerWait(CancellationToken ct) {
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow window = windowUtility.Window;
+        using var cancellation = new CancellationTokenSource();
+
+        Task waitTask = window.WaitForCloseAsync(cancellation.Token).AsTask();
+        cancellation.Cancel();
+
+        await Assert.That(async () => await waitTask).Throws<OperationCanceledException>();
+        await Assert.That(window.Features.Lifecycle.IsClosedOrClosing()).IsFalse();
+
+        Task messageLoop = Task.Run(window.WaitForClose, ct);
+        window.Close();
+        await messageLoop.WaitAsync(TimeSpan.FromSeconds(4), ct);
     }
 }

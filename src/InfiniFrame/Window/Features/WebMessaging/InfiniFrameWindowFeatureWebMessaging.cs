@@ -28,9 +28,13 @@ public class InfiniFrameWindowFeatureWebMessaging(
     // ReSharper disable once ConvertIfStatementToReturnStatement
     /// <inheritdoc cref="IInfiniFrameWindowFeatureWebMessaging.SendWebMessageAsync"/>
     public ValueTask SendWebMessageAsync(string message, CancellationToken ct = default) {
-        if (window.IsClosedOrClosing()) return ValueTask.CompletedTask;
         if (ct.IsCancellationRequested) return ValueTask.FromCanceled(ct);
+        if (window.IsClosedOrClosing()) return ValueTask.CompletedTask;
 
-        return new ValueTask(Task.Run(action: () => SendWebMessage(message), ct));
+        // The native operation queues the message with the platform WebView; there is no
+        // completion callback to await. Do not consume a worker thread just to make this look
+        // asynchronous.
+        SendWebMessage(message);
+        return ValueTask.CompletedTask;
     }
 }

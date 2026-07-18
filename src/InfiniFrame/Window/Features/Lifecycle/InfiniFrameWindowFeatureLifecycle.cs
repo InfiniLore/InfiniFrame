@@ -249,14 +249,11 @@ public class InfiniFrameWindowFeatureLifecycle(
 
     /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.WaitForCloseAsync"/>
     public ValueTask WaitForCloseAsync(CancellationToken ct = default) {
-        if (ct.IsCancellationRequested)
-            return ValueTask.FromCanceled(ct);
-
-        if (IsClosed())
-            return ValueTask.CompletedTask;
-
-        WaitForClose();
-        return ValueTask.CompletedTask;
+        // The native message loop is owned by WaitForClose.  Starting that loop from an
+        // asynchronous API would either block the caller or require moving UI work to a
+        // thread-pool thread.  The closed callback is the authoritative native completion
+        // signal, so this API only observes that signal and never pumps or blocks a thread.
+        return new ValueTask(_closed.Task.WaitAsync(ct));
     }
 
     /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.Close"/>
@@ -290,7 +287,7 @@ public class InfiniFrameWindowFeatureLifecycle(
     }
 
     /// <inheritdoc cref="InfiniFrameWindowFeatureLifecycle.MarkAsClosed"/>
-    internal void MarkAsClosed() => window.Features.Lifecycle.MarkAsClosed();
+    private void MarkAsClosed() => window.Features.Lifecycle.MarkAsClosed();
 
     /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.MarkAsClosed"/>
     void IInfiniFrameWindowFeatureLifecycle.MarkAsClosed() {

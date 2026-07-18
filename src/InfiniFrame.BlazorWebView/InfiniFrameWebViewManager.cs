@@ -83,7 +83,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
                 _syncScheduler);
         });
 
-        _messagePumpTask = Task.Run(MessagePump);
+        _messagePumpTask = MessagePump();
     }
 
     private Lazy<IInfiniFrameWindow> LazyWindow { get; }
@@ -270,10 +270,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         }
         finally {
             try {
-                await _messagePumpTask.WaitAsync(TimeSpan.FromMilliseconds(250));
-            }
-            catch (TimeoutException ex) {
-                LazyLogger.Value?.LogDebug(ex, "Timed out while waiting for WebView message pump shutdown.");
+                await _messagePumpTask.ConfigureAwait(false);
             }
             catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
                 LazyLogger.Value?.LogWarning(ex, "Message pump faulted during WebView manager shutdown." );

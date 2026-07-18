@@ -12,7 +12,12 @@ namespace InfiniFrame.WebServer;
 ///     <see cref="IInfiniFrameWindow" />, providing lifecycle management for both the web server and the native window.
 /// </summary>
 public class InfiniFrameWebApplication {
-    private int _shutdownStarted;
+    #if NET9_0_OR_GREATER
+    private readonly Lock _shutdownLock = new();
+    #else
+    private readonly object _shutdownLock = new();
+    #endif
+    private Task? _shutdownTask;
     
     /// <summary>Gets or sets the logger for the application.</summary>
     public required ILogger<InfiniFrameWebApplication> Logger { get; init; }
@@ -84,8 +89,10 @@ public class InfiniFrameWebApplication {
         return this;
 
         WindowClosingResult ClosingHandler() {
-            StopWebApp();
-            // return false else the window will be not be closed (see old InfiniFrame code why)
+            // This runs inside a native UI callback. The shared shutdown task is observed by
+            // RunAsync/StopAsync, so starting it here does not block the UI thread or lose it.
+            _ = StopWebAppAsync();
+            // return false else the window will not be closed (see old InfiniFrame code why)
             return WindowClosingResult.Close;
         }
     }
@@ -106,18 +113,24 @@ public class InfiniFrameWebApplication {
     /// <returns>A task that completes when both the web app and window have been stopped.</returns>
     public async Task StopAsync(CancellationToken ct = default) {
         await StopWebAppAsync(ct);
-        Window.Close();
+        await Window.CloseAsync(ct);
+        await Window.WaitForCloseAsync(ct);
     }
 
-    private void StopWebApp() {
-        StopWebAppAsync().GetAwaiter().GetResult();
+    private Task StopWebAppAsync(CancellationToken ct = default) {
+        Task shutdownTask;
+        lock (_shutdownLock) {
+            shutdownTask = _shutdownTask ??= StopWebAppCoreAsync();
+        }
+
+        return shutdownTask.WaitAsync(ct);
     }
 
-    private async Task StopWebAppAsync(CancellationToken ct = default) {
-        if (Interlocked.Exchange(ref _shutdownStarted, 1) != 0) return;
-
+    private async Task StopWebAppCoreAsync() {
         try {
-            await WebApp.StopAsync(ct);
+            // Cancellation only cancels an individual caller's wait. Once shutdown starts it
+            // must run to completion for all callers.
+            await WebApp.StopAsync(CancellationToken.None);
         }
         catch (Exception e) when (ExceptionsUtility.IsNonFatalException(e)) {
             Logger.LogError(e, "Error stopping web app");

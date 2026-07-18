@@ -101,11 +101,14 @@ public class InfiniFrameWindowFeatureFilePickerDialogs(
         return results ?? [];
     }
 
-    private static Task<TResult> ShowOpenDialogAsync<TResult>(Func<TResult> workItem, CancellationToken ct = default) =>
-        ct.IsCancellationRequested
-            ? Task.FromCanceled<TResult>(ct)
-            // Dialog calls are intentionally offloaded for Blazor flows where synchronous dialog invocation is unsafe.
-            : Task.Run(workItem, ct);
+    private static Task<TResult> ShowOpenDialogAsync<TResult>(Func<TResult> workItem, CancellationToken ct = default) {
+        ct.ThrowIfCancellationRequested();
+
+        // These platform dialogs are modal APIs with no native completion callback. Running
+        // them on the thread pool is both fake asynchrony and invalid for several UI toolkits.
+        // Preserve the API while reporting the actual, synchronous platform behavior.
+        return Task.FromResult(workItem());
+    }
 
     private static string[] GetNativeFilters((string Name, string[] Extensions)[] filters, bool empty = false) {
         string[] nativeFilters = [];

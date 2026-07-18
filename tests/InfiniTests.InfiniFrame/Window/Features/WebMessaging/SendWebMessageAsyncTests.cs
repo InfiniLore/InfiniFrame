@@ -58,4 +58,38 @@ public class SendWebMessageAsyncTests {
             await window.SendWebMessageAsync("noop", cts.Token);
         });
     }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task AtWindowStage_CancellationWinsOverClosedWindow(CancellationToken ct) {
+        // Arrange
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow window = windowUtility.Window;
+        using var cts = new CancellationTokenSource();
+
+        // Act
+        window.Close();
+        cts.Cancel();
+
+        // Assert
+        await Assert.ThrowsAsync<TaskCanceledException>(async () =>
+            await window.Features.WebMessaging.SendWebMessageAsync("must-not-dispatch", cts.Token));
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task AtWindowStage_ConcurrentSends_CompleteBeforeNativeClose(CancellationToken ct) {
+        // Arrange
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow window = windowUtility.Window;
+        
+        // Act
+        ValueTask[] sends = Enumerable.Range(0, 64)
+            .Select(index => window.Features.WebMessaging.SendWebMessageAsync($"message-{index}", ct))
+            .ToArray();
+
+        // Assert
+        await Task.WhenAll(sends.Select(static send => send.AsTask()));
+        await Assert.That(window.IsClosedOrClosing()).IsFalse();
+    }
 }

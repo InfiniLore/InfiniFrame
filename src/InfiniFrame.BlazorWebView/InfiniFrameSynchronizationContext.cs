@@ -60,11 +60,11 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
                 completion.Callback();
                 completion.SetResult(null!);
             }
-            catch (OperationCanceledException) {
-                completion.SetCanceled();
+            catch (OperationCanceledException exception) {
+                completion.TrySetCanceled(exception.CancellationToken);
             }
-            catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
-                completion.SetException(exception);
+            catch (Exception exception) {
+                completion.TrySetException(exception);
             }
         }, completion);
 
@@ -79,20 +79,9 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
     public Task InvokeAsync(Func<Task> asyncAction) {
         var completion = new CallbackTaskCompletionSource<Func<Task>, object>(asyncAction);
         
-        // ReSharper disable once AsyncVoidMethod
-        ExecuteSynchronouslyIfPossible(d: static async void (state) => {
-            if (state is not CallbackTaskCompletionSource<Func<Task>, object> completion) return;
-
-            try {
-                await completion.Callback();
-                completion.SetResult(null!);
-            }
-            catch (OperationCanceledException) {
-                completion.SetCanceled();
-            }
-            catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
-                completion.SetException(exception);
-            }
+        ExecuteSynchronouslyIfPossible(static state => {
+            if (state is CallbackTaskCompletionSource<Func<Task>, object> completion)
+                _ = CompleteAsync(completion);
         }, completion);
 
         return completion.Task;
@@ -114,11 +103,11 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
                 TResult result = completion.Callback();
                 completion.SetResult(result);
             }
-            catch (OperationCanceledException) {
-                completion.SetCanceled();
+            catch (OperationCanceledException exception) {
+                completion.TrySetCanceled(exception.CancellationToken);
             }
-            catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
-                completion.SetException(exception);
+            catch (Exception exception) {
+                completion.TrySetException(exception);
             }
         }, completion);
 
@@ -134,20 +123,9 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
     public Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> asyncFunction) {
         var completion = new CallbackTaskCompletionSource<Func<Task<TResult>>, TResult>(asyncFunction);
         
-        // ReSharper disable once AsyncVoidMethod
-        ExecuteSynchronouslyIfPossible(d: static async void (state) => {
-            if (state is not CallbackTaskCompletionSource<Func<Task<TResult>>, TResult> completion) return;
-
-            try {
-                TResult result = await completion.Callback();
-                completion.SetResult(result);
-            }
-            catch (OperationCanceledException) {
-                completion.SetCanceled();
-            }
-            catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
-                completion.SetException(exception);
-            }
+        ExecuteSynchronouslyIfPossible(static state => {
+            if (state is CallbackTaskCompletionSource<Func<Task<TResult>>, TResult> completion)
+                _ = CompleteAsync(completion);
         }, completion);
 
         return completion.Task;
@@ -171,7 +149,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
     /// <param name="state">The state object passed to the callback.</param>
     public override void Send(SendOrPostCallback d, object? state) {
         Task antecedent;
-        var completion = new TaskCompletionSource<object>();
+        var completion = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         lock (_state.Lock) {
             antecedent = _state.Task;
@@ -210,7 +188,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
 
             // We can execute this synchronously because nothing is currently running
             // or queued.
-            completion = new TaskCompletionSource<object>();
+            completion = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
             _state.Task = completion.Task;
         }
 
@@ -297,5 +275,31 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
     private void DispatchException(Exception ex) {
         UnhandledExceptionEventHandler? handler = UnhandledException;
         handler?.Invoke(this, new UnhandledExceptionEventArgs(ex, false));
+    }
+
+    private static async Task CompleteAsync(CallbackTaskCompletionSource<Func<Task>, object> completion) {
+        try {
+            await completion.Callback().ConfigureAwait(false);
+            completion.TrySetResult(null!);
+        }
+        catch (OperationCanceledException exception) {
+            completion.TrySetCanceled(exception.CancellationToken);
+        }
+        catch (Exception exception) {
+            completion.TrySetException(exception);
+        }
+    }
+
+    private static async Task CompleteAsync<TResult>(CallbackTaskCompletionSource<Func<Task<TResult>>, TResult> completion) {
+        try {
+            TResult result = await completion.Callback().ConfigureAwait(false);
+            completion.TrySetResult(result);
+        }
+        catch (OperationCanceledException exception) {
+            completion.TrySetCanceled(exception.CancellationToken);
+        }
+        catch (Exception exception) {
+            completion.TrySetException(exception);
+        }
     }
 }
