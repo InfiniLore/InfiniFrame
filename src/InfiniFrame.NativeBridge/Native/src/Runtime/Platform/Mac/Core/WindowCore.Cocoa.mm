@@ -343,33 +343,47 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
 
 InfiniFrameWindow::~InfiniFrameWindow()
 {
-    if (m_impl->_parentWillCloseObserver != nil) {
-        [[NSNotificationCenter defaultCenter] removeObserver:m_impl->_parentWillCloseObserver];
-        m_impl->_parentWillCloseObserver = nil;
-    }
+    // SafeHandle finalization and managed disposal can release the native window from a
+    // non-AppKit thread. All Cocoa/WebKit teardown must therefore occur on the main queue.
+    DispatchToMainSync(^{
+        if (m_impl->_parentWillCloseObserver != nil) {
+            [[NSNotificationCenter defaultCenter] removeObserver:m_impl->_parentWillCloseObserver];
+            m_impl->_parentWillCloseObserver = nil;
+        }
 
-    if (m_impl->_nativeParentWindow != nil && m_impl->_window != nil) {
-        [m_impl->_nativeParentWindow removeChildWindow:m_impl->_window];
-        m_impl->_nativeParentWindow = nil;
-    }
+        if (m_impl->_nativeParentWindow != nil && m_impl->_window != nil) {
+            [m_impl->_nativeParentWindow removeChildWindow:m_impl->_window];
+            m_impl->_nativeParentWindow = nil;
+        }
 
-    if (m_impl->_webviewConfiguration != nil) {
-        [m_impl->_webviewConfiguration.userContentController removeScriptMessageHandlerForName:@"infiniFrameInterop"];
-    }
+        if (m_impl->_webviewConfiguration != nil) {
+            [m_impl->_webviewConfiguration.userContentController removeScriptMessageHandlerForName:@"infiniFrameInterop"];
+        }
 
-    if (m_impl->_webview != nil) {
-        m_impl->_webview.UIDelegate = nil;
-        m_impl->_webview.navigationDelegate = nil;
-    }
+        if (m_impl->_webview != nil) {
+            m_impl->_webview.UIDelegate = nil;
+            m_impl->_webview.navigationDelegate = nil;
+        }
 
-    [m_impl->_uiDelegate release];
-    m_impl->_uiDelegate = nil;
-    [m_impl->_navigationDelegate release];
-    m_impl->_navigationDelegate = nil;
+        [m_impl->_uiDelegate release];
+        m_impl->_uiDelegate = nil;
+        [m_impl->_navigationDelegate release];
+        m_impl->_navigationDelegate = nil;
 
-    [m_impl->_webviewConfiguration release];
-    [m_impl->_webview release];
-    [m_impl->_window performClose: m_impl->_window];
+        [m_impl->_webviewConfiguration release];
+        m_impl->_webviewConfiguration = nil;
+        [m_impl->_webview release];
+        m_impl->_webview = nil;
+
+        if (m_impl->_window != nil) {
+            // The delegate stores a raw InfiniFrameWindow pointer. Detach it before
+            // closing or releasing the NSWindow so Cocoa cannot call a destroyed instance.
+            m_impl->_window.delegate = nil;
+            [m_impl->_window close];
+            [m_impl->_window release];
+            m_impl->_window = nil;
+        }
+    });
 }
 
 InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() noexcept { return m_impl.get(); }
