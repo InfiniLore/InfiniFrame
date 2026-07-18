@@ -9,7 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowRestoredEventTests {
     [Test]
-    [Retry(5)]
     [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_RestoreFromMaximized_RaisesEvent(CancellationToken ct = default) {
@@ -39,7 +38,6 @@ public class WindowRestoredEventTests {
     }
 
     [Test]
-    [Retry(5)]
     [SkipOnMacOs]
     [SkipOnLinux("desktop-state dependent under WSLg/local Linux runs")]
     [NotInParallelInfiniTests]

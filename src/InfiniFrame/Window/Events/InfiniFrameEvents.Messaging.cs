@@ -22,7 +22,7 @@ public partial class InfiniFrameEvents {
         ArgumentNullException.ThrowIfNull(Sender);
         ArgumentNullException.ThrowIfNull(message);
 
-        if (Sender.InstanceHandle == IntPtr.Zero) {
+        if (Sender.LifecycleState != InfiniFrameWindowLifecycleState.Running) {
             Logger.LogDebug("Skipping web message handling because window is closed.");
             return;
         }

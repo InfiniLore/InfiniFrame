@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
+using Microsoft.Extensions.Logging.Abstractions;
 using System.Drawing;
 
 namespace InfiniFrame;
@@ -162,7 +163,10 @@ public static class HasInfiniFrameEventsStoreExtensions {
     ///     Registers a handler that determines whether the window should close.
     /// </summary>
     /// <param name="obj">The object with an events store.</param>
-    /// <param name="handler">The handler to invoke with the window and event args, returning a <see cref="WindowClosingResult" />.</param>
+    /// <param name="handler">
+    ///     The handler to invoke with the window and event args, returning a
+    ///     <see cref="WindowClosingResult" />.
+    /// </param>
     /// <typeparam name="T">The type of the object with an events store.</typeparam>
     /// <returns>The same instance for chaining.</returns>
     public static T RegisterWindowClosingHandler<T>(this T obj, Func<IInfiniFrameWindow, EventArgs?, WindowClosingResult> handler) where T : IHasInfiniFrameEventsStore {
@@ -205,7 +209,7 @@ public static class HasInfiniFrameEventsStoreExtensions {
         obj.EventsStore.WindowClosed.Add(handler);
         return obj;
     }
-    
+
     /// <summary>
     ///     Registers user-defined custom schemes (other than 'http', 'https' and 'file') and handler methods to receive
     ///     callbacks
@@ -227,6 +231,7 @@ public static class HasInfiniFrameEventsStoreExtensions {
     /// <exception cref="ApplicationException">Thrown if more than 16 custom schemes were set</exception>
     public static IInfiniFrameWindowBuilder RegisterCustomSchemeHandler(this IInfiniFrameWindowBuilder builder, string scheme, Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler) {
         if (string.IsNullOrWhiteSpace(scheme)) throw new ArgumentException("A scheme must be provided. (for example 'app' or 'custom'");
+
         ArgumentNullException.ThrowIfNull(handler);
 
         string schemeLower = scheme.ToLower();
@@ -238,7 +243,7 @@ public static class HasInfiniFrameEventsStoreExtensions {
 
         return builder;
     }
-    
+
     /// <summary>
     ///     Registers a custom scheme handler on an already-initialized window.
     /// </summary>
@@ -248,13 +253,20 @@ public static class HasInfiniFrameEventsStoreExtensions {
     /// <returns>The current <see cref="IInfiniFrameWindow" /> instance.</returns>
     public static IInfiniFrameWindow RegisterCustomSchemeHandler(this IInfiniFrameWindow window, string scheme, Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler) {
         if (string.IsNullOrWhiteSpace(scheme)) throw new ArgumentException("A scheme must be provided. (for example 'app' or 'custom'");
+
         string schemeLower = scheme.ToLower();
-        
-        InfiniFrameNative.AddCustomSchemeName(window.InstanceHandle, schemeLower);
+
+        NativeInvoke.InvokeSyncWithValidation(
+            NullLogger.Instance,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.AddCustomSchemeName,
+            schemeLower
+        );
         window.Events.EventsStore.CustomScheme.Add(schemeLower, handler);
         return window;
     }
-    
+
     /// <summary>
     ///     Registers a handler for web message post data with a specific message identifier.
     /// </summary>

@@ -9,7 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowLocationChangedEventTests {
     [Test]
-    [Retry(5)]
     [SkipOnMacOs]
     [SkipOnLinux("Location transitions are desktop-state dependent under WSLg/local Linux runs")]
     [NotInParallelInfiniTests]

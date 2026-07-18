@@ -1,12 +1,13 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniTests;
-using TUnit.Core.Executors;
-
+namespace InfiniFrame.NativeBridge.Handles;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[assembly: DefaultInfiniTestsTimeout]
-[assembly: Retry(3)]
-[assembly: TestExecutor<MacOsWindowExecutor>]
+/// <summary>
+/// Implemented by the managed owner that validates lifecycle and grants native leases.
+/// </summary>
+public interface INativeWindowHandleOwner {
+    NativeHandleLease AcquireNativeHandle(NativeHandleAccess access = NativeHandleAccess.Feature);
+}

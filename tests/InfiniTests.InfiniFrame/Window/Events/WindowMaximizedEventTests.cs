@@ -9,7 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowMaximizedEventTests {
     [Test]
-    [Retry(5)]
     [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_SetMaximized_RaisesEvent(CancellationToken ct = default) {

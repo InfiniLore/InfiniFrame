@@ -11,7 +11,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.Debugging;
 // ---------------------------------------------------------------------------------------------------------------------
 public class RemoteDebuggingEndpointReadinessTests {
     [Test]
-    [Retry(3)]
     [SkipOnMacOs]
     [NotInParallelInfiniTests]
     // WebView2 startup and browser-process shutdown are substantially slower on native

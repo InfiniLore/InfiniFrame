@@ -1,12 +1,15 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniTests;
-using TUnit.Core.Executors;
-
+namespace InfiniFrame.NativeBridge.Handles;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[assembly: DefaultInfiniTestsTimeout]
-[assembly: Retry(3)]
-[assembly: TestExecutor<MacOsWindowExecutor>]
+/// <summary>
+/// Identifies which lifecycle operation is acquiring a native instance.
+/// </summary>
+public enum NativeHandleAccess {
+    Feature,
+    Close,
+    WaitForExit
+}

@@ -19,7 +19,7 @@ public partial class InfiniFrameEvents {
     }
     
     private void CloseChildWindows(IInfiniFrameWindow window) {
-        if (window.InstanceHandle == IntPtr.Zero) return; // Window already closed
+        if (window.LifecycleState >= InfiniFrameWindowLifecycleState.NativeClosed) return;
 
         IInfiniFrameWindow[] childWindows;
         lock (window.Configuration.ChildWindows) {

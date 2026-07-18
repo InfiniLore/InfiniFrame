@@ -9,7 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowFocusInEventTests {
     [Test]
-    [Retry(5)]
     [SkipOnMacOs]
     [SkipOnLinux("Focus transitions are desktop-state dependent under WSLg/local Linux runs")]
     [NotInParallelInfiniTests]

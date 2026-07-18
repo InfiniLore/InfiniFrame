@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.NativeBridge;
+using InfiniFrame.NativeBridge.Handles;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 
@@ -11,6 +12,14 @@ namespace InfiniTests.InfiniFrame.Shared.Utilities;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class NativeInvokeTests {
+
+    private sealed class TestHandleOwner(IntPtr value) : INativeWindowHandleOwner {
+        private readonly NativeWindowHandle _handle = new(value, ownsHandle: false);
+
+        public NativeHandleLease AcquireNativeHandle(NativeHandleAccess access = NativeHandleAccess.Feature) {
+            return new NativeHandleLease(_handle);
+        }
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Helpers
@@ -28,6 +37,7 @@ public class NativeInvokeTests {
         features.Invoke.Returns(invokeFeature);
 
         window.InstanceHandle.Returns(instanceHandle);
+        NativeWindowHandleRegistry.Register(instanceHandle, new TestHandleOwner(instanceHandle));
         window.ManagedThreadId.Returns(Environment.CurrentManagedThreadId);
         invokeFeature.When(i => i.Invoke(Arg.Any<Action>()))
             .Do(c => c.Arg<Action>()!());

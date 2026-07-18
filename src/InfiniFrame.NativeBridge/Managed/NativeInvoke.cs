@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.NativeBridge.Handles;
 using Microsoft.Extensions.Logging;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
@@ -806,13 +807,18 @@ internal static partial class NativeInvoke {
     /// <param name="windowInstanceHandle">The native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
+    /// <param name="access">The access level required for the native window handle.</param>
     /// <returns>The result of the callback.</returns>
     private static TResult? ExecuteInvokeSync<TResult>(
         ILogger logger,
         IntPtr windowInstanceHandle,
         int managedThreadId,
-        Func<TResult> callback
+        Func<TResult> callback,
+        NativeHandleAccess access = NativeHandleAccess.Feature
     ) {
+        using NativeHandleLease lease = NativeWindowHandleRegistry.Acquire(windowInstanceHandle, access);
+        ObjectDisposedException.ThrowIf(lease.Handle != windowInstanceHandle, "InfiniFrameWindow");
+
         TResult? result = default;
         Exception? callbackException = null;
         bool completed = false;
@@ -856,6 +862,38 @@ internal static partial class NativeInvoke {
         if (callbackException is not null) ExceptionDispatchInfo.Capture(callbackException).Throw();
 
         return result;
+
+    }
+
+    internal static void InvokeSyncForLifecycle(
+        ILogger logger,
+        IntPtr windowInstanceHandle,
+        int managedThreadId,
+        NativeHandleAccess access,
+        Func<IntPtr, InfiniFrameNativeInteropStatus> callback
+    ) {
+        ArgumentNullException.ThrowIfNull(callback);
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
+            logger,
+            windowInstanceHandle,
+            managedThreadId,
+            () => callback(windowInstanceHandle),
+            access);
+        EnsureSuccess(logger, status);
+    }
+
+    internal static void InvokeSyncForLifecycle(
+        ILogger logger,
+        IntPtr windowInstanceHandle,
+        int managedThreadId,
+        NativeHandleAccess access,
+        Action callback
+    ) {
+        ArgumentNullException.ThrowIfNull(callback);
+        _ = ExecuteInvokeSync<object?>(logger, windowInstanceHandle, managedThreadId, () => {
+            callback();
+            return null;
+        }, access);
     }
 
     /// <summary>

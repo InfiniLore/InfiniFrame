@@ -1,12 +1,17 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniTests;
-using TUnit.Core.Executors;
+namespace InfiniFrame;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[assembly: DefaultInfiniTestsTimeout]
-[assembly: Retry(3)]
-[assembly: TestExecutor<MacOsWindowExecutor>]
+/// <summary>Represents the deterministic managed/native lifetime of a window.</summary>
+public enum InfiniFrameWindowLifecycleState {
+    Created,
+    Initializing,
+    Running,
+    ClosingRequested,
+    NativeClosed,
+    Disposed
+}

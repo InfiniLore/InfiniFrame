@@ -10,7 +10,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 // ---------------------------------------------------------------------------------------------------------------------
 public class CloseTests {
     [Test]
-    [Retry(5)]
     [SkipOnMacOs]
     [NotInParallelInfiniTests]
     [DefaultInfiniTestsTimeout(1_000)]
@@ -37,7 +36,6 @@ public class CloseTests {
     }
 
     [Test]
-    [Retry(5)]
     [SkipOnMacOs]
     [NotInParallelInfiniTests]
     [DefaultInfiniTestsTimeout(2_000)]

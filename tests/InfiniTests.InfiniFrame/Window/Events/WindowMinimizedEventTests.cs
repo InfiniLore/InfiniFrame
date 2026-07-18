@@ -9,7 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowMinimizedEventTests {
     [Test]
-    [Retry(5)]
     [SkipOnMacOs]
     [SkipOnLinux("desktop-state dependent under WSLg/local Linux runs")]
     [NotInParallelInfiniTests]

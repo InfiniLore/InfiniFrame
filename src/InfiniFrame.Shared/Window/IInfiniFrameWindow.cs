@@ -1,6 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.NativeBridge.Handles;
+
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -8,7 +10,7 @@ namespace InfiniFrame;
 /// <summary>
 ///     Represents the main InfiniFrame window and provides access to its configuration, features, and events.
 /// </summary>
-public interface IInfiniFrameWindow : IHasInfiniFrameEventsStore {
+public interface IInfiniFrameWindow : IHasInfiniFrameEventsStore, INativeWindowHandleOwner {
     /// <summary>
     ///     Gets the service provider associated with this window.
     /// </summary>
@@ -40,9 +42,19 @@ public interface IInfiniFrameWindow : IHasInfiniFrameEventsStore {
     IntPtr MainProgramHandle { get; }
     
     /// <summary>
-    ///     Gets or sets the native instance handle for the window.
+    ///     Gets a non-owning snapshot of the native instance handle. Internal native calls acquire a lifetime lease.
     /// </summary>
-    IntPtr InstanceHandle { get; internal set; }
+    IntPtr InstanceHandle { get; }
+
+    /// <summary>Gets the current window lifecycle state.</summary>
+    InfiniFrameWindowLifecycleState LifecycleState { get; }
+
+    internal void BeginInitialization();
+    internal void AssignNativeHandle(IntPtr handle);
+    internal bool RequestClose();
+    internal void MarkNativeClosed();
+    internal void MarkDisposed();
+    internal void ReleaseNativeHandle();
     
     /// <summary>
     ///     Gets the native window handle.

@@ -9,6 +9,9 @@ namespace InfiniFrame;
 ///     Manages the lifecycle of an InfiniFrame window, including initialization, closing, and cleanup.
 /// </summary>
 public interface IInfiniFrameWindowFeatureLifecycle {
+    /// <summary>Gets the current deterministic lifecycle state.</summary>
+    InfiniFrameWindowLifecycleState State { get; }
+
     /// <summary>
     ///     Initializes the window lifecycle, performing native window creation and setup.
     /// </summary>
@@ -47,6 +50,8 @@ public interface IInfiniFrameWindowFeatureLifecycle {
     ///     Frees the native window handle. Must be called outside of native signal handlers.
     /// </summary>
     internal void CleanupNativeHandle();
+
+    internal bool CanWaitForCloseDuringDispose();
     
     /// <summary>
     ///     Checks whether the window is closed or in the process of closing.

@@ -35,7 +35,9 @@ public class ParentChildWindowTests {
 
         // Assert
         await Assert.That(childWindow.Configuration.ParentWindow).IsEqualTo(parentWindow);
-        await Assert.That(childWindow.Configuration.StartupParameters.NativeParent).IsEqualTo(parentWindow.InstanceHandle);
+        // NativeParent is deliberately transient: it is supplied under a parent-handle lease
+        // during construction and is not retained as a stale pointer in managed configuration.
+        await Assert.That(childWindow.Configuration.StartupParameters.NativeParent).IsEqualTo(IntPtr.Zero);
     }
 
     [Test]
