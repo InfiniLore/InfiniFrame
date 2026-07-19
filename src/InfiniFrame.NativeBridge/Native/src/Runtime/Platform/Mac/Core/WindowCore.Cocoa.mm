@@ -4,6 +4,7 @@
 
 #include <simdjson.h>
 #include <chrono>
+#include <cstring>
 #include <cstdio>
 #include <cstdlib>
 #include <exception>
@@ -303,7 +304,13 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
         if (params->BrowserControlInitParameters != nullptr)
         {
             simdjson::ondemand::parser parser;
-            auto doc = parser.iterate(params->BrowserControlInitParameters);
+            // Managed UTF-8 strings are only allocated through their terminating null.
+            // simdjson's zero-copy overload requires SIMDJSON_PADDING readable bytes after
+            // the JSON payload, so make an owned padded copy before parsing it.
+            simdjson::padded_string browserControlInitParameters(
+                params->BrowserControlInitParameters,
+                std::strlen(params->BrowserControlInitParameters));
+            auto doc = parser.iterate(browserControlInitParameters);
 
             for (auto field : doc.get_object()) {
                 std::string_view key = field.unescaped_key().value();

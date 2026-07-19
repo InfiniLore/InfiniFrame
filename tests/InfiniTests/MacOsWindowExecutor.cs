@@ -46,9 +46,10 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
             return;
         }
 
-        await MainQueueTestLease.WaitAsync();
+        CancellationToken cancellationToken = context.Execution.CancellationToken;
+        await MainQueueTestLease.WaitAsync(cancellationToken);
         try {
-            await DispatchToMainQueueAsync(action);
+            await DispatchToMainQueueAsync(action, cancellationToken);
         }
         finally {
             MainQueueTestLease.Release();
@@ -87,15 +88,22 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
             "Unable to resolve the macOS main dispatch queue symbol in libdispatch.");
     }
 
-    private static async ValueTask DispatchToMainQueueAsync(Func<ValueTask> action) {
+    private static async ValueTask DispatchToMainQueueAsync(
+        Func<ValueTask> action,
+        CancellationToken cancellationToken
+    ) {
         var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var state = new MainQueueTestWork(action, completion);
         GCHandle handle = GCHandle.Alloc(state);
 
         dispatch_async_f(MainQueue.Value, GCHandle.ToIntPtr(handle), DispatchWorkPointer);
 
-        Task completedTask = await Task.WhenAny(completion.Task, Task.Delay(MainQueueTimeout));
+        Task completedTask = await Task.WhenAny(
+            completion.Task,
+            Task.Delay(MainQueueTimeout, cancellationToken)
+        );
         if (completedTask != completion.Task) {
+            cancellationToken.ThrowIfCancellationRequested();
             throw new TimeoutException(
                 "Timed out while waiting for the macOS main queue to execute a window test. " +
                 "The AppKit main thread is not pumping dispatch work in this test host.");

@@ -334,7 +334,7 @@ void InfiniFrameWindow::SetMinimized(bool minimized)
 
 void InfiniFrameWindow::SetMaximized(bool maximized)
 {
-    if (maximized)
+    if (maximized && m_impl->_preMaximizedWidth <= 0)
     {
         NSRect window = [m_impl->_window frame];
         m_impl->_preMaximizedWidth = window.size.width;
@@ -346,6 +346,7 @@ void InfiniFrameWindow::SetMaximized(bool maximized)
         [m_impl->_window setFrame: NSMakeRect(screen.origin.x, screen.origin.y,
                                               screen.size.width, screen.size.height)
                           display: YES];
+        InvokeMaximized();
     }
     else if (!maximized && m_impl->_preMaximizedWidth > 0 && m_impl->_preMaximizedHeight > 0)
     {
@@ -354,6 +355,9 @@ void InfiniFrameWindow::SetMaximized(bool maximized)
                                               m_impl->_preMaximizedWidth,
                                               m_impl->_preMaximizedHeight)
                           display: YES];
+        m_impl->_preMaximizedWidth = 0;
+        m_impl->_preMaximizedHeight = 0;
+        InvokeRestored();
     }
 }
 
@@ -435,6 +439,9 @@ void InfiniFrameWindow::SetZoom(int zoom)
 void InfiniFrameWindow::SetFocused()
 {
     if (!m_impl->_window) return;
+
+    if ([m_impl->_window isMiniaturized])
+        [m_impl->_window deminiaturize:nil];
 
     [NSApp activateIgnoringOtherApps: YES];
     [m_impl->_window makeKeyAndOrderFront: m_impl->_window];
