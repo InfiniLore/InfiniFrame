@@ -13,25 +13,35 @@ public class WindowIntegrationTests {
     [SkipOnLinux]
     public async Task FullscreenAndResize_Interaction_RemainsDeterministic(CancellationToken ct = default) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Size.SetSize(800, 520);
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
         window.Features.State.SetFullScreen();
-        await WaitForConditionAsync(() => window.Features.State.IsFullScreen, TimeSpan.FromSeconds(5), ct);
+        await WaitForStableConditionAsync(
+            condition: () => window.Features.State.IsFullScreen,
+            TimeSpan.FromMilliseconds(1_500),
+            TimeSpan.FromSeconds(5),
+            ct
+        );
 
         window.Features.State.SetFullScreen(false);
-        await WaitForConditionAsync(() => !window.Features.State.IsFullScreen, TimeSpan.FromSeconds(5), ct);
+        await WaitForStableConditionAsync(
+            condition: () => !window.Features.State.IsFullScreen,
+            TimeSpan.FromMilliseconds(1_500),
+            TimeSpan.FromSeconds(5),
+            ct
+        );
 
         int widthBefore = window.Features.Size.Width;
         int heightBefore = window.Features.Size.Height;
         window.Features.Size.Resize(120, 80, ResizeOrigin.BottomRight);
 
         // Assert
-        int widthAfter = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Width, widthBefore, TimeSpan.FromSeconds(5), ct);
-        int heightAfter = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Height, heightBefore, TimeSpan.FromSeconds(5), ct);
+        int widthAfter = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.Width, widthBefore, TimeSpan.FromSeconds(5), ct);
+        int heightAfter = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.Height, heightBefore, TimeSpan.FromSeconds(5), ct);
         await Assert.That(widthAfter).IsGreaterThan(widthBefore);
         await Assert.That(heightAfter).IsGreaterThan(heightBefore);
         await Assert.That(window.Features.State.IsFullScreen).IsFalse();
@@ -46,10 +56,10 @@ public class WindowIntegrationTests {
 
         // Act
         window.Features.State.SetMaximized();
-        await WaitForConditionAsync(() => window.Features.State.IsMaximized, TimeSpan.FromSeconds(5), ct);
+        await WaitForConditionAsync(condition: () => window.Features.State.IsMaximized, TimeSpan.FromSeconds(5), ct);
 
         window.Features.State.SetMaximized(false);
-        await WaitForConditionAsync(() => !window.Features.State.IsMaximized, TimeSpan.FromSeconds(5), ct);
+        await WaitForConditionAsync(condition: () => !window.Features.State.IsMaximized, TimeSpan.FromSeconds(5), ct);
 
         int originalLeft = window.Features.Position.Left;
         int originalTop = window.Features.Position.Top;
@@ -59,8 +69,8 @@ public class WindowIntegrationTests {
         window.Features.Position.SetLocation(targetLeft, targetTop);
 
         // Assert
-        int updatedLeft = await PollUtility.WaitForChangeAsync(() => window.Features.Position.Left, originalLeft, TimeSpan.FromSeconds(5), ct);
-        int updatedTop = await PollUtility.WaitForChangeAsync(() => window.Features.Position.Top, originalTop, TimeSpan.FromSeconds(5), ct);
+        int updatedLeft = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Position.Left, originalLeft, TimeSpan.FromSeconds(5), ct);
+        int updatedTop = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Position.Top, originalTop, TimeSpan.FromSeconds(5), ct);
         await Assert.That(updatedLeft).IsEqualTo(targetLeft);
         await Assert.That(updatedTop).IsEqualTo(targetTop);
         await Assert.That(window.Features.State.IsMaximized).IsFalse();
@@ -70,7 +80,7 @@ public class WindowIntegrationTests {
     [SkipOnLinux]
     public async Task ConcurrentResizeMoveStateCalls_ResultInDeterministicFinalState(CancellationToken ct = default) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Size.SetSize(720, 440);
             builder.Features.Position.SetLocation(120, 140);
         }, ct);
@@ -86,9 +96,9 @@ public class WindowIntegrationTests {
         int targetTop = initialTop + 60;
 
         // Act
-        Task resizeTask = Task.Run(() => window.Features.Size.Resize(100, 60, ResizeOrigin.BottomRight), ct);
-        Task moveTask = Task.Run(() => window.Features.Position.SetLocation(targetLeft, targetTop), ct);
-        Task stateTask = Task.Run(() => window.Features.State.SetFullScreen(false), ct);
+        Task resizeTask = Task.Run(action: () => window.Features.Size.Resize(100, 60, ResizeOrigin.BottomRight), ct);
+        Task moveTask = Task.Run(action: () => window.Features.Position.SetLocation(targetLeft, targetTop), ct);
+        Task stateTask = Task.Run(action: () => window.Features.State.SetFullScreen(false), ct);
         await Task.WhenAll(resizeTask, moveTask, stateTask);
 
         // Reconcile to an explicit final state after concurrent operations.
@@ -96,10 +106,10 @@ public class WindowIntegrationTests {
         window.Features.Position.SetLocation(targetLeft, targetTop);
         window.Features.Size.SetSize(targetWidth, targetHeight);
 
-        await WaitForConditionAsync(() => window.Features.Size.Width == targetWidth, TimeSpan.FromSeconds(5), ct);
-        await WaitForConditionAsync(() => window.Features.Size.Height == targetHeight, TimeSpan.FromSeconds(5), ct);
-        await WaitForConditionAsync(() => window.Features.Position.Left == targetLeft, TimeSpan.FromSeconds(5), ct);
-        await WaitForConditionAsync(() => window.Features.Position.Top == targetTop, TimeSpan.FromSeconds(5), ct);
+        await WaitForConditionAsync(condition: () => window.Features.Size.Width == targetWidth, TimeSpan.FromSeconds(5), ct);
+        await WaitForConditionAsync(condition: () => window.Features.Size.Height == targetHeight, TimeSpan.FromSeconds(5), ct);
+        await WaitForConditionAsync(condition: () => window.Features.Position.Left == targetLeft, TimeSpan.FromSeconds(5), ct);
+        await WaitForConditionAsync(condition: () => window.Features.Position.Top == targetTop, TimeSpan.FromSeconds(5), ct);
 
         // Assert
         int finalWidth = window.Features.Size.Width;
@@ -122,6 +132,35 @@ public class WindowIntegrationTests {
         while (!condition()) {
             if (DateTime.UtcNow >= deadline) {
                 throw new TimeoutException($"Condition was not met within {timeout}.");
+            }
+
+            await Task.Delay(50, ct);
+        }
+    }
+
+    private static async Task WaitForStableConditionAsync(
+        Func<bool> condition,
+        TimeSpan stableDuration,
+        TimeSpan timeout,
+        CancellationToken ct
+    ) {
+        DateTime deadline = DateTime.UtcNow + timeout;
+        DateTime? stableSince = null;
+
+        while (true) {
+            DateTime now = DateTime.UtcNow;
+            if (condition()) {
+                stableSince ??= now;
+                if (now - stableSince >= stableDuration) return;
+            }
+            else {
+                stableSince = null;
+            }
+
+            if (now >= deadline) {
+                throw new TimeoutException(
+                    $"Condition did not remain stable for {stableDuration} within {timeout}."
+                );
             }
 
             await Task.Delay(50, ct);
