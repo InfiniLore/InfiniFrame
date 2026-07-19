@@ -250,16 +250,22 @@ jobs:
 
             -   name: Run instrumented lifecycle and WebKit tests
                 run: |
+                    set -o pipefail
                     mkdir -p artifacts/sanitizers artifacts/testresults/sanitizers
                     asan_runtime="$(clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib)"
                     if [ ! -f "$asan_runtime" ]; then
                       echo "AddressSanitizer runtime not found: $asan_runtime"
                       exit 1
                     fi
-                    dotnet test tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj \
-                      --configuration Debug --no-build --no-restore --framework net10.0 \
-                      -p:NativeArch=arm64 -p:InfiniFrameSkipNativeBuild=true -p:InfiniFrameEnableTestExports=true \
-                      --environment "DYLD_INSERT_LIBRARIES=$asan_runtime" \
+
+                    test_app="tests/InfiniTests.InfiniFrame/bin/Debug/net10.0/InfiniTests.InfiniFrame"
+                    if [ ! -x "$test_app" ]; then
+                      echo "TUnit test application is missing or not executable: $test_app"
+                      exit 1
+                    fi
+
+                    DYLD_INSERT_LIBRARIES="$asan_runtime" "$test_app" \
+                      --minimum-expected-tests 1 \
                       --results-directory artifacts/testresults/sanitizers --no-ansi \
                       2>&1 | tee artifacts/sanitizers/asan-ubsan.log
 
