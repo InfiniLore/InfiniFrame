@@ -54,6 +54,16 @@
     }
 }
 
+- (void)windowDidEnterFullScreen:(NSNotification*)notification {
+    if (infiniFrame != nullptr)
+        infiniFrame->HandleFullScreenTransition(true);
+}
+
+- (void)windowDidExitFullScreen:(NSNotification*)notification {
+    if (infiniFrame != nullptr)
+        infiniFrame->HandleFullScreenTransition(false);
+}
+
 - (BOOL)windowShouldClose:(id)sender
 {
     if (infiniFrame == nullptr) return YES;

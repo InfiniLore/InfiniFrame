@@ -5,6 +5,7 @@
 #include <vector>
 #include <stdexcept>
 
+#include "../CocoaCoordinates.h"
 #include "../Window.Cocoa.Internal.h"
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -17,14 +18,14 @@ std::vector<Monitor> InfiniFrameWindow::Impl::GetMonitors() const
 
     for (NSScreen *screen : [NSScreen screens])
     {
-        NSRect monitorFrame = [screen frame];
+        NSRect monitorFrame = infiniframe::macos::ToInfiniFrameRect([screen frame]);
         Monitor::MonitorRect monitorArea;
         monitorArea.x = static_cast<int>(roundf(monitorFrame.origin.x));
         monitorArea.y = static_cast<int>(roundf(monitorFrame.origin.y));
         monitorArea.width = static_cast<int>(roundf(monitorFrame.size.width));
         monitorArea.height = static_cast<int>(roundf(monitorFrame.size.height));
 
-        NSRect workFrame = [screen visibleFrame];
+        NSRect workFrame = infiniframe::macos::ToInfiniFrameRect([screen visibleFrame]);
         Monitor::MonitorRect workArea;
         workArea.x = static_cast<int>(roundf(workFrame.origin.x));
         workArea.y = static_cast<int>(roundf(workFrame.origin.y));

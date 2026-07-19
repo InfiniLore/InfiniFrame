@@ -243,28 +243,6 @@ public class InfiniFrameWindowFeaturePosition(
             ? Math.Max(bottomBound - window.Features.Size.Height, topBound)
             : Math.Max(top, topBound);
 
-        // Bug:
-        // For some reason the vertical position is not handled correctly.
-        // Whenever a positive value is set, the window appears at the
-        // very bottom of the screen, and the only visible thing is the
-        // application window title bar. As a workaround we make a
-        // negative value out of the vertical position to "pull" the window up.
-        // Note:
-        // This behavior seems to be a macOS thing. In the InfiniFrame.Native
-        // project files it is commented to be expected behavior for macOS.
-        // There is some code trying to mitigate this problem, but it might
-        // not work as expected. Further investigation is necessary.
-        // Update:
-        // This behavior seems to have changed with macOS Sonoma.
-        // Therefore, we determine the version of macOS and only apply the
-        // workaround for older versions.
-        if (OperatingSystem.IsMacOS() && OperatingSystem.IsMacOSVersionAtLeast(23)) {
-            Size workArea = window.Features.Monitors.GetMainMonitor().WorkArea.Size;
-            top = top >= 0
-                ? top - workArea.Height
-                : top;
-        }
-
         NativeInvoke.InvokeSyncWithValidation(
             logger,
             window,

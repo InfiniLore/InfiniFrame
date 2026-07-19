@@ -56,7 +56,7 @@ public class FullScreenTests {
         window.Features.State.SetFullScreen(value);
 
         // Assert
-        await Assert.That(window.Features.State.IsFullScreen).IsEqualTo(value);
+        await WaitForStateAsync(() => window.Features.State.IsFullScreen, value, ct);
     }
     
     [Test]
@@ -72,7 +72,7 @@ public class FullScreenTests {
         IInfiniFrameWindow returnedWindow = window.SetFullScreen(value);
 
         // Assert
-        await Assert.That(window.Features.State.IsFullScreen).IsEqualTo(value);
+        await WaitForStateAsync(() => window.Features.State.IsFullScreen, value, ct);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }
     
@@ -92,6 +92,15 @@ public class FullScreenTests {
 
         // Assert
         await Assert.That(builder.Features.State.StartFullScreen).IsEqualTo(value);
-        await Assert.That(window.Features.State.IsFullScreen).IsEqualTo(value);
+        await WaitForStateAsync(() => window.Features.State.IsFullScreen, value, ct);
+    }
+
+    private static async Task WaitForStateAsync(Func<bool> state, bool expected, CancellationToken ct) {
+        DateTime deadline = DateTime.UtcNow + TimeSpan.FromSeconds(5);
+        while (state() != expected) {
+            if (DateTime.UtcNow >= deadline)
+                throw new TimeoutException($"Fullscreen state did not become {expected}.");
+            await Task.Delay(25, ct);
+        }
     }
 }

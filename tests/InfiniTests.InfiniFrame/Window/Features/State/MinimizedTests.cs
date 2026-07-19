@@ -57,7 +57,7 @@ public class MinimizedTests {
         window.Features.State.SetMinimized(value);
 
         // Assert
-        await Assert.That(window.Features.State.IsMinimized).IsEqualTo(value);
+        await WaitForStateAsync(() => window.Features.State.IsMinimized, value, ct);
     }
     
     [Test]
@@ -74,7 +74,7 @@ public class MinimizedTests {
         IInfiniFrameWindow returnedWindow = window.SetMinimized(value);
 
         // Assert
-        await Assert.That(window.Features.State.IsMinimized).IsEqualTo(value);
+        await WaitForStateAsync(() => window.Features.State.IsMinimized, value, ct);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }
     
@@ -95,6 +95,15 @@ public class MinimizedTests {
 
         // Assert
         await Assert.That(builder.Features.State.StartMinimized).IsEqualTo(value);
-        await Assert.That(window.Features.State.IsMinimized).IsEqualTo(value);
+        await WaitForStateAsync(() => window.Features.State.IsMinimized, value, ct);
+    }
+
+    private static async Task WaitForStateAsync(Func<bool> state, bool expected, CancellationToken ct) {
+        DateTime deadline = DateTime.UtcNow + TimeSpan.FromSeconds(5);
+        while (state() != expected) {
+            if (DateTime.UtcNow >= deadline)
+                throw new TimeoutException($"Minimized state did not become {expected}.");
+            await Task.Delay(25, ct);
+        }
     }
 }

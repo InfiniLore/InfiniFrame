@@ -51,11 +51,27 @@ public class TransparentTests {
         using var windowUtility = InfiniFrameTestWindow.Create(builder => {
             builder.Features.Decorations.SetTransparent(value);
         }, ct);
+        IInfiniFrameWindow window = windowUtility.Window;
         IInfiniFrameWindowBuilder builder = windowUtility.BuilderSnapshot;
 
         // Act
 
         // Assert
         await Assert.That(builder.Features.Decorations.IsTransparent).IsEqualTo(value);
+        await Assert.That(window.Features.Decorations.IsTransparent).IsEqualTo(value);
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    [SkipOnWindows("Windows transparency can only be configured before window creation")]
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task AtWindowStage_DirectAssignment(bool value, CancellationToken ct) {
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow window = windowUtility.Window;
+
+        window.Features.Decorations.SetTransparent(value);
+
+        await Assert.That(window.Features.Decorations.IsTransparent).IsEqualTo(value);
     }
 }

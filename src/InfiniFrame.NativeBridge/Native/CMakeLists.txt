@@ -124,7 +124,9 @@ set(MAC_SOURCES
         src/Runtime/Platform/Mac/Delegates/WindowDelegate.h
         src/Runtime/Platform/Mac/NSWindowBorderless.h
         src/Runtime/Platform/Mac/Window.Cocoa.Internal.h
+        src/Runtime/Platform/Mac/CocoaCoordinates.h
         src/Runtime/Platform/Mac/MacDiagnostics.h
+        src/Runtime/Platform/Mac/WebKit/InfiniFrameWebView.h
         
         src/Runtime/Platform/Mac/Core/UiDispatcher.Cocoa.mm
         src/Runtime/Platform/Mac/Core/WindowCore.Cocoa.mm
@@ -144,6 +146,7 @@ set(MAC_SOURCES
         src/Runtime/Platform/Mac/WebKit/WebKitBridge.Cocoa.mm
         src/Runtime/Platform/Mac/WebKit/WebKitCustomSchemes.Cocoa.mm
         src/Runtime/Platform/Mac/WebKit/WebKitHost.Cocoa.mm
+        src/Runtime/Platform/Mac/WebKit/InfiniFrameWebView.mm
 )
 
 set(HEADER_FILES

@@ -629,6 +629,7 @@ class InfiniFrameWindow {
 
     void FlushPendingWebMessages();
     void ApplyMediaAutoplayConfiguration();
+    void HandleFullScreenTransition(bool enteredFullScreen);
 
     /**
          * @brief Get the native NSWindow pointer for this window

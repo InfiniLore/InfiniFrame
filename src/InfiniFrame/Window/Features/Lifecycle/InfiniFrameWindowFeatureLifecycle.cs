@@ -187,11 +187,17 @@ public class InfiniFrameWindowFeatureLifecycle(
             return;
         }
 
-        // A non-owning thread must not start a nested native message loop while the owning
-        // thread is already pumping messages. It only needs to wait for the closed callback.
-        if (!OperatingSystem.IsLinux() &&
-            Environment.CurrentManagedThreadId != window.ManagedThreadId &&
-            (window.LifecycleState == InfiniFrameWindowLifecycleState.ClosingRequested || Volatile.Read(ref _messageLoopStarted) != 0)) {
+        // AppKit is owned by the process main thread. A macOS caller on another thread must
+        // only observe the closed callback: marshalling WaitForExit to the main thread would
+        // start a nested NSRunLoop that does not reliably drain main-queue dispatch callbacks.
+        // On Windows, a non-owning thread can observe an already-running (or closing) window,
+        // but the owning thread must still start the native message loop when none exists.
+        bool isNonOwningThread = Environment.CurrentManagedThreadId != window.ManagedThreadId;
+        bool canObserveNativeClose = OperatingSystem.IsMacOS() ||
+            (OperatingSystem.IsWindows() &&
+             (window.LifecycleState == InfiniFrameWindowLifecycleState.ClosingRequested ||
+              Volatile.Read(ref _messageLoopStarted) != 0));
+        if (isNonOwningThread && canObserveNativeClose) {
             _closed.Task.GetAwaiter().GetResult();
             return;
         }

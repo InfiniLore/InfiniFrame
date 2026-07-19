@@ -238,6 +238,22 @@ public class InfiniFrameWindowFeatureState(
     /// <inheritdoc cref="IInfiniFrameWindowFeatureState.SetFullScreen"/>
     public void SetFullScreen(bool fullScreen = true) {
         logger.LogDebug(".SetFullScreen({FullScreen})", fullScreen);
+        // AppKit owns the asynchronous fullscreen transition and restores the original
+        // frame when leaving fullscreen. Moving or resizing during that animation races
+        // the Space transition and can leave the window on the wrong display. Always pass
+        // the requested state through because native code also reconciles reversals that
+        // arrive while an earlier transition is still in progress.
+        if (OperatingSystem.IsMacOS()) {
+            NativeInvoke.InvokeSyncWithValidation(
+                logger,
+                window,
+                window.ManagedThreadId,
+                InfiniFrameNative.SetFullScreen,
+                fullScreen
+            );
+            return;
+        }
+
         if (IsFullScreen == fullScreen) {
             logger.LogDebug("Window is already of the same fullscreen state of {fullscreen}", fullScreen);
             return;

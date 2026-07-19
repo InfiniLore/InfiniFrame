@@ -3,6 +3,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 
 #include "../Window.Cocoa.Internal.h"
+#include "../CocoaCoordinates.h"
+#include "../WebKit/InfiniFrameWebView.h"
 
 #include "Runtime/Shared/Utilities/StringCopy.h"
 #include <stdexcept>
@@ -44,7 +46,7 @@ void InfiniFrameWindow::ApplyMediaAutoplayConfiguration()
 
 void InfiniFrameWindow::GetTransparentEnabled(bool* enabled) const
 {
-    *enabled = false;
+    *enabled = m_impl->_transparentEnabled;
 }
 
 void InfiniFrameWindow::GetContextMenuEnabled(bool* enabled) const
@@ -64,7 +66,7 @@ void InfiniFrameWindow::GetDevToolsEnabled(bool* enabled) const
 
 void InfiniFrameWindow::GetFullScreen(bool* fullScreen) const
 {
-    *fullScreen = ([m_impl->_window styleMask] & NSWindowStyleMaskFullScreen) != 0;
+    *fullScreen = m_impl->_isFullScreen;
 }
 
 void InfiniFrameWindow::GetMaximized(bool* isMaximized) const
@@ -76,7 +78,7 @@ void InfiniFrameWindow::GetMaximized(bool* isMaximized) const
         *isMaximized = false;
         return;
     }
-    *isMaximized = [m_impl->_window isZoomed];
+    *isMaximized = m_impl->_preMaximizedWidth > 0 || [m_impl->_window isZoomed];
 }
 
 void InfiniFrameWindow::GetMinimized(bool* isMinimized) const
@@ -87,12 +89,8 @@ void InfiniFrameWindow::GetMinimized(bool* isMinimized) const
 void InfiniFrameWindow::GetPosition(int* x, int* y) const
 {
     NSRect frame = [m_impl->_window frame];
-    NSScreen* screen = [m_impl->_window screen];
-    if (!screen) screen = [NSScreen mainScreen];
-    NSRect screenFrame = [screen frame];
-    int height = static_cast<int>(roundf(frame.size.height));
     *x = static_cast<int>(roundf(frame.origin.x));
-    *y = static_cast<int>(roundf(screenFrame.origin.y + screenFrame.size.height - (frame.origin.y + height)));
+    *y = static_cast<int>(roundf(infiniframe::macos::GlobalDesktopTop() - NSMaxY(frame)));
 }
 
 void InfiniFrameWindow::GetResizable(bool* resizable) const
@@ -116,7 +114,11 @@ void InfiniFrameWindow::GetFocused(bool* isFocused) const
 
 unsigned int InfiniFrameWindow::GetScreenDpi() const
 {
-    return 72;
+    NSScreen* screen = [m_impl->_window screen];
+    if (screen == nil)
+        screen = [NSScreen mainScreen];
+    CGFloat scale = screen != nil ? [screen backingScaleFactor] : 1.0;
+    return static_cast<unsigned int>(roundf(static_cast<float>(96.0 * scale)));
 }
 
 void InfiniFrameWindow::GetSize(int* width, int* height) const
@@ -147,7 +149,7 @@ AutoString InfiniFrameWindow::GetTitle() const
 
 void InfiniFrameWindow::GetTopmost(bool* topmost) const
 {
-    *topmost = ([m_impl->_window level] & NSFloatingWindowLevel) == NSFloatingWindowLevel;
+    *topmost = [m_impl->_window level] == NSFloatingWindowLevel;
 }
 
 void InfiniFrameWindow::GetZoom(int* zoom) const
@@ -268,12 +270,23 @@ void InfiniFrameWindow::SetDevToolsEnabled(bool enabled)
 
 void InfiniFrameWindow::SetTransparentEnabled(bool enabled)
 {
-    (void)enabled;
+    m_impl->_transparentEnabled = enabled;
+
+    [m_impl->_window setOpaque:enabled ? NO : YES];
+    [m_impl->_window setBackgroundColor:enabled ? [NSColor clearColor] : [NSColor windowBackgroundColor]];
+
+    if (m_impl->_webview != nil) {
+        [m_impl->_webview setUnderPageBackgroundColor:enabled ? [NSColor clearColor] : [NSColor whiteColor]];
+    }
 }
 
 void InfiniFrameWindow::SetContextMenuEnabled(bool enabled)
 {
     m_impl->_contextMenuEnabled = enabled;
+    if (m_impl->_webview != nil) {
+        InfiniFrameWebView* webView = (InfiniFrameWebView*)m_impl->_webview;
+        [webView setInfiniFrameContextMenuEnabled:enabled ? YES : NO];
+    }
 }
 
 void InfiniFrameWindow::SetMediaAutoplayEnabled(bool enabled)
@@ -296,6 +309,10 @@ void InfiniFrameWindow::SetUserAgent(AutoString userAgent)
 void InfiniFrameWindow::SetZoomEnabled(bool enabled)
 {
     m_impl->_zoomEnabled = enabled;
+    if (m_impl->_webview != nil) {
+        InfiniFrameWebView* webView = (InfiniFrameWebView*)m_impl->_webview;
+        [webView setInfiniFrameZoomEnabled:enabled ? YES : NO];
+    }
 }
 
 void InfiniFrameWindow::SetIconFile(AutoString filename)
@@ -311,9 +328,36 @@ void InfiniFrameWindow::SetIconFile(AutoString filename)
 
 void InfiniFrameWindow::SetFullScreen(bool fullScreen)
 {
-    bool isFullScreen = ([m_impl->_window styleMask] & NSWindowStyleMaskFullScreen) != 0;
-    if (fullScreen != isFullScreen)
-        [m_impl->_window toggleFullScreen: nil];
+    if (m_impl->_fullScreenRequested == fullScreen)
+        return;
+
+    m_impl->_fullScreenRequested = fullScreen;
+    if (m_impl->_fullScreenTransitionPending || m_impl->_isFullScreen == fullScreen)
+        return;
+
+    m_impl->_fullScreenTransitionPending = true;
+    [m_impl->_window toggleFullScreen:nil];
+}
+
+void InfiniFrameWindow::HandleFullScreenTransition(bool enteredFullScreen)
+{
+    bool wasRequestedTransition = m_impl->_fullScreenTransitionPending;
+    m_impl->_isFullScreen = enteredFullScreen;
+    m_impl->_fullScreenTransitionPending = false;
+
+    if (!wasRequestedTransition) {
+        // The user used the native green window button. Adopt that state as the
+        // requested state rather than immediately undoing the user's action.
+        m_impl->_fullScreenRequested = enteredFullScreen;
+        return;
+    }
+
+    // A caller can reverse its request while AppKit is animating the previous one.
+    // Reconcile after the current transition instead of issuing overlapping toggles.
+    if (m_impl->_fullScreenRequested != enteredFullScreen) {
+        m_impl->_fullScreenTransitionPending = true;
+        [m_impl->_window toggleFullScreen:nil];
+    }
 }
 
 void InfiniFrameWindow::SetMinimized(bool minimized)
@@ -325,11 +369,6 @@ void InfiniFrameWindow::SetMinimized(bool minimized)
     else
         [m_impl->_window deminiaturize: nullptr];
 
-    NSDate* deadline = [NSDate dateWithTimeIntervalSinceNow:0.2];
-    while (m_impl->_window.isMiniaturized != minimized && [deadline timeIntervalSinceNow] > 0.0) {
-        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
-                                 beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
-    }
 }
 
 void InfiniFrameWindow::SetMaximized(bool maximized)
@@ -342,7 +381,10 @@ void InfiniFrameWindow::SetMaximized(bool maximized)
         m_impl->_preMaximizedXPosition = window.origin.x;
         m_impl->_preMaximizedYPosition = window.origin.y;
 
-        NSRect screen = [[m_impl->_window screen] visibleFrame];
+        NSScreen* targetScreen = [m_impl->_window screen];
+        if (targetScreen == nil)
+            targetScreen = [NSScreen mainScreen];
+        NSRect screen = [targetScreen visibleFrame];
         [m_impl->_window setFrame: NSMakeRect(screen.origin.x, screen.origin.y,
                                               screen.size.width, screen.size.height)
                           display: YES];
@@ -363,15 +405,11 @@ void InfiniFrameWindow::SetMaximized(bool maximized)
 
 void InfiniFrameWindow::SetPosition(int x, int y)
 {
-    NSScreen* screen = [m_impl->_window screen];
-    if (!screen) screen = [NSScreen mainScreen];
-    NSRect screenFrame = [screen frame];
-
     NSRect frame = [m_impl->_window frame];
     int height = static_cast<int>(roundf(frame.size.height));
 
     auto left = static_cast<CGFloat>(x);
-    auto top = static_cast<CGFloat>(screenFrame.origin.y + screenFrame.size.height - (y + height));
+    auto top = infiniframe::macos::ToCocoaWindowOriginY(static_cast<CGFloat>(y), static_cast<CGFloat>(height));
 
     [m_impl->_window setFrameOrigin: CGPointMake(left, top)];
 }
@@ -441,14 +479,7 @@ void InfiniFrameWindow::SetFocused()
     if (!m_impl->_window) return;
 
     if ([m_impl->_window isMiniaturized])
-    {
         [m_impl->_window deminiaturize:nil];
-        NSDate* deadline = [NSDate dateWithTimeIntervalSinceNow:0.2];
-        while ([m_impl->_window isMiniaturized] && [deadline timeIntervalSinceNow] > 0.0) {
-            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
-                                     beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
-        }
-    }
 
     [NSApp activateIgnoringOtherApps: YES];
     [m_impl->_window makeKeyAndOrderFront: m_impl->_window];
