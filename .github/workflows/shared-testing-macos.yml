@@ -115,32 +115,40 @@ jobs:
 
                     export NSUnbufferedIO=YES
 
-                    echo "=== Running net10.0 Tests ==="
-
-                    mkdir -p artifacts/testdiag/net10.0
-                    mkdir -p artifacts/testresults/net10.0
                     mkdir -p artifacts/native-crash
+                    exit_code=0
 
-                    framework_exit_code=0
+                    for framework in net8.0 net9.0 net10.0; do
+                        echo "=== Running $framework Tests ==="
+                        mkdir -p "artifacts/testdiag/$framework"
+                        mkdir -p "artifacts/testresults/$framework"
 
-                    echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Starting net10.0"
+                        framework_exit_code=0
+                        echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Starting $framework"
 
-                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
-                      --configuration Release \
-                      --no-build \
-                      --no-restore \
-                      --framework net10.0 \
-                      -p:NativeArch=${{ matrix.arch }} \
-                      -p:InfiniFrameSkipNativeBuild=true \
-                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
-                      --results-directory artifacts/testresults/net10.0 \
-                      --diagnostic \
-                      --diagnostic-output-directory artifacts/testdiag/net10.0 \
-                      --diagnostic-file-prefix mtp-net10.0 \
-                      --diagnostic-verbosity Warning \
-                      --no-ansi || framework_exit_code=$?
+                        dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
+                          --configuration Release \
+                          --no-build \
+                          --no-restore \
+                          --framework "$framework" \
+                          -p:NativeArch=${{ matrix.arch }} \
+                          -p:InfiniFrameSkipNativeBuild=true \
+                          -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
+                          --results-directory "artifacts/testresults/$framework" \
+                          --diagnostic \
+                          --diagnostic-output-directory "artifacts/testdiag/$framework" \
+                          --diagnostic-file-prefix "mtp-$framework" \
+                          --diagnostic-verbosity Warning \
+                          --no-ansi || framework_exit_code=$?
 
-                    echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Finished net10.0 with exit code $framework_exit_code"
+                        echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Finished $framework with exit code $framework_exit_code"
+
+                        if [ $framework_exit_code -ne 0 ]; then
+                            exit_code=$framework_exit_code
+                            echo "=== Test diagnostics for $framework ==="
+                            find "artifacts/testdiag/$framework" -type f -name '*.diag' -print -exec cat {} \; || true
+                        fi
+                    done
 
                     diagnostic_root="$HOME/Library/Logs/DiagnosticReports"
                     if [ -d "$diagnostic_root" ]; then
@@ -148,12 +156,7 @@ jobs:
                           -mmin -180 -exec cp {} artifacts/native-crash/ \; || true
                     fi
 
-                    if [ $framework_exit_code -ne 0 ]; then
-                        echo "=== Test diagnostics for net10.0 ==="
-                        find artifacts/testdiag/net10.0 -type f -name '*.diag' -print -exec cat {} \; || true
-                    fi
-
-                    exit $framework_exit_code
+                    exit $exit_code
 
             -   name: Upload macOS Test Diagnostics
                 if: always()
