@@ -218,20 +218,7 @@ else ()
     )
 endif ()
 
-# ----------------------------------------------------------------------------------------------------------------------
-# Sanitizers (Debug only)
-# ----------------------------------------------------------------------------------------------------------------------
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-    message(STATUS "Enabling sanitizers for Debug configuration")
-    target_compile_options(${PROJECT_NAME} PRIVATE
-            $<$<CONFIG:Debug>:-fsanitize=address,undefined,leak>
-            $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
-            $<$<CONFIG:Debug>:-fno-optimize-sibling-calls>
-    )
-    target_link_options(${PROJECT_NAME} PRIVATE
-            $<$<CONFIG:Debug>:-fsanitize=address,undefined,leak>
-    )
-endif ()
+infiniframe_enable_sanitizers(${PROJECT_NAME})
 
 # ----------------------------------------------------------------------------------------------------------------------
 infiniframe_enable_fast_build_settings(${PROJECT_NAME})

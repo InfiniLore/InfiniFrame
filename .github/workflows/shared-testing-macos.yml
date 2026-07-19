@@ -253,10 +253,10 @@ jobs:
                       echo "AddressSanitizer runtime not found: $asan_runtime"
                       exit 1
                     fi
-                    export DYLD_INSERT_LIBRARIES="$asan_runtime"
                     dotnet test tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj \
                       --configuration Debug --no-build --no-restore --framework net10.0 \
                       -p:NativeArch=arm64 -p:InfiniFrameSkipNativeBuild=true -p:InfiniFrameEnableTestExports=true \
+                      --environment "DYLD_INSERT_LIBRARIES=$asan_runtime" \
                       --results-directory artifacts/testresults/sanitizers --no-ansi \
                       2>&1 | tee artifacts/sanitizers/asan-ubsan.log
 

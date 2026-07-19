@@ -66,7 +66,7 @@ void InfiniFrameWindow::GetDevToolsEnabled(bool* enabled) const
 
 void InfiniFrameWindow::GetFullScreen(bool* fullScreen) const
 {
-    *fullScreen = m_impl->_isFullScreen;
+    *fullScreen = ([m_impl->_window styleMask] & NSWindowStyleMaskFullScreen) != 0;
 }
 
 void InfiniFrameWindow::GetMaximized(bool* isMaximized) const
@@ -328,36 +328,9 @@ void InfiniFrameWindow::SetIconFile(AutoString filename)
 
 void InfiniFrameWindow::SetFullScreen(bool fullScreen)
 {
-    if (m_impl->_fullScreenRequested == fullScreen)
-        return;
-
-    m_impl->_fullScreenRequested = fullScreen;
-    if (m_impl->_fullScreenTransitionPending || m_impl->_isFullScreen == fullScreen)
-        return;
-
-    m_impl->_fullScreenTransitionPending = true;
-    [m_impl->_window toggleFullScreen:nil];
-}
-
-void InfiniFrameWindow::HandleFullScreenTransition(bool enteredFullScreen)
-{
-    bool wasRequestedTransition = m_impl->_fullScreenTransitionPending;
-    m_impl->_isFullScreen = enteredFullScreen;
-    m_impl->_fullScreenTransitionPending = false;
-
-    if (!wasRequestedTransition) {
-        // The user used the native green window button. Adopt that state as the
-        // requested state rather than immediately undoing the user's action.
-        m_impl->_fullScreenRequested = enteredFullScreen;
-        return;
-    }
-
-    // A caller can reverse its request while AppKit is animating the previous one.
-    // Reconcile after the current transition instead of issuing overlapping toggles.
-    if (m_impl->_fullScreenRequested != enteredFullScreen) {
-        m_impl->_fullScreenTransitionPending = true;
+    bool isFullScreen = ([m_impl->_window styleMask] & NSWindowStyleMaskFullScreen) != 0;
+    if (fullScreen != isFullScreen)
         [m_impl->_window toggleFullScreen:nil];
-    }
 }
 
 void InfiniFrameWindow::SetMinimized(bool minimized)
