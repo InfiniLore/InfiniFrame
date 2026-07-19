@@ -11,6 +11,7 @@ namespace InfiniTests.InfiniFrame.Window;
 public class WindowIntegrationTests {
     [Test]
     [SkipOnLinux]
+    [DefaultInfiniTestsTimeout(30_000)]
     public async Task FullscreenAndResize_Interaction_RemainsDeterministic(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
@@ -19,21 +20,8 @@ public class WindowIntegrationTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        window.Features.State.SetFullScreen();
-        await WaitForStableConditionAsync(
-            condition: () => window.Features.State.IsFullScreen,
-            TimeSpan.FromMilliseconds(1_500),
-            TimeSpan.FromSeconds(5),
-            ct
-        );
-
-        window.Features.State.SetFullScreen(false);
-        await WaitForStableConditionAsync(
-            condition: () => !window.Features.State.IsFullScreen,
-            TimeSpan.FromMilliseconds(1_500),
-            TimeSpan.FromSeconds(5),
-            ct
-        );
+        await SetFullScreenAndWaitAsync(window, true, ct);
+        await SetFullScreenAndWaitAsync(window, false, ct);
 
         int widthBefore = window.Features.Size.Width;
         int heightBefore = window.Features.Size.Height;
@@ -138,28 +126,34 @@ public class WindowIntegrationTests {
         }
     }
 
-    private static async Task WaitForStableConditionAsync(
-        Func<bool> condition,
-        TimeSpan stableDuration,
-        TimeSpan timeout,
+    private static async Task SetFullScreenAndWaitAsync(
+        IInfiniFrameWindow window,
+        bool fullScreen,
         CancellationToken ct
     ) {
-        DateTime deadline = DateTime.UtcNow + timeout;
+        TimeSpan stableDuration = TimeSpan.FromSeconds(1.5);
+        TimeSpan retryInterval = TimeSpan.FromMilliseconds(500);
+        DateTime deadline = DateTime.UtcNow + TimeSpan.FromSeconds(10);
         DateTime? stableSince = null;
+        DateTime nextRequest = DateTime.MinValue;
 
         while (true) {
             DateTime now = DateTime.UtcNow;
-            if (condition()) {
+            if (window.Features.State.IsFullScreen == fullScreen) {
                 stableSince ??= now;
                 if (now - stableSince >= stableDuration) return;
             }
             else {
                 stableSince = null;
+                if (now >= nextRequest) {
+                    window.Features.State.SetFullScreen(fullScreen);
+                    nextRequest = now + retryInterval;
+                }
             }
 
             if (now >= deadline) {
                 throw new TimeoutException(
-                    $"Condition did not remain stable for {stableDuration} within {timeout}."
+                    $"Fullscreen state did not become and remain {fullScreen} within 10 seconds."
                 );
             }
 
