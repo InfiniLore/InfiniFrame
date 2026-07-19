@@ -11,6 +11,7 @@ using Assembly = System.Reflection.Assembly;
 // ---------------------------------------------------------------------------------------------------------------------
 internal static partial class MacOsTestingPlatformEntryPoint {
     private const string CoreFoundation = "/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation";
+    private const string ObjCRuntime = "/usr/lib/libobjc.A.dylib";
 
     [LibraryImport(CoreFoundation)]
     private static partial IntPtr CFRunLoopGetMain();
@@ -21,6 +22,12 @@ internal static partial class MacOsTestingPlatformEntryPoint {
 
     [LibraryImport(CoreFoundation)]
     private static partial void CFRunLoopStop(IntPtr runLoop);
+
+    [LibraryImport(ObjCRuntime, EntryPoint = "objc_autoreleasePoolPush")]
+    private static partial IntPtr AutoreleasePoolPush();
+
+    [LibraryImport(ObjCRuntime, EntryPoint = "objc_autoreleasePoolPop")]
+    private static partial void AutoreleasePoolPop(IntPtr pool);
 
     public static async Task<int> Main(string[] args) {
         if (!OperatingSystem.IsMacOS()) return await RunTestingPlatformAsync(args);
@@ -39,7 +46,16 @@ internal static partial class MacOsTestingPlatformEntryPoint {
         while (!testTask.IsCompleted) {
             // A bounded run avoids the completion-vs-CFRunLoopStop race where Stop arrives
             // just before an unbounded Run begins and leaves the test host asleep forever.
-            _ = CFRunLoopRunInMode(defaultMode, 0.25, false);
+            // NSApplication.run normally installs and drains an autorelease pool for each
+            // event-loop turn. This custom host owns the CFRunLoop instead, so it must do
+            // the same or repeated WKWebView tests retain autoreleased WebKit/AppKit state.
+            IntPtr pool = AutoreleasePoolPush();
+            try {
+                _ = CFRunLoopRunInMode(defaultMode, 0.25, false);
+            }
+            finally {
+                AutoreleasePoolPop(pool);
+            }
         }
 
         return await testTask;

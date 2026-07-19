@@ -441,7 +441,14 @@ void InfiniFrameWindow::SetFocused()
     if (!m_impl->_window) return;
 
     if ([m_impl->_window isMiniaturized])
+    {
         [m_impl->_window deminiaturize:nil];
+        NSDate* deadline = [NSDate dateWithTimeIntervalSinceNow:0.2];
+        while ([m_impl->_window isMiniaturized] && [deadline timeIntervalSinceNow] > 0.0) {
+            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+                                     beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
+        }
+    }
 
     [NSApp activateIgnoringOtherApps: YES];
     [m_impl->_window makeKeyAndOrderFront: m_impl->_window];

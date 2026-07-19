@@ -93,7 +93,7 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
         CancellationToken cancellationToken
     ) {
         var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var state = new MainQueueTestWork(action, completion);
+        var state = new MainQueueTestWork(action, completion, cancellationToken);
         GCHandle handle = GCHandle.Alloc(state);
 
         dispatch_async_f(MainQueue.Value, GCHandle.ToIntPtr(handle), DispatchWorkPointer);
@@ -131,9 +131,17 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
 
     private sealed class MainQueueTestWork(
         Func<ValueTask> action,
-        TaskCompletionSource completion
+        TaskCompletionSource completion,
+        CancellationToken cancellationToken
     ) {
         public void Start() {
+            // A timed-out test may still be queued while AppKit is finishing a slow WebKit
+            // operation. Do not start that abandoned test when the main queue recovers.
+            if (cancellationToken.IsCancellationRequested) {
+                completion.TrySetCanceled(cancellationToken);
+                return;
+            }
+
             SynchronizationContext? previousContext = SynchronizationContext.Current;
             SynchronizationContext.SetSynchronizationContext(MacOsMainQueueSynchronizationContext.Instance);
 
