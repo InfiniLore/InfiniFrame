@@ -1,13 +1,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-
 #include "Window.Cocoa.Internal.h"
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-
 void InfiniFrameWindow::ShowNotification(AutoString title, AutoString body)
 {
     UNMutableNotificationContent *objNotificationContent = [[UNMutableNotificationContent alloc] init];
@@ -22,4 +19,5 @@ void InfiniFrameWindow::ShowNotification(AutoString title, AutoString body)
     [center addNotificationRequest: request withCompletionHandler: ^(NSError * _Nullable error) {
         (void)error;
     }];
+    [objNotificationContent release];
 }

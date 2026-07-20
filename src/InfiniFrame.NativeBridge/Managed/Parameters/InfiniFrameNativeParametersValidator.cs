@@ -5,12 +5,11 @@ using FluentValidation;
 using System.Runtime.InteropServices;
 
 namespace InfiniFrame.NativeBridge.Parameters;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Validates <see cref="InfiniFrameNativeParameters"/> instances using FluentValidation rules.
+///     Validates <see cref="InfiniFrameNativeParameters" /> instances using FluentValidation rules.
 /// </summary>
 public sealed class InfiniFrameNativeParametersValidator
     : AbstractValidator<InfiniFrameNativeParameters> {
@@ -19,7 +18,7 @@ public sealed class InfiniFrameNativeParametersValidator
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
     /// <summary>
-    ///     Initializes a new instance of <see cref="InfiniFrameNativeParametersValidator"/>
+    ///     Initializes a new instance of <see cref="InfiniFrameNativeParametersValidator" />
     ///     and configures all validation rules.
     /// </summary>
     public InfiniFrameNativeParametersValidator() {
@@ -28,7 +27,7 @@ public sealed class InfiniFrameNativeParametersValidator
 
         RuleFor(p => p)
             .Must(p =>
-                !string.IsNullOrWhiteSpace(p.StartUrl) 
+                !string.IsNullOrWhiteSpace(p.StartUrl)
                 || !string.IsNullOrWhiteSpace(p.StartString)
             )
             .WithMessage("No initial URL or HTML string was supplied in StartUrl or StartString for the browser control to navigate to.");
@@ -73,7 +72,7 @@ public sealed class InfiniFrameNativeParametersValidator
 
         RuleFor(p => p)
             .Must(p =>
-                !p.Chromeless 
+                !p.Chromeless
                 || p is { UseOsDefaultLocation: false, UseOsDefaultSize: false }
             )
             .When(_ => RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -83,10 +82,17 @@ public sealed class InfiniFrameNativeParametersValidator
             .Must(CanAccessTemporaryFilesPath)
             .When(p => !string.IsNullOrWhiteSpace(p.TemporaryFilesPath))
             .WithMessage(p => $"TemporaryFilesPath '{p.TemporaryFilesPath}' is not writable.");
-        
+
         RuleFor(p => p.CustomSchemeNames)
             .NotNull().WithMessage("CustomSchemeNames must be specified.")
             .Must(names => names.Length <= 16).WithMessage("CustomSchemeNames must contain at most 16 names.");
+
+        RuleFor(p => p.WindowsAppUserModelId)
+            .NotEmpty()
+            .MaximumLength(128)
+            .Must(value => value is null || !value.Any(char.IsWhiteSpace))
+            .When(p => p.WindowsAppUserModelId is not null)
+            .WithMessage("WindowsAppUserModelId must contain 1 to 128 characters and cannot contain whitespace.");
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -125,6 +131,6 @@ public sealed class InfiniFrameNativeParametersValidator
                 File.Delete(probeFile);
             }
         }
-        
+
     }
 }

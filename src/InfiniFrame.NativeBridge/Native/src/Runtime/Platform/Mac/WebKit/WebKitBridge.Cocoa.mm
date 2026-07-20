@@ -1,29 +1,28 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-
 #include <vector>
+#include <stdexcept>
 
+#include "../CocoaCoordinates.h"
 #include "../Window.Cocoa.Internal.h"
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-
 std::vector<Monitor> InfiniFrameWindow::Impl::GetMonitors() const
 {
     std::vector<Monitor> monitors;
 
     for (NSScreen *screen : [NSScreen screens])
     {
-        NSRect monitorFrame = [screen frame];
+        NSRect monitorFrame = infiniframe::macos::ToInfiniFrameRect([screen frame]);
         Monitor::MonitorRect monitorArea;
         monitorArea.x = static_cast<int>(roundf(monitorFrame.origin.x));
         monitorArea.y = static_cast<int>(roundf(monitorFrame.origin.y));
         monitorArea.width = static_cast<int>(roundf(monitorFrame.size.width));
         monitorArea.height = static_cast<int>(roundf(monitorFrame.size.height));
 
-        NSRect workFrame = [screen visibleFrame];
+        NSRect workFrame = infiniframe::macos::ToInfiniFrameRect([screen visibleFrame]);
         Monitor::MonitorRect workArea;
         workArea.x = static_cast<int>(roundf(workFrame.origin.x));
         workArea.y = static_cast<int>(roundf(workFrame.origin.y));
@@ -42,7 +41,10 @@ void InfiniFrameWindow::Impl::SetUserAgent(AutoString userAgent)
     if (userAgent != nullptr)
     {
         _userAgent = userAgent;
-        [_webview setCustomUserAgent: [NSString stringWithUTF8String: userAgent]];
+        NSString* value = [NSString stringWithUTF8String:userAgent];
+        if (value == nil)
+            throw std::invalid_argument("userAgent is not valid UTF-8.");
+        [_webview setCustomUserAgent:value];
     }
     else
     {

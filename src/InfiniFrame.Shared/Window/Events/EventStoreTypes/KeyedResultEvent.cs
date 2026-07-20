@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -60,11 +59,11 @@ public sealed record KeyedResultEvent<TKey, TPayload, TResult>
     /// <summary>
     ///     Attempts to invoke the handler for the specified key and retrieve a result.
     /// </summary>
+    /// <remarks>Handler exceptions propagate to the caller.</remarks>
     public bool TryInvoke(
         TKey key,
         IInfiniFrameWindow window,
         TPayload payload,
-        [NotNullWhen(true)]
         out TResult? result
     ) {
 
@@ -73,15 +72,9 @@ public sealed record KeyedResultEvent<TKey, TPayload, TResult>
         if (!_handlers.TryGetValue(key, out Func<IInfiniFrameWindow, TPayload, TResult>? handler))
             return false;
 
-        try {
-            result = handler(window, payload);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException) {
-            result = default;
-            return false;
-        }
+        result = handler(window, payload);
 
-        return result is not null;
+        return true;
     }
 
     /// <summary>

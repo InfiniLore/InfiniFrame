@@ -21,14 +21,14 @@ internal static class PublishService {
     // -----------------------------------------------------------------------------------------------------------------
 
     /// <summary>
-    /// Executes the full InfiniFrame publish pipeline for a project.
+    ///     Executes the full InfiniFrame publish pipeline for a project.
     /// </summary>
     /// <param name="options">The publish options parsed from the command line.</param>
     /// <param name="cancellationToken">A token to observe for cooperative cancellation of the publish operation.</param>
     /// <returns>The process exit code of the publish operation.</returns>
     /// <exception cref="FileNotFoundException">Thrown when the target project file does not exist.</exception>
     /// <exception cref="InvalidOperationException">
-    /// Thrown when native build fails or required artifacts are missing.
+    ///     Thrown when native build fails or required artifacts are missing.
     /// </exception>
     public static async Task<int> PublishAsync(PublishOptions options, CancellationToken cancellationToken = default) {
         var totalPublishStopwatch = Stopwatch.StartNew();
@@ -71,7 +71,7 @@ internal static class PublishService {
                 output,
                 nativeArtifacts.Directory,
                 tempTargets.Path,
-                noRestore: true
+                true
             );
 
             var publishStopwatch = Stopwatch.StartNew();
@@ -254,7 +254,7 @@ internal static class PublishService {
         if (string.IsNullOrWhiteSpace(value)) return "<empty>";
 
         string trimmed = value.Trim();
-        return trimmed.Length <= maxLength 
+        return trimmed.Length <= maxLength
             ? trimmed
             : $"{trimmed[..maxLength]}{Environment.NewLine}<truncated>";
     }
@@ -296,6 +296,14 @@ internal static class PublishService {
         List<string> args = [
             "publish",
             projectPath,
+            // Pack runs nested dotnet builds and owns their complete lifetime. Persistent
+            // MSBuild/Roslyn servers can outlive a canceled publish (and have done so on
+            // Windows ARM64 CI), retaining locks and stalling later tests. Keep this build
+            // isolated and single-node so ProcessRunner can terminate it deterministically.
+            "--disable-build-servers",
+            "-maxcpucount:1",
+            "-nodeReuse:false",
+            "-p:UseSharedCompilation=false",
             "-c", options.Configuration,
             "-r", rid,
             "-f", framework,

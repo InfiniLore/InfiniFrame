@@ -9,10 +9,9 @@ namespace InfiniTests.InfiniFrame.Window.Features.Debugging;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class RemoteDebuggingPortTests {
-    public static async IAsyncEnumerable<Func<int>> GetPorts() {
-        await foreach(int port in PortUtils.GetOpenPorts(2)) {
-            yield return () => port;
-        }
+    public static IEnumerable<Func<int>> GetPorts() {
+        yield return PortUtils.GetOpenPortValue;
+        yield return PortUtils.GetOpenPortValue;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -21,7 +20,7 @@ public class RemoteDebuggingPortTests {
     
     [Test]
     [MethodDataSource(nameof(GetPorts))]
-    [SkipOnMacOs]
+    [SkipOnMacOs("Remote TCP debugging endpoints are not supported by WKWebView")]
     public async Task AtBuilderStage_DirectAssignment(int value, CancellationToken ct) {
         if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) {
             Skip.Test("This test is only run on Windows and Linux");
@@ -42,7 +41,7 @@ public class RemoteDebuggingPortTests {
 
     [Test]
     [MethodDataSource(nameof(GetPorts))]
-    [SkipOnMacOs]
+    [SkipOnMacOs("Remote TCP debugging endpoints are not supported by WKWebView")]
     public async Task AtBuilderStage_ExtensionAssignment(int value, CancellationToken ct) {
         if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) {
             Skip.Test("This test is only run on Windows and Linux");
@@ -66,7 +65,7 @@ public class RemoteDebuggingPortTests {
     [Test]
     [NotInParallelInfiniTests]
     [MethodDataSource(nameof(GetPorts))]
-    [SkipOnMacOs]
+    [SkipOnMacOs("Remote TCP debugging endpoints are not supported by WKWebView")]
     public async Task AtWindowStage_ThroughBuilderAssignment(int value, CancellationToken ct) {
         if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) {
             Skip.Test("This test is only run on Windows and Linux");
@@ -92,22 +91,17 @@ public class RemoteDebuggingPortTests {
     [Test]
     [Arguments(-1)]
     [Arguments(65536)]
-    [SkipOnMacOs]
     public async Task AtBuilderStage_DirectAssignment_InvalidPort_ThrowsArgumentOutOfRangeException(int value, CancellationToken ct) {
-        if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) {
-            Skip.Test("This test is only run on Windows and Linux");
-            return;
-        }
-
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
+        #pragma warning disable CA1416
         var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
             Task.Run(() => {
-                if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) return builder.Features.Debugging;
                 return builder.Features.Debugging.SetRemoteDebuggingPort(value);
             }, ct));
+        #pragma warning restore CA1416
 
         // Assert
         await Assert.That(exception).IsNotNull();

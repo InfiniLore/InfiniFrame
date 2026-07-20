@@ -10,20 +10,30 @@ using Assembly = System.Reflection.Assembly;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static partial class MacOsTestingPlatformEntryPoint {
-    [LibraryImport("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")]
+    private const string CoreFoundation = "/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation";
+    private const string ObjCRuntime = "/usr/lib/libobjc.A.dylib";
+
+    [LibraryImport(CoreFoundation)]
     private static partial IntPtr CFRunLoopGetMain();
 
-    [LibraryImport("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")]
-    private static partial void CFRunLoopRun();
+    // ReSharper disable once InconsistentNaming
+    [LibraryImport(CoreFoundation)]
+    private static partial int CFRunLoopRunInMode(IntPtr mode, double seconds, [MarshalAs(UnmanagedType.I1)] bool returnAfterSourceHandled);
 
-    [LibraryImport("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")]
+    [LibraryImport(CoreFoundation)]
     private static partial void CFRunLoopStop(IntPtr runLoop);
 
+    [LibraryImport(ObjCRuntime, EntryPoint = "objc_autoreleasePoolPush")]
+    private static partial IntPtr AutoreleasePoolPush();
+
+    [LibraryImport(ObjCRuntime, EntryPoint = "objc_autoreleasePoolPop")]
+    private static partial void AutoreleasePoolPop(IntPtr pool);
+
     public static async Task<int> Main(string[] args) {
-        if (!OperatingSystem.IsMacOS())
-            return await RunTestingPlatformAsync(args);
+        if (!OperatingSystem.IsMacOS()) return await RunTestingPlatformAsync(args);
 
         IntPtr mainRunLoop = CFRunLoopGetMain();
+        IntPtr defaultMode = ResolveDefaultRunLoopMode();
         Task<int> testTask = Task.Run(async () => {
             try {
                 return await RunTestingPlatformAsync(args);
@@ -34,10 +44,30 @@ internal static partial class MacOsTestingPlatformEntryPoint {
         });
 
         while (!testTask.IsCompleted) {
-            CFRunLoopRun();
+            // A bounded run avoids the completion-vs-CFRunLoopStop race where Stop arrives
+            // just before an unbounded Run begins and leaves the test host asleep forever.
+            // NSApplication.run normally installs and drains an autorelease pool for each
+            // event-loop turn. This custom host owns the CFRunLoop instead, so it must do
+            // the same or repeated WKWebView tests retain autoreleased WebKit/AppKit state.
+            IntPtr pool = AutoreleasePoolPush();
+            try {
+                _ = CFRunLoopRunInMode(defaultMode, 0.25, false);
+            }
+            finally {
+                AutoreleasePoolPop(pool);
+            }
         }
 
         return await testTask;
+    }
+
+    private static IntPtr ResolveDefaultRunLoopMode() {
+        IntPtr library = NativeLibrary.Load(CoreFoundation);
+        IntPtr symbol = NativeLibrary.GetExport(library, "kCFRunLoopDefaultMode");
+        IntPtr mode = Marshal.ReadIntPtr(symbol);
+        if (mode == IntPtr.Zero)
+            throw new InvalidOperationException("CoreFoundation returned a null default run-loop mode.");
+        return mode;
     }
 
     private static async Task<int> RunTestingPlatformAsync(string[] args) {

@@ -10,7 +10,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.Position;
 // ---------------------------------------------------------------------------------------------------------------------
 public class OffsetTests {
     [Test]
-    [SkipOnMacOs]
     [SkipOnLinux]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment_IntOverload(CancellationToken ct) {
@@ -34,7 +33,6 @@ public class OffsetTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [SkipOnLinux]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment_PointOverload(CancellationToken ct) {
@@ -60,7 +58,6 @@ public class OffsetTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [SkipOnLinux]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment_DoubleOverload(CancellationToken ct) {

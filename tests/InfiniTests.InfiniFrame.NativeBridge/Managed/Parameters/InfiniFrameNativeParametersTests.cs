@@ -88,6 +88,7 @@ public class InfiniFrameNativeParametersTests {
                 UserAgent = "agent name",
                 BrowserControlInitParameters = "some params",
                 NotificationRegistrationId = "some id",
+                WindowsAppUserModelId = "InfiniLore.InfiniFrame.Tests",
                 RemoteDebuggingPort = 9222,
                 NativeParent = new IntPtr(87654321),
                 CustomSchemeNames = customSchemeNames,
@@ -166,6 +167,7 @@ public class InfiniFrameNativeParametersTests {
             await Assert.That(newParameters.UserAgent).IsEqualTo(parameters.UserAgent);
             await Assert.That(newParameters.BrowserControlInitParameters).IsEqualTo(parameters.BrowserControlInitParameters);
             await Assert.That(newParameters.NotificationRegistrationId).IsEqualTo(parameters.NotificationRegistrationId);
+            await Assert.That(newParameters.WindowsAppUserModelId).IsEqualTo(parameters.WindowsAppUserModelId);
             await Assert.That(newParameters.RemoteDebuggingPort).IsEqualTo(parameters.RemoteDebuggingPort);
             await Assert.That(newParameters.NativeParent).IsEqualTo(parameters.NativeParent);
             await Assert.That(newParameters.Left).IsEqualTo(parameters.Left);

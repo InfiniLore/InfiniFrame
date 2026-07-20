@@ -18,8 +18,9 @@ function(infiniframe_configure_windows_target target_name common_sources test_so
     set_target_properties(${target_name} PROPERTIES
             OUTPUT_NAME "InfiniFrame.Native"
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${INFINIFRAME_WINDOWS_ARCH_DIR}/${CMAKE_BUILD_TYPE}"
-            LINK_FLAGS "/SUBSYSTEM:WINDOWS"
     )
+
+    target_link_options(${target_name} PRIVATE /SUBSYSTEM:WINDOWS)
 
     target_include_directories(${target_name} PRIVATE
             "${CMAKE_SOURCE_DIR}"
@@ -51,8 +52,11 @@ function(infiniframe_configure_windows_target target_name common_sources test_so
                 /permissive-
                 /Zc:__cplusplus
                 /Zc:lambda
-                $<$<CONFIG:Debug>:/Od /MTd /Zi>
-                $<$<CONFIG:Release>:/O2 /MT>
+                $<$<CONFIG:Debug>:/Od>
+                $<$<CONFIG:Release>:/O2>
+        )
+        target_link_options(${target_name} PRIVATE
+                $<$<CONFIG:Debug>:/INCREMENTAL>
         )
     else ()
         target_compile_options(${target_name} PRIVATE

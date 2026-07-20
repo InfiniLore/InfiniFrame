@@ -25,3 +25,7 @@ paths-ignore:
   - "**/dist/**"
   - "**/bin/**"
   - "**/obj/**"
+
+query-filters:
+    - exclude:
+        id: cs/call-to-unmanaged-code

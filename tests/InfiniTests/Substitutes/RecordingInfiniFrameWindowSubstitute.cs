@@ -25,19 +25,19 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
     // -----------------------------------------------------------------------------------------------------------------
     public RecordingInfiniFrameWindowSubstitute() {
         Window = Substitute.For<IInfiniFrameWindow>();
-        Window.InstanceHandle.Returns(IntPtr.MaxValue);
+        Window.LifecycleState.Returns(InfiniFrameWindowLifecycleState.Running);
         Window.ManagedThreadId.Returns(Environment.CurrentManagedThreadId);
         Window.Features.WebMessaging.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(ValueTask.CompletedTask)
             .AndDoes(callInfo => {
                 lock (_sentWebMessagesLock) {
-                    _sentWebMessages.Add(callInfo.Arg<string>());
+                    _sentWebMessages.Add(callInfo.Arg<string>()!);
                 }
             });
         Window.Features.WebMessaging.When(webMessaging => webMessaging.SendWebMessage(Arg.Any<string>()))
             .Do(callInfo => {
                 lock (_sentWebMessagesLock) {
-                    _sentWebMessages.Add(callInfo.Arg<string>());
+                    _sentWebMessages.Add(callInfo.Arg<string>()!);
                 }
             });
 

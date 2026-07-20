@@ -2,10 +2,12 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include <X11/Xlib.h>
+#include <chrono>
 #include <condition_variable>
 #include <exception>
 #include <functional>
 #include <libnotify/notify.h>
+#include <memory>
 #include <mutex>
 #include <thread>
 
@@ -32,10 +34,20 @@ namespace {
         std::condition_variable completion;
         std::exception_ptr failure = nullptr;
         bool completed = false;
+        // 0 = queued, 1 = callback owns execution, 2 = timed out/cancelled by the waiter.
+        std::atomic<int> state = 0;
     };
 
     gboolean InvokeOnOwnerContext(gpointer userData) {
-        auto* state = static_cast<InvokeState*>(userData);
+        auto* retainedState = static_cast<std::shared_ptr<InvokeState>*>(userData);
+        std::shared_ptr<InvokeState> state = *retainedState;
+        // Do not invoke a reverse P/Invoke after the waiting managed call has returned.
+        if (state->state.exchange(1, std::memory_order_acq_rel) == 2) {
+            std::lock_guard lock(state->completionMutex);
+            state->completed = true;
+            state->completion.notify_one();
+            return G_SOURCE_REMOVE;
+        }
         try {
             state->callback();
         }
@@ -50,6 +62,10 @@ namespace {
         }
 
         return G_SOURCE_REMOVE;
+    }
+
+    void ReleaseInvokeState(gpointer userData) {
+        delete static_cast<std::shared_ptr<InvokeState>*>(userData);
     }
 }
 
@@ -98,16 +114,28 @@ namespace infiniframe::linux_gtk::ui_thread {
             return;
         }
 
-        InvokeState state;
-        state.callback = std::move(callback);
+        auto state = std::make_shared<InvokeState>();
+        state->callback = std::move(callback);
 
-        g_main_context_invoke_full(ownerContext, G_PRIORITY_DEFAULT, InvokeOnOwnerContext, &state, nullptr);
+        g_main_context_invoke_full(
+            ownerContext, G_PRIORITY_DEFAULT, InvokeOnOwnerContext, new std::shared_ptr<InvokeState>(state), ReleaseInvokeState
+        );
 
-        std::unique_lock lock(state.completionMutex);
-        state.completion.wait(lock, [&state] { return state.completed; });
+        std::unique_lock lock(state->completionMutex);
+        const bool completed = state->completion.wait_for(lock, std::chrono::seconds(15), [&] { return state->completed; });
+        if (!completed) {
+            // If the UI callback has not started, suppress it. If it won the race, keep the P/Invoke alive until it
+            // completes; returning while it runs would leave native code holding an invalid managed callback.
+            int expected = 0;
+            if (state->state.compare_exchange_strong(expected, 2, std::memory_order_acq_rel)) {
+                g_warning("InfiniFrame UI dispatch timed out; late callback suppressed.");
+                return;
+            }
+            state->completion.wait(lock, [&] { return state->completed; });
+        }
 
-        if (state.failure != nullptr) {
-            std::rethrow_exception(state.failure);
+        if (state->failure != nullptr) {
+            std::rethrow_exception(state->failure);
         }
     }
 }

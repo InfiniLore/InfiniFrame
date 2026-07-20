@@ -1,12 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-
-/**
- * @file Dialog.mm (macOS)
- * @brief macOS implementation of InfiniFrameDialog using NSOpenPanel, NSSavePanel, and NSAlert
- */
-
 #import "Runtime/Shared/Window/InfiniFrameDialog.h"
 
 #if defined(VSTGUI_USE_OBJC_UTTYPE)
@@ -14,11 +8,9 @@
 #else
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-
 // Base64-encoded PNG icon images bundled directly to avoid a dependency on external icon files
 // Each string decodes to a 64×64 PNG used as the NSAlert icon for the corresponding DialogIcon value
 NSString* errorBase64 = @"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";
@@ -29,7 +21,7 @@ NSString* warningBase64 = @"iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNS
 /**
  * @brief Decode a base64-encoded PNG string into an NSImage.
  * @param base64 Base64 string (no line breaks)
- * @return Autoreleased NSImage; caller must retain if stored beyond the current autorelease pool
+ * @return Retained NSImage; caller owns and must release it
  */
 NSImage* getIcon(NSString* base64) {
   NSData *imageData = [[NSData alloc] initWithBase64EncodedString:base64 options:0];
@@ -143,7 +135,7 @@ AutoString InfiniFrameDialog::ShowSaveFile(AutoString title, AutoString defaultP
 }
 
 DialogResult InfiniFrameDialog::ShowMessage(AutoString title, AutoString text, DialogButtons buttons, DialogIcon icon) {
-  NSAlert* alert = [[NSAlert alloc] init];
+  NSAlert* alert = [[[NSAlert alloc] init] autorelease];
   [alert setMessageText:[NSString stringWithUTF8String:title]];
   [alert setInformativeText:[NSString stringWithUTF8String:text]];
 

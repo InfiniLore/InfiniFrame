@@ -142,13 +142,13 @@ public class InfiniFrameNativeParametersMarshallerTests {
     public async Task Unmanaged_SequentialLayout_SizeMatchesExpectedFieldLayout(CancellationToken ct = default) {
         // Arrange
         // Layout (LayoutKind.Sequential, default packing):
-        //   37 × IntPtr  — 8 string pointers + callbacks + NativeParent + CustomSchemeHandler
+        //   38 × IntPtr  — 9 string pointers + callbacks + NativeParent + CustomSchemeHandler
         //   10 × int     — RemoteDebuggingPort + Left, Top, Width, Height, Zoom, MinWidth, MinHeight, MaxWidth, MaxHeight
         //   23 × byte    — boolean options mapped to bytes
         //    4 bytes     — padding after RemoteDebuggingPort so NativeParent stays pointer-aligned
         //    1 byte      — padding to re-align the trailing int (Size) to 4-byte boundary
         //    1 × int     — Size
-        int expected = 37 * IntPtr.Size// pointer fields
+        int expected = 38 * IntPtr.Size// pointer fields
             + 10 * sizeof(int)// numeric integer fields
             + 23 * sizeof(byte)// boolean-as-byte fields
             + 4// alignment padding before NativeParent

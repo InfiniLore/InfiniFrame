@@ -23,8 +23,8 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 namespace infiniframe::exports {
-    inline thread_local std::string g_lastErrorMessage;
-    inline thread_local auto g_lastStatus = InteropStatus::Success;
+    extern thread_local std::string g_lastErrorMessage;
+    extern thread_local InteropStatus g_lastStatus;
 
     inline void SetLastErrorCode(const InteropStatus status) noexcept {
 #ifdef _WIN32

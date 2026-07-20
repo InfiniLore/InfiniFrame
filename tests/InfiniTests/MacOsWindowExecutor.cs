@@ -9,6 +9,7 @@ namespace InfiniTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class MacOsWindowExecutor : ITestExecutor {
+    private const string NativeWindowTestNamespace = "InfiniTests.InfiniFrame.Window";
     private const string LibDispatch = "/usr/lib/system/libdispatch.dylib";
     private const string LibSystem = "/usr/lib/libSystem.dylib";
 
@@ -16,6 +17,10 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
     private static readonly DispatchWorkCallback DispatchWork = InvokeDispatchWork;
     private static readonly IntPtr DispatchWorkPointer = Marshal.GetFunctionPointerForDelegate(DispatchWork);
     private static readonly TimeSpan MainQueueTimeout = TimeSpan.FromSeconds(30);
+
+    // AppKit and the test host share one main queue. Keep a lease for the complete async test lifetime so
+    // continuations from separate tests cannot interleave on that queue.
+    private static readonly SemaphoreSlim MainQueueTestLease = new(1, 1);
 
     [DllImport(LibDispatch)]
     private static extern void dispatch_async_f(IntPtr queue, IntPtr context, IntPtr work);
@@ -25,7 +30,7 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void DispatchWorkCallback(IntPtr context);
-    
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate IntPtr DispatchGetMainQueueCallback();
 
@@ -36,12 +41,31 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
         TestContext context,
         Func<ValueTask> action
     ) {
-        if (!OperatingSystem.IsMacOS() || pthread_main_np() == 1) {
+        if (!OperatingSystem.IsMacOS() || !RequiresMainQueue(context) || pthread_main_np() == 1) {
             await action();
             return;
         }
 
-        await DispatchToMainQueueAsync(action);
+        CancellationToken cancellationToken = context.Execution.CancellationToken;
+        await MainQueueTestLease.WaitAsync(cancellationToken);
+        try {
+            await DispatchToMainQueueAsync(action, cancellationToken);
+        }
+        finally {
+            MainQueueTestLease.Release();
+        }
+    }
+
+    private static bool RequiresMainQueue(TestContext context) {
+        if (context.Metadata.TestDetails.HasAttribute<RunOnMacOsMainThreadAttribute>()) {
+            return true;
+        }
+
+        string? testNamespace = context.Metadata.TestDetails.Class.ClassType.Namespace;
+        return testNamespace is not null && (
+            testNamespace.Equals(NativeWindowTestNamespace, StringComparison.Ordinal) ||
+            testNamespace.StartsWith(NativeWindowTestNamespace + ".", StringComparison.Ordinal)
+        );
     }
 
     private static IntPtr ResolveMainQueue() {
@@ -64,15 +88,22 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
             "Unable to resolve the macOS main dispatch queue symbol in libdispatch.");
     }
 
-    private static async ValueTask DispatchToMainQueueAsync(Func<ValueTask> action) {
+    private static async ValueTask DispatchToMainQueueAsync(
+        Func<ValueTask> action,
+        CancellationToken cancellationToken
+    ) {
         var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var state = new MainQueueTestWork(action, completion);
+        var state = new MainQueueTestWork(action, completion, cancellationToken);
         GCHandle handle = GCHandle.Alloc(state);
 
         dispatch_async_f(MainQueue.Value, GCHandle.ToIntPtr(handle), DispatchWorkPointer);
 
-        Task completedTask = await Task.WhenAny(completion.Task, Task.Delay(MainQueueTimeout));
+        Task completedTask = await Task.WhenAny(
+            completion.Task,
+            Task.Delay(MainQueueTimeout, cancellationToken)
+        );
         if (completedTask != completion.Task) {
+            cancellationToken.ThrowIfCancellationRequested();
             throw new TimeoutException(
                 "Timed out while waiting for the macOS main queue to execute a window test. " +
                 "The AppKit main thread is not pumping dispatch work in this test host.");
@@ -100,9 +131,17 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
 
     private sealed class MainQueueTestWork(
         Func<ValueTask> action,
-        TaskCompletionSource completion
+        TaskCompletionSource completion,
+        CancellationToken cancellationToken
     ) {
         public void Start() {
+            // A timed-out test may still be queued while AppKit is finishing a slow WebKit
+            // operation. Do not start that abandoned test when the main queue recovers.
+            if (cancellationToken.IsCancellationRequested) {
+                completion.TrySetCanceled(cancellationToken);
+                return;
+            }
+
             SynchronizationContext? previousContext = SynchronizationContext.Current;
             SynchronizationContext.SetSynchronizationContext(MacOsMainQueueSynchronizationContext.Instance);
 
@@ -157,7 +196,7 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
             var sendState = new MainQueueSendState(d, state, completed);
 
             Post(
-                static callbackState => {
+                d: static callbackState => {
                     var sendState = (MainQueueSendState)callbackState!;
                     try {
                         sendState.Callback(sendState.State);

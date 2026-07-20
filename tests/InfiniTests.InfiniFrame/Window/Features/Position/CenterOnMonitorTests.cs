@@ -10,7 +10,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.Position;
 public class CenterOnMonitorTests {
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs]
     [SkipOnLinux]
     public async Task AtWindowStage_DirectAssignment_ValidMonitorIndex(CancellationToken ct) {
         // Arrange
@@ -32,7 +31,6 @@ public class CenterOnMonitorTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs]
     [SkipOnLinux]
     public async Task AtWindowStage_DirectAssignment_InvalidMonitorIndex_DoesNotThrow(CancellationToken ct) {
         // Arrange
@@ -50,7 +48,6 @@ public class CenterOnMonitorTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs]
     [SkipOnLinux]
     public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct) {
         // Arrange

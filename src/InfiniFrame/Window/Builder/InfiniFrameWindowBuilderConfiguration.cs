@@ -15,13 +15,15 @@ public class InfiniFrameWindowBuilderConfiguration : IInfiniFrameWindowBuilderCo
     /// <inheritdoc cref="IInfiniFrameWindowBuilderConfiguration.ParentWindow"/>
     public IInfiniFrameWindow? ParentWindow { get; set; }
     /// <inheritdoc cref="IInfiniFrameWindowBuilderConfiguration.ChildWindows"/>
-    public List<IInfiniFrameWindow> ChildWindows { get; init; } = [];
+    public List<IInfiniFrameWindow> ChildWindows { get; } = [];
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     /// <inheritdoc cref="IInfiniFrameWindowBuilderConfiguration.ApplyToNativeParameters"/>
     public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
-        if (ParentWindow is not null) parameters.NativeParent = ParentWindow.InstanceHandle;
+        // NativeParent is populated under a parent-handle lease immediately before native construction.
+        // This means we also dont have to define it here, as it is managed externally.
+        // parameters.NativeParent = IntPtr.Zero;
     }
 }

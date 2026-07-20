@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.NativeBridge.Handles;
 using InfiniFrame.Utilities;
 using JetBrains.Annotations;
 using System.Runtime.Versioning;
@@ -11,6 +12,9 @@ namespace InfiniTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed partial class InfiniFrameTestWindow {
+    private static readonly bool TestWindowTracingEnabled =
+        string.Equals(Environment.GetEnvironmentVariable("INFINIFRAME_TEST_TRACE"), "1", StringComparison.Ordinal);
+
     [SupportedOSPlatform("windows")]
     [MustDisposeResource]
     private static partial InfiniFrameTestWindow CreateWindows(InfiniFrameWindowBuilder windowBuilder) {
@@ -18,13 +22,18 @@ public sealed partial class InfiniFrameTestWindow {
 
         var thread = new Thread(() => {
             try {
-                Console.Error.WriteLine(
-                    $"[InfiniFrameWindowTestUtility] STA thread started managedThreadId={Environment.CurrentManagedThreadId} apt={Thread.CurrentThread.GetApartmentState()} pid={Environment.ProcessId}");
+                if (TestWindowTracingEnabled) {
+                    Console.Error.WriteLine(
+                        $"[InfiniFrameWindowTestUtility] STA thread started managedThreadId={Environment.CurrentManagedThreadId} apt={Thread.CurrentThread.GetApartmentState()} pid={Environment.ProcessId}");
+                }
 
                 IInfiniFrameWindow window = windowBuilder.Build();
 
-                Console.Error.WriteLine(
-                    $"[InfiniFrameWindowTestUtility] window initialized instance=0x{window.InstanceHandle.ToInt64():X} hwnd=0x{window.WindowHandle.ToInt64():X} thread={Environment.CurrentManagedThreadId}");
+                if (TestWindowTracingEnabled) {
+                    using NativeHandleLease lease = window.AcquireNativeHandle();
+                    Console.Error.WriteLine(
+                        $"[InfiniFrameWindowTestUtility] window initialized instance=0x{lease.Handle.ToInt64():X} hwnd=0x{window.WindowHandle.ToInt64():X} thread={Environment.CurrentManagedThreadId}");
+                }
 
                 windowSource.SetResult(window);
 

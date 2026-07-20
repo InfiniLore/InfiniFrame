@@ -1,7 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.BlazorWebView.Utilities;
 using InfiniFrame.Security;
 using InfiniFrame.Utilities;
 using Microsoft.AspNetCore.Components;
@@ -25,18 +24,14 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     public const string BlazorAppScheme = "app";
     public const string AppBaseUri = $"{BlazorAppScheme}://localhost/";
 
-    private readonly Channel<string> _channel =
-        Channel.CreateUnbounded<string>(new UnboundedChannelOptions {
-            SingleReader = true,
-            SingleWriter = false,
-            AllowSynchronousContinuations = false
-        });
+    private readonly Channel<string> _channel;
     private readonly CancellationTokenSource _messagePumpShutdown = new();
+    private readonly int _messageQueueCapacity;
+    private readonly BoundedChannelFullMode _messageQueueFullMode;
     private int _disposeStarted;
     private int _disposed;
 
     private readonly Task _messagePumpTask;
-    private readonly SynchronousTaskScheduler _syncScheduler = new();
     private readonly IInfiniFrameUriSecurityPolicy _uriSecurityPolicy;
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -51,9 +46,25 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         IOptions<InfiniFrameBlazorAppConfiguration> config
     )
         : base(provider, dispatcher, config.Value.AppBaseUri, fileProvider, jsComponents, config.Value.HostPage) {
+        InfiniFrameBlazorAppConfiguration configuration = config.Value;
+        if (configuration.WebMessageQueueCapacity <= 0) {
+            throw new ArgumentOutOfRangeException(
+                nameof(configuration.WebMessageQueueCapacity),
+                configuration.WebMessageQueueCapacity,
+                "The WebView message queue capacity must be positive.");
+        }
+
+        _channel = Channel.CreateBounded<string>(new BoundedChannelOptions(configuration.WebMessageQueueCapacity) {
+            SingleReader = true,
+            SingleWriter = false,
+            FullMode = configuration.WebMessageQueueFullMode,
+            AllowSynchronousContinuations = false
+        });
+        _messageQueueCapacity = configuration.WebMessageQueueCapacity;
+        _messageQueueFullMode = configuration.WebMessageQueueFullMode;
         _uriSecurityPolicy = InfiniFrameUriSecurityPolicyRegistry
             .GetForBuilder(builder)
-            .WithTrustedOrigin(config.Value.AppBaseUri);
+            .WithTrustedOrigin(configuration.AppBaseUri);
 
         // ReSharper disable once ConvertClosureToMethodGroup
         LazyWindow = new Lazy<IInfiniFrameWindow>(() => provider.GetRequiredService<IInfiniFrameWindow>());
@@ -63,27 +74,21 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         builder.RegisterWebMessageReceivedHandler((_, message, origin) => {
             if (IsDisposingOrDisposed) return;
 
-            LazyLogger.Value?.LogDebug(
-                "Web message callback from native. Origin: {Origin}, Message: {Message}",
-                origin,
-                message);
+            LazyLogger.Value?.LogTrace("Web message callback received from native. Origin: {Origin}, Length: {Length}", origin, message.Length);
 
-            Task.Factory.StartNew(
-                state => {
-                    try {
-                        HandleWebMessage(((string Message, string? Origin))state!);
-                    }
-                    catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-                        LazyLogger.Value?.LogWarning(ex, "Unhandled exception while handling native web message callback.");
-                    }
-                },
-                (Message: message, Origin: origin),
-                CancellationToken.None,
-                TaskCreationOptions.DenyChildAttach,
-                _syncScheduler);
+            try {
+                HandleWebMessage((message, origin));
+            }
+            catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
+                LazyLogger.Value?.LogWarning(ex, "Unhandled exception while handling native web message callback.");
+            }
         });
 
-        _messagePumpTask = Task.Run(MessagePump);
+        _messagePumpTask = MessagePump();
+        LazyLogger.Value?.LogDebug(
+            "Started WebView message pump. QueueCapacity: {QueueCapacity}, FullMode: {FullMode}",
+            configuration.WebMessageQueueCapacity,
+            configuration.WebMessageQueueFullMode);
     }
 
     private Lazy<IInfiniFrameWindow> LazyWindow { get; }
@@ -93,7 +98,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     // -----------------------------------------------------------------------------------------------------------------
     // Web Requests
     // -----------------------------------------------------------------------------------------------------------------
-    /// <inheritdoc cref="IInfiniFrameWebViewManager.HandleWebRequest"/>
+    /// <inheritdoc cref="IInfiniFrameWebViewManager.HandleWebRequest" />
     public (Stream? Data, string? ContentType) HandleWebRequest(IInfiniFrameWindow? infiniFrameWindow, string? url) {
         if (string.IsNullOrWhiteSpace(url)) {
             LazyLogger.Value?.LogWarning(
@@ -165,8 +170,8 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             out _,
             out _,
             out Stream content2,
-            out IDictionary<string, string> headers2)) {
-            
+            out IDictionary<string, string> headers2)
+        ) {
             headers2.TryGetValue("Content-Type", out string? contentType);
             return (content2, contentType ?? GetFallbackContentType(sanitizedUri2.LocalPath));
         }
@@ -215,6 +220,10 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             return;
         }
 
+        // The callback runs on the native UI thread. Do not hold a lifecycle lock while dispatching
+        // messages because the pump synchronously invokes that same thread to send responses.
+        if (IsDisposingOrDisposed) return;
+
         MessageReceived(messageOriginUrl, state.Message);
     }
 
@@ -226,16 +235,26 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     }
 
     protected override void SendMessage(string message) {
-        if (IsDisposingOrDisposed || _messagePumpShutdown.IsCancellationRequested) return;
+        if (IsDisposingOrDisposed || _messagePumpShutdown.IsCancellationRequested) {
+            LazyLogger.Value?.LogTrace("Discarded outbound WebView message because the manager is shutting down.");
+            return;
+        }
+
         if (_channel.Writer.TryWrite(message)) return;
-        LazyLogger.Value?.LogDebug("Skipping WebView message because the message channel is closed.");
+
+        LazyLogger.Value?.LogWarning(
+            "Discarded outbound WebView message because the bounded queue is unavailable or full. QueueCapacity: {QueueCapacity}, FullMode: {FullMode}",
+            _messageQueueCapacity,
+            _messageQueueFullMode);
     }
 
     private async Task MessagePump() {
         try {
             while (await _channel.Reader.WaitToReadAsync(_messagePumpShutdown.Token)) {
                 while (_channel.Reader.TryRead(out string? message)) {
-                    await LazyWindow.Value.SendWebMessageAsync(message, _messagePumpShutdown.Token);
+                    if (IsDisposingOrDisposed || _messagePumpShutdown.IsCancellationRequested) return;
+
+                    await LazyWindow.Value.SendWebMessageAsync(message, _messagePumpShutdown.Token).ConfigureAwait(false);
                 }
             }
         }
@@ -256,8 +275,8 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     protected override async ValueTask DisposeAsyncCore() {
         if (Interlocked.Exchange(ref _disposeStarted, 1) != 0) return;
 
-        await _messagePumpShutdown.CancelAsync();
         _channel.Writer.TryComplete();
+        _messagePumpShutdown.Cancel();
 
         try {
             // Some tests build and dispose of the app without ever creating a native window.
@@ -270,17 +289,15 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         }
         finally {
             try {
-                await _messagePumpTask.WaitAsync(TimeSpan.FromMilliseconds(250));
-            }
-            catch (TimeoutException ex) {
-                LazyLogger.Value?.LogDebug(ex, "Timed out while waiting for WebView message pump shutdown.");
+                await _messagePumpTask.ConfigureAwait(false);
             }
             catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-                LazyLogger.Value?.LogWarning(ex, "Message pump faulted during WebView manager shutdown." );
+                LazyLogger.Value?.LogWarning(ex, "Message pump faulted during WebView manager shutdown.");
             }
             finally {
                 _messagePumpShutdown.Dispose();
                 Volatile.Write(ref _disposed, 1);
+                LazyLogger.Value?.LogDebug("WebView manager disposal completed after the message pump stopped.");
             }
         }
     }

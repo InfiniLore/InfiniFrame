@@ -6,7 +6,7 @@ namespace InfiniFrame.NativeBridge.Parameters;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Compares two <see cref="InfiniFrameNativeParameters"/> instances for value equality,
+///     Compares two <see cref="InfiniFrameNativeParameters" /> instances for value equality,
 ///     ignoring callback handler fields.
 /// </summary>
 internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityComparer<InfiniFrameNativeParameters> {
@@ -15,10 +15,10 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
     /// </summary>
     internal static readonly InfiniFrameNativeParametersEqualityComparer Instance = new();
 
-    private InfiniFrameNativeParametersEqualityComparer() { }
+    private InfiniFrameNativeParametersEqualityComparer() {}
 
     /// <summary>
-    ///     Determines whether two <see cref="InfiniFrameNativeParameters"/> instances are equal
+    ///     Determines whether two <see cref="InfiniFrameNativeParameters" /> instances are equal
     ///     by comparing all value fields.
     /// </summary>
     /// <param name="x">The first instance.</param>
@@ -48,6 +48,7 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         if (x.UserAgent != y.UserAgent) return false;
         if (x.BrowserControlInitParameters != y.BrowserControlInitParameters) return false;
         if (x.NotificationRegistrationId != y.NotificationRegistrationId) return false;
+        if (x.WindowsAppUserModelId != y.WindowsAppUserModelId) return false;
         if (x.RemoteDebuggingPort != y.RemoteDebuggingPort) return false;
         if (x.NativeParent != y.NativeParent) return false;
         if (x.Left != y.Left) return false;
@@ -88,7 +89,7 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
     }
 
     /// <summary>
-    ///     Returns a hash code for the specified <see cref="InfiniFrameNativeParameters"/> instance
+    ///     Returns a hash code for the specified <see cref="InfiniFrameNativeParameters" /> instance
     ///     based on its value fields.
     /// </summary>
     /// <param name="obj">The instance to hash.</param>
@@ -103,6 +104,7 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         hashCode.Add(obj.UserAgent);
         hashCode.Add(obj.BrowserControlInitParameters);
         hashCode.Add(obj.NotificationRegistrationId);
+        hashCode.Add(obj.WindowsAppUserModelId);
         hashCode.Add(obj.RemoteDebuggingPort);
         hashCode.Add(obj.NativeParent);
 

@@ -133,8 +133,8 @@ void InfiniFrameWindow::AttachWebView() {
             [this](const HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
                 if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire)) {
                     m_impl->_isWebView2Initializing = false;
-                    m_impl->_webviewEnvironment = nullptr;
-                    TraceTeardown(L"CreateEnvironment callback while closing; ignoring");
+                    TraceTeardown(L"CreateEnvironment callback while closing; finalizing close");
+                    PostMessage(m_impl->_hWnd, WM_CLOSE, 0, 0);
                     return S_OK;
                 }
                 if (result != S_OK) {
@@ -146,24 +146,30 @@ void InfiniFrameWindow::AttachWebView() {
                     m_impl->_isWebView2Initializing = false;
                     return E_POINTER;
                 }
-                HRESULT envResult = env->QueryInterface(&m_impl->_webviewEnvironment);
+                // The asynchronous controller operation owns its environment until completion.
+                // Do not publish it to m_impl yet: CloseWebView may run while WebView2 is inside
+                // this callback, and releasing the environment re-entrantly can crash the runtime.
+                wil::com_ptr<ICoreWebView2Environment> environment;
+                HRESULT envResult = env->QueryInterface(&environment);
                 if (envResult != S_OK) {
                     m_impl->_isWebView2Initializing = false;
                     return envResult;
                 }
 
-                const HRESULT createControllerHr = env->CreateCoreWebView2Controller(
+                const HRESULT createControllerHr = environment->CreateCoreWebView2Controller(
                     m_impl->_hWnd,
                     Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
-                        [this](const HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
+                        [this, environment](const HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
                             if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire)) {
+                                // Keep the late controller alive until after this WebView2 callback
+                                // unwinds. The posted WM_CLOSE performs normal controller and HWND
+                                // teardown outside EmbeddedBrowserWebView's completion stack.
+                                m_impl->_webviewEnvironment = environment;
                                 if (controller != nullptr)
-                                    controller->Close();
-                                m_impl->_webviewController = nullptr;
-                                m_impl->_webviewWindow = nullptr;
-                                m_impl->_webviewEnvironment = nullptr;
+                                    controller->QueryInterface(&m_impl->_webviewController);
                                 m_impl->_isWebView2Initializing = false;
-                                TraceTeardown(L"CreateController callback while closing; ignoring");
+                                TraceTeardown(L"CreateController callback while closing; finalizing close");
+                                PostMessage(m_impl->_hWnd, WM_CLOSE, 0, 0);
                                 return S_OK;
                             }
                             if (result != S_OK) {
@@ -178,6 +184,7 @@ void InfiniFrameWindow::AttachWebView() {
                                 return E_POINTER;
                             }
 
+                            m_impl->_webviewEnvironment = environment;
                             HRESULT envResult = controller->QueryInterface(&m_impl->_webviewController);
                             if (envResult != S_OK) {
                                 m_impl->_isWebView2Initializing = false;

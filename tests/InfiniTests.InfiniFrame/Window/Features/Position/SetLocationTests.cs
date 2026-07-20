@@ -53,7 +53,6 @@ public class SetLocationTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [SkipOnLinux]
     [NotInParallelInfiniTests]
     [Arguments(140, 260)]
@@ -77,7 +76,6 @@ public class SetLocationTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [SkipOnLinux]
     [NotInParallelInfiniTests]
     [Arguments(160, 280)]

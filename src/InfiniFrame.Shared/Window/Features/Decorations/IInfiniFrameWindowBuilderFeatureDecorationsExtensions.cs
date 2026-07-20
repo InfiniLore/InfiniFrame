@@ -51,6 +51,21 @@ public static class IInfiniFrameWindowBuilderFeatureDecorationsExtensions {
     }
 
     /// <summary>
+    ///     Sets the explicit Windows application user model ID used for taskbar grouping and application identity.
+    ///     All windows in a process should use the same ID.
+    /// </summary>
+    /// <param name="builder">The builder instance.</param>
+    /// <param name="appUserModelId">The application user model ID, or <c>null</c> to use Windows' default identity.</param>
+    /// <returns>The builder instance for chaining.</returns>
+    public static IInfiniFrameWindowBuilder SetWindowsAppUserModelId(
+        this IInfiniFrameWindowBuilder builder,
+        string? appUserModelId
+    ) {
+        builder.Features.Decorations.SetWindowsAppUserModelId(appUserModelId);
+        return builder;
+    }
+
+    /// <summary>
     ///     Sets whether the Linux window title length should be limited.
     /// </summary>
     /// <param name="builder">The builder instance.</param>

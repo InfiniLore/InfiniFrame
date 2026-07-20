@@ -8,24 +8,27 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-std::wstring Utf8ToWide(const AutoString source) {
+std::wstring Utf8ToWide(const char* source) {
     if (source == nullptr)
         return {};
 
-    const auto* utf8 = reinterpret_cast<const char*>(source);
-    const size_t utf8Length = strlen(utf8);
+    const size_t utf8Length = strlen(source);
     if (utf8Length == 0)
         return {};
 
-    if (const auto validation = simdutf::validate_utf8_with_errors(utf8, utf8Length); validation.is_err())
+    if (const auto validation = simdutf::validate_utf8_with_errors(source, utf8Length); validation.is_err())
         return {};
 
-    std::u16string utf16(simdutf::utf16_length_from_utf8(utf8, utf8Length), u'\0');
+    std::u16string utf16(simdutf::utf16_length_from_utf8(source, utf8Length), u'\0');
     const size_t written =
-        simdutf::convert_valid_utf8_to_utf16(utf8, utf8Length, reinterpret_cast<char16_t*>(utf16.data()));
+        simdutf::convert_valid_utf8_to_utf16(source, utf8Length, reinterpret_cast<char16_t*>(utf16.data()));
     utf16.resize(written);
 
     return {reinterpret_cast<const wchar_t*>(utf16.data()), utf16.size()};
+}
+
+std::wstring AutoStringUtf8ToWide(const AutoString source) {
+    return Utf8ToWide(reinterpret_cast<const char*>(source));
 }
 
 std::string WideToUtf8(const AutoString source) {

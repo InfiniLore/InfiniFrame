@@ -9,7 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.Size;
 // ---------------------------------------------------------------------------------------------------------------------
 public class ResizeTests {
     [Test]
-    [SkipOnMacOs]
     [SkipOnLinux]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment(CancellationToken ct) {
@@ -32,7 +31,6 @@ public class ResizeTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [SkipOnLinux]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct) {

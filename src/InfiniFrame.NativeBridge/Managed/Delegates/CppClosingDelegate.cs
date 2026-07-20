@@ -9,7 +9,7 @@ namespace InfiniFrame.NativeBridge.Delegates;
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
 ///     Represents a native callback invoked when the native window is about to close.
-///     Return non-zero to allow closing, zero to cancel.
+///     Return non-zero to cancel closing, zero to allow it.
 /// </summary>
-[UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)]
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public delegate byte CppClosingDelegate();

@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
@@ -25,10 +25,10 @@ internal static class MonitorsUtility {
 
         NativeInvoke.InvokeSyncWithValidation(
             NullLogger<IInfiniFrameWindow>.Instance,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.GetAllMonitors,
-            (CppGetAllMonitorsDelegate) Callback
+            (CppGetAllMonitorsDelegate)Callback
         );
         return builder.ToImmutable();
 
@@ -37,7 +37,7 @@ internal static class MonitorsUtility {
             return 1;
         }
     }
-    
+
     /// <summary>
     ///     Attempts to determine the monitor that contains or is nearest to the specified window bounds.
     /// </summary>
@@ -114,21 +114,21 @@ internal static class MonitorsUtility {
         ImmutableArray<InfiniMonitor> monitors = GetMonitors(window);
 
         (int x, int y) = NativeInvoke.InvokeSyncWithValidation<int, int>(
-            NullLogger<IInfiniFrameWindow>.Instance, 
-            window.InstanceHandle,
+            NullLogger<IInfiniFrameWindow>.Instance,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.GetPosition
         );
-        
+
         (int width, int height) = NativeInvoke.InvokeSyncWithValidation<int, int>(
-            NullLogger<IInfiniFrameWindow>.Instance, 
-            window.InstanceHandle,
+            NullLogger<IInfiniFrameWindow>.Instance,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.GetSize
         );
-        
+
         windowRect = new Rectangle(x, y, width, height);
-        
+
         // ReSharper disable once InvertIf
 
         return TryGetCurrentMonitor(monitors, windowRect, out monitor);

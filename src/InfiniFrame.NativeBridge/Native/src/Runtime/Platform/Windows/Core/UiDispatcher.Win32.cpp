@@ -41,7 +41,7 @@ void InfiniFrameWindow::Invoke(ACTION callback) {
         if (deleteWaitInfo)
             delete waitInfo;
 
-        OutputDebugStringW(L"InfiniFrameWindow::Invoke timed out waiting for UI thread callback.\n");
+        OutputDebugStringW(L"InfiniFrame dispatch watchdog: result=TimedOut callback=Suppressed platform=Windows.\n");
         return;
     }
 

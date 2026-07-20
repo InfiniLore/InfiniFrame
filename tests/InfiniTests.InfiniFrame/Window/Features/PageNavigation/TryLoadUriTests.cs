@@ -10,7 +10,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.PageNavigation;
 public class TryLoadUriTests {
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs]
     [SkipOnLinux]
     public async Task AtWindowStage_FileUri_ReturnsTrue(CancellationToken ct) {
         // Arrange
@@ -39,7 +38,6 @@ public class TryLoadUriTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs]
     [SkipOnLinux]
     public async Task AtWindowStage_DisallowedScheme_ReturnsFalse(CancellationToken ct) {
         // Arrange

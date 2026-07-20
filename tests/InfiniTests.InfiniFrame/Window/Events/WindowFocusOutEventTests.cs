@@ -9,8 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowFocusOutEventTests {
     [Test]
-    [Retry(5)]
-    [SkipOnMacOs]
     [SkipOnWindowsArm("WM_ACTIVATE WA_INACTIVE is not reliably delivered on headless ARM64 CI runners")]
     [SkipOnLinux("Focus transitions are desktop-state dependent under WSLg/local Linux runs")]
     [NotInParallelInfiniTests]

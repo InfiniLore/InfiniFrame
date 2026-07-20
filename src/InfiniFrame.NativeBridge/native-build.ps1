@@ -1,7 +1,10 @@
 param(
     [string]$Configuration = "Debug",
     [string]$Arch = "x64",
-    [string]$EnableTestExports = ""
+    [string]$EnableTestExports = "",
+    [ValidateSet("None", "AddressUndefined", "Thread")]
+    [string]$Sanitizer = "None",
+    [switch]$Clean
 )
 
 $ErrorActionPreference = "Stop"
@@ -98,6 +101,7 @@ try {
     Write-Host "Architecture : $Arch"
     Write-Host "Platform     : $Platform"
     Write-Host "Test Exports : $EnableTestExports"
+    Write-Host "Sanitizer    : $Sanitizer"
     Write-Host "========================================="
 
     Write-Host ""
@@ -106,9 +110,13 @@ try {
     Write-Host ""
 
     # -----------------------------------------------------------------------------------------------------------------
-    # CLEAN BUILD DIRECTORY
+    # BUILD DIRECTORY
     # -----------------------------------------------------------------------------------------------------------------
-    if (Test-Path $BuildDir) {
+    # Preserve CMake's build graph between invocations. MSBuild calls this script only
+    # when an input changes; deleting the build directory here discarded all dependency
+    # scanning, object files, PCHs, and compiler-cache hits on every incremental build.
+    if ($Clean -and (Test-Path $BuildDir)) {
+        Write-Host "Removing native build directory because -Clean was requested."
         Remove-Item $BuildDir -Recurse -Force
     }
 
@@ -160,8 +168,15 @@ try {
         $CMakeArgs += "-A"
         $CMakeArgs += $CMakeArchitecture
     }
+    elseif (Get-Command ninja -ErrorAction SilentlyContinue) {
+        # Ninja has lower build-system overhead and better parallel scheduling than
+        # makefiles. Do not require it: the platform default remains a portable fallback.
+        $CMakeArgs += "-G"
+        $CMakeArgs += "Ninja"
+    }
 
     $CMakeArgs += "-DINFINIFRAME_BUILD_TEST_EXPORTS=$EnableTestExportsCMakeValue"
+    $CMakeArgs += "-DINFINIFRAME_SANITIZER=$Sanitizer"
 
     Write-Host ""
     Write-Host "CMake Configure Arguments:"

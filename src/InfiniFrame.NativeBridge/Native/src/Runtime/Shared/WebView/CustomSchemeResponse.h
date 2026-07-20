@@ -3,6 +3,10 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include <string>
+#include <cstddef>
+#include <cstring>
+
+#include "Runtime/Shared/Types/Callbacks.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Cross-platform CORS/header helper for custom-scheme responses.
 //
@@ -16,6 +20,43 @@
 //   std::string  headers = infiniframe::BuildCorsResponseHeaders<char>("application/json", origin);
 // ---------------------------------------------------------------------------------------------------------------------
 namespace infiniframe {
+
+    static constexpr std::size_t MaxCustomSchemeContentTypeBytes = 1024;
+
+    /** Calls the producer-provided release function exactly once on every native exit path. */
+    class CustomSchemeResponseLease final {
+    public:
+        explicit CustomSchemeResponseLease(CustomSchemeResponse& response) noexcept : _response(response) {}
+        CustomSchemeResponseLease(const CustomSchemeResponseLease&) = delete;
+        CustomSchemeResponseLease& operator=(const CustomSchemeResponseLease&) = delete;
+
+        ~CustomSchemeResponseLease() {
+            if (_response.OwnerContext != nullptr && _response.Release != nullptr) {
+                _response.Release(_response.OwnerContext);
+                _response.OwnerContext = nullptr;
+            }
+        }
+
+    private:
+        CustomSchemeResponse& _response;
+    };
+
+    /** Validate the complete v1 buffered-response prefix before dereferencing producer-owned pointers. */
+    inline bool IsValidBufferedCustomSchemeResponse(const CustomSchemeResponse& response) noexcept {
+        constexpr std::size_t requiredSize = offsetof(CustomSchemeResponse, ReservedRead);
+        if (response.StructSize < requiredSize ||
+            response.AbiVersion != CustomSchemeResponse::CurrentAbiVersion ||
+            response.BodyKind != static_cast<uint32_t>(CustomSchemeBodyKind::Buffered) ||
+            response.StatusCode < 100 || response.StatusCode > 599 ||
+            response.ContentLength > CustomSchemeResponse::MaxBufferedBodyBytes ||
+            (response.ContentLength != 0 && response.Body == nullptr) ||
+            response.ContentTypeUtf8 == nullptr ||
+            response.OwnerContext == nullptr || response.Release == nullptr) {
+            return false;
+        }
+
+        return std::memchr(response.ContentTypeUtf8, '\0', MaxCustomSchemeContentTypeBytes + 1) != nullptr;
+    }
 
     template <typename CharT>
     struct SchemeResponseTraits;

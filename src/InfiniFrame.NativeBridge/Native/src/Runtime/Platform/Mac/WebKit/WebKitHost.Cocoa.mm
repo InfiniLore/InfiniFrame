@@ -1,18 +1,16 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-
 #include <stdexcept>
 
 #include "Embedded/Embedded.h"
 #include "../Delegates/NavigationDelegate.h"
 #include "../Delegates/UiDelegate.h"
 #include "../Window.Cocoa.Internal.h"
-
+#include "InfiniFrameWebView.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-
 void InfiniFrameWindow::AttachWebView()
 {
     auto js = Embedded::InfiniFrameJsUtf8();
@@ -27,13 +25,20 @@ void InfiniFrameWindow::AttachWebView()
         [[WKUserContentController alloc] init];
 
     [userContentController addUserScript:script];
+    [script release];
 
     m_impl->_webviewConfiguration.userContentController = userContentController;
+    [userContentController release];
 
     m_impl->_webview = [
-        [WKWebView alloc]
+        [InfiniFrameWebView alloc]
         initWithFrame: m_impl->_window.contentView.frame
         configuration: m_impl->_webviewConfiguration];
+
+    InfiniFrameWebView* infiniFrameWebView = (InfiniFrameWebView*)m_impl->_webview;
+    [infiniFrameWebView setInfiniFrameContextMenuEnabled:m_impl->_contextMenuEnabled ? YES : NO];
+    [infiniFrameWebView setInfiniFrameZoomEnabled:m_impl->_zoomEnabled ? YES : NO];
+    SetTransparentEnabled(m_impl->_transparentEnabled);
 
     SEL setInspectableSelector = NSSelectorFromString(@"setInspectable:");
     if ([m_impl->_webview respondsToSelector: setInspectableSelector])

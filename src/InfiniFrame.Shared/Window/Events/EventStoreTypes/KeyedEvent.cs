@@ -1,10 +1,9 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Collections.Concurrent;
+using System.Collections.Immutable;
 
 namespace InfiniFrame;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -14,15 +13,16 @@ namespace InfiniFrame;
 /// <typeparam name="TKey">The type of the key used to identify handlers.</typeparam>
 /// <typeparam name="TPayload">The type of the payload passed to handlers.</typeparam>
 public sealed record KeyedEvent<TKey, TPayload> where TKey : notnull {
-    private ConcurrentDictionary<TKey, Action<IInfiniFrameWindow, TPayload>> Handlers { get; } = [];
+    private ImmutableDictionary<TKey, Action<IInfiniFrameWindow, TPayload>> _handlers =
+        ImmutableDictionary<TKey, Action<IInfiniFrameWindow, TPayload>>.Empty;
     /// <summary>
     ///     Gets a snapshot of the current handler registrations.
     /// </summary>
-    public IEnumerable<KeyValuePair<TKey, Action<IInfiniFrameWindow, TPayload>>> Snapshot => Handlers.ToArray();
+    public ImmutableDictionary<TKey, Action<IInfiniFrameWindow, TPayload>> Snapshot => _handlers;
     /// <summary>
     ///     Gets the number of registered handlers.
     /// </summary>
-    public int Count => Handlers.Count;
+    public int Count => _handlers.Count;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -35,7 +35,7 @@ public sealed record KeyedEvent<TKey, TPayload> where TKey : notnull {
     public void Add(TKey key, Action<IInfiniFrameWindow, TPayload> handler) {
         ArgumentNullException.ThrowIfNull(key);
         ArgumentNullException.ThrowIfNull(handler);
-        Handlers.AddOrUpdate(key, handler, (_, _) => handler);
+        ImmutableInterlocked.AddOrUpdate(ref _handlers, key, handler, updateValueFactory: (_, _) => handler);
     }
 
     /// <summary>
@@ -44,32 +44,28 @@ public sealed record KeyedEvent<TKey, TPayload> where TKey : notnull {
     /// <param name="key">The key of the handler to remove.</param>
     public void Remove(TKey key) {
         ArgumentNullException.ThrowIfNull(key);
-        Handlers.TryRemove(key, out _);
+        ImmutableInterlocked.TryRemove(ref _handlers, key, out _);
     }
-    
+
     /// <summary>
     ///     Attempts to invoke the handler for the specified key.
     /// </summary>
     /// <param name="key">The key identifying the handler to invoke.</param>
     /// <param name="window">The window instance to pass to the handler.</param>
     /// <param name="payload">The payload to pass to the handler.</param>
-    /// <returns><c>true</c> if a handler was found and invoked successfully; otherwise, <c>false</c>.</returns>
+    /// <returns><c>true</c> if a handler was registered for <paramref name="key" />; otherwise, <c>false</c>.</returns>
+    /// <remarks>Handler exceptions propagate to the caller.</remarks>
     public bool TryInvoke(TKey key, IInfiniFrameWindow window, TPayload payload) {
-        if (!Handlers.TryGetValue(key, out Action<IInfiniFrameWindow, TPayload>? handler)) return false;
-        
-        try {
-            handler(window, payload);
-            return true;
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException) {
-            return false;
-        }
+        if (!_handlers.TryGetValue(key, out Action<IInfiniFrameWindow, TPayload>? handler)) return false;
+
+        handler(window, payload);
+        return true;
     }
-    
+
     /// <summary>
     ///     Determines whether the specified key has a registered handler.
     /// </summary>
     /// <param name="key">The key to check.</param>
     /// <returns><c>true</c> if the key exists; otherwise, <c>false</c>.</returns>
-    public bool ContainsKey(TKey key) => Handlers.ContainsKey(key);
+    public bool ContainsKey(TKey key) => _handlers.ContainsKey(key);
 }

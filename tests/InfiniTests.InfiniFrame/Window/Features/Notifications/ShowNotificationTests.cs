@@ -10,7 +10,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.Notifications;
 public class ShowNotificationTests {
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs]
     public async Task AtWindowStage_DirectAssignment_WhenClosed_DoesNotThrow(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -26,7 +25,6 @@ public class ShowNotificationTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs]
     public async Task AtWindowStage_ExtensionAssignment_WhenClosed_DoesNotThrow(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

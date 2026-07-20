@@ -10,7 +10,7 @@ namespace InfiniTests.InfiniFrame.Window.Features.Debugging;
 // ---------------------------------------------------------------------------------------------------------------------
 public class RemoteDebuggingPortCollisionTests {
     [Test]
-    [SkipOnMacOs]
+    [SkipOnMacOs("Remote TCP debugging endpoints are not supported by WKWebView")]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_ThroughBuilderAssignment_PortCollision_ThrowsActionableError(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) {

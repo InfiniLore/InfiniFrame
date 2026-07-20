@@ -1,16 +1,14 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-
 #include <chrono>
 #include <string>
 
 #import "NavigationDelegate.h"
-
+#include "../MacDiagnostics.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-
 namespace {
     int64_t unix_timestamp_milliseconds_utc() {
         return std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -26,12 +24,11 @@ namespace {
         didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
         completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler {
             bool ignoreCertificateErrorsEnabled = false;
-            infiniFrame->GetIgnoreCertificateErrorsEnabled(&ignoreCertificateErrorsEnabled);
-            if(ignoreCertificateErrorsEnabled)
+            if (infiniFrame != nullptr)
+                infiniFrame->GetIgnoreCertificateErrorsEnabled(&ignoreCertificateErrorsEnabled);
+            if(ignoreCertificateErrorsEnabled && challenge.protectionSpace.serverTrust != nullptr)
             {
                 SecTrustRef serverTrust = challenge.protectionSpace.serverTrust;
-                CFDataRef exceptions = SecTrustCopyExceptions(serverTrust);
-                CFRelease(exceptions);
                 completionHandler(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:serverTrust]);
             }
             else
@@ -41,7 +38,9 @@ namespace {
         }
 
     - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
+        if (infiniFrame == nullptr) return;
         NSString* currentUrl = webView.URL.absoluteString;
+        infiniframe::macos::NativeCallbackScope callbackScope;
         infiniFrame->InvokeDebugEvent(
             "Navigation",
             "Navigation finished",
@@ -55,7 +54,9 @@ namespace {
     }
 
     - (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
+        if (infiniFrame == nullptr) return;
         NSString* currentUrl = webView.URL.absoluteString;
+        infiniframe::macos::NativeCallbackScope callbackScope;
         infiniFrame->InvokeDebugEvent(
             "ScriptError",
             error == nil ? "Navigation failed" : [error.localizedDescription UTF8String],
@@ -68,7 +69,9 @@ namespace {
     }
 
     - (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error {
+        if (infiniFrame == nullptr) return;
         NSString* currentUrl = webView.URL.absoluteString;
+        infiniframe::macos::NativeCallbackScope callbackScope;
         infiniFrame->InvokeDebugEvent(
             "ScriptError",
             error == nil ? "Provisional navigation failed" : [error.localizedDescription UTF8String],
@@ -81,7 +84,9 @@ namespace {
     }
 
     - (void)webViewWebContentProcessDidTerminate:(WKWebView *)webView {
+        if (infiniFrame == nullptr) return;
         NSString* currentUrl = webView.URL.absoluteString;
+        infiniframe::macos::NativeCallbackScope callbackScope;
         infiniFrame->InvokeDebugEvent(
             "Process",
             "WKWebView content process terminated",

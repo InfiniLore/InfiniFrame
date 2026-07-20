@@ -48,9 +48,10 @@ public sealed record OrderedEvent {
     }
 
     /// <summary>
-    ///     Invokes all registered handlers in order.
+    ///     Invokes all registered handlers in registration order.
     /// </summary>
     /// <param name="window">The window instance to pass to each handler.</param>
+    /// <remarks>Handler exceptions are propagated to the caller.</remarks>
     public void Invoke(IInfiniFrameWindow window) {
         foreach (Action<IInfiniFrameWindow> handler in _handlers) {
             handler(window);
@@ -68,7 +69,7 @@ public sealed record OrderedEvent<TPayload> {
     ///     Gets a snapshot of the current handler registrations.
     /// </summary>
     public ImmutableArray<Action<IInfiniFrameWindow, TPayload>> Snapshot => _handlers;
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -111,10 +112,11 @@ public sealed record OrderedEvent<TPayload> {
     }
 
     /// <summary>
-    ///     Invokes all registered handlers in order with the specified payload.
+    ///     Invokes all registered handlers in registration order with the specified payload.
     /// </summary>
     /// <param name="window">The window instance to pass to each handler.</param>
     /// <param name="payload">The payload to pass to each handler.</param>
+    /// <remarks>Handler exceptions are propagated to the caller.</remarks>
     public void Invoke(IInfiniFrameWindow window, TPayload payload) {
         foreach (Action<IInfiniFrameWindow, TPayload> handler in _handlers) {
             handler(window, payload);

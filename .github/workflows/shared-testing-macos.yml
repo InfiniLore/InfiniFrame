@@ -29,6 +29,8 @@ jobs:
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
             WORKFLOW_URL: ${{ inputs.workflow_url }}
+            INFINIFRAME_NATIVE_DIAGNOSTICS: '1'
+            INFINIFRAME_MACOS_TRACE_TIMINGS: '1'
         strategy:
             fail-fast: false
             matrix:
@@ -105,26 +107,24 @@ jobs:
             -   name: Run Tests
                 run: |
                     echo "Setting up macOS test environment..."
-    
+
                     echo "=== Environment Status ==="
                     echo "System: $(sw_vers -productName) $(sw_vers -productVersion)"
                     echo "Architecture: $(uname -m)"
                     echo "Running in native macOS mode"
-    
-                    export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+
                     export NSUnbufferedIO=YES
-    
-                    echo "=== Running Tests ==="
-    
+
+                    mkdir -p artifacts/native-crash
                     exit_code=0
-                    mkdir -p artifacts/testdiag
-                    mkdir -p artifacts/testresults
-    
+
                     for framework in net8.0 net9.0 net10.0; do
-                        echo "=== Testing $framework ==="
-                        echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Starting $framework"
+                        echo "=== Running $framework Tests ==="
+                        mkdir -p "artifacts/testdiag/$framework"
+                        mkdir -p "artifacts/testresults/$framework"
 
                         framework_exit_code=0
+                        echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Starting $framework"
 
                         dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
                           --configuration Release \
@@ -138,24 +138,38 @@ jobs:
                           --diagnostic \
                           --diagnostic-output-directory "artifacts/testdiag/$framework" \
                           --diagnostic-file-prefix "mtp-$framework" \
-                          --diagnostic-verbosity Information \
-                          --output Detailed \
-                          --github-reporter-style full \
+                          --diagnostic-verbosity Warning \
                           --no-ansi || framework_exit_code=$?
 
                         echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Finished $framework with exit code $framework_exit_code"
-                        
-                        if [ $framework_exit_code -ne 0 ]; then
-                            echo "=== Test diagnostics for $framework ==="
-                            find "artifacts/testdiag/$framework" -type f -name '*.diag' -print -exec cat {} \; || true
-                        fi
 
                         if [ $framework_exit_code -ne 0 ]; then
                             exit_code=$framework_exit_code
+                            echo "=== Test diagnostics for $framework ==="
+                            find "artifacts/testdiag/$framework" -type f -name '*.diag' -print -exec cat {} \; || true
                         fi
                     done
-    
+
+                    diagnostic_root="$HOME/Library/Logs/DiagnosticReports"
+                    if [ -d "$diagnostic_root" ]; then
+                        find "$diagnostic_root" -type f \( -name '*.crash' -o -name '*.ips' -o -name '*.diag' \) \
+                          -mmin -180 -exec cp {} artifacts/native-crash/ \; || true
+                    fi
+
                     exit $exit_code
+
+            -   name: Upload macOS Test Diagnostics
+                if: always()
+                uses: actions/upload-artifact@v7
+                with:
+                    name: macos-test-diagnostics-${{ matrix.arch }}
+                    if-no-files-found: ignore
+                    retention-days: 14
+                    path: |
+                        artifacts/native-crash/**
+                        artifacts/testdiag/**
+                        artifacts/testresults/**
+                        TestResults/**
 
             -   name: Pack Tool E2E
                 uses: ./.github/actions/packtool-e2e
@@ -184,3 +198,84 @@ jobs:
                     job-status: ${{ job.status }}
                     success-description: macOS tests passed
                     failure-description: macOS tests failed
+
+    macos-sanitizers:
+        name: CI Testing - macOS (ASan + UBSan)
+        runs-on: macos-latest
+        timeout-minutes: 90
+        permissions:
+            contents: read
+        env:
+            # ASan must own fatal-signal handling. LeakSanitizer is unavailable on GitHub's
+            # Apple Silicon runtime and aborts before test discovery when enabled.
+            INFINIFRAME_NATIVE_DIAGNOSTICS: '0'
+            ASAN_OPTIONS: abort_on_error=1:detect_leaks=0:strict_string_checks=1
+            UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v7
+                with:
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
+                    fetch-depth: 1
+
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies
+                with:
+                    cache-dotnet: false
+
+            -   name: Setup native dependencies
+                uses: ./.github/actions/setup-dependencies-native
+                with:
+                    brew-cache-key: macos-sanitizers-arm64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
+                    brew-restore-key: macos-sanitizers-arm64-brew-native-
+                    restore-nativebridge-packages: 'true'
+
+            -   name: Build instrumented native bridge
+                shell: pwsh
+                run: |
+                    ./src/InfiniFrame.NativeBridge/native-build.ps1 `
+                      -Configuration Debug `
+                      -Arch arm64 `
+                      -EnableTestExports true `
+                      -Sanitizer AddressUndefined `
+                      -Clean
+
+            -   name: Build macOS integration tests
+                run: |
+                    dotnet restore tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj -p:NativeArch=arm64
+                    dotnet build tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj \
+                      --configuration Debug --no-restore --framework net10.0 \
+                      -p:NativeArch=arm64 -p:InfiniFrameSkipNativeBuild=true -p:InfiniFrameEnableTestExports=true
+
+            -   name: Run instrumented lifecycle and WebKit tests
+                run: |
+                    set -o pipefail
+                    mkdir -p artifacts/sanitizers artifacts/testresults/sanitizers
+                    asan_runtime="$(clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib)"
+                    if [ ! -f "$asan_runtime" ]; then
+                      echo "AddressSanitizer runtime not found: $asan_runtime"
+                      exit 1
+                    fi
+
+                    test_app="tests/InfiniTests.InfiniFrame/bin/Debug/net10.0/InfiniTests.InfiniFrame"
+                    if [ ! -x "$test_app" ]; then
+                      echo "TUnit test application is missing or not executable: $test_app"
+                      exit 1
+                    fi
+
+                    DYLD_INSERT_LIBRARIES="$asan_runtime" "$test_app" \
+                      --minimum-expected-tests 1 \
+                      --results-directory artifacts/testresults/sanitizers --no-ansi \
+                      2>&1 | tee artifacts/sanitizers/asan-ubsan.log
+
+            -   name: Upload sanitizer diagnostics
+                if: always()
+                uses: actions/upload-artifact@v7
+                with:
+                    name: macos-asan-ubsan
+                    if-no-files-found: warn
+                    retention-days: 14
+                    path: |
+                        artifacts/sanitizers/**
+                        artifacts/testresults/sanitizers/**

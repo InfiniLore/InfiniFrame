@@ -54,7 +54,6 @@ public class RegisterCustomSchemeHandlerTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment_RegistersSchemeInEventsStore(CancellationToken ct = default) {
         // Arrange
@@ -69,7 +68,6 @@ public class RegisterCustomSchemeHandlerTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_ThroughBuilderAssignment_RegistersSchemeInEventsStore(CancellationToken ct = default) {
         // Arrange

@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
@@ -17,84 +17,84 @@ public class InfiniFrameWindowFeatureState(
     ILogger<InfiniFrameWindowFeatureState> logger
 ) : IInfiniFrameWindowFeatureState {
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.IsFullScreen"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.IsFullScreen" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsFullScreen => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetFullScreen
     );
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.IsMaximized"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.IsMaximized" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsMaximized => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetMaximized
     );
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.IsMinimized"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.IsMinimized" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsMinimized => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetMinimized
     );
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.IsTopMost"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.IsTopMost" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsTopMost => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetTopmost
     );
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.IsFocused"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.IsFocused" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsFocused => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetFocused
     );
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.ZoomFactor"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.ZoomFactor" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int ZoomFactor => NativeInvoke.InvokeSyncWithValidation<int>(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetZoom
     );
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.IsZoomEnabled"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.IsZoomEnabled" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsZoomEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
-        window.InstanceHandle,
+        window,
         window.ManagedThreadId,
         InfiniFrameNative.GetZoomEnabled
     );
 
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.CachedPreFullScreenBounds"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.CachedPreFullScreenBounds" />
     public Rectangle CachedPreFullScreenBounds { get; set; } = Rectangle.Empty;
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.CachedPreMaximizedBounds"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.CachedPreMaximizedBounds" />
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.SetMaximized"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.SetMaximized" />
     public void SetMaximized(bool maximized = true) {
         logger.LogDebug(".SetMaximized({Maximized})", maximized);
         if (!window.Features.Decorations.IsChromeless) {
             NativeInvoke.InvokeSyncWithValidation(
                 logger,
-                window.InstanceHandle,
+                window,
                 window.ManagedThreadId,
                 InfiniFrameNative.SetMaximized,
                 maximized
@@ -112,7 +112,7 @@ public class InfiniFrameWindowFeatureState(
             CachedPreMaximizedBounds = windowRect;
             NativeInvoke.InvokeSyncWithValidation(
                 logger,
-                window.InstanceHandle,
+                window,
                 window.ManagedThreadId,
                 InfiniFrameNative.SetPosition,
                 workArea.Left,
@@ -120,7 +120,7 @@ public class InfiniFrameWindowFeatureState(
             );
             NativeInvoke.InvokeSyncWithValidation(
                 logger,
-                window.InstanceHandle,
+                window,
                 window.ManagedThreadId,
                 InfiniFrameNative.SetSize,
                 workArea.Width,
@@ -133,7 +133,7 @@ public class InfiniFrameWindowFeatureState(
             Rectangle oldRect = CachedPreMaximizedBounds;
             NativeInvoke.InvokeSyncWithValidation(
                 logger,
-                window.InstanceHandle,
+                window,
                 window.ManagedThreadId,
                 InfiniFrameNative.SetPosition,
                 oldRect.Left,
@@ -141,7 +141,7 @@ public class InfiniFrameWindowFeatureState(
             );
             NativeInvoke.InvokeSyncWithValidation(
                 logger,
-                window.InstanceHandle,
+                window,
                 window.ManagedThreadId,
                 InfiniFrameNative.SetSize,
                 oldRect.Width,
@@ -152,19 +152,19 @@ public class InfiniFrameWindowFeatureState(
         }
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.ToggleMaximized"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.ToggleMaximized" />
     public void ToggleMaximized() {
         logger.LogDebug(".ToggleMaximized()");
         bool maximized = NativeInvoke.InvokeSyncWithValidation<bool>(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.GetMaximized
         );
         if (!window.Features.Decorations.IsChromeless) {
             NativeInvoke.InvokeSyncWithValidation(
                 logger,
-                window.InstanceHandle,
+                window,
                 window.ManagedThreadId,
                 InfiniFrameNative.SetMaximized,
                 !maximized
@@ -184,7 +184,7 @@ public class InfiniFrameWindowFeatureState(
             CachedPreMaximizedBounds = windowRect;
             NativeInvoke.InvokeSyncWithValidation(
                 logger,
-                window.InstanceHandle,
+                window,
                 window.ManagedThreadId,
                 InfiniFrameNative.SetPosition,
                 workArea.X,
@@ -192,7 +192,7 @@ public class InfiniFrameWindowFeatureState(
             );
             NativeInvoke.InvokeSyncWithValidation(
                 logger,
-                window.InstanceHandle,
+                window,
                 window.ManagedThreadId,
                 InfiniFrameNative.SetSize,
                 workArea.Width,
@@ -204,7 +204,7 @@ public class InfiniFrameWindowFeatureState(
             Rectangle oldRect = CachedPreMaximizedBounds;
             NativeInvoke.InvokeSyncWithValidation(
                 logger,
-                window.InstanceHandle,
+                window,
                 window.ManagedThreadId,
                 InfiniFrameNative.SetPosition,
                 oldRect.X,
@@ -212,7 +212,7 @@ public class InfiniFrameWindowFeatureState(
             );
             NativeInvoke.InvokeSyncWithValidation(
                 logger,
-                window.InstanceHandle,
+                window,
                 window.ManagedThreadId,
                 InfiniFrameNative.SetSize,
                 oldRect.Width,
@@ -223,21 +223,37 @@ public class InfiniFrameWindowFeatureState(
         }
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.SetMinimized"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.SetMinimized" />
     public void SetMinimized(bool minimized = true) {
         logger.LogDebug(".SetMinimized({Minimized})", minimized);
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetMinimized,
             minimized
         );
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.SetFullScreen"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.SetFullScreen" />
     public void SetFullScreen(bool fullScreen = true) {
         logger.LogDebug(".SetFullScreen({FullScreen})", fullScreen);
+        // AppKit owns the asynchronous fullscreen transition and restores the original
+        // frame when leaving fullscreen. Moving or resizing during that animation races
+        // the Space transition and can leave the window on the wrong display. Always pass
+        // the requested state through because native code also reconciles reversals that
+        // arrive while an earlier transition is still in progress.
+        if (OperatingSystem.IsMacOS()) {
+            NativeInvoke.InvokeSyncWithValidation(
+                logger,
+                window,
+                window.ManagedThreadId,
+                InfiniFrameNative.SetFullScreen,
+                fullScreen
+            );
+            return;
+        }
+
         if (IsFullScreen == fullScreen) {
             logger.LogDebug("Window is already of the same fullscreen state of {fullscreen}", fullScreen);
             return;
@@ -248,14 +264,14 @@ public class InfiniFrameWindowFeatureState(
 
             (int left, int top) = NativeInvoke.InvokeSyncWithValidation<int, int>(
                 logger,
-                window.InstanceHandle,
+                window,
                 window.ManagedThreadId,
                 InfiniFrameNative.GetPosition
             );
 
             (int width, int height) = NativeInvoke.InvokeSyncWithValidation<int, int>(
                 logger,
-                window.InstanceHandle,
+                window,
                 window.ManagedThreadId,
                 InfiniFrameNative.GetSize
             );
@@ -265,7 +281,7 @@ public class InfiniFrameWindowFeatureState(
                 logger.LogError("Failed to get current monitor, defaulting to simple fullscreen call");
                 NativeInvoke.InvokeSyncWithValidation(
                     logger,
-                    window.InstanceHandle,
+                    window,
                     window.ManagedThreadId,
                     InfiniFrameNative.SetFullScreen,
                     true
@@ -275,14 +291,14 @@ public class InfiniFrameWindowFeatureState(
                 Rectangle currentMonitorArea = currentMonitor.MonitorArea;
                 NativeInvoke.InvokeSyncWithValidation(
                     logger,
-                    window.InstanceHandle,
+                    window,
                     window.ManagedThreadId,
                     InfiniFrameNative.SetFullScreen,
                     true
                 );
                 NativeInvoke.InvokeSyncWithValidation(
                     logger,
-                    window.InstanceHandle,
+                    window,
                     window.ManagedThreadId,
                     InfiniFrameNative.SetPosition,
                     currentMonitorArea.X,
@@ -290,7 +306,7 @@ public class InfiniFrameWindowFeatureState(
                 );
                 NativeInvoke.InvokeSyncWithValidation(
                     logger,
-                    window.InstanceHandle,
+                    window,
                     window.ManagedThreadId,
                     InfiniFrameNative.SetSize,
                     currentMonitorArea.Width,
@@ -304,14 +320,14 @@ public class InfiniFrameWindowFeatureState(
         // Set Fullscreen to false => Restore to previous state
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetFullScreen,
             false
         );
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetPosition,
             CachedPreFullScreenBounds.X,
@@ -319,7 +335,7 @@ public class InfiniFrameWindowFeatureState(
         );
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetSize,
             CachedPreFullScreenBounds.Width,
@@ -327,25 +343,25 @@ public class InfiniFrameWindowFeatureState(
         );
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.SetFocused"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.SetFocused" />
     public void SetFocused() {
         if (window.Features.Lifecycle.IsClosedOrClosing()) return;
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetFocused
         );
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.SetZoomFactor"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.SetZoomFactor" />
     public void SetZoomFactor(int zoom) {
         if (window.Features.Lifecycle.IsClosedOrClosing()) return;
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetZoom,
             zoom
@@ -353,13 +369,13 @@ public class InfiniFrameWindowFeatureState(
 
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.EnableZoom"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.EnableZoom" />
     public void EnableZoom(bool zoomEnabled = true) {
         if (window.Features.Lifecycle.IsClosedOrClosing()) return;
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetZoomEnabled,
             zoomEnabled
@@ -367,13 +383,13 @@ public class InfiniFrameWindowFeatureState(
 
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.SetTopMost"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureState.SetTopMost" />
     public void SetTopMost(bool topMost = true) {
         logger.LogDebug(".SetTopMost({TopMost})", topMost);
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
-            window.InstanceHandle,
+            window,
             window.ManagedThreadId,
             InfiniFrameNative.SetTopmost,
             topMost

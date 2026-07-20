@@ -7,6 +7,9 @@ project(InfiniFrame.Native
 
 if (APPLE)
     enable_language(OBJCXX)
+    if (NOT DEFINED CMAKE_OSX_DEPLOYMENT_TARGET OR CMAKE_OSX_DEPLOYMENT_TARGET STREQUAL "")
+        set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0" CACHE STRING "Minimum supported macOS version" FORCE)
+    endif ()
 endif ()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -23,17 +26,21 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 # ----------------------------------------------------------------------------------------------------------------------
 include("${CMAKE_SOURCE_DIR}/.cmake/NativeDependencies.cmake")
 include("${CMAKE_SOURCE_DIR}/.cmake/Embed.InfiniFrameJs.cmake")
+include("${CMAKE_SOURCE_DIR}/.cmake/BuildOptions.cmake")
 
 include("${CMAKE_SOURCE_DIR}/.cmake/Platform.Windows.cmake")
 include("${CMAKE_SOURCE_DIR}/.cmake/Platform.MacOS.cmake")
 include("${CMAKE_SOURCE_DIR}/.cmake/Platform.Linux.cmake")
 
+infiniframe_configure_compiler_cache()
 infiniframe_setup_dependencies()
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Source Files
 # ----------------------------------------------------------------------------------------------------------------------
 set(COMMON_SOURCES
+        src/Embedded/Embedded.cpp
+        src/Api/Utilities/ExportErrorState.cpp
         src/Runtime/Shared/Window/WindowEvents.cpp
         src/Runtime/Shared/Window/WindowState.cpp
         src/Api/Exports/Exports.CustomSchemes.cpp
@@ -117,6 +124,9 @@ set(MAC_SOURCES
         src/Runtime/Platform/Mac/Delegates/WindowDelegate.h
         src/Runtime/Platform/Mac/NSWindowBorderless.h
         src/Runtime/Platform/Mac/Window.Cocoa.Internal.h
+        src/Runtime/Platform/Mac/CocoaCoordinates.h
+        src/Runtime/Platform/Mac/MacDiagnostics.h
+        src/Runtime/Platform/Mac/WebKit/InfiniFrameWebView.h
         
         src/Runtime/Platform/Mac/Core/UiDispatcher.Cocoa.mm
         src/Runtime/Platform/Mac/Core/WindowCore.Cocoa.mm
@@ -130,16 +140,17 @@ set(MAC_SOURCES
         src/Runtime/Platform/Mac/Delegates/WindowDelegate.mm
         src/Runtime/Platform/Mac/Dialog.mm
         src/Runtime/Platform/Mac/Monitors.Cocoa.mm
+        src/Runtime/Platform/Mac/MacDiagnostics.mm
         src/Runtime/Platform/Mac/NSWindowBorderless.mm
         src/Runtime/Platform/Mac/Notifications.UserNotifications.mm
         src/Runtime/Platform/Mac/WebKit/WebKitBridge.Cocoa.mm
         src/Runtime/Platform/Mac/WebKit/WebKitCustomSchemes.Cocoa.mm
         src/Runtime/Platform/Mac/WebKit/WebKitHost.Cocoa.mm
+        src/Runtime/Platform/Mac/WebKit/InfiniFrameWebView.mm
 )
 
 set(HEADER_FILES
         src/Embedded/Embedded.h
-        src/Embedded/InfiniFrameJs/InfiniFrameJs.h
         src/Runtime/Shared/WebView/CustomSchemeResponse.h
         src/Api/Exports/Exports.h
         src/Api/Utilities/ExportErrorState.h
@@ -207,29 +218,7 @@ else ()
     )
 endif ()
 
-# ----------------------------------------------------------------------------------------------------------------------
-# Sanitizers (Debug only)
-# ----------------------------------------------------------------------------------------------------------------------
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-    message(STATUS "Enabling sanitizers for Debug configuration")
-    target_compile_options(${PROJECT_NAME} PRIVATE
-            $<$<CONFIG:Debug>:-fsanitize=address,undefined,leak>
-            $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
-            $<$<CONFIG:Debug>:-fno-optimize-sibling-calls>
-    )
-    target_link_options(${PROJECT_NAME} PRIVATE
-            $<$<CONFIG:Debug>:-fsanitize=address,undefined,leak>
-    )
-endif ()
+infiniframe_enable_sanitizers(${PROJECT_NAME})
 
 # ----------------------------------------------------------------------------------------------------------------------
-# Precompiled Headers
-# ----------------------------------------------------------------------------------------------------------------------
-if (NOT APPLE)
-    target_precompile_headers(${PROJECT_NAME} PRIVATE
-            <string>
-            <memory>
-            <functional>
-            <expected>
-    )
-endif ()
+infiniframe_enable_fast_build_settings(${PROJECT_NAME})

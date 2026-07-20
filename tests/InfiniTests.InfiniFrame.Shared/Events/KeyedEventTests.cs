@@ -177,17 +177,14 @@ public class KeyedEventTests {
     }
 
     [Test]
-    public async Task TryInvoke_HandlerThrowsRegularException_ReturnsFalse(CancellationToken ct = default) {
+    public async Task TryInvoke_HandlerThrowsRegularException_PropagatesException(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
         var window = Substitute.For<IInfiniFrameWindow>();
         evt.Add("key", handler: (_, _) => throw new InvalidOperationException("boom"));
 
-        // Act — exception is swallowed and false is returned
-        bool result = evt.TryInvoke("key", window, 0);
-
-        // Assert
-        await Assert.That(result).IsFalse();
+        // Act & Assert
+        await Assert.That(() => evt.TryInvoke("key", window, 0)).Throws<InvalidOperationException>();
     }
 
     [Test]
@@ -197,7 +194,7 @@ public class KeyedEventTests {
         var window = Substitute.For<IInfiniFrameWindow>();
         evt.Add("key", handler: (_, _) => throw new OperationCanceledException());
 
-        // Act & Assert — OperationCanceledException is NOT swallowed
+        // Act & Assert
         await Assert.That(() => evt.TryInvoke("key", window, 0)).Throws<OperationCanceledException>();
     }
 

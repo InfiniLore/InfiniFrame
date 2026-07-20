@@ -11,7 +11,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.Position;
 public class MoveWithinCurrentMonitorAreaTests {
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs]
     [SkipOnLinux]
     public async Task AtWindowStage_DirectAssignment_IntOverload(CancellationToken ct) {
         // Arrange
@@ -33,7 +32,6 @@ public class MoveWithinCurrentMonitorAreaTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs]
     [SkipOnLinux]
     public async Task AtWindowStage_ExtensionAssignment_PointOverload(CancellationToken ct) {
         // Arrange
@@ -57,7 +55,6 @@ public class MoveWithinCurrentMonitorAreaTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs]
     [SkipOnLinux]
     public async Task AtWindowStage_ExtensionAssignment_DoubleOverload(CancellationToken ct) {
         // Arrange

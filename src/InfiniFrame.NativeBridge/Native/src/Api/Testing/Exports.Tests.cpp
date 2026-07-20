@@ -3,18 +3,13 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Runtime/Shared/Window/InfiniFrame.h"
 #include "Api/Exports/Exports.h"
+#include "Runtime/Shared/WebView/CustomSchemeResponse.h"
 #ifdef _WIN32
 #include "Runtime/Platform/Windows/DarkMode.h"
 #endif
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-#ifdef _WIN32
-#define EXPORTED __declspec(dllexport)
-#else
-#define EXPORTED
-#endif
-
 #if defined(INFINIFRAME_BUILD_TEST_EXPORTS)
 
 extern "C" {
@@ -41,6 +36,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         (*new_params)->UserAgent = DuplicateString(params->UserAgent);
         (*new_params)->BrowserControlInitParameters = DuplicateString(params->BrowserControlInitParameters);
         (*new_params)->NotificationRegistrationId = DuplicateString(params->NotificationRegistrationId);
+        (*new_params)->WindowsAppUserModelId = DuplicateString(params->WindowsAppUserModelId);
         (*new_params)->RemoteDebuggingPort = params->RemoteDebuggingPort;
 
         (*new_params)->ParentInstance = params->ParentInstance;
@@ -108,8 +104,46 @@ EXPORTED InteropStatus InfiniFrameNativeTests_FreeInitParams(InfiniFrameInitPara
         delete[] params->UserAgent;
         delete[] params->BrowserControlInitParameters;
         delete[] params->NotificationRegistrationId;
+        delete[] params->WindowsAppUserModelId;
 
         delete params;
+    });
+}
+
+EXPORTED InteropStatus InfiniFrameNativeTests_ConsumeCustomSchemeResponse(
+    void* callbackPointer,
+    uint64_t* contentLength,
+    uint32_t* byteSum,
+    int* valid
+) {
+    if (contentLength != nullptr) *contentLength = 0;
+    if (byteSum != nullptr) *byteSum = 0;
+    if (valid != nullptr) *valid = 0;
+
+    return RunExportStatus([&] {
+        if (!EnsureNotNull(callbackPointer, "callbackPointer") ||
+            !EnsureNotNull(contentLength, "contentLength", ::InteropStatus::OutParameterSetToInvalidNull) ||
+            !EnsureNotNull(byteSum, "byteSum", ::InteropStatus::OutParameterSetToInvalidNull) ||
+            !EnsureNotNull(valid, "valid", ::InteropStatus::OutParameterSetToInvalidNull)) {
+            return;
+        }
+
+        auto callback = reinterpret_cast<WebResourceRequestedCallback>(callbackPointer);
+        CustomSchemeResponse response{};
+#ifdef _WIN32
+        wchar_t testUrl[] = L"test://platform-abi";
+#else
+        char testUrl[] = "test://platform-abi";
+#endif
+        const int handled = callback(testUrl, &response);
+        infiniframe::CustomSchemeResponseLease responseLease(response);
+        if (handled == 0 || !infiniframe::IsValidBufferedCustomSchemeResponse(response)) return;
+
+        uint32_t sum = 0;
+        for (uint64_t i = 0; i < response.ContentLength; ++i) sum += response.Body[i];
+        *contentLength = response.ContentLength;
+        *byteSum = sum;
+        *valid = 1;
     });
 }
 

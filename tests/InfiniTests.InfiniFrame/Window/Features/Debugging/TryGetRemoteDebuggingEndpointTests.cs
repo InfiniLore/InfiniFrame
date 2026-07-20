@@ -8,15 +8,10 @@ namespace InfiniTests.InfiniFrame.Window.Features.Debugging;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class TryGetRemoteDebuggingEndpointTests {
-    public static async IAsyncEnumerable<Func<int>> GetPorts() {
-        await foreach(int port in PortUtils.GetOpenPorts(1)) {
-            yield return () => port;
-        }
-    }
+    public static Func<int> GetPort() => PortUtils.GetOpenPortValue;
 
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs]
     public async Task AtWindowStage_DirectAssignment_DefaultConfiguration(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -34,7 +29,6 @@ public class TryGetRemoteDebuggingEndpointTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs]
     public async Task AtWindowStage_ExtensionAssignment_DefaultConfiguration(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -52,8 +46,7 @@ public class TryGetRemoteDebuggingEndpointTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [MethodDataSource(nameof(GetPorts))]
-    [SkipOnMacOs]
+    [MethodDataSource(nameof(GetPort))]
     public async Task AtWindowStage_ThroughBuilderAssignment(int value, CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder => {
@@ -86,8 +79,7 @@ public class TryGetRemoteDebuggingEndpointTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [MethodDataSource(nameof(GetPorts))]
-    [SkipOnMacOs]
+    [MethodDataSource(nameof(GetPort))]
     public async Task AtWindowStage_ThroughBuilderAssignment_WhenClosed_ReturnsFalseAndNullEndpoint(int value, CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder => {

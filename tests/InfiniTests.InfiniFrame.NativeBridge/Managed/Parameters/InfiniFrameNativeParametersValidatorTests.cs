@@ -94,6 +94,34 @@ public class InfiniFrameNativeParametersValidatorTests {
         await Assert.That(result.IsValid).IsTrue();
     }
 
+    [Test]
+    [Arguments("")]
+    [Arguments("InfiniLore Invalid")]
+    public async Task Validate_InvalidWindowsAppUserModelId_FailsValidation(
+        string value,
+        CancellationToken ct = default
+    ) {
+        InfiniFrameNativeParameters parameters = CreateValidParameters();
+        parameters.WindowsAppUserModelId = value;
+
+        ValidationResult result = await Validator.ValidateAsync(parameters, ct);
+
+        await Assert.That(result.IsValid).IsFalse();
+        await Assert.That(result.Errors.Any(
+            error => error.PropertyName == nameof(InfiniFrameNativeParameters.WindowsAppUserModelId)
+        )).IsTrue();
+    }
+
+    [Test]
+    public async Task Validate_TooLongWindowsAppUserModelId_FailsValidation(CancellationToken ct = default) {
+        InfiniFrameNativeParameters parameters = CreateValidParameters();
+        parameters.WindowsAppUserModelId = new string('a', 129);
+
+        ValidationResult result = await Validator.ValidateAsync(parameters, ct);
+
+        await Assert.That(result.IsValid).IsFalse();
+    }
+
     private static InfiniFrameNativeParameters CreateValidParameters() {
         return new InfiniFrameNativeParameters {
             StartUrl = "https://example.com",

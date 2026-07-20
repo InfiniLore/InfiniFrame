@@ -16,6 +16,7 @@ namespace InfiniTests.InfiniFrame.BlazorWebView;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [NotInParallelInfiniTests]
+[RunOnMacOsMainThread]
 public class InfiniFrameBlazorAppBuilderTests {
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -168,7 +169,6 @@ public class InfiniFrameBlazorAppBuilderTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs]
     [SkipOnLinux]
     public async Task Run_WindowAlreadyClosed_DoesNotInvokeWindowAndDisposesServices(CancellationToken ct = default) {
         // Arrange
@@ -177,7 +177,7 @@ public class InfiniFrameBlazorAppBuilderTests {
         var invokeFeature = Substitute.For<IInfiniFrameWindowFeatureInvoke>();
         window.Features.Returns(features);
         features.Invoke.Returns(invokeFeature);
-        invokeFeature.When(x => x.Invoke(Arg.Any<Action>()))
+        invokeFeature.When(x => _ = x.Invoke(Arg.Any<Action>()))
             .Do(_ => throw new InvalidOperationException("Invoke should not be used during Run() shutdown."));
 
         ServiceProvider services = new ServiceCollection()
@@ -253,12 +253,13 @@ public class InfiniFrameBlazorAppBuilderTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs("Given init parameters are not supported on macOS")]
     [SkipOnLinux("Given init parameters are not supported on Linux")]
     public async Task SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWorkOnWindow(CancellationToken ct = default) {
         // Arrange
         string[] args = Array.Empty<string>();
-        const string initParameters = "--force-device-scale-factor=1";
+        string initParameters = OperatingSystem.IsMacOS()
+            ? """{"developerExtrasEnabled":true}"""
+            : "--force-device-scale-factor=1";
 
         // Act
         var appbuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args, windowBuilder: builder => builder
@@ -285,12 +286,13 @@ public class InfiniFrameBlazorAppBuilderTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs("Given init parameters are not supported on macOS")]
     [SkipOnLinux("Given init parameters are not supported on Linux")]
     public async Task SetBrowserControlInitParameters_ThroughAppBuilder_ShouldWorkOnWindow(CancellationToken ct = default) {
         // Arrange
         string[] args = Array.Empty<string>();
-        const string initParameters = "--force-device-scale-factor=1";
+        string initParameters = OperatingSystem.IsMacOS()
+            ? """{"developerExtrasEnabled":true}"""
+            : "--force-device-scale-factor=1";
 
         // Act
         var appbuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
@@ -401,7 +403,7 @@ public class InfiniFrameBlazorAppBuilderTests {
 
         // Act
         InfiniFrameBlazorApp app = appBuilder.Build();
-        IInfiniFrameWindow resolvedWindow = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
+        var resolvedWindow = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
 
         // Assert
         await Assert.That(resolvedWindow.Debugging).IsSameReferenceAs(resolvedWindow.Features.Debugging);

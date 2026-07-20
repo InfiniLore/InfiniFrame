@@ -9,8 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowClosedEventTests {
     [Test]
-    [Retry(5)]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_Close_RaisesEvent(CancellationToken ct = default) {
         // Arrange
@@ -37,8 +35,6 @@ public class WindowClosedEventTests {
     }
 
     [Test]
-    [Retry(5)]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment_Close_RaisesEvent(CancellationToken ct = default) {
         // Arrange

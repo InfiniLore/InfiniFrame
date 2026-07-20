@@ -415,6 +415,14 @@ class InfiniFrameWindow {
     /** @brief Tear down the WebView control while keeping the native window alive */
     void CloseWebView();
 
+#ifdef __APPLE__
+    /** @brief Publish completion after every close callback has returned */
+    void SignalWindowClosed();
+
+    /** @brief Disable every reverse-P/Invoke entry point before deferred destruction */
+    void PrepareForDeferredDestruction();
+#endif
+
     // -----------------------------------------------------------------------------------------------------------------
     // Callbacks
     // -----------------------------------------------------------------------------------------------------------------
@@ -433,7 +441,7 @@ class InfiniFrameWindow {
 
     /**
          * @brief Set callback invoked when the user attempts to close the window
-         * @param callback Returns true to allow closing, false to cancel
+         * @param callback Returns true to cancel closing, false to allow it
          */
     void SetClosingCallback(ClosingCallback callback);
 
@@ -498,7 +506,7 @@ class InfiniFrameWindow {
 
     /**
          * @brief Fire the closing callback
-         * @return true if the window should close, false if the callback cancelled it
+         * @return true if the callback cancelled closing, false to continue closing
          */
     [[nodiscard]] bool InvokeClose() const noexcept;
 

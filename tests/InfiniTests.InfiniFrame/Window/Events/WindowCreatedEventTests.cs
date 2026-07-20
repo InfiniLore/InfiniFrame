@@ -9,8 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowCreatedEventTests {
     [Test]
-    [Retry(5)]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task AtBuilderStage_EventFiresOnce(CancellationToken ct = default) {
         // Arrange
@@ -27,8 +25,6 @@ public class WindowCreatedEventTests {
     }
 
     [Test]
-    [Retry(3)]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task AtBuilderStage_SendWebMessageInsideHandler_DoesNotCrash(CancellationToken ct = default) {
         // Arrange

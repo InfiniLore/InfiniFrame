@@ -69,6 +69,10 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     internal string? NotificationRegistrationId;
 
+    ///<summary>WINDOWS: OPTIONAL: Explicit application identity used by the taskbar for grouping and pinning.</summary>
+    [MarshalAs(UnmanagedType.LPUTF8Str)]
+    internal string? WindowsAppUserModelId;
+
     ///<summary>OPTIONAL: Windows-only remote debugging port for loopback endpoint. 0 disables remote debugging.</summary>
     [MarshalAs(UnmanagedType.I4)]
     internal int RemoteDebuggingPort;
@@ -81,7 +85,7 @@ public struct InfiniFrameNativeParameters() {
     ///<summary>SET BY InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
     internal CppClosingDelegate? ClosingHandler;
-    
+
     ///<summary>SET BY InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
     internal CppClosedDelegate? ClosedHandler;
@@ -270,37 +274,37 @@ public struct InfiniFrameNativeParameters() {
     internal bool FileSystemAccessEnabled;
 
     /// <summary>
-    /// OPTIONAL: Determines whether web security features are enabled or disabled.
-    /// Default is true.
+    ///     OPTIONAL: Determines whether web security features are enabled or disabled.
+    ///     Default is true.
     /// </summary>
     [MarshalAs(UnmanagedType.I1)]
     internal bool WebSecurityEnabled;
 
     /// <summary>
-    /// OPTIONAL: Enables JavaScript access to the system clipboard when set to true.
-    /// Default behavior is disabled (false), which restricts clipboard operations.
+    ///     OPTIONAL: Enables JavaScript access to the system clipboard when set to true.
+    ///     Default behavior is disabled (false), which restricts clipboard operations.
     /// </summary>
     [MarshalAs(UnmanagedType.I1)]
     internal bool JavascriptClipboardAccessEnabled;
 
     /// <summary>
-    /// OPTIONAL: Indicates whether media streaming is enabled.
-    /// If set to true, media streaming functionality will be available. Default is true.
+    ///     OPTIONAL: Indicates whether media streaming is enabled.
+    ///     If set to true, media streaming functionality will be available. Default is true.
     /// </summary>
     [MarshalAs(UnmanagedType.I1)]
     internal bool MediaStreamEnabled;
 
     /// <summary>
-    /// OPTIONAL: Enables smooth scrolling behavior if set to true.
-    /// Default value is true.
+    ///     OPTIONAL: Enables smooth scrolling behavior if set to true.
+    ///     Default value is true.
     /// </summary>
     [MarshalAs(UnmanagedType.I1)]
     internal bool SmoothScrollingEnabled;
 
     /// <summary>
-    /// OPTIONAL: If true, certificate errors encountered by the browser control will be ignored.
-    /// Typically used to allow navigation to websites with invalid or untrusted certificates.
-    /// Default is false.
+    ///     OPTIONAL: If true, certificate errors encountered by the browser control will be ignored.
+    ///     Typically used to allow navigation to websites with invalid or untrusted certificates.
+    ///     Default is false.
     /// </summary>
     [MarshalAs(UnmanagedType.I1)]
     internal bool IgnoreCertificateErrorsEnabled;

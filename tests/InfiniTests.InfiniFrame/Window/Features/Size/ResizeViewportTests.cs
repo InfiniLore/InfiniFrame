@@ -12,9 +12,7 @@ public sealed class ResizeViewportTests {
     private static readonly Regex ViewportPattern = new(@"^(\d+)x(\d+)$", RegexOptions.Compiled);
 
     [Test]
-    [Retry(3)]
     [NotInParallelInfiniTests]
-    [SkipOnMacOs]
     [SkipOnLinux]
     [SkipOnWindowsArm("Test is flaky on ARM")]
     [DefaultInfiniTestsTimeout(35_000)]

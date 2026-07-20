@@ -9,11 +9,9 @@ namespace InfiniTests.InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[NotInParallelInfiniTests]
 public class StaticWebAssetsRuntimeFileProviderTests {
     // ReSharper disable SimilarAnonymousTypeNearby
     [Test]
-    [Retry(5)]
     public async Task TryCreate_WithEqualScores_ShouldUseDeterministicManifestTieBreaker(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
@@ -68,7 +66,6 @@ public class StaticWebAssetsRuntimeFileProviderTests {
     }
 
     [Test]
-    [Retry(5)]
     public async Task TryCreate_WhenManifestContainsExplicitAsset_ShouldResolveFile(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
@@ -110,7 +107,6 @@ public class StaticWebAssetsRuntimeFileProviderTests {
     }
 
     [Test]
-    [Retry(5)]
     public async Task TryCreate_WhenManifestContainsFrameworkScript_ShouldResolveBlazorWebViewFrameworkScript(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
@@ -151,7 +147,6 @@ public class StaticWebAssetsRuntimeFileProviderTests {
     }
 
     [Test]
-    [Retry(5)]
     public async Task TryCreate_WhenManifestContainsWildcardPattern_ShouldResolveFileFromPattern(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
@@ -194,7 +189,6 @@ public class StaticWebAssetsRuntimeFileProviderTests {
     }
 
     [Test]
-    [Retry(5)]
     public async Task TryCreate_WithMultipleManifests_ShouldPreferAppManifest(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
@@ -269,7 +263,6 @@ public class StaticWebAssetsRuntimeFileProviderTests {
     }
 
     [Test]
-    [Retry(5)]
     public async Task GetDirectoryContents_WhenNodeHasPatternsButNoChildren_ReturnsExistingDirectory(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
@@ -308,7 +301,6 @@ public class StaticWebAssetsRuntimeFileProviderTests {
     }
 
     [Test]
-    [Retry(5)]
     public async Task GetFileInfo_WhenCalledConcurrently_ShouldRemainStable(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();

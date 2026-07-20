@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.NativeBridge.Handles;
 
 namespace InfiniTests.InfiniFrame.Window;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -12,21 +13,19 @@ public class WindowTests {
     // Tests
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
-    public async Task InstanceHandle_IsDefined(CancellationToken ct = default) {
+    public async Task NativeHandleLease_IsDefined(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
-        // Act
+        using NativeHandleLease lease = window.AcquireNativeHandle();
 
         // Assert
-        await Assert.That(window.InstanceHandle).IsNotDefault();
+        await Assert.That(lease.Handle).IsNotDefault();
     }
 
     [Test]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task MainProgramHandle_IsDefined(CancellationToken ct = default) {
         // Arrange
@@ -40,7 +39,6 @@ public class WindowTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task WindowHandle_IsDefined(CancellationToken ct = default) {
         // Arrange
@@ -55,7 +53,6 @@ public class WindowTests {
     }
 
     [Test]
-    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task WindowHandle_WhenClosed_IsZero(CancellationToken ct = default) {
         // Arrange

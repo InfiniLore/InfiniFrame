@@ -18,7 +18,9 @@ function(infiniframe_setup_embed_js target_name)
 
     set(js_input "${js_project_dir}/wwwroot/InfiniFrame.js")
 
-    set(embed_dir "${CMAKE_SOURCE_DIR}/src/Embedded/InfiniFrameJs")
+    # Generated files belong to the build tree. Keeping them out of the source
+    # tree avoids checkout churn and lets parallel configurations coexist.
+    set(embed_dir "${CMAKE_CURRENT_BINARY_DIR}/generated/InfiniFrameJs")
     set(header_output "${embed_dir}/InfiniFrameJs.h")
     set(source_output "${embed_dir}/InfiniFrameJs.cpp")
 
@@ -73,7 +75,7 @@ function(infiniframe_setup_embed_js target_name)
             -DINPUT=${js_input}
             -DOUTPUT_HEADER=${header_output}
             -DOUTPUT_SOURCE=${source_output}
-            -P ${CMAKE_SOURCE_DIR}/.cmake/Embed.InfiniFrameJs.Impl.cmake
+            -P "${CMAKE_SOURCE_DIR}/.cmake/Embed.InfiniFrameJs.Impl.cmake"
             DEPENDS
             ${js_input}
             ${CMAKE_SOURCE_DIR}/.cmake/Embed.InfiniFrameJs.Impl.cmake
@@ -94,7 +96,7 @@ function(infiniframe_setup_embed_js target_name)
     # Attach generated source to target
     target_sources(${target_name} PRIVATE ${source_output})
 
-    target_include_directories(${target_name} PRIVATE
+    target_include_directories(${target_name} BEFORE PRIVATE
             "${embed_dir}"
     )
 endfunction()

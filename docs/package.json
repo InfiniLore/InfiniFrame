@@ -9,21 +9,21 @@
     "clear": "docusaurus clear"
   },
   "dependencies": {
-    "@docusaurus/core": "^3.10.1",
-    "@docusaurus/plugin-client-redirects": "^3.10.1",
-    "@docusaurus/preset-classic": "^3.10.1",
+    "@docusaurus/core": "^3.10.2",
+    "@docusaurus/plugin-client-redirects": "^3.10.2",
+    "@docusaurus/preset-classic": "^3.10.2",
     "clsx": "^2.1.1",
     "prism-react-renderer": "^2.4.1",
-    "serialize-javascript": "^7.0.6"
+    "serialize-javascript": "^7.0.7"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "^3.10.1",
-    "@docusaurus/types": "^3.10.1",
-    "typescript": "^6.0.3"
+    "@docusaurus/module-type-aliases": "^3.10.2",
+    "@docusaurus/types": "^3.10.2",
+    "typescript": "^7.0.2"
   },
     "overrides": {
         "webpack": "5.105.4",
-        "serialize-javascript": "^7.0.6",
+        "serialize-javascript": "^7.0.7",
         "uuid": "^14.0.0"
     },
     "engines": {

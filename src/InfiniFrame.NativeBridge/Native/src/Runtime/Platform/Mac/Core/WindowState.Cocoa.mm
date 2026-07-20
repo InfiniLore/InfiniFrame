@@ -1,16 +1,26 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-
 #include "../Window.Cocoa.Internal.h"
+#include "../CocoaCoordinates.h"
+#include "../WebKit/InfiniFrameWebView.h"
 
 #include "Runtime/Shared/Utilities/StringCopy.h"
-
+#include <stdexcept>
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-
 static const int MAX_WINDOW_DIMENSION = 10000;
+
+static NSString* RequireUtf8String(const AutoStringConst value, const char* argumentName)
+{
+    if (value == nullptr)
+        throw std::invalid_argument(std::string(argumentName) + " is null.");
+    NSString* result = [NSString stringWithUTF8String:value];
+    if (result == nil)
+        throw std::invalid_argument(std::string(argumentName) + " is not valid UTF-8.");
+    return result;
+}
 
 void InfiniFrameWindow::ApplyMediaAutoplayConfiguration()
 {
@@ -33,7 +43,7 @@ void InfiniFrameWindow::ApplyMediaAutoplayConfiguration()
 
 void InfiniFrameWindow::GetTransparentEnabled(bool* enabled) const
 {
-    *enabled = false;
+    *enabled = m_impl->_transparentEnabled;
 }
 
 void InfiniFrameWindow::GetContextMenuEnabled(bool* enabled) const
@@ -65,7 +75,7 @@ void InfiniFrameWindow::GetMaximized(bool* isMaximized) const
         *isMaximized = false;
         return;
     }
-    *isMaximized = [m_impl->_window isZoomed];
+    *isMaximized = m_impl->_preMaximizedWidth > 0 || [m_impl->_window isZoomed];
 }
 
 void InfiniFrameWindow::GetMinimized(bool* isMinimized) const
@@ -76,12 +86,8 @@ void InfiniFrameWindow::GetMinimized(bool* isMinimized) const
 void InfiniFrameWindow::GetPosition(int* x, int* y) const
 {
     NSRect frame = [m_impl->_window frame];
-    NSScreen* screen = [m_impl->_window screen];
-    if (!screen) screen = [NSScreen mainScreen];
-    NSRect screenFrame = [screen frame];
-    int height = static_cast<int>(roundf(frame.size.height));
     *x = static_cast<int>(roundf(frame.origin.x));
-    *y = static_cast<int>(roundf(screenFrame.origin.y + screenFrame.size.height - (frame.origin.y + height)));
+    *y = static_cast<int>(roundf(infiniframe::macos::GlobalDesktopTop() - NSMaxY(frame)));
 }
 
 void InfiniFrameWindow::GetResizable(bool* resizable) const
@@ -105,7 +111,11 @@ void InfiniFrameWindow::GetFocused(bool* isFocused) const
 
 unsigned int InfiniFrameWindow::GetScreenDpi() const
 {
-    return 72;
+    NSScreen* screen = [m_impl->_window screen];
+    if (screen == nil)
+        screen = [NSScreen mainScreen];
+    CGFloat scale = screen != nil ? [screen backingScaleFactor] : 1.0;
+    return static_cast<unsigned int>(roundf(static_cast<float>(96.0 * scale)));
 }
 
 void InfiniFrameWindow::GetSize(int* width, int* height) const
@@ -136,7 +146,7 @@ AutoString InfiniFrameWindow::GetTitle() const
 
 void InfiniFrameWindow::GetTopmost(bool* topmost) const
 {
-    *topmost = ([m_impl->_window level] & NSFloatingWindowLevel) == NSFloatingWindowLevel;
+    *topmost = [m_impl->_window level] == NSFloatingWindowLevel;
 }
 
 void InfiniFrameWindow::GetZoom(int* zoom) const
@@ -151,7 +161,7 @@ void InfiniFrameWindow::NavigateToString(AutoString content)
     if (m_impl->_isClosingOrClosed || m_impl->_webview == nil)
         return;
 
-    [m_impl->_webview loadHTMLString: [NSString stringWithUTF8String: content] baseURL: nil];
+    [m_impl->_webview loadHTMLString:RequireUtf8String(content, "content") baseURL:nil];
 }
 
 void InfiniFrameWindow::NavigateToUrl(AutoString url)
@@ -159,8 +169,10 @@ void InfiniFrameWindow::NavigateToUrl(AutoString url)
     if (m_impl->_isClosingOrClosed || m_impl->_webview == nil)
         return;
 
-    NSString* nsurlstring = [NSString stringWithUTF8String: url];
+    NSString* nsurlstring = RequireUtf8String(url, "url");
     NSURL *nsurl = [NSURL URLWithString: nsurlstring];
+    if (nsurl == nil)
+        throw std::invalid_argument("url is not a valid URL.");
     NSURLRequest *nsrequest = [NSURLRequest requestWithURL: nsurl];
     [m_impl->_webview loadRequest: nsrequest];
 }
@@ -177,7 +189,7 @@ void InfiniFrameWindow::Restore()
 
 static std::string BuildMacWebMessageJs(AutoString message) {
     @autoreleasepool {
-        NSString* nsmessage = [NSString stringWithUTF8String: message];
+        NSString* nsmessage = RequireUtf8String(message, "message");
 
         NSData* data = [
             NSJSONSerialization
@@ -225,7 +237,7 @@ void InfiniFrameWindow::SendWebMessage(AutoString message)
         return;
     }
 
-    NSString* nsmessage = [NSString stringWithUTF8String: message];
+    NSString* nsmessage = RequireUtf8String(message, "message");
 
     NSData* data = [
         NSJSONSerialization
@@ -255,12 +267,23 @@ void InfiniFrameWindow::SetDevToolsEnabled(bool enabled)
 
 void InfiniFrameWindow::SetTransparentEnabled(bool enabled)
 {
-    (void)enabled;
+    m_impl->_transparentEnabled = enabled;
+
+    [m_impl->_window setOpaque:enabled ? NO : YES];
+    [m_impl->_window setBackgroundColor:enabled ? [NSColor clearColor] : [NSColor windowBackgroundColor]];
+
+    if (m_impl->_webview != nil) {
+        [m_impl->_webview setUnderPageBackgroundColor:enabled ? [NSColor clearColor] : [NSColor whiteColor]];
+    }
 }
 
 void InfiniFrameWindow::SetContextMenuEnabled(bool enabled)
 {
     m_impl->_contextMenuEnabled = enabled;
+    if (m_impl->_webview != nil) {
+        InfiniFrameWebView* webView = (InfiniFrameWebView*)m_impl->_webview;
+        [webView setInfiniFrameContextMenuEnabled:enabled ? YES : NO];
+    }
 }
 
 void InfiniFrameWindow::SetMediaAutoplayEnabled(bool enabled)
@@ -283,14 +306,19 @@ void InfiniFrameWindow::SetUserAgent(AutoString userAgent)
 void InfiniFrameWindow::SetZoomEnabled(bool enabled)
 {
     m_impl->_zoomEnabled = enabled;
+    if (m_impl->_webview != nil) {
+        InfiniFrameWebView* webView = (InfiniFrameWebView*)m_impl->_webview;
+        [webView setInfiniFrameZoomEnabled:enabled ? YES : NO];
+    }
 }
 
 void InfiniFrameWindow::SetIconFile(AutoString filename)
 {
-    NSString* path = [NSString stringWithUTF8String: filename];
+    NSString* path = RequireUtf8String(filename, "filename");
     NSImage* icon = [[NSImage alloc] initWithContentsOfFile: path];
     if (icon != nil)
         [[m_impl->_window standardWindowButton: NSWindowDocumentIconButton] setImage: icon];
+    [icon release];
 
     m_impl->_iconFileName = filename ? filename : "";
 }
@@ -299,7 +327,7 @@ void InfiniFrameWindow::SetFullScreen(bool fullScreen)
 {
     bool isFullScreen = ([m_impl->_window styleMask] & NSWindowStyleMaskFullScreen) != 0;
     if (fullScreen != isFullScreen)
-        [m_impl->_window toggleFullScreen: nil];
+        [m_impl->_window toggleFullScreen:nil];
 }
 
 void InfiniFrameWindow::SetMinimized(bool minimized)
@@ -311,16 +339,11 @@ void InfiniFrameWindow::SetMinimized(bool minimized)
     else
         [m_impl->_window deminiaturize: nullptr];
 
-    NSDate* deadline = [NSDate dateWithTimeIntervalSinceNow:0.2];
-    while (m_impl->_window.isMiniaturized != minimized && [deadline timeIntervalSinceNow] > 0.0) {
-        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
-                                 beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
-    }
 }
 
 void InfiniFrameWindow::SetMaximized(bool maximized)
 {
-    if (maximized)
+    if (maximized && m_impl->_preMaximizedWidth <= 0)
     {
         NSRect window = [m_impl->_window frame];
         m_impl->_preMaximizedWidth = window.size.width;
@@ -328,10 +351,14 @@ void InfiniFrameWindow::SetMaximized(bool maximized)
         m_impl->_preMaximizedXPosition = window.origin.x;
         m_impl->_preMaximizedYPosition = window.origin.y;
 
-        NSRect screen = [[m_impl->_window screen] visibleFrame];
+        NSScreen* targetScreen = [m_impl->_window screen];
+        if (targetScreen == nil)
+            targetScreen = [NSScreen mainScreen];
+        NSRect screen = [targetScreen visibleFrame];
         [m_impl->_window setFrame: NSMakeRect(screen.origin.x, screen.origin.y,
                                               screen.size.width, screen.size.height)
                           display: YES];
+        InvokeMaximized();
     }
     else if (!maximized && m_impl->_preMaximizedWidth > 0 && m_impl->_preMaximizedHeight > 0)
     {
@@ -340,20 +367,19 @@ void InfiniFrameWindow::SetMaximized(bool maximized)
                                               m_impl->_preMaximizedWidth,
                                               m_impl->_preMaximizedHeight)
                           display: YES];
+        m_impl->_preMaximizedWidth = 0;
+        m_impl->_preMaximizedHeight = 0;
+        InvokeRestored();
     }
 }
 
 void InfiniFrameWindow::SetPosition(int x, int y)
 {
-    NSScreen* screen = [m_impl->_window screen];
-    if (!screen) screen = [NSScreen mainScreen];
-    NSRect screenFrame = [screen frame];
-
     NSRect frame = [m_impl->_window frame];
     int height = static_cast<int>(roundf(frame.size.height));
 
     auto left = static_cast<CGFloat>(x);
-    auto top = static_cast<CGFloat>(screenFrame.origin.y + screenFrame.size.height - (y + height));
+    auto top = infiniframe::macos::ToCocoaWindowOriginY(static_cast<CGFloat>(y), static_cast<CGFloat>(height));
 
     [m_impl->_window setFrameOrigin: CGPointMake(left, top)];
 }
@@ -403,7 +429,7 @@ void InfiniFrameWindow::SetMaxSize(int width, int height)
 void InfiniFrameWindow::SetTitle(AutoString title)
 {
     m_impl->_windowTitle = title ? title : "";
-    [m_impl->_window setTitle: [NSString stringWithUTF8String: title]];
+    [m_impl->_window setTitle:RequireUtf8String(title, "title")];
 }
 
 void InfiniFrameWindow::SetTopmost(bool topmost)
@@ -421,6 +447,9 @@ void InfiniFrameWindow::SetZoom(int zoom)
 void InfiniFrameWindow::SetFocused()
 {
     if (!m_impl->_window) return;
+
+    if ([m_impl->_window isMiniaturized])
+        [m_impl->_window deminiaturize:nil];
 
     [NSApp activateIgnoringOtherApps: YES];
     [m_impl->_window makeKeyAndOrderFront: m_impl->_window];

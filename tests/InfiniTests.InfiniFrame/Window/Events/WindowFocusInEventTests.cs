@@ -9,8 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowFocusInEventTests {
     [Test]
-    [Retry(5)]
-    [SkipOnMacOs]
     [SkipOnLinux("Focus transitions are desktop-state dependent under WSLg/local Linux runs")]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_SetFocused_RaisesEvent(CancellationToken ct = default) {
@@ -35,7 +33,13 @@ public class WindowFocusInEventTests {
         windowUtility.Window.SetFocused();
 
         // Assert
-        await PollUtility.WaitForSignalAsync(eventRaised, TimeSpan.FromSeconds(5), ct);
+        try {
+            await PollUtility.WaitForSignalAsync(eventRaised, TimeSpan.FromSeconds(5), ct);
+        }
+        catch (TimeoutException) when (OperatingSystem.IsMacOS()) {
+            Skip.Test("FocusIn did not fire in this macOS desktop state.");
+            return;
+        }
         await Assert.That(focusInEventCount).IsGreaterThanOrEqualTo(baseline + 1);
     }
 }

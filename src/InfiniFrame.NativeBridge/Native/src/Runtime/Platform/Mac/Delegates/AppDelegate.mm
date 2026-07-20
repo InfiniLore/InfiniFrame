@@ -1,34 +1,21 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-
 #import "AppDelegate.h"
-#import <objc/runtime.h>
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-
-@implementation AppDelegate : NSObject
-- (id)init {
-    if (self = [super init]) {
-        // allocate and initialize window and stuff here ..
-    }
-    return self;
-}
+@implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
-    [window makeKeyAndOrderFront:nil];
     [NSApp activateIgnoringOtherApps:YES];
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
-    return true;
-}
-
-- (void)dealloc {
-    [window release];
-    [super dealloc];
+    (void)sender;
+    // InfiniFrame is an embeddable library. Closing a test or application window must
+    // never terminate its host process; the managed host owns process lifetime.
+    return NO;
 }
 
 @end

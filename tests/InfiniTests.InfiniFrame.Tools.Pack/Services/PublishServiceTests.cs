@@ -7,6 +7,7 @@ using InfiniFrame.Tools.Pack.Resolvers;
 using InfiniFrame.Tools.Pack.Services;
 using InfiniTests.InfiniFrame.Tools.Pack.TestUtilities;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace InfiniTests.InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -15,8 +16,11 @@ namespace InfiniTests.InfiniFrame.Tools.Pack.Services;
 public class PublishServiceTests {
     private static readonly SemaphoreSlim PublishTestLock = new(1, 1);
     private static readonly TimeSpan PublishTimeout = IsCiEnvironment()
-        ? TimeSpan.FromMinutes(8)
+        ? IsWindowsArm64()
+            ? TimeSpan.FromMinutes(15)
+            : TimeSpan.FromMinutes(8)
         : TimeSpan.FromMinutes(3);
+    private static readonly TimeSpan SharedFixtureAwaitTimeout = PublishTimeout + TimeSpan.FromMinutes(1);
     private static readonly TimeSpan ProcessTimeout = TimeSpan.FromSeconds(45);
     private static readonly Lock SharedFixtureLock = new();
     private static Task<SharedPublishFixture>? _sharedPublishFixtureTask;
@@ -116,11 +120,11 @@ public class PublishServiceTests {
     }
 
     [Test]
-    [SkipOnMacOs("4 Hours lost on trying to fix this on macOs... too much time to spent on this.")]
+    [SkipOnMacOs("The pack fixture does not yet produce a valid macOS single-file app bundle")]
     public async Task PublishAsync_ReturnsSuccessAndSingleFileOutput_WhenProjectIncludesInfiniFrame() {
         SharedPublishFixture fixture = await ExecuteWithTimeout(
             GetOrCreateSharedPublishFixtureAsync(),
-            PublishTimeout,
+            SharedFixtureAwaitTimeout,
             "PublishAsync_ReturnsSuccessAndSingleFileOutput_WhenProjectIncludesInfiniFrame");
 
         // Assert
@@ -130,11 +134,11 @@ public class PublishServiceTests {
     }
 
     [Test]
-    [SkipOnMacOs("4 Hours lost on trying to fix this on macOs... too much time to spent on this.")]
+    [SkipOnMacOs("The pack fixture does not yet produce a launchable macOS app bundle")]
     public async Task PublishAsync_LaunchedPackedApp_InitializesBootstrapAndExitsSuccessfully() {
         SharedPublishFixture fixture = await ExecuteWithTimeout(
             GetOrCreateSharedPublishFixtureAsync(),
-            PublishTimeout,
+            SharedFixtureAwaitTimeout,
             "PublishAsync_LaunchedPackedApp_InitializesBootstrapAndExitsSuccessfully");
         ProcessResult runResult = await RunProcessAndCaptureAsync(fixture.PublishedExecutable, fixture.AppDirectory, ProcessTimeout);
 
@@ -244,6 +248,9 @@ public class PublishServiceTests {
         string.Equals(Environment.GetEnvironmentVariable("CI"), "true", StringComparison.OrdinalIgnoreCase) ||
         string.Equals(Environment.GetEnvironmentVariable("GITHUB_ACTIONS"), "true", StringComparison.OrdinalIgnoreCase);
 
+    private static bool IsWindowsArm64() =>
+        OperatingSystem.IsWindows() && RuntimeInformation.ProcessArchitecture == Architecture.Arm64;
+
     private static Task<SharedPublishFixture> GetOrCreateSharedPublishFixtureAsync() {
         lock (SharedFixtureLock) {
             _sharedPublishFixtureTask ??= CreateSharedPublishFixtureAsync();
@@ -268,6 +275,10 @@ public class PublishServiceTests {
                 <TargetFramework>net10.0</TargetFramework>
                 <ImplicitUsings>enable</ImplicitUsings>
                 <Nullable>enable</Nullable>
+                <!-- The test workflow downloads and verifies the native matrix before running tests.
+                     Rebuilding the complete C++ bridge twice inside this pack smoke test is redundant
+                     and can take more than eight minutes on Windows ARM64. -->
+                <InfiniFrameSkipNativeBuild>true</InfiniFrameSkipNativeBuild>
               </PropertyGroup>
               <ItemGroup>
                 <ProjectReference Include="{{infiniFrameProjectPath}}" />
@@ -293,16 +304,25 @@ public class PublishServiceTests {
             Configuration = Configuration,
             Framework = "net10.0",
             SelfContained = true,
-            Output = outputPath
+            Output = outputPath,
+            ProcessTimeout = PublishTimeout
         };
 
         await PublishTestLock.WaitAsync();
         int publishExitCode;
         try {
-            publishExitCode = await ExecuteWithTimeout(
-                PublishService.PublishAsync(options),
-                PublishTimeout,
-                "CreateSharedPublishFixtureAsync");
+            // The timeout must cancel PublishService itself so ProcessRunner kills the complete
+            // dotnet/MSBuild child-process tree. Task.WhenAny alone reports a timeout while the
+            // publish keeps running and can hold build-server/file locks for subsequent tests.
+            using var publishTimeoutCts = new CancellationTokenSource(PublishTimeout);
+            try {
+                publishExitCode = await PublishService.PublishAsync(options, publishTimeoutCts.Token);
+            }
+            catch (OperationCanceledException) when (publishTimeoutCts.IsCancellationRequested) {
+                throw new TimeoutException(
+                    $"Timed out after {PublishTimeout} while executing 'CreateSharedPublishFixtureAsync'."
+                );
+            }
         }
         finally {
             PublishTestLock.Release();

@@ -10,7 +10,7 @@ namespace InfiniFrame.NativeBridge;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public partial class InfiniFrameNativeTesting {
+public static partial class InfiniFrameNativeTesting {
     /// <summary>
     ///     Native test helper that returns native parameters as-is for round-trip verification.
     /// </summary>
@@ -28,6 +28,16 @@ public partial class InfiniFrameNativeTesting {
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeTests_FreeInitParams", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     private static partial InfiniFrameNativeInteropStatus FreeInitParamsNative(IntPtr parameters);
+
+    /// <summary>Cross-platform native consumer used to verify the custom-scheme ABI and release callback.</summary>
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeTests_ConsumeCustomSchemeResponse", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus ConsumeCustomSchemeResponse(
+        IntPtr callback,
+        out ulong contentLength,
+        out uint byteSum,
+        out int valid
+    );
 
     /// <summary>
     ///     Native test helper that checks if a Windows message indicates a color scheme change.
@@ -57,7 +67,7 @@ public partial class InfiniFrameNativeTesting {
     /// </summary>
     /// <param name="newParametersPtr">The native pointer to free.</param>
     /// <returns>A status code indicating success or failure.</returns>
-    internal static InfiniFrameNativeInteropStatus FreeInitParams(IntPtr newParametersPtr) 
+    internal static InfiniFrameNativeInteropStatus FreeInitParams(IntPtr newParametersPtr)
         => FreeInitParamsNative(newParametersPtr);
 
     /// <summary>
