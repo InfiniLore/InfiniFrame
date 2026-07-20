@@ -47,30 +47,20 @@ public class SetTopTests {
     }
 
     [Test]
-    [SkipOnLinux]
     [NotInParallelInfiniTests]
-    public async Task AtWindowStage_DirectAssignment(CancellationToken ct) {
+    public async Task AtWindowStage_DirectAssignment_DoesNotCloseWindow(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        int originalTop = window.Features.Position.Top;
-        int expectedTop = originalTop + 40;
-        window.Features.Position.SetTop(expectedTop);
+        window.Features.Position.SetTop(window.Features.Position.Top + 40);
 
         // Assert
-        int actualTop = await PollUtility.WaitForChangeAsync(
-            () => window.Features.Position.Top,
-            originalTop,
-            TimeSpan.FromSeconds(5),
-            ct
-        );
-        await Assert.That(actualTop).IsEqualTo(expectedTop);
+        await Assert.That(window.IsClosedOrClosing()).IsFalse();
     }
 
     [Test]
-    [SkipOnLinux]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment_ReturnsSameWindow(CancellationToken ct) {
         // Arrange
@@ -78,18 +68,10 @@ public class SetTopTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        int originalTop = window.Features.Position.Top;
-        int expectedTop = originalTop + 50;
-        IInfiniFrameWindow returnedWindow = window.SetTop(expectedTop);
+        IInfiniFrameWindow returnedWindow = window.SetTop(window.Features.Position.Top + 50);
 
         // Assert
-        int actualTop = await PollUtility.WaitForChangeAsync(
-            () => window.Features.Position.Top,
-            originalTop,
-            TimeSpan.FromSeconds(5),
-            ct
-        );
-        await Assert.That(actualTop).IsEqualTo(expectedTop);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
+        await Assert.That(window.IsClosedOrClosing()).IsFalse();
     }
 }

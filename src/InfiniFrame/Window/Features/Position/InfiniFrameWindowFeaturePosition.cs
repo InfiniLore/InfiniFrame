@@ -111,7 +111,7 @@ public class InfiniFrameWindowFeaturePosition(
             window.ManagedThreadId,
             InfiniFrameNative.GetPosition
         );
-        if (oldTop == top) return;
+        if (oldTop == Top) return;
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,

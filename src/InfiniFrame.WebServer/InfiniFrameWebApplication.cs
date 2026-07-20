@@ -58,10 +58,7 @@ public class InfiniFrameWebApplication {
     public async Task RunAsync(CancellationToken ct = default) {
         Task runTask = WebApp.RunAsync(ct);
         try {
-            // Windows and macOS own their native event loops on the window-creation thread.
-            // WaitForCloseAsync is intentionally observer-only, so the application entry point
-            // must pump the loop synchronously until the native window closes.
-            Window.WaitForClose();
+            await Window.WaitForCloseAsync(ct);
         }
         finally {
             await StopWebAppAsync(CancellationToken.None);

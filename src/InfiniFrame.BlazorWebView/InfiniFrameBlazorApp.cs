@@ -38,10 +38,7 @@ public class InfiniFrameBlazorApp(
         }
 
         try {
-            ct.ThrowIfCancellationRequested();
-            // The native UI loop must remain on the thread that created the window. The async
-            // close API only observes an already-running loop and cannot start one safely.
-            window.WaitForClose();
+            await window.WaitForCloseAsync(ct);
         }
         finally {
             await DisposeAsync();

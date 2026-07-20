@@ -37,12 +37,11 @@ public partial class InfiniFrameEvents {
             if (childWindow.ManagedThreadId == window.ManagedThreadId) continue;
 
             var timeout = Stopwatch.StartNew();
-            while (childWindow.LifecycleState < InfiniFrameWindowLifecycleState.NativeClosed
-                   && timeout.Elapsed < TimeSpan.FromSeconds(5)) {
+            while (!childWindow.Features.Lifecycle.IsClosedOrClosing() && timeout.Elapsed < TimeSpan.FromSeconds(5)) {
                 Thread.Sleep(25);
             }
 
-            if (childWindow.LifecycleState < InfiniFrameWindowLifecycleState.NativeClosed) {
+            if (!childWindow.Features.Lifecycle.IsClosedOrClosing()) {
                 Logger.LogWarning(
                     "Timed out waiting for child window close. Parent={ParentWindowId}, Child={ChildWindowId}",
                     window.Id,

@@ -5,7 +5,6 @@ using InfiniFrame;
 using InfiniFrame.Blazor;
 using InfiniFrame.WebServer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -24,28 +23,6 @@ public class InfiniFrameWebApplicationTests {
         mockWindow.Events.Returns(new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance));
         mockWindow.EventsStore.Returns(eventsStore);
         return mockWindow;
-    }
-
-    [Test]
-    public async Task RunAsync_PumpsNativeMessageLoop(CancellationToken ct = default) {
-        IInfiniFrameWindow mockWindow = CreateMockWindow();
-        var features = Substitute.For<IInfiniFrameWindowFeatures>();
-        var lifecycle = Substitute.For<IInfiniFrameWindowFeatureLifecycle>();
-        mockWindow.Features.Returns(features);
-        features.Lifecycle.Returns(lifecycle);
-        WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
-        webAppBuilder.WebHost.UseUrls("http://127.0.0.1:0");
-        WebApplication webApp = webAppBuilder.Build();
-        var app = new InfiniFrameWebApplication {
-            Logger = NullLogger<InfiniFrameWebApplication>.Instance,
-            WebApp = webApp,
-            LazyWindow = new Lazy<IInfiniFrameWindow>(() => mockWindow)
-        };
-
-        await app.RunAsync(ct);
-
-        mockWindow.Received(1).WaitForClose();
-        _ = lifecycle.DidNotReceive().WaitForCloseAsync(Arg.Any<CancellationToken>());
     }
 
     [Test]

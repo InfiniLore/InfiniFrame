@@ -10,7 +10,6 @@ namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Windows;
 // ---------------------------------------------------------------------------------------------------------------------
 public class ColorSchemeChangeTests {
     [Test]
-    [RequiresNativeTestExports]
     [OnlyRunOnWindows]
     [Arguments(0)]
     [Arguments(1)]
@@ -27,7 +26,6 @@ public class ColorSchemeChangeTests {
     }
 
     [Test]
-    [RequiresNativeTestExports]
     [OnlyRunOnWindows]
     public async Task IsColorSchemeChange_ImmersiveColorSetPointer_ReturnsTrue(CancellationToken ct = default) {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
