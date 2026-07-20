@@ -124,6 +124,11 @@ public sealed class InfiniFrameWindow(
             (int)InfiniFrameWindowLifecycleState.ClosingRequested,
             (int)InfiniFrameWindowLifecycleState.Running) == (int)InfiniFrameWindowLifecycleState.Running;
 
+    void IInfiniFrameWindow.CancelCloseRequest()
+        => Interlocked.CompareExchange(ref _lifecycleState,
+            (int)InfiniFrameWindowLifecycleState.Running,
+            (int)InfiniFrameWindowLifecycleState.ClosingRequested);
+
     void IInfiniFrameWindow.MarkNativeClosed() {
         while (true) {
             InfiniFrameWindowLifecycleState state = LifecycleState;

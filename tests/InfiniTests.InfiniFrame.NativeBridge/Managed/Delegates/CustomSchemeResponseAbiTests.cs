@@ -58,6 +58,7 @@ public class CustomSchemeResponseAbiTests {
     }
 
     [Test]
+    [RequiresNativeTestExports]
     public async Task NativeConsumer_OnCurrentPlatform_ValidatesCopiesAndReleasesExactlyOnce(CancellationToken ct = default) {
         const int requestCount = 10_000;
         int releaseCount = 0;
@@ -86,6 +87,7 @@ public class CustomSchemeResponseAbiTests {
     }
 
     [Test]
+    [RequiresNativeTestExports]
     [NotInParallelInfiniTests]
     public async Task NativeConsumer_ConcurrentCallbacks_KeepEachResponseAliveUntilNativeRelease(CancellationToken ct = default) {
         const int requestCount = 1_024;

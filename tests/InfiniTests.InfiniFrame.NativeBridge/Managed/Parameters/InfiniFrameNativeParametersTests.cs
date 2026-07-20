@@ -38,6 +38,7 @@ public class InfiniFrameNativeParametersTests {
     }
 
     [Test]
+    [RequiresNativeTestExports]
     public async Task NativeExport_Success_ClearsLastError(CancellationToken ct = default) {
         IntPtr[] customSchemeNames = new IntPtr[16];
         IntPtr newParametersPtr = IntPtr.Zero;
@@ -64,6 +65,7 @@ public class InfiniFrameNativeParametersTests {
     // This test should onl fails if the InfiniFrameNativeParameterTests C# struct is wrongly defined
     // and has parameters in the wrong order, compared to the struct on the c++ side.
     [Test]
+    [RequiresNativeTestExports]
     public async Task ReturnAsIsIsValid(CancellationToken ct = default) {
         // Arrange
         IntPtr[] customSchemeNames = new IntPtr[16];

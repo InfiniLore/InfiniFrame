@@ -273,14 +273,18 @@ public class InfiniFrameWindowFeatureLifecycle(
         }
 
         logger.LogDebug(".Close()");
-        window.Events.OnWindowClosingRequested();
-
         try {
+            window.Events.OnWindowClosingRequested();
             NativeInvoke.InvokeSyncForLifecycle(logger, window, window.ManagedThreadId,
                 NativeHandleAccess.Close, InfiniFrameNative.Close);
-        }
-        finally {
             Volatile.Write(ref _closeRequestDispatched, 1);
+        }
+        catch {
+            // ClosingRequested prevents feature calls and subsequent close attempts. If managed
+            // notification or native dispatch fails before the request is accepted, restore the
+            // running state so callers can retry and disposal can still complete deterministically.
+            window.CancelCloseRequest();
+            throw;
         }
         // The native close operation is asynchronous on Windows. OnWindowClosed/WaitForClose owns
         // the transition to Closed and handle release after the native window is actually gone.

@@ -82,7 +82,7 @@ public class SendWebMessageAsyncTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
-        
+
         // Act
         ValueTask[] sends = Enumerable.Range(0, 64)
             .Select(index => window.Features.WebMessaging.SendWebMessageAsync($"message-{index}", ct))

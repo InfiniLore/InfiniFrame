@@ -1,4 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <InfiniFrameEnableTestExports Condition="'$(InfiniFrameEnableTestExports)'=='' and '$(Configuration)'=='Debug'">true</InfiniFrameEnableTestExports>
+        <InfiniFrameEnableTestExports Condition="'$(InfiniFrameEnableTestExports)'==''">false</InfiniFrameEnableTestExports>
+        <DefineConstants Condition="'$(InfiniFrameEnableTestExports)'=='true'">$(DefineConstants);InfiniFrameNativeTestExports</DefineConstants>
+    </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="TUnit"/>
     </ItemGroup>

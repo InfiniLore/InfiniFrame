@@ -86,7 +86,7 @@ public class LoadUriTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(DefaultInfiniTestsTimeoutAttribute.TimeoutValue + 5_000)]
+    [DefaultInfiniTestsTimeout(5_000)]
     public async Task AtWindowStage_AfterClose_DoesNotThrowAndNoOps(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

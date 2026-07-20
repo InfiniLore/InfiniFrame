@@ -170,6 +170,29 @@ public class InfiniFrameBlazorAppBuilderTests {
     [Test]
     [NotInParallelInfiniTests]
     [SkipOnLinux]
+    public async Task RunAsync_WindowAlreadyClosed_PumpsNativeMessageLoopAndDisposesServices(CancellationToken ct = default) {
+        var window = Substitute.For<IInfiniFrameWindow>();
+        var features = Substitute.For<IInfiniFrameWindowFeatures>();
+        var lifecycle = Substitute.For<IInfiniFrameWindowFeatureLifecycle>();
+        window.Features.Returns(features);
+        features.Lifecycle.Returns(lifecycle);
+        ServiceProvider services = new ServiceCollection()
+            .AddSingleton(window)
+            .AddSingleton<DisposeProbe>()
+            .BuildServiceProvider();
+        var disposeProbe = services.GetRequiredService<DisposeProbe>();
+        var app = new InfiniFrameBlazorApp(services, new InfiniFrameRootComponentList());
+
+        await app.RunAsync(ct);
+
+        window.Received(1).WaitForClose();
+        _ = lifecycle.DidNotReceive().WaitForCloseAsync(Arg.Any<CancellationToken>());
+        await Assert.That(disposeProbe.IsDisposed).IsTrue();
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    [SkipOnLinux]
     public async Task Run_WindowAlreadyClosed_DoesNotInvokeWindowAndDisposesServices(CancellationToken ct = default) {
         // Arrange
         var window = Substitute.For<IInfiniFrameWindow>();

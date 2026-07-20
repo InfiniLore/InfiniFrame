@@ -96,10 +96,10 @@
             Window.Invoke(() => {
                 int targetX = (int)(args.ScreenX - bounds.Width / 2f);
                 int targetY = (int)(args.ScreenY - 10);
-                
+
                 // ReSharper disable once AccessToDisposedClosure
                 InfiniFrameNative.SetSize(lease.Handle, bounds.Width, bounds.Height);
-                
+
                 // ReSharper disable once AccessToDisposedClosure
                 InfiniFrameNative.SetPosition(lease.Handle, targetX, targetY);
             });
