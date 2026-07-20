@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge.Delegates;
 using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Drawing;
@@ -192,7 +193,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         try {
             callback();
         }
-        catch (Exception ex) {
+        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
             // Managed handler exceptions must never cross a reverse P/Invoke boundary.
             Logger.LogError(ex, "Unhandled exception in native callback {CallbackName}.", callbackName);
         }
@@ -202,7 +203,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         try {
             return callback();
         }
-        catch (Exception ex) {
+        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
             // Managed handler exceptions must never cross a reverse P/Invoke boundary.
             Logger.LogError(ex, "Unhandled exception in native callback {CallbackName}.", callbackName);
             return fallback();

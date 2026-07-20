@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
+using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame;
@@ -38,7 +39,7 @@ public class InfiniFrameWindowFeatureInvoke(
         catch (ObjectDisposedException) when (window.Features.Lifecycle.IsClosedOrClosing()) {
             return InfiniFrameDispatchResult.WindowClosed;
         }
-        catch (Exception exception) {
+        catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
             logger.LogError(exception, "Synchronous native-window dispatch failed. WindowId={WindowId}", window.Id);
             return window.Features.Lifecycle.IsClosedOrClosing()
                 ? InfiniFrameDispatchResult.WindowClosed

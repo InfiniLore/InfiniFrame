@@ -63,7 +63,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
             catch (OperationCanceledException exception) {
                 completion.TrySetCanceled(exception.CancellationToken);
             }
-            catch (Exception exception) {
+            catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
                 completion.TrySetException(exception);
             }
         }, completion);
@@ -106,7 +106,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
             catch (OperationCanceledException exception) {
                 completion.TrySetCanceled(exception.CancellationToken);
             }
-            catch (Exception exception) {
+            catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
                 completion.TrySetException(exception);
             }
         }, completion);
@@ -310,7 +310,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
         catch (OperationCanceledException exception) {
             completion.TrySetCanceled(exception.CancellationToken);
         }
-        catch (Exception exception) {
+        catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
             completion.TrySetException(exception);
         }
     }
@@ -323,7 +323,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
         catch (OperationCanceledException exception) {
             completion.TrySetCanceled(exception.CancellationToken);
         }
-        catch (Exception exception) {
+        catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
             completion.TrySetException(exception);
         }
     }

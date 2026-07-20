@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
+using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame;
@@ -64,7 +65,7 @@ internal sealed class InfiniDispatchOperation {
         catch (ObjectDisposedException) when (_window.Features.Lifecycle.IsClosedOrClosing()) {
             Finish(WindowClosed);
         }
-        catch (Exception exception) {
+        catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
             _logger.LogError(exception, "Asynchronous native-window dispatch failed. WindowId={WindowId}", _window.Id);
             Finish(_window.Features.Lifecycle.IsClosedOrClosing() ? WindowClosed : Failed);
         }
