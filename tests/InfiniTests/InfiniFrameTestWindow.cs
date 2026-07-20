@@ -24,7 +24,7 @@ public sealed partial class InfiniFrameTestWindow : IDisposable {
     private int _disposed;
 
     private Thread? _windowThread;
-    
+
     public required IInfiniFrameWindow Window { get; init; }
     public required IInfiniFrameWindowBuilder BuilderSnapshot { get; init; }
 

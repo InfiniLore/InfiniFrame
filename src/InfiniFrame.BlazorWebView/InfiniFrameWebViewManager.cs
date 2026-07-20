@@ -98,7 +98,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     // -----------------------------------------------------------------------------------------------------------------
     // Web Requests
     // -----------------------------------------------------------------------------------------------------------------
-    /// <inheritdoc cref="IInfiniFrameWebViewManager.HandleWebRequest"/>
+    /// <inheritdoc cref="IInfiniFrameWebViewManager.HandleWebRequest" />
     public (Stream? Data, string? ContentType) HandleWebRequest(IInfiniFrameWindow? infiniFrameWindow, string? url) {
         if (string.IsNullOrWhiteSpace(url)) {
             LazyLogger.Value?.LogWarning(
@@ -170,8 +170,8 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             out _,
             out _,
             out Stream content2,
-            out IDictionary<string, string> headers2)) {
-            
+            out IDictionary<string, string> headers2)
+        ) {
             headers2.TryGetValue("Content-Type", out string? contentType);
             return (content2, contentType ?? GetFallbackContentType(sanitizedUri2.LocalPath));
         }
@@ -223,6 +223,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         // The callback runs on the native UI thread. Do not hold a lifecycle lock while dispatching
         // messages because the pump synchronously invokes that same thread to send responses.
         if (IsDisposingOrDisposed) return;
+
         MessageReceived(messageOriginUrl, state.Message);
     }
 
@@ -252,6 +253,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             while (await _channel.Reader.WaitToReadAsync(_messagePumpShutdown.Token)) {
                 while (_channel.Reader.TryRead(out string? message)) {
                     if (IsDisposingOrDisposed || _messagePumpShutdown.IsCancellationRequested) return;
+
                     await LazyWindow.Value.SendWebMessageAsync(message, _messagePumpShutdown.Token).ConfigureAwait(false);
                 }
             }
@@ -290,7 +292,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
                 await _messagePumpTask.ConfigureAwait(false);
             }
             catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-                LazyLogger.Value?.LogWarning(ex, "Message pump faulted during WebView manager shutdown." );
+                LazyLogger.Value?.LogWarning(ex, "Message pump faulted during WebView manager shutdown.");
             }
             finally {
                 _messagePumpShutdown.Dispose();

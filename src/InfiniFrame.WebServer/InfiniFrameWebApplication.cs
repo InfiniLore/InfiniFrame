@@ -18,7 +18,7 @@ public class InfiniFrameWebApplication {
     private readonly object _shutdownLock = new();
     #endif
     private Task? _shutdownTask;
-    
+
     /// <summary>Gets or sets the logger for the application.</summary>
     public required ILogger<InfiniFrameWebApplication> Logger { get; init; }
     /// <summary>Gets or sets the underlying ASP.NET Core <see cref="WebApplication" />.</summary>

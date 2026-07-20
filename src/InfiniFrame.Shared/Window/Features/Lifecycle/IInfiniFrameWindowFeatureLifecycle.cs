@@ -16,7 +16,7 @@ public interface IInfiniFrameWindowFeatureLifecycle {
     ///     Initializes the window lifecycle, performing native window creation and setup.
     /// </summary>
     internal void Initialize();
-    
+
     /// <summary>
     ///     Blocks the calling thread until the window is closed.
     /// </summary>
@@ -28,7 +28,7 @@ public interface IInfiniFrameWindowFeatureLifecycle {
     /// <param name="ct">A cancellation token to cancel the wait operation.</param>
     /// <returns>A task that completes when the window closes or cancellation is requested.</returns>
     ValueTask WaitForCloseAsync(CancellationToken ct = default);
-    
+
     /// <summary>
     ///     Closes the window synchronously.
     /// </summary>
@@ -40,7 +40,7 @@ public interface IInfiniFrameWindowFeatureLifecycle {
     /// <param name="ct">A cancellation token to cancel the close operation.</param>
     /// <returns>A task that completes when the window close operation finishes.</returns>
     ValueTask CloseAsync(CancellationToken ct = default);
-    
+
     /// <summary>
     ///     Marks the window as closed without performing native cleanup.
     /// </summary>
@@ -52,7 +52,7 @@ public interface IInfiniFrameWindowFeatureLifecycle {
     internal void CleanupNativeHandle();
 
     internal bool CanWaitForCloseDuringDispose();
-    
+
     /// <summary>
     ///     Checks whether the window is closed or in the process of closing.
     /// </summary>

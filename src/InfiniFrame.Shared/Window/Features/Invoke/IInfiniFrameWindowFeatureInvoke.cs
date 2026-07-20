@@ -19,5 +19,6 @@ public interface IInfiniFrameWindowFeatureInvoke {
     Task<InfiniFrameDispatchResult> DispatchAsync(
         Action callback,
         TimeSpan? timeout = null,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 }

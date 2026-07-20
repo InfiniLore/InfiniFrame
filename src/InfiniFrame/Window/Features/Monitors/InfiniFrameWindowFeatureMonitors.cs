@@ -17,7 +17,7 @@ public class InfiniFrameWindowFeatureMonitors(
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureMonitors.GetMonitors"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureMonitors.GetMonitors" />
     public IEnumerable<InfiniMonitor> GetMonitors() {
         // ReSharper disable once ConvertIfStatementToReturnStatement
         if (window.IsClosedOrClosing()) return [];
@@ -25,11 +25,11 @@ public class InfiniFrameWindowFeatureMonitors(
         return MonitorsUtility.GetMonitors(window);
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureMonitors.GetMainMonitor"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureMonitors.GetMainMonitor" />
     public InfiniMonitor GetMainMonitor()
         => GetMonitors().FirstOrDefault();
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureMonitors.GetMainMonitorScreenDpi"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureMonitors.GetMainMonitorScreenDpi" />
     public int GetMainMonitorScreenDpi() {
         if (window.IsClosedOrClosing()) return -1;
 

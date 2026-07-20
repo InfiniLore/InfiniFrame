@@ -22,6 +22,7 @@ public static class IInfiniFrameWindowFeatureInvokeExtensions {
         this IInfiniFrameWindow window,
         Action callback,
         TimeSpan? timeout = null,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken = default
+    ) =>
         window.Features.Invoke.DispatchAsync(callback, timeout, cancellationToken);
 }

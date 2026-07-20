@@ -4,7 +4,6 @@
 using System.Collections.Immutable;
 
 namespace InfiniFrame;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -36,7 +35,7 @@ public sealed record KeyedEvent<TKey, TPayload> where TKey : notnull {
     public void Add(TKey key, Action<IInfiniFrameWindow, TPayload> handler) {
         ArgumentNullException.ThrowIfNull(key);
         ArgumentNullException.ThrowIfNull(handler);
-        ImmutableInterlocked.AddOrUpdate(ref _handlers, key, handler, (_, _) => handler);
+        ImmutableInterlocked.AddOrUpdate(ref _handlers, key, handler, updateValueFactory: (_, _) => handler);
     }
 
     /// <summary>
@@ -47,14 +46,14 @@ public sealed record KeyedEvent<TKey, TPayload> where TKey : notnull {
         ArgumentNullException.ThrowIfNull(key);
         ImmutableInterlocked.TryRemove(ref _handlers, key, out _);
     }
-    
+
     /// <summary>
     ///     Attempts to invoke the handler for the specified key.
     /// </summary>
     /// <param name="key">The key identifying the handler to invoke.</param>
     /// <param name="window">The window instance to pass to the handler.</param>
     /// <param name="payload">The payload to pass to the handler.</param>
-    /// <returns><c>true</c> if a handler was registered for <paramref name="key"/>; otherwise, <c>false</c>.</returns>
+    /// <returns><c>true</c> if a handler was registered for <paramref name="key" />; otherwise, <c>false</c>.</returns>
     /// <remarks>Handler exceptions propagate to the caller.</remarks>
     public bool TryInvoke(TKey key, IInfiniFrameWindow window, TPayload payload) {
         if (!_handlers.TryGetValue(key, out Action<IInfiniFrameWindow, TPayload>? handler)) return false;
@@ -62,7 +61,7 @@ public sealed record KeyedEvent<TKey, TPayload> where TKey : notnull {
         handler(window, payload);
         return true;
     }
-    
+
     /// <summary>
     ///     Determines whether the specified key has a registered handler.
     /// </summary>

@@ -15,7 +15,7 @@ public class InfiniFrameWindowFeatureSize(
     ILogger<InfiniFrameWindowFeatureSize> logger
 ) : IInfiniFrameWindowFeatureSize {
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.Size"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.Size" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Size Size => NativeInvoke.InvokeSyncWithValidation(
         logger,
@@ -28,7 +28,7 @@ public class InfiniFrameWindowFeatureSize(
         }
     );
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.Height"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.Height" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int Height => NativeInvoke.InvokeSyncWithValidation(
         logger,
@@ -37,7 +37,7 @@ public class InfiniFrameWindowFeatureSize(
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetSize(handle, out _, out value)
     );
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.Width"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.Width" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int Width => NativeInvoke.InvokeSyncWithValidation(
         logger,
@@ -47,7 +47,7 @@ public class InfiniFrameWindowFeatureSize(
     );
 
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.MaxSize"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.MaxSize" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Size MaxSize => NativeInvoke.InvokeSyncWithValidation(
         logger,
@@ -60,7 +60,7 @@ public class InfiniFrameWindowFeatureSize(
         }
     );
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.MaxHeight"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.MaxHeight" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int MaxHeight => NativeInvoke.InvokeSyncWithValidation(
         logger,
@@ -69,7 +69,7 @@ public class InfiniFrameWindowFeatureSize(
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMaxSize(handle, out _, out value)
     );
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.MaxWidth"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.MaxWidth" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int MaxWidth => NativeInvoke.InvokeSyncWithValidation(
         logger,
@@ -78,7 +78,7 @@ public class InfiniFrameWindowFeatureSize(
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMaxSize(handle, out value, out _)
     );
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.MinSize"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.MinSize" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Size MinSize => NativeInvoke.InvokeSyncWithValidation(
         logger,
@@ -91,7 +91,7 @@ public class InfiniFrameWindowFeatureSize(
         }
     );
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.MinHeight"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.MinHeight" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int MinHeight => NativeInvoke.InvokeSyncWithValidation(
         logger,
@@ -100,7 +100,7 @@ public class InfiniFrameWindowFeatureSize(
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMinSize(handle, out _, out value)
     );
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.MinWidth"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.MinWidth" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int MinWidth => NativeInvoke.InvokeSyncWithValidation(
         logger,
@@ -109,7 +109,7 @@ public class InfiniFrameWindowFeatureSize(
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMinSize(handle, out value, out _)
     );
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.IsResizable"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.IsResizable" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsResizable => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
@@ -122,7 +122,7 @@ public class InfiniFrameWindowFeatureSize(
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.SetSize(int, int)"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.SetSize(int, int)" />
     public void SetSize(int width, int height) {
         logger.LogDebug(".SetSize({Width}, {Height})", width, height);
 
@@ -137,11 +137,11 @@ public class InfiniFrameWindowFeatureSize(
     }
 
     // ReSharper disable once InvalidXmlDocComment
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.SetSize(Size)"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.SetSize(Size)" />
     public void SetSize(Size size)
         => SetSize(size.Width, size.Height);
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.SetHeight"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.SetHeight" />
     public void SetHeight(int height) {
         logger.LogDebug(".SetHeight({Height})", height);
 
@@ -162,7 +162,7 @@ public class InfiniFrameWindowFeatureSize(
         );
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.SetMaxSize(int, int)"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.SetMaxSize(int, int)" />
     public void SetMaxSize(int maxWidth, int maxHeight) {
         logger.LogDebug(".SetMaxSize({MaxWidth}, {MaxHeight})", maxWidth, maxHeight);
 

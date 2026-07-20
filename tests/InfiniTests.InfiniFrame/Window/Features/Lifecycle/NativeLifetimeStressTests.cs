@@ -21,7 +21,7 @@ public class NativeLifetimeStressTests {
         int completedCalls = 0;
 
         Task[] callers = Enumerable.Range(0, ConcurrentFeatureCallerCount)
-            .Select(workerIndex => Task.Run(() => {
+            .Select(workerIndex => Task.Run(action: () => {
                 _ = workerIndex;
                 while (!stop.IsCancellationRequested) {
                     try {

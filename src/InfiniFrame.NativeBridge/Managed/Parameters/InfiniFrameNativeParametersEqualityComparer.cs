@@ -6,7 +6,7 @@ namespace InfiniFrame.NativeBridge.Parameters;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Compares two <see cref="InfiniFrameNativeParameters"/> instances for value equality,
+///     Compares two <see cref="InfiniFrameNativeParameters" /> instances for value equality,
 ///     ignoring callback handler fields.
 /// </summary>
 internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityComparer<InfiniFrameNativeParameters> {
@@ -15,10 +15,10 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
     /// </summary>
     internal static readonly InfiniFrameNativeParametersEqualityComparer Instance = new();
 
-    private InfiniFrameNativeParametersEqualityComparer() { }
+    private InfiniFrameNativeParametersEqualityComparer() {}
 
     /// <summary>
-    ///     Determines whether two <see cref="InfiniFrameNativeParameters"/> instances are equal
+    ///     Determines whether two <see cref="InfiniFrameNativeParameters" /> instances are equal
     ///     by comparing all value fields.
     /// </summary>
     /// <param name="x">The first instance.</param>
@@ -89,7 +89,7 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
     }
 
     /// <summary>
-    ///     Returns a hash code for the specified <see cref="InfiniFrameNativeParameters"/> instance
+    ///     Returns a hash code for the specified <see cref="InfiniFrameNativeParameters" /> instance
     ///     based on its value fields.
     /// </summary>
     /// <param name="obj">The instance to hash.</param>

@@ -27,17 +27,26 @@ public class InfiniFrameWindowFeatureLifecycle(
     private readonly TaskCompletionSource _closed = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly TaskCompletionSource _messageLoopCompleted = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    /// <summary>
+    ///     Provides the lifecycle management features for an InfiniFrame window.
+    ///     Implements both <see cref="IInfiniFrameWindowFeatureLifecycle" /> and <see cref="IDisposable" /> to handle
+    ///     the state transitions and resource cleanup related to the lifecycle of the window.
+    /// </summary>
     ~InfiniFrameWindowFeatureLifecycle() {
         Dispose(false);
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.CleanupNativeHandle"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.CleanupNativeHandle" />
     void IInfiniFrameWindowFeatureLifecycle.CleanupNativeHandle() {
         Dispose();
     }
 
     bool IInfiniFrameWindowFeatureLifecycle.CanWaitForCloseDuringDispose() {
         if (Volatile.Read(ref _closeRequestDispatched) == 0) return false;
+
         return Volatile.Read(ref _messageLoopStarted) == 0
             || Environment.CurrentManagedThreadId != window.ManagedThreadId;
     }
@@ -61,6 +70,7 @@ public class InfiniFrameWindowFeatureLifecycle(
             // Disposal from a native callback on the owning thread must be deferred until
             // WaitForExit unwinds. Other threads can deterministically wait for that boundary.
             if (Environment.CurrentManagedThreadId == window.ManagedThreadId) return;
+
             _messageLoopCompleted.Task.GetAwaiter().GetResult();
             return;
         }
@@ -80,14 +90,8 @@ public class InfiniFrameWindowFeatureLifecycle(
             ReleaseNativeCallbackRootOnce();
         }
     }
-    
-    // -----------------------------------------------------------------------------------------------------------------
-    // Methods
-    // -----------------------------------------------------------------------------------------------------------------
-    /// <inheritdoc cref="InfiniFrameWindowFeatureLifecycle.Initialize"/>
-    internal void Initialize() => window.Features.Lifecycle.Initialize();
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.Initialize"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.Initialize" />
     void IInfiniFrameWindowFeatureLifecycle.Initialize() {
         window.BeginInitialization();
         InfiniFrameNativeParameters startupParameters = window.Configuration.StartupParameters;
@@ -97,7 +101,8 @@ public class InfiniFrameWindowFeatureLifecycle(
             if (startupParameters.RemoteDebuggingPort != 0) {
                 logger.LogInformation(
                     "Remote debugging requested on loopback port {RemoteDebuggingPort}.",
-                    startupParameters.RemoteDebuggingPort);
+                    startupParameters.RemoteDebuggingPort
+                );
 
                 if (OperatingSystem.IsLinux() && !startupParameters.DevToolsEnabled) {
                     logger.LogInformation(
@@ -111,18 +116,14 @@ public class InfiniFrameWindowFeatureLifecycle(
 
             RemoteDebuggingUtility.EnsureSupportedPlatform(startupParameters.RemoteDebuggingPort);
             RemoteDebuggingUtility.ValidatePortAvailabilityOrThrow(startupParameters.RemoteDebuggingPort, logger);
-            if (webInspectorEnabled) {
-                MacOsWebInspectorUtility.ThrowIfUnsupported();
-            }
+            if (webInspectorEnabled) MacOsWebInspectorUtility.ThrowIfUnsupported();
 
             validator.ValidateAndThrow(startupParameters);
-            
+
             window.Events.OnWindowCreating();
 
             try {
-                if (OperatingSystem.IsWindows()) {
-                    InfiniFrameNative.RegisterWin32(window.MainProgramHandle);
-                }
+                if (OperatingSystem.IsWindows()) InfiniFrameNative.RegisterWin32(window.MainProgramHandle);
                 else if (OperatingSystem.IsMacOS()) {
                     InfiniFrameNativeInteropStatus registerStatus = InfiniFrameNative.RegisterMac();
                     if (registerStatus != InfiniFrameNativeInteropStatus.Success) {
@@ -132,10 +133,10 @@ public class InfiniFrameWindowFeatureLifecycle(
                             $"Native registration failed with status {registerStatus}. Error #{lastError}. {nativeMessage}");
                     }
                 }
-                else if (OperatingSystem.IsLinux()) {} // No specific implementation for Linux
+                else if (OperatingSystem.IsLinux()) {}// No specific implementation for Linux
                 else throw new PlatformNotSupportedException();
 
-                using NativeHandleLease? parentLease = window.Configuration.ParentWindow is { } parent
+                using NativeHandleLease? parentLease = window.Configuration.ParentWindow is {} parent
                     ? parent.AcquireNativeHandle()
                     : null;
                 startupParameters.NativeParent = parentLease?.Handle ?? IntPtr.Zero;
@@ -144,16 +145,17 @@ public class InfiniFrameWindowFeatureLifecycle(
                 if (status != InfiniFrameNativeInteropStatus.Success) {
                     int lastError = Marshal.GetLastPInvokeError();
                     string nativeMessage = InfiniFrameNative.GetLastErrorMessage() ?? "No native error message provided.";
-                    
+
                     throw new ApplicationException(
-                        $"Native constructor failed with status {status}. Error #{lastError}. {nativeMessage}");
+                        $"Native constructor failed with status {status}. Error #{lastError}. {nativeMessage}"
+                    );
                 }
-                
+
                 ArgumentOutOfRangeException.ThrowIfZero(handle);
                 window.AssignNativeHandle(handle);
 
                 if (OperatingSystem.IsLinux()) {
-                    NativeInvoke.InvokeSyncWithValidation(logger, window, window.ManagedThreadId, () => {
+                    NativeInvoke.InvokeSyncWithValidation(logger, window, window.ManagedThreadId, callback: () => {
                         window.SetManagedThreadId(Environment.CurrentManagedThreadId);
                     });
                 }
@@ -178,7 +180,7 @@ public class InfiniFrameWindowFeatureLifecycle(
         }
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.WaitForClose"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.WaitForClose" />
     public void WaitForClose() {
         // Closing is not terminal. Close() may have queued the native close request before the
         // owning thread entered its message loop; that loop must still run to deliver the request.
@@ -188,15 +190,15 @@ public class InfiniFrameWindowFeatureLifecycle(
         }
 
         // AppKit is owned by the process main thread. A macOS caller on another thread must
-        // only observe the closed callback: marshalling WaitForExit to the main thread would
+        // only observe the closed callback: marshaling WaitForExit to the main thread would
         // start a nested NSRunLoop that does not reliably drain main-queue dispatch callbacks.
         // On Windows, a non-owning thread can observe an already-running (or closing) window,
         // but the owning thread must still start the native message loop when none exists.
         bool isNonOwningThread = Environment.CurrentManagedThreadId != window.ManagedThreadId;
-        bool canObserveNativeClose = OperatingSystem.IsMacOS() ||
-            (OperatingSystem.IsWindows() &&
-             (window.LifecycleState == InfiniFrameWindowLifecycleState.ClosingRequested ||
-              Volatile.Read(ref _messageLoopStarted) != 0));
+        bool canObserveNativeClose = OperatingSystem.IsMacOS()
+            || OperatingSystem.IsWindows()
+            && (window.LifecycleState == InfiniFrameWindowLifecycleState.ClosingRequested
+                || Volatile.Read(ref _messageLoopStarted) != 0);
         if (isNonOwningThread && canObserveNativeClose) {
             _closed.Task.GetAwaiter().GetResult();
             return;
@@ -217,20 +219,22 @@ public class InfiniFrameWindowFeatureLifecycle(
 
                 using (lease) {
                     InfiniFrameNativeInteropStatus status = InfiniFrameNative.WaitForExit(lease.Handle);
-                    if (status != InfiniFrameNativeInteropStatus.Success) {
-                        int linuxLastError = Marshal.GetLastPInvokeError();
-                        string linuxMessage = InfiniFrameNative.GetLastErrorMessage() ?? "No native error message provided.";
-                        throw new ApplicationException(
-                            $"Native WaitForExit failed with status {status}. Error #{linuxLastError}. {linuxMessage}");
-                    }
+                    if (status == InfiniFrameNativeInteropStatus.Success) return;
+
+                    int linuxLastError = Marshal.GetLastPInvokeError();
+                    string linuxMessage = InfiniFrameNative.GetLastErrorMessage() ?? "No native error message provided.";
+                    throw new ApplicationException(
+                        $"Native WaitForExit failed with status {status}. Error #{linuxLastError}. {linuxMessage}"
+                    );
                 }
             }
             else {
                 NativeInvoke.InvokeSyncForLifecycle(logger, window, window.ManagedThreadId,
-                    NativeHandleAccess.WaitForExit, handle => {
-                    Volatile.Write(ref _messageLoopStarted, 1);
-                    return InfiniFrameNative.WaitForExit(handle);
-                });
+                    NativeHandleAccess.WaitForExit, callback: handle => {
+                        Volatile.Write(ref _messageLoopStarted, 1);
+                        return InfiniFrameNative.WaitForExit(handle);
+                    }
+                );
             }
         }
         catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
@@ -245,8 +249,7 @@ public class InfiniFrameWindowFeatureLifecycle(
             MarkAsClosed();
             Volatile.Write(ref _messageLoopExited, 1);
             try {
-                if (Volatile.Read(ref _disposed) != 0)
-                    CleanupClosedHandleAndCallbacks(true);
+                if (Volatile.Read(ref _disposed) != 0) CleanupClosedHandleAndCallbacks(true);
             }
             finally {
                 _messageLoopCompleted.TrySetResult();
@@ -254,16 +257,15 @@ public class InfiniFrameWindowFeatureLifecycle(
         }
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.WaitForCloseAsync"/>
-    public ValueTask WaitForCloseAsync(CancellationToken ct = default) {
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.WaitForCloseAsync" />
+    public ValueTask WaitForCloseAsync(CancellationToken ct = default) =>
         // The native message loop is owned by WaitForClose.  Starting that loop from an
         // asynchronous API would either block the caller or require moving UI work to a
         // thread-pool thread.  The closed callback is the authoritative native completion
         // signal, so this API only observes that signal and never pumps or blocks a thread.
-        return new ValueTask(_closed.Task.WaitAsync(ct));
-    }
+        new(_closed.Task.WaitAsync(ct));
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.Close"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.Close" />
     public void Close() {
         if (!window.RequestClose()) {
             logger.LogDebug("Skipping Close during shutdown");
@@ -284,7 +286,7 @@ public class InfiniFrameWindowFeatureLifecycle(
         // the transition to Closed and handle release after the native window is actually gone.
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.CloseAsync"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.CloseAsync" />
     public ValueTask CloseAsync(CancellationToken ct = default) {
         if (ct.IsCancellationRequested)
             return ValueTask.FromCanceled(ct);
@@ -293,10 +295,10 @@ public class InfiniFrameWindowFeatureLifecycle(
         return ValueTask.CompletedTask;
     }
 
-    /// <inheritdoc cref="InfiniFrameWindowFeatureLifecycle.MarkAsClosed"/>
+    /// <inheritdoc cref="InfiniFrameWindowFeatureLifecycle.MarkAsClosed" />
     private void MarkAsClosed() => window.Features.Lifecycle.MarkAsClosed();
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.MarkAsClosed"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.MarkAsClosed" />
     void IInfiniFrameWindowFeatureLifecycle.MarkAsClosed() {
         if (window.LifecycleState >= InfiniFrameWindowLifecycleState.NativeClosed) {
             _closed.TrySetResult();
@@ -307,10 +309,8 @@ public class InfiniFrameWindowFeatureLifecycle(
         _closed.TrySetResult();
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.IsClosedOrClosing"/>
-    public bool IsClosedOrClosing() {
-        return window.LifecycleState >= InfiniFrameWindowLifecycleState.ClosingRequested;
-    }
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.IsClosedOrClosing" />
+    public bool IsClosedOrClosing() => window.LifecycleState >= InfiniFrameWindowLifecycleState.ClosingRequested;
 
     private bool IsClosed()
         => window.LifecycleState >= InfiniFrameWindowLifecycleState.NativeClosed;

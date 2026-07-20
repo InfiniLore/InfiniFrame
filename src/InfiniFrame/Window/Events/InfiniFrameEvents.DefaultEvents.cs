@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
 namespace InfiniFrame;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -17,13 +16,14 @@ public partial class InfiniFrameEvents {
     public void AssignDefaultEventCallbacks() {
         EventsStore.WindowClosingRequested.Add(CloseChildWindows);
     }
-    
+
     private void CloseChildWindows(IInfiniFrameWindow window) {
         if (window.LifecycleState >= InfiniFrameWindowLifecycleState.NativeClosed) return;
 
         IInfiniFrameWindow[] childWindows;
         lock (window.Configuration.ChildWindows) {
             if (window.Configuration.ChildWindows.Count <= 0) return; // No child windows to close
+
             childWindows = window.Configuration.ChildWindows.ToArray();
             window.Configuration.ChildWindows.Clear();
         }

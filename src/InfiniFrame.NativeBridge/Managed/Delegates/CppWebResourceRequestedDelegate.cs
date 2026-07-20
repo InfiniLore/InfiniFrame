@@ -10,7 +10,7 @@ namespace InfiniFrame.NativeBridge.Delegates;
 
 /// <summary>
 ///     Versioned custom-scheme response descriptor. The native caller owns the descriptor itself (it is stack allocated),
-///     while managed code owns every pointer stored in it until <see cref="Release"/> is invoked exactly once.
+///     while managed code owns every pointer stored in it until <see cref="Release" /> is invoked exactly once.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
 public struct CustomSchemeResponse {

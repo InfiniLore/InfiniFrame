@@ -1,18 +1,15 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-
 #include <stdexcept>
 
 #include "../Window.Cocoa.Internal.h"
 #include "../MacDiagnostics.h"
 #include "../Delegates/UrlSchemeHandler.h"
 #include "../Delegates/UiDelegate.h"
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-
 /// Safely runs a block on the main GCD queue.
 /// If already on the main thread, runs synchronously; otherwise dispatches synchronously.
 static void DispatchToMainSync(void (^block)()) {

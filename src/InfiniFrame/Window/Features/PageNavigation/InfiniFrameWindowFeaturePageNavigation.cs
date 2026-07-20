@@ -18,15 +18,15 @@ public class InfiniFrameWindowFeaturePageNavigation(
     IInfiniFrameStaticAssets? staticAssets
 ) : IInfiniFrameWindowFeaturePageNavigation {
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePageNavigation.Load(Uri)"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePageNavigation.Load(Uri)" />
     public void Load(Uri uri)
         => TryLoadUri(uri);
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePageNavigation.Load(string)"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePageNavigation.Load(string)" />
     public void Load(string path)
         => TryLoadPath(path);
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePageNavigation.TryLoadUri"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePageNavigation.TryLoadUri" />
     public bool TryLoadUri(Uri uri) {
         if (uri.IsFile) return TryNavigate(uri.ToString());
 
@@ -41,12 +41,13 @@ public class InfiniFrameWindowFeaturePageNavigation(
         return TryNavigate(uri.ToString());
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePageNavigation.TryLoadPath"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePageNavigation.TryLoadPath" />
     public bool TryLoadPath(string path) {
         foreach (string attempt in EnumeratePathAttempts(path)) {
             if (Uri.TryCreate(attempt, UriKind.Absolute, out Uri? absoluteUri)) {
                 // ReSharper disable once ConvertIfStatementToReturnStatement
                 if (absoluteUri.IsFile) return TryNavigate(absoluteUri.ToString());
+
                 return TryLoadUri(absoluteUri);
             }
 
@@ -57,8 +58,8 @@ public class InfiniFrameWindowFeaturePageNavigation(
         return false;
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePageNavigation.LoadRawString"/>
-    public void LoadRawString( string content) {
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePageNavigation.LoadRawString" />
+    public void LoadRawString(string content) {
         if (window.IsClosedOrClosing()) {
             logger.LogDebug("Skipping navigation because window is closing");
             return;

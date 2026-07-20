@@ -50,7 +50,7 @@ public sealed partial class WindowsAppUserModelIdTests {
     public async Task WindowCreation_AssignsExplicitProcessIdentity(CancellationToken ct) {
         const string value = "InfiniLore.InfiniFrame.Tests";
 
-        using var window = InfiniFrameTestWindow.Create(builder => builder.SetWindowsAppUserModelId(value), ct);
+        using var window = InfiniFrameTestWindow.Create(builder: builder => builder.SetWindowsAppUserModelId(value), ct);
 
         int result = GetCurrentProcessExplicitAppUserModelID(out IntPtr appUserModelId);
         try {

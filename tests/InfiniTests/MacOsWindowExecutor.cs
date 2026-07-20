@@ -196,7 +196,7 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
             var sendState = new MainQueueSendState(d, state, completed);
 
             Post(
-                static callbackState => {
+                d: static callbackState => {
                     var sendState = (MainQueueSendState)callbackState!;
                     try {
                         sendState.Callback(sendState.State);

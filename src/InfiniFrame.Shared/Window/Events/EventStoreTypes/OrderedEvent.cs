@@ -69,7 +69,7 @@ public sealed record OrderedEvent<TPayload> {
     ///     Gets a snapshot of the current handler registrations.
     /// </summary>
     public ImmutableArray<Action<IInfiniFrameWindow, TPayload>> Snapshot => _handlers;
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------

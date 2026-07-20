@@ -6,7 +6,7 @@ namespace InfiniFrame.NativeBridge.Handles;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-/// Identifies which lifecycle operation is acquiring a native instance.
+///     Identifies which lifecycle operation is acquiring a native instance.
 /// </summary>
 public enum NativeHandleAccess {
     Feature,

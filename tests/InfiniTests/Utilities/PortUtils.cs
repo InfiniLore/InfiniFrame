@@ -21,8 +21,10 @@ public static class PortUtils {
     }
 
     public static async Task<int> GetOpenPort(CancellationToken cancellationToken = default) {
-        await foreach (int port in GetOpenPorts(1, cancellationToken))
+        await foreach (int port in GetOpenPorts(1, cancellationToken)) {
             return port;
+        }
+
         return 0;
     }
     public static async IAsyncEnumerable<int> GetOpenPorts(

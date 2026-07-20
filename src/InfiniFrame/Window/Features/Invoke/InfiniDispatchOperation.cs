@@ -30,34 +30,41 @@ internal sealed class InfiniDispatchOperation {
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-
     public InfiniDispatchOperation(IInfiniFrameWindow window, ILogger logger, Action callback, TimeSpan timeout, CancellationToken cancellationToken) {
         _window = window;
         _logger = logger;
         _callback = callback;
-        _timeoutTimer = new Timer(_ => Finish(TimedOut), null, timeout, Timeout.InfiniteTimeSpan);
-        _cancellationRegistration = cancellationToken.Register(static state => ((InfiniDispatchOperation)state!).Finish(Cancelled), this);
-        _ = _completion.Task.ContinueWith(static (_, state) => ((InfiniDispatchOperation)state!).Dispose(), this,
+        _timeoutTimer = new Timer(callback: _ => Finish(TimedOut), null, timeout, Timeout.InfiniteTimeSpan);
+        _cancellationRegistration = cancellationToken.Register(callback: static state => ((InfiniDispatchOperation)state!).Finish(Cancelled), this);
+        _ = _completion.Task.ContinueWith(continuationAction: static (_, state) => ((InfiniDispatchOperation)state!).Dispose(), this,
             CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
-        
+
         if (Volatile.Read(ref _state) != Pending) Dispose();
     }
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-
     public void Start() => _ = System.Threading.Tasks.Task.Run(Execute);
 
     private void Execute() {
         if (Volatile.Read(ref _state) != Pending) return;
-        if (_window.Features.Lifecycle.IsClosedOrClosing()) { Finish(WindowClosed); return; }
+
+        if (_window.Features.Lifecycle.IsClosedOrClosing()) {
+            Finish(WindowClosed);
+            return;
+        }
 
         try {
-            NativeInvoke.InvokeSyncWithValidation(_logger, _window, _window.ManagedThreadId, () => {
+            NativeInvoke.InvokeSyncWithValidation(_logger, _window, _window.ManagedThreadId, callback: () => {
                 // Native dispatch can dequeue after a timeout/cancellation. Never run user code then.
                 if (Volatile.Read(ref _state) != Pending) return;
-                if (_window.Features.Lifecycle.IsClosedOrClosing()) { Finish(WindowClosed); return; }
+
+                if (_window.Features.Lifecycle.IsClosedOrClosing()) {
+                    Finish(WindowClosed);
+                    return;
+                }
+
                 _callback();
             });
             Finish(_window.Features.Lifecycle.IsClosedOrClosing() ? WindowClosed : Completed);
@@ -73,11 +80,11 @@ internal sealed class InfiniDispatchOperation {
 
     private void Finish(int state) {
         if (Interlocked.CompareExchange(ref _state, state, Pending) != Pending) return;
-        
+
         var result = (InfiniFrameDispatchResult)(state - 1);
-        
+
         if (result is not InfiniFrameDispatchResult.Completed) _logger.LogWarning("Native-window dispatch ended with {DispatchResult}. WindowId={WindowId}", result, _window.Id);
-        
+
         _completion.TrySetResult(result);
     }
 

@@ -9,53 +9,53 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowBuilderFeatureDecorations : IInfiniFrameWindowBuilderFeatureDecorations {
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.IsChromeless"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.IsChromeless" />
     public bool IsChromeless { get; private set; }
 
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.IsTransparent"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.IsTransparent" />
     public bool IsTransparent { get; private set; }
 
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.Title"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.Title" />
     public string? Title { get; private set; } = TitleStringUtility.DefaultTitle;
 
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.IconFilePath"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.IconFilePath" />
     public string? IconFilePath { get; private set; }
 
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.WindowsAppUserModelId"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.WindowsAppUserModelId" />
     public string? WindowsAppUserModelId { get; private set; }
 
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.LimitLinuxWindowTitleLength"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.LimitLinuxWindowTitleLength" />
     public bool LimitLinuxWindowTitleLength { get; private set; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.SetChromeless"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.SetChromeless" />
     public void SetChromeless(bool enabled) {
         IsChromeless = enabled;
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.SetTransparent"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.SetTransparent" />
     public void SetTransparent(bool enabled) {
         IsTransparent = enabled;
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.SetTitle"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.SetTitle" />
     public void SetTitle(string? title) {
         Title = TitleStringUtility.Validate(title, LimitLinuxWindowTitleLength);
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.SetIconFile"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.SetIconFile" />
     public void SetIconFile(string iconFilePath) {
         IconFilePath = iconFilePath;
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.SetWindowsAppUserModelId"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.SetWindowsAppUserModelId" />
     public void SetWindowsAppUserModelId(string? appUserModelId) {
         WindowsAppUserModelId = appUserModelId;
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.SetLimitLinuxWindowTitleLength"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureDecorations.SetLimitLinuxWindowTitleLength" />
     public void SetLimitLinuxWindowTitleLength(bool enabled) {
         LimitLinuxWindowTitleLength = enabled;
     }

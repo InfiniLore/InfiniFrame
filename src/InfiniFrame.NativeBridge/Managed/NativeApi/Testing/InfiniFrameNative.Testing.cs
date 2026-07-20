@@ -10,7 +10,7 @@ namespace InfiniFrame.NativeBridge;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public partial class InfiniFrameNativeTesting {
+public static partial class InfiniFrameNativeTesting {
     /// <summary>
     ///     Native test helper that returns native parameters as-is for round-trip verification.
     /// </summary>
@@ -67,7 +67,7 @@ public partial class InfiniFrameNativeTesting {
     /// </summary>
     /// <param name="newParametersPtr">The native pointer to free.</param>
     /// <returns>A status code indicating success or failure.</returns>
-    internal static InfiniFrameNativeInteropStatus FreeInitParams(IntPtr newParametersPtr) 
+    internal static InfiniFrameNativeInteropStatus FreeInitParams(IntPtr newParametersPtr)
         => FreeInitParamsNative(newParametersPtr);
 
     /// <summary>

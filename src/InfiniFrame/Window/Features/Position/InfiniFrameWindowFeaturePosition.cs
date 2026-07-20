@@ -17,7 +17,7 @@ public class InfiniFrameWindowFeaturePosition(
     ILogger<InfiniFrameWindowFeaturePosition> logger
 ) : IInfiniFrameWindowFeaturePosition {
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.Location"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.Location" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Point Location => NativeInvoke.InvokeSyncWithValidation(
         logger,
@@ -30,7 +30,7 @@ public class InfiniFrameWindowFeaturePosition(
         }
     );
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.Top"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.Top" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int Top => NativeInvoke.InvokeSyncWithValidation(
         logger,
@@ -40,7 +40,7 @@ public class InfiniFrameWindowFeaturePosition(
     );
 
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.Left"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.Left" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int Left => NativeInvoke.InvokeSyncWithValidation(
         logger,
@@ -53,7 +53,7 @@ public class InfiniFrameWindowFeaturePosition(
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.SetLocation(int, int)"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.SetLocation(int, int)" />
     public void SetLocation(int left, int top) {
         logger.LogDebug(".SetLocation({left}, {right})", left, top);
 
@@ -75,11 +75,11 @@ public class InfiniFrameWindowFeaturePosition(
         );
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.SetLocation(Point)"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.SetLocation(Point)" />
     public void SetLocation(Point location)
         => SetLocation(location.X, location.Y);
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.SetLeft"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.SetLeft" />
     public void SetLeft(int left) {
         logger.LogDebug(".SetLeft({Left})", left);
 
@@ -101,7 +101,7 @@ public class InfiniFrameWindowFeaturePosition(
         );
 
     }
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.SetTop"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.SetTop" />
     public void SetTop(int top) {
         logger.LogDebug(".SetTop({Top})", top);
 
@@ -123,7 +123,7 @@ public class InfiniFrameWindowFeaturePosition(
         );
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.Offset(int, int)"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.Offset(int, int)" />
     public void Offset(int left, int top) {
         logger.LogDebug(".Offset({left}, {top})", left, top);
 
@@ -144,15 +144,15 @@ public class InfiniFrameWindowFeaturePosition(
         );
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.Offset(Point)"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.Offset(Point)" />
     public void Offset(Point offset)
         => Offset(offset.X, offset.Y);
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.Offset(double, double)"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.Offset(double, double)" />
     public void Offset(double left, double top)
         => Offset((int)left, (int)top);
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.Center"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.Center" />
     public void Center() {
         logger.LogDebug(".Center()");
         NativeInvoke.InvokeSyncWithValidation(
@@ -163,7 +163,7 @@ public class InfiniFrameWindowFeaturePosition(
         );
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.CenterOnCurrentMonitor"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.CenterOnCurrentMonitor" />
     public void CenterOnCurrentMonitor() {
         ImmutableArray<InfiniMonitor> monitors = MonitorsUtility.GetMonitors(window);
         (int x, int y) = NativeInvoke.InvokeSyncWithValidation<int, int>(
@@ -197,7 +197,7 @@ public class InfiniFrameWindowFeaturePosition(
         );
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.CenterOnMonitor"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.CenterOnMonitor" />
     public void CenterOnMonitor(int monitorIndex) {
         ImmutableArray<InfiniMonitor> monitors = MonitorsUtility.GetMonitors(window);
 
@@ -225,7 +225,7 @@ public class InfiniFrameWindowFeaturePosition(
         );
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.MoveWithinCurrentMonitorArea(int, int)"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.MoveWithinCurrentMonitorArea(int, int)" />
     public void MoveWithinCurrentMonitorArea(int left, int top) {
         MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out InfiniMonitor monitor);
         int horizontalWindowEdge = left + windowRect.Width;
@@ -253,11 +253,11 @@ public class InfiniFrameWindowFeaturePosition(
         );
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.MoveWithinCurrentMonitorArea(Point)"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.MoveWithinCurrentMonitorArea(Point)" />
     public void MoveWithinCurrentMonitorArea(Point location)
         => MoveWithinCurrentMonitorArea(location.X, location.Y);
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.MoveWithinCurrentMonitorArea(double, double)"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeaturePosition.MoveWithinCurrentMonitorArea(double, double)" />
     public void MoveWithinCurrentMonitorArea(double left, double top)
         => MoveWithinCurrentMonitorArea((int)left, (int)top);
 

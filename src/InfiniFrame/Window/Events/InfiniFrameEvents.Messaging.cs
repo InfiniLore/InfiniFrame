@@ -12,9 +12,6 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public partial class InfiniFrameEvents {
 
-    // -----------------------------------------------------------------------------------------------------------------
-    // Methods
-    // -----------------------------------------------------------------------------------------------------------------
     /// <summary>
     ///     Invokes registered user-defined handler methods when the native window sends a message.
     /// </summary>
@@ -116,10 +113,6 @@ public partial class InfiniFrameEvents {
                 return;
         }
     }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Helpers
-    // ---------------------------------------------------------------------------------------------------------------------
 
     private static void SendSuccess(IInfiniFrameWindow window, string? requestId, string? data) {
         string responsePayloadJson = JsonSerializer.Serialize(

@@ -10,17 +10,17 @@ namespace InfiniFrame.NativeBridge.Parameters;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Custom marshaller for converting <see cref="InfiniFrameNativeParameters"/>
+///     Custom marshaller for converting <see cref="InfiniFrameNativeParameters" />
 ///     to an unmanaged representation for native interop calls.
 /// </summary>
 [CustomMarshaller(
-    typeof(InfiniFrameNativeParameters), 
+    typeof(InfiniFrameNativeParameters),
     MarshalMode.ManagedToUnmanagedIn,
     typeof(ManagedToUnmanagedIn)
 )]
 internal static class InfiniFrameNativeParametersMarshaller {
     /// <summary>
-    ///     Unmanaged layout of <see cref="InfiniFrameNativeParameters"/> used for native interop.
+    ///     Unmanaged layout of <see cref="InfiniFrameNativeParameters" /> used for native interop.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     internal struct Unmanaged {
@@ -99,7 +99,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
     }
 
     /// <summary>
-    ///     Marshals managed <see cref="InfiniFrameNativeParameters"/> to the native <see cref="Unmanaged"/> layout.
+    ///     Marshals managed <see cref="InfiniFrameNativeParameters" /> to the native <see cref="Unmanaged" /> layout.
     /// </summary>
     internal ref struct ManagedToUnmanagedIn {
         private Unmanaged _unmanaged;
@@ -188,7 +188,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         /// <summary>
         ///     Returns the populated unmanaged representation.
         /// </summary>
-        /// <returns>The <see cref="Unmanaged"/> instance.</returns>
+        /// <returns>The <see cref="Unmanaged" /> instance.</returns>
         public Unmanaged ToUnmanaged() => _unmanaged;
 
         /// <summary>
@@ -213,13 +213,13 @@ internal static class InfiniFrameNativeParametersMarshaller {
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     /// <summary>
-    ///     Converts a <see cref="bool"/> to a <see cref="byte"/> (1 for <c>true</c>, 0 for <c>false</c>).
+    ///     Converts a <see cref="bool" /> to a <see cref="byte" /> (1 for <c>true</c>, 0 for <c>false</c>).
     /// </summary>
-    private static byte ToByte(bool value) 
+    private static byte ToByte(bool value)
         => value ? (byte)1 : (byte)0;
 
     /// <summary>
-    ///     Marshals a managed string to a CoTaskMem-allocated UTF-8 pointer, or <see cref="IntPtr.Zero"/> if null.
+    ///     Marshals a managed string to a CoTaskMem-allocated UTF-8 pointer, or <see cref="IntPtr.Zero" /> if null.
     /// </summary>
     private static IntPtr ToUtf8Ptr(string? value) => value is null
         ? IntPtr.Zero
@@ -229,7 +229,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
     ///     Converts a managed delegate to a function pointer suitable for native callbacks.
     /// </summary>
     /// <param name="callback">The managed delegate.</param>
-    /// <returns>A native function pointer, or <see cref="IntPtr.Zero"/> if null.</returns>
+    /// <returns>A native function pointer, or <see cref="IntPtr.Zero" /> if null.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when the delegate type is not recognized.</exception>
     private static IntPtr ToFunctionPtr(Delegate? callback) => callback is null
         ? IntPtr.Zero
@@ -250,8 +250,9 @@ internal static class InfiniFrameNativeParametersMarshaller {
         };
 
     /// <summary>
-    ///     Gets a custom scheme name pointer from the array at the specified index, or <see cref="IntPtr.Zero"/> if unavailable.
+    ///     Gets a custom scheme name pointer from the array at the specified index, or <see cref="IntPtr.Zero" /> if
+    ///     unavailable.
     /// </summary>
-    private static IntPtr GetCustomSchemeName(IntPtr[]? values, int index) 
+    private static IntPtr GetCustomSchemeName(IntPtr[]? values, int index)
         => values is not null && values.Length > index ? values[index] : IntPtr.Zero;
 }

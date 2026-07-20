@@ -26,7 +26,7 @@ public class EventExceptionPolicyTests {
     public async Task KeyedEvent_HandlerException_Propagates(CancellationToken ct = default) {
         var eventSource = new KeyedEvent<string, string>();
         var window = Substitute.For<IInfiniFrameWindow>();
-        eventSource.Add("key", (_, _) => throw new InvalidOperationException("expected"));
+        eventSource.Add("key", handler: (_, _) => throw new InvalidOperationException("expected"));
 
         await Assert.That(() => eventSource.TryInvoke("key", window, "payload"))
             .Throws<InvalidOperationException>();
@@ -36,7 +36,7 @@ public class EventExceptionPolicyTests {
     public async Task KeyedResultEvent_NullResult_IsAHandledRequest(CancellationToken ct = default) {
         var eventSource = new KeyedResultEvent<string, string, string?>();
         var window = Substitute.For<IInfiniFrameWindow>();
-        eventSource.Add("key", static (_, _) => null);
+        eventSource.Add("key", handler: static (_, _) => null);
 
         bool handled = eventSource.TryInvoke("key", window, "payload", out string? result);
 

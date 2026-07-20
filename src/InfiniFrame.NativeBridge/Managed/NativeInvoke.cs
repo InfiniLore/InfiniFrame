@@ -303,7 +303,7 @@ internal static partial class NativeInvoke {
 
         EnsureSuccess(logger, status);
     }
-    
+
     /// <summary>
     ///     Invokes a synchronous callback for opening a folder dialog, returning the selected path, with validation.
     /// </summary>
@@ -332,18 +332,18 @@ internal static partial class NativeInvoke {
         ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
         T4? arg4 = default;
-        
+
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
             windowHandleOwner,
             managedThreadId,
             callback: handle => callback(handle, arg1, arg2, arg3, out arg4)
         );
-        
+
         EnsureSuccess(logger, status);
         return arg4;
     }
-    
+
     /// <summary>
     ///     Invokes a synchronous callback that returns four output values (e.g. window rectangle), with validation.
     /// </summary>
@@ -364,12 +364,12 @@ internal static partial class NativeInvoke {
     ) {
         ArgumentNullException.ThrowIfNull(callback);
         ArgumentNullException.ThrowIfNull(windowHandleOwner);
-        
+
         T1? arg1 = default;
         T2? arg2 = default;
         T3? arg3 = default;
         T4? arg4 = default;
-        
+
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
             windowHandleOwner,
@@ -421,7 +421,7 @@ internal static partial class NativeInvoke {
 
         EnsureSuccess(logger, status);
     }
-    
+
     /// <summary>
     ///     Invokes a synchronous callback for showing a message dialog, producing an output value, with validation.
     /// </summary>
@@ -452,10 +452,10 @@ internal static partial class NativeInvoke {
     ) {
         ArgumentNullException.ThrowIfNull(callback);
         ArgumentNullException.ThrowIfNull(windowHandleOwner);
-        
+
         arg5 = default;
         T5? arg5Temp = default;
-        
+
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
             windowHandleOwner,
@@ -543,14 +543,14 @@ internal static partial class NativeInvoke {
     ) {
         ArgumentNullException.ThrowIfNull(callback);
         ArgumentNullException.ThrowIfNull(windowHandleOwner);
-        
+
         T6? arg6 = default;
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
             windowHandleOwner,
             managedThreadId,
             callback: handle => callback(handle, arg1, arg2, arg3, arg4, arg5, out arg6));
-        
+
         EnsureSuccess(logger, status);
         return arg6;
     }
@@ -878,7 +878,7 @@ internal static partial class NativeInvoke {
             logger,
             windowHandleOwner,
             managedThreadId,
-            handle => callback(handle),
+            callback: handle => callback(handle),
             access);
         EnsureSuccess(logger, status);
     }
@@ -891,14 +891,14 @@ internal static partial class NativeInvoke {
         Action callback
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        _ = ExecuteInvokeSync<object?>(logger, windowHandleOwner, managedThreadId, _ => {
+        _ = ExecuteInvokeSync<object?>(logger, windowHandleOwner, managedThreadId, callback: _ => {
             callback();
             return null;
         }, access);
     }
 
     /// <summary>
-    ///     Ensures the native interop call succeeded; throws <see cref="ApplicationException"/> if it failed.
+    ///     Ensures the native interop call succeeded; throws <see cref="ApplicationException" /> if it failed.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
     /// <param name="status">The status returned from the native call.</param>
@@ -975,7 +975,7 @@ internal static partial class NativeInvoke {
     ///     Represents a native interop callback with two arguments.
     /// </summary>
     internal delegate InfiniFrameNativeInteropStatus FuncWithArgs<in T1, in T2>(IntPtr handle, T1 arg, T2 arg2);
-    
+
     /// <summary>
     ///     Represents a native interop callback that returns two output values.
     /// </summary>
@@ -990,12 +990,12 @@ internal static partial class NativeInvoke {
     ///     Represents a native interop callback with four arguments.
     /// </summary>
     internal delegate InfiniFrameNativeInteropStatus FuncWithArgs<in T1, in T2, in T3, in T4>(IntPtr handle, T1 arg, T2 arg2, T3 arg3, T4 arg4);
-    
+
     /// <summary>
     ///     Represents a native interop callback for opening a folder dialog.
     /// </summary>
     internal delegate InfiniFrameNativeInteropStatus ShowOpenDialogFoldersFunc<in T1, in T2, in T3, T4>(IntPtr handle, T1 arg, T2 arg2, T3 arg3, out T4? arg4);
-    
+
     /// <summary>
     ///     Represents a native interop callback that returns four output values (e.g. window rectangle).
     /// </summary>
@@ -1005,7 +1005,7 @@ internal static partial class NativeInvoke {
     ///     Represents a native interop callback with five arguments.
     /// </summary>
     internal delegate InfiniFrameNativeInteropStatus FuncWithArgs<in T1, in T2, in T3, in T4, in T5>(IntPtr handle, T1 arg, T2 arg2, T3 arg3, T4 arg4, T5 arg5);
-    
+
     /// <summary>
     ///     Represents a native interop callback for showing a message dialog.
     /// </summary>

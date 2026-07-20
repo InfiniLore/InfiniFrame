@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.NativeBridge.Delegates;
 using InfiniFrame.NativeBridge;
+using InfiniFrame.NativeBridge.Delegates;
 using System.Runtime.InteropServices;
 
 namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Delegates;
@@ -19,7 +19,7 @@ public class CustomSchemeResponseAbiTests {
         ];
 
         foreach (Type delegateType in delegates) {
-            var interop = delegateType.GetCustomAttributes(typeof(UnmanagedFunctionPointerAttribute), false)
+            UnmanagedFunctionPointerAttribute? interop = delegateType.GetCustomAttributes(typeof(UnmanagedFunctionPointerAttribute), false)
                 .Cast<UnmanagedFunctionPointerAttribute>()
                 .Single();
             // Auto is UTF-16 on Windows and UTF-8 on Unix, matching AutoString in Basic.h.
@@ -63,7 +63,7 @@ public class CustomSchemeResponseAbiTests {
         int releaseCount = 0;
         CppReleaseCustomSchemeResponseDelegate release = ownerContext => {
             Marshal.FreeCoTaskMem(ownerContext);
-            
+
             // ReSharper disable once AccessToModifiedClosure
             Interlocked.Increment(ref releaseCount);
         };
@@ -92,7 +92,7 @@ public class CustomSchemeResponseAbiTests {
         int releaseCount = 0;
         CppReleaseCustomSchemeResponseDelegate release = ownerContext => {
             Marshal.FreeCoTaskMem(ownerContext);
-            
+
             // ReSharper disable once AccessToModifiedClosure
             Interlocked.Increment(ref releaseCount);
         };
@@ -101,7 +101,7 @@ public class CustomSchemeResponseAbiTests {
             => CreateResponse(releaseCallback, ref value);
         IntPtr callback = Marshal.GetFunctionPointerForDelegate(response);
 
-        Task[] requests = Enumerable.Range(0, requestCount).Select(_ => Task.Run(() => {
+        Task[] requests = Enumerable.Range(0, requestCount).Select(_ => Task.Run(action: () => {
             ct.ThrowIfCancellationRequested();
             InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.ConsumeCustomSchemeResponse(
                 callback, out ulong length, out uint byteSum, out int valid);

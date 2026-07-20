@@ -12,7 +12,7 @@ public class InfiniFrameWindowFeatureWebMessaging(
     IInfiniFrameWindow window,
     ILogger<InfiniFrameWindowFeatureWebMessaging> logger
 ) : IInfiniFrameWindowFeatureWebMessaging {
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureWebMessaging.SendWebMessage"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureWebMessaging.SendWebMessage" />
     public void SendWebMessage(string message) {
         if (window.IsClosedOrClosing()) return;
 
@@ -26,7 +26,7 @@ public class InfiniFrameWindowFeatureWebMessaging(
     }
 
     // ReSharper disable once ConvertIfStatementToReturnStatement
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureWebMessaging.SendWebMessageAsync"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureWebMessaging.SendWebMessageAsync" />
     public ValueTask SendWebMessageAsync(string message, CancellationToken ct = default) {
         if (ct.IsCancellationRequested) return ValueTask.FromCanceled(ct);
         if (window.IsClosedOrClosing()) return ValueTask.CompletedTask;

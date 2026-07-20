@@ -6,7 +6,7 @@ namespace InfiniFrame.NativeBridge.Handles;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-/// Keeps a safe handle alive for the complete duration of a native operation.
+///     Keeps a safe handle alive for the complete duration of a native operation.
 /// </summary>
 public sealed class NativeHandleLease : IDisposable {
     private NativeWindowHandle? _handle;
@@ -30,7 +30,7 @@ public sealed class NativeHandleLease : IDisposable {
             throw;
         }
     }
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------

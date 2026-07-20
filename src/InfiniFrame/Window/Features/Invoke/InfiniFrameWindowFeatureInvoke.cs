@@ -25,7 +25,7 @@ public class InfiniFrameWindowFeatureInvoke(
         try {
             // This is deliberately the only blocking API. Most callers should use DispatchAsync instead.
             bool callbackStarted = false;
-            NativeInvoke.InvokeSyncWithValidation(logger, window, window.ManagedThreadId, () => {
+            NativeInvoke.InvokeSyncWithValidation(logger, window, window.ManagedThreadId, callback: () => {
                 callbackStarted = true;
                 callback();
             });
@@ -50,9 +50,10 @@ public class InfiniFrameWindowFeatureInvoke(
     public Task<InfiniFrameDispatchResult> DispatchAsync(
         Action callback,
         TimeSpan? timeout = null,
-        CancellationToken cancellationToken = default) {
+        CancellationToken cancellationToken = default
+    ) {
         ArgumentNullException.ThrowIfNull(callback);
-        if (timeout is { } value && value <= TimeSpan.Zero)
+        if (timeout is {} value && value <= TimeSpan.Zero)
             return Task.FromResult(InfiniFrameDispatchResult.TimedOut);
         if (cancellationToken.IsCancellationRequested)
             return Task.FromResult(InfiniFrameDispatchResult.Cancelled);

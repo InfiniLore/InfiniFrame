@@ -14,7 +14,7 @@ public class NativeWindowHandleTests {
     private const int ConcurrentWorkerCount = 4;
 
     private sealed class TestOwner(IntPtr value) : INativeWindowHandleOwner, IDisposable {
-        private readonly NativeWindowHandle _handle = new(value, ownsHandle: false);
+        private readonly NativeWindowHandle _handle = new(value, false);
         private int _closed;
 
         public NativeHandleLease AcquireNativeHandle(NativeHandleAccess access = NativeHandleAccess.Feature) {
@@ -36,11 +36,12 @@ public class NativeWindowHandleTests {
         int successfulAcquisitions = 0;
 
         Task[] workers = Enumerable.Range(0, ConcurrentWorkerCount)
-            .Select(_ => Task.Run(() => {
+            .Select(_ => Task.Run(action: () => {
                 for (int i = 0; i < 2_000; i++) {
                     try {
                         using NativeHandleLease lease = owner.AcquireNativeHandle();
                         if (lease.Handle != value) throw new InvalidOperationException("Stale handle acquired.");
+
                         Interlocked.Increment(ref successfulAcquisitions);
                         Thread.Yield();
                     }
@@ -62,7 +63,7 @@ public class NativeWindowHandleTests {
     [Test]
     public async Task DisposingSafeHandle_WaitsForOutstandingLease(CancellationToken ct = default) {
         IntPtr value = new(0x654321);
-        var handle = new NativeWindowHandle(value, ownsHandle: false);
+        var handle = new NativeWindowHandle(value, false);
         var lease = new NativeHandleLease(handle);
 
         handle.Dispose();

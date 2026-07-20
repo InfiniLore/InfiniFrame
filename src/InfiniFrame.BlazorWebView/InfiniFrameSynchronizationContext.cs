@@ -25,7 +25,6 @@ namespace InfiniFrame.BlazorWebView;
 // built-in SyncContext/Dispatcher like other UI platforms.
 
 // ReSharper disable once InvalidXmlDocComment
-
 /// <summary>
 ///     Provides a <see cref="SynchronizationContext" /> for Blazor components running inside an InfiniFrame WebView.
 ///     It ensures work items are dispatched on the native window thread via <see cref="IInfiniFrameWindow.Invoke" />,
@@ -38,7 +37,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
     private Lazy<IInfiniFrameWindow> LazyWindow { get; } = new(() => provider.GetRequiredService<IInfiniFrameWindow>());
 
     private readonly InfiniFrameSynchronizationState _state = state ?? new InfiniFrameSynchronizationState();
-    
+
     /// <summary>Raised when an unhandled exception occurs during work item execution.</summary>
     public event UnhandledExceptionEventHandler? UnhandledException;
 
@@ -52,7 +51,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
     /// <returns>A task that completes when the action has been executed.</returns>
     public Task InvokeAsync(Action action) {
         var completion = new CallbackTaskCompletionSource<Action, object>(action);
-        
+
         ExecuteSynchronouslyIfPossible(d: static state => {
             if (state is not CallbackTaskCompletionSource<Action, object> completion) return;
 
@@ -78,8 +77,8 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
     /// <returns>A task that completes when the function has been executed.</returns>
     public Task InvokeAsync(Func<Task> asyncAction) {
         var completion = new CallbackTaskCompletionSource<Func<Task>, object>(asyncAction);
-        
-        ExecuteSynchronouslyIfPossible(static state => {
+
+        ExecuteSynchronouslyIfPossible(d: static state => {
             if (state is CallbackTaskCompletionSource<Func<Task>, object> completion)
                 _ = CompleteAsync(completion);
         }, completion);
@@ -95,7 +94,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
     /// <returns>A task that yields the function result.</returns>
     public Task<TResult> InvokeAsync<TResult>(Func<TResult> function) {
         var completion = new CallbackTaskCompletionSource<Func<TResult>, TResult>(function);
-        
+
         ExecuteSynchronouslyIfPossible(d: static state => {
             if (state is not CallbackTaskCompletionSource<Func<TResult>, TResult> completion) return;
 
@@ -122,8 +121,8 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
     /// <returns>A task that yields the function result.</returns>
     public Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> asyncFunction) {
         var completion = new CallbackTaskCompletionSource<Func<Task<TResult>>, TResult>(asyncFunction);
-        
-        ExecuteSynchronouslyIfPossible(static state => {
+
+        ExecuteSynchronouslyIfPossible(d: static state => {
             if (state is CallbackTaskCompletionSource<Func<Task<TResult>>, TResult> completion)
                 _ = CompleteAsync(completion);
         }, completion);
@@ -238,6 +237,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
         // Anything run on the sync context should actually be dispatched as far as InfiniFrame
         // is concerned, so that it's safe to interact with the native window/WebView.
         Exception? callbackException = null;
+
         void ExecuteCallback() {
             SynchronizationContext? original = Current;
             try {
@@ -267,7 +267,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
 
         if (result == InfiniFrameDispatchResult.Completed) return;
 
-        var dispatchException = callbackException ?? new InvalidOperationException(
+        Exception dispatchException = callbackException ?? new InvalidOperationException(
             $"Could not execute an InfiniFrame synchronization callback. Dispatch result: {result}."
         );
         if (completion is not null)

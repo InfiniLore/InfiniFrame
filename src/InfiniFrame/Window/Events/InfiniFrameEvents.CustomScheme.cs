@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.NativeBridge.Delegates;
+using InfiniFrame.NativeBridge.Parameters;
 using Microsoft.Extensions.Logging;
 using System.Buffers;
 using System.Runtime.InteropServices;
@@ -17,6 +17,9 @@ public partial class InfiniFrameEvents {
     private static readonly CppReleaseCustomSchemeResponseDelegate ReleaseCustomSchemeResponse = ReleaseResponseStorage;
     private static long _activeCustomSchemeResponseAllocations;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     private void ApplyCustomSchemeNames(ref InfiniFrameNativeParameters startupParameters) {
         var availableHandlers = new HashSet<string>(EventsStore.CustomScheme.Snapshot.Select(static item => item.Key), StringComparer.Ordinal);
         var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -29,7 +32,7 @@ public partial class InfiniFrameEvents {
         startupParameters.CustomSchemeNames = customSchemeNameArray;
     }
 
-    /// <inheritdoc cref="IInfiniFrameEvents.OnCustomScheme"/>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnCustomScheme" />
     public int OnCustomScheme(string url, ref CustomSchemeResponse response) {
         // Native owns the descriptor and initializes it to zero. Never expose partially populated ownership state.
         response = default;
@@ -85,6 +88,7 @@ public partial class InfiniFrameEvents {
         byte[] contentTypeBytes = Encoding.UTF8.GetBytes(normalizedContentType);
         if (contentTypeBytes.Length > CustomSchemeResponse.MaxContentTypeBytes)
             throw new InvalidDataException($"Custom scheme content type exceeds the {CustomSchemeResponse.MaxContentTypeBytes}-byte limit.");
+
         long? knownLength = TryGetRemainingLength(source);
         if (knownLength is < 0 || (ulong)(knownLength ?? 0) > CustomSchemeResponse.MaxBufferedBodyBytes)
             throw new InvalidDataException($"Custom scheme response exceeds the {CustomSchemeResponse.MaxBufferedBodyBytes}-byte limit.");
@@ -96,6 +100,7 @@ public partial class InfiniFrameEvents {
 
     private static long? TryGetRemainingLength(Stream source) {
         if (!source.CanSeek) return null;
+
         try {
             return checked(source.Length - source.Position);
         }
@@ -116,6 +121,7 @@ public partial class InfiniFrameEvents {
             while (written < reservedBodyLength) {
                 int read = source.Read(copyBuffer, 0, Math.Min(copyBuffer.Length, reservedBodyLength - written));
                 if (read == 0) break;
+
                 Marshal.Copy(copyBuffer, 0, IntPtr.Add(storage, written), read);
                 written = checked(written + read);
             }
@@ -143,8 +149,10 @@ public partial class InfiniFrameEvents {
             while (true) {
                 int read = source.Read(copyBuffer, 0, copyBuffer.Length);
                 if (read == 0) break;
+
                 if ((ulong)buffered.Length + (uint)read > CustomSchemeResponse.MaxBufferedBodyBytes)
                     throw new InvalidDataException($"Custom scheme response exceeds the {CustomSchemeResponse.MaxBufferedBodyBytes}-byte limit.");
+
                 buffered.Write(copyBuffer, 0, read);
             }
         }
@@ -198,6 +206,7 @@ public partial class InfiniFrameEvents {
 
     private static void ReleaseResponseStorage(IntPtr ownerContext) {
         if (ownerContext == IntPtr.Zero) return;
+
         Marshal.FreeCoTaskMem(ownerContext);
         Interlocked.Decrement(ref _activeCustomSchemeResponseAllocations);
     }

@@ -31,7 +31,7 @@ public class InfiniFrameWindowFeatureNotifications(
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureNotifications.ShowNotification"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureNotifications.ShowNotification" />
     public void ShowNotification(string title, string body) {
         if (window.IsClosedOrClosing()) return;
 
@@ -45,7 +45,7 @@ public class InfiniFrameWindowFeatureNotifications(
         );
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindowFeatureNotifications.ShowMessage"/>
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureNotifications.ShowMessage" />
     public InfiniFrameDialogResult ShowMessage(string title, string? text, InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok, InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info) {
         if (window.IsClosedOrClosing()) return InfiniFrameDialogResult.Cancel;
 
