@@ -44,18 +44,20 @@ static void DispatchToMainSync(void (^block)()) {
     }
 }
 
-/// WKWebView unregisters display-link observers as part of its deallocation. On recent
-/// macOS versions a CVDisplayLink callback can still be enumerating those observers when
-/// the main thread releases the last view reference, causing a use-after-free in WebKit's
+/// On Apple Silicon, WKWebView can unregister display-link observers while a CVDisplayLink
+/// callback is still enumerating them, causing a use-after-free in
 /// notifyObserversDisplayDidRefresh. Detach the view synchronously, but give any in-flight
-/// display refresh two frames to finish before balancing our alloc/init ownership.
-static void ReleaseWebKitObjectsAfterDisplayRefresh(
+/// display refresh two frames to finish before balancing our alloc/init ownership there.
+/// Intel WebKit does not require this workaround, and deferring its release can instead race
+/// a queued RemoteLayerTree scheduleDisplayRefreshCallbacks callback.
+static void ReleaseWebKitObjectsSafely(
     WKWebView* webview,
     WKWebViewConfiguration* configuration
 ) {
     if (webview == nil && configuration == nil)
         return;
 
+#if defined(__aarch64__) || defined(__arm64__)
     // Capture untyped pointers so the copied MRC block does not add hidden Objective-C
     // retains. The existing alloc/init references are intentionally transferred here.
     void* webviewPointer = webview;
@@ -70,6 +72,10 @@ static void ReleaseWebKitObjectsAfterDisplayRefresh(
             [deferredConfiguration release];
         }
     );
+#else
+    [webview release];
+    [configuration release];
+#endif
 }
 
 void InfiniFrameWindow::Register()
@@ -430,7 +436,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
             m_impl->_webview = nil;
             WKWebViewConfiguration* webviewConfiguration = m_impl->_webviewConfiguration;
             m_impl->_webviewConfiguration = nil;
-            ReleaseWebKitObjectsAfterDisplayRefresh(webview, webviewConfiguration);
+            ReleaseWebKitObjectsSafely(webview, webviewConfiguration);
             if (m_impl->_window != nil) {
                 m_impl->_window.delegate = nil;
                 [m_impl->_window close];
@@ -517,7 +523,7 @@ InfiniFrameWindow::~InfiniFrameWindow()
         m_impl->_webview = nil;
         WKWebViewConfiguration* webviewConfiguration = m_impl->_webviewConfiguration;
         m_impl->_webviewConfiguration = nil;
-        ReleaseWebKitObjectsAfterDisplayRefresh(webview, webviewConfiguration);
+        ReleaseWebKitObjectsSafely(webview, webviewConfiguration);
 
         if (m_impl->_window != nil) {
             infiniframe::macos::LogLifecycle("window-destruct-nswindow", this);
