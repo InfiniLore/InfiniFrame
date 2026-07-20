@@ -151,9 +151,7 @@ void InfiniFrameWindow::AttachCustomSchemeHandler() {
                         if (handled == 0 || !infiniframe::IsValidBufferedCustomSchemeResponse(managedResponse))
                             return S_OK;
 
-                        std::wstring contentTypeWS = Utf8ToWide(
-                            reinterpret_cast<AutoString>(const_cast<char*>(managedResponse.ContentTypeUtf8))
-                        );
+                        std::wstring contentTypeWS = Utf8ToWide(managedResponse.ContentTypeUtf8);
                         if (contentTypeWS.empty())
                             return S_OK;
 

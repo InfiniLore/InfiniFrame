@@ -31,7 +31,8 @@ struct InvokeWaitInfo {
 
 bool IsTeardownTraceEnabled();
 void TraceTeardown(const wchar_t* format, ...);
-std::wstring Utf8ToWide(AutoString source);
+std::wstring Utf8ToWide(const char* source);
+std::wstring AutoStringUtf8ToWide(AutoString source);
 std::string WideToUtf8(AutoString source);
 bool EnsureDirectoryWritable(const std::wstring& directoryPath);
 InfiniFrameWindow* LookupWindowInstance(HWND hwnd);

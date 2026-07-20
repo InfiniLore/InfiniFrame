@@ -64,5 +64,5 @@ std::string InfiniFrameWindow::ToUTF8String(const AutoString source) const {
 }
 
 std::wstring InfiniFrameWindow::ToUTF16String(const AutoString source) const {
-    return Utf8ToWide(source);
+    return AutoStringUtf8ToWide(source);
 }
