@@ -272,6 +272,11 @@ jobs:
                     brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-codeql-
                     restore-nativebridge-packages: 'true'
 
+            -   name: Restore NativeBridge
+                timeout-minutes: 10
+                run: |
+                    dotnet restore src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj --verbosity normal /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
+
             -   name: Initialize CodeQL
                 uses: github/codeql-action/init@v4
                 with:
@@ -279,10 +284,6 @@ jobs:
                     build-mode: manual
                     queries: security-extended,security-and-quality
                     config-file: ./.github/codeql-config.yml
-
-            -   name: Restore NativeBridge
-                run: |
-                    dotnet restore src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj /p:NoWarn=NU1503
 
             -   name: Build NativeBridge
                 timeout-minutes: 45
