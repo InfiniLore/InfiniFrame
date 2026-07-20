@@ -94,10 +94,16 @@ public sealed class InfiniFrameWindow(
 
     void IInfiniFrameWindow.AssignNativeHandle(IntPtr handle) {
         ArgumentOutOfRangeException.ThrowIfZero(handle);
-        var safeHandle = new NativeWindowHandle(handle);
-        if (Interlocked.CompareExchange(ref _instanceHandle, safeHandle, null) is not null) {
-            safeHandle.Dispose();
-            throw new InvalidOperationException("A native handle is already assigned.");
+        NativeWindowHandle? safeHandle = new(handle);
+        try {
+            if (Interlocked.CompareExchange(ref _instanceHandle, safeHandle, null) is not null)
+                throw new InvalidOperationException("A native handle is already assigned.");
+
+            // Ownership transferred to _instanceHandle.
+            safeHandle = null;
+        }
+        finally {
+            safeHandle?.Dispose();
         }
 
         if (Interlocked.CompareExchange(ref _lifecycleState,
