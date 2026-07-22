@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {beforeEach, describe, expect, it, vi} from "vitest";
-import {InfiniFrameHostMessaging, SendToHostMessageIds} from "./Contracts";
+import {InfiniFrameHostMessaging, SendToHostMessageIds} from "../Contracts";
 import {InfiniFrameWindow} from "./InfiniFrameWindow";
 
 // ---------------------------------------------------------------------------------------------------------------------

@@ -5,7 +5,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export interface InfiniFrameWindow {
-    setTitle(title: string): void;
-    getTitleAsync(): Promise<string>;
+export interface InfiniFrameWindowFeatureFilePickerDialogs {
+    
 }

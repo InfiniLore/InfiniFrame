@@ -11,7 +11,12 @@ import type {
     MessageCallback,
     SendToHostMessageId
 } from "./Contracts";
-import {createEnvelope, InteropGetCommand, parseIncomingMessage} from "./Interop/EnvelopeProtocol/InteropEnvelopeProtocol";
+import {
+    createEnvelope,
+    createGetEnvelope,
+    InteropGetCommand,
+    parseIncomingMessage
+} from "./Interop/EnvelopeProtocol/InteropEnvelopeProtocol";
 import {blankTargetHandler, getTitleObserver, getTitleObserverTarget} from "./Utils";
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -73,7 +78,7 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
         }
     }
     
-    public async getMessageFromHostAsync(message: InteropEnvelopeV1 | string): Promise<string> {
+    public async getMessageFromHostRawAsync(message: InteropEnvelopeV1 | string): Promise<string> {
         const host = window.infiniframe?.host;
         if (!host?.getDataAsync) throw new Error("Message to host failed. Host getDataAsync API is not initialized.");
 
@@ -82,6 +87,18 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
             : message;
 
         return await host.getDataAsync(envelope);
+    }
+    
+    public async getMessageFromHostAsync(command: string, args?: any): Promise<string> {
+        try {
+            return window.infiniframe.messaging.getMessageFromHostRawAsync(
+                createGetEnvelope(command, args)
+            );
+        }
+        catch (e) {
+            console.error("Failed to get response message from host.", e);
+            return Promise.reject(e);
+        }
     }
 
     public assignMessageReceivedHandler(messageId: string, callback: MessageCallback) {
