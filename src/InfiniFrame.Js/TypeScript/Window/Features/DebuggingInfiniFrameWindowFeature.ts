@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {DebugCapabilities,DebugDiagnostics,DebugEndpointResult,InfiniFrameWindowFeatureDebugging as Contract} from "../../Contracts";
+import type {DebugCapabilities,DebugDiagnostics,DebugEndpointResult,DebuggingInfiniFrameWindowFeature as Contract} from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

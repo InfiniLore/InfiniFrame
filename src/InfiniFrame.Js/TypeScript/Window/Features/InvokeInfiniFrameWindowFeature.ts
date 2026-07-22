@@ -1,9 +1,9 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {InfiniFrameWindowFeatureInvoke as InfiniFrameWindowFeatureInvokeContract} from "../../Contracts";
+import type {InvokeInfiniFrameWindowFeature as Contract} from "../../Contracts";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export class InvokeInfiniFrameWindowFeature implements InfiniFrameWindowFeatureInvokeContract {
+export class InvokeInfiniFrameWindowFeature implements Contract {
 }

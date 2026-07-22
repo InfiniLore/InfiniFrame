@@ -2,7 +2,8 @@
     "name": "infinilore.infiniframe.js-build",
     "version": "0.1.0",
     "scripts": {
-        "build": "vite build --config vite.config.prod.ts && vite build --config vite.config.dev.ts",
+        "typecheck": "tsc --noEmit",
+        "build": "npm run typecheck && vite build --config vite.config.prod.ts && vite build --config vite.config.dev.ts",
         "watch": "concurrently \"vite build --watch --config vite.config.prod.ts\" \"vite build --watch --config vite.config.dev.ts\"",
         "test": "vitest run",
         "test:watch": "vitest",

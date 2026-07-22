@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {DialogButtons,DialogIcon,DialogResult,InfiniFrameWindowFeatureNotifications as Contract} from "../../Contracts";
+import type {DialogButtons,DialogIcon,DialogResult,NotificationsInfiniFrameWindowFeature as Contract} from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
