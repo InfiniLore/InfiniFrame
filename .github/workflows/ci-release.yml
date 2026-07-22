@@ -53,7 +53,7 @@ jobs:
             run_macos: true
             run_docs: true
             run_trim_aot: true
-            enable_test_exports: false
+            enable_test_exports: true
         secrets: inherit
 
     # ------------------------------------------------------------------------------------------------------------------
