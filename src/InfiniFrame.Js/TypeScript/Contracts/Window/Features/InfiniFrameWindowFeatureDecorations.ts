@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -6,15 +6,13 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export interface InfiniFrameWindowFeatureDecorations {
-    SetTransparent(enabled : boolean) : void;
-    IsTransparentAsync(): Promise<boolean>;
-
-    SetTitle(title: string): void;
-    getTitleAsync(): Promise<string>;
-
-    SetIconFile(iconFilePath:string): void;
-    GetIconFileAsync(): Promise<string>;
-
-    SetLimitLinuxWindowTitleLength(enabled : boolean): void;
-    GetLimitLinuxWindowTitleLengthAsync(): Promise<boolean>;
+    isChromelessAsync(): Promise<boolean>;
+    isTransparentAsync(): Promise<boolean>;
+    getTitleAsync(): Promise<string | null>;
+    getIconFilePathAsync(): Promise<string | null>;
+    getLimitLinuxWindowTitleLengthAsync(): Promise<boolean>;
+    setTransparent(enabled?: boolean): void;
+    setTitle(title: string | null): void;
+    setIconFile(iconFilePath: string): void;
+    setLimitLinuxWindowTitleLength(enabled?: boolean): void;
 }

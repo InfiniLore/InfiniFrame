@@ -27,10 +27,7 @@ describe("InfiniFrameWindow", () => {
     function assignInfiniFrame(messaging: InfiniFrameHostMessaging) {
         testWindow.infiniframe = {
             messaging,
-            window: {
-                setTitle: vi.fn(),
-                getTitleAsync: vi.fn(async () => ""),
-            },
+            window: new InfiniFrameWindow(),
             utils: {
                 setPointerCapture: vi.fn(),
                 releasePointerCapture: vi.fn()
@@ -38,30 +35,32 @@ describe("InfiniFrameWindow", () => {
         };
     }
 
-    it("setTitle sends titleChange message", () => {
+    it("routes feature mutations through the generic feature endpoint", () => {
         const messaging = createMessagingMocks(vi.fn());
         assignInfiniFrame(messaging);
 
         const infiniFrameWindow = new InfiniFrameWindow();
-        infiniFrameWindow.setTitle("Hello");
+        infiniFrameWindow.features.decorations.setTitle("Hello");
 
-        expect(messaging.sendMessageToHost).toHaveBeenCalledWith(SendToHostMessageIds.titleChange, "Hello");
+        expect(messaging.sendMessageToHost).toHaveBeenCalledWith(
+            SendToHostMessageIds.windowFeatureRequest,
+            {
+                command: "__infiniframe:window:features:decorations:setTitle",
+                args: {title: "Hello"}
+            }
+        );
     });
 
     it("getTitleAsync requests generic get envelope and returns host payload", async () => {
-        const messaging = createMessagingMocks(vi.fn().mockResolvedValue("Native Title"));
+        const messaging = createMessagingMocks(vi.fn().mockResolvedValue('"Native Title"'));
         assignInfiniFrame(messaging);
 
         const infiniFrameWindow = new InfiniFrameWindow();
-        const title = await infiniFrameWindow.getTitleAsync();
+        const title = await infiniFrameWindow.features.decorations.getTitleAsync();
 
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalledWith(
-            expect.objectContaining({
-                id: SendToHostMessageIds.getRequest,
-                command: "Get",
-                data: {command: "title", args: undefined},
-                version: 2
-            })
+            "__infiniframe:window:features:decorations:title",
+            undefined
         );
         expect(title).toBe("Native Title");
     });

@@ -11,7 +11,7 @@ import type {
 } from "./Contracts";
 import InfiniFrameHostMessaging from "./InfiniFrameHostMessaging";
 import {InfiniFrameUtils} from "./InfiniFrameUtils";
-import {InfiniFrameWindow} from "./InfiniFrameWindow";
+import {InfiniFrameWindow} from "./Window/InfiniFrameWindow";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

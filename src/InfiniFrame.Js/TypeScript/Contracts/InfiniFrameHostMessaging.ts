@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import type {InteropEnvelopeV1} from "./EnvelopeProtocol";
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -19,13 +18,11 @@ export const SendToHostMessageIds = {
     openExternalLink: `${infiniframe}:open:external`,
     windowClose: `${infiniframe}:window:close`,
     ready: `${infiniframe}:ready`,
-    
-    
-    setTitle: `${windowFeaturePrefix}:decorations:setTitle`,
+    windowFeatureRequest: windowFeaturePrefix,
 }
 
 export const GetMessageFromHostMessageIds = {
-    getTitle: `${windowFeaturePrefix}:decorations:getTitle`,
+    windowFeaturePrefix,
 }
 
 export const ReceiveFromHostMessageIds = {

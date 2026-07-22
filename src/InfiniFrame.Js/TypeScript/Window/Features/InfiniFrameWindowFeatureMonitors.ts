@@ -1,10 +1,23 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import { InfiniFrameWindowFeatureMonitors as InfiniFrameWindowFeatureMonitorsContract } from "../../Contracts";
+import type {InfiniFrameWindowFeatureMonitors as Contract,InfiniMonitor} from "../../Contracts";
+import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export class InfiniFrameWindowFeatureMonitors implements InfiniFrameWindowFeatureMonitorsContract {
+export class InfiniFrameWindowFeatureMonitors extends InfiniFrameWindowFeature implements Contract {
+    constructor(){super("monitors");}
 
+    getMonitorsAsync() {
+        return this.get<InfiniMonitor[]>("monitors");
+    }
+
+    getMainMonitorAsync() {
+        return this.get<InfiniMonitor>("mainMonitor");
+    }
+
+    getMainMonitorScreenDpiAsync() {
+        return this.get<number>("mainMonitorScreenDpi");
+    }
 }

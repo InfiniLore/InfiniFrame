@@ -2,13 +2,11 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import type {InfiniFrameWindow as InfiniFrameWindowContract} from "../Contracts";
-import {SendToHostMessageIds} from "../Contracts";
-import {createGetEnvelope} from "../Interop/EnvelopeProtocol/InteropEnvelopeProtocol";
+import {InfiniFrameWindowFeatures} from "./InfiniFrameWindowFeatures";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export class InfiniFrameWindow implements InfiniFrameWindowContract {
-    
-    
+    readonly features = new InfiniFrameWindowFeatures();
 }

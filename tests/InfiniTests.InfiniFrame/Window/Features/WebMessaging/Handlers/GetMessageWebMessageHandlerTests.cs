@@ -15,6 +15,22 @@ namespace InfiniTests.InfiniFrame.Window.Features.WebMessaging.Handlers;
 // ---------------------------------------------------------------------------------------------------------------------
 public class GetMessageWebMessageHandlerTests {
     [Test]
+    public void PostMessage_FeatureRequest_InvokesMappedMutation() {
+        (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window)
+            = CreateWindowHarness();
+        builder.RegisterGetWebMessageHandler();
+
+        string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(
+            JsHandlerNames.WindowFeatureRequest,
+            "{\"command\":\"__infiniframe:window:features:decorations:setTitle\",\"args\":{\"title\":\"Mapped title\"}}"
+        );
+
+        events.OnWebMessageReceived(inboundMessage);
+
+        window.Window.Features.Decorations.Received(1).SetTitle("Mapped title");
+    }
+
+    [Test]
     public async Task GetMessage_StandardGetRequest_Title_ReturnsWindowTitle(CancellationToken ct = default) {
         // Arrange
         (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window)
@@ -25,7 +41,7 @@ public class GetMessageWebMessageHandlerTests {
 
         string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(
             JsHandlerNames.GetRequest,
-            "{\"command\":\"title\"}",
+            "{\"command\":\"__infiniframe:window:features:decorations:title\"}",
             InteropEnvelopeProtocol.GetCommand,
             "req-standard-get-1"
         );
@@ -41,7 +57,8 @@ public class GetMessageWebMessageHandlerTests {
 
         await Assert.That(payload.GetProperty("requestId").GetString()).IsEqualTo("req-standard-get-1");
         await Assert.That(payload.GetProperty("success").GetBoolean()).IsTrue();
-        await Assert.That(payload.GetProperty("data").GetString()).IsEqualTo("Native Test Title");
+        string? serializedResult = payload.GetProperty("data").GetString();
+        await Assert.That(JsonSerializer.Deserialize<string>(serializedResult!)).IsEqualTo("Native Test Title");
     }
 
     [Test]
