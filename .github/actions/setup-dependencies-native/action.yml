@@ -20,9 +20,9 @@ runs:
     steps:
 
         -   name: Setup CMake
-            uses: lukka/get-cmake@latest
+            uses: lukka/get-cmake@e6906078ebd1ccb8ce51ab4626ac46a1b5a517e3
             with:
-                cmakeVersion: "4.3.3"
+                cmakeVersion: "4.4.0"
 
         -   name: Setup Node cache
             uses: actions/setup-node@v7
