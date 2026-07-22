@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge.Delegates;
 using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Buffers;
 using System.Runtime.InteropServices;
@@ -69,7 +70,7 @@ public partial class InfiniFrameEvents {
             );
             return 1;
         }
-        catch (Exception ex) {
+        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
             // Exceptions must never unwind through a reverse P/Invoke boundary.
             if (response.OwnerContext != IntPtr.Zero) ReleaseResponseStorage(response.OwnerContext);
             response = default;

@@ -116,7 +116,7 @@ internal static partial class RemoteDebuggingUtility {
             reason = $"{ex.SocketErrorCode}";
             return false;
         }
-        catch (Exception ex) {
+        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
             reason = ex.Message;
             return false;
         }
