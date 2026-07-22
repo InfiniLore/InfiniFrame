@@ -2,36 +2,36 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {
-    InfiniFrameWindowFeatureBrowser,
-    InfiniFrameWindowFeaturePosition,
-    InfiniFrameWindowFeatureSize,
-    InfiniFrameWindowFeatureState,
-    InfiniFrameWindowFeatureWebMessaging,
-    InfiniFrameWindowFeatureNotifications,
-    InfiniFrameWindowFeatureDebugging,
-    InfiniFrameWindowFeatureDecorations,
-    InfiniFrameWindowFeatureFilePickerDialogs,
-    InfiniFrameWindowFeatureInvoke,
-    InfiniFrameWindowFeatureLifecycle,
-    InfiniFrameWindowFeatureMonitors,
-    InfiniFrameWindowFeaturePageNavigation
+    BrowserInfiniFrameWindowFeature,
+    PositionInfiniFrameWindowFeature,
+    SizeInfiniFrameWindowFeature,
+    StateInfiniFrameWindowFeature,
+    WebMessagingInfiniFrameWindowFeature,
+    NotificationsInfiniFrameWindowFeature,
+    DebuggingInfiniFrameWindowFeature,
+    DecorationsInfiniFrameWindowFeature,
+    FilePickerDialogsInfiniFrameWindowFeature,
+    InvokeInfiniFrameWindowFeature,
+    LifecycleInfiniFrameWindowFeature,
+    MonitorsInfiniFrameWindowFeature,
+    PageNavigationInfiniFrameWindowFeature
 } from "./Features";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export interface InfiniFrameWindowFeatures {
-    browser : InfiniFrameWindowFeatureBrowser
-    debugging: InfiniFrameWindowFeatureDebugging
-    decorations: InfiniFrameWindowFeatureDecorations
-    filePickerDialogs : InfiniFrameWindowFeatureFilePickerDialogs
-    invoke : InfiniFrameWindowFeatureInvoke
-    lifecycle : InfiniFrameWindowFeatureLifecycle
-    monitors : InfiniFrameWindowFeatureMonitors
-    notifications : InfiniFrameWindowFeatureNotifications
-    pageNavigation : InfiniFrameWindowFeaturePageNavigation
-    position : InfiniFrameWindowFeaturePosition
-    size : InfiniFrameWindowFeatureSize
-    state : InfiniFrameWindowFeatureState
-    webMessaging : InfiniFrameWindowFeatureWebMessaging
+    browser : BrowserInfiniFrameWindowFeature
+    debugging: DebuggingInfiniFrameWindowFeature
+    decorations: DecorationsInfiniFrameWindowFeature
+    filePickerDialogs : FilePickerDialogsInfiniFrameWindowFeature
+    invoke : InvokeInfiniFrameWindowFeature
+    lifecycle : LifecycleInfiniFrameWindowFeature
+    monitors : MonitorsInfiniFrameWindowFeature
+    notifications : NotificationsInfiniFrameWindowFeature
+    pageNavigation : PageNavigationInfiniFrameWindowFeature
+    position : PositionInfiniFrameWindowFeature
+    size : SizeInfiniFrameWindowFeature
+    state : StateInfiniFrameWindowFeature
+    webMessaging : WebMessagingInfiniFrameWindowFeature
 }

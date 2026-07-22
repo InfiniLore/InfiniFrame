@@ -2,19 +2,19 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import type {
-    InfiniFrameWindowFeatureBrowser as InfiniFrameWindowFeatureBrowserContract,
-    InfiniFrameWindowFeatureDebugging as InfiniFrameWindowFeatureDebuggingContract,
-    InfiniFrameWindowFeatureDecorations as InfiniFrameWindowFeatureDecorationsContract,
-    InfiniFrameWindowFeatureFilePickerDialogs as InfiniFrameWindowFeatureFilePickerDialogsContract,
-    InfiniFrameWindowFeatureInvoke as InfiniFrameWindowFeatureInvokeContract,
-    InfiniFrameWindowFeatureLifecycle as InfiniFrameWindowFeatureLifecycleContract,
-    InfiniFrameWindowFeatureMonitors as InfiniFrameWindowFeatureMonitorsContract,
-    InfiniFrameWindowFeatureNotifications as InfiniFrameWindowFeatureNotificationsContract,
-    InfiniFrameWindowFeaturePageNavigation as InfiniFrameWindowFeaturePageNavigationContract,
-    InfiniFrameWindowFeaturePosition as InfiniFrameWindowFeaturePositionContract,
-    InfiniFrameWindowFeatureSize as InfiniFrameWindowFeatureSizeContract,
-    InfiniFrameWindowFeatureState as InfiniFrameWindowFeatureStateContract,
-    InfiniFrameWindowFeatureWebMessaging as InfiniFrameWindowFeatureWebMessagingContract,
+    BrowserInfiniFrameWindowFeature as InfiniFrameWindowFeatureBrowserContract,
+    DebuggingInfiniFrameWindowFeature as InfiniFrameWindowFeatureDebuggingContract,
+    DecorationsInfiniFrameWindowFeature as InfiniFrameWindowFeatureDecorationsContract,
+    FilePickerDialogsInfiniFrameWindowFeature as InfiniFrameWindowFeatureFilePickerDialogsContract,
+    InvokeInfiniFrameWindowFeature as InfiniFrameWindowFeatureInvokeContract,
+    LifecycleInfiniFrameWindowFeature as InfiniFrameWindowFeatureLifecycleContract,
+    MonitorsInfiniFrameWindowFeature as InfiniFrameWindowFeatureMonitorsContract,
+    NotificationsInfiniFrameWindowFeature as InfiniFrameWindowFeatureNotificationsContract,
+    PageNavigationInfiniFrameWindowFeature as InfiniFrameWindowFeaturePageNavigationContract,
+    PositionInfiniFrameWindowFeature as InfiniFrameWindowFeaturePositionContract,
+    SizeInfiniFrameWindowFeature as InfiniFrameWindowFeatureSizeContract,
+    StateInfiniFrameWindowFeature as InfiniFrameWindowFeatureStateContract,
+    WebMessagingInfiniFrameWindowFeature as InfiniFrameWindowFeatureWebMessagingContract,
     InfiniFrameWindowFeatures as InfiniFrameWindowFeaturesContract
 } from "../Contracts";
 import {
