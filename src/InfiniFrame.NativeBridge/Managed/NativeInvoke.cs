@@ -834,7 +834,7 @@ internal static partial class NativeInvoke {
                 logger.LogTrace("Executing callback on same thread");
                 result = callback(nativeHandle);
             }
-            catch (Exception ex) {
+            catch (Exception ex) when (ex is not (ApplicationException or OutOfMemoryException or AccessViolationException)) {
                 callbackException = ex;
             }
             finally {
@@ -849,7 +849,7 @@ internal static partial class NativeInvoke {
                 try {
                     result = callback(nativeHandle);
                 }
-                catch (Exception ex) {
+                catch (Exception ex) when (ex is not (ApplicationException or OutOfMemoryException or AccessViolationException)) {
                     callbackException = ex;
                 }
                 finally {
