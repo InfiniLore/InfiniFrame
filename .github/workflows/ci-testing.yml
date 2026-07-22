@@ -42,6 +42,10 @@ on:
                 type: boolean
                 default: true
 
+concurrency:
+    group: ${{ github.event_name == 'push' && github.ref == 'refs/heads/core' && format('core-{0}', github.workflow) || format('manual-{0}', github.run_id) }}
+    cancel-in-progress: ${{ github.event_name == 'push' && github.ref == 'refs/heads/core' }}
+
 jobs:
     python-tests:
         name: Python Tests
