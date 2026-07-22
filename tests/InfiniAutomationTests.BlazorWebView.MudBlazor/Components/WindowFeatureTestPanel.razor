@@ -1,0 +1,67 @@
+@using System.Text.Json
+@using InfiniFrame
+@inject IInfiniFrameWindow Window
+
+<section id="window-feature-test-panel">
+    <button id="probe-browser-feature" @onclick="ProbeBrowser">Probe browser</button>
+    <output id="browser-feature-result">@Result("browser")</output>
+    <button id="probe-decorations-feature" @onclick="ProbeDecorations">Probe decorations</button>
+    <output id="decorations-feature-result">@Result("decorations")</output>
+    <button id="probe-position-feature" @onclick="ProbePosition">Probe position</button>
+    <output id="position-feature-result">@Result("position")</output>
+    <button id="probe-size-feature" @onclick="ProbeSize">Probe size</button>
+    <output id="size-feature-result">@Result("size")</output>
+    <button id="probe-state-feature" @onclick="ProbeState">Probe state</button>
+    <output id="state-feature-result">@Result("state")</output>
+    <button id="probe-lifecycle-monitors-feature" @onclick="ProbeLifecycleAndMonitors">Probe lifecycle and monitors</button>
+    <output id="lifecycle-monitors-feature-result">@Result("lifecycle-monitors")</output>
+</section>
+
+@code {
+    private readonly Dictionary<string, string> _results = [];
+    private string? Result(string feature) => _results.GetValueOrDefault(feature);
+    private void Save(string feature, object value) => _results[feature] = JsonSerializer.Serialize(value);
+
+    private void ProbeBrowser() {
+        IBrowserInfiniFrameWindowFeature feature = Window.Features.Browser;
+        Save("browser", new {
+            contextMenu = feature.IsContextMenuEnabled, mediaAutoplay = feature.IsMediaAutoplayEnabled,
+            userAgent = feature.UserAgent, webSecurity = feature.IsWebSecurityEnabled,
+            smoothScrolling = feature.IsSmoothScrollingEnabled
+        });
+    }
+
+    private void ProbeDecorations() {
+        IDecorationsInfiniFrameWindowFeature feature = Window.Features.Decorations;
+        Save("decorations", new {
+            chromeless = feature.IsChromeless, transparent = feature.IsTransparent,
+            title = feature.Title, limitLinuxTitle = feature.LimitLinuxWindowTitleLength
+        });
+    }
+
+    private void ProbePosition() {
+        IPositionInfiniFrameWindowFeature feature = Window.Features.Position;
+        Save("position", new { location = new { x = feature.Location.X, y = feature.Location.Y }, top = feature.Top, left = feature.Left });
+    }
+
+    private void ProbeSize() {
+        ISizeInfiniFrameWindowFeature feature = Window.Features.Size;
+        Save("size", new {
+            size = new { width = feature.Size.Width, height = feature.Size.Height },
+            width = feature.Width, height = feature.Height, resizable = feature.IsResizable
+        });
+    }
+
+    private void ProbeState() {
+        IStateInfiniFrameWindowFeature feature = Window.Features.State;
+        Save("state", new {
+            fullScreen = feature.IsFullScreen, maximized = feature.IsMaximized, minimized = feature.IsMinimized,
+            topMost = feature.IsTopMost, zoomFactor = feature.ZoomFactor, zoomEnabled = feature.IsZoomEnabled
+        });
+    }
+
+    private void ProbeLifecycleAndMonitors() => Save("lifecycle-monitors", new {
+        closedOrClosing = Window.Features.Lifecycle.IsClosedOrClosing(),
+        dpi = Window.Features.Monitors.GetMainMonitorScreenDpi()
+    });
+}

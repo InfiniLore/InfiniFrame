@@ -1,4 +1,5 @@
 import {useState} from 'react'
+import WindowFeatureTestPanel from './WindowFeatureTestPanel'
 
 function App() {
     const [isFullscreen, setIsFullscreen] = useState(false)
@@ -40,6 +41,7 @@ function App() {
             <button id="title-toggle-button" onClick={toggleTitle}>
                 {isToggledToNewTitle ? 'Reset Title' : 'Define New Title'}
             </button>
+            <WindowFeatureTestPanel/>
         </>
     )
 }
