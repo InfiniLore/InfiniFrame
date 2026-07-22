@@ -9,7 +9,12 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed class LifecycleWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeatureLifecycle> {
     public override string FeatureName => "lifecycle";
-    protected override IInfiniFrameWindowFeatureLifecycle SelectFeature(IInfiniFrameWindowFeatures features) => features.Lifecycle;
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    protected override IInfiniFrameWindowFeatureLifecycle SelectFeature(IInfiniFrameWindowFeatures features) 
+        => features.Lifecycle;
 
     protected override object Get(IInfiniFrameWindowFeatureLifecycle feature, string command, JsonElement? args) => command switch {
         "state" => feature.State,

@@ -9,7 +9,12 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed class DebuggingWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeatureDebugging> {
     public override string FeatureName => "debugging";
-    protected override IInfiniFrameWindowFeatureDebugging SelectFeature(IInfiniFrameWindowFeatures features) => features.Debugging;
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    protected override IInfiniFrameWindowFeatureDebugging SelectFeature(IInfiniFrameWindowFeatures features) 
+        => features.Debugging;
 
     protected override object? Get(IInfiniFrameWindowFeatureDebugging feature, string command, JsonElement? args) => command switch {
         "isDevToolsEnabled" => feature.IsDevToolsEnabled,

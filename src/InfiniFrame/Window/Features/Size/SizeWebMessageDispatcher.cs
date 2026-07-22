@@ -9,7 +9,11 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed class SizeWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeatureSize> {
     public override string FeatureName => "size";
-    protected override IInfiniFrameWindowFeatureSize SelectFeature(IInfiniFrameWindowFeatures features) => features.Size;
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    protected override IInfiniFrameWindowFeatureSize SelectFeature(IInfiniFrameWindowFeatures features) 
+        => features.Size;
 
     protected override object Get(IInfiniFrameWindowFeatureSize feature, string command, JsonElement? args) => command switch {
         "size" => feature.Size,

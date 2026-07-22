@@ -9,7 +9,12 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed class DecorationsWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeatureDecorations> {
     public override string FeatureName => "decorations";
-    protected override IInfiniFrameWindowFeatureDecorations SelectFeature(IInfiniFrameWindowFeatures features) => features.Decorations;
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    protected override IInfiniFrameWindowFeatureDecorations SelectFeature(IInfiniFrameWindowFeatures features) 
+        => features.Decorations;
 
     protected override object? Get(IInfiniFrameWindowFeatureDecorations feature, string command, JsonElement? args) => command switch {
         "isChromeless" => feature.IsChromeless,

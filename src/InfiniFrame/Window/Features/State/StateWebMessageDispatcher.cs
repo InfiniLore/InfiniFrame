@@ -9,7 +9,12 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed class StateWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeatureState> {
     public override string FeatureName => "state";
-    protected override IInfiniFrameWindowFeatureState SelectFeature(IInfiniFrameWindowFeatures features) => features.State;
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    protected override IInfiniFrameWindowFeatureState SelectFeature(IInfiniFrameWindowFeatures features) 
+        => features.State;
 
     protected override object Get(IInfiniFrameWindowFeatureState feature, string command, JsonElement? args) => command switch {
         "isFullScreen" => feature.IsFullScreen,

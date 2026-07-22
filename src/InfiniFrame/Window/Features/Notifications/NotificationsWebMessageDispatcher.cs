@@ -10,7 +10,12 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed class NotificationsWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeatureNotifications> {
     public override string FeatureName => "notifications";
-    protected override IInfiniFrameWindowFeatureNotifications SelectFeature(IInfiniFrameWindowFeatures features) => features.Notifications;
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    protected override IInfiniFrameWindowFeatureNotifications SelectFeature(IInfiniFrameWindowFeatures features) 
+        => features.Notifications;
 
     protected override object Get(IInfiniFrameWindowFeatureNotifications feature, string command, JsonElement? args)
         => command == "showMessage"

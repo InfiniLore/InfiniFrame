@@ -9,7 +9,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class WindowFeatureWebMessageRouter {
-    private static readonly IReadOnlyDictionary<string, IWindowFeatureWebMessageDispatcher> Dispatchers
+    private static readonly Dictionary<string, IWindowFeatureWebMessageDispatcher> Dispatchers
         = new IWindowFeatureWebMessageDispatcher[] {
             new BrowserWebMessageDispatcher(),
             new DebuggingWebMessageDispatcher(),
@@ -24,8 +24,11 @@ internal static class WindowFeatureWebMessageRouter {
             new SizeWebMessageDispatcher(),
             new StateWebMessageDispatcher(),
             new WebMessagingWebMessageDispatcher()
-        }.ToDictionary(dispatcher => dispatcher.FeatureName, StringComparer.OrdinalIgnoreCase);
+        }.ToDictionary(keySelector: dispatcher => dispatcher.FeatureName, StringComparer.OrdinalIgnoreCase);
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     internal static string Get(
         IInfiniFrameWindow window,
         string featureName,

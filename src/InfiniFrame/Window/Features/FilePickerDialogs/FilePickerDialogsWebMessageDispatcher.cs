@@ -9,7 +9,12 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed class FilePickerDialogsWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeatureFilePickerDialogs> {
     public override string FeatureName => "filePickerDialogs";
-    protected override IInfiniFrameWindowFeatureFilePickerDialogs SelectFeature(IInfiniFrameWindowFeatures features) => features.FilePickerDialogs;
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    protected override IInfiniFrameWindowFeatureFilePickerDialogs SelectFeature(IInfiniFrameWindowFeatures features) 
+        => features.FilePickerDialogs;
 
     protected override object? Get(IInfiniFrameWindowFeatureFilePickerDialogs feature, string command, JsonElement? args) {
         string? defaultPath = Arg<string?>(args, "defaultPath", null);

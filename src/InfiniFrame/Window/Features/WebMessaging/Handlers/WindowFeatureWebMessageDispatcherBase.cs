@@ -11,6 +11,9 @@ namespace InfiniFrame;
 internal abstract class WindowFeatureWebMessageDispatcherBase<TFeature> : IWindowFeatureWebMessageDispatcher {
     public abstract string FeatureName { get; }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     public object? Get(IInfiniFrameWindow window, string command, JsonElement? args)
         => Get(SelectFeature(window.Features), command, args);
 
@@ -25,7 +28,7 @@ internal abstract class WindowFeatureWebMessageDispatcherBase<TFeature> : IWindo
     protected virtual void Post(TFeature feature, string command, JsonElement? args)
         => throw Unsupported(command);
 
-    protected T Required<T>(JsonElement? args, string name) {
+    protected static T Required<T>(JsonElement? args, string name) {
         if (args is not { ValueKind: JsonValueKind.Object } value || !value.TryGetProperty(name, out JsonElement property))
             throw new ArgumentException($"Argument '{name}' is required.");
 
@@ -35,10 +38,12 @@ internal abstract class WindowFeatureWebMessageDispatcherBase<TFeature> : IWindo
             ?? throw new ArgumentException($"Argument '{name}' cannot be null.");
     }
 
-    protected T Arg<T>(JsonElement? args, string name, T fallback) {
-        if (args is not { ValueKind: JsonValueKind.Object } value || !value.TryGetProperty(name, out JsonElement property))
+    protected static T Arg<T>(JsonElement? args, string name, T fallback) {
+        if (args is not { ValueKind: JsonValueKind.Object } value
+            || !value.TryGetProperty(name, out JsonElement property)
+            || property.ValueKind == JsonValueKind.Null) {
             return fallback;
-        if (property.ValueKind == JsonValueKind.Null) return fallback;
+        }
 
         JsonTypeInfo typeInfo = WindowFeatureWebMessageJsonContext.Default.GetTypeInfo(typeof(T))
             ?? throw new InvalidOperationException($"No JSON metadata is registered for '{typeof(T)}'.");

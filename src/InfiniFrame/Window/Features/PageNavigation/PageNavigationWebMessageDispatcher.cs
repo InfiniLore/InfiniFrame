@@ -9,7 +9,12 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed class PageNavigationWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeaturePageNavigation> {
     public override string FeatureName => "pageNavigation";
-    protected override IInfiniFrameWindowFeaturePageNavigation SelectFeature(IInfiniFrameWindowFeatures features) => features.PageNavigation;
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    protected override IInfiniFrameWindowFeaturePageNavigation SelectFeature(IInfiniFrameWindowFeatures features) 
+        => features.PageNavigation;
 
     protected override object Get(IInfiniFrameWindowFeaturePageNavigation feature, string command, JsonElement? args) => command switch {
         "tryLoadUri" => feature.TryLoadUri(new Uri(Required<string>(args, "uri"), UriKind.RelativeOrAbsolute)),

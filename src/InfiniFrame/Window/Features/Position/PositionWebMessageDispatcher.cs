@@ -9,7 +9,12 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed class PositionWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeaturePosition> {
     public override string FeatureName => "position";
-    protected override IInfiniFrameWindowFeaturePosition SelectFeature(IInfiniFrameWindowFeatures features) => features.Position;
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    protected override IInfiniFrameWindowFeaturePosition SelectFeature(IInfiniFrameWindowFeatures features) 
+        => features.Position;
 
     protected override object Get(IInfiniFrameWindowFeaturePosition feature, string command, JsonElement? args) => command switch {
         "location" => feature.Location,

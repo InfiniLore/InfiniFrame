@@ -9,7 +9,12 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed class BrowserWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeatureBrowser> {
     public override string FeatureName => "browser";
-    protected override IInfiniFrameWindowFeatureBrowser SelectFeature(IInfiniFrameWindowFeatures features) => features.Browser;
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    protected override IInfiniFrameWindowFeatureBrowser SelectFeature(IInfiniFrameWindowFeatures features) 
+        => features.Browser;
 
     protected override object? Get(IInfiniFrameWindowFeatureBrowser feature, string command, JsonElement? args) => command switch {
         "isContextMenuEnabled" => feature.IsContextMenuEnabled,
