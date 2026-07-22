@@ -18,19 +18,19 @@ import type {
     InfiniFrameWindowFeatures as InfiniFrameWindowFeaturesContract
 } from "../Contracts";
 import {
-    InfiniFrameWindowFeatureBrowser,
-    InfiniFrameWindowFeatureDebugging,
-    InfiniFrameWindowFeatureDecorations,
-    InfiniFrameWindowFeatureFilePickerDialogs,
-    InfiniFrameWindowFeatureInvoke,
-    InfiniFrameWindowFeatureLifecycle,
-    InfiniFrameWindowFeatureMonitors,
-    InfiniFrameWindowFeatureNotifications,
-    InfiniFrameWindowFeaturePageNavigation,
-    InfiniFrameWindowFeaturePosition,
-    InfiniFrameWindowFeatureSize,
-    InfiniFrameWindowFeatureState,
-    InfiniFrameWindowFeatureWebMessaging
+    BrowserInfiniFrameWindowFeature,
+    DebuggingInfiniFrameWindowFeature,
+    DecorationsInfiniFrameWindowFeature,
+    FilePickerDialogsInfiniFrameWindowFeature,
+    InvokeInfiniFrameWindowFeature,
+    LifecycleInfiniFrameWindowFeature,
+    MonitorsInfiniFrameWindowFeature,
+    NotificationsInfiniFrameWindowFeature,
+    PageNavigationInfiniFrameWindowFeature,
+    PositionInfiniFrameWindowFeature,
+    SizeInfiniFrameWindowFeature,
+    StateInfiniFrameWindowFeature,
+    WebMessagingInfiniFrameWindowFeature
 } from "./Features";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -51,19 +51,19 @@ export class InfiniFrameWindowFeatures implements InfiniFrameWindowFeaturesContr
     webMessaging: InfiniFrameWindowFeatureWebMessagingContract;
 
     constructor() {
-        this.browser = new InfiniFrameWindowFeatureBrowser();
-        this.debugging = new InfiniFrameWindowFeatureDebugging();
-        this.decorations = new InfiniFrameWindowFeatureDecorations();
-        this.filePickerDialogs = new InfiniFrameWindowFeatureFilePickerDialogs();
-        this.invoke = new InfiniFrameWindowFeatureInvoke();
-        this.lifecycle = new InfiniFrameWindowFeatureLifecycle();
-        this.monitors = new InfiniFrameWindowFeatureMonitors();
-        this.notifications = new InfiniFrameWindowFeatureNotifications();
-        this.pageNavigation = new InfiniFrameWindowFeaturePageNavigation();
-        this.position = new InfiniFrameWindowFeaturePosition();
-        this.size = new InfiniFrameWindowFeatureSize();
-        this.state = new InfiniFrameWindowFeatureState();
-        this.webMessaging = new InfiniFrameWindowFeatureWebMessaging();
+        this.browser = new BrowserInfiniFrameWindowFeature();
+        this.debugging = new DebuggingInfiniFrameWindowFeature();
+        this.decorations = new DecorationsInfiniFrameWindowFeature();
+        this.filePickerDialogs = new FilePickerDialogsInfiniFrameWindowFeature();
+        this.invoke = new InvokeInfiniFrameWindowFeature();
+        this.lifecycle = new LifecycleInfiniFrameWindowFeature();
+        this.monitors = new MonitorsInfiniFrameWindowFeature();
+        this.notifications = new NotificationsInfiniFrameWindowFeature();
+        this.pageNavigation = new PageNavigationInfiniFrameWindowFeature();
+        this.position = new PositionInfiniFrameWindowFeature();
+        this.size = new SizeInfiniFrameWindowFeature();
+        this.state = new StateInfiniFrameWindowFeature();
+        this.webMessaging = new WebMessagingInfiniFrameWindowFeature();
     }
     
 }

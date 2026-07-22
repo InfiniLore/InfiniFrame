@@ -1,15 +1,23 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {InfiniFrameWindowFeatureWebMessaging as Contract} from "../../Contracts";
+import type {InfiniFrameWindowFeatureMonitors as Contract,InfiniMonitor} from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export class InfiniFrameWindowFeatureWebMessaging extends InfiniFrameWindowFeature implements Contract {
-    constructor(){super("webMessaging");}
+export class MonitorsInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
+    constructor(){super("monitors");}
 
-    sendWebMessage(message: string) {
-        return this.post("sendWebMessage", {message});
+    getMonitorsAsync() {
+        return this.get<InfiniMonitor[]>("monitors");
+    }
+
+    getMainMonitorAsync() {
+        return this.get<InfiniMonitor>("mainMonitor");
+    }
+
+    getMainMonitorScreenDpiAsync() {
+        return this.get<number>("mainMonitorScreenDpi");
     }
 }

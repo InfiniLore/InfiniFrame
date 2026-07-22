@@ -1,9 +1,10 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {InfiniFrameWindowFeatureInvoke as InfiniFrameWindowFeatureInvokeContract} from "../../Contracts";
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export class InfiniFrameWindowFeatureInvoke implements InfiniFrameWindowFeatureInvokeContract {
+export interface WebMessagingInfiniFrameWindowFeature { 
+    sendWebMessage(message: string): void
 }

@@ -6,7 +6,7 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export class InfiniFrameWindowFeatureFilePickerDialogs extends InfiniFrameWindowFeature implements Contract {
+export class FilePickerDialogsInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
     constructor(){super("filePickerDialogs");}
 
     showOpenFileAsync(title = "Choose file", defaultPath: string | null = null, multiSelect = false, filters: FilePickerFilter[] | null = null) {

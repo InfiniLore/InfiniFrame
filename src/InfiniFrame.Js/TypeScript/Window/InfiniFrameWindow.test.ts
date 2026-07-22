@@ -64,4 +64,27 @@ describe("InfiniFrameWindow", () => {
         );
         expect(title).toBe("Native Title");
     });
+
+    it("constructs every C#-mirrored window feature", () => {
+        const messaging = createMessagingMocks(vi.fn());
+        assignInfiniFrame(messaging);
+
+        const featureNames = Object.keys(new InfiniFrameWindow().features);
+
+        expect(featureNames).toEqual([
+            "browser",
+            "debugging",
+            "decorations",
+            "filePickerDialogs",
+            "invoke",
+            "lifecycle",
+            "monitors",
+            "notifications",
+            "pageNavigation",
+            "position",
+            "size",
+            "state",
+            "webMessaging"
+        ]);
+    });
 });

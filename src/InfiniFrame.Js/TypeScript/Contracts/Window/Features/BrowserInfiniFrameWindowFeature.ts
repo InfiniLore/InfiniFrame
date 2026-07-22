@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export interface InfiniFrameWindowFeatureBrowser {
+export interface BrowserInfiniFrameWindowFeature {
     isContextMenuEnabledAsync(): Promise<boolean>;
     isMediaAutoplayEnabledAsync(): Promise<boolean>;
     getUserAgentAsync(): Promise<string | null>;

@@ -1,16 +1,16 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-export * from "./InfiniFrameWindowFeatureBrowser";
-export * from "./InfiniFrameWindowFeaturePosition";
-export * from "./InfiniFrameWindowFeatureSize";
-export * from "./InfiniFrameWindowFeatureState";
-export * from "./InfiniFrameWindowFeatureWebMessaging";
-export * from "./InfiniFrameWindowFeatureNotifications";
-export * from "./InfiniFrameWindowFeatureDebugging";
-export * from "./InfiniFrameWindowFeatureDecorations";
-export * from "./InfiniFrameWindowFeatureFilePickerDialogs";
-export * from "./InfiniFrameWindowFeatureInvoke";
-export * from "./InfiniFrameWindowFeatureLifecycle";
-export * from "./InfiniFrameWindowFeatureMonitors";
-export * from "./InfiniFrameWindowFeaturePageNavigation"
+export * from "./BrowserInfiniFrameWindowFeature";
+export * from "./PositionInfiniFrameWindowFeature";
+export * from "./SizeInfiniFrameWindowFeature";
+export * from "./StateInfiniFrameWindowFeature";
+export * from "./WebMessagingInfiniFrameWindowFeature";
+export * from "./NotificationsInfiniFrameWindowFeature";
+export * from "./DebuggingInfiniFrameWindowFeature";
+export * from "./DecorationsInfiniFrameWindowFeature";
+export * from "./FilePickerDialogsInfiniFrameWindowFeature";
+export * from "./InvokeInfiniFrameWindowFeature";
+export * from "./LifecycleInfiniFrameWindowFeature";
+export * from "./MonitorsInfiniFrameWindowFeature";
+export * from "./PageNavigationInfiniFrameWindowFeature"

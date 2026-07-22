@@ -1,12 +1,12 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {WindowLifecycleState} from "./WindowFeatureTypes";
+import type {InfiniMonitor} from "./WindowFeatureTypes";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export interface InfiniFrameWindowFeatureLifecycle {
-    getStateAsync(): Promise<WindowLifecycleState>;
-    isClosedOrClosingAsync(): Promise<boolean>;
-    close(): void;
+export interface MonitorsInfiniFrameWindowFeature {
+    getMonitorsAsync(): Promise<InfiniMonitor[]>;
+    getMainMonitorAsync(): Promise<InfiniMonitor>;
+    getMainMonitorScreenDpiAsync(): Promise<number>;
 }

@@ -5,7 +5,7 @@ import type {DebugCapabilities, DebugDiagnostics, DebugEndpointResult} from "./W
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export interface InfiniFrameWindowFeatureDebugging {
+export interface DebuggingInfiniFrameWindowFeature {
     isDevToolsEnabledAsync(): Promise<boolean>;
     supportsWebInspectorAttachAsync(): Promise<boolean>;
     isWebInspectorEnabledAsync(): Promise<boolean>;

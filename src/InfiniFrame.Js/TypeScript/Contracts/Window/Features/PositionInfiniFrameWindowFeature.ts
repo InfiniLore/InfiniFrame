@@ -5,7 +5,7 @@ import type {Point} from "./WindowFeatureTypes";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export interface InfiniFrameWindowFeaturePosition {
+export interface PositionInfiniFrameWindowFeature {
     getLocationAsync(): Promise<Point>;
     getTopAsync(): Promise<number>;
     getLeftAsync(): Promise<number>;

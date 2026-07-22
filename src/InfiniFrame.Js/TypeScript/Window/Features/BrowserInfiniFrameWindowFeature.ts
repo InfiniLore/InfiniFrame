@@ -6,7 +6,7 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export class InfiniFrameWindowFeatureBrowser extends InfiniFrameWindowFeature implements Contract {
+export class BrowserInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
     constructor() { super("browser"); }
 
     isContextMenuEnabledAsync() {

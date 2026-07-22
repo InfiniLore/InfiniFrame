@@ -5,7 +5,7 @@ import type {Rectangle} from "./WindowFeatureTypes";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export interface InfiniFrameWindowFeatureState {
+export interface StateInfiniFrameWindowFeature {
     isFullScreenAsync(): Promise<boolean>; isMaximizedAsync(): Promise<boolean>; isMinimizedAsync(): Promise<boolean>;
     isTopMostAsync(): Promise<boolean>; isFocusedAsync(): Promise<boolean>;
     getZoomFactorAsync(): Promise<number>; isZoomEnabledAsync(): Promise<boolean>;

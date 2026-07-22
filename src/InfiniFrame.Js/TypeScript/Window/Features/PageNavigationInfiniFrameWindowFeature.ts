@@ -6,7 +6,7 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export class InfiniFrameWindowFeaturePageNavigation extends InfiniFrameWindowFeature implements Contract {
+export class PageNavigationInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
     constructor(){super("pageNavigation");}
 
     loadUri(uri: string) {

@@ -1,8 +1,12 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-
+import type {WindowLifecycleState} from "./WindowFeatureTypes";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export interface InfiniFrameWindowFeatureWebMessaging { sendWebMessage(message: string): void }
+export interface LifecycleInfiniFrameWindowFeature {
+    getStateAsync(): Promise<WindowLifecycleState>;
+    isClosedOrClosingAsync(): Promise<boolean>;
+    close(): void;
+}

@@ -1,12 +1,9 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {InfiniMonitor} from "./WindowFeatureTypes";
+import type {InfiniFrameWindowFeatureInvoke as InfiniFrameWindowFeatureInvokeContract} from "../../Contracts";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export interface InfiniFrameWindowFeatureMonitors {
-    getMonitorsAsync(): Promise<InfiniMonitor[]>;
-    getMainMonitorAsync(): Promise<InfiniMonitor>;
-    getMainMonitorScreenDpiAsync(): Promise<number>;
+export class InvokeInfiniFrameWindowFeature implements InfiniFrameWindowFeatureInvokeContract {
 }

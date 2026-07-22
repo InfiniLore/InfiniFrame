@@ -6,7 +6,7 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export class InfiniFrameWindowFeatureLifecycle extends InfiniFrameWindowFeature implements Contract {
+export class LifecycleInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
     constructor(){super("lifecycle");}
 
     getStateAsync() {

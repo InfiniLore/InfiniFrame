@@ -6,7 +6,7 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export class InfiniFrameWindowFeatureState extends InfiniFrameWindowFeature implements Contract {
+export class StateInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
     constructor(){super("state");}
 
     isFullScreenAsync() {

@@ -6,7 +6,7 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export class InfiniFrameWindowFeaturePosition extends InfiniFrameWindowFeature implements Contract {
+export class PositionInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
     constructor(){super("position");}
 
     getLocationAsync() {

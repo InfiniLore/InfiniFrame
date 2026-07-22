@@ -5,10 +5,14 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export interface InfiniFrameWindowFeaturePageNavigation {
-    loadUri(uri: string): void;
-    loadPath(path: string): void;
-    tryLoadUriAsync(uri: string): Promise<boolean>;
-    tryLoadPathAsync(path: string): Promise<boolean>;
-    loadRawString(content: string): void;
+export interface DecorationsInfiniFrameWindowFeature {
+    isChromelessAsync(): Promise<boolean>;
+    isTransparentAsync(): Promise<boolean>;
+    getTitleAsync(): Promise<string | null>;
+    getIconFilePathAsync(): Promise<string | null>;
+    getLimitLinuxWindowTitleLengthAsync(): Promise<boolean>;
+    setTransparent(enabled?: boolean): void;
+    setTitle(title: string | null): void;
+    setIconFile(iconFilePath: string): void;
+    setLimitLinuxWindowTitleLength(enabled?: boolean): void;
 }

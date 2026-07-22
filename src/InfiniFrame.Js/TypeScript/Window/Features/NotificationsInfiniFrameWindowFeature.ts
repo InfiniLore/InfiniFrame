@@ -6,7 +6,7 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export class InfiniFrameWindowFeatureNotifications extends InfiniFrameWindowFeature implements Contract {
+export class NotificationsInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
     constructor(){super("notifications");}
 
     showNotification(title: string, body: string) {

@@ -6,7 +6,7 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export class InfiniFrameWindowFeatureDebugging extends InfiniFrameWindowFeature implements Contract {
+export class DebuggingInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
     constructor(){super("debugging");}
 
     isDevToolsEnabledAsync() {
