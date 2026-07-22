@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using FluentValidation;
@@ -26,61 +26,61 @@ public class InfiniFrameWindowFeaturesFactory(IServiceProvider provider) {
     /// <returns>An <see cref="IInfiniFrameWindowFeatures" /> instance with all feature implementations.</returns>
     public IInfiniFrameWindowFeatures Create(IInfiniFrameWindow window, IInfiniFrameWindowBuilder originalBuilder) 
         => new InfiniFrameWindowFeatures(
-            Debugging: new InfiniFrameWindowFeatureDebugging(
+            Debugging: new DebuggingInfiniFrameWindowFeature(
                 window,
-                GetLogger<InfiniFrameWindowFeatureDebugging>(provider)
+                GetLogger<DebuggingInfiniFrameWindowFeature>(provider)
             ),
-            Lifecycle: new InfiniFrameWindowFeatureLifecycle(
+            Lifecycle: new LifecycleInfiniFrameWindowFeature(
                 window,
-                GetLogger<InfiniFrameWindowFeatureLifecycle>(provider),
+                GetLogger<LifecycleInfiniFrameWindowFeature>(provider),
                 provider.GetRequiredService<IValidator<InfiniFrameNativeParameters>>()
             ),
-            Invoke: new InfiniFrameWindowFeatureInvoke(
+            Invoke: new InvokeInfiniFrameWindowFeature(
                 window,
-                GetLogger<InfiniFrameWindowFeatureInvoke>(provider)
+                GetLogger<InvokeInfiniFrameWindowFeature>(provider)
             ),
-            WebMessaging: new InfiniFrameWindowFeatureWebMessaging(
+            WebMessaging: new WebMessagingInfiniFrameWindowFeature(
                 window,
-                GetLogger<InfiniFrameWindowFeatureWebMessaging>(provider)
+                GetLogger<WebMessagingInfiniFrameWindowFeature>(provider)
             ),
-            Notifications: new InfiniFrameWindowFeatureNotifications(
+            Notifications: new NotificationsInfiniFrameWindowFeature(
                 window,
-                GetLogger<InfiniFrameWindowFeatureNotifications>(provider)
+                GetLogger<NotificationsInfiniFrameWindowFeature>(provider)
             ),
-            FilePickerDialogs: new InfiniFrameWindowFeatureFilePickerDialogs(
+            FilePickerDialogs: new FilePickerDialogsInfiniFrameWindowFeature(
                 window,
-                GetLogger<InfiniFrameWindowFeatureFilePickerDialogs>(provider)
+                GetLogger<FilePickerDialogsInfiniFrameWindowFeature>(provider)
             ),
-            Monitors: new InfiniFrameWindowFeatureMonitors(
+            Monitors: new MonitorsInfiniFrameWindowFeature(
                 window,
-                GetLogger<InfiniFrameWindowFeatureMonitors>(provider)
+                GetLogger<MonitorsInfiniFrameWindowFeature>(provider)
             ),
-            PageNavigation: new InfiniFrameWindowFeaturePageNavigation(
+            PageNavigation: new PageNavigationInfiniFrameWindowFeature(
                 window,
-                GetLogger<InfiniFrameWindowFeaturePageNavigation>(provider),
+                GetLogger<PageNavigationInfiniFrameWindowFeature>(provider),
                 provider.GetService<IInfiniFrameStaticAssets>()
                 ?? originalBuilder.StaticAssets?.DeepCopy()
             ),
-            Position: new InfiniFrameWindowFeaturePosition(
+            Position: new PositionInfiniFrameWindowFeature(
                 window,
-                GetLogger<InfiniFrameWindowFeaturePosition>(provider)
+                GetLogger<PositionInfiniFrameWindowFeature>(provider)
             ),
-            Size: new InfiniFrameWindowFeatureSize(
+            Size: new SizeInfiniFrameWindowFeature(
                 window,
-                GetLogger<InfiniFrameWindowFeatureSize>(provider)
+                GetLogger<SizeInfiniFrameWindowFeature>(provider)
             ), 
-            Decorations: new InfiniFrameWindowFeatureDecorations(
+            Decorations: new DecorationsInfiniFrameWindowFeature(
                 window,
                 originalBuilder,
-                GetLogger<InfiniFrameWindowFeatureDecorations>(provider)
+                GetLogger<DecorationsInfiniFrameWindowFeature>(provider)
             ),
-            State: new InfiniFrameWindowFeatureState(
+            State: new StateInfiniFrameWindowFeature(
                 window,
-                GetLogger<InfiniFrameWindowFeatureState>(provider)
+                GetLogger<StateInfiniFrameWindowFeature>(provider)
             ),
-            Browser: new InfiniFrameWindowFeatureBrowser(
+            Browser: new BrowserInfiniFrameWindowFeature(
                 window,
-                GetLogger<InfiniFrameWindowFeatureBrowser>(provider)
+                GetLogger<BrowserInfiniFrameWindowFeature>(provider)
             )
         );
 }

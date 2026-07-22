@@ -8,16 +8,16 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal sealed class NotificationsWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeatureNotifications> {
+internal sealed class NotificationsWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<INotificationsInfiniFrameWindowFeature> {
     public override string FeatureName => "notifications";
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    protected override IInfiniFrameWindowFeatureNotifications SelectFeature(IInfiniFrameWindowFeatures features) 
+    protected override INotificationsInfiniFrameWindowFeature SelectFeature(IInfiniFrameWindowFeatures features)
         => features.Notifications;
 
-    protected override object Get(IInfiniFrameWindowFeatureNotifications feature, string command, JsonElement? args)
+    protected override object Get(INotificationsInfiniFrameWindowFeature feature, string command, JsonElement? args)
         => command == "showMessage"
             ? feature.ShowMessage(
                 Required<string>(args, "title"),
@@ -26,7 +26,7 @@ internal sealed class NotificationsWebMessageDispatcher : WindowFeatureWebMessag
                 Arg(args, "icon", InfiniFrameDialogIcon.Info))
             : throw Unsupported(command);
 
-    protected override void Post(IInfiniFrameWindowFeatureNotifications feature, string command, JsonElement? args) {
+    protected override void Post(INotificationsInfiniFrameWindowFeature feature, string command, JsonElement? args) {
         if (command == "showNotification")
             feature.ShowNotification(Required<string>(args, "title"), Required<string>(args, "body"));
         else throw Unsupported(command);

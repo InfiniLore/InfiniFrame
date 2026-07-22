@@ -7,16 +7,16 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal sealed class MonitorsWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeatureMonitors> {
+internal sealed class MonitorsWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IMonitorsInfiniFrameWindowFeature> {
     public override string FeatureName => "monitors";
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    protected override IInfiniFrameWindowFeatureMonitors SelectFeature(IInfiniFrameWindowFeatures features) 
+    protected override IMonitorsInfiniFrameWindowFeature SelectFeature(IInfiniFrameWindowFeatures features)
         => features.Monitors;
 
-    protected override object Get(IInfiniFrameWindowFeatureMonitors feature, string command, JsonElement? args) => command switch {
+    protected override object Get(IMonitorsInfiniFrameWindowFeature feature, string command, JsonElement? args) => command switch {
         "monitors" => feature.GetMonitors().ToArray(),
         "mainMonitor" => feature.GetMainMonitor(),
         "mainMonitorScreenDpi" => feature.GetMainMonitorScreenDpi(),

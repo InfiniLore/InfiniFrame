@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using FluentValidation;
@@ -16,7 +16,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.Features"/>
     public IInfiniFrameWindowBuilderFeatures Features { get; } = new InfiniFrameWindowBuilderFeatures();
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.Debugging"/>
-    public IInfiniFrameWindowBuilderFeatureDebugging Debugging => Features.Debugging;
+    public IDebuggingInfiniFrameWindowBuilderFeature Debugging => Features.Debugging;
     /// <inheritdoc cref="IHasInfiniFrameEventsStore.EventsStore"/>
     public IInfiniFrameEventsStore EventsStore { get; private init; } = new InfiniFrameEventsStore();
 

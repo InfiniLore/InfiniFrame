@@ -7,16 +7,16 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal sealed class BrowserWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeatureBrowser> {
+internal sealed class BrowserWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IBrowserInfiniFrameWindowFeature> {
     public override string FeatureName => "browser";
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    protected override IInfiniFrameWindowFeatureBrowser SelectFeature(IInfiniFrameWindowFeatures features) 
+    protected override IBrowserInfiniFrameWindowFeature SelectFeature(IInfiniFrameWindowFeatures features)
         => features.Browser;
 
-    protected override object? Get(IInfiniFrameWindowFeatureBrowser feature, string command, JsonElement? args) => command switch {
+    protected override object? Get(IBrowserInfiniFrameWindowFeature feature, string command, JsonElement? args) => command switch {
         "isContextMenuEnabled" => feature.IsContextMenuEnabled,
         "isMediaAutoplayEnabled" => feature.IsMediaAutoplayEnabled,
         "userAgent" => feature.UserAgent,
@@ -31,7 +31,7 @@ internal sealed class BrowserWebMessageDispatcher : WindowFeatureWebMessageDispa
         _ => throw Unsupported(command)
     };
 
-    protected override void Post(IInfiniFrameWindowFeatureBrowser feature, string command, JsonElement? args) {
+    protected override void Post(IBrowserInfiniFrameWindowFeature feature, string command, JsonElement? args) {
         switch (command) {
             case "enableContextMenu": feature.EnableContextMenu(Arg(args, "enabled", true)); return;
             case "enableMediaAutoplay": feature.EnableMediaAutoplay(Arg(args, "enabled", true)); return;

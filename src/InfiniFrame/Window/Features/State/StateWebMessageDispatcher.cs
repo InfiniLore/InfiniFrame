@@ -7,16 +7,16 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal sealed class StateWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeatureState> {
+internal sealed class StateWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IStateInfiniFrameWindowFeature> {
     public override string FeatureName => "state";
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    protected override IInfiniFrameWindowFeatureState SelectFeature(IInfiniFrameWindowFeatures features) 
+    protected override IStateInfiniFrameWindowFeature SelectFeature(IInfiniFrameWindowFeatures features)
         => features.State;
 
-    protected override object Get(IInfiniFrameWindowFeatureState feature, string command, JsonElement? args) => command switch {
+    protected override object Get(IStateInfiniFrameWindowFeature feature, string command, JsonElement? args) => command switch {
         "isFullScreen" => feature.IsFullScreen,
         "isMaximized" => feature.IsMaximized,
         "isMinimized" => feature.IsMinimized,
@@ -29,7 +29,7 @@ internal sealed class StateWebMessageDispatcher : WindowFeatureWebMessageDispatc
         _ => throw Unsupported(command)
     };
 
-    protected override void Post(IInfiniFrameWindowFeatureState feature, string command, JsonElement? args) {
+    protected override void Post(IStateInfiniFrameWindowFeature feature, string command, JsonElement? args) {
         switch (command) {
             case "setMaximized": feature.SetMaximized(Arg(args, "maximized", true)); return;
             case "toggleMaximized": feature.ToggleMaximized(); return;

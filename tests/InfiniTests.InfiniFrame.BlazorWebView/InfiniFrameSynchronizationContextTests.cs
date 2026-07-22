@@ -15,7 +15,7 @@ public sealed class InfiniFrameSynchronizationContextTests {
     public async Task InvokeAsync_WindowAlreadyClosed_ExecutesCallbackInline(CancellationToken ct = default) {
         var window = Substitute.For<IInfiniFrameWindow>();
         var features = Substitute.For<IInfiniFrameWindowFeatures>();
-        var invoke = Substitute.For<IInfiniFrameWindowFeatureInvoke>();
+        var invoke = Substitute.For<IInvokeInfiniFrameWindowFeature>();
         window.Features.Returns(features);
         features.Invoke.Returns(invoke);
         invoke.Invoke(Arg.Any<Action>()).Returns(InfiniFrameDispatchResult.WindowClosed);

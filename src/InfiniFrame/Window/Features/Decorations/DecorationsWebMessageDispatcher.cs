@@ -7,16 +7,16 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal sealed class DecorationsWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeatureDecorations> {
+internal sealed class DecorationsWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IDecorationsInfiniFrameWindowFeature> {
     public override string FeatureName => "decorations";
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    protected override IInfiniFrameWindowFeatureDecorations SelectFeature(IInfiniFrameWindowFeatures features) 
+    protected override IDecorationsInfiniFrameWindowFeature SelectFeature(IInfiniFrameWindowFeatures features)
         => features.Decorations;
 
-    protected override object? Get(IInfiniFrameWindowFeatureDecorations feature, string command, JsonElement? args) => command switch {
+    protected override object? Get(IDecorationsInfiniFrameWindowFeature feature, string command, JsonElement? args) => command switch {
         "isChromeless" => feature.IsChromeless,
         "isTransparent" => feature.IsTransparent,
         "title" or "getTitle" => feature.Title,
@@ -25,7 +25,7 @@ internal sealed class DecorationsWebMessageDispatcher : WindowFeatureWebMessageD
         _ => throw Unsupported(command)
     };
 
-    protected override void Post(IInfiniFrameWindowFeatureDecorations feature, string command, JsonElement? args) {
+    protected override void Post(IDecorationsInfiniFrameWindowFeature feature, string command, JsonElement? args) {
         switch (command) {
             case "setTransparent": feature.SetTransparent(Arg(args, "enabled", true)); return;
             case "setTitle": feature.SetTitle(Arg<string?>(args, "title", null)); return;

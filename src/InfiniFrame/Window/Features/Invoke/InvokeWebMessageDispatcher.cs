@@ -5,12 +5,12 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal sealed class InvokeWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeatureInvoke> {
+internal sealed class InvokeWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInvokeInfiniFrameWindowFeature> {
     public override string FeatureName => "invoke";
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    protected override IInfiniFrameWindowFeatureInvoke SelectFeature(IInfiniFrameWindowFeatures features) 
+    protected override IInvokeInfiniFrameWindowFeature SelectFeature(IInfiniFrameWindowFeatures features)
         => features.Invoke;
 }

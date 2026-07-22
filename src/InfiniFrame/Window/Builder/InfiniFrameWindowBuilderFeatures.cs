@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge.Parameters;
@@ -12,21 +12,21 @@ namespace InfiniFrame;
 /// </summary>
 public sealed class InfiniFrameWindowBuilderFeatures : IInfiniFrameWindowBuilderFeatures {
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Debugging"/>
-    public IInfiniFrameWindowBuilderFeatureDebugging Debugging { get; } = new InfiniFrameWindowBuilderFeatureDebugging();
+    public IDebuggingInfiniFrameWindowBuilderFeature Debugging { get; } = new DebuggingInfiniFrameWindowBuilderFeature();
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Browser"/>
-    public IInfiniFrameWindowBuilderFeatureBrowser Browser { get; } = new InfiniFrameWindowBuilderFeatureBrowser();
+    public IBrowserInfiniFrameWindowBuilderFeature Browser { get; } = new BrowserInfiniFrameWindowBuilderFeature();
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Decorations"/>
-    public IInfiniFrameWindowBuilderFeatureDecorations Decorations { get; } = new InfiniFrameWindowBuilderFeatureDecorations();
+    public IDecorationsInfiniFrameWindowBuilderFeature Decorations { get; } = new DecorationsInfiniFrameWindowBuilderFeature();
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Notifications"/>
-    public IInfiniFrameWindowBuilderFeatureNotifications Notifications { get; } = new InfiniFrameWindowBuilderFeatureNotifications();
+    public INotificationsInfiniFrameWindowBuilderFeature Notifications { get; } = new NotificationsInfiniFrameWindowBuilderFeature();
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.PageNavigation"/>
-    public IInfiniFrameWindowBuilderFeaturePageNavigation PageNavigation { get; } = new InfiniFrameWindowBuilderFeaturePageNavigation();
+    public IPageNavigationInfiniFrameWindowBuilderFeature PageNavigation { get; } = new PageNavigationInfiniFrameWindowBuilderFeature();
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Position"/>
-    public IInfiniFrameWindowBuilderFeaturePosition Position { get; } = new InfiniFrameWindowBuilderFeaturePosition();
+    public IPositionInfiniFrameWindowBuilderFeature Position { get; } = new PositionInfiniFrameWindowBuilderFeature();
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Size"/>
-    public IInfiniFrameWindowBuilderFeatureSize Size { get; } = new InfiniFrameWindowBuilderFeatureSize();
+    public ISizeInfiniFrameWindowBuilderFeature Size { get; } = new SizeInfiniFrameWindowBuilderFeature();
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.State"/>
-    public IInfiniFrameWindowBuilderFeatureState State { get; } = new InfiniFrameWindowBuilderFeatureState();
+    public IStateInfiniFrameWindowBuilderFeature State { get; } = new StateInfiniFrameWindowBuilderFeature();
     
 
     // -----------------------------------------------------------------------------------------------------------------

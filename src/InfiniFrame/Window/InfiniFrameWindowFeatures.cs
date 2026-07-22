@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame;
@@ -12,29 +12,29 @@ namespace InfiniFrame;
 /// </summary>
 public sealed record InfiniFrameWindowFeatures(
     /// <inheritdoc cref="IInfiniFrameWindowFeatures.Debugging"/>
-    IInfiniFrameWindowFeatureDebugging Debugging,
+    IDebuggingInfiniFrameWindowFeature Debugging,
     /// <inheritdoc cref="IInfiniFrameWindowFeatures.Lifecycle"/>
-    IInfiniFrameWindowFeatureLifecycle Lifecycle,
+    ILifecycleInfiniFrameWindowFeature Lifecycle,
     /// <inheritdoc cref="IInfiniFrameWindowFeatures.Invoke"/>
-    IInfiniFrameWindowFeatureInvoke Invoke,
+    IInvokeInfiniFrameWindowFeature Invoke,
     /// <inheritdoc cref="IInfiniFrameWindowFeatures.WebMessaging"/>
-    IInfiniFrameWindowFeatureWebMessaging WebMessaging,
+    IWebMessagingInfiniFrameWindowFeature WebMessaging,
     /// <inheritdoc cref="IInfiniFrameWindowFeatures.Notifications"/>
-    IInfiniFrameWindowFeatureNotifications Notifications,
+    INotificationsInfiniFrameWindowFeature Notifications,
     /// <inheritdoc cref="IInfiniFrameWindowFeatures.FilePickerDialogs"/>
-    IInfiniFrameWindowFeatureFilePickerDialogs FilePickerDialogs,
+    IFilePickerDialogsInfiniFrameWindowFeature FilePickerDialogs,
     /// <inheritdoc cref="IInfiniFrameWindowFeatures.Monitors"/>
-    IInfiniFrameWindowFeatureMonitors Monitors,
+    IMonitorsInfiniFrameWindowFeature Monitors,
     /// <inheritdoc cref="IInfiniFrameWindowFeatures.PageNavigation"/>
-    IInfiniFrameWindowFeaturePageNavigation PageNavigation,
+    IPageNavigationInfiniFrameWindowFeature PageNavigation,
     /// <inheritdoc cref="IInfiniFrameWindowFeatures.Position"/>
-    IInfiniFrameWindowFeaturePosition Position,
+    IPositionInfiniFrameWindowFeature Position,
     /// <inheritdoc cref="IInfiniFrameWindowFeatures.Size"/>
-    IInfiniFrameWindowFeatureSize Size,
+    ISizeInfiniFrameWindowFeature Size,
     /// <inheritdoc cref="IInfiniFrameWindowFeatures.Decorations"/>
-    IInfiniFrameWindowFeatureDecorations Decorations,
+    IDecorationsInfiniFrameWindowFeature Decorations,
     /// <inheritdoc cref="IInfiniFrameWindowFeatures.State"/>
-    IInfiniFrameWindowFeatureState State,
+    IStateInfiniFrameWindowFeature State,
     /// <inheritdoc cref="IInfiniFrameWindowFeatures.Browser"/>
-    IInfiniFrameWindowFeatureBrowser Browser
+    IBrowserInfiniFrameWindowFeature Browser
 ) : IInfiniFrameWindowFeatures;

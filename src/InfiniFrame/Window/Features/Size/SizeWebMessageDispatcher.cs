@@ -7,15 +7,15 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal sealed class SizeWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeatureSize> {
+internal sealed class SizeWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<ISizeInfiniFrameWindowFeature> {
     public override string FeatureName => "size";
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    protected override IInfiniFrameWindowFeatureSize SelectFeature(IInfiniFrameWindowFeatures features) 
+    protected override ISizeInfiniFrameWindowFeature SelectFeature(IInfiniFrameWindowFeatures features)
         => features.Size;
 
-    protected override object Get(IInfiniFrameWindowFeatureSize feature, string command, JsonElement? args) => command switch {
+    protected override object Get(ISizeInfiniFrameWindowFeature feature, string command, JsonElement? args) => command switch {
         "size" => feature.Size,
         "height" => feature.Height,
         "width" => feature.Width,
@@ -29,7 +29,7 @@ internal sealed class SizeWebMessageDispatcher : WindowFeatureWebMessageDispatch
         _ => throw Unsupported(command)
     };
 
-    protected override void Post(IInfiniFrameWindowFeatureSize feature, string command, JsonElement? args) {
+    protected override void Post(ISizeInfiniFrameWindowFeature feature, string command, JsonElement? args) {
         switch (command) {
             case "setSize": feature.SetSize(Required<int>(args, "width"), Required<int>(args, "height")); return;
             case "setHeight": feature.SetHeight(Required<int>(args, "height")); return;

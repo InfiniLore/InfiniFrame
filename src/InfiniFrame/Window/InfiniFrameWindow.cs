@@ -66,7 +66,7 @@ public sealed class InfiniFrameWindow(
     /// <inheritdoc cref="IInfiniFrameWindow.Configuration" />
     public IInfiniFrameWindowConfiguration Configuration { get; } = configuration;
     /// <inheritdoc cref="IInfiniFrameWindow.Debugging" />
-    public IInfiniFrameWindowFeatureDebugging Debugging => Features.Debugging;
+    public IDebuggingInfiniFrameWindowFeature Debugging => Features.Debugging;
     /// <inheritdoc />
     public IServiceProvider? ServiceProvider { get; } = serviceProvider;
     /// <inheritdoc cref="IInfiniFrameWindow.Events" />

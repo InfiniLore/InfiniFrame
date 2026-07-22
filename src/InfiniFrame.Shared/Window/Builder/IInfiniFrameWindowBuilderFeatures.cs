@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge.Parameters;
@@ -14,42 +14,42 @@ public interface IInfiniFrameWindowBuilderFeatures {
     /// <summary>
     ///     Gets the debugging feature builder.
     /// </summary>
-    IInfiniFrameWindowBuilderFeatureDebugging Debugging { get; }
+    IDebuggingInfiniFrameWindowBuilderFeature Debugging { get; }
 
     /// <summary>
     ///     Gets the browser feature builder.
     /// </summary>
-    IInfiniFrameWindowBuilderFeatureBrowser Browser { get; }
+    IBrowserInfiniFrameWindowBuilderFeature Browser { get; }
 
     /// <summary>
     ///     Gets the decorations feature builder.
     /// </summary>
-    IInfiniFrameWindowBuilderFeatureDecorations Decorations { get; }
+    IDecorationsInfiniFrameWindowBuilderFeature Decorations { get; }
 
     /// <summary>
     ///     Gets the notifications feature builder.
     /// </summary>
-    IInfiniFrameWindowBuilderFeatureNotifications Notifications { get; }
+    INotificationsInfiniFrameWindowBuilderFeature Notifications { get; }
 
     /// <summary>
     ///     Gets the page navigation feature builder.
     /// </summary>
-    IInfiniFrameWindowBuilderFeaturePageNavigation PageNavigation { get; }
+    IPageNavigationInfiniFrameWindowBuilderFeature PageNavigation { get; }
 
     /// <summary>
     ///     Gets the position feature builder.
     /// </summary>
-    IInfiniFrameWindowBuilderFeaturePosition Position { get; }
+    IPositionInfiniFrameWindowBuilderFeature Position { get; }
 
     /// <summary>
     ///     Gets the size feature builder.
     /// </summary>
-    IInfiniFrameWindowBuilderFeatureSize Size { get; }
+    ISizeInfiniFrameWindowBuilderFeature Size { get; }
 
     /// <summary>
     ///     Gets the state feature builder.
     /// </summary>
-    IInfiniFrameWindowBuilderFeatureState State { get; }
+    IStateInfiniFrameWindowBuilderFeature State { get; }
     
     /// <summary>
     ///     Applies all feature builder configurations to the native parameters.

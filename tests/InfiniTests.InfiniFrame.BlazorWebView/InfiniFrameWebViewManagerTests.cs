@@ -24,7 +24,7 @@ public class InfiniFrameWebViewManagerTests {
         // Arrange
         var window = Substitute.For<IInfiniFrameWindow>();
         var features = Substitute.For<IInfiniFrameWindowFeatures>();
-        var webMessaging = Substitute.For<IInfiniFrameWindowFeatureWebMessaging>();
+        var webMessaging = Substitute.For<IWebMessagingInfiniFrameWindowFeature>();
         window.Features.Returns(features);
         features.WebMessaging.Returns(webMessaging);
         webMessaging.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
@@ -64,7 +64,7 @@ public class InfiniFrameWebViewManagerTests {
         int invocation = 0;
         var window = Substitute.For<IInfiniFrameWindow>();
         var features = Substitute.For<IInfiniFrameWindowFeatures>();
-        var webMessaging = Substitute.For<IInfiniFrameWindowFeatureWebMessaging>();
+        var webMessaging = Substitute.For<IWebMessagingInfiniFrameWindowFeature>();
         window.Features.Returns(features);
         features.WebMessaging.Returns(webMessaging);
         webMessaging.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
@@ -117,7 +117,7 @@ public class InfiniFrameWebViewManagerTests {
         var sentMessages = new List<string>();
         var window = Substitute.For<IInfiniFrameWindow>();
         var features = Substitute.For<IInfiniFrameWindowFeatures>();
-        var webMessaging = Substitute.For<IInfiniFrameWindowFeatureWebMessaging>();
+        var webMessaging = Substitute.For<IWebMessagingInfiniFrameWindowFeature>();
         window.Features.Returns(features);
         features.WebMessaging.Returns(webMessaging);
         webMessaging.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
@@ -161,7 +161,7 @@ public class InfiniFrameWebViewManagerTests {
         var sendStopped = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         var window = Substitute.For<IInfiniFrameWindow>();
         var features = Substitute.For<IInfiniFrameWindowFeatures>();
-        var webMessaging = Substitute.For<IInfiniFrameWindowFeatureWebMessaging>();
+        var webMessaging = Substitute.For<IWebMessagingInfiniFrameWindowFeature>();
         window.Features.Returns(features);
         features.WebMessaging.Returns(webMessaging);
         webMessaging.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
@@ -192,7 +192,7 @@ public class InfiniFrameWebViewManagerTests {
         // Arrange
         var window = Substitute.For<IInfiniFrameWindow>();
         var features = Substitute.For<IInfiniFrameWindowFeatures>();
-        var webMessaging = Substitute.For<IInfiniFrameWindowFeatureWebMessaging>();
+        var webMessaging = Substitute.For<IWebMessagingInfiniFrameWindowFeature>();
         window.Features.Returns(features);
         features.WebMessaging.Returns(webMessaging);
         webMessaging.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
@@ -216,13 +216,13 @@ public class InfiniFrameWebViewManagerTests {
         await Task.WhenAll(producers);
         await disposeTask.WaitAsync(TimeSpan.FromSeconds(2), ct);
         int sendsAtDispose = webMessaging.ReceivedCalls()
-            .Count(call => call.GetMethodInfo().Name == nameof(IInfiniFrameWindowFeatureWebMessaging.SendWebMessageAsync));
+            .Count(call => call.GetMethodInfo().Name == nameof(IWebMessagingInfiniFrameWindowFeature.SendWebMessageAsync));
 
         manager.SendMessageForTest("late-message");
 
         // Assert
         int sendsAfterDispose = webMessaging.ReceivedCalls()
-            .Count(call => call.GetMethodInfo().Name == nameof(IInfiniFrameWindowFeatureWebMessaging.SendWebMessageAsync));
+            .Count(call => call.GetMethodInfo().Name == nameof(IWebMessagingInfiniFrameWindowFeature.SendWebMessageAsync));
         await Assert.That(sendsAfterDispose).IsEqualTo(sendsAtDispose);
     }
 

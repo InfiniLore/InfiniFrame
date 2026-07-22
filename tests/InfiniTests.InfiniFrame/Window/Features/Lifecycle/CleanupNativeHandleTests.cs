@@ -26,9 +26,9 @@ public class CleanupNativeHandleTests {
         window.LifecycleState.Returns(InfiniFrameWindowLifecycleState.NativeClosed);
 
         var validator = Substitute.For<IValidator<InfiniFrameNativeParameters>>();
-        var lifecycle = new InfiniFrameWindowFeatureLifecycle(
+        var lifecycle = new LifecycleInfiniFrameWindowFeature(
             window,
-            NullLogger<InfiniFrameWindowFeatureLifecycle>.Instance,
+            NullLogger<LifecycleInfiniFrameWindowFeature>.Instance,
             validator
         );
 
@@ -51,8 +51,8 @@ public class CleanupNativeHandleTests {
         return (ConcurrentDictionary<Guid, InfiniFrameEvents>)field.GetValue(null)!;
     }
 
-    private static void InvokeCleanupNativeHandle(InfiniFrameWindowFeatureLifecycle lifecycle) {
-        MethodInfo method = typeof(InfiniFrameWindowFeatureLifecycle)
+    private static void InvokeCleanupNativeHandle(LifecycleInfiniFrameWindowFeature lifecycle) {
+        MethodInfo method = typeof(LifecycleInfiniFrameWindowFeature)
             .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
             .Single(static candidate => candidate.Name.EndsWith("CleanupNativeHandle", StringComparison.Ordinal));
 

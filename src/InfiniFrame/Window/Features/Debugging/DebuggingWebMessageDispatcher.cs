@@ -7,16 +7,16 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal sealed class DebuggingWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeatureDebugging> {
+internal sealed class DebuggingWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IDebuggingInfiniFrameWindowFeature> {
     public override string FeatureName => "debugging";
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    protected override IInfiniFrameWindowFeatureDebugging SelectFeature(IInfiniFrameWindowFeatures features) 
+    protected override IDebuggingInfiniFrameWindowFeature SelectFeature(IInfiniFrameWindowFeatures features)
         => features.Debugging;
 
-    protected override object? Get(IInfiniFrameWindowFeatureDebugging feature, string command, JsonElement? args) => command switch {
+    protected override object? Get(IDebuggingInfiniFrameWindowFeature feature, string command, JsonElement? args) => command switch {
         "isDevToolsEnabled" => feature.IsDevToolsEnabled,
         "supportsWebInspectorAttach" => feature.SupportsWebInspectorAttach,
         "isWebInspectorEnabled" => feature.IsWebInspectorEnabled,
@@ -29,19 +29,19 @@ internal sealed class DebuggingWebMessageDispatcher : WindowFeatureWebMessageDis
         _ => throw Unsupported(command)
     };
 
-    protected override void Post(IInfiniFrameWindowFeatureDebugging feature, string command, JsonElement? args) {
+    protected override void Post(IDebuggingInfiniFrameWindowFeature feature, string command, JsonElement? args) {
         if (command == "enableDevTools") feature.EnableDevTools(Required<bool>(args, "enabled"));
         else throw Unsupported(command);
     }
 
-    private static DebugEndpointResult GetRemoteDebuggingEndpoint(IInfiniFrameWindowFeatureDebugging feature) {
+    private static DebugEndpointResult GetRemoteDebuggingEndpoint(IDebuggingInfiniFrameWindowFeature feature) {
         if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux())
             return new DebugEndpointResult(false, null, "Remote debugging endpoints are not supported on this platform.");
         bool success = feature.TryGetRemoteDebuggingEndpoint(out Uri? endpoint);
         return new DebugEndpointResult(success, endpoint?.ToString(), null);
     }
 
-    private static DebugEndpointResult ProbeEndpoint(IInfiniFrameWindowFeatureDebugging feature) {
+    private static DebugEndpointResult ProbeEndpoint(IDebuggingInfiniFrameWindowFeature feature) {
         if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux())
             return new DebugEndpointResult(false, null, "Remote debugging endpoints are not supported on this platform.");
         bool success = feature.TryProbeEndpoint(out Uri? endpoint, out string? reason);

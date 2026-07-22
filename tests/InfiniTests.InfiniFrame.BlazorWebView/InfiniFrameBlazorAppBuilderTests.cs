@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -174,7 +174,7 @@ public class InfiniFrameBlazorAppBuilderTests {
         // Arrange
         var window = Substitute.For<IInfiniFrameWindow>();
         var features = Substitute.For<IInfiniFrameWindowFeatures>();
-        var invokeFeature = Substitute.For<IInfiniFrameWindowFeatureInvoke>();
+        var invokeFeature = Substitute.For<IInvokeInfiniFrameWindowFeature>();
         window.Features.Returns(features);
         features.Invoke.Returns(invokeFeature);
         invokeFeature.When(x => _ = x.Invoke(Arg.Any<Action>()))
@@ -390,7 +390,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [NotInParallelInfiniTests]
     public async Task Build_ExposesDebuggingThroughWindowFeatures(CancellationToken ct = default) {
         // Arrange
-        var debuggingFeature = Substitute.For<IInfiniFrameWindowFeatureDebugging>();
+        var debuggingFeature = Substitute.For<IDebuggingInfiniFrameWindowFeature>();
         var features = Substitute.For<IInfiniFrameWindowFeatures>();
         var window = Substitute.For<IInfiniFrameWindow>();
         features.Debugging.Returns(debuggingFeature);

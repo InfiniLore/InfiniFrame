@@ -7,23 +7,23 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal sealed class PositionWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeaturePosition> {
+internal sealed class PositionWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IPositionInfiniFrameWindowFeature> {
     public override string FeatureName => "position";
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    protected override IInfiniFrameWindowFeaturePosition SelectFeature(IInfiniFrameWindowFeatures features) 
+    protected override IPositionInfiniFrameWindowFeature SelectFeature(IInfiniFrameWindowFeatures features)
         => features.Position;
 
-    protected override object Get(IInfiniFrameWindowFeaturePosition feature, string command, JsonElement? args) => command switch {
+    protected override object Get(IPositionInfiniFrameWindowFeature feature, string command, JsonElement? args) => command switch {
         "location" => feature.Location,
         "top" => feature.Top,
         "left" => feature.Left,
         _ => throw Unsupported(command)
     };
 
-    protected override void Post(IInfiniFrameWindowFeaturePosition feature, string command, JsonElement? args) {
+    protected override void Post(IPositionInfiniFrameWindowFeature feature, string command, JsonElement? args) {
         switch (command) {
             case "setLocation": feature.SetLocation(Required<int>(args, "left"), Required<int>(args, "top")); return;
             case "setLeft": feature.SetLeft(Required<int>(args, "left")); return;
