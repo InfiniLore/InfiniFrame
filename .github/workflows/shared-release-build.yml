@@ -1,10 +1,11 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
 name: "Shared: Release Build"
+
 on:
     workflow_call:
         inputs:
             tag_name:
-                description: 'Git tag to checkout for native builds'
+                description: "Git tag to checkout for native builds"
                 required: true
                 type: string
 
@@ -15,66 +16,65 @@ jobs:
     build:
         name: Build Native (${{ matrix.os }}/${{ matrix.arch }})
         runs-on: ${{ matrix.os }}
+        
         strategy:
             fail-fast: false
             matrix:
                 include:
-                    -   os: ubuntu-latest
-                        arch: x64
-                        libName: linux
-                    -   os: ubuntu-24.04-arm
-                        arch: arm64
-                        libName: linux
-                    -   os: windows-latest
-                        arch: x64
-                        libName: windows
-                    -   os: windows-11-arm
-                        arch: arm64
-                        libName: windows
-                    -   os: macos-15-intel
-                        arch: x64
-                        libName: osx
-                    -   os: macos-latest
-                        arch: arm64
-                        libName: osx
-        env:
-            DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-            DOTNET_CLI_TELEMETRY_OPTOUT: 1
-            Configuration: Release
+                    - os: ubuntu-latest
+                      arch: x64
+                      libName: linux
 
+                    - os: ubuntu-24.04-arm
+                      arch: arm64
+                      libName: linux
+
+                    - os: windows-latest
+                      arch: x64
+                      libName: windows
+
+                    - os: windows-11-arm
+                      arch: arm64
+                      libName: windows
+
+                    - os: macos-26-intel
+                      arch: x64
+                      libName: osx
+
+                    - os: macos-latest
+                      arch: arm64
+                      libName: osx
+        
         steps:
-            -   name: Checkout
-                uses: actions/checkout@v7
-                with:
-                    ref: ${{ inputs.tag_name }}
-                    fetch-depth: 1
+            - name: Checkout
+              uses: actions/checkout@v7
+              with:
+                  ref: ${{ inputs.tag_name }}
+                  fetch-depth: 1
 
-            -   name: Setup .NET
-                uses: actions/setup-dotnet@v5
-                with:
-                    dotnet-version: |
-                        8.x
-                        9.x
-                        10.x
+            - name: Setup dependencies
+              uses: ./.github/actions/setup-dependencies
+              with:
+                  cache-dotnet: false
 
-            -   name: Setup Native dependencies
-                uses: ./.github/actions/setup-dependencies-native
-                with:
-                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-release-build.yml') }}
-                    brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
-                    restore-nativebridge-packages: 'true'
+            - name: Setup Native dependencies
+              uses: ./.github/actions/setup-dependencies-native
+              with:
+                  brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-release-build.yml') }}
+                  brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
+                  restore-nativebridge-packages: "true"
 
-            -   name: Build Native
-                shell: bash
-                run: |
-                    dotnet build "src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj" \
-                        --configuration Release \
-                        --no-restore \
-                        -p:SolutionDir="${{ github.workspace }}/" \
-                        -p:Platform=${{ matrix.arch }}
+            - name: Build Native
+              shell: pwsh
+              run: |
+                  ./src/InfiniFrame.NativeBridge/native-build.ps1 `
+                    "Release" `
+                    "${{ matrix.arch }}" `
+                    "false"
 
-            -   name: Upload Build Artifact
-                uses: actions/upload-artifact@v7
-                with:
-                    name: native-${{ matrix.libName }}-${{ matrix.arch }}
-                    path: ${{ github.workspace }}/src/InfiniFrame.NativeBridge/artifacts/native/${{ matrix.libName }}/${{ matrix.arch }}/Release/**
+            - name: Upload Build Artifact
+              uses: actions/upload-artifact@v7
+              with:
+                  name: native-${{ matrix.libName }}-${{ matrix.arch }}
+                  path: |
+                      ${{ github.workspace }}/src/InfiniFrame.NativeBridge/artifacts/native/${{ matrix.libName }}/${{ matrix.arch }}/Release/**

@@ -62,7 +62,7 @@ jobs:
     bump-version:
         name: Bump Version
         needs: tests-platform
-        if: github.ref == 'refs/heads/core'
+        if: ${{ github.ref == 'refs/heads/core' }}
         uses: ./.github/workflows/shared-release-bump-version.yml
         with:
             version_bump: ${{ inputs.version_bump }}
