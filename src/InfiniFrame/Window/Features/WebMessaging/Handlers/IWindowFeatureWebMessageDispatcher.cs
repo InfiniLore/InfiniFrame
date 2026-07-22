@@ -1,12 +1,16 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Text.Json;
+
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-/// <summary>Compatibility registration entry point for the JavaScript-to-window feature bridge.</summary>
-public static class GetWebMessageHandler {
-    public static T RegisterGetWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder
-        => WindowFeatureWebMessageHandler.Register(builder);
+internal interface IWindowFeatureWebMessageDispatcher {
+    string FeatureName { get; }
+
+    object? Get(IInfiniFrameWindow window, string command, JsonElement? args);
+
+    void Post(IInfiniFrameWindow window, string command, JsonElement? args);
 }

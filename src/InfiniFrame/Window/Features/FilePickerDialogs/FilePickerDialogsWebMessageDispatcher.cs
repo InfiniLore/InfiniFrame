@@ -1,0 +1,26 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using System.Text.Json;
+
+namespace InfiniFrame;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+internal sealed class FilePickerDialogsWebMessageDispatcher : WindowFeatureWebMessageDispatcherBase<IInfiniFrameWindowFeatureFilePickerDialogs> {
+    public override string FeatureName => "filePickerDialogs";
+    protected override IInfiniFrameWindowFeatureFilePickerDialogs SelectFeature(IInfiniFrameWindowFeatures features) => features.FilePickerDialogs;
+
+    protected override object? Get(IInfiniFrameWindowFeatureFilePickerDialogs feature, string command, JsonElement? args) {
+        string? defaultPath = Arg<string?>(args, "defaultPath", null);
+        WindowFeatureFilePickerFilter[]? filterDtos = Arg<WindowFeatureFilePickerFilter[]?>(args, "filters", null);
+        (string Name, string[] Extensions)[]? filters = filterDtos?.Select(filter => (filter.Name, filter.Extensions)).ToArray();
+
+        return command switch {
+            "showOpenFile" => feature.ShowOpenFile(Arg(args, "title", "Choose file"), defaultPath, Arg(args, "multiSelect", false), filters),
+            "showOpenFolder" => feature.ShowOpenFolder(Arg(args, "title", "Select folder"), defaultPath, Arg(args, "multiSelect", false)),
+            "showSaveFile" => feature.ShowSaveFile(Arg(args, "title", "Save file"), defaultPath, filters),
+            _ => throw Unsupported(command)
+        };
+    }
+}
