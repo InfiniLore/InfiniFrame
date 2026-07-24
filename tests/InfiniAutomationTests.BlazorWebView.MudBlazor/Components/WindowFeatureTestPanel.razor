@@ -1,67 +1,161 @@
 @using System.Text.Json
 @using InfiniFrame
+@implements IDisposable
 @inject IInfiniFrameWindow Window
+@inject WindowTestStateResetCoordinator StateResetCoordinator
 
-<section id="window-feature-test-panel">
-    <button id="probe-browser-feature" @onclick="ProbeBrowser">Probe browser</button>
-    <output id="browser-feature-result">@Result("browser")</output>
-    <button id="probe-decorations-feature" @onclick="ProbeDecorations">Probe decorations</button>
-    <output id="decorations-feature-result">@Result("decorations")</output>
-    <button id="probe-position-feature" @onclick="ProbePosition">Probe position</button>
-    <output id="position-feature-result">@Result("position")</output>
-    <button id="probe-size-feature" @onclick="ProbeSize">Probe size</button>
-    <output id="size-feature-result">@Result("size")</output>
-    <button id="probe-state-feature" @onclick="ProbeState">Probe state</button>
-    <output id="state-feature-result">@Result("state")</output>
-    <button id="probe-lifecycle-monitors-feature" @onclick="ProbeLifecycleAndMonitors">Probe lifecycle and monitors</button>
-    <output id="lifecycle-monitors-feature-result">@Result("lifecycle-monitors")</output>
-</section>
+<MudStack Spacing="4">
+    <MudText Typo="Typo.h4">Window data exchange</MudText>
+    <MudText Typo="Typo.body1">
+        Input probes send entered data to InfiniFrame. Output probes read InfiniFrame data into their fields.
+    </MudText>
+
+    <MudGrid Spacing="3">
+        <MudItem xs="12" md="6">
+            <InputDataProbe
+                Title="@_title"
+                TitleId="current-window-title"
+                ButtonText="Apply title / reset"
+                ButtonId="title-toggle-button"
+                DataInputId="title-data-input"
+                DataLabel="Window title"
+                Data="@_titleInput"
+                DataChanged="value => _titleInput = value"
+                Submitted="ApplyOrResetTitleAsync" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <OutputDataProbe
+                Title="Fullscreen"
+                ButtonText="Toggle fullscreen"
+                ButtonId="fullscreen-toggle-button"
+                DataInputId="fullscreen-data-result"
+                DataLabel="Current fullscreen state"
+                Data="@_fullscreenData"
+                ReadRequested="ToggleFullscreenAsync" />
+        </MudItem>
+    </MudGrid>
+
+    <MudDivider />
+    <MudText Typo="Typo.h5">Window feature readers</MudText>
+    <MudGrid Spacing="3">
+        @foreach (FeatureProbe feature in Features) {
+            <MudItem xs="12" md="6" lg="4">
+                <OutputDataProbe
+                    Title="@feature.Title"
+                    ButtonText="@feature.ButtonText"
+                    ButtonId="@($"probe-{feature.Key}-feature")"
+                    DataInputId="@($"{feature.Key}-feature-result")"
+                    DataLabel="Serialized window data"
+                    Data="@Result(feature.Key)"
+                    ReadRequested="@(() => ReadFeatureAsync(feature))" />
+            </MudItem>
+        }
+    </MudGrid>
+</MudStack>
 
 @code {
-    private readonly Dictionary<string, string> _results = [];
-    private string? Result(string feature) => _results.GetValueOrDefault(feature);
-    private void Save(string feature, object value) => _results[feature] = JsonSerializer.Serialize(value);
+    private readonly Dictionary<string, string?> _results = [];
+    private string _title = WindowTestState.Default.Title;
+    private string? _titleInput = "New Title";
+    private string? _fullscreenData;
+    private TaskCompletionSource<bool>? _resetRendered;
 
-    private void ProbeBrowser() {
-        IBrowserInfiniFrameWindowFeature feature = Window.Features.Browser;
-        Save("browser", new {
-            contextMenu = feature.IsContextMenuEnabled, mediaAutoplay = feature.IsMediaAutoplayEnabled,
-            userAgent = feature.UserAgent, webSecurity = feature.IsWebSecurityEnabled,
+    private IReadOnlyList<FeatureProbe> Features => [
+        new("browser", "Browser", "Read browser", () => Serialize(Window.Features.Browser, feature => new {
+            contextMenu = feature.IsContextMenuEnabled,
+            mediaAutoplay = feature.IsMediaAutoplayEnabled,
+            userAgent = feature.UserAgent,
+            webSecurity = feature.IsWebSecurityEnabled,
             smoothScrolling = feature.IsSmoothScrollingEnabled
-        });
-    }
-
-    private void ProbeDecorations() {
-        IDecorationsInfiniFrameWindowFeature feature = Window.Features.Decorations;
-        Save("decorations", new {
-            chromeless = feature.IsChromeless, transparent = feature.IsTransparent,
-            title = feature.Title, limitLinuxTitle = feature.LimitLinuxWindowTitleLength
-        });
-    }
-
-    private void ProbePosition() {
-        IPositionInfiniFrameWindowFeature feature = Window.Features.Position;
-        Save("position", new { location = new { x = feature.Location.X, y = feature.Location.Y }, top = feature.Top, left = feature.Left });
-    }
-
-    private void ProbeSize() {
-        ISizeInfiniFrameWindowFeature feature = Window.Features.Size;
-        Save("size", new {
+        })),
+        new("decorations", "Decorations", "Read decorations", () => Serialize(Window.Features.Decorations, feature => new {
+            chromeless = feature.IsChromeless,
+            transparent = feature.IsTransparent,
+            title = feature.Title,
+            limitLinuxTitle = feature.LimitLinuxWindowTitleLength
+        })),
+        new("position", "Position", "Read position", () => Serialize(Window.Features.Position, feature => new {
+            location = new { x = feature.Location.X, y = feature.Location.Y },
+            top = feature.Top,
+            left = feature.Left
+        })),
+        new("size", "Size", "Read size", () => Serialize(Window.Features.Size, feature => new {
             size = new { width = feature.Size.Width, height = feature.Size.Height },
-            width = feature.Width, height = feature.Height, resizable = feature.IsResizable
-        });
+            width = feature.Width,
+            height = feature.Height,
+            resizable = feature.IsResizable
+        })),
+        new("state", "State", "Read state", () => Serialize(Window.Features.State, feature => new {
+            fullScreen = feature.IsFullScreen,
+            maximized = feature.IsMaximized,
+            minimized = feature.IsMinimized,
+            topMost = feature.IsTopMost,
+            zoomFactor = feature.ZoomFactor,
+            zoomEnabled = feature.IsZoomEnabled
+        })),
+        new("lifecycle-monitors", "Lifecycle and monitors", "Read lifecycle and monitors", () => Task.FromResult<string?>(
+            JsonSerializer.Serialize(new {
+                closedOrClosing = Window.Features.Lifecycle.IsClosedOrClosing(),
+                dpi = Window.Features.Monitors.GetMainMonitorScreenDpi()
+            })
+        ))
+    ];
+
+    protected override void OnInitialized()
+        => StateResetCoordinator.Resetting += RestoreDefaultUiStateAsync;
+
+    private string? Result(string feature)
+        => _results.GetValueOrDefault(feature);
+
+    private async Task ReadFeatureAsync(FeatureProbe feature)
+        => _results[feature.Key] = await feature.ReadData();
+
+    private Task ToggleFullscreenAsync() {
+        bool isFullScreen = !Window.Features.State.IsFullScreen;
+        Window.Features.State.SetFullScreen(isFullScreen);
+        _fullscreenData = isFullScreen.ToString();
+        return Task.CompletedTask;
     }
 
-    private void ProbeState() {
-        IStateInfiniFrameWindowFeature feature = Window.Features.State;
-        Save("state", new {
-            fullScreen = feature.IsFullScreen, maximized = feature.IsMaximized, minimized = feature.IsMinimized,
-            topMost = feature.IsTopMost, zoomFactor = feature.ZoomFactor, zoomEnabled = feature.IsZoomEnabled
-        });
+    private Task ApplyOrResetTitleAsync(string? title) {
+        string targetTitle = string.Equals(Window.Features.Decorations.Title, title, StringComparison.Ordinal)
+            ? WindowTestState.Default.Title
+            : title ?? string.Empty;
+
+        Window.Features.Decorations.SetTitle(targetTitle);
+        _title = targetTitle;
+        return Task.CompletedTask;
     }
 
-    private void ProbeLifecycleAndMonitors() => Save("lifecycle-monitors", new {
-        closedOrClosing = Window.Features.Lifecycle.IsClosedOrClosing(),
-        dpi = Window.Features.Monitors.GetMainMonitorScreenDpi()
-    });
+    private async Task RestoreDefaultUiStateAsync() {
+        var resetRendered = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        await InvokeAsync(() => {
+            _resetRendered = resetRendered;
+            _title = WindowTestState.Default.Title;
+            _titleInput = "New Title";
+            _fullscreenData = null;
+            _results.Clear();
+            StateHasChanged();
+        });
+        await resetRendered.Task;
+    }
+
+    protected override void OnAfterRender(bool firstRender) {
+        TaskCompletionSource<bool>? resetRendered = _resetRendered;
+        _resetRendered = null;
+        resetRendered?.SetResult(true);
+    }
+
+    private static Task<string?> Serialize<TFeature, TValue>(TFeature feature, Func<TFeature, TValue> select)
+        => Task.FromResult<string?>(JsonSerializer.Serialize(select(feature)));
+
+    public void Dispose()
+        => StateResetCoordinator.Resetting -= RestoreDefaultUiStateAsync;
+
+    private sealed record FeatureProbe(
+        string Key,
+        string Title,
+        string ButtonText,
+        Func<Task<string?>> ReadData
+    );
 }

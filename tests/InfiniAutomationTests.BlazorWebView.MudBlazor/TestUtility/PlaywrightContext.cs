@@ -14,10 +14,12 @@ namespace InfiniAutomationTests.BlazorWebView.MudBlazor.TestUtility;
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class PlaywrightContext : BlazorPlaywrightContextBase<App> {
 
+    private readonly WindowTestStateResetCoordinator _stateResetCoordinator = new();
+
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    private PlaywrightContext() : base("InfiniFrame Playwright BlazorWebView") {}
+    private PlaywrightContext() : base(WindowTestState.Default.Title) {}
     public static PlaywrightContext Instance { get; } = new();
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -31,11 +33,16 @@ public sealed class PlaywrightContext : BlazorPlaywrightContextBase<App> {
     public static void AfterAll(AssemblyHookContext _)
         => Instance.AfterAll();
 
-    protected override void ConfigureServices(IServiceCollection services)
-        => services.AddMudServices();
+    protected override void ConfigureServices(IServiceCollection services) {
+        services.AddMudServices();
+        services.AddSingleton(_stateResetCoordinator);
+    }
+
+    public override Task RestoreDefaultStateAsync()
+        => _stateResetCoordinator.RestoreAsync(Window);
 
     protected override void ConfigureRootComponents(IInfiniFrameRootComponentList rootComponents) {
-        rootComponents.RegisterForJavaScript<CustomElementProbe>("infiniframe-custom-element", "registerBlazorCustomElement");
-        rootComponents.RegisterForJavaScript<CustomElementProbe>("infiniframe-no-init-component");
+        rootComponents.RegisterForJavaScript<OutputDataProbe>("infiniframe-custom-element", "registerBlazorCustomElement");
+        rootComponents.RegisterForJavaScript<OutputDataProbe>("infiniframe-no-init-component");
     }
 }

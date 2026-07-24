@@ -1,0 +1,54 @@
+<MudPaper id="@Id" Outlined="true" Class="pa-4">
+    <MudStack Spacing="2">
+        <MudText id="@TitleId" Class="output-data-probe-title" Typo="Typo.h6">@Title</MudText>
+        <MudTextField
+            T="string"
+            InputId="@DataInputId"
+            Label="@DataLabel"
+            Variant="Variant.Outlined"
+            Value="@Data"
+            ReadOnly="true" />
+        <MudButton
+            id="@ButtonId"
+            Variant="Variant.Filled"
+            Color="@ButtonColor"
+            OnClick="ReadAsync">
+            @ButtonText
+        </MudButton>
+    </MudStack>
+</MudPaper>
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? TitleId { get; set; }
+
+    [Parameter]
+    public string ButtonText { get; set; } = "Read data";
+
+    [Parameter]
+    public string? ButtonId { get; set; }
+
+    [Parameter]
+    public Color ButtonColor { get; set; } = Color.Primary;
+
+    [Parameter]
+    public string DataLabel { get; set; } = "Output data";
+
+    [Parameter]
+    public string? DataInputId { get; set; }
+
+    [Parameter]
+    public string? Data { get; set; }
+
+    [Parameter]
+    public EventCallback ReadRequested { get; set; }
+
+    private Task ReadAsync()
+        => ReadRequested.InvokeAsync();
+}

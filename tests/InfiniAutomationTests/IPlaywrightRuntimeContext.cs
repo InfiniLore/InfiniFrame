@@ -17,6 +17,8 @@ public interface IPlaywrightRuntimeContext {
     // -----------------------------------------------------------------------------------------------------------------
     Task<IBrowser> GetOrCreateBrowserAsync(string relativeUrl = "/");
 
+    Task RestoreDefaultStateAsync();
+
     void ResetWindowCloseRequestCount();
 
     int GetWindowCloseRequestCount();

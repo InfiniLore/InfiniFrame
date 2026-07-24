@@ -45,6 +45,9 @@ public abstract class PlaywrightContextBase(string documentTitle) : IPlaywrightR
     public int GetWindowCloseRequestCount()
         => Volatile.Read(ref _windowCloseRequestCount);
 
+    public virtual Task RestoreDefaultStateAsync()
+        => Task.CompletedTask;
+
     public void SuppressWindowCloseRequests(bool suppress)
         => Volatile.Write(ref _suppressCloseRequests, suppress ? 1 : 0);
 

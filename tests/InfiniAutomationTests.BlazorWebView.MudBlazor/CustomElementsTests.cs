@@ -47,7 +47,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
 
                 const host = document.createElement("infiniframe-custom-element");
                 host.id = "custom-element-test-host";
-                host.setAttribute("label", "alpha");
+                host.setAttribute("title", "alpha");
                 document.body.appendChild(host);
             }
             """
@@ -58,7 +58,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
             stateProvider: () => EvaluateWhenPageReadyAsync<string?>(
                 page,
                 // lang=javascript
-                "() => document.querySelector('#custom-element-test-host .custom-element-probe-value')?.textContent?.trim() ?? null"
+                "() => document.querySelector('#custom-element-test-host .output-data-probe-title')?.textContent?.trim() ?? null"
             )
         );
 
@@ -67,7 +67,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
         await EvaluateWhenPageReadyAsync(
             page,
             // lang=javascript
-            "() => document.getElementById('custom-element-test-host')?.setAttribute('label', 'beta')"
+            "() => document.getElementById('custom-element-test-host')?.setAttribute('title', 'beta')"
         );
 
         string? renderedBeta = await WaitForStateChangeAsync(
@@ -75,7 +75,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
             stateProvider: () => EvaluateWhenPageReadyAsync<string?>(
                 page,
                 // lang=javascript
-                "() => document.querySelector('#custom-element-test-host .custom-element-probe-value')?.textContent?.trim() ?? null"
+                "() => document.querySelector('#custom-element-test-host .output-data-probe-title')?.textContent?.trim() ?? null"
             )
         );
 
@@ -115,7 +115,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
 
                 const host = document.createElement("infiniframe-no-init-component");
                 host.id = "no-init-component-host";
-                host.setAttribute("label", "gamma");
+                host.setAttribute("title", "gamma");
                 document.body.appendChild(host);
             }
             """
@@ -126,7 +126,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
             stateProvider: () => EvaluateWhenPageReadyAsync<string?>(
                 page,
                 // lang=javascript
-                "() => document.querySelector('#no-init-component-host .custom-element-probe-value')?.textContent?.trim() ?? null"
+                "() => document.querySelector('#no-init-component-host .output-data-probe-title')?.textContent?.trim() ?? null"
             )
         );
 
@@ -135,7 +135,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
         await EvaluateWhenPageReadyAsync(
             page,
             // lang=javascript
-            "() => document.getElementById('no-init-component-host')?.setAttribute('label', 'delta')"
+            "() => document.getElementById('no-init-component-host')?.setAttribute('title', 'delta')"
         );
 
         string? renderedDelta = await WaitForStateChangeAsync(
@@ -143,7 +143,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
             stateProvider: () => EvaluateWhenPageReadyAsync<string?>(
                 page,
                 // lang=javascript
-                "() => document.querySelector('#no-init-component-host .custom-element-probe-value')?.textContent?.trim() ?? null"
+                "() => document.querySelector('#no-init-component-host .output-data-probe-title')?.textContent?.trim() ?? null"
             )
         );
 

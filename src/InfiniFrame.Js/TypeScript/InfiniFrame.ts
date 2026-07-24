@@ -26,7 +26,7 @@ export class InfiniFrame implements InfiniFrameContract {
         this.host = existing?.host;
         this.setup = existing?.setup;
         this.messaging = existing?.messaging ?? new InfiniFrameHostMessaging();
-        this.window = existing?.window ?? new InfiniFrameWindow();
+        this.window = existing?.window?.features ? existing.window : new InfiniFrameWindow();
         this.utils = existing?.utils ?? new InfiniFrameUtils();
     }
 }

@@ -14,10 +14,13 @@ public abstract class SharedWindowFeatureMirroringTests : InfiniFramePlaywrightT
         await page.ClickAsync($"#probe-{feature}-feature");
         ILocator output = page.Locator($"#{feature}-feature-result");
         await page.WaitForFunctionAsync(
-            "element => element.textContent?.trim().startsWith('{') === true",
+            "element => (element.value ?? element.textContent)?.trim().startsWith('{') === true",
             await output.ElementHandleAsync()
         );
-        using JsonDocument document = JsonDocument.Parse((await output.TextContentAsync())!);
+        string serializedData = await output.EvaluateAsync<string>(
+            "element => element.value ?? element.textContent ?? ''"
+        );
+        using JsonDocument document = JsonDocument.Parse(serializedData);
         return document.RootElement.Clone();
     }
 
