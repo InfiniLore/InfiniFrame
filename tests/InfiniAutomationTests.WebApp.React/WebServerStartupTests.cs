@@ -1,21 +1,14 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniTests;
-using Microsoft.Playwright;
+using InfiniAutomationTests.Tests;
+using InfiniAutomationTests.WebApp.React.TestUtility;
 
-namespace InfiniAutomationTests.Tests;
+namespace InfiniAutomationTests.WebApp.React;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public abstract class SharedWebviewWindowTests : InfiniFramePlaywrightTestBase {
-    [Test]
-    [NotInParallelInfiniAutomationTests]
-    public async Task Title_ShouldBeExpectedValue(CancellationToken ct = default) {
-        IPage page = await GetRootPageAsync();
-
-        string title = await page.TitleAsync();
-
-        await Assert.That(title).IsEqualTo(RuntimeContext.DefaultDocumentTitle);
-    }
+[InheritsTests]
+public sealed class WebServerStartupTests : SharedWebServerStartupTests {
+    protected override IPlaywrightRuntimeContext RuntimeContext => PlaywrightContext.Instance;
 }
