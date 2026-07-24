@@ -4,8 +4,9 @@
 using InfiniFrame;
 using InfiniFrame.WebServer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
@@ -22,7 +23,7 @@ public class InfiniFrameWebApplicationRunSyncTests {
         ILifecycleInfiniFrameWindowFeature lifecycle = mockWindow.Features.Lifecycle;
 
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
-        webAppBuilder.WebHost.UseUrls("http://127.0.0.1:0");
+        webAppBuilder.Services.Replace(ServiceDescriptor.Singleton<IServer, NoopServer>());
         webAppBuilder.Services.AddSingleton<DisposeProbe>();
         WebApplication webApp = webAppBuilder.Build();
         var appLifetime = webApp.Services.GetRequiredService<IHostApplicationLifetime>();
