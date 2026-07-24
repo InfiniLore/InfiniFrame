@@ -9,7 +9,9 @@
         "preview": "vite preview"
     },
     "dependencies": {
-        "vue": "3.5.39"
+        "@mdi/font": "^7.4.47",
+        "vue": "3.5.39",
+        "vuetify": "^4.1.6"
     },
     "devDependencies": {
         "@types/node": "^26.1.1",

@@ -6,6 +6,7 @@ using InfiniTests;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Playwright;
 
 namespace InfiniAutomationTests.TestUtility;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -40,6 +41,27 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
 
     protected override Uri CreatePlaywrightConnectionUri(string relativeUrl)
         => new(PlaywrightConnectionUtility.CreateCdpConnectionUrl(_playwrightDevtoolsPort), relativeUrl);
+
+    public override async Task RestoreDefaultStateAsync() {
+        Window.Features.State.SetFullScreen(false);
+        Window.Features.Decorations.SetTitle(DefaultDocumentTitle);
+
+        IBrowser browser = await GetOrCreateBrowserAsync();
+        IPage? page = browser.Contexts.SelectMany(context => context.Pages).FirstOrDefault();
+        if (page is null) return;
+
+        await page.EvaluateAsync(
+            """
+            async title => {
+                if (document.fullscreenElement && document.exitFullscreen) await document.exitFullscreen();
+                document.title = title;
+                window.dispatchEvent(new Event('infiniframe:test-reset'));
+                await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            }
+            """,
+            DefaultDocumentTitle
+        );
+    }
 
     private void StartUtilityWithFreshPorts() {
         _serverPort = PlaywrightConnectionUtility.GetAvailablePort();

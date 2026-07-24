@@ -1,15 +1,14 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniAutomationTests.BlazorWebView.MudBlazor.TestUtility;
 using InfiniAutomationTests.Tests;
+using InfiniAutomationTests.WebApp.Vue.TestUtility;
 
-namespace InfiniAutomationTests.BlazorWebView.MudBlazor;
+namespace InfiniAutomationTests.WebApp.Vue;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [InheritsTests]
-// ReSharper disable once UnusedType.Global
 public sealed class DataExchangeTests : SharedDataExchangeTests {
     protected override IPlaywrightRuntimeContext RuntimeContext => PlaywrightContext.Instance;
 }
