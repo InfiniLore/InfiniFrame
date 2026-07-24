@@ -163,7 +163,10 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         //C++ handles bool values as a single byte, C# uses 4 bytes
         byte cancel = 0;
         WindowClosingResult[] doNotClose = EventsStore.Closing.Invoke(Sender, null);
-        if (doNotClose.Any(r => r == WindowClosingResult.Cancel)) cancel = 1;
+        if (doNotClose.Any(r => r == WindowClosingResult.Cancel)) {
+            cancel = 1;
+            Sender.CancelCloseRequest();
+        }
 
         return cancel;
     }
