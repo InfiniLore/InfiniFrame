@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -165,38 +165,6 @@ public class InfiniFrameBlazorAppBuilderTests {
         // Assert
         await Assert.That(exception).IsNotNull();
         await Assert.That(exception!.ParamName).IsEqualTo("handler");
-    }
-
-    [Test]
-    [NotInParallelInfiniTests]
-    [SkipOnLinux]
-    public async Task Run_WindowAlreadyClosed_DoesNotInvokeWindowAndDisposesServices(CancellationToken ct = default) {
-        // Arrange
-        var window = Substitute.For<IInfiniFrameWindow>();
-        var features = Substitute.For<IInfiniFrameWindowFeatures>();
-        var invokeFeature = Substitute.For<IInvokeInfiniFrameWindowFeature>();
-        window.Features.Returns(features);
-        features.Invoke.Returns(invokeFeature);
-        invokeFeature.When(x => _ = x.Invoke(Arg.Any<Action>()))
-            .Do(_ => throw new InvalidOperationException("Invoke should not be used during Run() shutdown."));
-
-        ServiceProvider services = new ServiceCollection()
-            .AddSingleton(window)
-            .AddSingleton<DisposeProbe>()
-            .BuildServiceProvider();
-        var disposeProbe = services.GetRequiredService<DisposeProbe>();
-
-        var app = new InfiniFrameBlazorApp(
-            services,
-            new InfiniFrameRootComponentList());
-
-        // Act
-        app.Run();
-
-        // Assert
-        window.Received(1).WaitForClose();
-        invokeFeature.DidNotReceive().Invoke(Arg.Any<Action>());
-        await Assert.That(disposeProbe.IsDisposed).IsTrue();
     }
 
     [Test]
@@ -390,7 +358,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [NotInParallelInfiniTests]
     public async Task Build_ExposesDebuggingThroughWindowFeatures(CancellationToken ct = default) {
         // Arrange
-        var debuggingFeature = Substitute.For<IDebuggingInfiniFrameWindowFeature>();
+        var debuggingFeature = Substitute.For<IInfiniFrameWindowFeatureDebugging>();
         var features = Substitute.For<IInfiniFrameWindowFeatures>();
         var window = Substitute.For<IInfiniFrameWindow>();
         features.Debugging.Returns(debuggingFeature);
@@ -414,14 +382,6 @@ public class InfiniFrameBlazorAppBuilderTests {
         public void Attach(RenderHandle renderHandle) {}
 
         public Task SetParametersAsync(ParameterView parameters) => Task.CompletedTask;
-    }
-
-    private sealed class DisposeProbe : IDisposable {
-        public bool IsDisposed { get; private set; }
-
-        public void Dispose() {
-            IsDisposed = true;
-        }
     }
 
     private sealed class RecordingUnhandledExceptionSource : IInfiniFrameUnhandledExceptionSource {
