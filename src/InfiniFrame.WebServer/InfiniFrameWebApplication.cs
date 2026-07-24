@@ -47,7 +47,21 @@ public class InfiniFrameWebApplication {
     ///     Runs the web application and window, blocking until the window is closed.
     /// </summary>
     public void Run() {
-        RunAsync().GetAwaiter().GetResult();
+        try {
+            // Wait until the host is accepting requests before creating the window. On Windows,
+            // WaitForClose owns the native message loop required by WebView2 initialization and
+            // navigation; WaitForCloseAsync only observes the closed signal.
+            WebApp.StartAsync().GetAwaiter().GetResult();
+            Window.WaitForClose();
+        }
+        finally {
+            try {
+                StopWebAppAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            finally {
+                WebApp.DisposeAsync().AsTask().GetAwaiter().GetResult();
+            }
+        }
     }
 
     /// <summary>
