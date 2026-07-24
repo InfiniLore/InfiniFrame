@@ -15,7 +15,7 @@ public class InfiniFrameBlazorAppRunSyncTests {
     public async Task Run_ShouldWaitSynchronouslyAndDisposeServices() {
         // Arrange
         var window = Substitute.For<IInfiniFrameWindow>();
-        IInfiniFrameWindowFeatureLifecycle lifecycle = window.Features.Lifecycle;
+        ILifecycleInfiniFrameWindowFeature lifecycle = window.Features.Lifecycle;
         ServiceProvider services = new ServiceCollection()
             .AddSingleton(window)
             .AddSingleton<DisposeProbe>()

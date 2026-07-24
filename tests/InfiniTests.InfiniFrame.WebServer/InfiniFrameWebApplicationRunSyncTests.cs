@@ -19,7 +19,7 @@ public class InfiniFrameWebApplicationRunSyncTests {
     public async Task Run_ShouldStartWebAppBeforeWaitingThenStopAndDisposeIt() {
         // Arrange
         IInfiniFrameWindow mockWindow = Substitute.For<IInfiniFrameWindow>();
-        IInfiniFrameWindowFeatureLifecycle lifecycle = mockWindow.Features.Lifecycle;
+        ILifecycleInfiniFrameWindowFeature lifecycle = mockWindow.Features.Lifecycle;
 
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
         webAppBuilder.WebHost.UseUrls("http://127.0.0.1:0");

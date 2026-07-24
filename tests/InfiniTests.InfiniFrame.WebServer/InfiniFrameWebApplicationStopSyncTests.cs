@@ -18,7 +18,7 @@ public class InfiniFrameWebApplicationStopSyncTests {
     public async Task Stop_ShouldStopWebAppAndCloseWindow() {
         // Arrange
         IInfiniFrameWindow mockWindow = Substitute.For<IInfiniFrameWindow>();
-        IInfiniFrameWindowFeatureLifecycle lifecycle = mockWindow.Features.Lifecycle;
+        ILifecycleInfiniFrameWindowFeature lifecycle = mockWindow.Features.Lifecycle;
         WebApplication webApp = WebApplication.CreateBuilder().Build();
         var appLifetime = webApp.Services.GetRequiredService<IHostApplicationLifetime>();
         var app = new InfiniFrameWebApplication {
