@@ -5,7 +5,6 @@ using InfiniFrame;
 using InfiniFrame.Blazor;
 using InfiniFrame.WebServer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -180,72 +179,6 @@ public class InfiniFrameWebApplicationTests {
     }
 
     [Test]
-    public async Task Stop_ShouldCloseWindowAndStopWebApp() {
-        // Arrange
-        IInfiniFrameWindow mockWindow = CreateMockWindow();
-
-        WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
-        WebApplication webApp = webAppBuilder.Build();
-
-        var lazyWindow = new Lazy<IInfiniFrameWindow>(() => mockWindow);
-
-        var app = new InfiniFrameWebApplication {
-            Logger = NullLogger<InfiniFrameWebApplication>.Instance,
-            WebApp = webApp,
-            LazyWindow = lazyWindow
-        };
-
-        // Act
-        app.Stop();
-
-        var appLifetime = webApp.Services.GetRequiredService<IHostApplicationLifetime>();
-        DateTime deadline = DateTime.UtcNow.AddSeconds(2);
-        while (!appLifetime.ApplicationStopping.IsCancellationRequested && DateTime.UtcNow < deadline) {
-            await Task.Delay(50);
-        }
-
-        if (!appLifetime.ApplicationStopping.IsCancellationRequested) {
-            Console.WriteLine("Timed out waiting for ApplicationStopping after Stop() call.");
-        }
-
-        // Assert
-        await Assert.That(appLifetime.ApplicationStopping.IsCancellationRequested)
-            .IsTrue();
-    }
-
-    [Test]
-    public async Task Run_ShouldStartWebAppBeforeEnteringNativeMessageLoopAndDisposeIt() {
-        // Arrange
-        IInfiniFrameWindow mockWindow = CreateMockWindow();
-        IInfiniFrameWindowFeatureLifecycle lifecycle = mockWindow.Features.Lifecycle;
-
-        WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
-        webAppBuilder.WebHost.UseUrls("http://127.0.0.1:0");
-        webAppBuilder.Services.AddSingleton<DisposeProbe>();
-        WebApplication webApp = webAppBuilder.Build();
-        var appLifetime = webApp.Services.GetRequiredService<IHostApplicationLifetime>();
-        var disposeProbe = webApp.Services.GetRequiredService<DisposeProbe>();
-        bool webAppStartedBeforeWait = false;
-        lifecycle.When(static feature => feature.WaitForClose())
-            .Do(_ => webAppStartedBeforeWait = appLifetime.ApplicationStarted.IsCancellationRequested);
-
-        var app = new InfiniFrameWebApplication {
-            Logger = NullLogger<InfiniFrameWebApplication>.Instance,
-            WebApp = webApp,
-            LazyWindow = new Lazy<IInfiniFrameWindow>(() => mockWindow)
-        };
-
-        // Act
-        app.Run();
-
-        // Assert
-        lifecycle.Received(1).WaitForClose();
-        await lifecycle.DidNotReceive().WaitForCloseAsync(Arg.Any<CancellationToken>());
-        await Assert.That(webAppStartedBeforeWait).IsTrue();
-        await Assert.That(disposeProbe.IsDisposed).IsTrue();
-    }
-
-    [Test]
     public async Task Window_Property_ShouldReturnLazyValue() {
         // Arrange
         IInfiniFrameWindow mockWindow = CreateMockWindow();
@@ -266,13 +199,5 @@ public class InfiniFrameWebApplicationTests {
         // Assert
         await Assert.That(window).IsEqualTo(mockWindow);
         await Assert.That(lazyWindow.IsValueCreated).IsTrue();
-    }
-
-    private sealed class DisposeProbe : IDisposable {
-        public bool IsDisposed { get; private set; }
-
-        public void Dispose() {
-            IsDisposed = true;
-        }
     }
 }

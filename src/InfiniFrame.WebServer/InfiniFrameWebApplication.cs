@@ -70,13 +70,17 @@ public class InfiniFrameWebApplication {
     /// <param name="ct">A cancellation token that can be used to cancel the operation.</param>
     /// <returns>A task that completes when the window has been closed and the web app has stopped.</returns>
     public async Task RunAsync(CancellationToken ct = default) {
-        Task runTask = WebApp.RunAsync(ct);
         try {
+            await WebApp.StartAsync(ct);
             await Window.WaitForCloseAsync(ct);
         }
         finally {
-            await StopWebAppAsync(CancellationToken.None);
-            await ObserveHostRunCompletionAsync(runTask);
+            try {
+                await StopWebAppAsync(CancellationToken.None);
+            }
+            finally {
+                await WebApp.DisposeAsync();
+            }
         }
     }
 
@@ -148,15 +152,6 @@ public class InfiniFrameWebApplication {
         }
         catch (Exception e) when (ExceptionsUtility.IsNonFatalException(e)) {
             Logger.LogError(e, "Error stopping web app");
-        }
-    }
-
-    private static async Task ObserveHostRunCompletionAsync(Task runTask) {
-        try {
-            await runTask;
-        }
-        catch (OperationCanceledException) {
-            // Host shutdown cancellation is expected.
         }
     }
 }
