@@ -45,6 +45,14 @@ export class StateInfiniFrameWindowFeature extends InfiniFrameWindowFeature impl
         return this.get<Rectangle>("cachedPreMaximizedBounds");
     }
 
+    setCachedPreFullScreenBounds(bounds: Rectangle) {
+        return this.post("setCachedPreFullScreenBounds", {bounds});
+    }
+
+    setCachedPreMaximizedBounds(bounds: Rectangle) {
+        return this.post("setCachedPreMaximizedBounds", {bounds});
+    }
+
     setMaximized(maximized = true) {
         return this.post("setMaximized", {maximized});
     }

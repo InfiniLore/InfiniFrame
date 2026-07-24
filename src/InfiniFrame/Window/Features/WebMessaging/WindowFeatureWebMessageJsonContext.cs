@@ -14,7 +14,15 @@ namespace InfiniFrame;
 [JsonSourceGenerationOptions(
     JsonSerializerDefaults.Web,
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
-    UseStringEnumConverter = true
+    Converters = [
+        typeof(PointWebMessageJsonConverter), typeof(SizeWebMessageJsonConverter), typeof(RectangleWebMessageJsonConverter),
+        typeof(CamelCaseEnumWebMessageJsonConverter<ResizeOrigin>),
+        typeof(CamelCaseEnumWebMessageJsonConverter<InfiniFrameDialogButtons>),
+        typeof(CamelCaseEnumWebMessageJsonConverter<InfiniFrameDialogIcon>),
+        typeof(CamelCaseEnumWebMessageJsonConverter<InfiniFrameDialogResult>),
+        typeof(CamelCaseEnumWebMessageJsonConverter<InfiniFrameWindowLifecycleState>),
+        typeof(CamelCaseEnumWebMessageJsonConverter<InfiniFrameDebugEndpointStatus>)
+    ]
 )]
 [JsonSerializable(typeof(bool))]
 [JsonSerializable(typeof(int))]

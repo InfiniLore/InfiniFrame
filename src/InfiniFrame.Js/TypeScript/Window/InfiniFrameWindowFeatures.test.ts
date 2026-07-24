@@ -151,6 +151,8 @@ const contracts: FeatureContract[] = [
             ["getCachedPreMaximizedBoundsAsync", "cachedPreMaximizedBounds", {x: 0, y: 0, width: 800, height: 600}]
         ].map(([method, command, result]) => ({method: method as string, command: command as string, result})),
         posts: [
+            ["setCachedPreFullScreenBounds", "setCachedPreFullScreenBounds", [{x: 1, y: 2, width: 800, height: 600}], {bounds: {x: 1, y: 2, width: 800, height: 600}}],
+            ["setCachedPreMaximizedBounds", "setCachedPreMaximizedBounds", [{x: 3, y: 4, width: 1024, height: 768}], {bounds: {x: 3, y: 4, width: 1024, height: 768}}],
             ["setMaximized", "setMaximized", [false], {maximized: false}], ["toggleMaximized", "toggleMaximized", [], undefined], ["setMinimized", "setMinimized", [false], {minimized: false}],
             ["setFullScreen", "setFullScreen", [false], {fullScreen: false}], ["setFocused", "setFocused", [], undefined], ["setZoomFactor", "setZoomFactor", [125], {zoom: 125}],
             ["enableZoom", "enableZoom", [false], {enabled: false}], ["setTopMost", "setTopMost", [false], {topMost: false}]
@@ -182,18 +184,93 @@ describe.each(contracts)("$feature window feature", ({feature, gets = [], posts 
     it.each(gets)("$method maps to $command", async ({method, command, parameters = [], args, result}) => {
         getMessageFromHostAsync.mockResolvedValueOnce(JSON.stringify(result));
 
-        const actual = await (windowApi.features[feature] as any)[method](...parameters);
+        const featureApi = windowApi.features[feature];
+        const member: unknown = Reflect.get(featureApi, method);
+        if (typeof member !== "function") throw new TypeError(`Feature method '${feature}.${method}' does not exist.`);
+        const actual = await Reflect.apply(member, featureApi, parameters);
 
         expect(getMessageFromHostAsync).toHaveBeenCalledWith(`__infiniframe:window:features:${feature}:${command}`, args);
         expect(actual).toEqual(result);
     });
 
     it.each(posts)("$method maps to $command", ({method, command, parameters = [], args}) => {
-        (windowApi.features[feature] as any)[method](...parameters);
+        const featureApi = windowApi.features[feature];
+        const member: unknown = Reflect.get(featureApi, method);
+        if (typeof member !== "function") throw new TypeError(`Feature method '${feature}.${method}' does not exist.`);
+        Reflect.apply(member, featureApi, parameters);
 
         expect(sendMessageToHost).toHaveBeenCalledWith(SendToHostMessageIds.windowFeatureRequest, {
             command: `__infiniframe:window:features:${feature}:${command}`,
             args
         });
+    });
+});
+
+describe("strongly typed feature behavior", () => {
+    const sendMessageToHost = vi.fn();
+    const getMessageFromHostAsync = vi.fn();
+    let windowApi: InfiniFrameWindow;
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        const messaging = {
+            sendMessageToHost,
+            getMessageFromHostAsync,
+            assignMessageReceivedHandler: vi.fn(),
+            unregisterMessageReceivedHandler: vi.fn()
+        } as unknown as InfiniFrameHostMessaging;
+        windowApi = new InfiniFrameWindow();
+        window.infiniframe = {messaging, window: windowApi, utils: {setPointerCapture: vi.fn(), releasePointerCapture: vi.fn()}};
+    });
+
+    it("routes cached state bounds setters with typed Rectangle values", () => {
+        windowApi.features.state.setCachedPreFullScreenBounds({x: 1, y: 2, width: 800, height: 600});
+        windowApi.features.state.setCachedPreMaximizedBounds({x: 3, y: 4, width: 1024, height: 768});
+
+        expect(sendMessageToHost).toHaveBeenNthCalledWith(1, SendToHostMessageIds.windowFeatureRequest, {
+            command: "__infiniframe:window:features:state:setCachedPreFullScreenBounds",
+            args: {bounds: {x: 1, y: 2, width: 800, height: 600}}
+        });
+        expect(sendMessageToHost).toHaveBeenNthCalledWith(2, SendToHostMessageIds.windowFeatureRequest, {
+            command: "__infiniframe:window:features:state:setCachedPreMaximizedBounds",
+            args: {bounds: {x: 3, y: 4, width: 1024, height: 768}}
+        });
+    });
+
+    it("sends C#-matching defaults when optional mutation arguments are omitted", () => {
+        windowApi.features.browser.enableContextMenu();
+        windowApi.features.browser.enableMediaAutoplay();
+        windowApi.features.decorations.setTransparent();
+        windowApi.features.decorations.setLimitLinuxWindowTitleLength();
+        windowApi.features.size.setResizable();
+        windowApi.features.state.setMaximized();
+        windowApi.features.state.setMinimized();
+        windowApi.features.state.setFullScreen();
+        windowApi.features.state.enableZoom();
+        windowApi.features.state.setTopMost();
+
+        expect(sendMessageToHost.mock.calls.map(call => call[1].args)).toEqual([
+            {enabled: true}, {enabled: true}, {enabled: true}, {enabled: true}, {resizable: true},
+            {maximized: true}, {minimized: true}, {fullScreen: true}, {enabled: true}, {topMost: true}
+        ]);
+    });
+
+    it("returns null results without changing their serialized meaning", async () => {
+        getMessageFromHostAsync.mockResolvedValueOnce("null");
+
+        await expect(windowApi.features.browser.getUserAgentAsync()).resolves.toBeNull();
+    });
+
+    it("propagates malformed response JSON", async () => {
+        getMessageFromHostAsync.mockResolvedValueOnce("not-json");
+
+        await expect(windowApi.features.state.getZoomFactorAsync()).rejects.toBeInstanceOf(SyntaxError);
+    });
+
+    it("propagates rejected host calls", async () => {
+        const failure = new Error("host failed");
+        getMessageFromHostAsync.mockRejectedValueOnce(failure);
+
+        await expect(windowApi.features.monitors.getMonitorsAsync()).rejects.toBe(failure);
     });
 });

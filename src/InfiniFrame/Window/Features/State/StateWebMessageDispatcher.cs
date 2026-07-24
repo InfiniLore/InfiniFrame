@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Drawing;
 using System.Text.Json;
 
 namespace InfiniFrame;
@@ -31,6 +32,8 @@ internal sealed class StateWebMessageDispatcher : WindowFeatureWebMessageDispatc
 
     protected override void Post(IStateInfiniFrameWindowFeature feature, string command, JsonElement? args) {
         switch (command) {
+            case "setCachedPreFullScreenBounds": feature.CachedPreFullScreenBounds = Required<Rectangle>(args, "bounds"); return;
+            case "setCachedPreMaximizedBounds": feature.CachedPreMaximizedBounds = Required<Rectangle>(args, "bounds"); return;
             case "setMaximized": feature.SetMaximized(Arg(args, "maximized", true)); return;
             case "toggleMaximized": feature.ToggleMaximized(); return;
             case "setMinimized": feature.SetMinimized(Arg(args, "minimized", true)); return;

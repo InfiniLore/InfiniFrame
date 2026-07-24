@@ -32,9 +32,10 @@ internal abstract class WindowFeatureWebMessageDispatcherBase<TFeature> : IWindo
         if (args is not { ValueKind: JsonValueKind.Object } value || !value.TryGetProperty(name, out JsonElement property))
             throw new ArgumentException($"Argument '{name}' is required.");
 
-        JsonTypeInfo typeInfo = WindowFeatureWebMessageJsonContext.Default.GetTypeInfo(typeof(T))
-            ?? throw new InvalidOperationException($"No JSON metadata is registered for '{typeof(T)}'.");
-        return (T?)property.Deserialize(typeInfo)
+        if (property.ValueKind == JsonValueKind.Null)
+            throw new ArgumentException($"Argument '{name}' cannot be null.");
+
+        return Deserialize<T>(property, name)
             ?? throw new ArgumentException($"Argument '{name}' cannot be null.");
     }
 
@@ -45,9 +46,18 @@ internal abstract class WindowFeatureWebMessageDispatcherBase<TFeature> : IWindo
             return fallback;
         }
 
+        return Deserialize<T>(property, name) ?? fallback;
+    }
+
+    private static T? Deserialize<T>(JsonElement property, string name) {
         JsonTypeInfo typeInfo = WindowFeatureWebMessageJsonContext.Default.GetTypeInfo(typeof(T))
             ?? throw new InvalidOperationException($"No JSON metadata is registered for '{typeof(T)}'.");
-        return (T?)property.Deserialize(typeInfo) ?? fallback;
+        try {
+            return (T?)property.Deserialize(typeInfo);
+        }
+        catch (JsonException exception) {
+            throw new ArgumentException($"Argument '{name}' is invalid.", name, exception);
+        }
     }
 
     protected InvalidOperationException Unsupported(string command)

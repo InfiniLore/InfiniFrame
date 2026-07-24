@@ -9,22 +9,27 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class WindowFeatureWebMessageRouter {
+    private static readonly IWindowFeatureWebMessageDispatcher[] RegisteredDispatchers = [
+        new BrowserWebMessageDispatcher(),
+        new DebuggingWebMessageDispatcher(),
+        new DecorationsWebMessageDispatcher(),
+        new FilePickerDialogsWebMessageDispatcher(),
+        new InvokeWebMessageDispatcher(),
+        new LifecycleWebMessageDispatcher(),
+        new MonitorsWebMessageDispatcher(),
+        new NotificationsWebMessageDispatcher(),
+        new PageNavigationWebMessageDispatcher(),
+        new PositionWebMessageDispatcher(),
+        new SizeWebMessageDispatcher(),
+        new StateWebMessageDispatcher(),
+        new WebMessagingWebMessageDispatcher()
+    ];
+
     private static readonly Dictionary<string, IWindowFeatureWebMessageDispatcher> Dispatchers
-        = new IWindowFeatureWebMessageDispatcher[] {
-            new BrowserWebMessageDispatcher(),
-            new DebuggingWebMessageDispatcher(),
-            new DecorationsWebMessageDispatcher(),
-            new FilePickerDialogsWebMessageDispatcher(),
-            new InvokeWebMessageDispatcher(),
-            new LifecycleWebMessageDispatcher(),
-            new MonitorsWebMessageDispatcher(),
-            new NotificationsWebMessageDispatcher(),
-            new PageNavigationWebMessageDispatcher(),
-            new PositionWebMessageDispatcher(),
-            new SizeWebMessageDispatcher(),
-            new StateWebMessageDispatcher(),
-            new WebMessagingWebMessageDispatcher()
-        }.ToDictionary(keySelector: dispatcher => dispatcher.FeatureName, StringComparer.OrdinalIgnoreCase);
+        = RegisteredDispatchers.ToDictionary(keySelector: dispatcher => dispatcher.FeatureName, StringComparer.OrdinalIgnoreCase);
+
+    internal static IReadOnlyList<string> RegisteredFeatureNames
+        => RegisteredDispatchers.Select(dispatcher => dispatcher.FeatureName).ToArray();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods

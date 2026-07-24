@@ -1,8 +1,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame;
 using InfiniTests;
 using Microsoft.Playwright;
+using System.Drawing;
 using System.Text.Json;
 
 namespace InfiniAutomationTests.Tests;
@@ -96,5 +98,64 @@ public abstract class SharedWindowFeatureMirroringTests : InfiniFramePlaywrightT
 
         await Assert.That(actual.GetProperty("closedOrClosing").GetBoolean()).IsEqualTo(RuntimeContext.Window.Features.Lifecycle.IsClosedOrClosing());
         await Assert.That(actual.GetProperty("dpi").GetDouble()).IsEqualTo(RuntimeContext.Window.Features.Monitors.GetMainMonitorScreenDpi());
+    }
+
+    [Test]
+    [NotInParallelInfiniAutomationTests]
+    public async Task StateCachedBounds_ShouldMirrorInBothDirectionsAndRestoreState(CancellationToken ct = default) {
+        IPage page = await GetRootPageAsync();
+        IStateInfiniFrameWindowFeature state = RuntimeContext.Window.Features.State;
+        Rectangle originalFullScreen = state.CachedPreFullScreenBounds;
+        Rectangle originalMaximized = state.CachedPreMaximizedBounds;
+        var fromJavascriptFullScreen = new Rectangle(11, 22, 833, 611);
+        var fromJavascriptMaximized = new Rectangle(33, 44, 1055, 799);
+        var fromNativeFullScreen = new Rectangle(55, 66, 877, 633);
+        var fromNativeMaximized = new Rectangle(77, 88, 1099, 811);
+
+        try {
+            await page.EvaluateAsync(
+                "bounds => { const state = window.infiniframe.window.features.state; state.setCachedPreFullScreenBounds(bounds.fullScreen); state.setCachedPreMaximizedBounds(bounds.maximized); }",
+                new {
+                    fullScreen = ToJsonShape(fromJavascriptFullScreen),
+                    maximized = ToJsonShape(fromJavascriptMaximized)
+                });
+
+            await WaitForBoundsAsync(state, fromJavascriptFullScreen, fromJavascriptMaximized, ct);
+            state.CachedPreFullScreenBounds = fromNativeFullScreen;
+            state.CachedPreMaximizedBounds = fromNativeMaximized;
+
+            JsonElement returned = await page.EvaluateAsync<JsonElement>(
+                "async () => { const state = window.infiniframe.window.features.state; return { fullScreen: await state.getCachedPreFullScreenBoundsAsync(), maximized: await state.getCachedPreMaximizedBoundsAsync() }; }");
+
+            await AssertRectangleAsync(returned.GetProperty("fullScreen"), fromNativeFullScreen);
+            await AssertRectangleAsync(returned.GetProperty("maximized"), fromNativeMaximized);
+        }
+        finally {
+            state.CachedPreFullScreenBounds = originalFullScreen;
+            state.CachedPreMaximizedBounds = originalMaximized;
+        }
+    }
+
+    private static object ToJsonShape(Rectangle value)
+        => new {x = value.X, y = value.Y, width = value.Width, height = value.Height};
+
+    private static async Task WaitForBoundsAsync(
+        IStateInfiniFrameWindowFeature state,
+        Rectangle fullScreen,
+        Rectangle maximized,
+        CancellationToken ct
+    ) {
+        for (int attempt = 0; attempt < 50; attempt++) {
+            if (state.CachedPreFullScreenBounds == fullScreen && state.CachedPreMaximizedBounds == maximized) return;
+            await Task.Delay(20, ct);
+        }
+        throw new TimeoutException("JavaScript cached-bounds mutations did not reach the native feature state.");
+    }
+
+    private static async Task AssertRectangleAsync(JsonElement actual, Rectangle expected) {
+        await Assert.That(actual.GetProperty("x").GetInt32()).IsEqualTo(expected.X);
+        await Assert.That(actual.GetProperty("y").GetInt32()).IsEqualTo(expected.Y);
+        await Assert.That(actual.GetProperty("width").GetInt32()).IsEqualTo(expected.Width);
+        await Assert.That(actual.GetProperty("height").GetInt32()).IsEqualTo(expected.Height);
     }
 }
