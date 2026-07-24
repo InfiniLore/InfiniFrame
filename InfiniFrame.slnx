@@ -107,6 +107,7 @@
     <Project Path="examples/InfiniFrameExample.WebApp.Blazor/InfiniFrameExample.WebApp.Blazor.csproj" />
     <Project Path="examples/InfiniFrameExample.WebApp.React/InfiniFrameExample.WebApp.React.csproj" />
     <Project Path="examples/InfiniFrameExample.WebApp.Vue/InfiniFrameExample.WebApp.Vue.csproj" />
+    <Project Path="examples/InfiniFrameExample.WebApp/InfiniFrameExample.WebApp.csproj" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/InfiniFrame.Blazor/InfiniFrame.Blazor.csproj" />
