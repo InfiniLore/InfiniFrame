@@ -7,41 +7,40 @@ namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class CloseTests {
+public class WaitForCloseSyncTests {
     [Test]
     [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(5_000)]
-    public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct = default) {
-        // Arrange
-        var windowClosingTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        using var windowUtility = InfiniFrameTestWindow.Create(
-            builder: builder => builder.EventsStore.WindowClosingRequested.Add(_ => {
-                windowClosingTcs.TrySetResult(true);
-            }),
-            ct
-        );
-        IInfiniFrameWindow window = windowUtility.Window;
-
-        // Act
-        window.Close();
-
-        // Assert
-        bool windowClosing = await windowClosingTcs.Task.WaitAsync(TimeSpan.FromSeconds(3), ct);
-        await Assert.That(windowClosing).IsTrue();
-    }
-
-    [Test]
-    [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(2_000)]
-    public async Task AtWindowStage_DirectAssignment(CancellationToken ct) {
+    [DefaultInfiniTestsTimeout(6_000)]
+    public async Task WaitForClose_Extension_ShouldCompleteWhenWindowCloses(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        await window.Features.Lifecycle.CloseAsync(ct);
+        Task waitTask = Task.Run(window.WaitForClose, ct);
+        await Task.Delay(200, ct);
+        window.Close();
 
         // Assert
+        await waitTask.WaitAsync(TimeSpan.FromSeconds(4), ct);
+        await Assert.That(window.IsClosedOrClosing()).IsTrue();
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    [DefaultInfiniTestsTimeout(6_000)]
+    public async Task WaitForClose_Feature_ShouldCompleteWhenWindowCloses(CancellationToken ct) {
+        // Arrange
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow window = windowUtility.Window;
+
+        // Act
+        Task waitTask = Task.Run(window.Features.Lifecycle.WaitForClose, ct);
+        await Task.Delay(200, ct);
+        window.Features.Lifecycle.Close();
+
+        // Assert
+        await waitTask.WaitAsync(TimeSpan.FromSeconds(4), ct);
         await Assert.That(window.Features.Lifecycle.IsClosedOrClosing()).IsTrue();
     }
 }

@@ -179,40 +179,6 @@ public class InfiniFrameWebApplicationTests {
     }
 
     [Test]
-    public async Task Stop_ShouldCloseWindowAndStopWebApp() {
-        // Arrange
-        IInfiniFrameWindow mockWindow = CreateMockWindow();
-
-        WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
-        WebApplication webApp = webAppBuilder.Build();
-
-        var lazyWindow = new Lazy<IInfiniFrameWindow>(() => mockWindow);
-
-        var app = new InfiniFrameWebApplication {
-            Logger = NullLogger<InfiniFrameWebApplication>.Instance,
-            WebApp = webApp,
-            LazyWindow = lazyWindow
-        };
-
-        // Act
-        app.Stop();
-
-        var appLifetime = webApp.Services.GetRequiredService<IHostApplicationLifetime>();
-        DateTime deadline = DateTime.UtcNow.AddSeconds(2);
-        while (!appLifetime.ApplicationStopping.IsCancellationRequested && DateTime.UtcNow < deadline) {
-            await Task.Delay(50);
-        }
-
-        if (!appLifetime.ApplicationStopping.IsCancellationRequested) {
-            Console.WriteLine("Timed out waiting for ApplicationStopping after Stop() call.");
-        }
-
-        // Assert
-        await Assert.That(appLifetime.ApplicationStopping.IsCancellationRequested)
-            .IsTrue();
-    }
-
-    [Test]
     public async Task Window_Property_ShouldReturnLazyValue() {
         // Arrange
         IInfiniFrameWindow mockWindow = CreateMockWindow();

@@ -68,7 +68,7 @@ public sealed class InfiniFrameTestServer : IAsyncDisposable {
         Action<IInfiniFrameWindowBuilder>? windowBuilder = null,
         CancellationToken cancellationToken = default
     ) {
-        var ready = new TaskCompletionSource<InfiniFrameTestServer>(
+        var ready = new TaskCompletionSource<(IInfiniFrameWindow Window, WebApplication WebApplication)>(
             TaskCreationOptions.RunContinuationsAsynchronously);
         var thread = new Thread(() => {
             try {
@@ -87,23 +87,19 @@ public sealed class InfiniFrameTestServer : IAsyncDisposable {
                 app.WebApp.MapStaticAssets();
                 #endif
 
-                app.WebApp.StartAsync(cancellationToken).GetAwaiter().GetResult();
-                IInfiniFrameWindow window = app.Window;
+                // Exercise the documented WebServer lifecycle in automation tests. Run() starts
+                // Kestrel before creating the window, and the created callback runs on this STA
+                // thread immediately before WaitForClose() enters the native message loop.
+                app.UseAutoServerClose();
+                builder.WindowBuilder.EventsStore.WindowCreated.Add(w => {
+                    ready.SetResult((w, app.WebApp));
+                });
 
-                var util = new InfiniFrameTestServer(Thread.CurrentThread) {
-                    Window = window,
-                    WebApplication = app.WebApp
-                };
-
-                ready.SetResult(util);
-
-                window.WaitForClose();
-
-                app.WebApp.StopAsync(cancellationToken).GetAwaiter().GetResult();
-                util.DisposeAsync().GetAwaiter().GetResult();
+                app.Run();
             }
             catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-                ready.TrySetException(ex);
+                if (!ready.TrySetException(ex))
+                    Console.WriteLine($"[InfiniFrameServerTestUtility] Server thread failed after startup: {ex}");
             }
         }) {
             IsBackground = true
@@ -114,6 +110,11 @@ public sealed class InfiniFrameTestServer : IAsyncDisposable {
 
         thread.Start();
 
-        return ready.Task.WaitAsync(cancellationToken).GetAwaiter().GetResult();
+        (IInfiniFrameWindow window, WebApplication webApplication) =
+            ready.Task.WaitAsync(cancellationToken).GetAwaiter().GetResult();
+        return new InfiniFrameTestServer(thread) {
+            Window = window,
+            WebApplication = webApplication
+        };
     }
 }
