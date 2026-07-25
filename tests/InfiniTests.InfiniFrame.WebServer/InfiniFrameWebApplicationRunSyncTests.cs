@@ -68,7 +68,7 @@ public class InfiniFrameWebApplicationRunSyncTests {
             LazyWindow = new Lazy<IInfiniFrameWindow>(() => mockWindow)
         };
 
-        InvalidOperationException? exception = Assert.Throws<InvalidOperationException>(() => app.Run());
+        InvalidOperationException exception = Assert.Throws<InvalidOperationException>(() => app.Run());
 
         await Assert.That(exception).IsNotNull();
         await Assert.That(exception!.Message).IsEqualTo("wait failed");
