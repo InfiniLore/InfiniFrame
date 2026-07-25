@@ -27,11 +27,11 @@ public class WindowFeatureWebMessageHandlerTests {
     [Test]
     public async Task TryParseRequest_QualifiedCommand_SeparatesFeatureCommandAndArguments() {
         const string payload = """
-                               {
-                                 "command": "__infiniframe:window:features:size:setSize",
-                                 "args": { "width": 800, "height": 600 }
-                               }
-                               """;
+            {
+              "command": "__infiniframe:window:features:size:setSize",
+              "args": { "width": 800, "height": 600 }
+            }
+            """;
 
         bool success = WindowFeatureWebMessageHandler.TryParseRequest(payload, out WindowFeatureWebMessageRequest request);
 

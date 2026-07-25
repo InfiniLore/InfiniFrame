@@ -1,5 +1,5 @@
-@using System.Text.Json
 @using InfiniFrame
+@using System.Text.Json
 @implements IDisposable
 @inject IInfiniFrameWindow Window
 @inject WindowTestStateResetCoordinator StateResetCoordinator
@@ -21,7 +21,7 @@
                 DataLabel="Window title"
                 Data="@_titleInput"
                 DataChanged="value => _titleInput = value"
-                Submitted="ApplyOrResetTitleAsync" />
+                Submitted="ApplyOrResetTitleAsync"/>
         </MudItem>
         <MudItem xs="12" md="6">
             <OutputDataProbe
@@ -31,11 +31,11 @@
                 DataInputId="fullscreen-data-result"
                 DataLabel="Current fullscreen state"
                 Data="@_fullscreenData"
-                ReadRequested="ToggleFullscreenAsync" />
+                ReadRequested="ToggleFullscreenAsync"/>
         </MudItem>
     </MudGrid>
 
-    <MudDivider />
+    <MudDivider/>
     <MudText Typo="Typo.h5">Window feature readers</MudText>
     <MudGrid Spacing="3">
         @foreach (FeatureProbe feature in Features) {
@@ -47,7 +47,7 @@
                     DataInputId="@($"{feature.Key}-feature-result")"
                     DataLabel="Serialized window data"
                     Data="@Result(feature.Key)"
-                    ReadRequested="@(() => ReadFeatureAsync(feature))" />
+                    ReadRequested="@(() => ReadFeatureAsync(feature))"/>
             </MudItem>
         }
     </MudGrid>
@@ -61,31 +61,31 @@
     private TaskCompletionSource<bool>? _resetRendered;
 
     private IReadOnlyList<FeatureProbe> Features => [
-        new("browser", "Browser", "Read browser", () => Serialize(Window.Features.Browser, feature => new {
+        new("browser", "Browser", "Read browser", ReadData: () => Serialize(Window.Features.Browser, select: feature => new {
             contextMenu = feature.IsContextMenuEnabled,
             mediaAutoplay = feature.IsMediaAutoplayEnabled,
             userAgent = feature.UserAgent,
             webSecurity = feature.IsWebSecurityEnabled,
             smoothScrolling = feature.IsSmoothScrollingEnabled
         })),
-        new("decorations", "Decorations", "Read decorations", () => Serialize(Window.Features.Decorations, feature => new {
+        new("decorations", "Decorations", "Read decorations", ReadData: () => Serialize(Window.Features.Decorations, select: feature => new {
             chromeless = feature.IsChromeless,
             transparent = feature.IsTransparent,
             title = feature.Title,
             limitLinuxTitle = feature.LimitLinuxWindowTitleLength
         })),
-        new("position", "Position", "Read position", () => Serialize(Window.Features.Position, feature => new {
+        new("position", "Position", "Read position", ReadData: () => Serialize(Window.Features.Position, select: feature => new {
             location = new { x = feature.Location.X, y = feature.Location.Y },
             top = feature.Top,
             left = feature.Left
         })),
-        new("size", "Size", "Read size", () => Serialize(Window.Features.Size, feature => new {
+        new("size", "Size", "Read size", ReadData: () => Serialize(Window.Features.Size, select: feature => new {
             size = new { width = feature.Size.Width, height = feature.Size.Height },
             width = feature.Width,
             height = feature.Height,
             resizable = feature.IsResizable
         })),
-        new("state", "State", "Read state", () => Serialize(Window.Features.State, feature => new {
+        new("state", "State", "Read state", ReadData: () => Serialize(Window.Features.State, select: feature => new {
             fullScreen = feature.IsFullScreen,
             maximized = feature.IsMaximized,
             minimized = feature.IsMinimized,
@@ -93,7 +93,7 @@
             zoomFactor = feature.ZoomFactor,
             zoomEnabled = feature.IsZoomEnabled
         })),
-        new("lifecycle-monitors", "Lifecycle and monitors", "Read lifecycle and monitors", () => Task.FromResult<string?>(
+        new("lifecycle-monitors", "Lifecycle and monitors", "Read lifecycle and monitors", ReadData: () => Task.FromResult<string?>(
             JsonSerializer.Serialize(new {
                 closedOrClosing = Window.Features.Lifecycle.IsClosedOrClosing(),
                 dpi = Window.Features.Monitors.GetMainMonitorScreenDpi()
@@ -158,4 +158,5 @@
         string ButtonText,
         Func<Task<string?>> ReadData
     );
+
 }

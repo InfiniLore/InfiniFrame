@@ -68,8 +68,8 @@ public class SetSizeTests {
         window.Features.Size.SetSize(targetWidth, targetHeight);
 
         // Assert
-        int updatedWidth = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Width, originalWidth, TimeSpan.FromSeconds(5), ct);
-        int updatedHeight = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Height, originalHeight, TimeSpan.FromSeconds(5), ct);
+        int updatedWidth = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.Width, originalWidth, TimeSpan.FromSeconds(5), ct);
+        int updatedHeight = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.Height, originalHeight, TimeSpan.FromSeconds(5), ct);
         await Assert.That(updatedWidth).IsEqualTo(targetWidth);
         await Assert.That(updatedHeight).IsEqualTo(targetHeight);
     }
@@ -91,8 +91,8 @@ public class SetSizeTests {
         IInfiniFrameWindow returnedWindow = window.SetSize(targetWidth, targetHeight);
 
         // Assert
-        int updatedWidth = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Width, originalWidth, TimeSpan.FromSeconds(5), ct);
-        int updatedHeight = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Height, originalHeight, TimeSpan.FromSeconds(5), ct);
+        int updatedWidth = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.Width, originalWidth, TimeSpan.FromSeconds(5), ct);
+        int updatedHeight = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.Height, originalHeight, TimeSpan.FromSeconds(5), ct);
         await Assert.That(updatedWidth).IsEqualTo(targetWidth);
         await Assert.That(updatedHeight).IsEqualTo(targetHeight);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
@@ -103,7 +103,7 @@ public class SetSizeTests {
     [Arguments(720, 410)]
     public async Task AtWindowStage_ThroughBuilderAssignment(int width, int height, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Size.SetSize(width, height);
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;

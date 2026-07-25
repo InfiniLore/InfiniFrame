@@ -132,9 +132,11 @@ public static class PlaywrightConnectionUtility {
         if (retryWindow == TimeSpan.Zero) retryWindow = DefaultPlaywrightConnectRetryWindow;
         if (retryInterval == TimeSpan.Zero) retryInterval = DefaultPlaywrightConnectRetryInterval;
 
-        string engine = OperatingSystem.IsWindows() ? "WebView2 (Edge Chromium CDP)"
-            : OperatingSystem.IsLinux() ? "WebKitGTK (WEBKIT_INSPECTOR_HTTP_SERVER CDP)"
-            : "unknown";
+        string engine = OperatingSystem.IsWindows()
+            ? "WebView2 (Edge Chromium CDP)"
+            : OperatingSystem.IsLinux()
+                ? "WebKitGTK (WEBKIT_INSPECTOR_HTTP_SERVER CDP)"
+                : "unknown";
 
         Console.WriteLine($"[PlaywrightConnect] Platform: {engine}, endpoint: {url}");
 

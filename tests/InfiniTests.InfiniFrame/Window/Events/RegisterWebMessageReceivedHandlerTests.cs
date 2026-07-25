@@ -58,7 +58,7 @@ public class RegisterWebMessageReceivedHandlerTests {
         private readonly Dictionary<Type, object> _services;
 
         public TestServiceProvider(params object[] services) {
-            _services = services.ToDictionary(static service => service.GetType(), static service => service);
+            _services = services.ToDictionary(keySelector: static service => service.GetType(), elementSelector: static service => service);
         }
 
         public object? GetService(Type serviceType)

@@ -43,7 +43,7 @@ public class LimitLinuxWindowTitleLengthTests {
     [Arguments(false)]
     public async Task AtWindowStage_ThroughBuilderAssignment(bool value, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Decorations.SetLimitLinuxWindowTitleLength(value);
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;

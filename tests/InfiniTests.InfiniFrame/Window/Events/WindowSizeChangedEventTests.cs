@@ -20,7 +20,7 @@ public class WindowSizeChangedEventTests {
             .RegisterSizeChangedHandler((_, _) => {
                 // ReSharper disable once AccessToModifiedClosure
                 int current = Interlocked.Increment(ref sizeChangedCount);
-                
+
                 // ReSharper disable once AccessToModifiedClosure
                 if (current > Volatile.Read(ref baseline)) {
                     eventRaised.TrySetResult(true);

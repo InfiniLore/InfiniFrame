@@ -16,7 +16,7 @@ public class TopMostTests {
     public async Task AtBuilderStage_DirectAssignment(bool value, CancellationToken ct) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        
+
         // Act
         builder.Features.State.SetTopMost(value);
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
@@ -25,14 +25,14 @@ public class TopMostTests {
         await Assert.That(builder.Features.State.StartTopMost).IsEqualTo(value);
         await Assert.That(initParameters.Topmost).IsEqualTo(value);
     }
-    
+
     [Test]
     [Arguments(true)]
     [Arguments(false)]
     public async Task AtBuilderStage_ExtensionAssignment(bool value, CancellationToken ct) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        
+
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetTopMost(value);
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
@@ -42,7 +42,7 @@ public class TopMostTests {
         await Assert.That(returnedBuilder).IsSameReferenceAs(builder);
         await Assert.That(initParameters.Topmost).IsEqualTo(value);
     }
-    
+
     [Test]
     [NotInParallelInfiniTests]
     [Arguments(true)]
@@ -59,7 +59,7 @@ public class TopMostTests {
         // Assert
         await Assert.That(window.Features.State.IsTopMost).IsEqualTo(value);
     }
-    
+
     [Test]
     [NotInParallelInfiniTests]
     [Arguments(true)]
@@ -77,7 +77,7 @@ public class TopMostTests {
         await Assert.That(window.Features.State.IsTopMost).IsEqualTo(value);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }
-    
+
     [Test]
     [NotInParallelInfiniTests]
     [Arguments(true)]
@@ -85,7 +85,7 @@ public class TopMostTests {
     [SkipOnLinux]
     public async Task AtWindowStage_ThroughBuilderAssignment(bool value, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.State.SetTopMost(value);
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;

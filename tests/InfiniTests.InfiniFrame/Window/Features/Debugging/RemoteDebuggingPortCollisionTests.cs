@@ -24,9 +24,10 @@ public class RemoteDebuggingPortCollisionTests {
         listener.Start();
 
         // Act
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => {
-            using var _ = InfiniFrameTestWindow.Create(builder => {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(action: () => {
+            using var _ = InfiniFrameTestWindow.Create(builder: builder => {
                 if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) return;
+
                 builder.Features.Debugging.SetRemoteDebuggingPort(port);
             }, ct);
         }, ct));

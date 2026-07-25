@@ -18,7 +18,7 @@ public class WindowClosedEventTests {
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => builder.RegisterWindowClosedHandler(_ => {
             // ReSharper disable once AccessToModifiedClosure
             int current = Interlocked.Increment(ref closedEventCount);
-            
+
             // ReSharper disable once AccessToModifiedClosure
             if (current > Volatile.Read(ref baseline)) {
                 eventRaised.TrySetResult(true);
@@ -46,7 +46,7 @@ public class WindowClosedEventTests {
         window.RegisterWindowClosedHandler(_ => {
             // ReSharper disable once AccessToModifiedClosure
             int current = Interlocked.Increment(ref closedEventCount);
-            
+
             // ReSharper disable once AccessToModifiedClosure
             if (current > Volatile.Read(ref baseline)) {
                 eventRaised.TrySetResult(true);

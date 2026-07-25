@@ -56,7 +56,7 @@ public class SetMinHeightTests {
         window.Features.Size.SetMinHeight(targetMinHeight);
 
         // Assert
-        int newMinHeight = await PollUtility.WaitForChangeAsync(() => window.Features.Size.MinHeight, originalMinHeight, TimeSpan.FromSeconds(5), ct);
+        int newMinHeight = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.MinHeight, originalMinHeight, TimeSpan.FromSeconds(5), ct);
         await Assert.That(newMinHeight).IsEqualTo(targetMinHeight);
     }
 
@@ -74,7 +74,7 @@ public class SetMinHeightTests {
         IInfiniFrameWindow returnedWindow = window.SetMinHeight(targetMinHeight);
 
         // Assert
-        int newMinHeight = await PollUtility.WaitForChangeAsync(() => window.Features.Size.MinHeight, originalMinHeight, TimeSpan.FromSeconds(5), ct);
+        int newMinHeight = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.MinHeight, originalMinHeight, TimeSpan.FromSeconds(5), ct);
         await Assert.That(newMinHeight).IsEqualTo(targetMinHeight);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }

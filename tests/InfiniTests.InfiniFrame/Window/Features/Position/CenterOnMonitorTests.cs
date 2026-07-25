@@ -13,7 +13,7 @@ public class CenterOnMonitorTests {
     [SkipOnLinux]
     public async Task AtWindowStage_DirectAssignment_ValidMonitorIndex(CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Size.SetSize(700, 420);
             builder.Features.Position.SetLocation(100, 100);
         }, ct);
@@ -24,7 +24,7 @@ public class CenterOnMonitorTests {
         window.Features.Position.CenterOnMonitor(0);
 
         // Assert
-        int updatedLeft = await PollUtility.WaitForChangeAsync(() => window.Features.Position.Left, initialLeft, TimeSpan.FromSeconds(5), ct);
+        int updatedLeft = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Position.Left, initialLeft, TimeSpan.FromSeconds(5), ct);
         await Assert.That(updatedLeft).IsNotEqualTo(initialLeft);
         await Assert.That(window.IsClosedOrClosing()).IsFalse();
     }
@@ -34,7 +34,7 @@ public class CenterOnMonitorTests {
     [SkipOnLinux]
     public async Task AtWindowStage_DirectAssignment_InvalidMonitorIndex_DoesNotThrow(CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Size.SetSize(700, 420);
             builder.Features.Position.SetLocation(140, 140);
         }, ct);
@@ -51,7 +51,7 @@ public class CenterOnMonitorTests {
     [SkipOnLinux]
     public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Size.SetSize(700, 420);
             builder.Features.Position.SetLocation(160, 160);
         }, ct);
@@ -62,7 +62,7 @@ public class CenterOnMonitorTests {
         IInfiniFrameWindow returnedWindow = window.CenterOnMonitor(0);
 
         // Assert
-        int updatedLeft = await PollUtility.WaitForChangeAsync(() => window.Features.Position.Left, initialLeft, TimeSpan.FromSeconds(5), ct);
+        int updatedLeft = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Position.Left, initialLeft, TimeSpan.FromSeconds(5), ct);
         await Assert.That(updatedLeft).IsNotEqualTo(initialLeft);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
         await Assert.That(window.IsClosedOrClosing()).IsFalse();

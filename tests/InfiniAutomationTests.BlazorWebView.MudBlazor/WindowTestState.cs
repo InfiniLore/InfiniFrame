@@ -1,11 +1,10 @@
 using InfiniFrame;
 
 namespace InfiniAutomationTests.BlazorWebView.MudBlazor;
-
 public sealed record WindowTestState(string Title, bool IsFullScreen) {
     public static WindowTestState Default { get; } = new(
-        Title: "InfiniFrame Playwright BlazorWebView",
-        IsFullScreen: false
+        "InfiniFrame Playwright BlazorWebView",
+        false
     );
 
     public void Restore(IInfiniFrameWindow window) {

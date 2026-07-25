@@ -137,7 +137,7 @@ public abstract class SharedWindowFeatureMirroringTests : InfiniFramePlaywrightT
     }
 
     private static object ToJsonShape(Rectangle value)
-        => new {x = value.X, y = value.Y, width = value.Width, height = value.Height};
+        => new { x = value.X, y = value.Y, width = value.Width, height = value.Height };
 
     private static async Task WaitForBoundsAsync(
         IStateInfiniFrameWindowFeature state,
@@ -147,8 +147,10 @@ public abstract class SharedWindowFeatureMirroringTests : InfiniFramePlaywrightT
     ) {
         for (int attempt = 0; attempt < 50; attempt++) {
             if (state.CachedPreFullScreenBounds == fullScreen && state.CachedPreMaximizedBounds == maximized) return;
+
             await Task.Delay(20, ct);
         }
+
         throw new TimeoutException("JavaScript cached-bounds mutations did not reach the native feature state.");
     }
 

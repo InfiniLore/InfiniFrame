@@ -107,18 +107,18 @@ public class WindowFeatureDispatcherCommandTests {
         var features = Substitute.For<IInfiniFrameWindowFeatures>();
         window.Features.Returns(features);
         object feature = featureName switch {
-            "browser" => Assign(Substitute.For<IBrowserInfiniFrameWindowFeature>(), value => features.Browser.Returns(value)),
-            "debugging" => Assign(Substitute.For<IDebuggingInfiniFrameWindowFeature>(), value => features.Debugging.Returns(value)),
-            "decorations" => Assign(Substitute.For<IDecorationsInfiniFrameWindowFeature>(), value => features.Decorations.Returns(value)),
-            "filePickerDialogs" => Assign(Substitute.For<IFilePickerDialogsInfiniFrameWindowFeature>(), value => features.FilePickerDialogs.Returns(value)),
-            "lifecycle" => Assign(Substitute.For<ILifecycleInfiniFrameWindowFeature>(), value => features.Lifecycle.Returns(value)),
-            "monitors" => Assign(Substitute.For<IMonitorsInfiniFrameWindowFeature>(), value => features.Monitors.Returns(value)),
-            "notifications" => Assign(Substitute.For<INotificationsInfiniFrameWindowFeature>(), value => features.Notifications.Returns(value)),
-            "pageNavigation" => Assign(Substitute.For<IPageNavigationInfiniFrameWindowFeature>(), value => features.PageNavigation.Returns(value)),
-            "position" => Assign(Substitute.For<IPositionInfiniFrameWindowFeature>(), value => features.Position.Returns(value)),
-            "size" => Assign(Substitute.For<ISizeInfiniFrameWindowFeature>(), value => features.Size.Returns(value)),
-            "state" => Assign(Substitute.For<IStateInfiniFrameWindowFeature>(), value => features.State.Returns(value)),
-            "webMessaging" => Assign(Substitute.For<IWebMessagingInfiniFrameWindowFeature>(), value => features.WebMessaging.Returns(value)),
+            "browser" => Assign(Substitute.For<IBrowserInfiniFrameWindowFeature>(), assign: value => features.Browser.Returns(value)),
+            "debugging" => Assign(Substitute.For<IDebuggingInfiniFrameWindowFeature>(), assign: value => features.Debugging.Returns(value)),
+            "decorations" => Assign(Substitute.For<IDecorationsInfiniFrameWindowFeature>(), assign: value => features.Decorations.Returns(value)),
+            "filePickerDialogs" => Assign(Substitute.For<IFilePickerDialogsInfiniFrameWindowFeature>(), assign: value => features.FilePickerDialogs.Returns(value)),
+            "lifecycle" => Assign(Substitute.For<ILifecycleInfiniFrameWindowFeature>(), assign: value => features.Lifecycle.Returns(value)),
+            "monitors" => Assign(Substitute.For<IMonitorsInfiniFrameWindowFeature>(), assign: value => features.Monitors.Returns(value)),
+            "notifications" => Assign(Substitute.For<INotificationsInfiniFrameWindowFeature>(), assign: value => features.Notifications.Returns(value)),
+            "pageNavigation" => Assign(Substitute.For<IPageNavigationInfiniFrameWindowFeature>(), assign: value => features.PageNavigation.Returns(value)),
+            "position" => Assign(Substitute.For<IPositionInfiniFrameWindowFeature>(), assign: value => features.Position.Returns(value)),
+            "size" => Assign(Substitute.For<ISizeInfiniFrameWindowFeature>(), assign: value => features.Size.Returns(value)),
+            "state" => Assign(Substitute.For<IStateInfiniFrameWindowFeature>(), assign: value => features.State.Returns(value)),
+            "webMessaging" => Assign(Substitute.For<IWebMessagingInfiniFrameWindowFeature>(), assign: value => features.WebMessaging.Returns(value)),
             _ => throw new ArgumentOutOfRangeException(nameof(featureName), featureName, null)
         };
         feature.ClearReceivedCalls();
@@ -132,6 +132,7 @@ public class WindowFeatureDispatcherCommandTests {
 
     private static JsonElement? Parse(string? json) {
         if (json is null) return null;
+
         using JsonDocument document = JsonDocument.Parse(json);
         return document.RootElement.Clone();
     }

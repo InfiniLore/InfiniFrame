@@ -12,45 +12,137 @@ public class WindowFeatureParityTests {
     private static readonly IReadOnlyDictionary<Type, FeatureMembers> Manifest
         = new Dictionary<Type, FeatureMembers> {
             [typeof(IBrowserInfiniFrameWindowFeature)] = Included(
-                "IsContextMenuEnabled", "IsMediaAutoplayEnabled", "UserAgent", "IsFileSystemAccessEnabled",
-                "IsWebSecurityEnabled", "IsJavascriptClipboardAccessEnabled", "IsMediaStreamEnabled",
-                "IsIgnoreCertificateErrorsEnabled", "GrantBrowserPermissions", "IsSmoothScrollingEnabled",
-                "BrowserControlInitParameters", "EnableContextMenu", "EnableMediaAutoplay", "SetUserAgent",
-                "Win32SetWebView2Path", "ClearBrowserAutoFill"),
+                "IsContextMenuEnabled",
+                "IsMediaAutoplayEnabled",
+                "UserAgent",
+                "IsFileSystemAccessEnabled",
+                "IsWebSecurityEnabled",
+                "IsJavascriptClipboardAccessEnabled",
+                "IsMediaStreamEnabled",
+                "IsIgnoreCertificateErrorsEnabled",
+                "GrantBrowserPermissions",
+                "IsSmoothScrollingEnabled",
+                "BrowserControlInitParameters",
+                "EnableContextMenu",
+                "EnableMediaAutoplay",
+                "SetUserAgent",
+                "Win32SetWebView2Path",
+                "ClearBrowserAutoFill"
+            ),
             [typeof(IDebuggingInfiniFrameWindowFeature)] = Included(
-                "IsDevToolsEnabled", "SupportsWebInspectorAttach", "IsWebInspectorEnabled",
-                "SupportsRemoteDebuggingEndpoint", "RemoteDebuggingPort", "Capabilities", "EnableDevTools",
-                "GetDiagnostics", "TryGetRemoteDebuggingEndpoint", "TryProbeEndpoint"),
+                "IsDevToolsEnabled",
+                "SupportsWebInspectorAttach",
+                "IsWebInspectorEnabled",
+                "SupportsRemoteDebuggingEndpoint",
+                "RemoteDebuggingPort",
+                "Capabilities",
+                "EnableDevTools",
+                "GetDiagnostics",
+                "TryGetRemoteDebuggingEndpoint",
+                "TryProbeEndpoint"
+            ),
             [typeof(IDecorationsInfiniFrameWindowFeature)] = Included(
-                "IsChromeless", "IsTransparent", "Title", "IconFilePath", "LimitLinuxWindowTitleLength",
-                "SetTransparent", "SetTitle", "SetIconFile", "SetLimitLinuxWindowTitleLength"),
+                "IsChromeless",
+                "IsTransparent",
+                "Title",
+                "IconFilePath",
+                "LimitLinuxWindowTitleLength",
+                "SetTransparent",
+                "SetTitle",
+                "SetIconFile",
+                "SetLimitLinuxWindowTitleLength"
+            ),
             [typeof(IFilePickerDialogsInfiniFrameWindowFeature)] = Included(
-                "ShowOpenFile", "ShowOpenFileAsync", "ShowOpenFolder", "ShowOpenFolderAsync", "ShowSaveFile", "ShowSaveFileAsync"),
+                "ShowOpenFile",
+                "ShowOpenFileAsync",
+                "ShowOpenFolder",
+                "ShowOpenFolderAsync",
+                "ShowSaveFile",
+                "ShowSaveFileAsync"
+            ),
             [typeof(IInvokeInfiniFrameWindowFeature)] = Excluded(
                 ("Invoke", "Managed Action delegates cannot cross web messaging."),
-                ("DispatchAsync", "Managed Action delegates cannot cross web messaging.")),
+                ("DispatchAsync", "Managed Action delegates cannot cross web messaging.")
+            ),
             [typeof(ILifecycleInfiniFrameWindowFeature)] = IncludedAndExcluded(
                 ["State", "Close", "CloseAsync", "IsClosedOrClosing"],
                 ("WaitForClose", "Blocking the web-message/UI thread would deadlock."),
-                ("WaitForCloseAsync", "A JS wait requires a future event-backed Promise.")),
-            [typeof(IMonitorsInfiniFrameWindowFeature)] = Included("GetMonitors", "GetMainMonitor", "GetMainMonitorScreenDpi"),
-            [typeof(INotificationsInfiniFrameWindowFeature)] = Included("ShowNotification", "ShowMessage"),
+                ("WaitForCloseAsync", "A JS wait requires a future event-backed Promise.")
+            ),
+            [typeof(IMonitorsInfiniFrameWindowFeature)] = Included(
+                "GetMonitors",
+                "GetMainMonitor",
+                "GetMainMonitorScreenDpi"
+            ),
+            [typeof(INotificationsInfiniFrameWindowFeature)] = Included(
+                "ShowNotification",
+                "ShowMessage"
+            ),
             [typeof(IPageNavigationInfiniFrameWindowFeature)] = IncludedWithCounts(
-                ("Load", 2), ("TryLoadUri", 1), ("TryLoadPath", 1), ("LoadRawString", 1)),
+                ("Load", 2),
+                ("TryLoadUri", 1),
+                ("TryLoadPath", 1),
+                ("LoadRawString", 1)
+            ),
             [typeof(IPositionInfiniFrameWindowFeature)] = IncludedWithCounts(
-                ("Location", 1), ("Top", 1), ("Left", 1), ("SetLocation", 2), ("SetLeft", 1), ("SetTop", 1),
-                ("Offset", 3), ("Center", 1), ("CenterOnCurrentMonitor", 1), ("CenterOnMonitor", 1),
-                ("MoveWithinCurrentMonitorArea", 3)),
+                ("Location", 1),
+                ("Top", 1),
+                ("Left", 1),
+                ("SetLocation", 2),
+                ("SetLeft", 1),
+                ("SetTop", 1),
+                ("Offset", 3),
+                ("Center", 1),
+                ("CenterOnCurrentMonitor", 1),
+                ("CenterOnMonitor", 1),
+                ("MoveWithinCurrentMonitorArea", 3)
+            ),
             [typeof(ISizeInfiniFrameWindowFeature)] = IncludedWithCounts(
-                ("Size", 1), ("Height", 1), ("Width", 1), ("MaxSize", 1), ("MaxHeight", 1), ("MaxWidth", 1),
-                ("MinSize", 1), ("MinHeight", 1), ("MinWidth", 1), ("IsResizable", 1), ("SetSize", 2),
-                ("SetHeight", 1), ("SetMaxSize", 2), ("SetMaxHeight", 1), ("SetMaxWidth", 1), ("SetMinSize", 2),
-                ("SetMinHeight", 1), ("SetMinWidth", 1), ("SetWidth", 1), ("Resize", 1), ("SetResizable", 1)),
+                ("Size", 1),
+                ("Height", 1),
+                ("Width", 1),
+                ("MaxSize", 1),
+                ("MaxHeight", 1),
+                ("MaxWidth", 1),
+                ("MinSize", 1),
+                ("MinHeight", 1),
+                ("MinWidth", 1),
+                ("IsResizable", 1),
+                ("SetSize", 2),
+                ("SetHeight", 1),
+                ("SetMaxSize", 2),
+                ("SetMaxHeight", 1),
+                ("SetMaxWidth", 1),
+                ("SetMinSize", 2),
+                ("SetMinHeight", 1),
+                ("SetMinWidth", 1),
+                ("SetWidth", 1),
+                ("Resize", 1),
+                ("SetResizable", 1)
+            ),
             [typeof(IStateInfiniFrameWindowFeature)] = Included(
-                "IsFullScreen", "IsMaximized", "IsMinimized", "IsTopMost", "IsFocused", "ZoomFactor", "IsZoomEnabled",
-                "CachedPreFullScreenBounds", "CachedPreMaximizedBounds", "SetMaximized", "ToggleMaximized", "SetMinimized",
-                "SetFullScreen", "SetFocused", "SetZoomFactor", "EnableZoom", "SetTopMost"),
-            [typeof(IWebMessagingInfiniFrameWindowFeature)] = Included("SendWebMessage", "SendWebMessageAsync")
+                "IsFullScreen",
+                "IsMaximized",
+                "IsMinimized",
+                "IsTopMost",
+                "IsFocused",
+                "ZoomFactor",
+                "IsZoomEnabled",
+                "CachedPreFullScreenBounds",
+                "CachedPreMaximizedBounds",
+                "SetMaximized",
+                "ToggleMaximized",
+                "SetMinimized",
+                "SetFullScreen",
+                "SetFocused",
+                "SetZoomFactor",
+                "EnableZoom",
+                "SetTopMost"
+            ),
+            [typeof(IWebMessagingInfiniFrameWindowFeature)] = Included(
+                "SendWebMessage",
+                "SendWebMessageAsync"
+            )
         };
 
     [Test]
@@ -60,10 +152,14 @@ public class WindowFeatureParityTests {
                 .Cast<MemberInfo>()
                 .Concat(featureType.GetMethods(BindingFlags.Instance | BindingFlags.Public).Where(method => !method.IsSpecialName))
                 .GroupBy(member => member.Name)
-                .ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal);
+                .ToDictionary(
+                keySelector: group => group.Key, 
+                elementSelector: group => group.Count(), StringComparer.Ordinal);
             Dictionary<string, int> audited = expected.Included
                 .Concat(expected.Excluded.Keys.Select(name => new KeyValuePair<string, int>(name, 1)))
-                .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+                .ToDictionary(
+                keySelector: pair => pair.Key, 
+                elementSelector: pair => pair.Value, StringComparer.Ordinal);
 
             await Assert.That(actual).IsEquivalentTo(audited);
             await Assert.That(expected.Excluded.Values.All(reason => !string.IsNullOrWhiteSpace(reason))).IsTrue();
@@ -71,16 +167,30 @@ public class WindowFeatureParityTests {
     }
 
     private static FeatureMembers Included(params string[] names)
-        => new(names.ToDictionary(name => name, _ => 1, StringComparer.Ordinal), new Dictionary<string, string>());
+        => new(names.ToDictionary(
+            keySelector: name => name, 
+            elementSelector: _ => 1, StringComparer.Ordinal), new Dictionary<string, string>()
+        );
 
     private static FeatureMembers IncludedWithCounts(params (string Name, int Count)[] members)
-        => new(members.ToDictionary(member => member.Name, member => member.Count, StringComparer.Ordinal), new Dictionary<string, string>());
+        => new(members.ToDictionary(
+            keySelector: member => member.Name, 
+            elementSelector: member => member.Count, StringComparer.Ordinal), new Dictionary<string, string>()
+        );
 
     private static FeatureMembers Excluded(params (string Name, string Reason)[] members)
-        => new(new Dictionary<string, int>(), members.ToDictionary(member => member.Name, member => member.Reason, StringComparer.Ordinal));
+        => new(new Dictionary<string, int>(), members.ToDictionary(
+            keySelector: member => member.Name, 
+            elementSelector: member => member.Reason, StringComparer.Ordinal)
+        );
 
     private static FeatureMembers IncludedAndExcluded(string[] included, params (string Name, string Reason)[] excluded)
         => new(
-            included.ToDictionary(name => name, _ => 1, StringComparer.Ordinal),
-            excluded.ToDictionary(member => member.Name, member => member.Reason, StringComparer.Ordinal));
+            included.ToDictionary(
+            keySelector: name => name, 
+            elementSelector: _ => 1, StringComparer.Ordinal),
+            excluded.ToDictionary(
+            keySelector: member => member.Name, 
+            elementSelector: member => member.Reason, StringComparer.Ordinal)
+        );
 }

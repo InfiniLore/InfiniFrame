@@ -20,7 +20,7 @@ public sealed class ResizeViewportTests {
         var firstViewport = new TaskCompletionSource<(int Width, int Height)>(TaskCreationOptions.RunContinuationsAsynchronously);
         var resizedViewport = new TaskCompletionSource<(int Width, int Height)>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder
                 .SetSize(520, 360)
                 .SetStartPageContent("""
@@ -66,7 +66,7 @@ public sealed class ResizeViewportTests {
                     </body>
                     </html>
                     """)
-                .RegisterWebMessagePostHandler("vp", (_, payload) => {
+                .RegisterWebMessagePostHandler("vp", handler: (_, payload) => {
                     if (!TryParseViewport(payload, out (int Width, int Height) viewport)) return;
 
                     if (!firstViewport.Task.IsCompleted) {
@@ -90,8 +90,8 @@ public sealed class ResizeViewportTests {
         int targetHeight = originalHeight + 120;
 
         window.SetSize(targetWidth, targetHeight);
-        _ = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Width, originalWidth, TimeSpan.FromSeconds(5), ct);
-        _ = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Height, originalHeight, TimeSpan.FromSeconds(5), ct);
+        _ = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.Width, originalWidth, TimeSpan.FromSeconds(5), ct);
+        _ = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.Height, originalHeight, TimeSpan.FromSeconds(5), ct);
 
         (int Width, int Height) newViewport = await resizedViewport.Task.WaitAsync(TimeSpan.FromSeconds(15), ct);
 

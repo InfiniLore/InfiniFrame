@@ -60,7 +60,7 @@ public class SetHeightTests {
         window.Features.Size.SetHeight(targetHeight);
 
         // Assert
-        int newHeight = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Height, originalHeight, TimeSpan.FromSeconds(5), ct);
+        int newHeight = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.Height, originalHeight, TimeSpan.FromSeconds(5), ct);
         await Assert.That(newHeight).IsEqualTo(targetHeight);
     }
 
@@ -78,7 +78,7 @@ public class SetHeightTests {
         IInfiniFrameWindow returnedWindow = window.SetHeight(targetHeight);
 
         // Assert
-        int newHeight = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Height, originalHeight, TimeSpan.FromSeconds(5), ct);
+        int newHeight = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.Height, originalHeight, TimeSpan.FromSeconds(5), ct);
         await Assert.That(newHeight).IsEqualTo(targetHeight);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }

@@ -10,7 +10,7 @@ namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Parameters;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameNativeParametersTests {
-    
+
     [Test]
     public async Task SequentialLayout_SizeMatchesMarshalSizeOf(CancellationToken ct = default) {
         // Arrange
@@ -142,7 +142,7 @@ public class InfiniFrameNativeParametersTests {
             };
 
             // Act
-            InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.NativeParametersReturnAsIsPtr(ref parameters, out IntPtr tempPtr );
+            InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.NativeParametersReturnAsIsPtr(ref parameters, out IntPtr tempPtr);
             await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
 
             newParametersPtr = tempPtr;

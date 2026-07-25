@@ -4,7 +4,7 @@ import InputDataProbe from './InputDataProbe.vue'
 import OutputDataProbe from './OutputDataProbe.vue'
 import {defaultWindowTestState, windowTestResetEvent} from '../windowTestState'
 
-type FeatureProbe = {key: string, title: string, buttonText: string, readData: () => Promise<unknown>}
+type FeatureProbe = { key: string, title: string, buttonText: string, readData: () => Promise<unknown> }
 
 const title = ref<string>(defaultWindowTestState.title)
 const titleInput = ref<string>(defaultWindowTestState.titleInput)
@@ -25,27 +25,72 @@ async function toggleFullscreen() {
 }
 
 const probes: FeatureProbe[] = [
-    {key: 'browser', title: 'Browser', buttonText: 'Read browser', readData: async () => {
-        const feature = features().browser
-        return {contextMenu: await feature.isContextMenuEnabledAsync(), mediaAutoplay: await feature.isMediaAutoplayEnabledAsync(), userAgent: await feature.getUserAgentAsync(), webSecurity: await feature.isWebSecurityEnabledAsync(), smoothScrolling: await feature.isSmoothScrollingEnabledAsync()}
-    }},
-    {key: 'decorations', title: 'Decorations', buttonText: 'Read decorations', readData: async () => {
-        const feature = features().decorations
-        return {chromeless: await feature.isChromelessAsync(), transparent: await feature.isTransparentAsync(), title: await feature.getTitleAsync(), limitLinuxTitle: await feature.getLimitLinuxWindowTitleLengthAsync()}
-    }},
-    {key: 'position', title: 'Position', buttonText: 'Read position', readData: async () => {
-        const feature = features().position
-        return {location: await feature.getLocationAsync(), top: await feature.getTopAsync(), left: await feature.getLeftAsync()}
-    }},
-    {key: 'size', title: 'Size', buttonText: 'Read size', readData: async () => {
-        const feature = features().size
-        return {size: await feature.getSizeAsync(), width: await feature.getWidthAsync(), height: await feature.getHeightAsync(), resizable: await feature.isResizableAsync()}
-    }},
-    {key: 'state', title: 'State', buttonText: 'Read state', readData: async () => {
-        const feature = features().state
-        return {fullScreen: await feature.isFullScreenAsync(), maximized: await feature.isMaximizedAsync(), minimized: await feature.isMinimizedAsync(), topMost: await feature.isTopMostAsync(), zoomFactor: await feature.getZoomFactorAsync(), zoomEnabled: await feature.isZoomEnabledAsync()}
-    }},
-    {key: 'lifecycle-monitors', title: 'Lifecycle and monitors', buttonText: 'Read lifecycle and monitors', readData: async () => ({closedOrClosing: await features().lifecycle.isClosedOrClosingAsync(), dpi: await features().monitors.getMainMonitorScreenDpiAsync()})}
+    {
+        key: 'browser', title: 'Browser', buttonText: 'Read browser', readData: async () => {
+            const feature = features().browser
+            return {
+                contextMenu: await feature.isContextMenuEnabledAsync(),
+                mediaAutoplay: await feature.isMediaAutoplayEnabledAsync(),
+                userAgent: await feature.getUserAgentAsync(),
+                webSecurity: await feature.isWebSecurityEnabledAsync(),
+                smoothScrolling: await feature.isSmoothScrollingEnabledAsync()
+            }
+        }
+    },
+    {
+        key: 'decorations', title: 'Decorations', buttonText: 'Read decorations', readData: async () => {
+            const feature = features().decorations
+            return {
+                chromeless: await feature.isChromelessAsync(),
+                transparent: await feature.isTransparentAsync(),
+                title: await feature.getTitleAsync(),
+                limitLinuxTitle: await feature.getLimitLinuxWindowTitleLengthAsync()
+            }
+        }
+    },
+    {
+        key: 'position', title: 'Position', buttonText: 'Read position', readData: async () => {
+            const feature = features().position
+            return {
+                location: await feature.getLocationAsync(),
+                top: await feature.getTopAsync(),
+                left: await feature.getLeftAsync()
+            }
+        }
+    },
+    {
+        key: 'size', title: 'Size', buttonText: 'Read size', readData: async () => {
+            const feature = features().size
+            return {
+                size: await feature.getSizeAsync(),
+                width: await feature.getWidthAsync(),
+                height: await feature.getHeightAsync(),
+                resizable: await feature.isResizableAsync()
+            }
+        }
+    },
+    {
+        key: 'state', title: 'State', buttonText: 'Read state', readData: async () => {
+            const feature = features().state
+            return {
+                fullScreen: await feature.isFullScreenAsync(),
+                maximized: await feature.isMaximizedAsync(),
+                minimized: await feature.isMinimizedAsync(),
+                topMost: await feature.isTopMostAsync(),
+                zoomFactor: await feature.getZoomFactorAsync(),
+                zoomEnabled: await feature.isZoomEnabledAsync()
+            }
+        }
+    },
+    {
+        key: 'lifecycle-monitors',
+        title: 'Lifecycle and monitors',
+        buttonText: 'Read lifecycle and monitors',
+        readData: async () => ({
+            closedOrClosing: await features().lifecycle.isClosedOrClosingAsync(),
+            dpi: await features().monitors.getMainMonitorScreenDpiAsync()
+        })
+    }
 ]
 
 async function readFeature(probe: FeatureProbe) {
@@ -64,22 +109,40 @@ onBeforeUnmount(() => window.removeEventListener(windowTestResetEvent, reset))
 </script>
 
 <template>
-    <v-container fluid class="pa-6">
+    <v-container class="pa-6" fluid>
         <v-row>
-            <v-col cols="12"><v-sheet class="text-h4">Window data exchange</v-sheet></v-col>
-            <v-col cols="12"><v-sheet>Input probes send entered data to InfiniFrame. Output probes read InfiniFrame data into their fields.</v-sheet></v-col>
-            <v-col cols="12" md="6">
-                <InputDataProbe v-model="titleInput" :title="title" title-id="current-window-title" button-text="Apply title / reset" button-id="title-toggle-button" data-input-id="title-data-input" data-label="Window title" @submitted="applyOrResetTitle"/>
+            <v-col cols="12">
+                <v-sheet class="text-h4">Window data exchange</v-sheet>
+            </v-col>
+            <v-col cols="12">
+                <v-sheet>Input probes send entered data to InfiniFrame. Output probes read InfiniFrame data into their
+                    fields.
+                </v-sheet>
             </v-col>
             <v-col cols="12" md="6">
-                <OutputDataProbe title="Fullscreen" button-text="Toggle fullscreen" button-id="fullscreen-toggle-button" data-input-id="fullscreen-data-result" data-label="Current fullscreen state" :data="fullscreenData" @read-requested="toggleFullscreen"/>
+                <InputDataProbe v-model="titleInput" :title="title" button-id="title-toggle-button"
+                                button-text="Apply title / reset" data-input-id="title-data-input"
+                                data-label="Window title" title-id="current-window-title"
+                                @submitted="applyOrResetTitle"/>
             </v-col>
-            <v-col cols="12"><v-divider/></v-col>
-            <v-col cols="12"><v-sheet class="text-h5">Window feature readers</v-sheet></v-col>
+            <v-col cols="12" md="6">
+                <OutputDataProbe :data="fullscreenData" button-id="fullscreen-toggle-button" button-text="Toggle fullscreen"
+                                 data-input-id="fullscreen-data-result" data-label="Current fullscreen state"
+                                 title="Fullscreen" @read-requested="toggleFullscreen"/>
+            </v-col>
+            <v-col cols="12">
+                <v-divider/>
+            </v-col>
+            <v-col cols="12">
+                <v-sheet class="text-h5">Window feature readers</v-sheet>
+            </v-col>
         </v-row>
         <v-row id="window-feature-test-panel">
-            <v-col v-for="probe in probes" :key="probe.key" cols="12" md="6" lg="4">
-                <OutputDataProbe :title="probe.title" :button-text="probe.buttonText" :button-id="`probe-${probe.key}-feature`" :data-input-id="`${probe.key}-feature-result`" data-label="Serialized window data" :data="results[probe.key]" @read-requested="readFeature(probe)"/>
+            <v-col v-for="probe in probes" :key="probe.key" cols="12" lg="4" md="6">
+                <OutputDataProbe :button-id="`probe-${probe.key}-feature`" :button-text="probe.buttonText"
+                                 :data="results[probe.key]"
+                                 :data-input-id="`${probe.key}-feature-result`" :title="probe.title"
+                                 data-label="Serialized window data" @read-requested="readFeature(probe)"/>
             </v-col>
         </v-row>
     </v-container>

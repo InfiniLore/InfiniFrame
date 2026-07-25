@@ -16,7 +16,7 @@ public class InvokeTests {
         int callbacks = 0;
 
         Task<InfiniFrameDispatchResult>[] dispatches = Enumerable.Range(0, 32)
-            .Select(_ => window.DispatchAsync(() => {
+            .Select(_ => window.DispatchAsync(callback: () => {
                 Interlocked.Increment(ref callbacks);
                 InfiniFrameDispatchResult nested = window.Features.Invoke.Invoke(() => Interlocked.Increment(ref callbacks));
                 if (nested != InfiniFrameDispatchResult.Completed)
@@ -38,7 +38,7 @@ public class InvokeTests {
         var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         bool lateCallbackRan = false;
 
-        Task<InfiniFrameDispatchResult> blocker = window.DispatchAsync(() => {
+        Task<InfiniFrameDispatchResult> blocker = window.DispatchAsync(callback: () => {
             entered.SetResult();
             Thread.Sleep(250);
         }, TimeSpan.FromSeconds(5), ct);
@@ -48,7 +48,7 @@ public class InvokeTests {
         await entered.Task.ConfigureAwait(false);
 
         InfiniFrameDispatchResult result = await window.DispatchAsync(
-            () => lateCallbackRan = true,
+            callback: () => lateCallbackRan = true,
             TimeSpan.FromMilliseconds(25),
             ct).ConfigureAwait(false);
         await blocker.ConfigureAwait(false);
@@ -66,7 +66,7 @@ public class InvokeTests {
         await window.Features.Lifecycle.CloseAsync(ct);
         bool callbackRan = false;
 
-        InfiniFrameDispatchResult result = await window.DispatchAsync(() => callbackRan = true, cancellationToken: ct);
+        InfiniFrameDispatchResult result = await window.DispatchAsync(callback: () => callbackRan = true, cancellationToken: ct);
 
         await Assert.That(result).IsEqualTo(InfiniFrameDispatchResult.WindowClosed);
         await Assert.That(callbackRan).IsFalse();

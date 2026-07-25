@@ -16,7 +16,7 @@ public class FullScreenTests {
     public async Task AtBuilderStage_DirectAssignment(bool value, CancellationToken ct) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        
+
         // Act
         builder.Features.State.SetFullScreen(value);
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
@@ -25,14 +25,14 @@ public class FullScreenTests {
         await Assert.That(builder.Features.State.StartFullScreen).IsEqualTo(value);
         await Assert.That(initParameters.FullScreen).IsEqualTo(value);
     }
-    
+
     [Test]
     [Arguments(true)]
     [Arguments(false)]
     public async Task AtBuilderStage_ExtensionAssignment(bool value, CancellationToken ct) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        
+
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetFullScreen(value);
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
@@ -42,7 +42,7 @@ public class FullScreenTests {
         await Assert.That(returnedBuilder).IsSameReferenceAs(builder);
         await Assert.That(initParameters.FullScreen).IsEqualTo(value);
     }
-    
+
     [Test]
     [NotInParallelInfiniTests]
     [Arguments(true)]
@@ -56,9 +56,9 @@ public class FullScreenTests {
         window.Features.State.SetFullScreen(value);
 
         // Assert
-        await WaitForStateAsync(() => window.Features.State.IsFullScreen, value, ct);
+        await WaitForStateAsync(state: () => window.Features.State.IsFullScreen, value, ct);
     }
-    
+
     [Test]
     [NotInParallelInfiniTests]
     [Arguments(true)]
@@ -72,17 +72,17 @@ public class FullScreenTests {
         IInfiniFrameWindow returnedWindow = window.SetFullScreen(value);
 
         // Assert
-        await WaitForStateAsync(() => window.Features.State.IsFullScreen, value, ct);
+        await WaitForStateAsync(state: () => window.Features.State.IsFullScreen, value, ct);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }
-    
+
     [Test]
     [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     public async Task AtWindowStage_ThroughBuilderAssignment(bool value, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.State.SetFullScreen(value);
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -92,7 +92,7 @@ public class FullScreenTests {
 
         // Assert
         await Assert.That(builder.Features.State.StartFullScreen).IsEqualTo(value);
-        await WaitForStateAsync(() => window.Features.State.IsFullScreen, value, ct);
+        await WaitForStateAsync(state: () => window.Features.State.IsFullScreen, value, ct);
     }
 
     private static async Task WaitForStateAsync(Func<bool> state, bool expected, CancellationToken ct) {
@@ -100,6 +100,7 @@ public class FullScreenTests {
         while (state() != expected) {
             if (DateTime.UtcNow >= deadline)
                 throw new TimeoutException($"Fullscreen state did not become {expected}.");
+
             await Task.Delay(25, ct);
         }
     }

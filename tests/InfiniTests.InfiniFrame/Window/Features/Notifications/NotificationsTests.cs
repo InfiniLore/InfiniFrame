@@ -48,7 +48,7 @@ public class NotificationsTests {
     [Arguments(false)]
     public async Task AtWindowStage_ThroughBuilderAssignment(bool value, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Notifications.EnableNotifications(value);
         }, ct);
         IInfiniFrameWindowBuilder builder = windowUtility.BuilderSnapshot;

@@ -103,5 +103,4 @@ public class MessageHandlersTests {
 
         return (builder, events, window);
     }
-
 }

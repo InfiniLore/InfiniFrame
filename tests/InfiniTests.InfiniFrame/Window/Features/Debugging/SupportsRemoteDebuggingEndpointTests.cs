@@ -14,26 +14,26 @@ public class SupportsRemoteDebuggingEndpointTests {
     public async Task AtBuilderStage_DirectAssignment(CancellationToken ct) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        
+
         // Act
         bool foundValue = builder.Features.Debugging.SupportsRemoteDebuggingEndpoint;
 
         // Assert   
         await Assert.That(foundValue).IsEqualTo(_expectedValue);
     }
-    
+
     [Test]
     public async Task AtBuilderStage_ExtensionAssignment(CancellationToken ct) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        
+
         // Act
         bool foundValue = builder.SupportsRemoteDebuggingEndpoint();
 
         // Assert   
         await Assert.That(foundValue).IsEqualTo(_expectedValue);
     }
-    
+
     [Test]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment(CancellationToken ct) {
@@ -47,7 +47,7 @@ public class SupportsRemoteDebuggingEndpointTests {
         // Assert
         await Assert.That(foundValue).IsEqualTo(_expectedValue);
     }
-    
+
     [Test]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct) {
@@ -61,13 +61,13 @@ public class SupportsRemoteDebuggingEndpointTests {
         // Assert
         await Assert.That(foundValue).IsEqualTo(_expectedValue);
     }
-    
+
     [Test]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_ThroughBuilderAssignment(CancellationToken ct) {
         // Arrange
         bool value = !_expectedValue;
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             value = builder.Features.Debugging.SupportsRemoteDebuggingEndpoint;
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;

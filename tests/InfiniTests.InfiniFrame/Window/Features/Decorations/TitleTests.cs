@@ -47,7 +47,7 @@ public class TitleTests {
     [Arguments("InfiniFrame Title Through Builder")]
     public async Task AtWindowStage_ThroughBuilderAssignment(string value, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Decorations.SetTitle(value);
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;

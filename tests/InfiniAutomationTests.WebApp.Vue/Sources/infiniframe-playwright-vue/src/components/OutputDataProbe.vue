@@ -9,13 +9,13 @@ withDefaults(defineProps<{
     dataLabel?: string
 }>(), {buttonText: 'Read data', data: '', dataLabel: 'Output data'})
 
-const emit = defineEmits<{readRequested: []}>()
+const emit = defineEmits<{ readRequested: [] }>()
 </script>
 
 <template>
-    <v-card variant="outlined" class="pa-4">
+    <v-card class="pa-4" variant="outlined">
         <v-card-title :id="titleId" class="output-data-probe-title">{{ title }}</v-card-title>
-        <v-text-field :id="dataInputId" :label="dataLabel" :model-value="data" variant="outlined" readonly/>
+        <v-text-field :id="dataInputId" :label="dataLabel" :model-value="data" readonly variant="outlined"/>
         <v-btn :id="buttonId" color="primary" variant="flat" @click="emit('readRequested')">{{ buttonText }}</v-btn>
     </v-card>
 </template>

@@ -28,7 +28,7 @@ public class CrossThreadWindowLifecycleTests {
 
         // Act
         for (int i = 0; i < iterations; i++) {
-            await Task.Run(() => CreateCloseAndWaitWindow(ct), ct);
+            await Task.Run(action: () => CreateCloseAndWaitWindow(ct), ct);
         }
 
     }
@@ -39,7 +39,7 @@ public class CrossThreadWindowLifecycleTests {
     public async Task ParallelCreateCloseAcrossManagedThreads_DoesNotFail(CancellationToken ct) {
         // Arrange
         Task[] operations = Enumerable.Range(0, 4)
-            .Select(_ => Task.Run(() => CreateCloseAndWaitWindow(ct), ct))
+            .Select(_ => Task.Run(action: () => CreateCloseAndWaitWindow(ct), ct))
             .ToArray();
 
         // Act

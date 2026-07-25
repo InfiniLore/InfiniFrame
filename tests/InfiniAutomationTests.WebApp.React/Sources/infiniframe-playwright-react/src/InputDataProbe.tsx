@@ -17,16 +17,16 @@ type InputDataProbeProps = {
 }
 
 export default function InputDataProbe({
-    title,
-    buttonText,
-    data,
-    onDataChanged,
-    onSubmitted,
-    titleId,
-    buttonId,
-    dataInputId,
-    dataLabel = 'Input data'
-}: InputDataProbeProps) {
+                                           title,
+                                           buttonText,
+                                           data,
+                                           onDataChanged,
+                                           onSubmitted,
+                                           titleId,
+                                           buttonId,
+                                           dataInputId,
+                                           dataLabel = 'Input data'
+                                       }: InputDataProbeProps) {
     return <Paper variant="outlined" sx={{p: 2}}>
         <Stack spacing={2}>
             <Typography id={titleId} className="input-data-probe-title" variant="h6">{title}</Typography>

@@ -59,7 +59,7 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
     public int CountEnvelopeMessagesById(string messageId) {
         List<string> snapshot;
         lock (_sentWebMessagesLock) {
-            snapshot = [.._sentWebMessages];
+            snapshot = [.. _sentWebMessages];
         }
 
         return snapshot
@@ -69,7 +69,7 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
 
     public IReadOnlyList<string> GetSentMessagesSnapshot() {
         lock (_sentWebMessagesLock) {
-            return [.._sentWebMessages];
+            return [.. _sentWebMessages];
         }
     }
 }

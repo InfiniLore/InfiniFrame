@@ -9,12 +9,12 @@ namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Parameters;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameNativeParametersEqualityComparerTests {
+
+    private static InfiniFrameNativeParametersEqualityComparer Comparer => InfiniFrameNativeParametersEqualityComparer.Instance;
     private static InfiniFrameNativeParameters CreateDefault() => new() {
         StartUrl = "https://example.com",
         CustomSchemeNames = new IntPtr[16]
     };
-    
-    private static InfiniFrameNativeParametersEqualityComparer Comparer => InfiniFrameNativeParametersEqualityComparer.Instance;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Equals

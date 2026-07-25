@@ -29,7 +29,7 @@ public class WindowFeatureWebMessageRouterTests {
 
     [Test]
     public async Task StateGet_SerializesRectangleWithExactWebShape() {
-        var (window, state) = CreateStateWindow();
+        (IInfiniFrameWindow window, IStateInfiniFrameWindowFeature state) = CreateStateWindow();
         state.CachedPreFullScreenBounds.Returns(new Rectangle(1, 2, 800, 600));
 
         string json = WindowFeatureWebMessageRouter.Get(window, "state", "cachedPreFullScreenBounds", null);
@@ -98,7 +98,7 @@ public class WindowFeatureWebMessageRouterTests {
 
     [Test]
     public async Task StatePost_SetsBothCachedBoundsFromRectangleArguments() {
-        var (window, state) = CreateStateWindow();
+        (IInfiniFrameWindow window, IStateInfiniFrameWindowFeature state) = CreateStateWindow();
         var fullScreenBounds = new Rectangle(1, 2, 800, 600);
         var maximizedBounds = new Rectangle(3, 4, 1024, 768);
 
@@ -112,7 +112,7 @@ public class WindowFeatureWebMessageRouterTests {
 
     [Test]
     public async Task OptionalArguments_UseManagedDefaultsWhenMissingOrNull() {
-        var (window, state) = CreateStateWindow();
+        (IInfiniFrameWindow window, IStateInfiniFrameWindowFeature state) = CreateStateWindow();
 
         WindowFeatureWebMessageRouter.Post(window, "state", "setMaximized", null);
         WindowFeatureWebMessageRouter.Post(window, "state", "setMinimized", Args("{}"));
@@ -149,7 +149,7 @@ public class WindowFeatureWebMessageRouterTests {
             Arg.Is<(string Name, string[] Extensions)[]?>(filters => filters != null
                 && filters.Length == 1
                 && filters[0].Name == "Text"
-                && filters[0].Extensions.SequenceEqual(new[] {"txt", "md"})));
+                && filters[0].Extensions.SequenceEqual(new[] { "txt", "md" })));
         notifications.Received(1).ShowMessage("Question", null, InfiniFrameDialogButtons.YesNo, InfiniFrameDialogIcon.Question);
         size.Received(1).Resize(10, 20, ResizeOrigin.BottomRight);
         await Task.CompletedTask;
@@ -176,7 +176,7 @@ public class WindowFeatureWebMessageRouterTests {
     [Arguments("{\"bounds\":42}", "Argument 'bounds' is invalid. (Parameter 'bounds')")]
     [Arguments("{\"bounds\":{\"x\":\"wrong\"}}", "Argument 'bounds' is invalid. (Parameter 'bounds')")]
     public async Task RequiredRectangleArgument_InvalidShape_HasDeterministicError(string? json, string expectedMessage) {
-        var (window, _) = CreateStateWindow();
+        (IInfiniFrameWindow window, _) = CreateStateWindow();
 
         var exception = Assert.Throws<ArgumentException>(() =>
             WindowFeatureWebMessageRouter.Post(window, "state", "setCachedPreFullScreenBounds", json is null ? null : Args(json)));
@@ -186,7 +186,7 @@ public class WindowFeatureWebMessageRouterTests {
 
     [Test]
     public async Task RoutingPolicy_FeatureIsCaseInsensitiveButCommandAndArgumentsAreCaseSensitive() {
-        var (window, state) = CreateStateWindow();
+        (IInfiniFrameWindow window, IStateInfiniFrameWindowFeature state) = CreateStateWindow();
 
         WindowFeatureWebMessageRouter.Post(window, "STATE", "setZoomFactor", Args("""{"zoom":125}"""));
         state.Received(1).SetZoomFactor(125);

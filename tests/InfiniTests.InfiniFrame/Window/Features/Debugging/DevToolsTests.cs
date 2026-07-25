@@ -16,7 +16,7 @@ public class DevToolsTests {
     public async Task AtBuilderStage_DirectAssignment(bool value, CancellationToken ct) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        
+
         // Act
         builder.Features.Debugging.EnableDevTools(value);
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
@@ -25,14 +25,14 @@ public class DevToolsTests {
         await Assert.That(builder.Features.Debugging.IsDevToolsEnabled).IsEqualTo(value);
         await Assert.That(initParameters.DevToolsEnabled).IsEqualTo(value);
     }
-    
+
     [Test]
     [Arguments(true)]
     [Arguments(false)]
     public async Task AtBuilderStage_ExtensionAssignment(bool value, CancellationToken ct) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        
+
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.EnableDevTools(value);
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
@@ -42,7 +42,7 @@ public class DevToolsTests {
         await Assert.That(returnedBuilder).IsSameReferenceAs(builder);
         await Assert.That(initParameters.DevToolsEnabled).IsEqualTo(value);
     }
-    
+
     [Test]
     [NotInParallelInfiniTests]
     [Arguments(true)]
@@ -58,7 +58,7 @@ public class DevToolsTests {
         // Assert
         await Assert.That(window.Features.Debugging.IsDevToolsEnabled).IsEqualTo(value);
     }
-    
+
     [Test]
     [NotInParallelInfiniTests]
     [Arguments(true)]
@@ -75,14 +75,14 @@ public class DevToolsTests {
         await Assert.That(window.Features.Debugging.IsDevToolsEnabled).IsEqualTo(value);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }
-    
+
     [Test]
     [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     public async Task AtWindowStage_ThroughBuilderAssignment(bool value, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Debugging.EnableDevTools(value);
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;

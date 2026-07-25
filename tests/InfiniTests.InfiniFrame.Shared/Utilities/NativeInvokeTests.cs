@@ -12,14 +12,6 @@ namespace InfiniTests.InfiniFrame.Shared.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class NativeInvokeTests {
 
-    private sealed class TestHandleOwner(IntPtr value) : INativeWindowHandleOwner {
-        private readonly NativeWindowHandle _handle = new(value, ownsHandle: false);
-
-        public NativeHandleLease AcquireNativeHandle(NativeHandleAccess access = NativeHandleAccess.Feature) {
-            return new NativeHandleLease(_handle);
-        }
-    }
-
     // -----------------------------------------------------------------------------------------------------------------
     // InvokeWithValidation<T>(window, FuncWithOut<T>)
     // -----------------------------------------------------------------------------------------------------------------
@@ -54,7 +46,7 @@ public class NativeInvokeTests {
             NullLogger.Instance,
             owner,
             Environment.CurrentManagedThreadId,
-            (h, out v) => {
+            callback: (h, out v) => {
                 received = h;
                 v = 0;
                 return InfiniFrameNativeInteropStatus.Success;
@@ -78,5 +70,11 @@ public class NativeInvokeTests {
             });
 
         await Assert.That(Marshal.GetLastPInvokeError()).IsEqualTo(0);
+    }
+
+    private sealed class TestHandleOwner(IntPtr value) : INativeWindowHandleOwner {
+        private readonly NativeWindowHandle _handle = new(value, false);
+
+        public NativeHandleLease AcquireNativeHandle(NativeHandleAccess access = NativeHandleAccess.Feature) => new(_handle);
     }
 }

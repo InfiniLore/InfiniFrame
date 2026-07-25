@@ -13,7 +13,7 @@ public class CenterOnCurrentMonitorTests {
     [SkipOnLinux]
     public async Task AtWindowStage_DirectAssignment(CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Size.SetSize(700, 420);
             builder.Features.Position.SetLocation(200, 200);
         }, ct);
@@ -24,7 +24,7 @@ public class CenterOnCurrentMonitorTests {
         window.Features.Position.CenterOnCurrentMonitor();
 
         // Assert
-        int updatedLeft = await PollUtility.WaitForChangeAsync(() => window.Features.Position.Left, initialLeft, TimeSpan.FromSeconds(5), ct);
+        int updatedLeft = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Position.Left, initialLeft, TimeSpan.FromSeconds(5), ct);
         await Assert.That(updatedLeft).IsNotEqualTo(initialLeft);
         await Assert.That(window.IsClosedOrClosing()).IsFalse();
     }
@@ -34,7 +34,7 @@ public class CenterOnCurrentMonitorTests {
     [SkipOnLinux]
     public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Size.SetSize(700, 420);
             builder.Features.Position.SetLocation(220, 220);
         }, ct);
@@ -45,7 +45,7 @@ public class CenterOnCurrentMonitorTests {
         IInfiniFrameWindow returnedWindow = window.CenterOnCurrentMonitor();
 
         // Assert
-        int updatedLeft = await PollUtility.WaitForChangeAsync(() => window.Features.Position.Left, initialLeft, TimeSpan.FromSeconds(5), ct);
+        int updatedLeft = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Position.Left, initialLeft, TimeSpan.FromSeconds(5), ct);
         await Assert.That(updatedLeft).IsNotEqualTo(initialLeft);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
         await Assert.That(window.IsClosedOrClosing()).IsFalse();

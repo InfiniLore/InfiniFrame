@@ -13,21 +13,6 @@ public class NativeWindowHandleTests {
     // Keep the stress deterministic across Linux runners with very different CPU counts.
     private const int ConcurrentWorkerCount = 4;
 
-    private sealed class TestOwner(IntPtr value) : INativeWindowHandleOwner, IDisposable {
-        private readonly NativeWindowHandle _handle = new(value, false);
-        private int _closed;
-
-        public NativeHandleLease AcquireNativeHandle(NativeHandleAccess access = NativeHandleAccess.Feature) {
-            ObjectDisposedException.ThrowIf(Volatile.Read(ref _closed) != 0, nameof(TestOwner));
-            return new NativeHandleLease(_handle);
-        }
-
-        public void Dispose() {
-            Volatile.Write(ref _closed, 1);
-            _handle.Dispose();
-        }
-    }
-
     [Test]
     [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
     public async Task ConcurrentAcquireAndShutdown_NeverReturnsAStaleHandle(CancellationToken ct = default) {
@@ -71,5 +56,20 @@ public class NativeWindowHandleTests {
 
         lease.Dispose();
         await Assert.That(handle.IsClosed).IsTrue();
+    }
+
+    private sealed class TestOwner(IntPtr value) : INativeWindowHandleOwner, IDisposable {
+        private readonly NativeWindowHandle _handle = new(value, false);
+        private int _closed;
+
+        public void Dispose() {
+            Volatile.Write(ref _closed, 1);
+            _handle.Dispose();
+        }
+
+        public NativeHandleLease AcquireNativeHandle(NativeHandleAccess access = NativeHandleAccess.Feature) {
+            ObjectDisposedException.ThrowIf(Volatile.Read(ref _closed) != 0, nameof(TestOwner));
+            return new NativeHandleLease(_handle);
+        }
     }
 }

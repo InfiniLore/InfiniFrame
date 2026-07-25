@@ -59,4 +59,3 @@ public class CleanupNativeHandleTests {
         method.Invoke(lifecycle, null);
     }
 }
-

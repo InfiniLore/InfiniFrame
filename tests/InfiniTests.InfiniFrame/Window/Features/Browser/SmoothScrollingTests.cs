@@ -16,7 +16,7 @@ public class SmoothScrollingTests {
     public async Task AtBuilderStage_DirectAssignment(bool value, CancellationToken ct) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        
+
         // Act
         builder.Features.Browser.EnableSmoothScrolling(value);
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
@@ -25,14 +25,14 @@ public class SmoothScrollingTests {
         await Assert.That(builder.Features.Browser.IsSmoothScrollingEnabled).IsEqualTo(value);
         await Assert.That(initParameters.SmoothScrollingEnabled).IsEqualTo(value);
     }
-    
+
     [Test]
     [Arguments(true)]
     [Arguments(false)]
     public async Task AtBuilderStage_ExtensionAssignment(bool value, CancellationToken ct) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        
+
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.EnableSmoothScrolling(value);
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
@@ -42,7 +42,7 @@ public class SmoothScrollingTests {
         await Assert.That(returnedBuilder).IsSameReferenceAs(builder);
         await Assert.That(initParameters.SmoothScrollingEnabled).IsEqualTo(value);
     }
-    
+
     // [Test]
     // [NotInParallelInfiniTests]
     // [Arguments(true)]
@@ -75,14 +75,14 @@ public class SmoothScrollingTests {
     //     await Assert.That(window.Features.Browser.IsSmoothScrollingEnabled).IsEqualTo(value);
     //     await Assert.That(returnedWindow).IsSameReferenceAs(window);
     // }
-    
+
     [Test]
     [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     public async Task AtWindowStage_ThroughBuilderAssignment(bool value, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Browser.EnableSmoothScrolling(value);
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;

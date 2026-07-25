@@ -16,15 +16,15 @@ type OutputDataProbeProps = {
 }
 
 export default function OutputDataProbe({
-    title,
-    buttonText,
-    data,
-    onReadRequested,
-    titleId,
-    buttonId,
-    dataInputId,
-    dataLabel = 'Output data'
-}: OutputDataProbeProps) {
+                                            title,
+                                            buttonText,
+                                            data,
+                                            onReadRequested,
+                                            titleId,
+                                            buttonId,
+                                            dataInputId,
+                                            dataLabel = 'Output data'
+                                        }: OutputDataProbeProps) {
     return <Paper variant="outlined" sx={{p: 2}}>
         <Stack spacing={2}>
             <Typography id={titleId} className="output-data-probe-title" variant="h6">{title}</Typography>

@@ -122,8 +122,8 @@ public class InfiniFrameNativeParametersValidatorTests {
         await Assert.That(result.IsValid).IsFalse();
     }
 
-    private static InfiniFrameNativeParameters CreateValidParameters() {
-        return new InfiniFrameNativeParameters {
+    private static InfiniFrameNativeParameters CreateValidParameters() =>
+        new() {
             StartUrl = "https://example.com",
             Width = 1024,
             Height = 768,
@@ -133,5 +133,4 @@ public class InfiniFrameNativeParametersValidatorTests {
             UseOsDefaultLocation = false,
             CustomSchemeNames = new IntPtr[16]
         };
-    }
 }

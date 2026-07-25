@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using System.Threading.Channels;
 
 namespace InfiniTests.InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -123,10 +124,13 @@ public class InfiniFrameWebViewManagerTests {
         webMessaging.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(call => {
                 string message = call.ArgAt<string>(0);
-                lock (sentMessages) sentMessages.Add(message);
+                lock (sentMessages) {
+                    sentMessages.Add(message);
+                }
 
                 if (message == "second") secondDelivered.TrySetResult(true);
                 if (message != "first") return ValueTask.CompletedTask;
+
                 firstStarted.TrySetResult(true);
                 return new ValueTask(firstRelease.Task);
             });
@@ -135,9 +139,9 @@ public class InfiniFrameWebViewManagerTests {
             .AddLogging()
             .AddSingleton(window)
             .BuildServiceProvider();
-        var manager = CreateManager(provider, new InfiniFrameBlazorAppConfiguration {
+        TestableInfiniFrameWebViewManager manager = CreateManager(provider, new InfiniFrameBlazorAppConfiguration {
             WebMessageQueueCapacity = 1,
-            WebMessageQueueFullMode = System.Threading.Channels.BoundedChannelFullMode.Wait
+            WebMessageQueueFullMode = BoundedChannelFullMode.Wait
         });
 
         // Act: the first message is in flight, the second occupies the only queue slot, and the third is rejected.
@@ -174,7 +178,7 @@ public class InfiniFrameWebViewManagerTests {
             .AddLogging()
             .AddSingleton(window)
             .BuildServiceProvider();
-        var manager = CreateManager(provider);
+        TestableInfiniFrameWebViewManager manager = CreateManager(provider);
         manager.SendMessageForTest("pending");
         await sendStarted.Task.WaitAsync(TimeSpan.FromSeconds(1), ct);
 
@@ -202,11 +206,11 @@ public class InfiniFrameWebViewManagerTests {
             .AddLogging()
             .AddSingleton(window)
             .BuildServiceProvider();
-        var manager = CreateManager(provider, new InfiniFrameBlazorAppConfiguration { WebMessageQueueCapacity = 8 });
+        TestableInfiniFrameWebViewManager manager = CreateManager(provider, new InfiniFrameBlazorAppConfiguration { WebMessageQueueCapacity = 8 });
 
         // Act
         Task[] producers = Enumerable.Range(0, 8)
-            .Select(producer => Task.Run(() => {
+            .Select(producer => Task.Run(action: () => {
                 for (int message = 0; message < 250; message++) {
                     manager.SendMessageForTest($"{producer}-{message}");
                 }

@@ -16,9 +16,13 @@ const emit = defineEmits<{
 </script>
 
 <template>
-    <v-card variant="outlined" class="pa-4">
+    <v-card class="pa-4" variant="outlined">
         <v-card-title :id="titleId" class="input-data-probe-title">{{ title }}</v-card-title>
-        <v-text-field :id="dataInputId" :label="dataLabel" :model-value="modelValue" variant="outlined" @update:model-value="emit('update:modelValue', $event)"/>
-        <v-btn :id="buttonId" color="primary" variant="flat" @click="emit('submitted', modelValue)">{{ buttonText }}</v-btn>
+        <v-text-field :id="dataInputId" :label="dataLabel" :model-value="modelValue" variant="outlined"
+                      @update:model-value="emit('update:modelValue', $event)"/>
+        <v-btn :id="buttonId" color="primary" variant="flat" @click="emit('submitted', modelValue)">{{
+                buttonText
+            }}
+        </v-btn>
     </v-card>
 </template>

@@ -80,4 +80,3 @@ public class InfiniFrameEventsCallbackLifetimeTests {
         method.Invoke(events, null);
     }
 }
-

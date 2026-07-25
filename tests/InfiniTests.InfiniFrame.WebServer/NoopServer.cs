@@ -15,15 +15,14 @@ internal sealed class NoopServer : IServer {
     private int _disposeCount;
     private int _startCount;
     private int _stopCount;
-
-    public IFeatureCollection Features { get; } = new FeatureCollection();
     public int StartCount => _startCount;
     public int StopCount => _stopCount;
     public int DisposeCount => _disposeCount;
 
+    public IFeatureCollection Features { get; } = new FeatureCollection();
+
     public Task StartAsync<TContext>(IHttpApplication<TContext> application, CancellationToken cancellationToken)
-        where TContext : notnull
-    {
+        where TContext : notnull {
         Interlocked.Increment(ref _startCount);
         return Task.CompletedTask;
     }

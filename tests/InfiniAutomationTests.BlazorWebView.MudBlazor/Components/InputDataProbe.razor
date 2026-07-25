@@ -8,7 +8,7 @@
             Variant="Variant.Outlined"
             Value="@Data"
             ValueChanged="DataChanged"
-            Immediate="true" />
+            Immediate="true"/>
         <MudButton
             id="@ButtonId"
             Variant="Variant.Filled"
@@ -23,13 +23,13 @@
     [Parameter]
     public string? Id { get; set; }
 
-    [Parameter, EditorRequired]
+    [Parameter][EditorRequired]
     public string Title { get; set; } = string.Empty;
 
     [Parameter]
     public string? TitleId { get; set; }
 
-    [Parameter, EditorRequired]
+    [Parameter][EditorRequired]
     public string ButtonText { get; set; } = string.Empty;
 
     [Parameter]
