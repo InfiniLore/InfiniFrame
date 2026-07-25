@@ -124,7 +124,7 @@ public abstract class SharedWindowFeatureMirroringTests : InfiniFramePlaywrightT
             state.CachedPreFullScreenBounds = fromNativeFullScreen;
             state.CachedPreMaximizedBounds = fromNativeMaximized;
 
-            JsonElement returned = await page.EvaluateAsync<JsonElement>(
+            var returned = await page.EvaluateAsync<JsonElement>(
                 "async () => { const state = window.infiniframe.window.features.state; return { fullScreen: await state.getCachedPreFullScreenBoundsAsync(), maximized: await state.getCachedPreMaximizedBoundsAsync() }; }");
 
             await AssertRectangleAsync(returned.GetProperty("fullScreen"), fromNativeFullScreen);

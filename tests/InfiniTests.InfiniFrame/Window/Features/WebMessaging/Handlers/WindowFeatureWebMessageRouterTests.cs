@@ -162,7 +162,7 @@ public class WindowFeatureWebMessageRouterTests {
         features.Size.Returns(Substitute.For<ISizeInfiniFrameWindowFeature>());
         window.Features.Returns(features);
 
-        ArgumentException exception = Assert.Throws<ArgumentException>(() =>
+        var exception = Assert.Throws<ArgumentException>(() =>
             WindowFeatureWebMessageRouter.Post(window, "size", "resize", Args("""{"widthOffset":1,"heightOffset":2,"origin":"diagonal"}""")));
 
         await Assert.That(exception.Message).IsEqualTo("Argument 'origin' is invalid. (Parameter 'origin')");
@@ -178,7 +178,7 @@ public class WindowFeatureWebMessageRouterTests {
     public async Task RequiredRectangleArgument_InvalidShape_HasDeterministicError(string? json, string expectedMessage) {
         var (window, _) = CreateStateWindow();
 
-        ArgumentException exception = Assert.Throws<ArgumentException>(() =>
+        var exception = Assert.Throws<ArgumentException>(() =>
             WindowFeatureWebMessageRouter.Post(window, "state", "setCachedPreFullScreenBounds", json is null ? null : Args(json)));
 
         await Assert.That(exception.Message).IsEqualTo(expectedMessage);

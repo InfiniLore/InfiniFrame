@@ -83,6 +83,4 @@ public class WindowFeatureParityTests {
         => new(
             included.ToDictionary(name => name, _ => 1, StringComparer.Ordinal),
             excluded.ToDictionary(member => member.Name, member => member.Reason, StringComparer.Ordinal));
-
-    private sealed record FeatureMembers(IReadOnlyDictionary<string, int> Included, IReadOnlyDictionary<string, string> Excluded);
 }

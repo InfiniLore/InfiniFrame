@@ -19,7 +19,7 @@ public class InfiniFrameWebApplicationRunSyncTests {
     [Test]
     public async Task Run_ShouldStartWebAppBeforeWaitingThenStopAndDisposeIt() {
         // Arrange
-        IInfiniFrameWindow mockWindow = Substitute.For<IInfiniFrameWindow>();
+        var mockWindow = Substitute.For<IInfiniFrameWindow>();
         ILifecycleInfiniFrameWindowFeature lifecycle = mockWindow.Features.Lifecycle;
 
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
@@ -55,7 +55,7 @@ public class InfiniFrameWebApplicationRunSyncTests {
 
     [Test]
     public async Task Run_WhenWaitFails_StillStopsAndDisposesWebApp() {
-        IInfiniFrameWindow mockWindow = Substitute.For<IInfiniFrameWindow>();
+        var mockWindow = Substitute.For<IInfiniFrameWindow>();
         mockWindow.Features.Lifecycle.When(static feature => feature.WaitForClose())
             .Do(_ => throw new InvalidOperationException("wait failed"));
         WebApplicationBuilder builder = WebApplication.CreateBuilder();
@@ -68,10 +68,10 @@ public class InfiniFrameWebApplicationRunSyncTests {
             LazyWindow = new Lazy<IInfiniFrameWindow>(() => mockWindow)
         };
 
-        InvalidOperationException exception = Assert.Throws<InvalidOperationException>(() => app.Run());
+        var exception = Assert.Throws<InvalidOperationException>(() => app.Run());
 
         await Assert.That(exception).IsNotNull();
-        await Assert.That(exception!.Message).IsEqualTo("wait failed");
+        await Assert.That(exception.Message).IsEqualTo("wait failed");
         await Assert.That(server.StartCount).IsEqualTo(1);
         await Assert.That(server.StopCount).IsEqualTo(1);
         await Assert.That(server.DisposeCount).IsEqualTo(1);
