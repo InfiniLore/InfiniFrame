@@ -16,7 +16,7 @@ public class IgnoreCertificateErrorsTests {
     public async Task AtBuilderStage_DirectAssignment(bool value, CancellationToken ct) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        
+
         // Act
         builder.Features.Browser.EnableIgnoreCertificateErrors(value);
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
@@ -25,14 +25,14 @@ public class IgnoreCertificateErrorsTests {
         await Assert.That(builder.Features.Browser.IsIgnoreCertificateErrorsEnabled).IsEqualTo(value);
         await Assert.That(initParameters.IgnoreCertificateErrorsEnabled).IsEqualTo(value);
     }
-    
+
     [Test]
     [Arguments(true)]
     [Arguments(false)]
     public async Task AtBuilderStage_ExtensionAssignment(bool value, CancellationToken ct) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        
+
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.EnableIgnoreCertificateErrors(value);
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
@@ -42,7 +42,7 @@ public class IgnoreCertificateErrorsTests {
         await Assert.That(returnedBuilder).IsSameReferenceAs(builder);
         await Assert.That(initParameters.IgnoreCertificateErrorsEnabled).IsEqualTo(value);
     }
-    
+
     // [Test]
     // [NotInParallelInfiniTests]
     // [Arguments(true)]
@@ -75,14 +75,14 @@ public class IgnoreCertificateErrorsTests {
     //     await Assert.That(window.Features.Browser.IsIgnoreCertificateErrorsEnabled).IsEqualTo(value);
     //     await Assert.That(returnedWindow).IsSameReferenceAs(window);
     // }
-    
+
     [Test]
     [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     public async Task AtWindowStage_ThroughBuilderAssignment(bool value, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Browser.EnableIgnoreCertificateErrors(value);
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;

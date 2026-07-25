@@ -17,7 +17,7 @@ public class RemoteDebuggingPortTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
-    
+
     [Test]
     [MethodDataSource(nameof(GetPorts))]
     [SkipOnMacOs("Remote TCP debugging endpoints are not supported by WKWebView")]
@@ -26,7 +26,7 @@ public class RemoteDebuggingPortTests {
             Skip.Test("This test is only run on Windows and Linux");
             return;
         }
-        
+
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -47,7 +47,7 @@ public class RemoteDebuggingPortTests {
             Skip.Test("This test is only run on Windows and Linux");
             return;
         }
-        
+
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -57,11 +57,11 @@ public class RemoteDebuggingPortTests {
 
         // Assert   
         await Assert.That(returnedBuilder).IsSameReferenceAs(builder);
-        
+
         await Assert.That(builder.Features.Debugging.RemoteDebuggingPort).IsEqualTo(value);
         await Assert.That(initParameters.RemoteDebuggingPort).IsEqualTo(value);
     }
-    
+
     [Test]
     [NotInParallelInfiniTests]
     [MethodDataSource(nameof(GetPorts))]
@@ -71,11 +71,11 @@ public class RemoteDebuggingPortTests {
             Skip.Test("This test is only run on Windows and Linux");
             return;
         }
-        
+
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) return;
-            
+
             builder.Features.Debugging.SetRemoteDebuggingPort(value);
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -98,7 +98,7 @@ public class RemoteDebuggingPortTests {
         // Act
         #pragma warning disable CA1416
         var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
-            Task.Run(() => {
+            Task.Run(function: () => {
                 return builder.Features.Debugging.SetRemoteDebuggingPort(value);
             }, ct));
         #pragma warning restore CA1416

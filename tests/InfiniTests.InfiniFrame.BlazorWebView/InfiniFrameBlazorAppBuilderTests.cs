@@ -358,7 +358,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [NotInParallelInfiniTests]
     public async Task Build_ExposesDebuggingThroughWindowFeatures(CancellationToken ct = default) {
         // Arrange
-        var debuggingFeature = Substitute.For<IInfiniFrameWindowFeatureDebugging>();
+        var debuggingFeature = Substitute.For<IDebuggingInfiniFrameWindowFeature>();
         var features = Substitute.For<IInfiniFrameWindowFeatures>();
         var window = Substitute.For<IInfiniFrameWindow>();
         features.Debugging.Returns(debuggingFeature);

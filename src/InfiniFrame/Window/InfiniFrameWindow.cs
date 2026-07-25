@@ -66,7 +66,7 @@ public sealed class InfiniFrameWindow(
     /// <inheritdoc cref="IInfiniFrameWindow.Configuration" />
     public IInfiniFrameWindowConfiguration Configuration { get; } = configuration;
     /// <inheritdoc cref="IInfiniFrameWindow.Debugging" />
-    public IInfiniFrameWindowFeatureDebugging Debugging => Features.Debugging;
+    public IDebuggingInfiniFrameWindowFeature Debugging => Features.Debugging;
     /// <inheritdoc />
     public IServiceProvider? ServiceProvider { get; } = serviceProvider;
     /// <inheritdoc cref="IInfiniFrameWindow.Events" />
@@ -123,6 +123,11 @@ public sealed class InfiniFrameWindow(
         => Interlocked.CompareExchange(ref _lifecycleState,
             (int)InfiniFrameWindowLifecycleState.ClosingRequested,
             (int)InfiniFrameWindowLifecycleState.Running) == (int)InfiniFrameWindowLifecycleState.Running;
+
+    void IInfiniFrameWindow.CancelCloseRequest()
+        => Interlocked.CompareExchange(ref _lifecycleState,
+            (int)InfiniFrameWindowLifecycleState.Running,
+            (int)InfiniFrameWindowLifecycleState.ClosingRequested);
 
     void IInfiniFrameWindow.MarkNativeClosed() {
         while (true) {

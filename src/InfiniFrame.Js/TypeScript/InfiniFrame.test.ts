@@ -24,6 +24,13 @@ describe("InfiniFrame", () => {
         expect(a.utils).not.toBe(b.utils);
     });
 
+    it("replaces an incomplete preinitialized window API", () => {
+        const instance = new InfiniFrame({window: {} as any});
+
+        expect(instance.window.features).toBeDefined();
+        expect(instance.window.features.decorations).toBeDefined();
+    });
+
     it("does not define a legacy window.__infiniframe host", async () => {
         const setSpy = vi.spyOn(Object, "defineProperty");
 

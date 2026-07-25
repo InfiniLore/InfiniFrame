@@ -77,6 +77,13 @@
                           Exclude="Native/build/**/*;Native/packages/**/*;Native/cmake-build-*/**/*" />
         <NativeBuildInput Include="Native/**/*.cmake"
                           Exclude="Native/build/**/*;Native/packages/**/*;Native/cmake-build-*/**/*" />
+        <NativeBuildInput Include="../InfiniFrame.Js/TypeScript/**/*.ts" />
+        <NativeBuildInput Include="../InfiniFrame.Js/package.json" />
+        <NativeBuildInput Include="../InfiniFrame.Js/package-lock.json" />
+        <NativeBuildInput Include="../InfiniFrame.Js/tsconfig.json" />
+        <NativeBuildInput Include="../InfiniFrame.Js/vite.config.dev.ts" />
+        <NativeBuildInput Include="../InfiniFrame.Js/vite.config.prod.ts" />
+        <NativeBuildInput Include="../../scripts/BuildFrontend.mjs" />
         <NativeBuildInput Include="native-build.ps1" />
     </ItemGroup>
 

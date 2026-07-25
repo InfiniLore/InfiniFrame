@@ -61,8 +61,8 @@ public class SetLeftTests {
 
         // Assert
         int newValue = await PollUtility.WaitForChangeAsync(
-            () => window.Features.Position.Left, 
-            originalLocation, 
+            getValue: () => window.Features.Position.Left,
+            originalLocation,
             TimeSpan.FromSeconds(5),
             ct
         );
@@ -84,8 +84,8 @@ public class SetLeftTests {
 
         // Assert
         int newValue = await PollUtility.WaitForChangeAsync(
-            () => window.Features.Position.Left, 
-            originalLocation, 
+            getValue: () => window.Features.Position.Left,
+            originalLocation,
             TimeSpan.FromSeconds(5),
             ct
         );

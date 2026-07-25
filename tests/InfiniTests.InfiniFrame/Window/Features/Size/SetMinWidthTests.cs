@@ -56,7 +56,7 @@ public class SetMinWidthTests {
         window.Features.Size.SetMinWidth(targetMinWidth);
 
         // Assert
-        int newMinWidth = await PollUtility.WaitForChangeAsync(() => window.Features.Size.MinWidth, originalMinWidth, TimeSpan.FromSeconds(5), ct);
+        int newMinWidth = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.MinWidth, originalMinWidth, TimeSpan.FromSeconds(5), ct);
         await Assert.That(newMinWidth).IsEqualTo(targetMinWidth);
     }
 
@@ -74,7 +74,7 @@ public class SetMinWidthTests {
         IInfiniFrameWindow returnedWindow = window.SetMinWidth(targetMinWidth);
 
         // Assert
-        int newMinWidth = await PollUtility.WaitForChangeAsync(() => window.Features.Size.MinWidth, originalMinWidth, TimeSpan.FromSeconds(5), ct);
+        int newMinWidth = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.MinWidth, originalMinWidth, TimeSpan.FromSeconds(5), ct);
         await Assert.That(newMinWidth).IsEqualTo(targetMinWidth);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }

@@ -60,7 +60,7 @@ public class GetDebugDiagnosticsTests {
     [SkipOnLinux]
     public async Task AtWindowStage_ThroughBuilderAssignment(int value, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Debugging.EnableDevTools(false);
             if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) return;
 

@@ -60,6 +60,7 @@ public sealed class IconFileTaskbarTests {
                 (updatedBig != initialBig || updatedClassBig != initialClassBig);
 
             if (changed) break;
+
             await Task.Delay(50, ct);
         }
 

@@ -43,7 +43,7 @@ public class UserAgentTests {
 
         // Assert   
         await Assert.That(returnedBuilder).IsSameReferenceAs(builder);
-        
+
         await Assert.That(builder.Features.Browser.UserAgent).IsEqualTo(expected);
         await Assert.That(initParameters.UserAgent).IsEqualTo(expected);
     }
@@ -82,10 +82,10 @@ public class UserAgentTests {
 
         // Assert
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
-        
+
         await Assert.That(window.Features.Browser.UserAgent).IsEqualTo(expected);
     }
-    
+
     [Test]
     [NotInParallelInfiniTests]
     [Arguments("userAgentName", "userAgentName")]
@@ -94,7 +94,7 @@ public class UserAgentTests {
     [Arguments(" ", "")]
     public async Task AtWindowStage_ThroughBuilderAssignment(string? value, string? expected, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Browser.SetUserAgent(value);
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;

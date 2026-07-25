@@ -71,7 +71,7 @@ public class RegisterCustomSchemeHandlerTests {
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_ThroughBuilderAssignment_RegistersSchemeInEventsStore(CancellationToken ct = default) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.RegisterCustomSchemeHandler("app", EmptyHandler);
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;

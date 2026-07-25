@@ -4,7 +4,7 @@
 using Microsoft.Testing.Platform.Builder;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Assembly = System.Reflection.Assembly;
+using Assembly=System.Reflection.Assembly;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -67,6 +67,7 @@ internal static partial class MacOsTestingPlatformEntryPoint {
         IntPtr mode = Marshal.ReadIntPtr(symbol);
         if (mode == IntPtr.Zero)
             throw new InvalidOperationException("CoreFoundation returned a null default run-loop mode.");
+
         return mode;
     }
 
@@ -84,7 +85,7 @@ internal static partial class MacOsTestingPlatformEntryPoint {
             .FirstOrDefault(type => type.Name == "SelfRegisteredExtensions")?
             .GetMethod(
                 "AddSelfRegisteredExtensions",
-             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static
             );
 
         if (addExtensions is null)

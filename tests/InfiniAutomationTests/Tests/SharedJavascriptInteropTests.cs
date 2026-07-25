@@ -82,7 +82,7 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
         string titleFromJsInitially = await EvaluateWhenPageReadyAsync<string>(
             page,
             // lang=javascript
-            "async () => await window.infiniframe.window.getTitleAsync()"
+            "async () => await window.infiniframe.window.features.decorations.getTitleAsync()"
         );
 
         // Assert
@@ -98,7 +98,7 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
         string? titleFromJsInitially = await EvaluateWhenPageReadyAsync<string?>(
             page,
             // lang=javascript
-            "async () => await window.infiniframe.window.getTitleAsync()"
+            "async () => await window.infiniframe.window.features.decorations.getTitleAsync()"
         );
 
         await Assert.That(titleFromJsInitially).IsEqualTo(originalTitleState);
@@ -112,7 +112,7 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
         string? titleFromJs = await EvaluateWhenPageReadyAsync<string?>(
             page,
             // lang=javascript
-            "async () => await window.infiniframe.window.getTitleAsync()"
+            "async () => await window.infiniframe.window.features.decorations.getTitleAsync()"
         );
 
         await Assert.That(toggledTitle).IsEqualTo(ToggledTitle)

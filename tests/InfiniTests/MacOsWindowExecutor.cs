@@ -22,18 +22,6 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
     // continuations from separate tests cannot interleave on that queue.
     private static readonly SemaphoreSlim MainQueueTestLease = new(1, 1);
 
-    [DllImport(LibDispatch)]
-    private static extern void dispatch_async_f(IntPtr queue, IntPtr context, IntPtr work);
-
-    [DllImport(LibSystem)]
-    private static extern int pthread_main_np();
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    private delegate void DispatchWorkCallback(IntPtr context);
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    private delegate IntPtr DispatchGetMainQueueCallback();
-
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -55,6 +43,12 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
             MainQueueTestLease.Release();
         }
     }
+
+    [DllImport(LibDispatch)]
+    private static extern void dispatch_async_f(IntPtr queue, IntPtr context, IntPtr work);
+
+    [DllImport(LibSystem)]
+    private static extern int pthread_main_np();
 
     private static bool RequiresMainQueue(TestContext context) {
         if (context.Metadata.TestDetails.HasAttribute<RunOnMacOsMainThreadAttribute>()) {
@@ -128,6 +122,12 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
                 throw new InvalidOperationException($"Unexpected macOS main queue work item type '{target.GetType()}'.");
         }
     }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void DispatchWorkCallback(IntPtr context);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate IntPtr DispatchGetMainQueueCallback();
 
     private sealed class MainQueueTestWork(
         Func<ValueTask> action,

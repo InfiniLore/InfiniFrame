@@ -40,6 +40,7 @@ public class WindowFocusInEventTests {
             Skip.Test("FocusIn did not fire in this macOS desktop state.");
             return;
         }
+
         await Assert.That(focusInEventCount).IsGreaterThanOrEqualTo(baseline + 1);
     }
 }

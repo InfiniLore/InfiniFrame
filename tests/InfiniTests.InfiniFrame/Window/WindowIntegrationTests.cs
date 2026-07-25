@@ -135,7 +135,7 @@ public class WindowIntegrationTests {
         TimeSpan retryInterval = TimeSpan.FromMilliseconds(500);
         DateTime deadline = DateTime.UtcNow + TimeSpan.FromSeconds(10);
         DateTime? stableSince = null;
-        DateTime nextRequest = DateTime.MinValue;
+        var nextRequest = DateTime.MinValue;
 
         while (true) {
             DateTime now = DateTime.UtcNow;

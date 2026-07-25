@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 import type {InfiniFrameHostMessaging} from "./InfiniFrameHostMessaging";
 import type {InfiniFrameUtils} from "./InfiniFrameUtils";
-import type {InfiniFrameWindow} from "./InfiniFrameWindow";
+import type {InfiniFrameWindow} from "./Window/InfiniFrameWindow";
 import type {InfiniFrameHostBridge} from "./InfiniFrameHostBridge";
 import type {InfiniFrameSetup} from "./InfiniFrameSetup";
 

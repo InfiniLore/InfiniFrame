@@ -15,7 +15,7 @@ public class InfiniFrameBlazorAppRunAsyncTests {
     public async Task RunAsync_ShouldWaitAsynchronouslyAndDisposeServices(CancellationToken ct) {
         // Arrange
         var window = Substitute.For<IInfiniFrameWindow>();
-        IInfiniFrameWindowFeatureLifecycle lifecycle = window.Features.Lifecycle;
+        ILifecycleInfiniFrameWindowFeature lifecycle = window.Features.Lifecycle;
         lifecycle.WaitForCloseAsync(ct).Returns(ValueTask.CompletedTask);
         ServiceProvider services = new ServiceCollection()
             .AddSingleton(window)

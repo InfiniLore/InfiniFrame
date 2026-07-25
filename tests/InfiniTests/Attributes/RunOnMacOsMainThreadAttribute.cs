@@ -3,11 +3,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using TUnit.Core.Interfaces;
 
+namespace InfiniTests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniTests;
-
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
 public sealed class RunOnMacOsMainThreadAttribute : Attribute, ITestExecutor {
     private static readonly MacOsWindowExecutor Executor = new();

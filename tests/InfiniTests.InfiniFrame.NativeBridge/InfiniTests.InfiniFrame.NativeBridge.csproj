@@ -5,7 +5,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\InfiniFrame.NativeBridge\InfiniFrame.NativeBridge.csproj"/>
-        <ProjectReference Include="..\InfiniTests\InfiniTests.csproj" />
+        <ProjectReference Include="..\InfiniTests\InfiniTests.csproj"/>
     </ItemGroup>
 
 </Project>

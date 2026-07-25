@@ -62,8 +62,8 @@ public class SetMinSizeTests {
         window.Features.Size.SetMinSize(targetMinWidth, targetMinHeight);
 
         // Assert
-        int newMinWidth = await PollUtility.WaitForChangeAsync(() => window.Features.Size.MinWidth, originalMinWidth, TimeSpan.FromSeconds(5), ct);
-        int newMinHeight = await PollUtility.WaitForChangeAsync(() => window.Features.Size.MinHeight, originalMinHeight, TimeSpan.FromSeconds(5), ct);
+        int newMinWidth = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.MinWidth, originalMinWidth, TimeSpan.FromSeconds(5), ct);
+        int newMinHeight = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.MinHeight, originalMinHeight, TimeSpan.FromSeconds(5), ct);
         await Assert.That(newMinWidth).IsEqualTo(targetMinWidth);
         await Assert.That(newMinHeight).IsEqualTo(targetMinHeight);
     }

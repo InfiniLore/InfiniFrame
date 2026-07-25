@@ -32,6 +32,10 @@ public abstract class InfiniFramePlaywrightTestBase {
         );
     }
 
+    [After(Test)]
+    public Task ResetStateAfterEachTest()
+        => RuntimeContext.RestoreDefaultStateAsync();
+
     protected async Task<IPage> GetPageAsync(string relativeUrl) {
         IBrowserContext context = await GetContextAsync(relativeUrl);
         IPage page = await WaitForPageAsync(context);

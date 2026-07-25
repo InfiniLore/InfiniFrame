@@ -13,7 +13,7 @@ public class CenterTests {
     [SkipOnLinux]
     public async Task AtWindowStage_DirectAssignment(CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Size.SetSize(700, 420);
             builder.Features.Position.SetLocation(100, 100);
         }, ct);
@@ -24,7 +24,7 @@ public class CenterTests {
         window.Features.Position.Center();
 
         // Assert
-        int updatedLeft = await PollUtility.WaitForChangeAsync(() => window.Features.Position.Left, initialLeft, TimeSpan.FromSeconds(5), ct);
+        int updatedLeft = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Position.Left, initialLeft, TimeSpan.FromSeconds(5), ct);
         await Assert.That(updatedLeft).IsNotEqualTo(initialLeft);
         await Assert.That(window.IsClosedOrClosing()).IsFalse();
     }
@@ -34,7 +34,7 @@ public class CenterTests {
     [SkipOnLinux]
     public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Size.SetSize(700, 420);
             builder.Features.Position.SetLocation(120, 120);
         }, ct);
@@ -45,7 +45,7 @@ public class CenterTests {
         IInfiniFrameWindow returnedWindow = window.Center();
 
         // Assert
-        int updatedLeft = await PollUtility.WaitForChangeAsync(() => window.Features.Position.Left, initialLeft, TimeSpan.FromSeconds(5), ct);
+        int updatedLeft = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Position.Left, initialLeft, TimeSpan.FromSeconds(5), ct);
         await Assert.That(updatedLeft).IsNotEqualTo(initialLeft);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
         await Assert.That(window.IsClosedOrClosing()).IsFalse();

@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge.Handles;
@@ -24,7 +24,7 @@ public interface IInfiniFrameWindow : IHasInfiniFrameEventsStore, INativeWindowH
     /// <summary>
     ///     Gets the debugging feature for the window.
     /// </summary>
-    IInfiniFrameWindowFeatureDebugging Debugging { get; }
+    IDebuggingInfiniFrameWindowFeature Debugging { get; }
 
     /// <summary>
     ///     Gets the configuration for the window.
@@ -47,6 +47,7 @@ public interface IInfiniFrameWindow : IHasInfiniFrameEventsStore, INativeWindowH
     internal void BeginInitialization();
     internal void AssignNativeHandle(IntPtr handle);
     internal bool RequestClose();
+    internal void CancelCloseRequest();
     internal void MarkNativeClosed();
     internal void MarkDisposed();
     internal void ReleaseNativeHandle();

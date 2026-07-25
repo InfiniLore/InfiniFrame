@@ -3,26 +3,29 @@
 // ---------------------------------------------------------------------------------------------------------------------
 import {afterEach, describe, expect, it, vi} from "vitest";
 import {getTitleObserver, getTitleObserverTarget} from "./Observers";
-import {SendToHostMessageIds} from "../Contracts";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 type TestWindow = Window & {
     infiniframe?: {
-        messaging: {
-            sendMessageToHost: (id: string, data?: unknown) => void;
+        window: {
+            features: {
+                decorations: {
+                    setTitle: (title: string | null) => void;
+                };
+            };
         };
     };
 };
 
 describe("Observers", () => {
     const testWindow = window as TestWindow;
-    const sendMessageToHost = vi.fn();
+    const setTitle = vi.fn();
     const OriginalMutationObserver = globalThis.MutationObserver;
 
     afterEach(() => {
-        sendMessageToHost.mockReset();
+        setTitle.mockReset();
         globalThis.MutationObserver = OriginalMutationObserver;
         document.head.innerHTML = "";
     });
@@ -35,7 +38,7 @@ describe("Observers", () => {
         expect(getTitleObserverTarget()).toBe(title);
     });
 
-    it("getTitleObserver sends titleChange only for childList mutations", () => {
+    it("getTitleObserver updates the window title feature only for childList mutations", () => {
         let callback: MutationCallback = () => undefined;
 
         class FakeMutationObserver {
@@ -51,8 +54,12 @@ describe("Observers", () => {
         globalThis.MutationObserver = FakeMutationObserver as unknown as typeof MutationObserver;
         testWindow.infiniframe = {
             // @ts-ignore
-            messaging: {
-                sendMessageToHost
+            window: {
+                features: {
+                    decorations: {
+                        setTitle
+                    }
+                }
             }
         };
 
@@ -69,7 +76,7 @@ describe("Observers", () => {
             {} as MutationObserver
         );
 
-        expect(sendMessageToHost).toHaveBeenCalledTimes(1);
-        expect(sendMessageToHost).toHaveBeenCalledWith(SendToHostMessageIds.titleChange, "Initial");
+        expect(setTitle).toHaveBeenCalledTimes(1);
+        expect(setTitle).toHaveBeenCalledWith("Initial");
     });
 });

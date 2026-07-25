@@ -49,8 +49,9 @@ public class TryGetRemoteDebuggingEndpointTests {
     [MethodDataSource(nameof(GetPort))]
     public async Task AtWindowStage_ThroughBuilderAssignment(int value, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) return;
+
             builder.Features.Debugging.SetRemoteDebuggingPort(value);
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -82,8 +83,9 @@ public class TryGetRemoteDebuggingEndpointTests {
     [MethodDataSource(nameof(GetPort))]
     public async Task AtWindowStage_ThroughBuilderAssignment_WhenClosed_ReturnsFalseAndNullEndpoint(int value, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) return;
+
             builder.Features.Debugging.SetRemoteDebuggingPort(value);
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;

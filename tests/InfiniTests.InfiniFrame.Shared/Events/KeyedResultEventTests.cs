@@ -205,7 +205,7 @@ public class KeyedResultEventTests {
         evt.Add("key", handler: (_, _) => throw new InvalidOperationException("boom"));
 
         // Act & Assert
-        await Assert.That(() => { evt.TryInvoke("key", window, 0, out _); }).Throws<InvalidOperationException>();
+        await Assert.That(() => {evt.TryInvoke("key", window, 0, out _);}).Throws<InvalidOperationException>();
     }
 
     [Test]

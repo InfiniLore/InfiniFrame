@@ -26,7 +26,7 @@ public class ParentChildWindowTests {
         IInfiniFrameWindow parentWindow = parentWindowUtility.Window;
 
         // Act
-        using var childWindowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var childWindowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             var configuration = (InfiniFrameWindowBuilderConfiguration)builder.Configuration;
             configuration.ParentWindow = parentWindow;
         }, ct);
@@ -47,7 +47,7 @@ public class ParentChildWindowTests {
         // Arrange
         using var parentWindowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow parentWindow = parentWindowUtility.Window;
-        using var childWindowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var childWindowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             var configuration = (InfiniFrameWindowBuilderConfiguration)builder.Configuration;
             configuration.ParentWindow = parentWindow;
         }, ct);
@@ -74,7 +74,7 @@ public class ParentChildWindowTests {
         // Arrange
         using var parentWindowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow parentWindow = parentWindowUtility.Window;
-        using var childWindowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var childWindowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             var configuration = (InfiniFrameWindowBuilderConfiguration)builder.Configuration;
             configuration.ParentWindow = parentWindow;
         }, ct);

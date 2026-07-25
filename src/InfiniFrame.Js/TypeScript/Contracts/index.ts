@@ -10,4 +10,4 @@ export * from "./InfiniFrameHostBridge";
 export * from "./InfiniFrameHostMessaging";
 export * from "./InfiniFrameSetup";
 export * from "./InfiniFrameUtils";
-export * from "./InfiniFrameWindow";
+export * from "./Window";

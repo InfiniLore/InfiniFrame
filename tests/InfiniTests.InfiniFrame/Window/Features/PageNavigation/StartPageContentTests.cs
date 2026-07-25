@@ -47,7 +47,7 @@ public class StartPageContentTests {
     [Arguments("<html><body>Through Builder</body></html>")]
     public async Task AtWindowStage_ThroughBuilderAssignment(string value, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.PageNavigation.SetStartPageContent(value);
         }, ct);
         IInfiniFrameWindowBuilder builder = windowUtility.BuilderSnapshot;

@@ -24,7 +24,7 @@ public class MessageHandlersTests {
 
         // Assert
         int closeCallCount = window.Window.Features.Lifecycle.ReceivedCalls()
-            .Count(call => string.Equals(call.GetMethodInfo().Name, nameof(IInfiniFrameWindowFeatureLifecycle.Close), StringComparison.Ordinal));
+            .Count(call => string.Equals(call.GetMethodInfo().Name, nameof(ILifecycleInfiniFrameWindowFeature.Close), StringComparison.Ordinal));
         await Assert.That(closeCallCount).IsEqualTo(1);
     }
 
@@ -55,7 +55,7 @@ public class MessageHandlersTests {
 
         // Assert
         int invokeCallCount = window.Window.Features.State.ReceivedCalls()
-            .Count(call => string.Equals(call.GetMethodInfo().Name, nameof(IInfiniFrameWindowFeatureState.SetFullScreen), StringComparison.Ordinal));
+            .Count(call => string.Equals(call.GetMethodInfo().Name, nameof(IStateInfiniFrameWindowFeature.SetFullScreen), StringComparison.Ordinal));
         await Assert.That(invokeCallCount).IsEqualTo(1);
     }
 
@@ -70,7 +70,7 @@ public class MessageHandlersTests {
 
         // Assert
         int invokeCallCount = window.Window.Features.Decorations.ReceivedCalls()
-            .Count(call => string.Equals(call.GetMethodInfo().Name, nameof(IInfiniFrameWindowFeatureDecorations.SetTitle), StringComparison.Ordinal));
+            .Count(call => string.Equals(call.GetMethodInfo().Name, nameof(IDecorationsInfiniFrameWindowFeature.SetTitle), StringComparison.Ordinal));
         await Assert.That(invokeCallCount).IsEqualTo(1);
     }
 
@@ -85,7 +85,7 @@ public class MessageHandlersTests {
 
         // Assert
         int invokeCallCount = window.Window.Features.Decorations.ReceivedCalls()
-            .Count(call => string.Equals(call.GetMethodInfo().Name, nameof(IInfiniFrameWindowFeatureDecorations.SetTitle), StringComparison.Ordinal));
+            .Count(call => string.Equals(call.GetMethodInfo().Name, nameof(IDecorationsInfiniFrameWindowFeature.SetTitle), StringComparison.Ordinal));
         await Assert.That(invokeCallCount).IsEqualTo(0);
     }
 
@@ -103,5 +103,4 @@ public class MessageHandlersTests {
 
         return (builder, events, window);
     }
-
 }

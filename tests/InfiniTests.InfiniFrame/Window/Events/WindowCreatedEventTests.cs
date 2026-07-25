@@ -31,7 +31,7 @@ public class WindowCreatedEventTests {
         bool windowCreatedCalled = false;
         using var _ = InfiniFrameTestWindow.Create(builder: builder => builder.RegisterWindowCreatedHandler(window => {
             window.SendWebMessage("hello-from-window-created");
-            
+
             // ReSharper disable once AccessToModifiedClosure
             Volatile.Write(ref windowCreatedCalled, true);
         }), ct);

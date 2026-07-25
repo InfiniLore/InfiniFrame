@@ -25,8 +25,9 @@ public class RemoteDebuggingEndpointReadinessTests {
 
         // Arrange
         int port = GetAvailableLoopbackPort();
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) return;
+
             builder.Features.Debugging.SetRemoteDebuggingPort(port);
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;

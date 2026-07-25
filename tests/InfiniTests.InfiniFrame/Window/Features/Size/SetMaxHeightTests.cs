@@ -56,7 +56,7 @@ public class SetMaxHeightTests {
         window.Features.Size.SetMaxHeight(targetMaxHeight);
 
         // Assert
-        int newMaxHeight = await PollUtility.WaitForChangeAsync(() => window.Features.Size.MaxHeight, originalMaxHeight, TimeSpan.FromSeconds(5), ct);
+        int newMaxHeight = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.MaxHeight, originalMaxHeight, TimeSpan.FromSeconds(5), ct);
         await Assert.That(newMaxHeight).IsEqualTo(targetMaxHeight);
     }
 
@@ -74,7 +74,7 @@ public class SetMaxHeightTests {
         IInfiniFrameWindow returnedWindow = window.SetMaxHeight(targetMaxHeight);
 
         // Assert
-        int newMaxHeight = await PollUtility.WaitForChangeAsync(() => window.Features.Size.MaxHeight, originalMaxHeight, TimeSpan.FromSeconds(5), ct);
+        int newMaxHeight = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.MaxHeight, originalMaxHeight, TimeSpan.FromSeconds(5), ct);
         await Assert.That(newMaxHeight).IsEqualTo(targetMaxHeight);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }
