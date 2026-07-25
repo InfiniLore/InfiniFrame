@@ -34,7 +34,7 @@
         <GeneratePackageOnBuild Condition="'$(GeneratePackageOnBuild)' == '' and '$(CI)' == 'true'">true</GeneratePackageOnBuild>
         <GeneratePackageOnBuild Condition="'$(GeneratePackageOnBuild)' == ''">true</GeneratePackageOnBuild>
         
-        <Version>0.52.0</Version>
+        <Version>0.53.0</Version>
         <Authors>InfiniFrame, TryPhotino</Authors>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
