@@ -8,7 +8,7 @@ namespace InfiniTests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed class MacOsWindowExecutor : ITestExecutor {
+public sealed partial class MacOsWindowExecutor : ITestExecutor {
     private const string NativeWindowTestNamespace = "InfiniTests.InfiniFrame.Window";
     private const string LibDispatch = "/usr/lib/system/libdispatch.dylib";
     private const string LibSystem = "/usr/lib/libSystem.dylib";
@@ -44,11 +44,11 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
         }
     }
 
-    [DllImport(LibDispatch)]
-    private static extern void dispatch_async_f(IntPtr queue, IntPtr context, IntPtr work);
+    [LibraryImport(LibDispatch)]
+    private static partial void dispatch_async_f(IntPtr queue, IntPtr context, IntPtr work);
 
-    [DllImport(LibSystem)]
-    private static extern int pthread_main_np();
+    [LibraryImport(LibSystem)]
+    private static partial int pthread_main_np();
 
     private static bool RequiresMainQueue(TestContext context) {
         if (context.Metadata.TestDetails.HasAttribute<RunOnMacOsMainThreadAttribute>()) {

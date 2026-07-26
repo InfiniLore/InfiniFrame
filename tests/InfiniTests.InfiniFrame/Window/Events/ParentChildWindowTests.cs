@@ -8,11 +8,11 @@ namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class ParentChildWindowTests {
+public partial class ParentChildWindowTests {
     private const uint GwOwner = 4;
 
-    [DllImport("user32.dll", EntryPoint = "GetWindow", SetLastError = true)]
-    private static extern IntPtr GetWindow(IntPtr hWnd, uint uCmd);
+    [LibraryImport("user32.dll", EntryPoint = "GetWindow", SetLastError = true)]
+    private static partial IntPtr GetWindow(IntPtr hWnd, uint uCmd);
 
     [Test]
     [SkipOnWindowsArm]

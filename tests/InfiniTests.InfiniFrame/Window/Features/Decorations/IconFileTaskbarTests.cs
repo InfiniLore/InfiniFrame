@@ -8,7 +8,7 @@ namespace InfiniTests.InfiniFrame.Window.Features.Decorations;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed class IconFileTaskbarTests {
+public sealed partial class IconFileTaskbarTests {
     private const int WmGetIcon = 0x007F;
     private const int IconSmall = 0;
     private const int IconBig = 1;
@@ -16,11 +16,11 @@ public sealed class IconFileTaskbarTests {
     private const int GclpHicon = -14;
     private const int GclpHiconSm = -34;
 
-    [DllImport("user32.dll", EntryPoint = "SendMessageW", SetLastError = true)]
-    private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+    [LibraryImport("user32.dll", EntryPoint = "SendMessageW", SetLastError = true)]
+    private static partial IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
 
-    [DllImport("user32.dll", EntryPoint = "GetClassLongPtrW", SetLastError = true)]
-    private static extern IntPtr GetClassLongPtr(IntPtr hWnd, int nIndex);
+    [LibraryImport("user32.dll", EntryPoint = "GetClassLongPtrW", SetLastError = true)]
+    private static partial IntPtr GetClassLongPtr(IntPtr hWnd, int nIndex);
 
     [Test]
     [OnlyRunOnWindowsX64]
