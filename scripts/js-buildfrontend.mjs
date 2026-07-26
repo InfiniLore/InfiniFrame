@@ -122,7 +122,12 @@ function acquireLock() {
             }
 
             if (shouldRemoveExistingLock()) {
-                rmSync(lockDirectory, {recursive: true, force: true});
+                rmSync(lockDirectory, {
+                    recursive: true,
+                    force: true,
+                    maxRetries: 5,
+                    retryDelay: 200,
+                });
                 continue;
             }
 
@@ -198,12 +203,11 @@ function runNpm(args) {
     });
 
     if (result.error) {
-        console.error(result.error.message);
-        process.exit(1);
+        throw result.error;
     }
 
     if (result.status !== 0) {
-        process.exit(result.status ?? 1);
+        throw new Error(`npm ${args.join(' ')} exited with code ${result.status ?? 1}.`);
     }
 }
 
@@ -217,17 +221,21 @@ acquireLock();
 try {
     if (isBuildCurrent()) {
         console.log('Frontend build output is current.');
-        process.exit(0);
-    }
+    } else {
+        if (!existsSync(nodeModulesDirectory)) {
+            installDependencies();
+        } else if (process.env.CI === 'true') {
+            runNpm(['ci']);
+        }
 
-    if (!existsSync(nodeModulesDirectory)) {
-        installDependencies();
-    } else if (process.env.CI === 'true') {
-        runNpm(['ci']);
+        runNpm(['run', 'build']);
+        writeFileSync(stampFile, `${new Date().toISOString()}\n`, 'utf8');
     }
-
-    runNpm(['run', 'build']);
-    writeFileSync(stampFile, `${new Date().toISOString()}\n`, 'utf8');
 } finally {
-    rmSync(lockDirectory, {recursive: true, force: true});
+    rmSync(lockDirectory, {
+        recursive: true,
+        force: true,
+        maxRetries: 5,
+        retryDelay: 200,
+    });
 }
