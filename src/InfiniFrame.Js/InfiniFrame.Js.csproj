@@ -63,7 +63,7 @@
 
         <Message Text="Running frontend build..." Importance="high" />
 
-        <Exec Command="node &quot;$(RepositoryRoot)/scripts/BuildFrontend.mjs&quot; &quot;$(MSBuildProjectDirectory)&quot; &quot;$(FrontendStampFile)&quot; &quot;$(FrontendProdFile)&quot; &quot;$(FrontendDevFile)&quot;"
+        <Exec Command="node &quot;$(RepositoryRoot)/scripts/js-buildfrontend.mjs&quot; &quot;$(MSBuildProjectDirectory)&quot; &quot;$(FrontendStampFile)&quot; &quot;$(FrontendProdFile)&quot; &quot;$(FrontendDevFile)&quot;"
               WorkingDirectory="$(MSBuildProjectDirectory)" />
 
         <Error Condition="!Exists('$(FrontendProdFile)')"

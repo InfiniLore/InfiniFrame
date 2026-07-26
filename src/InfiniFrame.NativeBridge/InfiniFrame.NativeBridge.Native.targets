@@ -83,7 +83,7 @@
         <NativeBuildInput Include="../InfiniFrame.Js/tsconfig.json" />
         <NativeBuildInput Include="../InfiniFrame.Js/vite.config.dev.ts" />
         <NativeBuildInput Include="../InfiniFrame.Js/vite.config.prod.ts" />
-        <NativeBuildInput Include="../../scripts/BuildFrontend.mjs" />
+        <NativeBuildInput Include="../../scripts/js-buildfrontend.mjs" />
         <NativeBuildInput Include="native-build.ps1" />
     </ItemGroup>
 

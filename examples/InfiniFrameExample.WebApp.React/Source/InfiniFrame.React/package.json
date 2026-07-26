@@ -1,25 +1,25 @@
 {
-  "name": "InfiniFrame-react",
+  "name": "infiniframe.example.react",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "react - dev": "vite",
-    "react - build": "tsc -b && vite build",
-    "react - lint": "eslint .",
-    "react - preview": "vite preview"
+    "react.dev": "vite",
+    "react.build": "tsc -b && vite build",
+    "react.lint": "eslint .",
+    "react.preview": "vite preview"
   },
     "dependencies": {
-        "react": "^19.2.7",
-        "react-dom": "^19.2.7"
+        "react": "^19.2.8",
+        "react-dom": "^19.2.8"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
         "@types/node": "^26.1.1",
         "@types/react": "^19.2.17",
         "@types/react-dom": "^19.2.3",
-        "@vitejs/plugin-react": "^6.0.3",
-        "eslint": "^10.7.0",
+        "@vitejs/plugin-react": "^6.0.4",
+        "eslint": "^10.8.0",
         "eslint-plugin-react-hooks": "^7.1.1",
         "eslint-plugin-react-refresh": "^0.5.3",
         "globals": "^17.7.0",

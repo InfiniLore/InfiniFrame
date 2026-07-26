@@ -90,9 +90,10 @@
     <File Path=".github/workflows/shared-testing.yml" />
   </Folder>
   <Folder Name="/.dev-tools/scripts/">
-    <File Path="scripts/BuildFrontend.mjs" />
+    <File Path="scripts/js-buildfrontend.mjs" />
     <File Path="scripts/clean.ps1" />
     <File Path="scripts/clion-linux-environment.sh" />
+    <File Path="scripts/js-updatedependencies.ps1" />
     <File Path="scripts/nuget-install.sh" />
   </Folder>
   <Folder Name="/docs/">

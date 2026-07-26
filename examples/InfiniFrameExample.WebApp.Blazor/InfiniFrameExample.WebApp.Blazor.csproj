@@ -1,9 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-    <PropertyGroup>
-        <ApplicationIcon>wwwroot/favicon.ico</ApplicationIcon>
-    </PropertyGroup>
-
     <ItemGroup>
         <ProjectReference Include="../../src/InfiniFrame.Blazor/InfiniFrame.Blazor.csproj" />
         <ProjectReference Include="../../src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj" />

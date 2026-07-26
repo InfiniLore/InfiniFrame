@@ -101,7 +101,7 @@ public sealed partial class InfiniFrameTestWindow : IDisposable {
 
         var windowBuilder = InfiniFrameWindowBuilder.Create();
         windowBuilder
-            .SetIconFile("favicon.ico")
+            .SetIconFile("wwwroot/favicon.ico")
             .SetStartPageContent(StartString);
 
         builder?.Invoke(windowBuilder);

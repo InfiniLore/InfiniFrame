@@ -1,12 +1,12 @@
 {
-  "name": "InfiniFrame-vue",
+  "name": "infiniframe.example.vue",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "vue.fullscreen-dev": "vite",
-    "vue.fullscreen-build": "vue-tsc -b && vite build",
-    "vue.fullscreen-preview": "vite preview"
+    "vue.dev": "vite",
+    "vue.build": "vue-tsc -b && vite build",
+    "vue.preview": "vite preview"
   },
   "dependencies": {
     "vue": "^3.5.40"
@@ -15,8 +15,13 @@
     "@types/node": "^26.1.1",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/tsconfig": "^0.9.1",
-    "typescript": "5.9.3",
+    "typescript": "^5.9.3",
     "vite": "^8.1.5",
-    "vue-tsc": "^3.3.7"
+    "vue-tsc": "^3.3.8"
+  },
+  "ncu": {
+    "reject": [
+      "typescript"
+    ]
   }
 }
