@@ -10,5 +10,13 @@
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <ApplicationIcon>../../assets/favicon.ico</ApplicationIcon>
     </PropertyGroup>
+
+    <ItemGroup>
+        <Content Include="$(MSBuildThisFileDirectory)../assets/favicon.ico">
+            <Link>wwwroot/favicon.ico</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
 </Project>
