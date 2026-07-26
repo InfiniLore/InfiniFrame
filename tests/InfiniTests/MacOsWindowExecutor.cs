@@ -18,13 +18,6 @@ public sealed partial class MacOsWindowExecutor : ITestExecutor {
     private static readonly IntPtr DispatchWorkPointer = Marshal.GetFunctionPointerForDelegate(DispatchWork);
     private static readonly TimeSpan MainQueueTimeout = TimeSpan.FromSeconds(30);
 
-    // WKWebView's display refresh work can outlive a window's managed teardown.  In particular,
-    // the Intel WebKit shipped with macOS 15 can crash in
-    // RemoteLayerTreeDrawingAreaProxyMac::scheduleDisplayRefreshCallbacks when a replacement
-    // view is created immediately after the previous one closes.  Keep the next window test
-    // out of the queue long enough for the prior view's deferred native cleanup to run.
-    private static readonly TimeSpan WebKitTeardownSettleTime = TimeSpan.FromMilliseconds(100);
-
     // AppKit and the test host share one main queue. Keep a lease for the complete async test lifetime so
     // continuations from separate tests cannot interleave on that queue.
     private static readonly SemaphoreSlim MainQueueTestLease = new(1, 1);
@@ -47,10 +40,6 @@ public sealed partial class MacOsWindowExecutor : ITestExecutor {
             await DispatchToMainQueueAsync(action, cancellationToken);
         }
         finally {
-            // This also applies after a failed test: its finally/disposal path may have just
-            // torn down a WKWebView, and immediately starting another native-window test can
-            // reproduce the same WebKit race.
-            await Task.Delay(WebKitTeardownSettleTime, cancellationToken);
             MainQueueTestLease.Release();
         }
     }
