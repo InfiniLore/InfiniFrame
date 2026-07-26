@@ -13,7 +13,7 @@ import path from 'node:path';
 const [, , appDirectoryArg, stampFileArg, ...outputFileArgs] = process.argv;
 
 if (!appDirectoryArg || !stampFileArg || outputFileArgs.length === 0) {
-    console.error('Usage: node BuildFrontend.mjs <app-directory> <stamp-file> <output-file> [output-file...]');
+    console.error('Usage: node js-buildfrontend.mjs <app-directory> <stamp-file> <output-file> [output-file...]');
     process.exit(1);
 }
 

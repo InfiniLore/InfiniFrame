@@ -27,11 +27,11 @@ function(infiniframe_setup_embed_js target_name)
     # Ensure output directory exists
     file(MAKE_DIRECTORY "${embed_dir}")
 
-    # Locate node (used by scripts/BuildFrontend.mjs)
+    # Locate node (used by scripts/js-buildfrontend.mjs)
     find_program(NODE_EXECUTABLE NAMES node REQUIRED)
 
     get_filename_component(repository_root "${src_dir}/.." ABSOLUTE)
-    set(frontend_build_script "${repository_root}/scripts/BuildFrontend.mjs")
+    set(frontend_build_script "${repository_root}/scripts/js-buildfrontend.mjs")
     set(js_stamp_file "${js_project_dir}/obj/frontend-build.stamp")
 
     # Track TS sources

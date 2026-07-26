@@ -52,7 +52,7 @@ public class CrossThreadWindowLifecycleTests {
 
         var builder = InfiniFrameWindowBuilder.Create();
         builder
-            .SetIconFile("favicon.ico")
+            .SetIconFile("wwwroot/favicon.ico")
             .SetStartPageContent(StartString);
 
         IInfiniFrameWindow window = builder.Build();

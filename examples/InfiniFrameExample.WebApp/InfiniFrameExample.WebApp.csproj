@@ -1,9 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <ApplicationIcon>wwwroot/favicon.ico</ApplicationIcon>
-    </PropertyGroup>
-
     <ItemGroup>
       <ProjectReference Include="..\..\src\InfiniFrame.WebServer\InfiniFrame.WebServer.csproj" />
     </ItemGroup>
@@ -12,11 +8,10 @@
         <Content Update="wwwroot/**">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
-        <Content Update="wwwroot\favicon.ico">
-          <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-          <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\" />
     </ItemGroup>
 
 </Project>

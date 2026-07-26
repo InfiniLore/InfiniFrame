@@ -55,7 +55,7 @@ public static class Program {
             // .SetTransparent(true)
             // .SetChromeless(true)
             // .SetResizable(true)
-            .SetIconFile("favicon.ico")
+            .SetIconFile("wwwroot/favicon.ico")
             // .Center()
             // .SetUseOsDefaultSize(true)
             // .SetUseOsDefaultLocation(true);

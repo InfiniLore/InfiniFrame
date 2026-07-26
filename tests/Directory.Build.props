@@ -12,11 +12,12 @@
         <IsPackable>false</IsPackable>
 
         <TargetDir Condition="'$(TargetDir)' == ''">$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\</TargetDir>
+        <ApplicationIcon>../../assets/favicon.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
-        <Content Include="$(MSBuildThisFileDirectory)..\assets\favicon.ico">
-            <Link>favicon.ico</Link>
+        <Content Include="$(MSBuildThisFileDirectory)../assets/favicon.ico">
+            <Link>wwwroot/favicon.ico</Link>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
     </ItemGroup>

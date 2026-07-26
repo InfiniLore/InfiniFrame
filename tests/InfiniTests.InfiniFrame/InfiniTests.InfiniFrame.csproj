@@ -1,8 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <ApplicationIcon>../../assets/favicon.ico</ApplicationIcon>
-    </PropertyGroup>
-
     <ItemGroup>
         <PackageReference Include="TUnit"/>
     </ItemGroup>
@@ -11,13 +7,6 @@
         <ProjectReference Include="../../src/InfiniFrame/InfiniFrame.csproj"/>
         <ProjectReference Include="../../src/InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
         <ProjectReference Include="../InfiniTests/InfiniTests.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Content Include="../../assets/favicon.ico">
-            <Link>Assets/favicon.ico</Link>
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
     </ItemGroup>
 
     <ItemGroup>
