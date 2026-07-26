@@ -1,14 +1,14 @@
 # Run a safe preview first:
-# .\scripts\Update-JavaScriptDependencies.ps1 -WhatIf
+# .\scripts\js-updatedependencies.ps1 -WhatIf
 
 # Update within the version ranges already declared in each package.json:
-# .\scripts\Update-JavaScriptDependencies.ps1
+# .\scripts\js-updatedependencies.ps1
 
 # Also apply npm’s non-breaking audit fixes:
-# .\scripts\Update-JavaScriptDependencies.ps1 -AuditFix
+# .\scripts\js-updatedependencies.ps1 -AuditFix
 
 # To update dependency ranges in package.json to latest releases too—including majors, which can require code changes:
-#.\scripts\Update-JavaScriptDependencies.ps1 -IncludeMajor -AuditFix
+#.\scripts\js-updatedependencies.ps1 -IncludeMajor -AuditFix
 
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
 param(

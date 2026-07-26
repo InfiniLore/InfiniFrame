@@ -43,7 +43,7 @@
         <Message Text="Running Vue frontend build..." Importance="high"/>
 
         <!-- FIX: cross-platform path -->
-        <Exec Command="node &quot;$(RepositoryRoot)/scripts/BuildFrontend.mjs&quot; &quot;$(ProjectDir)Sources/infiniframe-playwright-vue&quot; &quot;$(ProjectDir)obj/frontend-build.stamp&quot; &quot;$(FrontendOutputFile)&quot;"
+        <Exec Command="node &quot;$(RepositoryRoot)/scripts/js-buildfrontend.mjs&quot; &quot;$(ProjectDir)Sources/infiniframe-playwright-vue&quot; &quot;$(ProjectDir)obj/frontend-build.stamp&quot; &quot;$(FrontendOutputFile)&quot;"
               WorkingDirectory="$(ProjectDir)"/>
 
         <!-- prevent re-running -->
