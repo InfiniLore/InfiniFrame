@@ -16,6 +16,7 @@ public class NativeWindowHandleTests {
     [Test]
     [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
     public async Task ConcurrentAcquireAndShutdown_NeverReturnsAStaleHandle(CancellationToken ct = default) {
+        // Arrange
         IntPtr value = new(0x123456);
         using var owner = new TestOwner(value);
         int successfulAcquisitions = 0;
@@ -36,25 +37,34 @@ public class NativeWindowHandleTests {
                 }
             }, ct)).ToArray();
 
+        // Act
         await Task.Yield();
         // ReSharper disable once DisposeOnUsingVariable
         owner.Dispose();
         await Task.WhenAll(workers);
 
+        // Assert
         await Assert.That(successfulAcquisitions).IsGreaterThanOrEqualTo(0);
         await Assert.That(() => owner.AcquireNativeHandle()).Throws<ObjectDisposedException>();
     }
 
     [Test]
     public async Task DisposingSafeHandle_WaitsForOutstandingLease(CancellationToken ct = default) {
+        // Arrange
         IntPtr value = new(0x654321);
         var handle = new NativeWindowHandle(value, false);
         var lease = new NativeHandleLease(handle);
 
+        // Act
         handle.Dispose();
+
+        // Assert
         await Assert.That(lease.Handle).IsEqualTo(value);
 
+        // Act
         lease.Dispose();
+
+        // Assert
         await Assert.That(handle.IsClosed).IsTrue();
     }
 

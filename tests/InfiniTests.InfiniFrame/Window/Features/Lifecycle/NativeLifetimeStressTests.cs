@@ -15,6 +15,7 @@ public class NativeLifetimeStressTests {
     [Test]
     [DefaultInfiniTestsTimeout(20_000)]
     public async Task FeatureCallsRacingClose_DoNotReachFreedNativeInstance(CancellationToken ct) {
+        // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
         using var stop = CancellationTokenSource.CreateLinkedTokenSource(ct);
@@ -34,6 +35,7 @@ public class NativeLifetimeStressTests {
                 }
             }, stop.Token)).ToArray();
 
+        // Act
         await Task.Delay(50, ct);
         window.Close();
         window.WaitForClose();
@@ -44,6 +46,7 @@ public class NativeLifetimeStressTests {
         }
         catch (OperationCanceledException) when (stop.IsCancellationRequested) {}
 
+        // Assert
         await Assert.That(completedCalls).IsGreaterThanOrEqualTo(0);
         await Assert.That(window.Features.Lifecycle.State).IsEqualTo(InfiniFrameWindowLifecycleState.NativeClosed);
         await Assert.That(() => window.Features.State.IsFocused).Throws<ObjectDisposedException>();
@@ -52,6 +55,7 @@ public class NativeLifetimeStressTests {
     [Test]
     [DefaultInfiniTestsTimeout(20_000)]
     public async Task ConcurrentCloseRequests_ProduceSingleDeterministicShutdown(CancellationToken ct) {
+        // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
@@ -59,11 +63,17 @@ public class NativeLifetimeStressTests {
             .Select(_ => Task.Run(window.Close, ct))
             .ToArray();
 
+        // Act
         await Task.WhenAll(closeRequests);
         window.WaitForClose();
 
+        // Assert
         await Assert.That(window.Features.Lifecycle.State).IsEqualTo(InfiniFrameWindowLifecycleState.NativeClosed);
+
+        // Act
         ((IDisposable)window).Dispose();
+
+        // Assert
         await Assert.That(window.Features.Lifecycle.State).IsEqualTo(InfiniFrameWindowLifecycleState.Disposed);
     }
 }

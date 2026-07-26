@@ -26,6 +26,7 @@ public sealed class IconFileTaskbarTests {
     [OnlyRunOnWindowsX64]
     [NotInParallelInfiniTests]
     public async Task SetIconFile_ShouldUpdateWindowAndClassIcons(CancellationToken ct = default) {
+        // Arrange
         string iconPath = ResolveRepoAsset("assets", "favicon.ico");
         await Assert.That(File.Exists(iconPath)).IsTrue();
 
@@ -35,6 +36,7 @@ public sealed class IconFileTaskbarTests {
         IntPtr initialBig = GetWindowIcon(window.WindowHandle, IconBig);
         IntPtr initialClassBig = GetClassIcon(window.WindowHandle, GclpHicon);
 
+        // Act
         window.SetIconFile(iconPath);
 
         IntPtr updatedBig = IntPtr.Zero;
@@ -64,6 +66,7 @@ public sealed class IconFileTaskbarTests {
             await Task.Delay(50, ct);
         }
 
+        // Assert
         await Assert.That(updatedBig).IsNotEqualTo(IntPtr.Zero);
         await Assert.That(updatedSmall).IsNotEqualTo(IntPtr.Zero);
         await Assert.That(updatedClassBig).IsNotEqualTo(IntPtr.Zero);

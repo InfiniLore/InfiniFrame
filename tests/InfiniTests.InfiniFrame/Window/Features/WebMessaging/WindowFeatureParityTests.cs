@@ -147,6 +147,7 @@ public class WindowFeatureParityTests {
 
     [Test]
     public async Task EveryPublicFeatureMember_IsRepresentedOrHasAnExplicitExclusion() {
+        // Arrange, Act & Assert
         foreach ((Type featureType, FeatureMembers expected) in Manifest) {
             Dictionary<string, int> actual = featureType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
                 .Cast<MemberInfo>()

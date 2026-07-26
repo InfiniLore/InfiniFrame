@@ -76,6 +76,7 @@ public class WindowFeatureDispatcherCommandTests {
 
     [Test]
     public async Task EveryGetCommand_InvokesTheManifestMethodAndReturnsJson() {
+        // Arrange, Act & Assert
         foreach (CommandCase command in GetCommands) {
             (IInfiniFrameWindow window, object feature) = CreateWindow(command.Feature);
 
@@ -93,6 +94,7 @@ public class WindowFeatureDispatcherCommandTests {
 
     [Test]
     public async Task EveryPostCommand_InvokesTheManifestMethod() {
+        // Arrange, Act & Assert
         foreach (CommandCase command in PostCommands) {
             (IInfiniFrameWindow window, object feature) = CreateWindow(command.Feature);
 

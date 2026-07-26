@@ -12,12 +12,14 @@ namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Delegates;
 public class CustomSchemeResponseAbiTests {
     [Test]
     public async Task ReversePInvokeStrings_UsePlatformNativeEncoding(CancellationToken ct = default) {
+        // Arrange
         Type[] delegates = [
             typeof(CppWebMessageReceivedDelegate),
             typeof(CppWebResourceRequestedDelegate),
             typeof(CppDebugEventDelegate)
         ];
 
+        // Act & Assert
         foreach (Type delegateType in delegates) {
             UnmanagedFunctionPointerAttribute? interop = delegateType.GetCustomAttributes(typeof(UnmanagedFunctionPointerAttribute), false)
                 .Cast<UnmanagedFunctionPointerAttribute>()
@@ -29,15 +31,19 @@ public class CustomSchemeResponseAbiTests {
 
     [Test]
     public async Task ClosingCallback_UsesOneByteCancellationResult(CancellationToken ct = default) {
+        // Act
         Type returnType = typeof(CppClosingDelegate).GetMethod("Invoke")!.ReturnType;
 
+        // Assert
         await Assert.That(returnType).IsEqualTo(typeof(byte));
     }
 
     [Test]
     public async Task Layout_MatchesNativeVersionOneAbi(CancellationToken ct = default) {
+        // Arrange
         int expectedSize = IntPtr.Size == 8 ? 72 : 48;
 
+        // Assert
         await Assert.That(Marshal.SizeOf<CustomSchemeResponse>()).IsEqualTo(expectedSize);
         await Assert.That(Marshal.OffsetOf<CustomSchemeResponse>(nameof(CustomSchemeResponse.ContentLength)).ToInt32())
             .IsEqualTo(16);
@@ -47,6 +53,7 @@ public class CustomSchemeResponseAbiTests {
 
     [Test]
     public async Task Constants_AreStableAndBoundedForPlatformApis(CancellationToken ct = default) {
+        // Assert
 #pragma warning disable TUnitAssertions0005
 
         await Assert.That(CustomSchemeResponse.CurrentAbiVersion).IsEqualTo(1U);
@@ -59,6 +66,7 @@ public class CustomSchemeResponseAbiTests {
 
     [Test]
     public async Task NativeConsumer_OnCurrentPlatform_ValidatesCopiesAndReleasesExactlyOnce(CancellationToken ct = default) {
+        // Arrange
         const int requestCount = 10_000;
         int releaseCount = 0;
         CppReleaseCustomSchemeResponseDelegate release = ownerContext => {
@@ -72,6 +80,7 @@ public class CustomSchemeResponseAbiTests {
             => CreateResponse(releaseCallback, ref value);
         IntPtr callback = Marshal.GetFunctionPointerForDelegate(response);
 
+        // Act
         for (int i = 0; i < requestCount; i++) {
             InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.ConsumeCustomSchemeResponse(
                 callback, out ulong length, out uint byteSum, out int valid);
@@ -82,12 +91,15 @@ public class CustomSchemeResponseAbiTests {
         // Native code only sees the unmanaged thunks, so keep their delegate owners rooted through the last callback.
         GC.KeepAlive(response);
         GC.KeepAlive(release);
+
+        // Assert
         await Assert.That(Volatile.Read(ref releaseCount)).IsEqualTo(requestCount);
     }
 
     [Test]
     [NotInParallelInfiniTests]
     public async Task NativeConsumer_ConcurrentCallbacks_KeepEachResponseAliveUntilNativeRelease(CancellationToken ct = default) {
+        // Arrange
         const int requestCount = 1_024;
         int releaseCount = 0;
         CppReleaseCustomSchemeResponseDelegate release = ownerContext => {
@@ -101,18 +113,23 @@ public class CustomSchemeResponseAbiTests {
             => CreateResponse(releaseCallback, ref value);
         IntPtr callback = Marshal.GetFunctionPointerForDelegate(response);
 
-        Task[] requests = Enumerable.Range(0, requestCount).Select(_ => Task.Run(action: () => {
-            ct.ThrowIfCancellationRequested();
-            InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.ConsumeCustomSchemeResponse(
-                callback, out ulong length, out uint byteSum, out int valid);
-            if (status != InfiniFrameNativeInteropStatus.Success || valid != 1 || length != 4 || byteSum != 10)
-                throw new InvalidOperationException("Concurrent native ABI validation failed.");
-        }, ct)).ToArray();
+        Task[] requests = Enumerable.Range(0, requestCount)
+            .Select(_ => Task.Run(action: () => {
+                ct.ThrowIfCancellationRequested();
+                InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.ConsumeCustomSchemeResponse(
+                    callback, out ulong length, out uint byteSum, out int valid);
+                if (status != InfiniFrameNativeInteropStatus.Success || valid != 1 || length != 4 || byteSum != 10)
+                    throw new InvalidOperationException("Concurrent native ABI validation failed.");
+            }, ct))
+            .ToArray();
 
+        // Act
         await Task.WhenAll(requests);
         // The worker closures capture the function pointer, not the delegate that owns its unmanaged thunk.
         GC.KeepAlive(response);
         GC.KeepAlive(release);
+
+        // Assert
         await Assert.That(Volatile.Read(ref releaseCount)).IsEqualTo(requestCount);
     }
 
