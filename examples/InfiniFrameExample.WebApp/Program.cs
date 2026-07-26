@@ -21,7 +21,7 @@ public static class Program {
         builder.WindowBuilder
             .SetStartPageUrl("http://127.0.0.1:5055")
             .SetTitle("InfiniFrame WebServer Repro")
-            .SetIconFile("favicon.ico");
+            .SetIconFile("wwwroot/favicon.ico");
 
         InfiniFrameWebApplication app = builder.Build();
         app.UseAutoServerClose();
