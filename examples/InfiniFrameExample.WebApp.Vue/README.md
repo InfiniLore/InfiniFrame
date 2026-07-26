@@ -18,7 +18,7 @@ Demonstrates a Vue.js frontend served by ASP.NET Core inside an InfiniFrame wind
 ```bash
 # Build the frontend
 cd examples/InfiniFrameExample.WebApp.Vue/Source/InfiniFrame.Vue
-npm install && npm run vue.fullscreen-build
+npm install && npm run vue.build
 
 # Run the app
 dotnet run --project examples/InfiniFrameExample.WebApp.Vue

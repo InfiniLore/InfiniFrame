@@ -3,7 +3,6 @@
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <UseAppHost>true</UseAppHost>
-        <ApplicationIcon>wwwroot/favicon.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>

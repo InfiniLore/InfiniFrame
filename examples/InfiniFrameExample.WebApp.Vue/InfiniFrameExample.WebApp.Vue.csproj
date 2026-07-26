@@ -20,6 +20,11 @@
         <Folder Include="Source/" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\assets\index-BCm1kFHf.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\index-D-FX-CIJ.css" />
+    </ItemGroup>
+
     <Target Name="BuildFrontend" BeforeTargets="Build">
         <Message Text="Installing npm packages" Importance="high" />
         <Exec Condition="Exists('$(FrontendLockFile)')"
@@ -29,7 +34,7 @@
               Command="npm install --include=dev"
               WorkingDirectory="$(FrontendDirectory)" />
         <Message Text="Building frontend with npm..." Importance="high" />
-        <Exec Command="npm run vue.fullscreen-build" WorkingDirectory="$(FrontendDirectory)" />
+        <Exec Command="npm run react.build" WorkingDirectory="$(FrontendDirectory)" />
     </Target>
 
 </Project>

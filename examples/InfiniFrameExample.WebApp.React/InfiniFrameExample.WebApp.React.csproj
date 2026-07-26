@@ -11,4 +11,16 @@
         </Content>
     </ItemGroup>
 
+    <Target Name="BuildFrontend" BeforeTargets="Build">
+        <Message Text="Installing npm packages" Importance="high" />
+        <Exec Condition="Exists('$(FrontendLockFile)')"
+              Command="npm ci --include=dev"
+              WorkingDirectory="$(FrontendDirectory)" />
+        <Exec Condition="!Exists('$(FrontendLockFile)')"
+              Command="npm install --include=dev"
+              WorkingDirectory="$(FrontendDirectory)" />
+        <Message Text="Building frontend with npm..." Importance="high" />
+        <Exec Command="npm run vue.build" WorkingDirectory="$(FrontendDirectory)" />
+    </Target>
+
 </Project>
