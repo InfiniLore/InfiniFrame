@@ -2,17 +2,14 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using System.Runtime.InteropServices;
+using InfiniTests.Native;
 
 namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public partial class ParentChildWindowTests {
+public class ParentChildWindowTests {
     private const uint GwOwner = 4;
-
-    [LibraryImport("user32.dll", EntryPoint = "GetWindow", SetLastError = true)]
-    private static partial IntPtr GetWindow(IntPtr hWnd, uint uCmd);
 
     [Test]
     [SkipOnWindowsArm]
@@ -84,7 +81,7 @@ public partial class ParentChildWindowTests {
         IntPtr ownerWindow = IntPtr.Zero;
         DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
         while (DateTime.UtcNow < timeoutAt) {
-            ownerWindow = GetWindow(childWindow.WindowHandle, GwOwner);
+            ownerWindow = WindowsNative.GetRelatedWindow(childWindow.WindowHandle, GwOwner);
             if (ownerWindow == parentWindow.WindowHandle) {
                 break;
             }

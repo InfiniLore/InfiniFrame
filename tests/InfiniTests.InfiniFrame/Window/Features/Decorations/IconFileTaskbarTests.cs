@@ -2,25 +2,19 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using System.Runtime.InteropServices;
+using InfiniTests.Native;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Decorations;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed partial class IconFileTaskbarTests {
+public sealed class IconFileTaskbarTests {
     private const int WmGetIcon = 0x007F;
     private const int IconSmall = 0;
     private const int IconBig = 1;
     private const int IconSmall2 = 2;
     private const int GclpHicon = -14;
     private const int GclpHiconSm = -34;
-
-    [LibraryImport("user32.dll", EntryPoint = "SendMessageW", SetLastError = true)]
-    private static partial IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
-
-    [LibraryImport("user32.dll", EntryPoint = "GetClassLongPtrW", SetLastError = true)]
-    private static partial IntPtr GetClassLongPtr(IntPtr hWnd, int nIndex);
 
     [Test]
     [OnlyRunOnWindowsX64]
@@ -75,10 +69,10 @@ public sealed partial class IconFileTaskbarTests {
     }
 
     private static IntPtr GetWindowIcon(IntPtr hwnd, int kind)
-        => SendMessage(hwnd, WmGetIcon, new IntPtr(kind), IntPtr.Zero);
+        => WindowsNative.SendWindowMessage(hwnd, WmGetIcon, new IntPtr(kind), IntPtr.Zero);
 
     private static IntPtr GetClassIcon(IntPtr hwnd, int index)
-        => GetClassLongPtr(hwnd, index);
+        => WindowsNative.GetWindowClassLongPointer(hwnd, index);
 
     private static string ResolveRepoAsset(params string[] parts) {
         string path = AppContext.BaseDirectory;

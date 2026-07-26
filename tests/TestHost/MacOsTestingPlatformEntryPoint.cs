@@ -1,45 +1,30 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniTests.Native;
 using Microsoft.Testing.Platform.Builder;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Assembly=System.Reflection.Assembly;
 
+namespace InfiniAutomationTests.BlazorWebView.MudBlazor;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal static partial class MacOsTestingPlatformEntryPoint {
+internal static class MacOsTestingPlatformEntryPoint {
     private const string CoreFoundation = "/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation";
-    private const string ObjCRuntime = "/usr/lib/libobjc.A.dylib";
-
-    [LibraryImport(CoreFoundation)]
-    private static partial IntPtr CFRunLoopGetMain();
-
-    // ReSharper disable once InconsistentNaming
-    [LibraryImport(CoreFoundation)]
-    private static partial int CFRunLoopRunInMode(IntPtr mode, double seconds, [MarshalAs(UnmanagedType.I1)] bool returnAfterSourceHandled);
-
-    [LibraryImport(CoreFoundation)]
-    private static partial void CFRunLoopStop(IntPtr runLoop);
-
-    [LibraryImport(ObjCRuntime, EntryPoint = "objc_autoreleasePoolPush")]
-    private static partial IntPtr AutoreleasePoolPush();
-
-    [LibraryImport(ObjCRuntime, EntryPoint = "objc_autoreleasePoolPop")]
-    private static partial void AutoreleasePoolPop(IntPtr pool);
 
     public static async Task<int> Main(string[] args) {
         if (!OperatingSystem.IsMacOS()) return await RunTestingPlatformAsync(args);
 
-        IntPtr mainRunLoop = CFRunLoopGetMain();
+        IntPtr mainRunLoop = MacOsNative.GetMainRunLoop();
         IntPtr defaultMode = ResolveDefaultRunLoopMode();
         Task<int> testTask = Task.Run(async () => {
             try {
                 return await RunTestingPlatformAsync(args);
             }
             finally {
-                CFRunLoopStop(mainRunLoop);
+                MacOsNative.StopRunLoop(mainRunLoop);
             }
         });
 
@@ -49,12 +34,12 @@ internal static partial class MacOsTestingPlatformEntryPoint {
             // NSApplication.run normally installs and drains an autorelease pool for each
             // event-loop turn. This custom host owns the CFRunLoop instead, so it must do
             // the same or repeated WKWebView tests retain autoreleased WebKit/AppKit state.
-            IntPtr pool = AutoreleasePoolPush();
+            IntPtr pool = MacOsNative.PushAutoreleasePool();
             try {
-                _ = CFRunLoopRunInMode(defaultMode, 0.25, false);
+                _ = MacOsNative.RunLoopInMode(defaultMode, 0.25, false);
             }
             finally {
-                AutoreleasePoolPop(pool);
+                MacOsNative.PopAutoreleasePool(pool);
             }
         }
 

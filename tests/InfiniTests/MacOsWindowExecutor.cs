@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniTests.Native;
 using System.Runtime.InteropServices;
 using TUnit.Core.Interfaces;
 
@@ -8,10 +9,9 @@ namespace InfiniTests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed partial class MacOsWindowExecutor : ITestExecutor {
+public sealed class MacOsWindowExecutor : ITestExecutor {
     private const string NativeWindowTestNamespace = "InfiniTests.InfiniFrame.Window";
     private const string LibDispatch = "/usr/lib/system/libdispatch.dylib";
-    private const string LibSystem = "/usr/lib/libSystem.dylib";
 
     private static readonly Lazy<IntPtr> MainQueue = new(ResolveMainQueue);
     private static readonly DispatchWorkCallback DispatchWork = InvokeDispatchWork;
@@ -35,7 +35,7 @@ public sealed partial class MacOsWindowExecutor : ITestExecutor {
         TestContext context,
         Func<ValueTask> action
     ) {
-        if (!OperatingSystem.IsMacOS() || !RequiresMainQueue(context) || pthread_main_np() == 1) {
+        if (!OperatingSystem.IsMacOS() || !RequiresMainQueue(context) || MacOsNative.IsMainThread() == 1) {
             await action();
             return;
         }
@@ -56,12 +56,6 @@ public sealed partial class MacOsWindowExecutor : ITestExecutor {
             MainQueueTestLease.Release();
         }
     }
-
-    [LibraryImport(LibDispatch)]
-    private static partial void dispatch_async_f(IntPtr queue, IntPtr context, IntPtr work);
-
-    [LibraryImport(LibSystem)]
-    private static partial int pthread_main_np();
 
     private static bool RequiresMainQueue(TestContext context) {
         if (context.Metadata.TestDetails.HasAttribute<RunOnMacOsMainThreadAttribute>()) {
@@ -107,7 +101,7 @@ public sealed partial class MacOsWindowExecutor : ITestExecutor {
         var state = new MainQueueTestWork(action, completion, cancellationToken);
         GCHandle handle = GCHandle.Alloc(state);
 
-        dispatch_async_f(MainQueue.Value, GCHandle.ToIntPtr(handle), DispatchWorkPointer);
+        MacOsNative.DispatchAsync(MainQueue.Value, GCHandle.ToIntPtr(handle), DispatchWorkPointer);
 
         Task completedTask = await Task.WhenAny(
             completion.Task,
@@ -198,13 +192,13 @@ public sealed partial class MacOsWindowExecutor : ITestExecutor {
 
             var callbackState = new MainQueueCallback(d, state);
             GCHandle handle = GCHandle.Alloc(callbackState);
-            dispatch_async_f(MainQueue.Value, GCHandle.ToIntPtr(handle), DispatchWorkPointer);
+            MacOsNative.DispatchAsync(MainQueue.Value, GCHandle.ToIntPtr(handle), DispatchWorkPointer);
         }
 
         public override void Send(SendOrPostCallback d, object? state) {
             ArgumentNullException.ThrowIfNull(d);
 
-            if (pthread_main_np() == 1) {
+            if (MacOsNative.IsMainThread() == 1) {
                 d(state);
                 return;
             }
