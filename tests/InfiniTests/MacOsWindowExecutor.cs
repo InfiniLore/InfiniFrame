@@ -17,6 +17,12 @@ public sealed partial class MacOsWindowExecutor : ITestExecutor {
     private static readonly DispatchWorkCallback DispatchWork = InvokeDispatchWork;
     private static readonly IntPtr DispatchWorkPointer = Marshal.GetFunctionPointerForDelegate(DispatchWork);
     private static readonly TimeSpan MainQueueTimeout = TimeSpan.FromSeconds(30);
+    
+    // WKWebView has no API for awaiting the remote layer tree's final display callbacks.
+    // On macOS 15 Intel, starting another view immediately after teardown can crash inside
+    // WebKit's RemoteLayerTreeDrawingAreaProxyMac. Hold the exclusive test lease until the
+    // preceding view's deferred native cleanup has settled.
+    private static readonly TimeSpan WebKitTeardownSettleTime = TimeSpan.FromMilliseconds(150);
 
     // AppKit and the test host share one main queue. Keep a lease for the complete async test lifetime so
     // continuations from separate tests cannot interleave on that queue.
@@ -40,6 +46,13 @@ public sealed partial class MacOsWindowExecutor : ITestExecutor {
             await DispatchToMainQueueAsync(action, cancellationToken);
         }
         finally {
+            if (IsNativeWindowTest(context)) {
+                // Cleanup must complete even when the test failed or its cancellation token
+                // has been signaled; releasing the lease early would start another WKWebView
+                // while WebKit can still deliver display work for the previous one.
+                await Task.Delay(WebKitTeardownSettleTime, CancellationToken.None);
+            }
+
             MainQueueTestLease.Release();
         }
     }
@@ -55,6 +68,10 @@ public sealed partial class MacOsWindowExecutor : ITestExecutor {
             return true;
         }
 
+        return IsNativeWindowTest(context);
+    }
+
+    private static bool IsNativeWindowTest(TestContext context) {
         string? testNamespace = context.Metadata.TestDetails.Class.ClassType.Namespace;
         return testNamespace is not null && (
             testNamespace.Equals(NativeWindowTestNamespace, StringComparison.Ordinal) ||
