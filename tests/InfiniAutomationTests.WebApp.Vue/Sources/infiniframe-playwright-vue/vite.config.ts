@@ -20,7 +20,7 @@ export default defineConfig({
         // Multi-target dotnet builds can evaluate static web assets while another target is rebuilding frontend files.
         // Keep output stable and avoid directory wipes to prevent transient "asset file does not exist" failures.
         emptyOutDir: false,
-        rolldownOptions: {
+        rollupOptions: {
             output: {
                 entryFileNames: 'assets/index.js',
                 chunkFileNames: 'assets/[name].js',
