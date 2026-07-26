@@ -13,6 +13,85 @@
 // - applies per-monitor DPI resize recommendations
 // - forwards focus and close events to the owning instance
 // - paints the window background according to current theme
+static void HandleWmSize(const HWND hwnd, const WPARAM wParam) {
+    InfiniFrameWindow* instance = LookupWindowInstance(hwnd);
+    if (instance) {
+        const bool wasMaximized = instance->m_impl->_maximized;
+        const bool wasMinimized = instance->m_impl->_minimized;
+
+        if (wParam == SIZE_MAXIMIZED) {
+            instance->m_impl->_maximized = true;
+            instance->m_impl->_minimized = false;
+            instance->InvokeMaximized();
+        } else if (wParam == SIZE_MINIMIZED) {
+            instance->m_impl->_maximized = false;
+            instance->m_impl->_minimized = true;
+            instance->InvokeMinimized();
+        } else {
+            instance->m_impl->_maximized = false;
+            instance->m_impl->_minimized = false;
+            if (wasMaximized || wasMinimized)
+                instance->InvokeRestored();
+        }
+
+        if (wParam != SIZE_MINIMIZED) {
+            instance->RefitContent();
+
+            int width = 0, height = 0;
+            instance->GetSize(&width, &height);
+            if (instance->m_impl->_lastWidth != width || instance->m_impl->_lastHeight != height) {
+                instance->m_impl->_lastWidth = width;
+                instance->m_impl->_lastHeight = height;
+                instance->InvokeResize(width, height);
+            }
+        }
+    }
+}
+
+static LRESULT HandleWmClose(const HWND hwnd) {
+    // Give the instance a chance to cancel close. If close proceeds, clear owner
+    // relationship before destruction to avoid shutdown-order and ownership edge cases.
+    InfiniFrameWindow* instance = LookupWindowInstance(hwnd);
+    if (instance) {
+        TraceTeardown(L"WM_CLOSE hwnd=%p instance=%p", hwnd, instance);
+        auto* impl = instance->m_impl.get();
+
+        // A second WM_CLOSE is posted by the WebView2 completion callback after a
+        // previously accepted close was deferred. Do not invoke managed closing
+        // handlers twice; initialization has now unwound and destruction is safe.
+        const bool closeAlreadyAccepted =
+            impl->_isClosingOrClosed.load(std::memory_order_acquire);
+        bool doNotClose = closeAlreadyAccepted ? false : instance->InvokeClose();
+
+        if (!doNotClose) {
+            // WebView2 is asynchronously creating a controller for this HWND. Destroying
+            // the HWND before that operation completes causes an access violation inside
+            // EmbeddedBrowserWebView.dll, particularly in optimized Release builds.
+            if (!closeAlreadyAccepted && impl->_isWebView2Initializing && !impl->_webviewController) {
+                impl->_isClosingOrClosed.store(true, std::memory_order_release);
+                TraceTeardown(
+                    L"WM_CLOSE deferred for WebView2 initialization hwnd=%p instance=%p", hwnd, instance
+                );
+                return 0;
+            }
+
+            SetLastError(0);
+            const LONG_PTR previousOwner = SetWindowLongPtr(hwnd, GWLP_HWNDPARENT, 0);
+            const DWORD ownerDetachError = GetLastError();
+            if (previousOwner != 0 || ownerDetachError == 0) {
+                TraceTeardown(
+                    L"WM_CLOSE detached owner hwnd=%p prevOwner=%p err=%lu", hwnd,
+                    reinterpret_cast<void*>(previousOwner), ownerDetachError
+                );
+            }
+
+            DestroyWindow(hwnd);
+        }
+    }
+
+    return 0;
+}
+
 LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wParam, const LPARAM lParam) {
     switch (uMsg) {
         case WM_NCCREATE: {
@@ -86,38 +165,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             break;
         }
         case WM_SIZE: {
-            InfiniFrameWindow* instance = LookupWindowInstance(hwnd);
-            if (instance) {
-                const bool wasMaximized = instance->m_impl->_maximized;
-                const bool wasMinimized = instance->m_impl->_minimized;
-
-                if (wParam == SIZE_MAXIMIZED) {
-                    instance->m_impl->_maximized = true;
-                    instance->m_impl->_minimized = false;
-                    instance->InvokeMaximized();
-                } else if (wParam == SIZE_MINIMIZED) {
-                    instance->m_impl->_maximized = false;
-                    instance->m_impl->_minimized = true;
-                    instance->InvokeMinimized();
-                } else {
-                    instance->m_impl->_maximized = false;
-                    instance->m_impl->_minimized = false;
-                    if (wasMaximized || wasMinimized)
-                        instance->InvokeRestored();
-                }
-
-                if (wParam != SIZE_MINIMIZED) {
-                    instance->RefitContent();
-
-                    int width = 0, height = 0;
-                    instance->GetSize(&width, &height);
-                    if (instance->m_impl->_lastWidth != width || instance->m_impl->_lastHeight != height) {
-                        instance->m_impl->_lastWidth = width;
-                        instance->m_impl->_lastHeight = height;
-                        instance->InvokeResize(width, height);
-                    }
-                }
-            }
+            HandleWmSize(hwnd, wParam);
             break;
         }
         case WM_MOVE: {
@@ -134,47 +182,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             break;
         }
         case WM_CLOSE: {
-            // Give the instance a chance to cancel close. If close proceeds, clear owner
-            // relationship before destruction to avoid shutdown-order and ownership edge cases.
-            InfiniFrameWindow* instance = LookupWindowInstance(hwnd);
-            if (instance) {
-                TraceTeardown(L"WM_CLOSE hwnd=%p instance=%p", hwnd, instance);
-                auto* impl = instance->m_impl.get();
-
-                // A second WM_CLOSE is posted by the WebView2 completion callback after a
-                // previously accepted close was deferred. Do not invoke managed closing
-                // handlers twice; initialization has now unwound and destruction is safe.
-                const bool closeAlreadyAccepted =
-                    impl->_isClosingOrClosed.load(std::memory_order_acquire);
-                bool doNotClose = closeAlreadyAccepted ? false : instance->InvokeClose();
-
-                if (!doNotClose) {
-                    // WebView2 is asynchronously creating a controller for this HWND. Destroying
-                    // the HWND before that operation completes causes an access violation inside
-                    // EmbeddedBrowserWebView.dll, particularly in optimized Release builds.
-                    if (!closeAlreadyAccepted && impl->_isWebView2Initializing && !impl->_webviewController) {
-                        impl->_isClosingOrClosed.store(true, std::memory_order_release);
-                        TraceTeardown(
-                            L"WM_CLOSE deferred for WebView2 initialization hwnd=%p instance=%p", hwnd, instance
-                        );
-                        return 0;
-                    }
-
-                    SetLastError(0);
-                    const LONG_PTR previousOwner = SetWindowLongPtr(hwnd, GWLP_HWNDPARENT, 0);
-                    const DWORD ownerDetachError = GetLastError();
-                    if (previousOwner != 0 || ownerDetachError == 0) {
-                        TraceTeardown(
-                            L"WM_CLOSE detached owner hwnd=%p prevOwner=%p err=%lu", hwnd,
-                            reinterpret_cast<void*>(previousOwner), ownerDetachError
-                        );
-                    }
-
-                    DestroyWindow(hwnd);
-                }
-            }
-
-            return 0;
+            return HandleWmClose(hwnd);
         }
         case WM_DESTROY: {
             InfiniFrameWindow* instance = LookupWindowInstance(hwnd);
