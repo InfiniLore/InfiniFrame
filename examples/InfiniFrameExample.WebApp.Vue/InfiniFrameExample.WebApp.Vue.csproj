@@ -34,7 +34,7 @@
               Command="npm install --include=dev"
               WorkingDirectory="$(FrontendDirectory)" />
         <Message Text="Building frontend with npm..." Importance="high" />
-        <Exec Command="npm run react.build" WorkingDirectory="$(FrontendDirectory)" />
+        <Exec Command="npm run vue.build" WorkingDirectory="$(FrontendDirectory)" />
     </Target>
 
 </Project>
