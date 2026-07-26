@@ -78,6 +78,20 @@ jobs:
                 with:
                     artifact-type: testing
 
+            -   name: Cache WebView2 fixed runtime
+                if: matrix.arch == 'x64'
+                uses: actions/cache@v5
+                with:
+                    path: artifacts/webview2-fixed-runtime/150.0.4078.99
+                    key: webview2-fixed-runtime-150.0.4078.99-x64
+
+            -   name: Provision WebView2 fixed runtime integration-test dependency
+                if: matrix.arch == 'x64'
+                shell: pwsh
+                run: |
+                    $runtimePath = & ./tests/scripts/ensure-webview2-fixed-runtime.ps1
+                    "INFINIFRAME_TEST_WEBVIEW2_RUNTIME_PATH=$runtimePath" >> $env:GITHUB_ENV
+
             -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
 
