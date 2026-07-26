@@ -66,6 +66,7 @@ public class WindowIntegrationTests {
 
     [Test]
     [SkipOnLinux]
+    [SkipOnMacOs("AppKit and WKWebView window operations must not be stressed concurrently from managed worker threads")]
     public async Task ConcurrentResizeMoveStateCalls_ResultInDeterministicFinalState(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {

@@ -21,6 +21,7 @@ public class CrossThreadWindowLifecycleTests {
 
     [Test]
     [SkipOnWindows]
+    [SkipOnMacOs("WKWebView can crash in WebKit when windows are repeatedly created and destroyed from managed worker threads")]
     [DefaultInfiniTestsTimeout(30_000)]
     public async Task RepeatedCreateCloseAcrossManagedThreads_DoesNotFail(CancellationToken ct) {
         // Arrange
