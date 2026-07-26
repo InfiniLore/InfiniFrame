@@ -65,6 +65,12 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     internal string? BrowserControlInitParameters;
 
+    /// <summary>
+    ///     WINDOWS ONLY: OPTIONAL: Path to an extracted fixed-version WebView2 runtime used when the window is created.
+    /// </summary>
+    [MarshalAs(UnmanagedType.LPUTF8Str)]
+    internal string? WebView2RuntimePath;
+
     ///<summary>WINDOWS: OPTIONAL: Registers the application for toast notifications. If not provided, uses Window Title.</summary>
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     internal string? NotificationRegistrationId;

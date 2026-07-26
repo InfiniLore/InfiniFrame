@@ -18,8 +18,6 @@ inline constexpr UINT WM_USER_INVOKE = WM_USER + 0x0002;
 
 extern std::atomic<HINSTANCE> _hInstance;
 extern thread_local HWND messageLoopRootWindowHandle;
-extern wchar_t _webview2RuntimePath[MAX_PATH];
-extern std::mutex webview2RuntimePathMutex;
 extern const wchar_t* CLASS_NAME;
 
 struct InvokeWaitInfo {

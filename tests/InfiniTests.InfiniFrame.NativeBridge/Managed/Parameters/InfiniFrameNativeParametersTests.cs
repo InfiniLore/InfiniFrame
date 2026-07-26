@@ -87,6 +87,7 @@ public class InfiniFrameNativeParametersTests {
                 TemporaryFilesPath = "temp",
                 UserAgent = "agent name",
                 BrowserControlInitParameters = "some params",
+                WebView2RuntimePath = "C:\\WebView2Runtime",
                 NotificationRegistrationId = "some id",
                 WindowsAppUserModelId = "InfiniLore.InfiniFrame.Tests",
                 RemoteDebuggingPort = 9222,
@@ -166,6 +167,7 @@ public class InfiniFrameNativeParametersTests {
             await Assert.That(newParameters.TemporaryFilesPath).IsEqualTo(parameters.TemporaryFilesPath);
             await Assert.That(newParameters.UserAgent).IsEqualTo(parameters.UserAgent);
             await Assert.That(newParameters.BrowserControlInitParameters).IsEqualTo(parameters.BrowserControlInitParameters);
+            await Assert.That(newParameters.WebView2RuntimePath).IsEqualTo(parameters.WebView2RuntimePath);
             await Assert.That(newParameters.NotificationRegistrationId).IsEqualTo(parameters.NotificationRegistrationId);
             await Assert.That(newParameters.WindowsAppUserModelId).IsEqualTo(parameters.WindowsAppUserModelId);
             await Assert.That(newParameters.RemoteDebuggingPort).IsEqualTo(parameters.RemoteDebuggingPort);

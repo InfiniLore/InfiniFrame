@@ -52,7 +52,5 @@ void InfiniFrameWindow::SetWebView2RuntimePath(const AutoString pathToWebView2) 
     if (pathToWebView2 == nullptr)
         return;
 
-    std::wstring widePath = AutoStringUtf8ToWide(pathToWebView2);
-    std::lock_guard<std::mutex> lock(webview2RuntimePathMutex);
-    wcsncpy_s(_webview2RuntimePath, widePath.c_str(), _countof(_webview2RuntimePath));
+    m_impl->_webView2RuntimePath = AutoStringUtf8ToWide(pathToWebView2);
 }
