@@ -1,10 +1,172 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame;
+using InfiniFrame.NativeBridge.Parameters;
+using System.Diagnostics;
+using System.Net;
+using System.Net.Sockets;
+using System.Runtime.Versioning;
+using System.Text.Json;
+
 namespace InfiniTests.InfiniFrame.Window.Features.Browser;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class Win32SetWebView2PathTests {
-    // TODO - Add tests
+    private static readonly HttpClient Client = new() {
+        Timeout = TimeSpan.FromMilliseconds(500)
+    };
+    private const string FixedRuntimeVersion = "150.0.4078.99";
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    [Test]
+    public async Task AtBuilderStage_DirectAssignment_PassesPathToNativeParameters(CancellationToken ct) {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create();
+        const string path = "C:\\WebView2Runtime";
+
+        // Act
+        builder.Features.Browser.SetWebView2RuntimePath(path);
+        InfiniFrameNativeParameters parameters = builder.CollectNativeParameters();
+
+        // Assert
+        await Assert.That(builder.Features.Browser.WebView2RuntimePath).IsEqualTo(path);
+        await Assert.That(parameters.WebView2RuntimePath).IsEqualTo(path);
+    }
+
+    [Test]
+    public async Task AtBuilderStage_ExtensionAssignment_ReturnsBuilderAndPassesPathToNativeParameters(CancellationToken ct) {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create();
+        const string path = "C:\\WebView2Runtime";
+
+        // Act
+        IInfiniFrameWindowBuilder returnedBuilder = builder.SetWebView2RuntimePath(path);
+        InfiniFrameNativeParameters parameters = builder.CollectNativeParameters();
+
+        // Assert
+        await Assert.That(returnedBuilder).IsSameReferenceAs(builder);
+        await Assert.That(parameters.WebView2RuntimePath).IsEqualTo(path);
+    }
+
+    [Test]
+    [OnlyRunOnWindowsX64]
+    [NotInParallelInfiniTests]
+    [Timeout(300_000)]
+    public async Task AtWindowStage_FixedRuntimePath_StartsTheConfiguredFixedVersionRuntime(CancellationToken ct) {
+        if (!OperatingSystem.IsWindows()) {
+            Skip.Test("This test is only run on Windows.");
+            return;
+        }
+
+        string runtimePath = await GetOrProvisionFixedRuntimePath(ct);
+        await Assert.That(File.Exists(Path.Combine(runtimePath, "msedgewebview2.exe"))).IsTrue();
+
+        int port = GetAvailableLoopbackPort();
+        using InfiniFrameTestWindow windowUtility = CreateWindowWithFixedRuntime(runtimePath, port, ct);
+
+        string? browserVersion = await WaitForBrowserVersion(port, ct);
+
+        await Assert.That(browserVersion).Contains(FixedRuntimeVersion);
+    }
+
+    private static async Task<string> GetOrProvisionFixedRuntimePath(CancellationToken ct) {
+        string? configuredPath = Environment.GetEnvironmentVariable("INFINIFRAME_TEST_WEBVIEW2_RUNTIME_PATH");
+        if (!string.IsNullOrWhiteSpace(configuredPath) && File.Exists(Path.Combine(configuredPath, "msedgewebview2.exe"))) {
+            return configuredPath;
+        }
+
+        string scriptPath = FindRepositoryFile("tests", "scripts", "ensure-webview2-fixed-runtime.ps1");
+        return await Task.Run(() => RunProvisioningScript(scriptPath), ct);
+    }
+
+    private static string RunProvisioningScript(string scriptPath) {
+        using var provisioningLock = new Mutex(false, "InfiniFrame.WebView2FixedRuntimeProvisioning");
+        if (!provisioningLock.WaitOne(TimeSpan.FromMinutes(4))) {
+            throw new TimeoutException("Timed out waiting to provision the WebView2 fixed runtime.");
+        }
+
+        try {
+            var startInfo = new ProcessStartInfo("pwsh") {
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
+            startInfo.ArgumentList.Add("-NoProfile");
+            startInfo.ArgumentList.Add("-ExecutionPolicy");
+            startInfo.ArgumentList.Add("Bypass");
+            startInfo.ArgumentList.Add("-File");
+            startInfo.ArgumentList.Add(scriptPath);
+
+            using Process process = Process.Start(startInfo)
+                ?? throw new InvalidOperationException("Could not start PowerShell to provision the WebView2 fixed runtime.");
+            string standardOutput = process.StandardOutput.ReadToEnd();
+            string standardError = process.StandardError.ReadToEnd();
+            process.WaitForExit();
+
+            if (process.ExitCode != 0) {
+                throw new InvalidOperationException($"WebView2 fixed runtime provisioning failed: {standardError}");
+            }
+
+            string runtimePath = standardOutput.Trim();
+            if (!File.Exists(Path.Combine(runtimePath, "msedgewebview2.exe"))) {
+                throw new InvalidOperationException("WebView2 fixed runtime provisioning returned an invalid runtime path.");
+            }
+
+            return runtimePath;
+        }
+        finally {
+            provisioningLock.ReleaseMutex();
+        }
+    }
+
+    private static string FindRepositoryFile(params string[] relativePath) {
+        foreach (string startPath in new[] { AppContext.BaseDirectory, Environment.CurrentDirectory }) {
+            for (DirectoryInfo? directory = new(startPath); directory is not null; directory = directory.Parent) {
+                string candidate = Path.Combine([directory.FullName, .. relativePath]);
+                if (File.Exists(candidate)) return candidate;
+            }
+        }
+
+        throw new FileNotFoundException("Could not locate the WebView2 fixed runtime provisioning script.");
+    }
+
+    [SupportedOSPlatform("windows")]
+    private static InfiniFrameTestWindow CreateWindowWithFixedRuntime(string runtimePath, int port, CancellationToken ct)
+        => InfiniFrameTestWindow.Create(builder => builder
+                .SetWebView2RuntimePath(runtimePath)
+                .SetRemoteDebuggingPort(port),
+            ct
+        );
+
+    private static int GetAvailableLoopbackPort() {
+        using var listener = new TcpListener(IPAddress.Loopback, 0);
+        listener.Start();
+        return ((IPEndPoint)listener.LocalEndpoint).Port;
+    }
+
+    private static async Task<string?> WaitForBrowserVersion(int port, CancellationToken ct) {
+        DateTime timeoutAt = DateTime.UtcNow.AddSeconds(15);
+
+        while (DateTime.UtcNow < timeoutAt) {
+            try {
+                using HttpResponseMessage response = await Client.GetAsync($"http://127.0.0.1:{port}/json/version", ct);
+                if (response.IsSuccessStatusCode) {
+                    using JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+                    if (document.RootElement.TryGetProperty("Browser", out JsonElement browser)) return browser.GetString();
+                }
+            }
+            catch (HttpRequestException) {
+            }
+            catch (TaskCanceledException) when (!ct.IsCancellationRequested) {
+            }
+
+            await Task.Delay(200, ct);
+        }
+
+        return null;
+    }
 }

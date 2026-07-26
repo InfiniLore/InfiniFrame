@@ -25,11 +25,11 @@ EXPORTED InteropStatus InfiniFrameNative_getHwnd_win32(InfiniFrameWindow* instan
 }
 
 EXPORTED InteropStatus
-InfiniFrameNative_setWebView2RuntimePath_win32(InfiniFrameWindow*, const AutoString webView2RuntimePath) {
-    return RunExportStatus([&] {
+InfiniFrameNative_setWebView2RuntimePath_win32(InfiniFrameWindow* instance, const AutoString webView2RuntimePath) {
+    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureNotNull(webView2RuntimePath, "webView2RuntimePath"))
             return;
-        InfiniFrameWindow::SetWebView2RuntimePath(webView2RuntimePath);
+        window->SetWebView2RuntimePath(webView2RuntimePath);
     });
 }
 

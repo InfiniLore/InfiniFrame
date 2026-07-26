@@ -25,6 +25,7 @@ struct InfiniFrameInitParams {
     AutoString TemporaryFilesPath;
     AutoString UserAgent;
     AutoString BrowserControlInitParameters;
+    AutoString WebView2RuntimePath;
     AutoString NotificationRegistrationId;
     AutoString WindowsAppUserModelId;
     int RemoteDebuggingPort;

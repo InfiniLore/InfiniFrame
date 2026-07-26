@@ -52,6 +52,9 @@ public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowB
         Environment.ProcessId.ToString()
     );
 
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.WebView2RuntimePath"/>
+    public string? WebView2RuntimePath { get; private set; }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -116,6 +119,11 @@ public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowB
         TemporaryFilesPath = path;
     }
 
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.SetWebView2RuntimePath"/>
+    public void SetWebView2RuntimePath(string path) {
+        WebView2RuntimePath = path;
+    }
+
     /// <summary>
     ///     Applies all browser feature settings to the native parameters.
     /// </summary>
@@ -133,5 +141,6 @@ public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowB
         parameters.SmoothScrollingEnabled = IsSmoothScrollingEnabled;
         parameters.BrowserControlInitParameters = BrowserControlInitParameters;
         parameters.TemporaryFilesPath = TemporaryFilesPath;
+        parameters.WebView2RuntimePath = WebView2RuntimePath;
     }
 }

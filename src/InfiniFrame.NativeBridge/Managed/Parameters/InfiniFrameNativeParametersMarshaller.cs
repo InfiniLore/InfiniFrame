@@ -31,6 +31,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal IntPtr TemporaryFilesPath;
         internal IntPtr UserAgent;
         internal IntPtr BrowserControlInitParameters;
+        internal IntPtr WebView2RuntimePath;
         internal IntPtr NotificationRegistrationId;
         internal IntPtr WindowsAppUserModelId;
         internal int RemoteDebuggingPort;
@@ -117,6 +118,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 TemporaryFilesPath = ToUtf8Ptr(managed.TemporaryFilesPath),
                 UserAgent = ToUtf8Ptr(managed.UserAgent),
                 BrowserControlInitParameters = ToUtf8Ptr(managed.BrowserControlInitParameters),
+                WebView2RuntimePath = ToUtf8Ptr(managed.WebView2RuntimePath),
                 NotificationRegistrationId = ToUtf8Ptr(managed.NotificationRegistrationId),
                 WindowsAppUserModelId = ToUtf8Ptr(managed.WindowsAppUserModelId),
                 RemoteDebuggingPort = managed.RemoteDebuggingPort,
@@ -204,6 +206,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
             Marshal.FreeCoTaskMem(_unmanaged.TemporaryFilesPath);
             Marshal.FreeCoTaskMem(_unmanaged.UserAgent);
             Marshal.FreeCoTaskMem(_unmanaged.BrowserControlInitParameters);
+            Marshal.FreeCoTaskMem(_unmanaged.WebView2RuntimePath);
             Marshal.FreeCoTaskMem(_unmanaged.NotificationRegistrationId);
             Marshal.FreeCoTaskMem(_unmanaged.WindowsAppUserModelId);
         }

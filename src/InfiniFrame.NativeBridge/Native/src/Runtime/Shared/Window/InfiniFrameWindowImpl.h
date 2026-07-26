@@ -57,6 +57,7 @@ struct InfiniFrameWindowImpl {
     NativeString _startString;
     NativeString _userAgent;
     NativeString _browserControlInitParameters;
+    NativeString _webView2RuntimePath;
     NativeString _iconFileName;
 
     std::vector<NativeString> _customSchemeNames;

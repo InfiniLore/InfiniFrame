@@ -82,6 +82,17 @@ builder
 whitespace-free ID of at most 128 characters for every window in the process. For installed Windows applications,
 configure shortcuts with the same AppUserModelID so pinned taskbar items group with the running application.
 
+For a bundled fixed-version WebView2 runtime on Windows, set its extracted directory on the builder before `Build()`:
+
+```csharp
+builder.SetWebView2RuntimePath(Path.Combine(AppContext.BaseDirectory, "WebView2Runtime"));
+```
+
+The path applies only to that window. It is ignored on Linux and macOS.
+
+The repository's Windows integration test provisions this pinned runtime automatically; its CI cache prevents repeat
+downloads. You can optionally set `INFINIFRAME_TEST_WEBVIEW2_RUNTIME_PATH` to reuse an existing extracted runtime.
+
 ### Size and Position
 
 ```csharp

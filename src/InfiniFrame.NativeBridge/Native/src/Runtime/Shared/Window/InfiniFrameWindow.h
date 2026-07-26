@@ -585,7 +585,7 @@ class InfiniFrameWindow {
          * @brief Override the WebView2 fixed-version runtime path
          * @param pathToWebView2 UTF-8 path to the WebView2 runtime directory
          */
-    static void SetWebView2RuntimePath(AutoString pathToWebView2);
+    void SetWebView2RuntimePath(AutoString pathToWebView2);
 
     /**
          * @brief Get the native Win32 window handle

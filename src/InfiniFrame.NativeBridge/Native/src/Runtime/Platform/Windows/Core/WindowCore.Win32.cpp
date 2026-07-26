@@ -16,8 +16,6 @@ static_assert(sizeof(wchar_t) == sizeof(char16_t));
 const wchar_t* CLASS_NAME = L"InfiniFrame";
 std::atomic<HINSTANCE> _hInstance{nullptr};
 thread_local HWND messageLoopRootWindowHandle = nullptr;
-wchar_t _webview2RuntimePath[MAX_PATH];
-std::mutex webview2RuntimePathMutex;
 
 using namespace WinToastLib;
 
@@ -151,6 +149,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
 
     if (initParams->BrowserControlInitParameters != nullptr)
         m_impl->_browserControlInitParameters = ToUTF16String(initParams->BrowserControlInitParameters);
+
+    if (initParams->WebView2RuntimePath != nullptr)
+        m_impl->_webView2RuntimePath = ToUTF16String(initParams->WebView2RuntimePath);
 
     if (initParams->NotificationRegistrationId != nullptr)
         m_impl->_notificationRegistrationId = ToUTF16String(initParams->NotificationRegistrationId);

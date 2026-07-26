@@ -31,12 +31,7 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
     UpdateWindow(m_impl->_hWnd);
 
     if (!m_impl->_webviewController) {
-        bool hasConfiguredRuntimePath = false;
-        {
-            std::lock_guard<std::mutex> lock(webview2RuntimePathMutex);
-            hasConfiguredRuntimePath = wcsnlen(_webview2RuntimePath, _countof(_webview2RuntimePath)) > 0;
-        }
-        if (hasConfiguredRuntimePath || EnsureWebViewIsInstalled())
+        if (!m_impl->_webView2RuntimePath.empty() || EnsureWebViewIsInstalled())
             AttachWebView();
         else
             throw std::runtime_error("WebView2 Runtime is not installed and automatic installation failed.");
@@ -52,7 +47,7 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
 //
 // High-level flow:
 // 1) Bail out if the window is closing/closed, or if initialization already started/completed.
-// 2) Resolve optional runtime path under lock (host-configurable global state).
+// 2) Resolve the optional runtime path configured for this window.
 // 3) Build browser startup arguments from feature flags/host parameters.
 // 4) Create WebView2 environment and controller asynchronously.
 // 5) Configure WebView and subscribe event handlers (navigation, messaging, permissions, etc.).
@@ -72,12 +67,8 @@ void InfiniFrameWindow::AttachWebView() {
         return;
     m_impl->_isWebView2Initializing = true;
 
-    // Snapshot runtime path under lock so subsequent async setup uses a stable value.
-    std::wstring configuredRuntimePath;
-    {
-        std::lock_guard<std::mutex> lock(webview2RuntimePathMutex);
-        configuredRuntimePath = _webview2RuntimePath;
-    }
+    // Keep a local owned value alive until environment creation has consumed it.
+    const std::wstring configuredRuntimePath = m_impl->_webView2RuntimePath;
     PCWSTR runtimePath = configuredRuntimePath.empty() ? nullptr : configuredRuntimePath.c_str();
 
     // Compose WebView2 command-line switches from current window/browser options.
