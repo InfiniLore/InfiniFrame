@@ -41,12 +41,11 @@ static void DispatchToMainSync(void (^block)()) {
     }
 }
 
-/// On Apple Silicon, WKWebView can unregister display-link observers while a CVDisplayLink
-/// callback is still enumerating them, causing a use-after-free in
-/// notifyObserversDisplayDidRefresh. Detach the view synchronously, but give any in-flight
-/// display refresh two frames to finish before balancing our alloc/init ownership there.
-/// Intel WebKit does not require this workaround, and deferring its release can instead race
-/// a queued RemoteLayerTree scheduleDisplayRefreshCallbacks callback.
+/// WKWebView can unregister display-link observers while a display refresh callback is still
+/// enumerating them. On Apple Silicon this surfaces in notifyObserversDisplayDidRefresh; on
+/// Intel it can surface in RemoteLayerTreeDrawingAreaProxyMac::scheduleDisplayRefreshCallbacks.
+/// Detach the view synchronously, but give in-flight display refresh work two frames to finish
+/// before balancing our alloc/init ownership there.
 static void ReleaseWebKitObjectsSafely(
     WKWebView* webview,
     WKWebViewConfiguration* configuration
@@ -54,7 +53,6 @@ static void ReleaseWebKitObjectsSafely(
     if (webview == nil && configuration == nil)
         return;
 
-#if defined(__aarch64__) || defined(__arm64__)
     // Capture untyped pointers so the copied MRC block does not add hidden Objective-C
     // retains. The existing alloc/init references are intentionally transferred here.
     void* webviewPointer = webview;
@@ -69,10 +67,6 @@ static void ReleaseWebKitObjectsSafely(
             [deferredConfiguration release];
         }
     );
-#else
-    [webview release];
-    [configuration release];
-#endif
 }
 
 void InfiniFrameWindow::Register()
