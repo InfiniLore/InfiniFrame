@@ -93,14 +93,8 @@ void InfiniFrameWindow::CloseWebView()
         [handler invalidate];
 
     if (m_impl->_webview != nil) {
-        // windowWillClose is the last point where the view is still owned by a live
-        // NSWindow. Detach it here, before AppKit tears down the window's content view.
-        // Keeping the alloc/init ownership in _webview lets the destructor delay the
-        // final release until WebKit has had a chance to finish its display work.
-        [m_impl->_webview stopLoading];
         m_impl->_webview.UIDelegate = nil;
         m_impl->_webview.navigationDelegate = nil;
-        [m_impl->_webview removeFromSuperview];
     }
 }
 
