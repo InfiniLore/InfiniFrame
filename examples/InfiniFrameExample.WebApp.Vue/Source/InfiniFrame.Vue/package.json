@@ -1,5 +1,5 @@
 {
-  "name": "InfiniFrameue",
+  "name": "infiniframe.example.vue",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -15,8 +15,8 @@
     "@types/node": "^26.1.1",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/tsconfig": "^0.9.1",
-    "typescript": "5.9.3",
+    "typescript": "7.0.2",
     "vite": "^8.1.5",
-    "vue-tsc": "^3.3.7"
+    "vue-tsc": "^3.3.8"
   }
 }
