@@ -90,9 +90,8 @@ builder.SetWebView2RuntimePath(Path.Combine(AppContext.BaseDirectory, "WebView2R
 
 The path applies only to that window. It is ignored on Linux and macOS.
 
-The repository's Windows integration test provisions the pinned fixed runtime with
-`./tests/scripts/ensure-webview2-fixed-runtime.ps1`; set its output as
-`INFINIFRAME_TEST_WEBVIEW2_RUNTIME_PATH` when running that test locally.
+The repository's Windows integration test provisions this pinned runtime automatically; its CI cache prevents repeat
+downloads. You can optionally set `INFINIFRAME_TEST_WEBVIEW2_RUNTIME_PATH` to reuse an existing extracted runtime.
 
 ### Size and Position
 
