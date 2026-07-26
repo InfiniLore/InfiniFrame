@@ -75,6 +75,10 @@ foreach ($PackageFile in $PackageFiles) {
         Invoke-Npm -ProjectDirectory $ProjectDirectory -Arguments @('update', '--include=dev')
     }
 
+    if ($PSCmdlet.ShouldProcess($RelativePath, 'synchronize package-lock.json with package.json')) {
+        Invoke-Npm -ProjectDirectory $ProjectDirectory -Arguments @('install', '--package-lock-only', '--include=dev')
+    }
+
     if ($AuditFix -and $PSCmdlet.ShouldProcess($RelativePath, 'apply npm audit fixes')) {
         Invoke-Npm -ProjectDirectory $ProjectDirectory -Arguments @('audit', 'fix', '--include=dev')
     }
