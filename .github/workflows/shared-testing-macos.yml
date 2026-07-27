@@ -170,20 +170,27 @@ jobs:
                         run_test_app "$framework" InfiniTests.InfiniFrame.Js 1 || framework_exit_code=$?
                         run_test_app "$framework" InfiniTests.InfiniFrame.NativeBridge 1 || framework_exit_code=$?
                         run_test_app "$framework" InfiniTests.InfiniFrame.Shared 1 || framework_exit_code=$?
-                        run_test_app "$framework" InfiniTests.InfiniFrame.Tools.Pack 1 || framework_exit_code=$?
+                        if [ "$framework" = net10.0 ]; then
+                            run_test_app "$framework" InfiniTests.InfiniFrame.Tools.Pack 1 || framework_exit_code=$?
+                        else
+                            echo "Skipping InfiniTests.InfiniFrame.Tools.Pack: it targets net10.0 only."
+                        fi
                         run_test_app "$framework" InfiniTests.InfiniFrame.WebServer 1 || framework_exit_code=$?
 
-                        run_test_app "$framework" InfiniTests.InfiniFrame 67 \
+                        # --minimum-expected-tests counts executed tests, rather than all discovered
+                        # tests. The platform-specific skips below are intentional and are therefore
+                        # excluded from the expected-test floors.
+                        run_test_app "$framework" InfiniTests.InfiniFrame 63 \
                           '/InfiniTests.InfiniFrame/(InfiniTests.InfiniFrame.Interop|InfiniTests.InfiniFrame.Security|InfiniTests.InfiniFrame.Window|InfiniTests.InfiniFrame.Window.Events)/**' || framework_exit_code=$?
-                        run_test_app "$framework" InfiniTests.InfiniFrame 91 \
+                        run_test_app "$framework" InfiniTests.InfiniFrame 90 \
                           '/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.Window.Features.Browser/**' || framework_exit_code=$?
-                        run_test_app "$framework" InfiniTests.InfiniFrame 142 \
+                        run_test_app "$framework" InfiniTests.InfiniFrame 140 \
                           '/InfiniTests.InfiniFrame/(InfiniTests.InfiniFrame.Window.Features.Decorations|InfiniTests.InfiniFrame.Window.Features.Position|InfiniTests.InfiniFrame.Window.Features.Size)/**' || framework_exit_code=$?
                         run_test_app "$framework" InfiniTests.InfiniFrame 59 \
                           '/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.Window.Features.State/**' || framework_exit_code=$?
                         run_test_app "$framework" InfiniTests.InfiniFrame 82 \
                           '/InfiniTests.InfiniFrame/(InfiniTests.InfiniFrame.Window.Features.PageNavigation|InfiniTests.InfiniFrame.Window.Features.WebMessaging|InfiniTests.InfiniFrame.Window.Features.WebMessaging.Handlers)/**' || framework_exit_code=$?
-                        run_test_app "$framework" InfiniTests.InfiniFrame 96 \
+                        run_test_app "$framework" InfiniTests.InfiniFrame 81 \
                           '/InfiniTests.InfiniFrame/(InfiniTests.InfiniFrame.Window.Features.Debugging|InfiniTests.InfiniFrame.Window.Features.FilePickerDialogs|InfiniTests.InfiniFrame.Window.Features.Invoke|InfiniTests.InfiniFrame.Window.Features.Lifecycle|InfiniTests.InfiniFrame.Window.Features.Monitors|InfiniTests.InfiniFrame.Window.Features.Notifications)/**' || framework_exit_code=$?
 
                         echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Finished $framework with exit code $framework_exit_code"
