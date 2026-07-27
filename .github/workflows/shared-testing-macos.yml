@@ -118,6 +118,41 @@ jobs:
                     mkdir -p artifacts/native-crash
                     exit_code=0
 
+                    run_test_app() {
+                        local framework="$1"
+                        local name="$2"
+                        local minimum_expected_tests="$3"
+                        local tree_filter="${4:-}"
+                        local test_app="tests/$name/bin/Release/$framework/$name"
+                        local results_directory="artifacts/testresults/$framework/$name"
+                        local diagnostics_directory="artifacts/testdiag/$framework/$name"
+
+                        if [ ! -x "$test_app" ]; then
+                            echo "TUnit test application is missing or not executable: $test_app"
+                            return 1
+                        fi
+
+                        mkdir -p "$results_directory" "$diagnostics_directory"
+                        echo "Running tests from $test_app${tree_filter:+ (partition: $tree_filter)}"
+
+                        local command=(
+                            "$test_app"
+                            --minimum-expected-tests "$minimum_expected_tests"
+                            --results-directory "$results_directory"
+                            --report-html-filename "$results_directory/$name-$framework-report.html"
+                            --diagnostic
+                            --diagnostic-output-directory "$diagnostics_directory"
+                            --diagnostic-file-prefix "mtp-$framework-$name"
+                            --diagnostic-verbosity Warning
+                            --no-ansi
+                        )
+                        if [ -n "$tree_filter" ]; then
+                            command+=(--treenode-filter "$tree_filter")
+                        fi
+
+                        "${command[@]}"
+                    }
+
                     for framework in net8.0 net9.0 net10.0; do
                         echo "=== Running $framework Tests ==="
                         mkdir -p "artifacts/testdiag/$framework"
@@ -126,20 +161,30 @@ jobs:
                         framework_exit_code=0
                         echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Starting $framework"
 
-                        dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
-                          --configuration Release \
-                          --no-build \
-                          --no-restore \
-                          --framework "$framework" \
-                          -p:NativeArch=${{ matrix.arch }} \
-                          -p:InfiniFrameSkipNativeBuild=true \
-                          -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
-                          --results-directory "artifacts/testresults/$framework" \
-                          --diagnostic \
-                          --diagnostic-output-directory "artifacts/testdiag/$framework" \
-                          --diagnostic-file-prefix "mtp-$framework" \
-                          --diagnostic-verbosity Warning \
-                          --no-ansi || framework_exit_code=$?
+                        # WKWebView's macOS 15 display-link state can crash in Apple's WebKit after a
+                        # large number of create/close cycles. The test application is therefore split
+                        # into bounded processes. This preserves every UI test while process exit resets
+                        # the upstream WebKit state between partitions.
+                        run_test_app "$framework" InfiniTests.InfiniFrame.Blazor 1 || framework_exit_code=$?
+                        run_test_app "$framework" InfiniTests.InfiniFrame.BlazorWebView 1 || framework_exit_code=$?
+                        run_test_app "$framework" InfiniTests.InfiniFrame.Js 1 || framework_exit_code=$?
+                        run_test_app "$framework" InfiniTests.InfiniFrame.NativeBridge 1 || framework_exit_code=$?
+                        run_test_app "$framework" InfiniTests.InfiniFrame.Shared 1 || framework_exit_code=$?
+                        run_test_app "$framework" InfiniTests.InfiniFrame.Tools.Pack 1 || framework_exit_code=$?
+                        run_test_app "$framework" InfiniTests.InfiniFrame.WebServer 1 || framework_exit_code=$?
+
+                        run_test_app "$framework" InfiniTests.InfiniFrame 67 \
+                          '/InfiniTests.InfiniFrame/(InfiniTests.InfiniFrame.Interop|InfiniTests.InfiniFrame.Security|InfiniTests.InfiniFrame.Window|InfiniTests.InfiniFrame.Window.Events)/**' || framework_exit_code=$?
+                        run_test_app "$framework" InfiniTests.InfiniFrame 91 \
+                          '/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.Window.Features.Browser/**' || framework_exit_code=$?
+                        run_test_app "$framework" InfiniTests.InfiniFrame 142 \
+                          '/InfiniTests.InfiniFrame/(InfiniTests.InfiniFrame.Window.Features.Decorations|InfiniTests.InfiniFrame.Window.Features.Position|InfiniTests.InfiniFrame.Window.Features.Size)/**' || framework_exit_code=$?
+                        run_test_app "$framework" InfiniTests.InfiniFrame 59 \
+                          '/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.Window.Features.State/**' || framework_exit_code=$?
+                        run_test_app "$framework" InfiniTests.InfiniFrame 82 \
+                          '/InfiniTests.InfiniFrame/(InfiniTests.InfiniFrame.Window.Features.PageNavigation|InfiniTests.InfiniFrame.Window.Features.WebMessaging|InfiniTests.InfiniFrame.Window.Features.WebMessaging.Handlers)/**' || framework_exit_code=$?
+                        run_test_app "$framework" InfiniTests.InfiniFrame 96 \
+                          '/InfiniTests.InfiniFrame/(InfiniTests.InfiniFrame.Window.Features.Debugging|InfiniTests.InfiniFrame.Window.Features.FilePickerDialogs|InfiniTests.InfiniFrame.Window.Features.Invoke|InfiniTests.InfiniFrame.Window.Features.Lifecycle|InfiniTests.InfiniFrame.Window.Features.Monitors|InfiniTests.InfiniFrame.Window.Features.Notifications)/**' || framework_exit_code=$?
 
                         echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Finished $framework with exit code $framework_exit_code"
 
