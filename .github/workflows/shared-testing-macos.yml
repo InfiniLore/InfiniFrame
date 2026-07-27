@@ -131,6 +131,7 @@ jobs:
                           --no-build \
                           --no-restore \
                           --framework "$framework" \
+                          --max-parallel-test-modules 1 \
                           -p:NativeArch=${{ matrix.arch }} \
                           -p:InfiniFrameSkipNativeBuild=true \
                           -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
@@ -139,7 +140,9 @@ jobs:
                           --diagnostic-output-directory "artifacts/testdiag/$framework" \
                           --diagnostic-file-prefix "mtp-$framework" \
                           --diagnostic-verbosity Warning \
-                          --no-ansi || framework_exit_code=$?
+                          --no-ansi \
+                          -- \
+                          --maximum-parallel-tests 1 || framework_exit_code=$?
 
                         echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Finished $framework with exit code $framework_exit_code"
 
