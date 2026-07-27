@@ -41,6 +41,20 @@ static void DispatchToMainSync(void (^block)()) {
     }
 }
 
+/// A WKWebViewConfiguration otherwise creates a process pool per window. WebKit tears down the
+/// pool's display-link infrastructure asynchronously, so destroying the last configuration while
+/// that work is in flight can crash inside WKProcessPool deallocation. A process pool is designed
+/// to be shared by related web views; retaining it for the application's lifetime gives WebKit a
+/// single, stable owner for its content-process and display-link infrastructure.
+static WKProcessPool* SharedWebProcessPool() {
+    static WKProcessPool* processPool = nil;
+    static dispatch_once_t processPoolOnceToken;
+    dispatch_once(&processPoolOnceToken, ^{
+        processPool = [[WKProcessPool alloc] init];
+    });
+    return processPool;
+}
+
 /// WKWebView can unregister display-link observers while a display refresh callback is still
 /// enumerating them. On Apple Silicon this surfaces in notifyObserversDisplayDidRefresh; on
 /// Intel it can surface in RemoteLayerTreeDrawingAreaProxyMac::scheduleDisplayRefreshCallbacks.
@@ -301,6 +315,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
             this->Center();
 
         this->m_impl->_webviewConfiguration = [[WKWebViewConfiguration alloc] init];
+        this->m_impl->_webviewConfiguration.processPool = SharedWebProcessPool();
         this->SetMediaAutoplayEnabled(this->m_impl->_mediaAutoplayEnabled);
 
         for (const auto & scheme : this->m_impl->_customSchemeNames)
