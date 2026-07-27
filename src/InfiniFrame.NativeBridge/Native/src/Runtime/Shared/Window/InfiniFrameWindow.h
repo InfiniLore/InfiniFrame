@@ -416,6 +416,16 @@ class InfiniFrameWindow {
     void CloseWebView();
 
 #ifdef __APPLE__
+    /**
+     * @brief Transfers destruction ownership to the AppKit lifecycle.
+     *
+     * SafeHandle may be released while WKWebView is still completing an asynchronous close.
+     * In that case the native instance must remain alive until the close-completion callback has
+     * returned; deleting it from the P/Invoke destructor would leave that callback with a dangling
+     * this pointer.
+     */
+    void ScheduleDeferredDestruction();
+
     /** @brief Publish completion after every close callback has returned */
     void SignalWindowClosed();
 

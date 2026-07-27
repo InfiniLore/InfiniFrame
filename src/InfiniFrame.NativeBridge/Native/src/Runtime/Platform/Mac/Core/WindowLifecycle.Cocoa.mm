@@ -143,6 +143,50 @@ void InfiniFrameWindow::CompleteCloseAfterWebKitTeardown()
         InvokeClosed();
     }
     SignalWindowClosed();
+
+    // SafeHandle disposal can have happened while the WKWebView timer was pending. Do not
+    // delete from this callback: AppKit/WebKit may still unwind through the window delegate.
+    // A subsequent main-queue turn is the native destruction boundary.
+    if (m_impl->_nativeDestructionScheduled) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            delete this;
+        });
+    }
+}
+
+void InfiniFrameWindow::ScheduleDeferredDestruction()
+{
+    void (^requestDestruction)() = ^{
+        if (this->m_impl->_nativeDestructionScheduled)
+            return;
+
+        infiniframe::macos::LogLifecycle("window-destruction-request", this);
+        this->m_impl->_nativeDestructionScheduled = true;
+        this->PrepareForDeferredDestruction();
+
+        // CloseWebView owns an NSTimer whose callback references this instance. Let that
+        // callback publish the close boundary and enqueue the deletion once it has unwound.
+        if (this->m_impl->_webKitTeardownScheduled &&
+            !this->m_impl->_windowClosed.load(std::memory_order_acquire))
+            return;
+
+        // No close callback is outstanding. Still defer one main-queue turn so disposal from
+        // an AppKit delegate cannot delete the instance while that delegate is executing.
+        dispatch_async(dispatch_get_main_queue(), ^{
+            delete this;
+        });
+    };
+
+    if ([NSThread isMainThread]) {
+        requestDestruction();
+        return;
+    }
+
+    // Do not dispatch_sync from a worker thread. WaitForExit can be pumping the default
+    // AppKit run-loop mode, which does not necessarily service main-queue synchronous work.
+    // The native instance is now self-owned, so it is safe for SafeHandle disposal to return
+    // before this request reaches AppKit.
+    dispatch_async(dispatch_get_main_queue(), requestDestruction);
 }
 
 void InfiniFrameWindow::SignalWindowClosed()

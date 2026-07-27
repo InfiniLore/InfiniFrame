@@ -38,6 +38,7 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     bool _webviewReady = false;
     bool _isClosingOrClosed = false;
     bool _webKitTeardownScheduled = false;
+    bool _nativeDestructionScheduled = false;
     std::atomic<bool> _windowClosed = false;
     std::mutex _windowClosedMutex;
     std::condition_variable _windowClosedCondition;
