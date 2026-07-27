@@ -20,6 +20,12 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 namespace {
+#if defined(__aarch64__) || defined(__arm64__)
+    constexpr NSTimeInterval webKitTeardownInterval = 0.25;
+#else
+    constexpr NSTimeInterval webKitTeardownInterval = 0.10;
+#endif
+
     std::atomic<bool> diagnosticsEnabled = false;
     thread_local unsigned int nativeCallbackDepth = 0;
     std::atomic<unsigned int> activeNativeCallbacks = 0;
@@ -36,7 +42,7 @@ namespace {
 
         // Do not batch view removal. A display refresh callback can remain in flight after a
         // view has been detached, so leave several display intervals between removals.
-        [NSTimer scheduledTimerWithTimeInterval:0.10
+        [NSTimer scheduledTimerWithTimeInterval:webKitTeardownInterval
                                         repeats:NO
                                           block:^(NSTimer* timer) {
                 (void)timer;

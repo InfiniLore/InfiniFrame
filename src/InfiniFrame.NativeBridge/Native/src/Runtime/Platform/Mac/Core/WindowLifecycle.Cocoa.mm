@@ -10,6 +10,12 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+#if defined(__aarch64__) || defined(__arm64__)
+static constexpr NSTimeInterval WebKitPostDetachSettleInterval = 0.25;
+#else
+static constexpr NSTimeInterval WebKitPostDetachSettleInterval = 0.10;
+#endif
+
 /// Safely runs a block on the main GCD queue.
 /// If already on the main thread, runs synchronously; otherwise dispatches synchronously.
 static void DispatchToMainSync(void (^block)()) {
@@ -130,7 +136,7 @@ void InfiniFrameWindow::CloseWebView()
                 // after removeFromSuperview returns. Do not make the managed close observable
                 // (and therefore allow another view to be created) until that callback has had
                 // several display intervals to leave WebKit.
-                [NSTimer scheduledTimerWithTimeInterval:0.10
+                [NSTimer scheduledTimerWithTimeInterval:WebKitPostDetachSettleInterval
                                                 repeats:NO
                                                   block:^(NSTimer* timer) {
                         (void)timer;
