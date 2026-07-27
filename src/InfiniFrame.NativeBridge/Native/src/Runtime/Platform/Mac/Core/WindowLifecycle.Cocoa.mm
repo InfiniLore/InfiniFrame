@@ -125,7 +125,18 @@ void InfiniFrameWindow::CloseWebView()
                     [webview release];
                 }
                 [configuration release];
-                this->CompleteCloseAfterWebKitTeardown();
+
+                // WebKit can still be delivering the display refresh which observed this view
+                // after removeFromSuperview returns. Do not make the managed close observable
+                // (and therefore allow another view to be created) until that callback has had
+                // several display intervals to leave WebKit.
+                [NSTimer scheduledTimerWithTimeInterval:0.10
+                                                repeats:NO
+                                                  block:^(NSTimer* timer) {
+                        (void)timer;
+                        this->CompleteCloseAfterWebKitTeardown();
+                    }
+                ];
             }
         }
     );

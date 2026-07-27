@@ -34,10 +34,9 @@ namespace {
             return;
         }
 
-        // Do not batch view removal. A display refresh callback can be in flight after a view
-        // has stopped loading; allowing one full main-run-loop turn between removals avoids the
-        // WebKit DisplayLink observer race seen on both Intel and Apple Silicon runners.
-        [NSTimer scheduledTimerWithTimeInterval:0.05
+        // Do not batch view removal. A display refresh callback can remain in flight after a
+        // view has been detached, so leave several display intervals between removals.
+        [NSTimer scheduledTimerWithTimeInterval:0.10
                                         repeats:NO
                                           block:^(NSTimer* timer) {
                 (void)timer;
