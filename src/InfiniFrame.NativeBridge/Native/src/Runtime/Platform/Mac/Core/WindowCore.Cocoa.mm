@@ -57,17 +57,20 @@ static void ReleaseWebKitObjectsSafely(
     // retains. The existing alloc/init references are intentionally transferred here.
     void* webviewPointer = webview;
     void* configurationPointer = configuration;
-    dispatch_after(
-        dispatch_time(DISPATCH_TIME_NOW, 50 * NSEC_PER_MSEC),
-        dispatch_get_main_queue(),
-        ^{
+    // A caller can synchronously wait for close by pumping NSRunLoop in default mode. A
+    // dispatch_after block on the main GCD queue is not serviced by that nested run loop,
+    // so use an NSTimer which is serviced by both the normal and nested AppKit run loops.
+    [NSTimer scheduledTimerWithTimeInterval:0.05
+                                    repeats:NO
+                                      block:^(NSTimer* timer) {
+            (void)timer;
             auto* deferredWebview = static_cast<WKWebView*>(webviewPointer);
             auto* deferredConfiguration = static_cast<WKWebViewConfiguration*>(configurationPointer);
             [deferredWebview removeFromSuperview];
             [deferredWebview release];
             [deferredConfiguration release];
         }
-    );
+    ];
 }
 
 void InfiniFrameWindow::Register()

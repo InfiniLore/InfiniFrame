@@ -111,10 +111,13 @@ void InfiniFrameWindow::CloseWebView()
     WKWebViewConfiguration* configuration = m_impl->_webviewConfiguration;
     m_impl->_webviewConfiguration = nil;
 
-    dispatch_after(
-        dispatch_time(DISPATCH_TIME_NOW, 50 * NSEC_PER_MSEC),
-        dispatch_get_main_queue(),
-        ^{
+    // WaitForExit pumps NSRunLoop in default mode when it is called from the AppKit thread.
+    // A main-queue dispatch_after block would not run while that nested loop is active, so the
+    // deferred teardown must be scheduled as an NSTimer instead.
+    [NSTimer scheduledTimerWithTimeInterval:0.05
+                                    repeats:NO
+                                      block:^(NSTimer* timer) {
+            (void)timer;
             @autoreleasepool {
                 if (webview != nil) {
                     [webview removeFromSuperview];
@@ -124,7 +127,7 @@ void InfiniFrameWindow::CloseWebView()
                 this->CompleteCloseAfterWebKitTeardown();
             }
         }
-    );
+    ];
 }
 
 void InfiniFrameWindow::CompleteCloseAfterWebKitTeardown()
