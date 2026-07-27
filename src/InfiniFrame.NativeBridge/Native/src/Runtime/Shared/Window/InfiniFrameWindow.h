@@ -419,6 +419,9 @@ class InfiniFrameWindow {
     /** @brief Publish completion after every close callback has returned */
     void SignalWindowClosed();
 
+    /** @brief Publish the managed close notification after WKWebView has quiesced */
+    void CompleteCloseAfterWebKitTeardown();
+
     /** @brief Disable every reverse-P/Invoke entry point before deferred destruction */
     void PrepareForDeferredDestruction();
 #endif

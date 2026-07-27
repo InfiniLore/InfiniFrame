@@ -63,13 +63,5 @@
 {
     if (infiniFrame == nullptr) return;
     infiniFrame->CloseWebView();
-    {
-        infiniframe::macos::NativeCallbackScope callbackScope;
-        infiniFrame->InvokeClosed();
-    }
-    // This must be the final access through the raw C++ back-pointer. It wakes
-    // non-main waiters only after the reverse P/Invoke has fully returned.
-    if (infiniFrame != nullptr)
-        infiniFrame->SignalWindowClosed();
 }
 @end

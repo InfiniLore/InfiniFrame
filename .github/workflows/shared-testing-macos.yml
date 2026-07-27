@@ -190,7 +190,7 @@ jobs:
                           '/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.Window.Features.State/**' || framework_exit_code=$?
                         run_test_app "$framework" InfiniTests.InfiniFrame 82 \
                           '/InfiniTests.InfiniFrame/(InfiniTests.InfiniFrame.Window.Features.PageNavigation|InfiniTests.InfiniFrame.Window.Features.WebMessaging|InfiniTests.InfiniFrame.Window.Features.WebMessaging.Handlers)/**' || framework_exit_code=$?
-                        run_test_app "$framework" InfiniTests.InfiniFrame 81 \
+                        run_test_app "$framework" InfiniTests.InfiniFrame 82 \
                           '/InfiniTests.InfiniFrame/(InfiniTests.InfiniFrame.Window.Features.Debugging|InfiniTests.InfiniFrame.Window.Features.FilePickerDialogs|InfiniTests.InfiniFrame.Window.Features.Invoke|InfiniTests.InfiniFrame.Window.Features.Lifecycle|InfiniTests.InfiniFrame.Window.Features.Monitors|InfiniTests.InfiniFrame.Window.Features.Notifications)/**' || framework_exit_code=$?
 
                         echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Finished $framework with exit code $framework_exit_code"

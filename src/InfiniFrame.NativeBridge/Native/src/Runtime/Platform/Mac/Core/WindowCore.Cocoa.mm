@@ -44,8 +44,8 @@ static void DispatchToMainSync(void (^block)()) {
 /// WKWebView can unregister display-link observers while a display refresh callback is still
 /// enumerating them. On Apple Silicon this surfaces in notifyObserversDisplayDidRefresh; on
 /// Intel it can surface in RemoteLayerTreeDrawingAreaProxyMac::scheduleDisplayRefreshCallbacks.
-/// Detach the view synchronously, but give in-flight display refresh work two frames to finish
-/// before balancing our alloc/init ownership there.
+/// Keep the view attached long enough for in-flight display refresh work to finish before
+/// unregistering its observer and balancing our alloc/init ownership.
 static void ReleaseWebKitObjectsSafely(
     WKWebView* webview,
     WKWebViewConfiguration* configuration
@@ -63,6 +63,7 @@ static void ReleaseWebKitObjectsSafely(
         ^{
             auto* deferredWebview = static_cast<WKWebView*>(webviewPointer);
             auto* deferredConfiguration = static_cast<WKWebViewConfiguration*>(configurationPointer);
+            [deferredWebview removeFromSuperview];
             [deferredWebview release];
             [deferredConfiguration release];
         }
@@ -414,7 +415,6 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
                 [m_impl->_webview stopLoading];
                 m_impl->_webview.UIDelegate = nil;
                 m_impl->_webview.navigationDelegate = nil;
-                [m_impl->_webview removeFromSuperview];
             }
             if (m_impl->_windowDelegate != nil) m_impl->_windowDelegate->infiniFrame = nullptr;
             if (m_impl->_uiDelegate != nil) m_impl->_uiDelegate->infiniFrame = nullptr;
@@ -495,7 +495,6 @@ InfiniFrameWindow::~InfiniFrameWindow()
             [m_impl->_webview stopLoading];
             m_impl->_webview.UIDelegate = nil;
             m_impl->_webview.navigationDelegate = nil;
-            [m_impl->_webview removeFromSuperview];
         }
 
         if (m_impl->_windowDelegate != nil)

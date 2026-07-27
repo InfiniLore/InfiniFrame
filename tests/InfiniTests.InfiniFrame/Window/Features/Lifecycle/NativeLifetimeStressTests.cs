@@ -13,6 +13,28 @@ public class NativeLifetimeStressTests {
     private const int ConcurrentFeatureCallerCount = 4;
 
     [Test]
+    [OnlyRunOnMacOs]
+    [NotInParallelInfiniTests]
+    [DefaultInfiniTestsTimeout(20_000)]
+    public Task RepeatedCloseAndRecreate_WaitsForWebKitTeardown(CancellationToken ct) {
+        // WKWebView's display-link observer is removed during close. The managed close boundary
+        // must not complete until that teardown has drained, otherwise the next window can race
+        // the previous display refresh callback.
+        const int iterations = 12;
+
+        for (int i = 0; i < iterations; i++) {
+            ct.ThrowIfCancellationRequested();
+
+            using var windowUtility = InfiniFrameTestWindow.Create(ct);
+            IInfiniFrameWindow window = windowUtility.Window;
+            window.Close();
+            window.WaitForClose();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    [Test]
     [DefaultInfiniTestsTimeout(20_000)]
     public async Task FeatureCallsRacingClose_DoNotReachFreedNativeInstance(CancellationToken ct) {
         // Arrange
