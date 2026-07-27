@@ -106,9 +106,12 @@ void InfiniFrameWindow::CloseWebView()
     // recent Apple Silicon runners, WebKit can otherwise remove that observer while its refresh
     // callback is enumerating it. Keep the view attached until that callback has had time to
     // quiesce, and do not publish the managed closed event until the complete teardown is done.
-    WKWebView* webview = m_impl->_webview;
+    // Capture raw pointers so the copied MRC block does not add an implicit retain. The
+    // alloc/init references are deliberately transferred to the timer and must be released
+    // before we report the native close as complete.
+    void* webviewPointer = m_impl->_webview;
     m_impl->_webview = nil;
-    WKWebViewConfiguration* configuration = m_impl->_webviewConfiguration;
+    void* configurationPointer = m_impl->_webviewConfiguration;
     m_impl->_webviewConfiguration = nil;
 
     // WaitForExit pumps NSRunLoop in default mode when it is called from the AppKit thread.
@@ -119,6 +122,8 @@ void InfiniFrameWindow::CloseWebView()
                                       block:^(NSTimer* timer) {
             (void)timer;
             @autoreleasepool {
+                auto* webview = static_cast<WKWebView*>(webviewPointer);
+                auto* configuration = static_cast<WKWebViewConfiguration*>(configurationPointer);
                 if (webview != nil) {
                     [webview removeFromSuperview];
                     [webview release];
