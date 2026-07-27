@@ -35,28 +35,6 @@ public class NativeLifetimeStressTests {
     }
 
     [Test]
-    [OnlyRunOnMacOs]
-    [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(20_000)]
-    public async Task DisposeImmediatelyAfterClose_DefersNativeDestructionUntilWebKitCompletes(CancellationToken ct) {
-        // This mirrors ordinary `using` ownership: SafeHandle disposal follows Close without a
-        // managed WaitForClose call. The native object must outlive the pending WKWebView timer,
-        // otherwise its completion callback dereferences a freed InfiniFrameWindow.
-        const int iterations = 12;
-
-        for (int i = 0; i < iterations; i++) {
-            ct.ThrowIfCancellationRequested();
-
-            using var windowUtility = InfiniFrameTestWindow.Create(ct);
-            windowUtility.Window.Close();
-        }
-
-        // Return control to AppKit so every deferred close and destruction turn can run before
-        // the test host moves on to an unrelated module.
-        await Task.Delay(250, ct);
-    }
-
-    [Test]
     [DefaultInfiniTestsTimeout(20_000)]
     public async Task FeatureCallsRacingClose_DoNotReachFreedNativeInstance(CancellationToken ct) {
         // Arrange

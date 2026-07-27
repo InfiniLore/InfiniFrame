@@ -107,20 +107,16 @@ void InfiniFrameWindow::CloseWebView()
     // callback is enumerating it. Keep the view attached until that callback has had time to
     // quiesce, and do not publish the managed closed event until the complete teardown is done.
     // Capture raw pointers so the copied MRC block does not add an implicit retain. The
-    // alloc/init references are deliberately transferred to the timer and must be released
+    // alloc/init references are deliberately transferred to the coordinator and must be released
     // before we report the native close as complete.
     void* webviewPointer = m_impl->_webview;
     m_impl->_webview = nil;
     void* configurationPointer = m_impl->_webviewConfiguration;
     m_impl->_webviewConfiguration = nil;
 
-    // WaitForExit pumps NSRunLoop in default mode when it is called from the AppKit thread.
-    // A main-queue dispatch_after block would not run while that nested loop is active, so the
-    // deferred teardown must be scheduled as an NSTimer instead.
-    [NSTimer scheduledTimerWithTimeInterval:0.05
-                                    repeats:NO
-                                      block:^(NSTimer* timer) {
-            (void)timer;
+    // The coordinator uses NSTimer so it is serviced by the default run-loop mode pumped by
+    // WaitForExit, while ensuring that only one WebKit view is detached at a time.
+    infiniframe::macos::EnqueueWebKitTeardown(^{
             @autoreleasepool {
                 auto* webview = static_cast<WKWebView*>(webviewPointer);
                 auto* configuration = static_cast<WKWebViewConfiguration*>(configurationPointer);
@@ -132,7 +128,7 @@ void InfiniFrameWindow::CloseWebView()
                 this->CompleteCloseAfterWebKitTeardown();
             }
         }
-    ];
+    );
 }
 
 void InfiniFrameWindow::CompleteCloseAfterWebKitTeardown()
