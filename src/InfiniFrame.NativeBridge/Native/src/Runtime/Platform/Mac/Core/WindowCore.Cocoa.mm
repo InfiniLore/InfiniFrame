@@ -42,20 +42,6 @@ static void DispatchToMainSync(void (^block)()) {
     }
 }
 
-/// A WKWebViewConfiguration otherwise creates a process pool per window. WebKit tears down the
-/// pool's display-link infrastructure asynchronously, so destroying the last configuration while
-/// that work is in flight can crash inside WKProcessPool deallocation. A process pool is designed
-/// to be shared by related web views; retaining it for the application's lifetime gives WebKit a
-/// single, stable owner for its content-process and display-link infrastructure.
-static WKProcessPool* SharedWebProcessPool() {
-    static WKProcessPool* processPool = nil;
-    static dispatch_once_t processPoolOnceToken;
-    dispatch_once(&processPoolOnceToken, ^{
-        processPool = [[WKProcessPool alloc] init];
-    });
-    return processPool;
-}
-
 namespace {
 constexpr size_t MaxPooledMacHosts = 8;
 std::vector<PooledMacHost>& MacHostPool() {
@@ -377,7 +363,6 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
             this->Center();
 
         this->m_impl->_webviewConfiguration = [[WKWebViewConfiguration alloc] init];
-        this->m_impl->_webviewConfiguration.processPool = SharedWebProcessPool();
         // A pooled host must never carry persistent browser data into a later logical session.
         // The store is also cleared before the host is leased again (see CloseWebView).
         this->m_impl->_webviewConfiguration.websiteDataStore = [WKWebsiteDataStore nonPersistentDataStore];

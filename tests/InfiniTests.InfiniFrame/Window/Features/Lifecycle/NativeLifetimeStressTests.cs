@@ -47,15 +47,16 @@ public class NativeLifetimeStressTests {
     public Task Pool_RemainsBounded_WhenMoreCompatibleSessionsClose(CancellationToken ct) {
         const int hostPoolLimit = 8;
         for (int i = 0; i < hostPoolLimit + 4; ++i) {
+            int i1 = i;
             using var windowUtility = InfiniFrameTestWindow.Create(builder: builder =>
-                builder.Features.Decorations.SetChromeless(i % 2 == 0), ct);
+                builder.Features.Decorations.SetChromeless(i1 % 2 == 0), ct);
             windowUtility.Window.Close();
             windowUtility.Window.WaitForClose();
         }
 
-        if (InfiniFrameNativeTesting.MacPooledHostCount() > hostPoolLimit)
-            throw new InvalidOperationException("The macOS host pool exceeded its configured bound.");
-        return Task.CompletedTask;
+        return InfiniFrameNativeTesting.MacPooledHostCount() > hostPoolLimit 
+            ? throw new InvalidOperationException("The macOS host pool exceeded its configured bound.") 
+            : Task.CompletedTask;
     }
 
     [Test]

@@ -7,6 +7,8 @@
 #include "../MacDiagnostics.h"
 #include "../Delegates/UrlSchemeHandler.h"
 #include "../Delegates/UiDelegate.h"
+#include "../Delegates/NavigationDelegate.h"
+#include "../Delegates/WindowDelegate.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
