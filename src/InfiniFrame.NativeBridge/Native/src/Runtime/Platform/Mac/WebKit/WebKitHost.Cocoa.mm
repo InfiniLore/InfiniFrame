@@ -21,19 +21,26 @@ void InfiniFrameWindow::AttachWebView()
             injectionTime:WKUserScriptInjectionTimeAtDocumentStart
             forMainFrameOnly:NO];
 
-    WKUserContentController *userContentController =
-        [[WKUserContentController alloc] init];
+    WKUserContentController *userContentController = nil;
+    if (m_impl->_webview == nil)
+        userContentController = [[WKUserContentController alloc] init];
+    else {
+        userContentController = m_impl->_webviewConfiguration.userContentController;
+        [userContentController removeScriptMessageHandlerForName:@"infiniFrameInterop"];
+        [userContentController removeAllUserScripts];
+    }
 
     [userContentController addUserScript:script];
     [script release];
 
     m_impl->_webviewConfiguration.userContentController = userContentController;
-    [userContentController release];
-
-    m_impl->_webview = [
-        [InfiniFrameWebView alloc]
-        initWithFrame: m_impl->_window.contentView.frame
-        configuration: m_impl->_webviewConfiguration];
+    if (m_impl->_webview == nil) {
+        [userContentController release];
+        m_impl->_webview = [
+            [InfiniFrameWebView alloc]
+            initWithFrame: m_impl->_window.contentView.frame
+            configuration: m_impl->_webviewConfiguration];
+    }
 
     InfiniFrameWebView* infiniFrameWebView = (InfiniFrameWebView*)m_impl->_webview;
     [infiniFrameWebView setInfiniFrameContextMenuEnabled:m_impl->_contextMenuEnabled ? YES : NO];
@@ -56,14 +63,14 @@ void InfiniFrameWindow::AttachWebView()
     [m_impl->_window.contentView addSubview: m_impl->_webview];
     [m_impl->_window.contentView setAutoresizesSubviews: true];
 
-    [m_impl->_uiDelegate release];
-    m_impl->_uiDelegate = [[UiDelegate alloc] init];
+    if (m_impl->_uiDelegate == nil)
+        m_impl->_uiDelegate = [[UiDelegate alloc] init];
     m_impl->_uiDelegate->infiniFrame = this;
     m_impl->_uiDelegate->window = m_impl->_window;
     m_impl->_uiDelegate->webMessageReceivedCallback = m_impl->_webMessageReceivedCallback;
 
-    [m_impl->_navigationDelegate release];
-    m_impl->_navigationDelegate = [[NavigationDelegate alloc] init];
+    if (m_impl->_navigationDelegate == nil)
+        m_impl->_navigationDelegate = [[NavigationDelegate alloc] init];
     m_impl->_navigationDelegate->infiniFrame = this;
     m_impl->_navigationDelegate->window = m_impl->_window;
 

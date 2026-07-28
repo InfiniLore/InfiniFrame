@@ -65,6 +65,28 @@ public class ParentChildWindowTests {
     }
 
     [Test]
+    [OnlyRunOnMacOs]
+    [NotInParallelInfiniTests]
+    public async Task OnMacOs_ClosingChild_DetachesPooledHostFromParent(CancellationToken ct = default) {
+        using var parentUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow parent = parentUtility.Window;
+        IntPtr childHost;
+        using (var childUtility = InfiniFrameTestWindow.Create(builder => {
+            ((InfiniFrameWindowBuilderConfiguration)builder.Configuration).ParentWindow = parent;
+        }, ct)) {
+            childHost = childUtility.Window.WindowHandle;
+            childUtility.Window.Close();
+            childUtility.Window.WaitForClose();
+        }
+
+        parent.Close();
+        parent.WaitForClose();
+        using var replacement = InfiniFrameTestWindow.Create(ct);
+        await Assert.That(replacement.Window.WindowHandle).IsEqualTo(childHost);
+        await Assert.That(replacement.Window.IsClosedOrClosing()).IsFalse();
+    }
+
+    [Test]
     [OnlyRunOnWindowsX64]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_OnWindows_ChildWindowOwnerMatchesParentWindowHandle(CancellationToken ct = default) {

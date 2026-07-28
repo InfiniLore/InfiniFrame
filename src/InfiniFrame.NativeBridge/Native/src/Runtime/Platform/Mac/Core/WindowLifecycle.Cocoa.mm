@@ -10,12 +10,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-#if defined(__aarch64__) || defined(__arm64__)
-static constexpr NSTimeInterval WebKitPostDetachSettleInterval = 0.25;
-#else
-static constexpr NSTimeInterval WebKitPostDetachSettleInterval = 0.10;
-#endif
-
 /// Safely runs a block on the main GCD queue.
 /// If already on the main thread, runs synchronously; otherwise dispatches synchronously.
 static void DispatchToMainSync(void (^block)()) {
@@ -41,22 +35,10 @@ void InfiniFrameWindow::Close()
 {
     infiniframe::macos::LogLifecycle("window-close-request", this);
     DispatchToMainSync(^{
-        this->m_impl->_isClosingOrClosed = true;
-
-        if (this->m_impl->_parentWillCloseObserver != nil) {
-            [[NSNotificationCenter defaultCenter] removeObserver:this->m_impl->_parentWillCloseObserver];
-            this->m_impl->_parentWillCloseObserver = nil;
-        }
-
-        if (this->m_impl->_nativeParentWindow != nil && this->m_impl->_window != nil) {
-            [this->m_impl->_nativeParentWindow removeChildWindow:this->m_impl->_window];
-            this->m_impl->_nativeParentWindow = nil;
-        }
-
-        if (this->m_impl->_chromeless)
-            [this->m_impl->_window close];
-        else
-            [this->m_impl->_window performClose: this->m_impl->_window];
+        if (this->m_impl->_isClosingOrClosed || this->m_impl->_window == nil) return;
+        // Route both title-bar and programmatic closes through windowShouldClose so Closing is
+        // observed once and cancellation keeps the session alive.
+        [this->m_impl->_window performClose:this->m_impl->_window];
     });
 }
 
@@ -87,16 +69,15 @@ void InfiniFrameWindow::WaitForExit()
 void InfiniFrameWindow::CloseWebView()
 {
     infiniframe::macos::LogLifecycle("window-native-closed", this);
-    if (m_impl->_webKitTeardownScheduled)
+    if (m_impl->_isClosingOrClosed)
         return;
-
-    m_impl->_webKitTeardownScheduled = true;
     m_impl->_isClosingOrClosed = true;
     m_impl->_webviewReady = false;
     m_impl->_pendingWebMessages.clear();
 
     if (m_impl->_webviewConfiguration != nil) {
         [m_impl->_webviewConfiguration.userContentController removeScriptMessageHandlerForName:@"infiniFrameInterop"];
+        [m_impl->_webviewConfiguration.userContentController removeAllUserScripts];
     }
 
     for (UrlSchemeHandler* handler : m_impl->_urlSchemeHandlers)
@@ -106,46 +87,43 @@ void InfiniFrameWindow::CloseWebView()
         [m_impl->_webview stopLoading];
         m_impl->_webview.UIDelegate = nil;
         m_impl->_webview.navigationDelegate = nil;
+        // Replace the old document before the host is leased again.  The shared process pool is
+        // intentionally process-scoped; document JS and pending navigation are not.
+        [m_impl->_webview loadHTMLString:@"" baseURL:nil];
     }
-
-    // Removing a WKWebView from its superview unregisters a WebKit display-link observer. On
-    // recent Apple Silicon runners, WebKit can otherwise remove that observer while its refresh
-    // callback is enumerating it. Keep the view attached until that callback has had time to
-    // quiesce, and do not publish the managed closed event until the complete teardown is done.
-    // Capture raw pointers so the copied MRC block does not add an implicit retain. The
-    // alloc/init references are deliberately transferred to the coordinator and must be released
-    // before we report the native close as complete.
-    void* webviewPointer = m_impl->_webview;
-    m_impl->_webview = nil;
-    void* configurationPointer = m_impl->_webviewConfiguration;
-    m_impl->_webviewConfiguration = nil;
-
-    // The coordinator uses NSTimer so it is serviced by the default run-loop mode pumped by
-    // WaitForExit, while ensuring that only one WebKit view is detached at a time.
-    infiniframe::macos::EnqueueWebKitTeardown(^{
-            @autoreleasepool {
-                auto* webview = static_cast<WKWebView*>(webviewPointer);
-                auto* configuration = static_cast<WKWebViewConfiguration*>(configurationPointer);
-                if (webview != nil) {
-                    [webview removeFromSuperview];
-                    [webview release];
-                }
-                [configuration release];
-
-                // WebKit can still be delivering the display refresh which observed this view
-                // after removeFromSuperview returns. Do not make the managed close observable
-                // (and therefore allow another view to be created) until that callback has had
-                // several display intervals to leave WebKit.
-                [NSTimer scheduledTimerWithTimeInterval:WebKitPostDetachSettleInterval
-                                                repeats:NO
-                                                  block:^(NSTimer* timer) {
-                        (void)timer;
-                        this->CompleteCloseAfterWebKitTeardown();
-                    }
-                ];
-            }
-        }
-    );
+    if (m_impl->_uiDelegate != nil) {
+        m_impl->_uiDelegate->infiniFrame = nullptr;
+        m_impl->_uiDelegate->window = nil;
+        m_impl->_uiDelegate->webMessageReceivedCallback = nullptr;
+    }
+    if (m_impl->_navigationDelegate != nil) { m_impl->_navigationDelegate->infiniFrame = nullptr; m_impl->_navigationDelegate->window = nil; }
+    if (m_impl->_windowDelegate != nil) m_impl->_windowDelegate->infiniFrame = nullptr;
+    if (m_impl->_parentWillCloseObserver != nil) {
+        [[NSNotificationCenter defaultCenter] removeObserver:m_impl->_parentWillCloseObserver];
+        m_impl->_parentWillCloseObserver = nil;
+    }
+    if (m_impl->_nativeParentWindow != nil) [m_impl->_nativeParentWindow removeChildWindow:m_impl->_window];
+    m_impl->_nativeParentWindow = nil;
+    if ([m_impl->_window isMiniaturized]) [m_impl->_window deminiaturize:nil];
+    m_impl->_preMaximizedWidth = m_impl->_preMaximizedHeight = 0;
+    m_impl->_preMaximizedXPosition = m_impl->_preMaximizedYPosition = 0;
+    [m_impl->_window setLevel:NSNormalWindowLevel];
+    [m_impl->_window orderOut:nil];
+    m_impl->_hostReleasePending = true;
+    WKWebsiteDataStore* dataStore = m_impl->_webviewConfiguration.websiteDataStore;
+    NSSet* dataTypes = [WKWebsiteDataStore allWebsiteDataTypes];
+    [dataStore removeDataOfTypes:dataTypes
+                    modifiedSince:[NSDate distantPast]
+               completionHandler:^{
+        // WebKit invokes this on its own queue on some OS versions.  Pool mutation remains
+        // serialized on AppKit's main queue.
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (!this->m_impl->_hostReleasePending) return;
+            this->m_impl->_hostReleasePending = false;
+            this->m_impl->ReturnPooledMacHost();
+            this->CompleteCloseAfterWebKitTeardown();
+        });
+    }];
 }
 
 void InfiniFrameWindow::CompleteCloseAfterWebKitTeardown()
@@ -157,9 +135,8 @@ void InfiniFrameWindow::CompleteCloseAfterWebKitTeardown()
     }
     SignalWindowClosed();
 
-    // SafeHandle disposal can have happened while the WKWebView timer was pending. Do not
-    // delete from this callback: AppKit/WebKit may still unwind through the window delegate.
-    // A subsequent main-queue turn is the native destruction boundary.
+    // Defer one main-queue turn so SafeHandle disposal from a reverse P/Invoke callback never
+    // deletes the C++ session while AppKit is unwinding through that callback.
     if (m_impl->_nativeDestructionScheduled) {
         dispatch_async(dispatch_get_main_queue(), ^{
             delete this;
@@ -175,15 +152,19 @@ void InfiniFrameWindow::ScheduleDeferredDestruction()
 
         infiniframe::macos::LogLifecycle("window-destruction-request", this);
         this->m_impl->_nativeDestructionScheduled = true;
+        if (!this->m_impl->_isClosingOrClosed) {
+            this->CloseWebView();
+            this->PrepareForDeferredDestruction();
+            // Completion queues our one deletion turn after the asynchronous store reset.
+            return;
+        }
+        if (this->m_impl->_hostReleasePending) {
+            this->PrepareForDeferredDestruction();
+            return;
+        }
         this->PrepareForDeferredDestruction();
 
-        // CloseWebView owns an NSTimer whose callback references this instance. Let that
-        // callback publish the close boundary and enqueue the deletion once it has unwound.
-        if (this->m_impl->_webKitTeardownScheduled &&
-            !this->m_impl->_windowClosed.load(std::memory_order_acquire))
-            return;
-
-        // No close callback is outstanding. Still defer one main-queue turn so disposal from
+        // Still defer one main-queue turn so disposal from
         // an AppKit delegate cannot delete the instance while that delegate is executing.
         dispatch_async(dispatch_get_main_queue(), ^{
             delete this;

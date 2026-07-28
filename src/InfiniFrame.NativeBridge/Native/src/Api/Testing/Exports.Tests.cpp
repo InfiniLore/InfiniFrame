@@ -7,12 +7,23 @@
 #ifdef _WIN32
 #include "Runtime/Platform/Windows/DarkMode.h"
 #endif
+#ifdef __APPLE__
+#include "Runtime/Platform/Mac/Window.Cocoa.Internal.h"
+#endif
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 #if defined(INFINIFRAME_BUILD_TEST_EXPORTS)
 
 extern "C" {
+#ifdef __APPLE__
+EXPORTED InteropStatus InfiniFrameNativeTests_MacPooledHostCount(size_t* value) {
+    return RunExportStatus([&] {
+        if (!EnsureOutNotNull(value, "value")) return;
+        *value = PooledMacHostCountForTesting();
+    });
+}
+#endif
 EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
     const InfiniFrameInitParams* params, InfiniFrameInitParams** new_params
 ) {

@@ -9,6 +9,20 @@ namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowClosedEventTests {
     [Test]
+    [OnlyRunOnMacOs]
+    [NotInParallelInfiniTests]
+    public async Task OnMacOs_PooledHost_DoesNotInvokePriorSessionClosedCallback(CancellationToken ct = default) {
+        int firstClosed = 0;
+        using (var first = InfiniFrameTestWindow.Create(builder => builder.RegisterWindowClosedHandler(_ => firstClosed++), ct)) {
+            first.Window.Close();
+            first.Window.WaitForClose();
+        }
+        using var second = InfiniFrameTestWindow.Create(ct);
+        second.Window.Close();
+        second.Window.WaitForClose();
+        await Assert.That(firstClosed).IsEqualTo(1);
+    }
+    [Test]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_Close_RaisesEvent(CancellationToken ct = default) {
         // Arrange

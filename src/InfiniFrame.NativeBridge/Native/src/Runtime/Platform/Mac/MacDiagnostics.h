@@ -7,8 +7,6 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 namespace infiniframe::macos {
-    using MainRunLoopWork = void (^)();
-
     class NativeCallbackScope final {
     public:
         NativeCallbackScope() noexcept;
@@ -22,10 +20,4 @@ namespace infiniframe::macos {
     bool IsInsideNativeCallback() noexcept;
     void WaitForNativeCallbacksToExit() noexcept;
 
-    /**
-     * Queues WebKit view removal on the AppKit run loop, one operation at a time.
-     * WebKit's display-link observer bookkeeping is not safe when several WKWebViews are
-     * detached during the same refresh cycle.
-     */
-    void EnqueueWebKitTeardown(MainRunLoopWork work) noexcept;
 }

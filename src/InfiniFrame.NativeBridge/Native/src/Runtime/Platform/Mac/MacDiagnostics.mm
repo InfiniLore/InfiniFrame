@@ -20,42 +20,11 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 namespace {
-#if defined(__aarch64__) || defined(__arm64__)
-    constexpr NSTimeInterval webKitTeardownInterval = 0.25;
-#else
-    constexpr NSTimeInterval webKitTeardownInterval = 0.10;
-#endif
-
     std::atomic<bool> diagnosticsEnabled = false;
     thread_local unsigned int nativeCallbackDepth = 0;
     std::atomic<unsigned int> activeNativeCallbacks = 0;
     std::mutex nativeCallbackMutex;
     std::condition_variable nativeCallbackCondition;
-    NSMutableArray* pendingWebKitTeardowns = nil;
-    bool webKitTeardownDrainScheduled = false;
-
-    void ScheduleNextWebKitTeardown() {
-        if (pendingWebKitTeardowns.count == 0) {
-            webKitTeardownDrainScheduled = false;
-            return;
-        }
-
-        // Do not batch view removal. A display refresh callback can remain in flight after a
-        // view has been detached, so leave several display intervals between removals.
-        [NSTimer scheduledTimerWithTimeInterval:webKitTeardownInterval
-                                        repeats:NO
-                                          block:^(NSTimer* timer) {
-                (void)timer;
-                infiniframe::macos::MainRunLoopWork work =
-                    [[pendingWebKitTeardowns objectAtIndex:0] retain];
-                [pendingWebKitTeardowns removeObjectAtIndex:0];
-                work();
-                [work release];
-                ScheduleNextWebKitTeardown();
-            }
-        ];
-    }
-
     void WriteSignalMessage(const int signalNumber) noexcept {
         static constexpr char prefix[] = "\n[InfiniFrame macOS fatal signal] native stack follows\n";
         (void)!write(STDERR_FILENO, prefix, sizeof(prefix) - 1);
@@ -104,28 +73,6 @@ void infiniframe::macos::WaitForNativeCallbacksToExit() noexcept {
     nativeCallbackCondition.wait(lock, [] {
         return activeNativeCallbacks.load(std::memory_order_acquire) == 0;
     });
-}
-
-void infiniframe::macos::EnqueueWebKitTeardown(MainRunLoopWork work) noexcept {
-    if (work == nil)
-        return;
-
-    void (^enqueue)() = ^{
-        if (pendingWebKitTeardowns == nil)
-            pendingWebKitTeardowns = [[NSMutableArray alloc] init];
-
-        [pendingWebKitTeardowns addObject:[[work copy] autorelease]];
-        if (webKitTeardownDrainScheduled)
-            return;
-
-        webKitTeardownDrainScheduled = true;
-        ScheduleNextWebKitTeardown();
-    };
-
-    if ([NSThread isMainThread])
-        enqueue();
-    else
-        dispatch_async(dispatch_get_main_queue(), enqueue);
 }
 
 bool infiniframe::macos::IsInsideNativeCallback() noexcept {

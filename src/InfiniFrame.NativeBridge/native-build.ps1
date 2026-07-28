@@ -62,6 +62,21 @@ function Test-VisualStudioGeneratorAvailable {
     return -not [string]::IsNullOrWhiteSpace($installationPath)
 }
 
+function Get-VisualStudioInstallationDiagnostic {
+    $vswherePath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+    if (-not (Test-Path -LiteralPath $vswherePath)) { return $null }
+    $instances = & $vswherePath -latest -products * -format json | ConvertFrom-Json
+    if ($null -eq $instances) { return $null }
+    $instance = @($instances)[0]
+    if ($instance.isRebootRequired -eq $true) {
+        return "Visual Studio $($instance.installationVersion) requires a reboot before its C++ toolchain can be used."
+    }
+    if ($instance.isComplete -ne $true -or $instance.isLaunchable -ne $true) {
+        return "Visual Studio $($instance.installationVersion) is not fully installed/launchable. Complete installation of the Desktop development with C++ workload."
+    }
+    return $null
+}
+
 # -----------------------------------------------------------------------------------------------------------------
 # LOCK (blocking, CI-safe, race-free)
 # -----------------------------------------------------------------------------------------------------------------
@@ -159,6 +174,8 @@ try {
         }
 
         if ([string]::IsNullOrWhiteSpace($selectedGenerator)) {
+            $visualStudioDiagnostic = Get-VisualStudioInstallationDiagnostic
+            if ($null -ne $visualStudioDiagnostic) { throw $visualStudioDiagnostic }
             $selectedGenerator = "Visual Studio 17 2022"
             Write-Warning "Could not detect an installed Visual Studio instance via vswhere. Falling back to generator '$selectedGenerator'."
         }

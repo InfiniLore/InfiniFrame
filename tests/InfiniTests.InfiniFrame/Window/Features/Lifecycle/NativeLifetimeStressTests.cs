@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.NativeBridge;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -16,21 +17,61 @@ public class NativeLifetimeStressTests {
     [OnlyRunOnMacOs]
     [NotInParallelInfiniTests]
     [DefaultInfiniTestsTimeout(20_000)]
-    public Task RepeatedCloseAndRecreate_WaitsForWebKitTeardown(CancellationToken ct) {
-        // WKWebView's display-link observer is removed during close. The managed close boundary
-        // must not complete until that teardown has drained, otherwise the next window can race
-        // the previous display refresh callback.
+    public Task RepeatedCloseAndRecreate_ReusesMacWebKitHost(CancellationToken ct) {
+        // macOS keeps the complete AppKit/WebKit host alive across logical sessions.  Besides
+        // catching the original display-link crash, this asserts that Close/WaitForClose expose
+        // a completed logical session before the next compatible lease is constructed.
         const int iterations = 12;
+        IntPtr? firstNativeWindow = null;
 
         for (int i = 0; i < iterations; i++) {
             ct.ThrowIfCancellationRequested();
 
             using var windowUtility = InfiniFrameTestWindow.Create(ct);
             IInfiniFrameWindow window = windowUtility.Window;
+            IntPtr nativeWindow = window.WindowHandle;
+            if (firstNativeWindow is null) firstNativeWindow = nativeWindow;
+            else if (OperatingSystem.IsMacOS() && nativeWindow != firstNativeWindow.Value)
+                throw new InvalidOperationException("A compatible macOS session did not reuse its pooled NSWindow/WKWebView host.");
             window.Close();
             window.WaitForClose();
         }
 
+        return Task.CompletedTask;
+    }
+
+    [Test]
+    [OnlyRunOnMacOs]
+    [NotInParallelInfiniTests]
+    [DefaultInfiniTestsTimeout(30_000)]
+    public Task Pool_RemainsBounded_WhenMoreCompatibleSessionsClose(CancellationToken ct) {
+        const int hostPoolLimit = 8;
+        for (int i = 0; i < hostPoolLimit + 4; ++i) {
+            using var windowUtility = InfiniFrameTestWindow.Create(builder: builder =>
+                builder.Features.Decorations.SetChromeless(i % 2 == 0), ct);
+            windowUtility.Window.Close();
+            windowUtility.Window.WaitForClose();
+        }
+
+        if (InfiniFrameNativeTesting.MacPooledHostCount() > hostPoolLimit)
+            throw new InvalidOperationException("The macOS host pool exceeded its configured bound.");
+        return Task.CompletedTask;
+    }
+
+    [Test]
+    [OnlyRunOnMacOs]
+    [NotInParallelInfiniTests]
+    public Task IncompatibleConstructionSettings_DoNotReuseHost(CancellationToken ct) {
+        IntPtr titled;
+        using (var first = InfiniFrameTestWindow.Create(ct)) {
+            titled = first.Window.WindowHandle;
+            first.Window.Close();
+            first.Window.WaitForClose();
+        }
+        using var borderless = InfiniFrameTestWindow.Create(builder: builder =>
+            builder.Features.Decorations.SetChromeless(true), ct);
+        if (borderless.Window.WindowHandle == titled)
+            throw new InvalidOperationException("A chromeless session reused an incompatible titled macOS host.");
         return Task.CompletedTask;
     }
 

@@ -54,9 +54,14 @@
 
 - (BOOL)windowShouldClose:(id)sender
 {
-    if (infiniFrame == nullptr) return YES;
+    (void)sender;
+    if (infiniFrame == nullptr) return NO;
     infiniframe::macos::NativeCallbackScope callbackScope;
-    return !infiniFrame->InvokeClose();
+    if (infiniFrame->InvokeClose()) return NO;
+    // A logical close deliberately does not close NSWindow.  Keeping the complete host alive is
+    // what prevents WKWebView display-link teardown during ordinary managed lifetimes.
+    infiniFrame->CloseWebView();
+    return NO;
 }
 
 - (void)windowWillClose:(NSNotification*)notification
