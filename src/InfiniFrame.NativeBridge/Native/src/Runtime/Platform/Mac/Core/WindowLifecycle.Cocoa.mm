@@ -111,21 +111,12 @@ void InfiniFrameWindow::CloseWebView()
     m_impl->_preMaximizedXPosition = m_impl->_preMaximizedYPosition = 0;
     [m_impl->_window setLevel:NSNormalWindowLevel];
     [m_impl->_window orderOut:nil];
-    m_impl->_hostReleasePending = true;
-    WKWebsiteDataStore* dataStore = m_impl->_webviewConfiguration.websiteDataStore;
-    NSSet* dataTypes = [WKWebsiteDataStore allWebsiteDataTypes];
-    [dataStore removeDataOfTypes:dataTypes
-                    modifiedSince:[NSDate distantPast]
-               completionHandler:^{
-        // WebKit invokes this on its own queue on some OS versions.  Pool mutation remains
-        // serialized on AppKit's main queue.
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (!this->m_impl->_hostReleasePending) return;
-            this->m_impl->_hostReleasePending = false;
-            this->m_impl->ReturnPooledMacHost();
-            this->CompleteCloseAfterWebKitTeardown();
-        });
-    }];
+    // Hosts use WKWebsiteDataStore.nonPersistentDataStore.  Do not make close depend on
+    // removeDataOfTypes: its completion can be indefinitely delayed by WebKit while a view is
+    // hidden, which would deadlock WaitForExit.  The old document, scripts, handlers, and all
+    // native callback routes have already been synchronously detached above.
+    m_impl->ReturnPooledMacHost();
+    CompleteCloseAfterWebKitTeardown();
 }
 
 void InfiniFrameWindow::CompleteCloseAfterWebKitTeardown()
@@ -158,10 +149,6 @@ void InfiniFrameWindow::ScheduleDeferredDestruction()
             this->CloseWebView();
             this->PrepareForDeferredDestruction();
             // Completion queues our one deletion turn after the asynchronous store reset.
-            return;
-        }
-        if (this->m_impl->_hostReleasePending) {
-            this->PrepareForDeferredDestruction();
             return;
         }
         this->PrepareForDeferredDestruction();

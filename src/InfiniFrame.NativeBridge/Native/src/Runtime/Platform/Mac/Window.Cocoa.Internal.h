@@ -55,7 +55,6 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     bool _chromeless = false;
     bool _webviewReady = false;
     bool _isClosingOrClosed = false;
-    bool _hostReleasePending = false;
     bool _nativeDestructionScheduled = false;
     std::string _hostCompatibilityKey;
     std::atomic<bool> _windowClosed = false;
