@@ -150,7 +150,6 @@ namespace infiniframe {
         std::basic_string<CharT> h;
         h += T::ContentTypePrefix;
         h += contentType;
-        h += T::CrLf;
         if (IsSameOrigin(resourceUri, requestOrigin)) {
             h += T::CrLf;
             h += T::AllowOriginPrefix;
