@@ -241,14 +241,14 @@ jobs:
                       -Sanitizer AddressUndefined `
                       -Clean
 
-            -   name: Build macOS integration tests
+            -   name: Build instrumented native bridge tests
                 run: |
-                    dotnet restore tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj -p:NativeArch=arm64
-                    dotnet build tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj \
+                    dotnet restore tests/InfiniTests.InfiniFrame.NativeBridge/InfiniTests.InfiniFrame.NativeBridge.csproj -p:NativeArch=arm64
+                    dotnet build tests/InfiniTests.InfiniFrame.NativeBridge/InfiniTests.InfiniFrame.NativeBridge.csproj \
                       --configuration Debug --no-restore --framework net10.0 \
                       -p:NativeArch=arm64 -p:InfiniFrameSkipNativeBuild=true -p:InfiniFrameEnableTestExports=true
 
-            -   name: Run instrumented lifecycle and WebKit tests
+            -   name: Run instrumented native bridge tests
                 run: |
                     set -o pipefail
                     mkdir -p artifacts/sanitizers artifacts/testresults/sanitizers
@@ -258,7 +258,12 @@ jobs:
                       exit 1
                     fi
 
-                    test_app="tests/InfiniTests.InfiniFrame/bin/Debug/net10.0/InfiniTests.InfiniFrame"
+                    # WebKit is Apple's uninstrumented system framework. Loading its UI tests
+                    # under DYLD-injected ASan can abort inside WebKit's DisplayLink observer
+                    # implementation, which cannot diagnose our native code. WKWebView remains
+                    # covered by the regular macOS integration lane; this lane exercises the
+                    # Address/UBSan-instrumented InfiniFrame.Native bridge itself.
+                    test_app="tests/InfiniTests.InfiniFrame.NativeBridge/bin/Debug/net10.0/InfiniTests.InfiniFrame.NativeBridge"
                     if [ ! -x "$test_app" ]; then
                       echo "TUnit test application is missing or not executable: $test_app"
                       exit 1

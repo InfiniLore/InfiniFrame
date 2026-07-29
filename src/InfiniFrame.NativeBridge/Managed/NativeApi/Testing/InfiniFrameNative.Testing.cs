@@ -11,6 +11,16 @@ namespace InfiniFrame.NativeBridge;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static partial class InfiniFrameNativeTesting {
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeTests_MacPooledHostCount", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial InfiniFrameNativeInteropStatus MacPooledHostCountNative(out nuint value);
+
+    public static nuint MacPooledHostCount() {
+        if (!OperatingSystem.IsMacOS()) throw new PlatformNotSupportedException();
+        InfiniFrameNativeInteropStatus status = MacPooledHostCountNative(out nuint value);
+        if (status != InfiniFrameNativeInteropStatus.Success) throw new InvalidOperationException($"Native pool query failed: {status}");
+        return value;
+    }
     /// <summary>
     ///     Native test helper that returns native parameters as-is for round-trip verification.
     /// </summary>

@@ -6,6 +6,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <vector>
+#include <string>
 
 #include <Cocoa/Cocoa.h>
 #include <WebKit/WKWebView.h>
@@ -18,6 +19,23 @@
 @class NavigationDelegate;
 @class WindowDelegate;
 @class UrlSchemeHandler;
+
+// A pooled host owns every AppKit/WebKit object whose destruction can race WebKit's display
+// link.  It is deliberately separate from an InfiniFrameWindow logical session.
+struct PooledMacHost {
+    std::string compatibilityKey;
+    NSWindow* window = nil;
+    WKWebView* webview = nil;
+    WKWebViewConfiguration* webviewConfiguration = nil;
+    UiDelegate* uiDelegate = nil;
+    NavigationDelegate* navigationDelegate = nil;
+    WindowDelegate* windowDelegate = nil;
+    std::vector<UrlSchemeHandler*> urlSchemeHandlers;
+};
+
+// Process-shutdown hook; must run on AppKit's main thread.
+void DrainPooledMacHosts();
+size_t PooledMacHostCountForTesting();
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -37,6 +55,8 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     bool _chromeless = false;
     bool _webviewReady = false;
     bool _isClosingOrClosed = false;
+    bool _nativeDestructionScheduled = false;
+    std::string _hostCompatibilityKey;
     std::atomic<bool> _windowClosed = false;
     std::mutex _windowClosedMutex;
     std::condition_variable _windowClosedCondition;
@@ -55,4 +75,6 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     void SetPreference(NSString* key, NSNumber* value);
     void SetPreference(NSString* key, NSString* value);
     void AddCustomScheme(const AutoStringConst scheme, WebResourceRequestedCallback requestHandler);
+    bool LeasePooledMacHost(const std::string& compatibilityKey);
+    void ReturnPooledMacHost();
 };

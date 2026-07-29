@@ -54,22 +54,19 @@
 
 - (BOOL)windowShouldClose:(id)sender
 {
-    if (infiniFrame == nullptr) return YES;
+    (void)sender;
+    if (infiniFrame == nullptr) return NO;
     infiniframe::macos::NativeCallbackScope callbackScope;
-    return !infiniFrame->InvokeClose();
+    if (infiniFrame->InvokeClose()) return NO;
+    // A logical close deliberately does not close NSWindow.  Keeping the complete host alive is
+    // what prevents WKWebView display-link teardown during ordinary managed lifetimes.
+    infiniFrame->CloseWebView();
+    return NO;
 }
 
 - (void)windowWillClose:(NSNotification*)notification
 {
     if (infiniFrame == nullptr) return;
     infiniFrame->CloseWebView();
-    {
-        infiniframe::macos::NativeCallbackScope callbackScope;
-        infiniFrame->InvokeClosed();
-    }
-    // This must be the final access through the raw C++ back-pointer. It wakes
-    // non-main waiters only after the reverse P/Invoke has fully returned.
-    if (infiniFrame != nullptr)
-        infiniFrame->SignalWindowClosed();
 }
 @end

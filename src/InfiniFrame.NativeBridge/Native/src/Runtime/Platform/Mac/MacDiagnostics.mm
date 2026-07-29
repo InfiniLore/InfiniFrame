@@ -25,7 +25,6 @@ namespace {
     std::atomic<unsigned int> activeNativeCallbacks = 0;
     std::mutex nativeCallbackMutex;
     std::condition_variable nativeCallbackCondition;
-
     void WriteSignalMessage(const int signalNumber) noexcept {
         static constexpr char prefix[] = "\n[InfiniFrame macOS fatal signal] native stack follows\n";
         (void)!write(STDERR_FILENO, prefix, sizeof(prefix) - 1);

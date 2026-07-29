@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <exception>
+#include <algorithm>
 #include <stdexcept>
 
 #include "../Delegates/AppDelegate.h"
@@ -41,38 +42,94 @@ static void DispatchToMainSync(void (^block)()) {
     }
 }
 
-/// On Apple Silicon, WKWebView can unregister display-link observers while a CVDisplayLink
-/// callback is still enumerating them, causing a use-after-free in
-/// notifyObserversDisplayDidRefresh. Detach the view synchronously, but give any in-flight
-/// display refresh two frames to finish before balancing our alloc/init ownership there.
-/// Intel WebKit does not require this workaround, and deferring its release can instead race
-/// a queued RemoteLayerTree scheduleDisplayRefreshCallbacks callback.
-static void ReleaseWebKitObjectsSafely(
-    WKWebView* webview,
-    WKWebViewConfiguration* configuration
-) {
-    if (webview == nil && configuration == nil)
-        return;
+namespace {
+constexpr size_t MaxPooledMacHosts = 8;
+std::vector<PooledMacHost>& MacHostPool() {
+    // AppKit objects are accessed only from the main thread; no lock is intentionally used.
+    static std::vector<PooledMacHost> pool;
+    return pool;
+}
 
-#if defined(__aarch64__) || defined(__arm64__)
-    // Capture untyped pointers so the copied MRC block does not add hidden Objective-C
-    // retains. The existing alloc/init references are intentionally transferred here.
-    void* webviewPointer = webview;
-    void* configurationPointer = configuration;
-    dispatch_after(
-        dispatch_time(DISPATCH_TIME_NOW, 50 * NSEC_PER_MSEC),
-        dispatch_get_main_queue(),
-        ^{
-            auto* deferredWebview = static_cast<WKWebView*>(webviewPointer);
-            auto* deferredConfiguration = static_cast<WKWebViewConfiguration*>(configurationPointer);
-            [deferredWebview release];
-            [deferredConfiguration release];
-        }
-    );
-#else
+void DestroyMacHost(PooledMacHost& host) {
+    // Eviction happens on the AppKit thread and only when the bounded pool is full.  Normal
+    // close/recreate cycles never enter this path.
+    [host.webview stopLoading];
+    host.webview.UIDelegate = nil;
+    host.webview.navigationDelegate = nil;
+    [host.webview removeFromSuperview];
+    host.window.delegate = nil;
+    [host.window orderOut:nil];
+    [host.webview release]; [host.webviewConfiguration release]; [host.uiDelegate release];
+    [host.navigationDelegate release]; [host.windowDelegate release];
+    for (UrlSchemeHandler* handler : host.urlSchemeHandlers) [handler release];
+    [host.window release];
+}
+
+// Only constructor failure and bounded-pool eviction destroy WebKit objects.  Ordinary logical
+// close/dispose never reaches this function.
+void ReleaseWebKitObjectsSafely(WKWebView* webview, WKWebViewConfiguration* configuration) {
+    [webview stopLoading];
+    [webview removeFromSuperview];
     [webview release];
     [configuration release];
-#endif
+}
+
+std::string HostCompatibilityKey(const InfiniFrameInitParams* p) {
+    // Every value below is consumed while constructing/configuring WKWebView.  Exact JSON and
+    // scheme ordering are retained rather than trying to normalize arbitrary WebKit preferences.
+    std::string key = p->Chromeless ? "chromeless=1;" : "chromeless=0;";
+    auto bit = [&key](bool value) { key += value ? '1' : '0'; };
+    bit(p->Transparent); bit(p->ContextMenuEnabled); bit(p->ZoomEnabled); bit(p->DevToolsEnabled);
+    bit(p->WebInspectorEnabled); bit(p->MediaAutoplayEnabled); bit(p->FileSystemAccessEnabled);
+    bit(p->WebSecurityEnabled); bit(p->JavascriptClipboardAccessEnabled); bit(p->MediaStreamEnabled);
+    key += ";user-agent="; key += p->UserAgent ? p->UserAgent : "";
+    key += ";browser-init="; key += p->BrowserControlInitParameters ? p->BrowserControlInitParameters : "";
+    key += ";schemes=";
+    for (int i = 0; i < 16; ++i) { key += p->CustomSchemeNames[i] ? p->CustomSchemeNames[i] : ""; key += '|'; }
+    return key;
+}
+}
+
+void DrainPooledMacHosts() {
+    NSCAssert([NSThread isMainThread], @"Mac host pool must be drained on the AppKit thread");
+    auto& pool = MacHostPool();
+    for (auto& host : pool) DestroyMacHost(host);
+    pool.clear();
+}
+
+size_t PooledMacHostCountForTesting() {
+    NSCAssert([NSThread isMainThread], @"Mac host pool must be inspected on the AppKit thread");
+    return MacHostPool().size();
+}
+
+bool InfiniFrameWindow::Impl::LeasePooledMacHost(const std::string& compatibilityKey) {
+    NSCAssert([NSThread isMainThread], @"Mac host pool must be used on the AppKit thread");
+    auto& pool = MacHostPool();
+    auto found = std::find_if(pool.begin(), pool.end(), [&compatibilityKey](const PooledMacHost& host) {
+        return host.compatibilityKey == compatibilityKey;
+    });
+    if (found == pool.end()) return false;
+    _hostCompatibilityKey = compatibilityKey;
+    _window = found->window; _webview = found->webview; _webviewConfiguration = found->webviewConfiguration;
+    _uiDelegate = found->uiDelegate; _navigationDelegate = found->navigationDelegate;
+    _windowDelegate = found->windowDelegate; _urlSchemeHandlers = std::move(found->urlSchemeHandlers);
+    pool.erase(found);
+    return true;
+}
+
+void InfiniFrameWindow::Impl::ReturnPooledMacHost() {
+    NSCAssert([NSThread isMainThread], @"Mac host pool must be used on the AppKit thread");
+    if (_window == nil || _webview == nil || _webviewConfiguration == nil) return;
+    PooledMacHost host;
+    host.compatibilityKey = _hostCompatibilityKey;
+    host.window = _window; host.webview = _webview; host.webviewConfiguration = _webviewConfiguration;
+    host.uiDelegate = _uiDelegate; host.navigationDelegate = _navigationDelegate; host.windowDelegate = _windowDelegate;
+    host.urlSchemeHandlers = std::move(_urlSchemeHandlers);
+    _window = nil; _webview = nil; _webviewConfiguration = nil;
+    _uiDelegate = nil; _navigationDelegate = nil; _windowDelegate = nil;
+    auto& pool = MacHostPool();
+    if (pool.size() < MaxPooledMacHosts) pool.emplace_back(std::move(host));
+    else DestroyMacHost(host);
 }
 
 void InfiniFrameWindow::Register()
@@ -222,6 +279,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
             params->Top = 0;
         }
 
+        this->m_impl->_hostCompatibilityKey = HostCompatibilityKey(params);
+        const bool reusedHost = this->m_impl->LeasePooledMacHost(this->m_impl->_hostCompatibilityKey);
+        if (!reusedHost) {
         NSRect frame = NSMakeRect(0, 0, 0, 0);
 
         this->m_impl->_chromeless = params->Chromeless;
@@ -303,6 +363,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
             this->Center();
 
         this->m_impl->_webviewConfiguration = [[WKWebViewConfiguration alloc] init];
+        // A pooled host must never carry persistent browser data into a later logical session.
+        // The store is also cleared before the host is leased again (see CloseWebView).
+        this->m_impl->_webviewConfiguration.websiteDataStore = [WKWebsiteDataStore nonPersistentDataStore];
         this->SetMediaAutoplayEnabled(this->m_impl->_mediaAutoplayEnabled);
 
         for (const auto & scheme : this->m_impl->_customSchemeNames)
@@ -388,6 +451,42 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
                 }
             }
         }
+        } // !reusedHost: immutable NSWindow/WKWebView construction settings
+
+        if (reusedHost) {
+            // The key proves construction-time settings match.  Rebind the host and apply all
+            // session-specific state; AttachWebView reinstalls the interop handler and starts
+            // the new document.
+            this->m_impl->_chromeless = params->Chromeless;
+            this->m_impl->_transparentEnabled = params->Transparent;
+            this->m_impl->_windowDelegate->infiniFrame = this;
+            this->m_impl->_window.delegate = this->m_impl->_windowDelegate;
+            if (this->m_impl->_parent != nullptr && this->m_impl->_parent->m_impl != nullptr) {
+                auto* parentImpl = static_cast<InfiniFrameWindow::Impl*>(this->m_impl->_parent->m_impl.get());
+                this->m_impl->_nativeParentWindow = parentImpl->_window;
+                if (this->m_impl->_nativeParentWindow != nil) {
+                    [this->m_impl->_nativeParentWindow addChildWindow:this->m_impl->_window ordered:NSWindowAbove];
+                    NSWindow* childWindow = this->m_impl->_window;
+                    this->m_impl->_parentWillCloseObserver = [[NSNotificationCenter defaultCenter]
+                        addObserverForName:NSWindowWillCloseNotification object:this->m_impl->_nativeParentWindow queue:nil
+                        usingBlock:^(NSNotification*) { [childWindow orderOut:nil]; }];
+                }
+            }
+            this->SetTitle(const_cast<AutoString>(this->m_impl->_windowTitle.c_str()));
+            this->SetTopmost(params->Topmost);
+            this->SetPosition(params->Left, params->Top);
+            this->SetMinSize(params->MinWidth, params->MinHeight);
+            this->SetMaxSize(params->MaxWidth, params->MaxHeight);
+            this->SetSize(params->Width, params->Height);
+            this->SetResizable(params->Resizable);
+            for (UrlSchemeHandler* handler : this->m_impl->_urlSchemeHandlers)
+                handler->requestHandler = this->m_impl->_customSchemeCallback;
+            this->AttachWebView();
+            if (params->CenterOnInitialize) this->Center();
+            this->SetMinimized(params->Minimized);
+            this->SetMaximized(params->Maximized);
+            this->SetFullScreen(params->FullScreen);
+        }
 
         this->m_impl->_dialog = std::make_unique<InfiniFrameDialog>();
 
@@ -420,7 +519,6 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
                 [m_impl->_webview stopLoading];
                 m_impl->_webview.UIDelegate = nil;
                 m_impl->_webview.navigationDelegate = nil;
-                [m_impl->_webview removeFromSuperview];
             }
             if (m_impl->_windowDelegate != nil) m_impl->_windowDelegate->infiniFrame = nullptr;
             if (m_impl->_uiDelegate != nil) m_impl->_uiDelegate->infiniFrame = nullptr;
@@ -473,6 +571,19 @@ InfiniFrameWindow::~InfiniFrameWindow()
     // non-AppKit thread. All Cocoa/WebKit teardown must therefore occur on the main queue.
     DispatchToMainSync(^{
         infiniframe::macos::LogLifecycle("window-destruct-main-begin", this);
+        // Normal disposal reaches here after CloseWebView has detached the logical session and
+        // transferred the native host to the pool.  Constructor-failure and unusual direct
+        // deletion paths may still own a host; make them follow the same reset boundary.
+        if (m_impl->_window != nil) {
+            if (!m_impl->_isClosingOrClosed)
+                CloseWebView();
+            if (m_impl->_window != nil)
+                m_impl->ReturnPooledMacHost();
+            m_impl->_dialog.reset();
+            m_impl->_windowClosed.store(true, std::memory_order_release);
+            m_impl->_windowClosedCondition.notify_all();
+            return;
+        }
         m_impl->_isClosingOrClosed = true;
         m_impl->_webviewReady = false;
         m_impl->_pendingWebMessages.clear();
@@ -501,7 +612,6 @@ InfiniFrameWindow::~InfiniFrameWindow()
             [m_impl->_webview stopLoading];
             m_impl->_webview.UIDelegate = nil;
             m_impl->_webview.navigationDelegate = nil;
-            [m_impl->_webview removeFromSuperview];
         }
 
         if (m_impl->_windowDelegate != nil)

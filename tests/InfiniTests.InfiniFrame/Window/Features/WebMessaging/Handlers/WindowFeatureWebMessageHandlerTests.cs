@@ -19,13 +19,16 @@ public class WindowFeatureWebMessageHandlerTests {
     [Arguments("{\"command\":\"__infiniframe:window:features:decorations:\"}")]
     [Arguments("{\"command\":\"__infiniframe:window:features:decorations:title:extra\"}")]
     public async Task TryParseRequest_InvalidPayload_IsRejected(string? payload) {
+        // Act
         bool success = WindowFeatureWebMessageHandler.TryParseRequest(payload, out _);
 
+        // Assert
         await Assert.That(success).IsFalse();
     }
 
     [Test]
     public async Task TryParseRequest_QualifiedCommand_SeparatesFeatureCommandAndArguments() {
+        // Arrange
         const string payload = """
             {
               "command": "__infiniframe:window:features:size:setSize",
@@ -33,8 +36,10 @@ public class WindowFeatureWebMessageHandlerTests {
             }
             """;
 
+        // Act
         bool success = WindowFeatureWebMessageHandler.TryParseRequest(payload, out WindowFeatureWebMessageRequest request);
 
+        // Assert
         await Assert.That(success).IsTrue();
         await Assert.That(request.FeatureName).IsEqualTo("size");
         await Assert.That(request.Command).IsEqualTo("setSize");
@@ -44,10 +49,13 @@ public class WindowFeatureWebMessageHandlerTests {
 
     [Test]
     public async Task TryParseRequest_ArgumentsRemainUsableAfterJsonDocumentIsDisposed() {
+        // Arrange
         const string payload = """{"command":"__infiniframe:window:features:state:setFullScreen","args":{"fullScreen":true}}""";
 
+        // Act
         WindowFeatureWebMessageHandler.TryParseRequest(payload, out WindowFeatureWebMessageRequest request);
 
+        // Assert
         await Assert.That(request.Args!.Value.GetProperty("fullScreen").GetBoolean()).IsTrue();
     }
 }

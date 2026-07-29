@@ -19,4 +19,5 @@ namespace infiniframe::macos {
     void LogLifecycle(const char* event, const void* instance) noexcept;
     bool IsInsideNativeCallback() noexcept;
     void WaitForNativeCallbacksToExit() noexcept;
+
 }

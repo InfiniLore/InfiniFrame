@@ -3,17 +3,14 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters;
+using InfiniTests.Native;
 using System.Runtime.InteropServices;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Decorations;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed partial class WindowsAppUserModelIdTests {
-    // ReSharper disable once InconsistentNaming
-    [LibraryImport("shell32.dll")]
-    private static partial int GetCurrentProcessExplicitAppUserModelID(out IntPtr appUserModelId);
-
+public sealed class WindowsAppUserModelIdTests {
     [Test]
     public async Task DirectAssignment_PassesValueToNativeParameters() {
         // Arrange
@@ -52,7 +49,7 @@ public sealed partial class WindowsAppUserModelIdTests {
 
         using var window = InfiniFrameTestWindow.Create(builder: builder => builder.SetWindowsAppUserModelId(value), ct);
 
-        int result = GetCurrentProcessExplicitAppUserModelID(out IntPtr appUserModelId);
+        int result = WindowsNative.GetCurrentProcessAppUserModelId(out IntPtr appUserModelId);
         try {
             await Assert.That(result).IsEqualTo(0);
             await Assert.That(Marshal.PtrToStringUni(appUserModelId)).IsEqualTo(value);

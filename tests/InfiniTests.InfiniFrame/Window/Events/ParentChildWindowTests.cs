@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using System.Runtime.InteropServices;
+using InfiniTests.Native;
 
 namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -10,9 +10,6 @@ namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 public class ParentChildWindowTests {
     private const uint GwOwner = 4;
-
-    [DllImport("user32.dll", EntryPoint = "GetWindow", SetLastError = true)]
-    private static extern IntPtr GetWindow(IntPtr hWnd, uint uCmd);
 
     [Test]
     [SkipOnWindowsArm]
@@ -68,6 +65,28 @@ public class ParentChildWindowTests {
     }
 
     [Test]
+    [OnlyRunOnMacOs]
+    [NotInParallelInfiniTests]
+    public async Task OnMacOs_ClosingChild_DetachesPooledHostFromParent(CancellationToken ct = default) {
+        using var parentUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow parent = parentUtility.Window;
+        IntPtr childHost;
+        using (var childUtility = InfiniFrameTestWindow.Create(builder => {
+            ((InfiniFrameWindowBuilderConfiguration)builder.Configuration).ParentWindow = parent;
+        }, ct)) {
+            childHost = childUtility.Window.WindowHandle;
+            childUtility.Window.Close();
+            childUtility.Window.WaitForClose();
+        }
+
+        parent.Close();
+        parent.WaitForClose();
+        using var replacement = InfiniFrameTestWindow.Create(ct);
+        await Assert.That(replacement.Window.WindowHandle).IsEqualTo(childHost);
+        await Assert.That(replacement.Window.IsClosedOrClosing()).IsFalse();
+    }
+
+    [Test]
     [OnlyRunOnWindowsX64]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_OnWindows_ChildWindowOwnerMatchesParentWindowHandle(CancellationToken ct = default) {
@@ -84,7 +103,7 @@ public class ParentChildWindowTests {
         IntPtr ownerWindow = IntPtr.Zero;
         DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
         while (DateTime.UtcNow < timeoutAt) {
-            ownerWindow = GetWindow(childWindow.WindowHandle, GwOwner);
+            ownerWindow = WindowsNative.GetRelatedWindow(childWindow.WindowHandle, GwOwner);
             if (ownerWindow == parentWindow.WindowHandle) {
                 break;
             }

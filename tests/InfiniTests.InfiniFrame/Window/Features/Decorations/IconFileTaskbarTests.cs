@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using System.Runtime.InteropServices;
+using InfiniTests.Native;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Decorations;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -16,16 +16,11 @@ public sealed class IconFileTaskbarTests {
     private const int GclpHicon = -14;
     private const int GclpHiconSm = -34;
 
-    [DllImport("user32.dll", EntryPoint = "SendMessageW", SetLastError = true)]
-    private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
-
-    [DllImport("user32.dll", EntryPoint = "GetClassLongPtrW", SetLastError = true)]
-    private static extern IntPtr GetClassLongPtr(IntPtr hWnd, int nIndex);
-
     [Test]
     [OnlyRunOnWindowsX64]
     [NotInParallelInfiniTests]
     public async Task SetIconFile_ShouldUpdateWindowAndClassIcons(CancellationToken ct = default) {
+        // Arrange
         string iconPath = ResolveRepoAsset("assets", "favicon.ico");
         await Assert.That(File.Exists(iconPath)).IsTrue();
 
@@ -35,6 +30,7 @@ public sealed class IconFileTaskbarTests {
         IntPtr initialBig = GetWindowIcon(window.WindowHandle, IconBig);
         IntPtr initialClassBig = GetClassIcon(window.WindowHandle, GclpHicon);
 
+        // Act
         window.SetIconFile(iconPath);
 
         IntPtr updatedBig = IntPtr.Zero;
@@ -64,6 +60,7 @@ public sealed class IconFileTaskbarTests {
             await Task.Delay(50, ct);
         }
 
+        // Assert
         await Assert.That(updatedBig).IsNotEqualTo(IntPtr.Zero);
         await Assert.That(updatedSmall).IsNotEqualTo(IntPtr.Zero);
         await Assert.That(updatedClassBig).IsNotEqualTo(IntPtr.Zero);
@@ -72,10 +69,10 @@ public sealed class IconFileTaskbarTests {
     }
 
     private static IntPtr GetWindowIcon(IntPtr hwnd, int kind)
-        => SendMessage(hwnd, WmGetIcon, new IntPtr(kind), IntPtr.Zero);
+        => WindowsNative.SendWindowMessage(hwnd, WmGetIcon, new IntPtr(kind), IntPtr.Zero);
 
     private static IntPtr GetClassIcon(IntPtr hwnd, int index)
-        => GetClassLongPtr(hwnd, index);
+        => WindowsNative.GetWindowClassLongPointer(hwnd, index);
 
     private static string ResolveRepoAsset(params string[] parts) {
         string path = AppContext.BaseDirectory;

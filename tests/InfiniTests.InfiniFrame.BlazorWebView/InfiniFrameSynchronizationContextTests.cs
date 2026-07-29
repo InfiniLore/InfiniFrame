@@ -13,6 +13,7 @@ namespace InfiniTests.InfiniFrame.BlazorWebView;
 public sealed class InfiniFrameSynchronizationContextTests {
     [Test]
     public async Task InvokeAsync_WindowAlreadyClosed_ExecutesCallbackInline(CancellationToken ct = default) {
+        // Arrange
         var window = Substitute.For<IInfiniFrameWindow>();
         var features = Substitute.For<IInfiniFrameWindowFeatures>();
         var invoke = Substitute.For<IInvokeInfiniFrameWindowFeature>();
@@ -26,8 +27,10 @@ public sealed class InfiniFrameSynchronizationContextTests {
         var context = new InfiniFrameSynchronizationContext(provider);
         bool invoked = false;
 
+        // Act
         await context.InvokeAsync(() => invoked = true).WaitAsync(ct);
 
+        // Assert
         await Assert.That(invoked).IsTrue();
         invoke.Received(1).Invoke(Arg.Any<Action>());
     }
