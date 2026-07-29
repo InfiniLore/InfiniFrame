@@ -22,5 +22,8 @@
     "@angular/compiler-cli": "^21.2.18",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"
+  },
+  "overrides": {
+    "brace-expansion": "5.0.8"
   }
 }
