@@ -1,0 +1,55 @@
+<Project>
+    <PropertyGroup>
+        <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)/../..'))</RepositoryRoot>
+        <MitosisProjectDir>$([System.IO.Path]::GetDirectoryName('$(MSBuildThisFileDirectory)'))</MitosisProjectDir>
+        <RunFrontendBuild Condition="'$(RunFrontendBuild)'==''">true</RunFrontendBuild>
+        <FrontendOutputFile>$(ProjectDir)wwwroot/index.html</FrontendOutputFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="TUnit"/>
+        <PackageReference Include="TUnit.Playwright"/>
+        <ProjectReference Include="$(MitosisProjectDir)/InfiniAutomationTests.WebApp.csproj"/>
+        <Compile Include="$(MitosisProjectDir)/Shared/**/*.cs" Link="Shared/%(RecursiveDir)%(Filename)%(Extension)"/>
+        <FrontendSources Include="$(WebAppFrontendDirectory)/**/*"/>
+    </ItemGroup>
+
+    <Target Name="ValidateWebAppFrontendProperties" BeforeTargets="BuildFrontend">
+        <Error Condition="'$(WebAppFrontendName)'==''" Text="WebAppFrontendName must be set before importing InfiniAutomationTests.WebApp.targets."/>
+        <Error Condition="'$(WebAppFrontendDirectory)'==''" Text="WebAppFrontendDirectory must be set before importing InfiniAutomationTests.WebApp.targets."/>
+    </Target>
+
+    <Target Name="BuildMitosisFrontend"
+            BeforeTargets="BuildFrontend"
+            Condition="'$(DesignTimeBuild)'!='true' and '$(RunFrontendBuild)'=='true'">
+        <Message Text="Generating shared Mitosis components..." Importance="high"/>
+        <Exec Command="node &quot;$(RepositoryRoot)/scripts/js-buildfrontend.mjs&quot; &quot;$(MitosisProjectDir)&quot; &quot;$(MitosisProjectDir)/obj/frontend-build.stamp&quot; &quot;$(MitosisProjectDir)/obj/generated/react/src/WindowFeatureTestPanel.tsx&quot; &quot;$(MitosisProjectDir)/obj/generated/vue/src/WindowFeatureTestPanel.vue&quot; &quot;$(MitosisProjectDir)/obj/generated/angular/src/WindowFeatureTestPanel.ts&quot;"
+              WorkingDirectory="$(ProjectDir)"/>
+    </Target>
+
+    <Target Name="BuildFrontend"
+            BeforeTargets="DispatchToInnerBuilds;Build"
+            Condition="'$(DesignTimeBuild)'!='true' and '$(RunFrontendBuild)'=='true'">
+        <Message Text="Running $(WebAppFrontendName) frontend build..." Importance="high"/>
+        <Exec Command="node &quot;$(RepositoryRoot)/scripts/js-buildfrontend.mjs&quot; &quot;$(WebAppFrontendDirectory)&quot; &quot;$(ProjectDir)obj/frontend-build.stamp&quot; &quot;$(FrontendOutputFile)&quot; --source-directory &quot;$(MitosisProjectDir)&quot;"
+              WorkingDirectory="$(ProjectDir)"/>
+        <PropertyGroup>
+            <RunFrontendBuild>false</RunFrontendBuild>
+        </PropertyGroup>
+    </Target>
+
+    <Target Name="CopyInfiniFrameBridgeScript" BeforeTargets="AssignTargetPaths" Condition="'$(DesignTimeBuild)'!='true'">
+        <Copy SourceFiles="$(RepositoryRoot)/src/InfiniFrame.Js/wwwroot/InfiniFrame.js"
+              DestinationFiles="$(ProjectDir)wwwroot/InfiniFrame.js"
+              SkipUnchangedFiles="true"/>
+    </Target>
+
+    <Target Name="CopyFrontendToOutput" AfterTargets="Build" Condition="'$(DesignTimeBuild)'!='true'">
+        <ItemGroup>
+            <FrontendFiles Include="$(ProjectDir)wwwroot/**/*"/>
+        </ItemGroup>
+        <Copy SourceFiles="@(FrontendFiles)"
+              DestinationFiles="@(FrontendFiles->'$(TargetDir)wwwroot/%(RecursiveDir)%(Filename)%(Extension)')"
+              SkipUnchangedFiles="true"/>
+    </Target>
+</Project>

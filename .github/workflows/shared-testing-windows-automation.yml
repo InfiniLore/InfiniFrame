@@ -64,6 +64,9 @@ jobs:
             fail-fast: false
             matrix:
                 project:
+                    -   name: WebApp Angular
+                        path: InfiniAutomationTests.WebApp.Angular
+                        sourceFolder: tests/InfiniAutomationTests.WebApp.Angular/Sources/infiniframe-playwright-angular
                     -   name: WebApp Vue
                         path: InfiniAutomationTests.WebApp.Vue
                         sourceFolder: tests/InfiniAutomationTests.WebApp.Vue/Sources/infiniframe-playwright-vue

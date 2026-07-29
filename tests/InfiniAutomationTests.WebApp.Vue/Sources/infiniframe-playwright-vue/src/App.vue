@@ -1,11 +1,7 @@
 <script lang="ts" setup>
-import WindowFeatureTestPanel from './components/WindowFeatureTestPanel.vue'
+import WindowFeatureTestPanel from './generated/WindowFeatureTestPanel.vue'
 </script>
 
 <template>
-    <v-app>
-        <v-main>
-            <WindowFeatureTestPanel/>
-        </v-main>
-    </v-app>
+    <WindowFeatureTestPanel/>
 </template>

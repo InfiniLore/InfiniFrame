@@ -10,16 +10,32 @@ import {
 } from 'node:fs';
 import path from 'node:path';
 
-const [, , appDirectoryArg, stampFileArg, ...outputFileArgs] = process.argv;
+const [, , appDirectoryArg, stampFileArg, ...buildArgs] = process.argv;
+const outputFileArgs = [];
+const additionalSourceDirectoryArgs = [];
+
+for (let index = 0; index < buildArgs.length; index++) {
+    if (buildArgs[index] === '--source-directory') {
+        const sourceDirectory = buildArgs[++index];
+        if (!sourceDirectory) {
+            console.error('--source-directory requires a path.');
+            process.exit(1);
+        }
+        additionalSourceDirectoryArgs.push(sourceDirectory);
+    } else {
+        outputFileArgs.push(buildArgs[index]);
+    }
+}
 
 if (!appDirectoryArg || !stampFileArg || outputFileArgs.length === 0) {
-    console.error('Usage: node js-buildfrontend.mjs <app-directory> <stamp-file> <output-file> [output-file...]');
+    console.error('Usage: node js-buildfrontend.mjs <app-directory> <stamp-file> <output-file> [output-file...] [--source-directory <path>]');
     process.exit(1);
 }
 
 const appDirectory = path.resolve(appDirectoryArg);
 const stampFile = path.resolve(stampFileArg);
 const outputFiles = outputFileArgs.map(outputFileArg => path.resolve(outputFileArg));
+const additionalSourceDirectories = additionalSourceDirectoryArgs.map(sourceDirectoryArg => path.resolve(sourceDirectoryArg));
 const lockDirectory = `${stampFile}.lock`;
 const nodeModulesDirectory = path.join(appDirectory, 'node_modules');
 const packageLockFile = path.join(appDirectory, 'package-lock.json');
@@ -188,7 +204,10 @@ function isBuildCurrent() {
         return false;
     }
 
-    return statSync(stampFile).mtimeMs >= getLatestSourceWriteTime(appDirectory);
+    const latestSourceWriteTime = Math.max(
+        getLatestSourceWriteTime(appDirectory),
+        ...additionalSourceDirectories.map(getLatestSourceWriteTime));
+    return statSync(stampFile).mtimeMs >= latestSourceWriteTime;
 }
 
 function runNpm(args) {
