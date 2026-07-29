@@ -38,9 +38,9 @@ void InfiniFrameWindow::Close()
     infiniframe::macos::LogLifecycle("window-close-request", this);
     DispatchToMainSync(^{
         if (this->m_impl->_isClosingOrClosed || this->m_impl->_window == nil) return;
-        // Route both title-bar and programmatic closes through windowShouldClose so Closing is
-        // observed once and cancellation keeps the session alive.
-        [this->m_impl->_window performClose:this->m_impl->_window];
+        infiniframe::macos::NativeCallbackScope callbackScope;
+        if (this->InvokeClose()) return;
+        this->CloseWebView();
     });
 }
 
