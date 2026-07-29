@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
-        <WebAppFrontendName>Vue</WebAppFrontendName>
+        <WebAppFrontendName>Angular</WebAppFrontendName>
         <WebAppFrontendDirectory>$(MSBuildProjectDirectory)</WebAppFrontendDirectory>
     </PropertyGroup>
 

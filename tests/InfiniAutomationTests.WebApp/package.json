@@ -1,0 +1,14 @@
+{
+  "name": "infiniframe.automationtesting.webapp",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "mitosis build && node sync-generated.mjs"
+  },
+  "devDependencies": {
+    "@builder.io/mitosis": "0.14.0",
+    "@builder.io/mitosis-cli": "0.14.0",
+    "typescript": "^5.9.3"
+  }
+}

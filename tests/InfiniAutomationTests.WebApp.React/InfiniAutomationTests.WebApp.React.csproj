@@ -1,82 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
     <PropertyGroup>
-        <ApplicationIcon>../../assets/favicon.ico</ApplicationIcon>
-
-        <!-- FIX: normalize repository root WITHOUT trailing slash -->
-        <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../..'))</RepositoryRoot>
-
-        <!-- Run frontend build once -->
-        <RunFrontendBuild Condition="'$(RunFrontendBuild)'==''">true</RunFrontendBuild>
-
-        <!-- Anchor output -->
-        <FrontendOutputFile>$(ProjectDir)wwwroot/index.html</FrontendOutputFile>
+        <WebAppFrontendName>React</WebAppFrontendName>
+        <WebAppFrontendDirectory>$(MSBuildProjectDirectory)</WebAppFrontendDirectory>
     </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="TUnit"/>
-        <PackageReference Include="TUnit.Playwright"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="../InfiniAutomationTests/InfiniAutomationTests.csproj"/>
-        <ProjectReference Include="../InfiniTests/InfiniTests.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Content Include="../../assets/favicon.ico">
-            <Link>Assets/favicon.ico</Link>
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
-
-    <!-- Track ALL frontend sources -->
-    <ItemGroup>
-        <FrontendSources Include="$(ProjectDir)Sources/infiniframe-playwright-react/**/*"/>
-    </ItemGroup>
-
-    <!-- Build frontend once -->
-    <Target Name="BuildFrontend"
-            BeforeTargets="DispatchToInnerBuilds;Build"
-            Condition="'$(DesignTimeBuild)'!='true' and '$(RunFrontendBuild)'=='true'">
-
-        <Message Text="Running React frontend build..." Importance="high"/>
-
-        <!-- FIX: cross-platform safe node path -->
-        <Exec Command="node &quot;$(RepositoryRoot)/scripts/js-buildfrontend.mjs&quot; &quot;$(ProjectDir)Sources/infiniframe-playwright-react&quot; &quot;$(ProjectDir)obj/frontend-build.stamp&quot; &quot;$(FrontendOutputFile)&quot;"
-              WorkingDirectory="$(ProjectDir)"/>
-
-        <!-- prevent re-running in same build graph -->
-        <PropertyGroup>
-            <RunFrontendBuild>false</RunFrontendBuild>
-        </PropertyGroup>
-
-    </Target>
-
-    <!-- Copy InfiniFrame bridge script -->
-    <Target Name="CopyInfiniFrameBridgeScript"
-            BeforeTargets="AssignTargetPaths"
-            Condition="'$(DesignTimeBuild)'!='true'">
-
-        <Copy SourceFiles="$(RepositoryRoot)/src/InfiniFrame.Js/wwwroot/InfiniFrame.js"
-              DestinationFiles="$(ProjectDir)wwwroot/InfiniFrame.js"
-              SkipUnchangedFiles="true"/>
-
-    </Target>
-
-    <!-- Copy frontend output -->
-    <Target Name="CopyFrontendToOutput"
-            AfterTargets="Build"
-            Condition="'$(DesignTimeBuild)'!='true'">
-
-        <ItemGroup>
-            <FrontendFiles Include="$(ProjectDir)wwwroot/**/*"/>
-        </ItemGroup>
-
-        <Copy SourceFiles="@(FrontendFiles)"
-              DestinationFiles="@(FrontendFiles->'$(TargetDir)wwwroot/%(RecursiveDir)%(Filename)%(Extension)')"
-              SkipUnchangedFiles="true"/>
-
-    </Target>
-
+    <Import Project="../InfiniAutomationTests.WebApp/InfiniAutomationTests.WebApp.targets"/>
 </Project>
