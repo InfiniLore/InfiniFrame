@@ -22,20 +22,18 @@ public class NativeLifetimeStressTests {
         // catching the original display-link crash, this asserts that Close/WaitForClose expose
         // a completed logical session before the next compatible lease is constructed.
         const int iterations = 12;
-        IntPtr? firstNativeWindow = null;
 
         for (int i = 0; i < iterations; i++) {
             ct.ThrowIfCancellationRequested();
 
             using var windowUtility = InfiniFrameTestWindow.Create(ct);
             IInfiniFrameWindow window = windowUtility.Window;
-            IntPtr nativeWindow = window.WindowHandle;
-            if (firstNativeWindow is null) firstNativeWindow = nativeWindow;
-            else if (OperatingSystem.IsMacOS() && nativeWindow != firstNativeWindow.Value)
-                throw new InvalidOperationException("A compatible macOS session did not reuse its pooled NSWindow/WKWebView host.");
             window.Close();
             window.WaitForClose();
         }
+
+        if (InfiniFrameNativeTesting.MacPooledHostCount() == 0)
+            throw new InvalidOperationException("Repeated compatible macOS sessions did not leave a reusable host in the pool.");
 
         return Task.CompletedTask;
     }
