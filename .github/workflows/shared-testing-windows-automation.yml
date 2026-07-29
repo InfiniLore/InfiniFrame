@@ -66,13 +66,13 @@ jobs:
                 project:
                     -   name: WebApp Angular
                         path: InfiniAutomationTests.WebApp.Angular
-                        sourceFolder: tests/InfiniAutomationTests.WebApp.Angular/Sources/infiniframe-playwright-angular
+                        sourceFolder: tests/InfiniAutomationTests.WebApp.Angular
                     -   name: WebApp Vue
                         path: InfiniAutomationTests.WebApp.Vue
-                        sourceFolder: tests/InfiniAutomationTests.WebApp.Vue/Sources/infiniframe-playwright-vue
+                        sourceFolder: tests/InfiniAutomationTests.WebApp.Vue
                     -   name: WebApp React
                         path: InfiniAutomationTests.WebApp.React
-                        sourceFolder: tests/InfiniAutomationTests.WebApp.React/Sources/infiniframe-playwright-react
+                        sourceFolder: tests/InfiniAutomationTests.WebApp.React
                     -   name: Blazor MudBlazor
                         path: InfiniAutomationTests.BlazorWebView.MudBlazor
                         sourceFolder: ""

@@ -11,7 +11,6 @@
         <PackageReference Include="TUnit.Playwright"/>
         <ProjectReference Include="$(MitosisProjectDir)/InfiniAutomationTests.WebApp.csproj"/>
         <Compile Include="$(MitosisProjectDir)/Shared/**/*.cs" Link="Shared/%(RecursiveDir)%(Filename)%(Extension)"/>
-        <FrontendSources Include="$(WebAppFrontendDirectory)/**/*"/>
     </ItemGroup>
 
     <Target Name="ValidateWebAppFrontendProperties" BeforeTargets="BuildFrontend">

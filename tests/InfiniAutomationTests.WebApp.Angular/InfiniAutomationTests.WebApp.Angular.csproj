@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
         <WebAppFrontendName>Angular</WebAppFrontendName>
-        <WebAppFrontendDirectory>$(ProjectDir)Sources/infiniframe-playwright-angular</WebAppFrontendDirectory>
+        <WebAppFrontendDirectory>$(MSBuildProjectDirectory)</WebAppFrontendDirectory>
     </PropertyGroup>
 
     <Import Project="../InfiniAutomationTests.WebApp/InfiniAutomationTests.WebApp.targets"/>

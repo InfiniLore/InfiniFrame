@@ -5,9 +5,9 @@ import {fileURLToPath} from 'node:url'
 const projectDirectory = path.dirname(fileURLToPath(import.meta.url))
 const testsDirectory = path.dirname(projectDirectory)
 const copies = [
-  ['react', 'InfiniAutomationTests.WebApp.React/Sources/infiniframe-playwright-react/src/generated'],
-  ['vue', 'InfiniAutomationTests.WebApp.Vue/Sources/infiniframe-playwright-vue/src/generated'],
-  ['angular', 'InfiniAutomationTests.WebApp.Angular/Sources/infiniframe-playwright-angular/src/generated']
+  ['react', 'InfiniAutomationTests.WebApp.React/src/generated'],
+  ['vue', 'InfiniAutomationTests.WebApp.Vue/src/generated'],
+  ['angular', 'InfiniAutomationTests.WebApp.Angular/src/generated']
 ]
 
 for (const [target, destinationRelativePath] of copies) {

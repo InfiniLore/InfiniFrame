@@ -5,7 +5,7 @@ export default defineConfig({
     plugins: [angular()],
     preview: {port: 7627, host: true},
     build: {
-        outDir: '../../wwwroot',
+        outDir: 'wwwroot',
         emptyOutDir: false,
         rollupOptions: {
             output: {

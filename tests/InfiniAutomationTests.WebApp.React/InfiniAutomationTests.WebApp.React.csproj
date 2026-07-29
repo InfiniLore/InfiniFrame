@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
         <WebAppFrontendName>React</WebAppFrontendName>
-        <WebAppFrontendDirectory>$(ProjectDir)Sources/infiniframe-playwright-react</WebAppFrontendDirectory>
+        <WebAppFrontendDirectory>$(MSBuildProjectDirectory)</WebAppFrontendDirectory>
     </PropertyGroup>
 
     <Import Project="../InfiniAutomationTests.WebApp/InfiniAutomationTests.WebApp.targets"/>

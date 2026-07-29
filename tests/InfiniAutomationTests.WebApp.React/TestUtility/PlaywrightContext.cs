@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniAutomationTests.WebApp.TestUtility;
 
+// ReSharper disable once CheckNamespace
 namespace InfiniAutomationTests.WebApp;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

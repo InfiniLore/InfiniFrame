@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
         <WebAppFrontendName>Vue</WebAppFrontendName>
-        <WebAppFrontendDirectory>$(ProjectDir)Sources/infiniframe-playwright-vue</WebAppFrontendDirectory>
+        <WebAppFrontendDirectory>$(MSBuildProjectDirectory)</WebAppFrontendDirectory>
     </PropertyGroup>
 
     <Import Project="../InfiniAutomationTests.WebApp/InfiniAutomationTests.WebApp.targets"/>
