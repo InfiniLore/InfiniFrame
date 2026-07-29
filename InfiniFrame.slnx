@@ -138,6 +138,8 @@
     <Project Path="tests/InfiniTests/InfiniTests.csproj" />
   </Folder>
   <Folder Name="/tests/automation/">
+    <Project Path="tests/InfiniAutomationTests.WebApp/InfiniAutomationTests.WebApp.csproj" />
+    <Project Path="tests/InfiniAutomationTests.WebApp.Angular/InfiniAutomationTests.WebApp.Angular.csproj" />
     <Project Path="tests/InfiniAutomationTests.BlazorWebView.MudBlazor/InfiniAutomationTests.BlazorWebView.MudBlazor.csproj" />
     <Project Path="tests/InfiniAutomationTests/InfiniAutomationTests.csproj" />
     <Project Path="tests/InfiniAutomationTests.WebApp.React/InfiniAutomationTests.WebApp.React.csproj" />

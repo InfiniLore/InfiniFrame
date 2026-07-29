@@ -14,10 +14,10 @@
     "license": "GNUv3",
     "description": "",
     "devDependencies": {
-        "@types/node": "^26.1.1",
+        "@types/node": "^26.1.2",
         "@vitest/coverage-v8": "^4.1.10",
         "concurrently": "^10.0.4",
-        "jsdom": "^29.1.1",
+        "jsdom": "^30.0.1",
         "terser": "^5.49.0",
         "typescript": "^7.0.2",
         "vite": "^8.1.5",

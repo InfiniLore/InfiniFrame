@@ -13,7 +13,9 @@
 
             "tests\\InfiniTests\\InfiniTests.csproj",
             "tests\\InfiniAutomationTests\\InfiniAutomationTests.csproj",
+            "tests\\InfiniAutomationTests.WebApp\\InfiniAutomationTests.WebApp.csproj",
             "tests\\InfiniAutomationTests.BlazorWebView.MudBlazor\\InfiniAutomationTests.BlazorWebView.MudBlazor.csproj",
+            "tests\\InfiniAutomationTests.WebApp.Angular\\InfiniAutomationTests.WebApp.Angular.csproj",
             "tests\\InfiniAutomationTests.WebApp.React\\InfiniAutomationTests.WebApp.React.csproj",
             "tests\\InfiniAutomationTests.WebApp.Vue\\InfiniAutomationTests.WebApp.Vue.csproj"
         ]

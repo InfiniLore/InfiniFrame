@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Playwright"/>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../InfiniAutomationTests/InfiniAutomationTests.csproj"/>
+        <ProjectReference Include="../InfiniTests/InfiniTests.csproj"/>
+    </ItemGroup>
+
+    <!-- These files are linked into each concrete framework test assembly. -->
+    <ItemGroup>
+        <Compile Remove="Shared/**/*.cs"/>
+        <None Include="Shared/**/*.cs"/>
+    </ItemGroup>
+</Project>
