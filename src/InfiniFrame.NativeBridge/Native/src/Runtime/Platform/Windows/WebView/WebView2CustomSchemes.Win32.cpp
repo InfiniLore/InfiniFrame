@@ -35,6 +35,8 @@ bool InfiniFrameWindow::RegisterCustomSchemesOnOptions(ICoreWebView2EnvironmentO
                 if (_wcsicmp(schemeName.c_str(), L"app") == 0) {
                     registration->put_HasAuthorityComponent(TRUE);
                     registration->put_TreatAsSecure(TRUE);
+                    LPCWSTR allowedOrigins[] = {L"app://localhost"};
+                    registration->SetAllowedOrigins(1, allowedOrigins);
                 }
                 registrations.emplace_back(registration);
             }
@@ -122,8 +124,8 @@ void InfiniFrameWindow::AttachCustomSchemeHandler() {
                     if (!dataStream)
                         return S_OK;
 
-                    auto responseHeaders = infiniframe::BuildCorsResponseHeaders<wchar_t>(
-                        std::wstring(L"application/json"), requestOrigin
+                    auto responseHeaders = infiniframe::BuildCustomSchemeResponseHeaders<wchar_t>(
+                        std::wstring(L"application/json"), uriString, requestOrigin
                     );
 
                     wil::com_ptr<ICoreWebView2WebResourceResponse> response;
@@ -164,8 +166,8 @@ void InfiniFrameWindow::AttachCustomSchemeHandler() {
                             return S_OK;
 
                         wil::com_ptr<ICoreWebView2WebResourceResponse> response;
-                        auto responseHeaders = infiniframe::BuildCorsResponseHeaders<wchar_t>(
-                            contentTypeWS, requestOrigin
+                        auto responseHeaders = infiniframe::BuildCustomSchemeResponseHeaders<wchar_t>(
+                            contentTypeWS, uriString, requestOrigin
                         );
                         if (SUCCEEDED(m_impl->_webviewEnvironment->CreateWebResourceResponse(
                                 dataStream.get(), static_cast<int>(managedResponse.StatusCode), L"OK",

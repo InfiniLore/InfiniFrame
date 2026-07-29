@@ -116,30 +116,6 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             return default;
         }
 
-        // ---------------------------------------------------------------------
-        // IMPORTANT FIX: allow Blazor + app internal scheme BEFORE validation
-        // ---------------------------------------------------------------------
-        if (requestUri.Scheme == BlazorAppScheme) {
-            // no security policy, no warnings, this is framework/app internal traffic
-
-            string localPath = requestUri.LocalPath;
-            bool hasFileExtension = Path.HasExtension(localPath);
-
-            Uri sanitizedUri = new UriBuilder(requestUri) {
-                Query = string.Empty,
-                Fragment = string.Empty
-            }.Uri;
-
-            if (!TryGetResponseContent(sanitizedUri.AbsoluteUri, !hasFileExtension, out _, out _, out Stream content, out IDictionary<string, string> headers))
-                return default;
-
-            headers.TryGetValue("Content-Type", out string? contentType);
-            return (content, contentType ?? GetFallbackContentType(sanitizedUri.LocalPath));
-        }
-
-        // ---------------------------------------------------------------------
-        // External / non-Blazor traffic (secure path)
-        // ---------------------------------------------------------------------
         if (!_uriSecurityPolicy.IsNavigationSchemeAllowed(requestUri.Scheme)) {
             LazyLogger.Value?.LogWarning(
                 "Rejected web request due to disallowed URI scheme. Scheme: {Scheme}, Url: {Url}",
@@ -156,29 +132,31 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             return default;
         }
 
-        string localPath2 = requestUri.LocalPath;
-        bool hasFileExtension2 = Path.HasExtension(localPath2);
+        string localPath = requestUri.LocalPath;
+        bool hasFileExtension = Path.HasExtension(localPath);
 
-        Uri sanitizedUri2 = new UriBuilder(requestUri) {
+        // Query strings and fragments identify browser state, not embedded files. Keep the original
+        // navigation URI in the WebView and remove these components only for resource lookup.
+        Uri resourceUri = new UriBuilder(requestUri) {
             Query = string.Empty,
             Fragment = string.Empty
         }.Uri;
 
         if (TryGetResponseContent(
-            sanitizedUri2.AbsoluteUri,
-            !hasFileExtension2,
+            resourceUri.AbsoluteUri,
+            !hasFileExtension,
             out _,
             out _,
             out Stream content2,
             out IDictionary<string, string> headers2)
         ) {
             headers2.TryGetValue("Content-Type", out string? contentType);
-            return (content2, contentType ?? GetFallbackContentType(sanitizedUri2.LocalPath));
+            return (content2, contentType ?? GetFallbackContentType(resourceUri.LocalPath));
         }
 
         LazyLogger.Value?.LogWarning(
             "No web content found for trusted URL. Url: {Url}",
-            sanitizedUri2);
+            resourceUri);
 
         return default;
     }
