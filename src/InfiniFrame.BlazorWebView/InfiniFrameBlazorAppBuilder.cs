@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.BlazorWebView.FileProviders.Static;
+using InfiniFrame.Security;
 using InfiniFrame.StaticAssets;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
@@ -148,6 +149,9 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
         var manager = serviceProvider.GetRequiredService<IInfiniFrameWebViewManager>();
         InfiniFrameBlazorAppConfiguration appConfig = serviceProvider.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?.Value
             ?? new InfiniFrameBlazorAppConfiguration();
+        InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(
+            WindowBuilder,
+            policyBuilder => policyBuilder.AddTrustedOrigin(appConfig.AppBaseUri));
         string startupUrl = BuildStartupUrl(appConfig);
         var staticAssets = serviceProvider.GetRequiredService<IInfiniFrameStaticAssets>();
 

@@ -69,7 +69,17 @@
         nsContentType = @"application/octet-stream";
     }
 
-    NSDictionary* headers = @{ @"Content-Type" : nsContentType, @"Cache-Control": @"no-cache" };
+    NSMutableDictionary* headers = [NSMutableDictionary dictionaryWithDictionary:@{
+        @"Content-Type" : nsContentType,
+        @"Cache-Control": @"no-cache"
+    }];
+    NSString* requestOrigin = [[[urlSchemeTask request] allHTTPHeaderFields] objectForKey:@"Origin"];
+    if (requestOrigin != nil && infiniframe::IsSameOrigin(
+            std::string([url.absoluteString UTF8String]), std::string([requestOrigin UTF8String]))) {
+        [headers setObject:requestOrigin forKey:@"Access-Control-Allow-Origin"];
+        [headers setObject:@"true" forKey:@"Access-Control-Allow-Credentials"];
+        [headers setObject:@"Origin" forKey:@"Vary"];
+    }
     NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:url statusCode:statusCode HTTPVersion:nil headerFields:headers];
     @synchronized (self) {
         if (![activeTasks containsObject:urlSchemeTask]) {

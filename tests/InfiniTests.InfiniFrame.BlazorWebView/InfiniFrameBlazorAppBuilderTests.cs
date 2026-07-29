@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
+using InfiniFrame.Security;
 using InfiniFrame.NativeBridge.Parameters;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -298,6 +299,18 @@ public class InfiniFrameBlazorAppBuilderTests {
         // Assert
         await Assert.That(window.Configuration.StartupParameters.StartUrl).IsEqualTo("app://localhost/");
         await app.DisposeAsync();
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task Build_TrustsAppOriginForFragmentNavigation(CancellationToken ct = default) {
+        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+
+        await using InfiniFrameBlazorApp app = appBuilder.Build();
+        IInfiniFrameUriSecurityPolicy policy = InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(appBuilder.WindowBuilder);
+
+        await Assert.That(policy.IsTrustedOrigin(new Uri("app://localhost/index.html#settings"))).IsTrue();
+        await Assert.That(policy.IsTrustedOrigin(new Uri("app://other/index.html#settings"))).IsFalse();
     }
 
     [Test]

@@ -21,6 +21,10 @@
 InfiniFrame serves Blazor resources from an internal origin (`app://localhost/`) and handles requests inside the native host. Blazor component files, JavaScript, and CSS are served from an `IFileProvider` backed by your `wwwroot/` folder.
 There is no external ASP.NET server required; all communication happens through the native browser bridge.
 
+`app://localhost/` follows normal browser URL semantics. Query strings and fragments remain in the browser-visible URL, while InfiniFrame removes them only when looking up an embedded resource. For example, navigating to `app://localhost/index.html?mode=desktop#settings` serves `index.html`, leaves the full URL visible, and exposes `#settings` through `window.location.hash`.
+
+Same-origin browser requests to application assets are supported with both `fetch()` and `XMLHttpRequest`. The native engines register `app` as a secure, authority-bearing scheme and allow the `app://localhost` origin. Cross-origin access is not enabled implicitly; add trusted origins through the URI security policy only when the application genuinely needs them.
+
 Platform notes:
 - Windows uses WebView2 and requires custom-scheme registration support (`ICoreWebView2EnvironmentOptions4`) to allow top-level `app://localhost/...` navigation.
 - Linux and macOS use WebKit-based engines and do not depend on WebView2.

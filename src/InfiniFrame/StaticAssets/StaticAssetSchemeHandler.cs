@@ -37,7 +37,10 @@ internal static class StaticAssetSchemeHandler {
         IFileInfo file = fileProvider.GetFileInfo(assetPath);
         if (!file.Exists || file.IsDirectory) return false;
 
-        uri = new Uri($"{baseUri}{assetPath}", UriKind.Absolute);
+        Uri resourceUri = new(new Uri(baseUri, UriKind.Absolute), assetPath);
+        int suffixStart = path.IndexOfAny(['?', '#']);
+        string navigationSuffix = suffixStart >= 0 ? path[suffixStart..] : string.Empty;
+        uri = new Uri($"{resourceUri.AbsoluteUri}{navigationSuffix}", UriKind.Absolute);
         return true;
     }
 

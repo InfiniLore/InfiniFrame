@@ -4,11 +4,25 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "mitosis build && node sync-generated.mjs"
+    "build": "mitosis build && node sync-generated.mjs",
+    "postinstall": "node patch-mitosis.mjs"
   },
   "devDependencies": {
     "@builder.io/mitosis": "0.14.0",
     "@builder.io/mitosis-cli": "0.14.0",
     "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "@angular/compiler": "21.2.18",
+    "@babel/core": "8.0.1",
+    "@babel/generator": "8.0.0",
+    "@babel/plugin-syntax-decorators": "8.0.1",
+    "@babel/plugin-syntax-typescript": "8.0.3",
+    "@babel/plugin-transform-react-jsx": "8.0.1",
+    "@babel/preset-typescript": "8.0.1",
+    "brace-expansion": "5.0.8",
+    "esbuild": "0.28.1",
+    "minimatch": "10.2.6",
+    "svelte": "5.56.8"
   }
 }

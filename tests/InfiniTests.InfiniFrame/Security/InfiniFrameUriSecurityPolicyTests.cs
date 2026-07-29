@@ -29,6 +29,35 @@ public class InfiniFrameUriSecurityPolicyTests {
     }
 
     [Test]
+    public async Task IsTrustedOrigin_AppOrigin_IgnoresPathQueryAndFragment(CancellationToken ct = default) {
+        var policy = new InfiniFrameUriSecurityPolicy(
+            ["app"],
+            [],
+            [new Uri("app://localhost/index.html?startup=true#settings")]
+        );
+
+        bool trusted = policy.IsTrustedOrigin(new Uri("app://localhost/_framework/blazor.webview.js?cache=1#ignored"));
+        bool differentHost = policy.IsTrustedOrigin(new Uri("app://other/index.html"));
+        bool differentPort = policy.IsTrustedOrigin(new Uri("app://localhost:4242/index.html"));
+
+        await Assert.That(trusted).IsTrue();
+        await Assert.That(differentHost).IsFalse();
+        await Assert.That(differentPort).IsFalse();
+    }
+
+    [Test]
+    public async Task IsTrustedOrigin_DefaultPorts_AreComparedByEffectivePort(CancellationToken ct = default) {
+        var policy = new InfiniFrameUriSecurityPolicy(
+            [Uri.UriSchemeHttps],
+            [],
+            [new Uri("https://example.com/path")]
+        );
+
+        await Assert.That(policy.IsTrustedOrigin(new Uri("https://example.com:443/other?x=1#part"))).IsTrue();
+        await Assert.That(policy.IsTrustedOrigin(new Uri("https://example.com:444/"))).IsFalse();
+    }
+
+    [Test]
     public async Task IsTrustedOrigin_RequiresAllowedNavigationScheme(CancellationToken ct = default) {
         // Arrange
         var policy = new InfiniFrameUriSecurityPolicy(

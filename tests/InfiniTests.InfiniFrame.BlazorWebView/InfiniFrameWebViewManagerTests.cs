@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Primitives;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using System.Threading.Channels;
@@ -20,6 +21,56 @@ public class InfiniFrameWebViewManagerTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
+    [Test]
+    public async Task HandleWebRequest_FragmentAndQueryAreExcludedFromLookup(CancellationToken ct = default) {
+        byte[] expected = "settings-page"u8.ToArray();
+        var fileProvider = new RecordingFileProvider("index.html", expected);
+        var builder = InfiniFrameWindowBuilder.Create();
+        await using ServiceProvider provider = new ServiceCollection().AddLogging().BuildServiceProvider();
+        await using var manager = new TestableInfiniFrameWebViewManager(
+            builder,
+            provider,
+            Substitute.For<Dispatcher>(),
+            fileProvider,
+            new JSComponentConfigurationStore(),
+            Options.Create(new InfiniFrameBlazorAppConfiguration())
+        );
+
+        (Stream? data, string? contentType) = manager.HandleWebRequest(
+            null, "app://localhost/index.html?version=7#settings");
+        await using (data) {
+            using var copy = new MemoryStream();
+            await data!.CopyToAsync(copy, ct);
+            await Assert.That(copy.ToArray()).IsEquivalentTo(expected);
+        }
+
+        await Assert.That(fileProvider.LastSubpath).IsEqualTo("index.html");
+        await Assert.That(contentType).IsEqualTo("text/html");
+    }
+
+    [Test]
+    [Arguments("not a URL")]
+    [Arguments("app://other/index.html")]
+    [Arguments("app://localhost:4242/index.html")]
+    public async Task HandleWebRequest_MalformedOrUntrustedUrlIsRejected(string url, CancellationToken ct = default) {
+        var fileProvider = new RecordingFileProvider("index.html", "blocked"u8.ToArray());
+        await using ServiceProvider provider = new ServiceCollection().AddLogging().BuildServiceProvider();
+        await using var manager = new TestableInfiniFrameWebViewManager(
+            InfiniFrameWindowBuilder.Create(),
+            provider,
+            Substitute.For<Dispatcher>(),
+            fileProvider,
+            new JSComponentConfigurationStore(),
+            Options.Create(new InfiniFrameBlazorAppConfiguration())
+        );
+
+        (Stream? data, string? contentType) = manager.HandleWebRequest(null, url);
+
+        await Assert.That(data).IsNull();
+        await Assert.That(contentType).IsNull();
+        await Assert.That(fileProvider.LastSubpath).IsNull();
+    }
+
     [Test]
     public async Task SendMessage_AfterDispose_ShouldReturnPromptly(CancellationToken ct = default) {
         // Arrange
@@ -264,5 +315,29 @@ public class InfiniFrameWebViewManagerTests {
         IOptions<InfiniFrameBlazorAppConfiguration> config
     ) : InfiniFrameWebViewManager(builder, provider, dispatcher, fileProvider, jsComponents, config) {
         public void SendMessageForTest(string message) => SendMessage(message);
+    }
+
+    private sealed class RecordingFileProvider(string expectedPath, byte[] content) : IFileProvider {
+        public string? LastSubpath { get; private set; }
+
+        public IFileInfo GetFileInfo(string subpath) {
+            LastSubpath = subpath;
+            return string.Equals(subpath, expectedPath, StringComparison.Ordinal)
+                ? new MemoryFileInfo(expectedPath, content)
+                : new NotFoundFileInfo(subpath);
+        }
+
+        public IDirectoryContents GetDirectoryContents(string subpath) => NotFoundDirectoryContents.Singleton;
+        public IChangeToken Watch(string filter) => NullChangeToken.Singleton;
+    }
+
+    private sealed class MemoryFileInfo(string name, byte[] content) : IFileInfo {
+        public bool Exists => true;
+        public long Length => content.Length;
+        public string? PhysicalPath => null;
+        public string Name => name;
+        public DateTimeOffset LastModified => DateTimeOffset.UnixEpoch;
+        public bool IsDirectory => false;
+        public Stream CreateReadStream() => new MemoryStream(content, writable: false);
     }
 }

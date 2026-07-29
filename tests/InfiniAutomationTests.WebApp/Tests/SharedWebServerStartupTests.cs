@@ -1,9 +1,14 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 using InfiniAutomationTests.Tests;
 using InfiniTests;
 using Microsoft.Playwright;
 
 namespace InfiniAutomationTests.WebApp.Tests;
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 public abstract class SharedWebServerStartupTests : InfiniFramePlaywrightTestBase {
     [Test]
     [NotInParallelInfiniAutomationTests]

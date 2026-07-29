@@ -59,9 +59,12 @@ namespace gtk_webkit {
                 return;
             }
 
-            webkit_uri_scheme_request_finish(
-                request, stream, static_cast<gint64>(managedResponse.ContentLength), managedResponse.ContentTypeUtf8
-            );
+            WebKitURISchemeResponse* response = webkit_uri_scheme_response_new(
+                stream, static_cast<gint64>(managedResponse.ContentLength));
+            webkit_uri_scheme_response_set_content_type(response, managedResponse.ContentTypeUtf8);
+            webkit_uri_scheme_response_set_status(response, static_cast<guint>(managedResponse.StatusCode), nullptr);
+            webkit_uri_scheme_request_finish_with_response(request, response);
+            g_object_unref(response);
             g_object_unref(stream);
         } catch (const std::exception& ex) {
             g_warning("[InfiniFrame/Linux] custom-scheme-request failed: %s", ex.what());
@@ -81,6 +84,7 @@ void InfiniFrameWindow::Impl::AddCustomSchemeHandlers() {
     for (const auto& value : _customSchemeNames) {
         if (securityManager != nullptr && g_ascii_strcasecmp(value.c_str(), "app") == 0) {
             webkit_security_manager_register_uri_scheme_as_secure(securityManager, value.c_str());
+            webkit_security_manager_register_uri_scheme_as_cors_enabled(securityManager, value.c_str());
         }
 
         webkit_web_context_register_uri_scheme(
