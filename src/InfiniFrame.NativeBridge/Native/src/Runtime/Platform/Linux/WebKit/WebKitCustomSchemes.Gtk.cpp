@@ -64,7 +64,7 @@ namespace gtk_webkit {
             webkit_uri_scheme_response_set_content_type(response, managedResponse.ContentTypeUtf8);
             webkit_uri_scheme_response_set_status(response, static_cast<guint>(managedResponse.StatusCode), nullptr);
             webkit_uri_scheme_request_finish_with_response(request, response);
-            webkit_uri_scheme_response_unref(response);
+            g_object_unref(response);
             g_object_unref(stream);
         } catch (const std::exception& ex) {
             g_warning("[InfiniFrame/Linux] custom-scheme-request failed: %s", ex.what());
