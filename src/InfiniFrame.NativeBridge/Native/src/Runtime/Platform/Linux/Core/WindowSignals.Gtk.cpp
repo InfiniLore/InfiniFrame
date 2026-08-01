@@ -149,6 +149,7 @@ void on_widget_destroyed(GtkWidget* widget, const gpointer self) {
         auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
         instance->MarkDestroyed();
         instance->InvokeClosed();
+        instance->ScheduleTeardownCompletion();
     });
 }
 
@@ -248,6 +249,7 @@ void on_webview_load_changed(WebKitWebView* web_view, WebKitLoadEvent load_event
 
         if (load_event == WEBKIT_LOAD_FINISHED) {
             instance->FlushPendingWebMessages();
+            instance->CompleteNavigationAndSignalReady(0, true, 0, nullptr);
         }
     });
 }
@@ -270,6 +272,10 @@ gboolean on_webview_load_failed(
             error ? error->code : 0,
             unix_timestamp_milliseconds_utc(),
             payload.c_str()
+        );
+        instance->CompleteNavigationAndSignalReady(
+            0, false, error ? error->code : 0,
+            error ? error->message : "WebKit navigation failed"
         );
 
         if (!linux_webview_diagnostics_enabled())

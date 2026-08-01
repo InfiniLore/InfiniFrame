@@ -946,6 +946,12 @@ bool WinToast::hideToast(_In_ INT64 id) {
 }
 
 void WinToast::clear() {
+    // Avoid activating the notification platform merely to discover that there
+    // is nothing to hide.  This is especially important during shutdown.
+    if (_buffer.empty()) {
+        return;
+    }
+
     auto succeded = false;
     auto notify   = notifier(&succeded);
     if (!succeded) {
@@ -962,6 +968,18 @@ void WinToast::clear() {
         data.second.RemoveTokens();
     }
     _buffer.clear();
+}
+
+void WinToast::shutdown() {
+    clear();
+    _isInitialized = false;
+
+    if (_hasCoInitialized) {
+        CoUninitialize();
+        _hasCoInitialized = false;
+    }
+
+    DllImporter::uninitialize();
 }
 
 //

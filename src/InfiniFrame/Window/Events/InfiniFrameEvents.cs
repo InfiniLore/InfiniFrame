@@ -147,7 +147,12 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         ArgumentNullException.ThrowIfNull(Sender);
 
         Sender.Features.Lifecycle.MarkAsClosed();
-        EventsStore.WindowClosed.Invoke(Sender);
+        try {
+            EventsStore.WindowClosed.Invoke(Sender);
+        }
+        finally {
+            Sender.Features.Lifecycle.MarkClosedCallbacksDelivered();
+        }
     }
 
     /// <inheritdoc cref="IInfiniFrameEvents.OnWindowClosingRequested"/>
@@ -166,6 +171,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         if (doNotClose.Any(r => r == WindowClosingResult.Cancel)) {
             cancel = 1;
             Sender.CancelCloseRequest();
+            Sender.Features.Lifecycle.MarkCloseRejected();
         }
 
         return cancel;

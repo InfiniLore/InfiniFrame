@@ -2,6 +2,9 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #import "Runtime/Shared/Window/InfiniFrameDialog.h"
+#include "Runtime/Shared/Window/InfiniFrameWindow.h"
+#include "Runtime/Shared/Operations/DialogOperation.h"
+#include "Runtime/Shared/Utilities/StringArrayCopy.h"
 
 #if defined(VSTGUI_USE_OBJC_UTTYPE)
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
@@ -232,4 +235,148 @@ DialogResult InfiniFrameDialog::ShowMessage(AutoString title, AutoString text, D
   }
 
   return DialogResult::Cancel;
+}
+
+namespace {
+  void ConfigureOpenPanel(
+      NSOpenPanel* panel, AutoString title, AutoString defaultPath,
+      const bool folders, const bool multiSelect, AutoString* filters, const int filterCount
+  ) {
+    [panel setTitle:[NSString stringWithUTF8String:title]];
+    [panel setCanChooseFiles:!folders];
+    [panel setCanChooseDirectories:folders];
+    [panel setCanCreateDirectories:folders];
+    [panel setAllowsMultipleSelection:multiSelect];
+    [panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:defaultPath]]];
+    if (!folders && filterCount > 0) {
+      NSMutableArray* fileTypes = [[[NSMutableArray alloc] init] autorelease];
+      for (int i = 0; i < filterCount; ++i)
+        [fileTypes addObject:[NSString stringWithUTF8String:filters[i]]];
+#ifdef VSTGUI_USE_OBJC_UTTYPE
+      [panel setAllowedContentTypes:fileTypes];
+#else
+      [panel setAllowedFileTypes:fileTypes];
+#endif
+    }
+  }
+
+  void CompleteOpenPanel(
+      NSOpenPanel* panel, const NSModalResponse response,
+      const std::shared_ptr<DialogOperation>& operation
+  ) {
+    AutoString* values = nullptr;
+    int count = 0;
+    if (response == NSModalResponseOK) {
+      NSArray* urls = [panel URLs];
+      count = static_cast<int>([urls count]);
+      values = AllocateStringArray(count);
+      for (int i = 0; i < count; ++i)
+        values[i] = strdup([[[urls objectAtIndex:i] path] UTF8String]);
+    }
+    operation->CompleteFile(response == NSModalResponseOK ? 0 : 2, count, values);
+    FreeStringArray(values, count);
+  }
+}
+
+void InfiniFrameWindow::BeginShowOpenFile(
+    const uint64_t id, AutoString title, AutoString path, const bool multiSelect,
+    AutoString* filters, const int filterCount, const FileDialogCompletedCallback completion, void* context
+) {
+  auto operation = RegisterFileDialogOperation(id, "ShowOpenFile", completion, context);
+  NSOpenPanel* panel = [NSOpenPanel openPanel];
+  ConfigureOpenPanel(panel, title, path, false, multiSelect, filters, filterCount);
+  [panel beginSheetModalForWindow:getNSWindow() completionHandler:^(NSModalResponse response) {
+    CompleteOpenPanel(panel, response, operation);
+  }];
+  operation->SetCancelAction([panel] { [panel cancel:nil]; });
+}
+
+void InfiniFrameWindow::BeginShowOpenFolder(
+    const uint64_t id, AutoString title, AutoString path, const bool multiSelect,
+    const FileDialogCompletedCallback completion, void* context
+) {
+  auto operation = RegisterFileDialogOperation(id, "ShowOpenFolder", completion, context);
+  NSOpenPanel* panel = [NSOpenPanel openPanel];
+  ConfigureOpenPanel(panel, title, path, true, multiSelect, nullptr, 0);
+  [panel beginSheetModalForWindow:getNSWindow() completionHandler:^(NSModalResponse response) {
+    CompleteOpenPanel(panel, response, operation);
+  }];
+  operation->SetCancelAction([panel] { [panel cancel:nil]; });
+}
+
+void InfiniFrameWindow::BeginShowSaveFile(
+    const uint64_t id, AutoString title, AutoString path, AutoString* filters, const int filterCount,
+    AutoString defaultFileName, const FileDialogCompletedCallback completion, void* context
+) {
+  auto operation = RegisterFileDialogOperation(id, "ShowSaveFile", completion, context);
+  NSSavePanel* panel = [NSSavePanel savePanel];
+  [panel setTitle:[NSString stringWithUTF8String:title]];
+  [panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:path]]];
+  [panel setNameFieldStringValue:[NSString stringWithUTF8String:defaultFileName]];
+  if (filterCount > 0) {
+    NSMutableArray* fileTypes = [[[NSMutableArray alloc] init] autorelease];
+    for (int i = 0; i < filterCount; ++i)
+      [fileTypes addObject:[NSString stringWithUTF8String:filters[i]]];
+#ifdef VSTGUI_USE_OBJC_UTTYPE
+    [panel setAllowedContentTypes:fileTypes];
+#else
+    [panel setAllowedFileTypes:fileTypes];
+#endif
+  }
+  [panel beginSheetModalForWindow:getNSWindow() completionHandler:^(NSModalResponse response) {
+    AutoString* values = nullptr;
+    int count = 0;
+    if (response == NSModalResponseOK) {
+      values = AllocateStringArray(1);
+      values[0] = strdup([[[panel URL] path] UTF8String]);
+      count = 1;
+    }
+    operation->CompleteFile(response == NSModalResponseOK ? 0 : 2, count, values);
+    FreeStringArray(values, count);
+  }];
+  operation->SetCancelAction([panel] { [panel cancel:nil]; });
+}
+
+void InfiniFrameWindow::BeginShowMessage(
+    const uint64_t id, AutoString title, AutoString text,
+    const DialogButtons buttons, const DialogIcon icon,
+    const OperationCompletedCallback completion, void* context
+) {
+  auto operation = RegisterMessageDialogOperation(id, completion, context);
+  NSAlert* alert = [[[NSAlert alloc] init] autorelease];
+  [alert setMessageText:[NSString stringWithUTF8String:title]];
+  [alert setInformativeText:[NSString stringWithUTF8String:text]];
+  switch (buttons) {
+    case DialogButtons::Ok: [alert addButtonWithTitle:@"OK"]; break;
+    case DialogButtons::OkCancel:
+      [alert addButtonWithTitle:@"OK"]; [alert addButtonWithTitle:@"Cancel"]; break;
+    case DialogButtons::YesNo:
+      [alert addButtonWithTitle:@"Yes"]; [alert addButtonWithTitle:@"No"]; break;
+    case DialogButtons::YesNoCancel:
+      [alert addButtonWithTitle:@"Yes"]; [alert addButtonWithTitle:@"No"];
+      [alert addButtonWithTitle:@"Cancel"]; break;
+    case DialogButtons::RetryCancel:
+      [alert addButtonWithTitle:@"Retry"]; [alert addButtonWithTitle:@"Cancel"]; break;
+    case DialogButtons::AbortRetryIgnore:
+      [alert addButtonWithTitle:@"Abort"]; [alert addButtonWithTitle:@"Retry"];
+      [alert addButtonWithTitle:@"Ignore"]; break;
+  }
+  [alert beginSheetModalForWindow:getNSWindow() completionHandler:^(NSModalResponse response) {
+    DialogResult result = DialogResult::Cancel;
+    if (buttons == DialogButtons::Ok && response == NSAlertFirstButtonReturn) result = DialogResult::Ok;
+    else if (buttons == DialogButtons::OkCancel && response == NSAlertFirstButtonReturn) result = DialogResult::Ok;
+    else if ((buttons == DialogButtons::YesNo || buttons == DialogButtons::YesNoCancel))
+      result = response == NSAlertFirstButtonReturn ? DialogResult::Yes
+          : response == NSAlertSecondButtonReturn ? DialogResult::No : DialogResult::Cancel;
+    else if (buttons == DialogButtons::RetryCancel && response == NSAlertFirstButtonReturn) result = DialogResult::Retry;
+    else if (buttons == DialogButtons::AbortRetryIgnore)
+      result = response == NSAlertFirstButtonReturn ? DialogResult::Abort
+          : response == NSAlertSecondButtonReturn ? DialogResult::Retry : DialogResult::Ignore;
+    operation->CompleteMessage(result);
+  }];
+  operation->SetCancelAction([alert] {
+    NSWindow* sheet = [alert window];
+    if ([sheet sheetParent] != nil)
+      [[sheet sheetParent] endSheet:sheet returnCode:NSModalResponseCancel];
+  });
 }

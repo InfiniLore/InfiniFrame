@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Runtime/Shared/Window/InfiniFrame.h"
+#include "Runtime/Shared/Operations/DialogOperation.h"
 #include "Runtime/Shared/Utilities/StringArrayCopy.h"
 
 #include <iostream>
@@ -9,6 +10,8 @@
 #include <shlwapi.h>
 #include <objbase.h>
 #include <vector>
+#include <thread>
+#include <atomic>
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
@@ -130,12 +133,9 @@ inline HANDLE NewStyleContext::Create() {
 
 InfiniFrameDialog::InfiniFrameDialog(InfiniFrameWindow* window) {
     _window = window;
-    CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 }
 
-InfiniFrameDialog::~InfiniFrameDialog() {
-    CoUninitialize();
-}
+InfiniFrameDialog::~InfiniFrameDialog() = default;
 
 /**
  * @brief Create and configure an IFileDialog (open or save) with a title and optional default folder.
@@ -433,4 +433,191 @@ DialogResult InfiniFrameDialog::ShowMessage(
         default:
             return DialogResult::Cancel;
     }
+}
+
+namespace {
+    struct DialogThreadCancellation {
+        std::atomic<DWORD> threadId = 0;
+        std::atomic<bool> requested = false;
+        HWND owner = nullptr;
+
+        void Request() {
+            requested.store(true, std::memory_order_release);
+            const DWORD id = threadId.load(std::memory_order_acquire);
+            if (id == 0) return;
+            EnumThreadWindows(id, [](HWND hwnd, LPARAM value) -> BOOL {
+                auto* state = reinterpret_cast<DialogThreadCancellation*>(value);
+                if (IsWindowVisible(hwnd) && GetWindow(hwnd, GW_OWNER) == state->owner)
+                    PostMessageW(hwnd, WM_CLOSE, 0, 0);
+                return TRUE;
+            }, reinterpret_cast<LPARAM>(this));
+        }
+    };
+
+    thread_local DialogThreadCancellation* activeDialogCancellation = nullptr;
+
+    LRESULT CALLBACK dialog_cancellation_hook(const int code, const WPARAM wParam, const LPARAM lParam) {
+        if (code == HCBT_ACTIVATE && activeDialogCancellation != nullptr
+            && activeDialogCancellation->requested.load(std::memory_order_acquire)) {
+            PostMessageW(reinterpret_cast<HWND>(wParam), WM_CLOSE, 0, 0);
+        }
+        return CallNextHookEx(nullptr, code, wParam, lParam);
+    }
+
+    struct ScopedDialogCancellationHook {
+        std::shared_ptr<DialogThreadCancellation> state;
+        HHOOK hook = nullptr;
+
+        explicit ScopedDialogCancellationHook(std::shared_ptr<DialogThreadCancellation> value)
+            : state(std::move(value)) {
+            state->threadId.store(GetCurrentThreadId(), std::memory_order_release);
+            activeDialogCancellation = state.get();
+            hook = SetWindowsHookExW(WH_CBT, dialog_cancellation_hook, nullptr, GetCurrentThreadId());
+        }
+
+        ~ScopedDialogCancellationHook() {
+            if (hook != nullptr)
+                UnhookWindowsHookEx(hook);
+            activeDialogCancellation = nullptr;
+            state->threadId.store(0, std::memory_order_release);
+        }
+    };
+}
+
+void InfiniFrameWindow::BeginShowOpenFile(
+    const uint64_t operationId,
+    AutoString title,
+    AutoString defaultPath,
+    const bool multiSelect,
+    AutoString* filters,
+    const int filterCount,
+    const FileDialogCompletedCallback completion,
+    void* completionContext
+) {
+    auto operation = RegisterFileDialogOperation(operationId, "ShowOpenFile", completion, completionContext);
+    auto cancellation = std::make_shared<DialogThreadCancellation>();
+    cancellation->owner = getHwnd();
+    operation->SetCancelAction([cancellation] { cancellation->Request(); });
+    NativeString titleCopy(title);
+    NativeString pathCopy(defaultPath);
+    std::vector<NativeString> filterCopies;
+    for (int i = 0; i < filterCount; ++i)
+        filterCopies.emplace_back(filters[i]);
+    InfiniFrameDialog* dialog = GetDialog();
+
+    std::thread([operationId, titleCopy = std::move(titleCopy), pathCopy = std::move(pathCopy),
+                 filterCopies = std::move(filterCopies), multiSelect, operation, cancellation, dialog]() mutable {
+        CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+        ScopedDialogCancellationHook cancellationHook(cancellation);
+        std::vector<AutoString> filterPointers;
+        for (auto& filter : filterCopies)
+            filterPointers.push_back(filter.data());
+        int count = 0;
+        AutoString* values = cancellation->requested.load(std::memory_order_acquire) ? nullptr
+            : dialog->ShowOpenFile(
+                titleCopy.data(), pathCopy.data(), multiSelect, filterPointers.data(),
+                static_cast<int>(filterPointers.size()), &count
+            );
+        operation->CompleteFile(values == nullptr ? 2 : 0, count, values);
+        FreeStringArray(values, count);
+        CoUninitialize();
+    }).detach();
+}
+
+void InfiniFrameWindow::BeginShowOpenFolder(
+    const uint64_t operationId,
+    AutoString title,
+    AutoString defaultPath,
+    const bool multiSelect,
+    const FileDialogCompletedCallback completion,
+    void* completionContext
+) {
+    auto operation = RegisterFileDialogOperation(operationId, "ShowOpenFolder", completion, completionContext);
+    auto cancellation = std::make_shared<DialogThreadCancellation>();
+    cancellation->owner = getHwnd();
+    operation->SetCancelAction([cancellation] { cancellation->Request(); });
+    NativeString titleCopy(title);
+    NativeString pathCopy(defaultPath);
+    InfiniFrameDialog* dialog = GetDialog();
+    std::thread([operationId, titleCopy = std::move(titleCopy), pathCopy = std::move(pathCopy),
+                 multiSelect, operation, cancellation, dialog]() mutable {
+        CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+        ScopedDialogCancellationHook cancellationHook(cancellation);
+        int count = 0;
+        AutoString* values = cancellation->requested.load(std::memory_order_acquire) ? nullptr
+            : dialog->ShowOpenFolder(titleCopy.data(), pathCopy.data(), multiSelect, &count);
+        operation->CompleteFile(values == nullptr ? 2 : 0, count, values);
+        FreeStringArray(values, count);
+        CoUninitialize();
+    }).detach();
+}
+
+void InfiniFrameWindow::BeginShowSaveFile(
+    const uint64_t operationId,
+    AutoString title,
+    AutoString defaultPath,
+    AutoString* filters,
+    const int filterCount,
+    AutoString defaultFileName,
+    const FileDialogCompletedCallback completion,
+    void* completionContext
+) {
+    auto operation = RegisterFileDialogOperation(operationId, "ShowSaveFile", completion, completionContext);
+    auto cancellation = std::make_shared<DialogThreadCancellation>();
+    cancellation->owner = getHwnd();
+    operation->SetCancelAction([cancellation] { cancellation->Request(); });
+    NativeString titleCopy(title);
+    NativeString pathCopy(defaultPath);
+    NativeString fileNameCopy(defaultFileName);
+    std::vector<NativeString> filterCopies;
+    for (int i = 0; i < filterCount; ++i)
+        filterCopies.emplace_back(filters[i]);
+    InfiniFrameDialog* dialog = GetDialog();
+    std::thread([operationId, titleCopy = std::move(titleCopy), pathCopy = std::move(pathCopy),
+                 fileNameCopy = std::move(fileNameCopy), filterCopies = std::move(filterCopies),
+                 operation, cancellation, dialog]() mutable {
+        CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+        ScopedDialogCancellationHook cancellationHook(cancellation);
+        std::vector<AutoString> filterPointers;
+        for (auto& filter : filterCopies)
+            filterPointers.push_back(filter.data());
+        AutoString value = cancellation->requested.load(std::memory_order_acquire) ? nullptr
+            : dialog->ShowSaveFile(
+                titleCopy.data(), pathCopy.data(), filterPointers.data(),
+                static_cast<int>(filterPointers.size()), fileNameCopy.data()
+            );
+        AutoString* values = nullptr;
+        int count = 0;
+        if (value != nullptr) {
+            values = AllocateStringArray(1);
+            values[0] = value;
+            count = 1;
+        }
+        operation->CompleteFile(value == nullptr ? 2 : 0, count, values);
+        FreeStringArray(values, count);
+        CoUninitialize();
+    }).detach();
+}
+
+void InfiniFrameWindow::BeginShowMessage(
+    const uint64_t operationId, AutoString title, AutoString text,
+    const DialogButtons buttons, const DialogIcon icon,
+    const OperationCompletedCallback completion, void* completionContext
+) {
+    auto operation = RegisterMessageDialogOperation(operationId, completion, completionContext);
+    auto cancellation = std::make_shared<DialogThreadCancellation>();
+    cancellation->owner = getHwnd();
+    operation->SetCancelAction([cancellation] { cancellation->Request(); });
+    NativeString titleCopy(title);
+    NativeString textCopy(text);
+    InfiniFrameDialog* dialog = GetDialog();
+    std::thread([titleCopy = std::move(titleCopy), textCopy = std::move(textCopy), buttons, icon,
+                 operation, cancellation, dialog]() mutable {
+        CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+        ScopedDialogCancellationHook cancellationHook(cancellation);
+        const DialogResult value = cancellation->requested.load(std::memory_order_acquire)
+            ? DialogResult::Cancel : dialog->ShowMessage(titleCopy.data(), textCopy.data(), buttons, icon);
+        operation->CompleteMessage(value);
+        CoUninitialize();
+    }).detach();
 }

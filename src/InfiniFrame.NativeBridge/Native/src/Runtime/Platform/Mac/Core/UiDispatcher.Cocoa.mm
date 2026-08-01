@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "../Window.Cocoa.Internal.h"
+#include "Runtime/Shared/Operations/NativeOperation.h"
 
 #include <atomic>
 #include <chrono>
@@ -47,4 +48,16 @@ void InfiniFrameWindow::Invoke(ACTION callback) {
 
     // Execution already began. Do not return while native code still owns the managed reverse P/Invoke callback.
     dispatch_semaphore_wait(state->completion, DISPATCH_TIME_FOREVER);
+}
+
+bool InfiniFrameWindow::ScheduleOperation(const std::shared_ptr<NativeOperation>& operation) {
+    CFRunLoopRef mainRunLoop = CFRunLoopGetMain();
+    if (mainRunLoop == nullptr)
+        return false;
+
+    CFRunLoopPerformBlock(mainRunLoop, kCFRunLoopCommonModes, ^{
+        operation->Execute();
+    });
+    CFRunLoopWakeUp(mainRunLoop);
+    return true;
 }

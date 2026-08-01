@@ -110,7 +110,7 @@ public class NativeLifetimeStressTests {
 
         // Assert
         await Assert.That(completedCalls).IsGreaterThanOrEqualTo(0);
-        await Assert.That(window.Features.Lifecycle.State).IsEqualTo(InfiniFrameWindowLifecycleState.NativeClosed);
+        await Assert.That(window.Features.Lifecycle.State).IsEqualTo(InfiniFrameWindowLifecycleState.TeardownPending);
         await Assert.That(() => window.Features.State.IsFocused).Throws<ObjectDisposedException>();
     }
 
@@ -130,7 +130,7 @@ public class NativeLifetimeStressTests {
         window.WaitForClose();
 
         // Assert
-        await Assert.That(window.Features.Lifecycle.State).IsEqualTo(InfiniFrameWindowLifecycleState.NativeClosed);
+        await Assert.That(window.Features.Lifecycle.State).IsEqualTo(InfiniFrameWindowLifecycleState.TeardownPending);
 
         // Act
         ((IDisposable)window).Dispose();

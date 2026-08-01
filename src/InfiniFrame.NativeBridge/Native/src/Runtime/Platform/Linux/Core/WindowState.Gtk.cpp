@@ -172,15 +172,14 @@ static void webview_eval_finished(GObject* object, GAsyncResult* result, gpointe
 
 void InfiniFrameWindow::FlushPendingWebMessages() {
     m_impl->_webviewReady = true;
-    if (m_impl->_pendingWebMessages.empty() || m_impl->_webviewClosed || m_impl->_webview == nullptr)
-        return;
-
-    for (const auto& js : m_impl->_pendingWebMessages) {
-        webkit_web_view_evaluate_javascript(
-            WEBKIT_WEB_VIEW(m_impl->_webview), js.c_str(), -1, nullptr, nullptr, nullptr, webview_eval_finished, nullptr
-        );
+    if (!m_impl->_pendingWebMessages.empty() && !m_impl->_webviewClosed && m_impl->_webview != nullptr) {
+        for (const auto& js : m_impl->_pendingWebMessages) {
+            webkit_web_view_evaluate_javascript(
+                WEBKIT_WEB_VIEW(m_impl->_webview), js.c_str(), -1, nullptr, nullptr, nullptr, webview_eval_finished, nullptr
+            );
+        }
+        m_impl->_pendingWebMessages.clear();
     }
-    m_impl->_pendingWebMessages.clear();
 }
 
 void InfiniFrameWindow::SendWebMessage(const AutoString message) {

@@ -34,6 +34,10 @@ public class GetDebugDiagnosticsTests {
         await Assert.That(diagnostics.EndpointStatus).IsEqualTo(expectedStatus);
         await Assert.That(diagnostics.EndpointReason).IsEqualTo(supportsRemoteEndpoint ? "Remote debugging is disabled." : null);
         await Assert.That(diagnostics.Endpoint).IsNull();
+        await Assert.That(diagnostics.LifecycleState).IsEqualTo(window.LifecycleState);
+        await Assert.That(diagnostics.LastLifecycleTransitionUtc).IsLessThanOrEqualTo(DateTimeOffset.UtcNow);
+        await Assert.That(diagnostics.OutstandingOperations).IsEmpty();
+        await Assert.That(diagnostics.LastOperation).IsNull();
     }
 
     [Test]

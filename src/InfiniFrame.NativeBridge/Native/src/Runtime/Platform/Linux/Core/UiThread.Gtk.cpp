@@ -103,6 +103,34 @@ namespace infiniframe::linux_gtk::ui_thread {
         return std::this_thread::get_id() == ownerThreadId;
     }
 
+    namespace {
+        gboolean ExecuteAsync(gpointer userData) {
+            std::unique_ptr<std::function<void()>> callback(static_cast<std::function<void()>*>(userData));
+            try {
+                (*callback)();
+            } catch (...) {
+                g_warning("InfiniFrame asynchronous UI callback failed.");
+            }
+            return G_SOURCE_REMOVE;
+        }
+    }
+
+    bool InvokeAsync(std::function<void()> callback) {
+        if (!callback)
+            return false;
+        EnsureInitialized();
+        GSource* source = g_idle_source_new();
+        g_source_set_priority(source, G_PRIORITY_DEFAULT);
+        g_source_set_callback(
+            source, ExecuteAsync, new std::function<void()>(std::move(callback)), nullptr
+        );
+        const guint sourceId = g_source_attach(source, ownerContext);
+        g_source_unref(source);
+        if (sourceId == 0)
+            return false;
+        return true;
+    }
+
     void InvokeSync(std::function<void()> callback) {
         if (!callback) {
             return;

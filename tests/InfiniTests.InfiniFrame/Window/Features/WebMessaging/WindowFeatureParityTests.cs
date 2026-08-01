@@ -67,7 +67,10 @@ public class WindowFeatureParityTests {
             [typeof(ILifecycleInfiniFrameWindowFeature)] = IncludedAndExcluded(
                 ["State", "Close", "CloseAsync", "IsClosedOrClosing"],
                 ("WaitForClose", "Blocking the web-message/UI thread would deadlock."),
-                ("WaitForCloseAsync", "A JS wait requires a future event-backed Promise.")
+                ("WaitForCloseAsync", "A JS wait requires a future event-backed Promise."),
+                ("WaitForReadyAsync", "Readiness is already represented by the JS handshake."),
+                ("WaitForClosedCallbacksAsync", "Managed callback delivery is not a browser feature."),
+                ("WaitForTeardownAsync", "Backend teardown is a managed/native lifetime concern.")
             ),
             [typeof(IMonitorsInfiniFrameWindowFeature)] = Included(
                 "GetMonitors",
@@ -76,13 +79,16 @@ public class WindowFeatureParityTests {
             ),
             [typeof(INotificationsInfiniFrameWindowFeature)] = Included(
                 "ShowNotification",
-                "ShowMessage"
+                "ShowMessage",
+                "ShowMessageAsync"
             ),
             [typeof(IPageNavigationInfiniFrameWindowFeature)] = IncludedWithCounts(
                 ("Load", 2),
+                ("LoadAsync", 1),
                 ("TryLoadUri", 1),
                 ("TryLoadPath", 1),
-                ("LoadRawString", 1)
+                ("LoadRawString", 1),
+                ("LoadRawStringAsync", 1)
             ),
             [typeof(IPositionInfiniFrameWindowFeature)] = IncludedWithCounts(
                 ("Location", 1),
@@ -141,7 +147,8 @@ public class WindowFeatureParityTests {
             ),
             [typeof(IWebMessagingInfiniFrameWindowFeature)] = Included(
                 "SendWebMessage",
-                "SendWebMessageAsync"
+                "SendWebMessageAsync",
+                "SendWebMessageWithAcknowledgementAsync"
             )
         };
 

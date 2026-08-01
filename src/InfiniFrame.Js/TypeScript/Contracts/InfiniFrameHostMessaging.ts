@@ -19,6 +19,7 @@ export const SendToHostMessageIds = {
     windowClose: `${infiniframe}:window:close`,
     ready: `${infiniframe}:ready`,
     windowFeatureRequest: windowFeaturePrefix,
+    webMessageAckResponse: `${infiniframe}:message:ack:response`,
 }
 
 export const GetMessageFromHostMessageIds = {
@@ -32,6 +33,7 @@ export const ReceiveFromHostMessageIds = {
     registerWindowClose: `${infiniframe}:register:window:close`,
     readyAck: `${infiniframe}:ready:ack`,
     getMessageResponse: `${infiniframe}:get:response`,
+    webMessageAckRequest: `${infiniframe}:message:ack:request`,
 }
 
 export type SendToHostMessageId = typeof SendToHostMessageIds[keyof typeof SendToHostMessageIds];

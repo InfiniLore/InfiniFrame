@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
+#include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -90,4 +91,11 @@ void InfiniFrameWindow::CloseWebView() {
     // context from this re-entrant teardown path can trigger the same WebKitGTK abort.
     g_signal_handlers_disconnect_by_data(webview, this);
     webkit_web_view_stop_loading(WEBKIT_WEB_VIEW(webview));
+}
+
+void InfiniFrameWindow::ScheduleTeardownCompletion() {
+    CompleteOperationsForClose();
+    CompleteNavigationForClose();
+    CompleteDialogsForClose();
+    infiniframe::linux_gtk::ui_thread::InvokeAsync([this] { SignalTeardown(); });
 }

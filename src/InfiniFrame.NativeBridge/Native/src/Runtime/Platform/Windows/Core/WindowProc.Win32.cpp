@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Runtime/Platform/Windows/DarkMode.h"
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
+#include "Runtime/Shared/Operations/NativeOperation.h"
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -179,6 +180,7 @@ namespace {
         impl->_hWnd = nullptr;
         TraceTeardown(L"WM_NCDESTROY hwnd=%p instance=%p", hwnd, instance);
         SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
+        instance->ScheduleTeardownCompletion();
     }
 
     LRESULT handle_callback_execution(const WPARAM wParam, const LPARAM lParam) {
@@ -280,6 +282,14 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
         }
         case WM_USER_INVOKE: {
             return handle_callback_execution(wParam, lParam);
+        }
+        case WM_USER_DISPATCH_OPERATION: {
+            std::unique_ptr<std::shared_ptr<NativeOperation>> retained(
+                reinterpret_cast<std::shared_ptr<NativeOperation>*>(lParam)
+            );
+            if (retained && *retained)
+                (*retained)->Execute();
+            return 0;
         }
     }
 

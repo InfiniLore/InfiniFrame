@@ -63,4 +63,20 @@ public class NotificationsInfiniFrameWindowFeature(
 
         return result;
     }
+
+    /// <inheritdoc cref="INotificationsInfiniFrameWindowFeature.ShowMessageAsync" />
+    public async Task<InfiniFrameDialogResult> ShowMessageAsync(
+        string title, string? text,
+        InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok,
+        InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info,
+        CancellationToken ct = default
+    ) {
+        ct.ThrowIfCancellationRequested();
+        if (window.IsClosedOrClosing()) return InfiniFrameDialogResult.Cancel;
+        var operation = new InfiniMessageDialogOperation(
+            window, logger, title, text ?? string.Empty, buttons, icon, ct
+        );
+        _ = operation.StartAsync();
+        return await operation.Task.WaitAsync(ct).ConfigureAwait(false);
+    }
 }

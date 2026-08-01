@@ -31,4 +31,12 @@ public static class INotificationsInfiniFrameWindowFeatureExtensions {
     /// <returns>The user's response as an <see cref="InfiniFrameDialogResult"/>.</returns>
     public static InfiniFrameDialogResult ShowMessage(this IInfiniFrameWindow window, string title, string? text, InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok, InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info)
         => window.Features.Notifications.ShowMessage(title, text, buttons, icon);
+
+    /// <summary>Displays a native message dialog and completes when it is answered, cancelled, or its owner closes.</summary>
+    public static Task<InfiniFrameDialogResult> ShowMessageAsync(
+        this IInfiniFrameWindow window, string title, string? text,
+        InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok,
+        InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info,
+        CancellationToken ct = default
+    ) => window.Features.Notifications.ShowMessageAsync(title, text, buttons, icon, ct);
 }

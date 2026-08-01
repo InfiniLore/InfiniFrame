@@ -4,6 +4,7 @@
 #include "chrono"
 
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
+#include "Runtime/Shared/Operations/NativeOperation.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -47,4 +48,17 @@ void InfiniFrameWindow::Invoke(ACTION callback) {
 
     uLock.unlock();
     delete waitInfo;
+}
+
+bool InfiniFrameWindow::ScheduleOperation(const std::shared_ptr<NativeOperation>& operation) {
+    auto* impl = m_impl.get();
+    if (impl->_hWnd == nullptr || IsWindow(impl->_hWnd) == 0)
+        return false;
+
+    auto* retained = new std::shared_ptr<NativeOperation>(operation);
+    if (PostMessage(impl->_hWnd, WM_USER_DISPATCH_OPERATION, 0, reinterpret_cast<LPARAM>(retained)))
+        return true;
+
+    delete retained;
+    return false;
 }

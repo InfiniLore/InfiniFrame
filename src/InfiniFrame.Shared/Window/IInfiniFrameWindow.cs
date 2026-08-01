@@ -46,9 +46,13 @@ public interface IInfiniFrameWindow : IHasInfiniFrameEventsStore, INativeWindowH
 
     internal void BeginInitialization();
     internal void AssignNativeHandle(IntPtr handle);
+    internal void MarkReady();
     internal bool RequestClose();
     internal void CancelCloseRequest();
     internal void MarkNativeClosed();
+    internal void MarkTeardownPending();
+    internal void MarkTeardownComplete();
+    internal void MarkNativeHandleReleased();
     internal void MarkDisposed();
     internal void ReleaseNativeHandle();
 

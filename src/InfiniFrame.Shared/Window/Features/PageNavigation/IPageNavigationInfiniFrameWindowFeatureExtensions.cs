@@ -17,6 +17,12 @@ public static class IPageNavigationInfiniFrameWindowFeatureExtensions {
         return window;
     }
 
+    public static Task<NavigationResult> LoadAsync(
+        this IInfiniFrameWindow window,
+        Uri uri,
+        CancellationToken ct = default
+    ) => window.Features.PageNavigation.LoadAsync(uri, ct);
+
     /// <summary>
     ///     Loads the content at the specified path in the window and returns the window for chaining.
     /// </summary>
@@ -38,4 +44,10 @@ public static class IPageNavigationInfiniFrameWindowFeatureExtensions {
         window.Features.PageNavigation.LoadRawString(content);
         return window;
     }
+
+    public static Task<NavigationResult> LoadRawStringAsync(
+        this IInfiniFrameWindow window,
+        string content,
+        CancellationToken ct = default
+    ) => window.Features.PageNavigation.LoadRawStringAsync(content, ct);
 }

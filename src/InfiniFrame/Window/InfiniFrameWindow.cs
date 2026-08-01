@@ -6,6 +6,7 @@ using InfiniFrame.NativeBridge.Handles;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using InfiniFrame.Debugging;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -16,11 +17,16 @@ public sealed class InfiniFrameWindow(
     IInfiniFrameEvents events,
     IInfiniFrameWindowConfiguration configuration,
     IServiceProvider? serviceProvider
-) : IInfiniFrameWindow, IDisposable {
+) : IInfiniFrameWindow, IDisposable, IAsyncDisposable {
     private static readonly Lazy<IntPtr> LazyMainProgramHandle = new(NativeLibrary.GetMainProgramHandle);
     private NativeWindowHandle? _instanceHandle;
     private int _lifecycleState = (int)InfiniFrameWindowLifecycleState.Created;
+    private int _closeReturnState = (int)InfiniFrameWindowLifecycleState.Ready;
     private int _managedThreadId = Environment.CurrentManagedThreadId;
+    private long _lastLifecycleTransitionUtcTicks = DateTimeOffset.UtcNow.UtcTicks;
+    private readonly object _diagnosticsLock = new();
+    private readonly Dictionary<string, InfiniFrameOperationDiagnostics> _outstandingOperations = [];
+    private InfiniFrameOperationDiagnostics? _lastOperation;
     #if NET9_0_OR_GREATER
     private readonly Lock _disposeLock = new();
     #else
@@ -37,7 +43,10 @@ public sealed class InfiniFrameWindow(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public IntPtr WindowHandle {
         get {
-            if (LifecycleState != InfiniFrameWindowLifecycleState.Running) return IntPtr.Zero;
+            InfiniFrameWindowLifecycleState state = LifecycleState;
+            if (state < InfiniFrameWindowLifecycleState.Creating
+                || state >= InfiniFrameWindowLifecycleState.CloseRequested)
+                return IntPtr.Zero;
 
             try {
                 if (OperatingSystem.IsWindows()) return NativeInvoke.InvokeSyncWithValidation<IntPtr>(logger, this, ManagedThreadId, InfiniFrameNative.GetWindowHandleWin32);
@@ -84,12 +93,55 @@ public sealed class InfiniFrameWindow(
         Features = features;
     }
 
+    internal string BeginDiagnosticOperation(string name, ulong id) {
+        string key = $"{name}:{id}";
+        lock (_diagnosticsLock) {
+            _outstandingOperations[key] = new InfiniFrameOperationDiagnostics {
+                Name = name,
+                Id = id,
+                StartedUtc = DateTimeOffset.UtcNow,
+                FinalState = "Pending"
+            };
+        }
+        return key;
+    }
+
+    internal void CompleteDiagnosticOperation(
+        string? key, string finalState, int? nativeCode = null, string? failureReason = null
+    ) {
+        if (key is null) return;
+        lock (_diagnosticsLock) {
+            if (!_outstandingOperations.Remove(key, out InfiniFrameOperationDiagnostics? operation)) return;
+            _lastOperation = operation with {
+                CompletedUtc = DateTimeOffset.UtcNow,
+                FinalState = finalState,
+                NativeCode = nativeCode,
+                FailureReason = failureReason
+            };
+        }
+    }
+
+    internal (DateTimeOffset TransitionUtc, IReadOnlyList<InfiniFrameOperationDiagnostics> Outstanding,
+        InfiniFrameOperationDiagnostics? Last) GetOperationDiagnostics() {
+        lock (_diagnosticsLock) {
+            return (
+                new DateTimeOffset(Volatile.Read(ref _lastLifecycleTransitionUtcTicks), TimeSpan.Zero),
+                _outstandingOperations.Values.OrderBy(value => value.StartedUtc).ToArray(),
+                _lastOperation
+            );
+        }
+    }
+
+    private void RecordLifecycleTransition()
+        => Volatile.Write(ref _lastLifecycleTransitionUtcTicks, DateTimeOffset.UtcNow.UtcTicks);
+
     void IInfiniFrameWindow.BeginInitialization() {
         if (Interlocked.CompareExchange(ref _lifecycleState,
                 (int)InfiniFrameWindowLifecycleState.Initializing,
                 (int)InfiniFrameWindowLifecycleState.Created) != (int)InfiniFrameWindowLifecycleState.Created) {
             throw new InvalidOperationException($"Cannot initialize a window in state {LifecycleState}.");
         }
+        RecordLifecycleTransition();
     }
 
     void IInfiniFrameWindow.AssignNativeHandle(IntPtr handle) {
@@ -106,10 +158,7 @@ public sealed class InfiniFrameWindow(
             safeHandle?.Dispose();
         }
 
-        if (Interlocked.CompareExchange(ref _lifecycleState,
-                (int)InfiniFrameWindowLifecycleState.Running,
-                (int)InfiniFrameWindowLifecycleState.Initializing) == (int)InfiniFrameWindowLifecycleState.Initializing)
-            return;
+        if (LifecycleState == InfiniFrameWindowLifecycleState.Creating) return;
 
         // A very early native closed callback won the transition. Keep ownership
         // for deferred teardown but never resurrect the window back to Running.
@@ -119,27 +168,76 @@ public sealed class InfiniFrameWindow(
         throw new InvalidOperationException($"Cannot assign a native handle in state {LifecycleState}.");
     }
 
-    bool IInfiniFrameWindow.RequestClose()
-        => Interlocked.CompareExchange(ref _lifecycleState,
-            (int)InfiniFrameWindowLifecycleState.ClosingRequested,
-            (int)InfiniFrameWindowLifecycleState.Running) == (int)InfiniFrameWindowLifecycleState.Running;
+    void IInfiniFrameWindow.MarkReady() {
+        if (Interlocked.CompareExchange(ref _lifecycleState,
+                (int)InfiniFrameWindowLifecycleState.Ready,
+                (int)InfiniFrameWindowLifecycleState.Creating) == (int)InfiniFrameWindowLifecycleState.Creating)
+            RecordLifecycleTransition();
+    }
 
-    void IInfiniFrameWindow.CancelCloseRequest()
-        => Interlocked.CompareExchange(ref _lifecycleState,
-            (int)InfiniFrameWindowLifecycleState.Running,
-            (int)InfiniFrameWindowLifecycleState.ClosingRequested);
+    bool IInfiniFrameWindow.RequestClose() {
+        while (true) {
+            InfiniFrameWindowLifecycleState state = LifecycleState;
+            if (state is not (InfiniFrameWindowLifecycleState.Creating or InfiniFrameWindowLifecycleState.Ready))
+                return false;
+            if (Interlocked.CompareExchange(ref _lifecycleState,
+                    (int)InfiniFrameWindowLifecycleState.CloseRequested, (int)state) != (int)state)
+                continue;
+            Volatile.Write(ref _closeReturnState, (int)state);
+            RecordLifecycleTransition();
+            return true;
+        }
+    }
+
+    void IInfiniFrameWindow.CancelCloseRequest() {
+        if (Interlocked.CompareExchange(ref _lifecycleState,
+                Volatile.Read(ref _closeReturnState),
+                (int)InfiniFrameWindowLifecycleState.CloseRequested) == (int)InfiniFrameWindowLifecycleState.CloseRequested)
+            RecordLifecycleTransition();
+    }
 
     void IInfiniFrameWindow.MarkNativeClosed() {
         while (true) {
             InfiniFrameWindowLifecycleState state = LifecycleState;
             if (state >= InfiniFrameWindowLifecycleState.NativeClosed) return;
             if (Interlocked.CompareExchange(ref _lifecycleState,
-                    (int)InfiniFrameWindowLifecycleState.NativeClosed, (int)state) == (int)state) return;
+                    (int)InfiniFrameWindowLifecycleState.NativeClosed, (int)state) == (int)state) {
+                RecordLifecycleTransition();
+                return;
+            }
         }
     }
 
-    void IInfiniFrameWindow.MarkDisposed()
-        => Volatile.Write(ref _lifecycleState, (int)InfiniFrameWindowLifecycleState.Disposed);
+    void IInfiniFrameWindow.MarkTeardownPending() {
+        if (Interlocked.CompareExchange(ref _lifecycleState,
+                (int)InfiniFrameWindowLifecycleState.TeardownPending,
+                (int)InfiniFrameWindowLifecycleState.NativeClosed) == (int)InfiniFrameWindowLifecycleState.NativeClosed)
+            RecordLifecycleTransition();
+    }
+
+    void IInfiniFrameWindow.MarkTeardownComplete() {
+        while (true) {
+            InfiniFrameWindowLifecycleState state = LifecycleState;
+            if (state >= InfiniFrameWindowLifecycleState.TeardownComplete) return;
+            if (Interlocked.CompareExchange(ref _lifecycleState,
+                    (int)InfiniFrameWindowLifecycleState.TeardownComplete, (int)state) == (int)state) {
+                RecordLifecycleTransition();
+                return;
+            }
+        }
+    }
+
+    void IInfiniFrameWindow.MarkNativeHandleReleased() {
+        if (Interlocked.CompareExchange(ref _lifecycleState,
+                (int)InfiniFrameWindowLifecycleState.NativeHandleReleased,
+                (int)InfiniFrameWindowLifecycleState.TeardownComplete) == (int)InfiniFrameWindowLifecycleState.TeardownComplete)
+            RecordLifecycleTransition();
+    }
+
+    void IInfiniFrameWindow.MarkDisposed() {
+        Volatile.Write(ref _lifecycleState, (int)InfiniFrameWindowLifecycleState.Disposed);
+        RecordLifecycleTransition();
+    }
 
     void IInfiniFrameWindow.ReleaseNativeHandle() {
         NativeWindowHandle? handle = Interlocked.Exchange(ref _instanceHandle, null);
@@ -150,9 +248,9 @@ public sealed class InfiniFrameWindow(
     public NativeHandleLease AcquireNativeHandle(NativeHandleAccess access = NativeHandleAccess.Feature) {
         InfiniFrameWindowLifecycleState state = LifecycleState;
         bool allowed = access switch {
-            NativeHandleAccess.Feature => state == InfiniFrameWindowLifecycleState.Running,
-            NativeHandleAccess.Close => state is InfiniFrameWindowLifecycleState.Running or InfiniFrameWindowLifecycleState.ClosingRequested,
-            NativeHandleAccess.WaitForExit => state is InfiniFrameWindowLifecycleState.Running or InfiniFrameWindowLifecycleState.ClosingRequested,
+            NativeHandleAccess.Feature => state is InfiniFrameWindowLifecycleState.Creating or InfiniFrameWindowLifecycleState.Ready,
+            NativeHandleAccess.Close => state is InfiniFrameWindowLifecycleState.Creating or InfiniFrameWindowLifecycleState.Ready or InfiniFrameWindowLifecycleState.CloseRequested,
+            NativeHandleAccess.WaitForExit => state is InfiniFrameWindowLifecycleState.Creating or InfiniFrameWindowLifecycleState.Ready or InfiniFrameWindowLifecycleState.CloseRequested,
             _ => false
         };
         ObjectDisposedException.ThrowIf(!allowed, nameof(InfiniFrameWindow));
@@ -177,6 +275,18 @@ public sealed class InfiniFrameWindow(
             Features.Lifecycle.WaitForClose();
         }
 
+        if (LifecycleState < InfiniFrameWindowLifecycleState.TeardownComplete
+            && Features.Lifecycle.CanWaitForTeardownDuringDispose()) {
+            Features.Lifecycle.WaitForTeardownAsync().AsTask().GetAwaiter().GetResult();
+        }
+
         Features.Lifecycle.CleanupNativeHandle();
+    }
+
+    public async ValueTask DisposeAsync() {
+        if (!Features.Lifecycle.IsClosedOrClosing()) await Features.Lifecycle.CloseAsync().ConfigureAwait(false);
+        await Features.Lifecycle.WaitForTeardownAsync().ConfigureAwait(false);
+        Features.Lifecycle.CleanupNativeHandle();
+        // GC.SuppressFinalize(this);
     }
 }

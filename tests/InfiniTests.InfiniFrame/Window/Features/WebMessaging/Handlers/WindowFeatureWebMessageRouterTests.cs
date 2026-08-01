@@ -89,7 +89,7 @@ public class WindowFeatureWebMessageRouterTests {
         using JsonDocument document = JsonDocument.Parse(diagnostics);
         JsonElement root = document.RootElement;
 
-        await Assert.That(state).IsEqualTo("\"closingRequested\"");
+        await Assert.That(state).IsEqualTo("\"closeRequested\"");
         await Assert.That(root.GetProperty("endpointStatus").GetString()).IsEqualTo("disabled");
         await Assert.That(root.GetProperty("browserRuntime").ValueKind).IsEqualTo(JsonValueKind.Null);
         await Assert.That(root.GetProperty("remoteDebuggingPort").ValueKind).IsEqualTo(JsonValueKind.Null);

@@ -51,6 +51,9 @@ namespace {
             nullptr
         );
         infiniFrame->FlushPendingWebMessages();
+        infiniFrame->CompleteNavigationAndSignalReady(
+            reinterpret_cast<uint64_t>(navigation), true, 0, nullptr
+        );
     }
 
     - (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
@@ -66,6 +69,11 @@ namespace {
             unix_timestamp_milliseconds_utc(),
             nullptr
         );
+        infiniFrame->CompleteNavigationAndSignalReady(
+            reinterpret_cast<uint64_t>(navigation), false,
+            error == nil ? 0 : (int)error.code,
+            error == nil ? "Navigation failed" : [error.localizedDescription UTF8String]
+        );
     }
 
     - (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error {
@@ -80,6 +88,11 @@ namespace {
             error == nil ? 0 : (int)error.code,
             unix_timestamp_milliseconds_utc(),
             nullptr
+        );
+        infiniFrame->CompleteNavigationAndSignalReady(
+            reinterpret_cast<uint64_t>(navigation), false,
+            error == nil ? 0 : (int)error.code,
+            error == nil ? "Provisional navigation failed" : [error.localizedDescription UTF8String]
         );
     }
 

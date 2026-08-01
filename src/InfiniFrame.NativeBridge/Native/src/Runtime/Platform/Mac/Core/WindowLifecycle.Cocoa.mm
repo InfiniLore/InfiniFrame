@@ -127,6 +127,7 @@ void InfiniFrameWindow::CompleteCloseAfterWebKitTeardown()
         InvokeClosed();
     }
     SignalWindowClosed();
+    ScheduleTeardownCompletion();
 
     // Defer one main-queue turn so SafeHandle disposal from a reverse P/Invoke callback never
     // deletes the C++ session while AppKit is unwinding through that callback.
@@ -135,6 +136,18 @@ void InfiniFrameWindow::CompleteCloseAfterWebKitTeardown()
             delete this;
         });
     }
+}
+
+void InfiniFrameWindow::ScheduleTeardownCompletion()
+{
+    CompleteOperationsForClose();
+    CompleteNavigationForClose();
+    CompleteDialogsForClose();
+    CFRunLoopRef mainRunLoop = CFRunLoopGetMain();
+    CFRunLoopPerformBlock(mainRunLoop, kCFRunLoopCommonModes, ^{
+        SignalTeardown();
+    });
+    CFRunLoopWakeUp(mainRunLoop);
 }
 
 void InfiniFrameWindow::ScheduleDeferredDestruction()

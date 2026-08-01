@@ -64,6 +64,19 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
             this.markReadyHandshakeAcknowledged();
         })
 
+        this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.webMessageAckRequest, payload => {
+            if (!payload) return;
+            try {
+                const request = JSON.parse(payload) as { OperationId?: string; Message?: string };
+                if (!request.OperationId || typeof request.Message !== "string") return;
+                if (!this.handleInteropMessage(request.Message)) return;
+                this.sendMessageToHost(SendToHostMessageIds.webMessageAckResponse, request.OperationId);
+            }
+            catch (error) {
+                console.warn("Could not process acknowledged host message.", error);
+            }
+        })
+
         this.sendReadyHandshake();
     }
 

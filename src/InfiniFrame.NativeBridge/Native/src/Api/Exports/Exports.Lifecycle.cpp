@@ -43,4 +43,24 @@ EXPORTED InteropStatus InfiniFrameNative_Close(InfiniFrameWindow* instance) {
 EXPORTED InteropStatus InfiniFrameNative_WaitForExit(InfiniFrameWindow* instance) {
     return RunWindowExportStatus(instance, [](InfiniFrameWindow* window) { window->WaitForExit(); });
 }
+
+EXPORTED InteropStatus InfiniFrameNative_SetReadyCallback(
+    InfiniFrameWindow* instance, const ContextAction callback, void* context
+) {
+    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+        if (callback == nullptr)
+            throw std::invalid_argument("Argument 'callback' is null.");
+        window->SetReadyCallback(callback, context);
+    });
+}
+
+EXPORTED InteropStatus InfiniFrameNative_SetTeardownCallback(
+    InfiniFrameWindow* instance, const ContextAction callback, void* context
+) {
+    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+        if (callback == nullptr)
+            throw std::invalid_argument("Argument 'callback' is null.");
+        window->SetTeardownCallback(callback, context);
+    });
+}
 }

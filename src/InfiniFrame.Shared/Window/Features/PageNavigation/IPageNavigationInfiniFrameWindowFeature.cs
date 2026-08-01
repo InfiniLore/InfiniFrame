@@ -12,6 +12,8 @@ public interface IPageNavigationInfiniFrameWindowFeature {
     /// <param name="uri">The URI to load.</param>
     void Load(Uri uri);
 
+    Task<NavigationResult> LoadAsync(Uri uri, CancellationToken ct = default);
+
     /// <summary>
     ///     Loads the content at the specified path in the window.
     /// </summary>
@@ -37,4 +39,6 @@ public interface IPageNavigationInfiniFrameWindowFeature {
     /// </summary>
     /// <param name="content">The raw HTML content to load.</param>
     void LoadRawString(string content);
+
+    Task<NavigationResult> LoadRawStringAsync(string content, CancellationToken ct = default);
 }

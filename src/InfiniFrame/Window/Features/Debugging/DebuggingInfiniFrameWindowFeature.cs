@@ -121,6 +121,9 @@ public sealed class DebuggingInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IDebuggingInfiniFrameWindowFeature.GetDiagnostics" />
     public InfiniFrameDebugDiagnostics GetDiagnostics() {
+        var operationDiagnostics = window is InfiniFrameWindow concreteWindow
+            ? concreteWindow.GetOperationDiagnostics()
+            : (DateTimeOffset.UtcNow, (IReadOnlyList<InfiniFrameOperationDiagnostics>)[], null);
         Uri? endpoint = null;
         string? endpointReason = null;
         InfiniFrameDebugEndpointStatus endpointStatus;
@@ -157,7 +160,11 @@ public sealed class DebuggingInfiniFrameWindowFeature(
             Endpoint = endpoint,
             EndpointReason = endpointReason,
             IsWindowClosed = window.IsClosedOrClosing(),
-            PlatformNotes = GetPlatformDiagnosticsNotes()
+            PlatformNotes = GetPlatformDiagnosticsNotes(),
+            LifecycleState = window.LifecycleState,
+            LastLifecycleTransitionUtc = operationDiagnostics.Item1,
+            OutstandingOperations = operationDiagnostics.Item2,
+            LastOperation = operationDiagnostics.Item3
         };
     }
 

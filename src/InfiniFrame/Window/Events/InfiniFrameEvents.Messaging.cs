@@ -19,7 +19,13 @@ public partial class InfiniFrameEvents {
         ArgumentNullException.ThrowIfNull(Sender);
         ArgumentNullException.ThrowIfNull(message);
 
-        if (Sender.LifecycleState != InfiniFrameWindowLifecycleState.Running) {
+        InfiniFrameWindowLifecycleState state = Sender.LifecycleState;
+        // Document scripts can post during parsing, before NavigationCompleted
+        // advances the window from Creating to Ready. Native WebView message
+        // delivery itself proves that the transport is live; only reject work
+        // before creation or once close has been requested.
+        if (state < InfiniFrameWindowLifecycleState.Creating
+            || state >= InfiniFrameWindowLifecycleState.CloseRequested) {
             Logger.LogDebug("Skipping web message handling because window is closed.");
             return;
         }

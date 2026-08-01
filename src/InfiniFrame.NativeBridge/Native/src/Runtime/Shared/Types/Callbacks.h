@@ -12,6 +12,30 @@
 /** @brief Generic parameterless action callback */
 using ACTION = void (*)();
 
+/** @brief Generic action with an opaque caller-owned context. */
+using ContextAction = void (*)(void* context);
+
+/**
+ * @brief Completes a registered native operation exactly once.
+ * Strings are borrowed and valid only for the duration of the callback.
+ */
+using OperationCompletedCallback = void (*)(
+    void* context,
+    uint64_t operationId,
+    int32_t result,
+    int32_t nativeCode,
+    const char* failureUtf8
+);
+
+/** File dialog completion. Values are borrowed for the callback duration. */
+using FileDialogCompletedCallback = void (*)(
+    void* context,
+    uint64_t operationId,
+    int32_t result,
+    int32_t valueCount,
+    AutoString* values
+);
+
 /**
  * @brief Called when the WebView receives a message posted from JavaScript via window.chrome.webview.postMessage
  * @param message UTF-8 encoded message string
