@@ -238,6 +238,49 @@ DialogResult InfiniFrameDialog::ShowMessage(AutoString title, AutoString text, D
 }
 
 namespace {
+  void SchedulePanelCancellation(NSSavePanel* panel) {
+    if (panel == nil)
+      return;
+
+    // -cancel: may synchronously run the sheet completion handler. Queue it for the
+    // next main-run-loop turn so a managed completion callback is never re-entered
+    // from the native dispatch operation that requested cancellation.
+    CFRunLoopRef mainRunLoop = CFRunLoopGetMain();
+    if (mainRunLoop == nullptr) {
+      [panel cancel:nil];
+      return;
+    }
+
+    [panel retain];
+    CFRunLoopPerformBlock(mainRunLoop, kCFRunLoopCommonModes, ^{
+      [panel cancel:nil];
+      [panel release];
+    });
+    CFRunLoopWakeUp(mainRunLoop);
+  }
+
+  void ScheduleAlertCancellation(NSAlert* alert) {
+    if (alert == nil)
+      return;
+
+    CFRunLoopRef mainRunLoop = CFRunLoopGetMain();
+    if (mainRunLoop == nullptr) {
+      NSWindow* sheet = [alert window];
+      if ([sheet sheetParent] != nil)
+        [[sheet sheetParent] endSheet:sheet returnCode:NSModalResponseCancel];
+      return;
+    }
+
+    [alert retain];
+    CFRunLoopPerformBlock(mainRunLoop, kCFRunLoopCommonModes, ^{
+      NSWindow* sheet = [alert window];
+      if ([sheet sheetParent] != nil)
+        [[sheet sheetParent] endSheet:sheet returnCode:NSModalResponseCancel];
+      [alert release];
+    });
+    CFRunLoopWakeUp(mainRunLoop);
+  }
+
   void ConfigureOpenPanel(
       NSOpenPanel* panel, AutoString title, AutoString defaultPath,
       const bool folders, const bool multiSelect, AutoString* filters, const int filterCount
@@ -288,7 +331,7 @@ void InfiniFrameWindow::BeginShowOpenFile(
   [panel beginSheetModalForWindow:getNSWindow() completionHandler:^(NSModalResponse response) {
     CompleteOpenPanel(panel, response, operation);
   }];
-  operation->SetCancelAction([panel] { [panel cancel:nil]; });
+  operation->SetCancelAction([panel] { SchedulePanelCancellation(panel); });
 }
 
 void InfiniFrameWindow::BeginShowOpenFolder(
@@ -301,7 +344,7 @@ void InfiniFrameWindow::BeginShowOpenFolder(
   [panel beginSheetModalForWindow:getNSWindow() completionHandler:^(NSModalResponse response) {
     CompleteOpenPanel(panel, response, operation);
   }];
-  operation->SetCancelAction([panel] { [panel cancel:nil]; });
+  operation->SetCancelAction([panel] { SchedulePanelCancellation(panel); });
 }
 
 void InfiniFrameWindow::BeginShowSaveFile(
@@ -334,7 +377,7 @@ void InfiniFrameWindow::BeginShowSaveFile(
     operation->CompleteFile(response == NSModalResponseOK ? 0 : 2, count, values);
     FreeStringArray(values, count);
   }];
-  operation->SetCancelAction([panel] { [panel cancel:nil]; });
+  operation->SetCancelAction([panel] { SchedulePanelCancellation(panel); });
 }
 
 void InfiniFrameWindow::BeginShowMessage(
@@ -375,8 +418,6 @@ void InfiniFrameWindow::BeginShowMessage(
     operation->CompleteMessage(result);
   }];
   operation->SetCancelAction([alert] {
-    NSWindow* sheet = [alert window];
-    if ([sheet sheetParent] != nil)
-      [[sheet sheetParent] endSheet:sheet returnCode:NSModalResponseCancel];
+    ScheduleAlertCancellation(alert);
   });
 }
