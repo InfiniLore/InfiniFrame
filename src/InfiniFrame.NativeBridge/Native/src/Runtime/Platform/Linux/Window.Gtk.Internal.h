@@ -19,6 +19,7 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     GtkWidget* _window = nullptr;
     GtkWidget* _webview = nullptr;
     WebKitWebContext* _webContext = nullptr;
+    gulong _webMessageSignalHandlerId = 0;
     int _remoteDebuggingPort = 0;
 
     std::string _temporaryFilesPath;
@@ -26,6 +27,9 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     bool _isFullScreen = false;
     bool _webviewReady = false;
     bool _webviewClosed = false;
+    bool _webviewFinalized = false;
+    bool _windowDestroyed = false;
+    bool _teardownCompletionScheduled = false;
     bool _maximized = false;
     bool _minimized = false;
     double _zoom = 100.0;

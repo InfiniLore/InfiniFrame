@@ -613,6 +613,9 @@ class InfiniFrameWindow {
     void SignalReady();
     void SignalTeardown();
     void ScheduleTeardownCompletion();
+#ifdef __linux__
+    void NotifyWebViewFinalized();
+#endif
 
     /**
          * @brief Fire the closing callback

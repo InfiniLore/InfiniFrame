@@ -54,7 +54,7 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
     webkit_user_content_manager_add_script(contentManager, script);
     webkit_user_script_unref(script);
 
-    g_signal_connect(
+    m_impl->_webMessageSignalHandlerId = g_signal_connect(
         contentManager, "script-message-received::infiniFrameInterop", G_CALLBACK(gtk_webkit::HandleWebMessage),
         reinterpret_cast<void*>(m_impl->_webMessageReceivedCallback)
     );
