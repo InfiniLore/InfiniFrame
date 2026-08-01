@@ -38,8 +38,6 @@ public class RemoteDebuggingPortCollisionTests {
     }
 
     private static int GetAvailableLoopbackPort() {
-        using var listener = new TcpListener(IPAddress.Loopback, 0);
-        listener.Start();
-        return ((IPEndPoint)listener.LocalEndpoint).Port;
+        return PortUtils.GetOpenPortValue();
     }
 }

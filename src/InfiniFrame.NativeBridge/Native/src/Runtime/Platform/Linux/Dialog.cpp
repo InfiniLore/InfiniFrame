@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #include <gtk/gtk.h>
 
+#include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
 #include "Runtime/Shared/Window/InfiniFrameDialog.h"
 #include "Runtime/Shared/Window/InfiniFrameWindow.h"
 #include "Runtime/Shared/Operations/DialogOperation.h"
@@ -260,6 +261,28 @@ DialogResult InfiniFrameDialog::ShowMessage(
 }
 
 namespace {
+    void ScheduleDialogCancellation(GtkWidget* dialog, const gint response) {
+        if (!GTK_IS_DIALOG(dialog))
+            return;
+
+        // gtk_dialog_response emits the response signal synchronously. Defer it by one
+        // owner-context turn so cancellation never invokes a managed completion callback
+        // reentrantly from inside the native dispatch operation that requested cancellation.
+        auto* retainedDialog = GTK_WIDGET(g_object_ref(dialog));
+        const bool scheduled = infiniframe::linux_gtk::ui_thread::InvokeAsync(
+            [retainedDialog, response] {
+                if (GTK_IS_DIALOG(retainedDialog) && !gtk_widget_in_destruction(retainedDialog))
+                    gtk_dialog_response(GTK_DIALOG(retainedDialog), response);
+                g_object_unref(retainedDialog);
+            }
+        );
+        if (!scheduled) {
+            g_object_unref(retainedDialog);
+            if (!gtk_widget_in_destruction(dialog))
+                gtk_dialog_response(GTK_DIALOG(dialog), response);
+        }
+    }
+
     GtkWidget* CreateAsyncMessageDialog(
         InfiniFrameWindow* owner, AutoString title, AutoString text,
         const DialogButtons buttons, const DialogIcon icon
@@ -423,8 +446,7 @@ namespace {
         g_signal_connect(dialog, "response", G_CALLBACK(OnAsyncFileResponse), state);
         g_signal_connect(dialog, "destroy", G_CALLBACK(OnAsyncFileDestroyed), state);
         operation->SetCancelAction([dialog] {
-            if (GTK_IS_DIALOG(dialog))
-                gtk_dialog_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
+            ScheduleDialogCancellation(dialog, GTK_RESPONSE_CANCEL);
         });
         gtk_widget_show(dialog);
     }
@@ -441,8 +463,7 @@ void InfiniFrameWindow::BeginShowMessage(
     g_signal_connect(dialog, "response", G_CALLBACK(OnAsyncMessageResponse), state);
     g_signal_connect(dialog, "destroy", G_CALLBACK(OnAsyncMessageDestroyed), state);
     operation->SetCancelAction([dialog] {
-        if (GTK_IS_DIALOG(dialog))
-            gtk_dialog_response(GTK_DIALOG(dialog), static_cast<gint>(DialogResult::Cancel));
+        ScheduleDialogCancellation(dialog, static_cast<gint>(DialogResult::Cancel));
     });
     gtk_widget_show(dialog);
 }

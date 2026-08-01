@@ -4,8 +4,6 @@
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters;
 using System.Diagnostics;
-using System.Net;
-using System.Net.Sockets;
 using System.Runtime.Versioning;
 using System.Text.Json;
 
@@ -143,9 +141,7 @@ public class Win32SetWebView2PathTests {
         );
 
     private static int GetAvailableLoopbackPort() {
-        using var listener = new TcpListener(IPAddress.Loopback, 0);
-        listener.Start();
-        return ((IPEndPoint)listener.LocalEndpoint).Port;
+        return PortUtils.GetOpenPortValue();
     }
 
     private static async Task<string?> WaitForBrowserVersion(int port, CancellationToken ct) {

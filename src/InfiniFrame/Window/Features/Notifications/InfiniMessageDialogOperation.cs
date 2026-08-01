@@ -29,6 +29,9 @@ internal sealed class InfiniMessageDialogOperation {
     private NativeHandleLease? _lease;
     private GCHandle _selfHandle;
     private CancellationTokenRegistration _cancellationRegistration;
+    private int _nativeStarted;
+    private int _cancellationRequested;
+    private int _cancellationDispatchStarted;
     private int _completed;
 
     public ulong Id { get; } = unchecked((ulong)Interlocked.Increment(ref _nextId));
@@ -51,6 +54,9 @@ internal sealed class InfiniMessageDialogOperation {
 
     public async Task StartAsync() {
         try {
+            _cancellationRegistration = _cancellationToken.Register(
+                static state => ((InfiniMessageDialogOperation)state!).OnCancellationRequested(), this
+            );
             await _window.WaitForReadyAsync().ConfigureAwait(false);
             _lease = _window.AcquireNativeHandle();
             _selfHandle = GCHandle.Alloc(this);
@@ -70,14 +76,26 @@ internal sealed class InfiniMessageDialogOperation {
                 return;
             }
 
-            _cancellationRegistration = _cancellationToken.Register(
-                static state => _ = ((InfiniMessageDialogOperation)state!).RequestCancellationAsync(), this
-            );
+            Volatile.Write(ref _nativeStarted, 1);
+            if (Volatile.Read(ref _cancellationRequested) != 0)
+                StartCancellationDispatch();
         }
         catch (Exception exception) {
             _logger.LogError(exception, "Asynchronous message dialog {OperationId} failed.", Id);
             Finish(InfiniFrameDialogResult.Cancel);
         }
+    }
+
+    private void OnCancellationRequested() {
+        Volatile.Write(ref _cancellationRequested, 1);
+        if (Volatile.Read(ref _nativeStarted) != 0)
+            StartCancellationDispatch();
+    }
+
+    private void StartCancellationDispatch() {
+        if (Volatile.Read(ref _completed) != 0) return;
+        if (Interlocked.Exchange(ref _cancellationDispatchStarted, 1) == 0)
+            _ = RequestCancellationAsync();
     }
 
     private async Task RequestCancellationAsync() {
