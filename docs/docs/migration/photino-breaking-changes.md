@@ -119,6 +119,8 @@ InfiniFrame can pull window configuration from `IConfiguration` under an `"Infin
 | `RegisterCustomSchemeHandler()`                                           | Returns `IInfiniFrameWindow` (fluent); in Photino it returned void                  |
 | `ZoomEnabled`                                                             | Separate bool controlling whether the user can zoom, distinct from the `Zoom` level |
 | `PageNavigation.GetCurrentUri()` / `GetCurrentUrl()`              | First-class equivalent of Photino's `GetCurrentUrl()`; returns null after `LoadRawString` |
+| `SetInstanceArbitrationMode(InstanceArbitrationMode)`            | Single-instance enforcement via named mutex; not available in Photino                    |
+| `SetInstanceArbitrationMutexName(string)`                        | Configure the mutex name for instance arbitration                                        |
 
 ## Javascript Debugging
 

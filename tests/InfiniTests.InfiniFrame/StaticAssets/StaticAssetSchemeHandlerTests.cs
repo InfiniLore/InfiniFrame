@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame;
 using InfiniFrame.StaticAssets;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
@@ -24,9 +25,9 @@ public class StaticAssetSchemeHandlerTests {
 
     [Test]
     public async Task Handler_QueryAndFragmentAreExcludedOnlyFromResourceLookup(CancellationToken ct = default) {
-        byte[] expected = "fragment-safe"u8.ToArray();
+        byte[] expected = [.. "fragment-safe"u8];
         var provider = new RecordingFileProvider("assets/data.txt", expected);
-        var handler = StaticAssetSchemeHandler.Create(provider, "index.html");
+        Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         (Stream? data, string? contentType) = handler(null!, "app://localhost/assets/data.txt?version=7#section");
         await using (data) {

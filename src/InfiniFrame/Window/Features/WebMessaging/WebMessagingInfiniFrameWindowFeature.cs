@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Interop;
 using InfiniFrame.NativeBridge;
+using InfiniFrame.NativeBridge.Handles;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Text;
@@ -59,7 +60,7 @@ public class WebMessagingInfiniFrameWindowFeature : IWebMessagingInfiniFrameWind
 
         InfiniFrameDispatchResult result = await window.DispatchAsync(
             () => {
-                using var lease = window.AcquireNativeHandle();
+                using NativeHandleLease lease = window.AcquireNativeHandle();
                 InfiniFrameNativeInteropStatus status = InfiniFrameNative.SendWebMessage(lease.Handle, message);
                 if (status != InfiniFrameNativeInteropStatus.Success)
                     throw new ApplicationException(InfiniFrameNative.GetLastErrorMessage() ?? "Could not submit web message.");

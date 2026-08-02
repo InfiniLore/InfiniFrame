@@ -52,6 +52,11 @@ public interface IInfiniFrameWindowBuilderFeatures {
     IStateInfiniFrameWindowBuilderFeature State { get; }
 
     /// <summary>
+    ///     Gets the instance arbitration feature builder for single-instance enforcement.
+    /// </summary>
+    IInstanceArbitrationInfiniFrameWindowBuilderFeature InstanceArbitration { get; }
+
+    /// <summary>
     ///     Applies all feature builder configurations to the native parameters.
     /// </summary>
     /// <param name="parameters">The native parameters to update.</param>

@@ -50,6 +50,14 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
         InfiniFrameNativeParameters nativeParameters = CollectNativeParameters();
 
+        // Instance arbitration check
+        IInstanceArbitrationInfiniFrameWindowBuilderFeature arbitration = Features.InstanceArbitration;
+        if (arbitration.Mode != InstanceArbitrationMode.Disabled) {
+            if (!InstanceArbitration.TryAcquirePrimaryInstance(arbitration.MutexName)) {
+                throw new InstanceAlreadyRunningException();
+            }
+        }
+
         var window = actualProvider.GetRequiredService<InfiniFrameWindow>();
 
         window.AssignFeatures(featureFactory.Create(window, this));

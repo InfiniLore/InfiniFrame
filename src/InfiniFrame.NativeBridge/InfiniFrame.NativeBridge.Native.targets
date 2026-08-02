@@ -134,7 +134,7 @@
             BeforeTargets="DispatchToInnerBuilds;PrepareForBuild"
             Condition="'$(InfiniFrameSkipNativeBuild)' != 'true' and ('$(IsCrossTargetingBuild)' == 'true' or '$(TargetFramework)' != '')"
             Inputs="@(NativeBuildInput)"
-            Outputs="$(NativeStamp)">
+            Outputs="$(NativeStamp);$(CurrentNativeArtifact)">
         <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)native-build.ps1&quot; $(Configuration) $(NativeArch) $(InfiniFrameEnableTestExports)" />
         <Touch Files="$(NativeStamp)" AlwaysCreate="true" />
     </Target>
