@@ -15,13 +15,15 @@ EXPORTED InteropStatus InfiniFrameNative_GetTransparentEnabled(InfiniFrameWindow
     });
 }
 
-/// @param[out] value Owned string, caller must free with InfiniFrameNative_FreeString.
-EXPORTED InteropStatus InfiniFrameNative_GetBackgroundColor(InfiniFrameWindow* instance, AutoString* value) {
-    ResetOut(value, static_cast<AutoString>(nullptr));
+EXPORTED InteropStatus InfiniFrameNative_GetBackgroundColor(InfiniFrameWindow* instance, uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a) {
+    ResetOut(r, static_cast<uint8_t>(0));
+    ResetOut(g, static_cast<uint8_t>(0));
+    ResetOut(b, static_cast<uint8_t>(0));
+    ResetOut(a, static_cast<uint8_t>(0));
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
-        if (!EnsureOutNotNull(value, "value"))
+        if (!EnsureOutNotNull(r, "r") || !EnsureOutNotNull(g, "g") || !EnsureOutNotNull(b, "b") || !EnsureOutNotNull(a, "a"))
             return;
-        *value = window->GetBackgroundColor();
+        window->GetBackgroundColor(r, g, b, a);
     });
 }
 

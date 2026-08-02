@@ -157,3 +157,21 @@ void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled) {
         m_impl->_webviewWindow->Reload();
     }
 }
+
+void InfiniFrameWindow::SetBackgroundColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    m_impl->_backgroundColorR = r;
+    m_impl->_backgroundColorG = g;
+    m_impl->_backgroundColorB = b;
+    m_impl->_backgroundColorA = a;
+
+    if (!m_impl->_webviewController)
+        return;
+
+    wil::com_ptr<ICoreWebView2Controller2> controller2;
+    if (FAILED(m_impl->_webviewController->QueryInterface(&controller2)) || !controller2)
+        return;
+
+    COREWEBVIEW2_COLOR bgColor = {a, r, g, b};
+    controller2->put_DefaultBackgroundColor(bgColor);
+    m_impl->_webviewWindow->Reload();
+}

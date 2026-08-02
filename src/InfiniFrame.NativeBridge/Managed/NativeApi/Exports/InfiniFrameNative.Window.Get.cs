@@ -234,34 +234,17 @@ public partial class InfiniFrameNative {
     internal static partial InfiniFrameNativeInteropStatus GetMinSize(IntPtr instance, out int minWidth, out int minHeight);
 
     /// <summary>
-    ///     Gets the current window background color.
+    ///     Gets the current window background color as raw RGBA components.
     /// </summary>
     /// <param name="instance">The native window instance handle.</param>
-    /// <param name="color">The background color string; caller must free with InfiniFrameNative_FreeString.</param>
+    /// <param name="r">Output: red component (0-255).</param>
+    /// <param name="g">Output: green component (0-255).</param>
+    /// <param name="b">Output: blue component (0-255).</param>
+    /// <param name="a">Output: alpha component (0-255).</param>
     /// <returns>A status code indicating success or failure.</returns>
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_GetBackgroundColor", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    private static partial InfiniFrameNativeInteropStatus GetBackgroundColorPtr(IntPtr instance, out IntPtr value);
-
-    /// <summary>
-    ///     Gets the current window background color.
-    /// </summary>
-    /// <param name="instance">The native window instance handle.</param>
-    /// <param name="color">The background color string.</param>
-    /// <returns>A status code indicating success or failure.</returns>
-    internal static InfiniFrameNativeInteropStatus GetBackgroundColor(IntPtr instance, out string? color) {
-        InfiniFrameNativeInteropStatus status = GetBackgroundColorPtr(instance, out IntPtr ptr);
-        try {
-            color = PtrToNativeString(ptr);
-        }
-        finally {
-            if (ptr != IntPtr.Zero) {
-                FreeString(ptr);
-            }
-        }
-
-        return status;
-    }
+    internal static partial InfiniFrameNativeInteropStatus GetBackgroundColor(IntPtr instance, out byte r, out byte g, out byte b, out byte a);
 
     /// <summary>
     ///     Gets the screen DPI value for the window's display.

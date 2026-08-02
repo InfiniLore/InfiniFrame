@@ -71,7 +71,6 @@ public class DecorationsInfiniFrameWindowBuilderFeature : IDecorationsInfiniFram
     public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
         parameters.Chromeless = IsChromeless;
         parameters.Transparent = IsTransparent;
-        parameters.BackgroundColor = BackgroundColor;
         parameters.Title = Title;
         parameters.WindowIconFile = IconFileUtility.TryResolveIconFilePath(IconFilePath, out string? resolvedIconFilePath)
             ? resolvedIconFilePath

@@ -63,7 +63,6 @@ struct InfiniFrameInitParams {
     bool CenterOnInitialize;
     bool Chromeless;
     bool Transparent;
-    AutoString BackgroundColor;
     bool ContextMenuEnabled;
     bool ZoomEnabled;
     bool DevToolsEnabled;

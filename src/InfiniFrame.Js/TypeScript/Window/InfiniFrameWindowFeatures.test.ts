@@ -57,12 +57,14 @@ const contracts: FeatureContract[] = [
         gets: [
             ["isChromelessAsync", "isChromeless", false],
             ["isTransparentAsync", "isTransparent", false],
+            ["backgroundColorAsync", "backgroundColor", "#FF0000"],
             ["getTitleAsync", "title", "Native title"],
             ["getIconFilePathAsync", "iconFilePath", "icon.ico"],
             ["getLimitLinuxWindowTitleLengthAsync", "limitLinuxWindowTitleLength", true]
         ].map(([method, command, result]) => ({method: method as string, command: command as string, result})),
         posts: [
             {method: "setTransparent", command: "setTransparent", parameters: [false], args: {enabled: false}},
+            {method: "setBackgroundColor", command: "setBackgroundColor", parameters: ["#FF0000"], args: {color: "#FF0000"}},
             {method: "setTitle", command: "setTitle", parameters: [null], args: {title: null}},
             {method: "setIconFile", command: "setIconFile", parameters: ["icon.ico"], args: {iconFilePath: "icon.ico"}},
             {method: "setLimitLinuxWindowTitleLength", command: "setLimitLinuxWindowTitleLength", parameters: [false], args: {enabled: false}}

@@ -183,14 +183,17 @@ public partial class InfiniFrameNative {
     internal static partial InfiniFrameNativeInteropStatus SetMaxSize(IntPtr instance, int maxWidth, int maxHeight);
 
     /// <summary>
-    ///     Sets the window background color. Pass <c>null</c> or <c>"transparent"</c> to reset to default.
+    ///     Sets the window background color using raw RGBA components. C# handles hex parsing.
     /// </summary>
     /// <param name="instance">The native window instance handle.</param>
-    /// <param name="color">A hex color string (e.g. "#RRGGBB" or "#AARRGGBB"), or <c>null</c>/<c>"transparent"</c> to reset.</param>
+    /// <param name="r">Red component (0-255).</param>
+    /// <param name="g">Green component (0-255).</param>
+    /// <param name="b">Blue component (0-255).</param>
+    /// <param name="a">Alpha component (0-255, 0 = fully transparent).</param>
     /// <returns>A status code indicating success or failure.</returns>
-    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetBackgroundColor", SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetBackgroundColor", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial InfiniFrameNativeInteropStatus SetBackgroundColor(IntPtr instance, string? color);
+    internal static partial InfiniFrameNativeInteropStatus SetBackgroundColor(IntPtr instance, byte r, byte g, byte b, byte a);
 
     /// <summary>
     ///     Sets the minimum window size.

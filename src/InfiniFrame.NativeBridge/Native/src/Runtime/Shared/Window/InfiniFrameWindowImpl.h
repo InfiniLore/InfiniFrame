@@ -77,7 +77,10 @@ struct InfiniFrameWindowImpl {
     NativeString _browserControlInitParameters;
     NativeString _webView2RuntimePath;
     NativeString _iconFileName;
-    NativeString _backgroundColor;
+    uint8_t _backgroundColorR = 0;
+    uint8_t _backgroundColorG = 0;
+    uint8_t _backgroundColorB = 0;
+    uint8_t _backgroundColorA = 0;
 
     std::vector<NativeString> _customSchemeNames;
 

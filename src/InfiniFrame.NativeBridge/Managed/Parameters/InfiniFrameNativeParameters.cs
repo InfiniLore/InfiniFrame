@@ -197,13 +197,6 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.I1)]
     internal bool Transparent;
 
-    /// <summary>
-    ///     OPTIONAL: Sets the native window background color. Accepts hex strings like "#RRGGBB" or "#AARRGGBB".
-    ///     Pass <c>null</c> or <c>"transparent"</c> to reset to the platform default.
-    /// </summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string? BackgroundColor;
-
     ///<summary>OPTIONAL: If true, the user can access the browser control's context menu. Default is true.</summary>
     [MarshalAs(UnmanagedType.I1)]
     internal bool ContextMenuEnabled;
