@@ -158,8 +158,10 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
         // We have to block. That's the contract of Send - we don't expect this to be used
         // in many scenarios in Components.
         //
-        // Using Wait here is ok because the antecedent task will never throw.
-        antecedent.Wait();
+        // Using GetAwaiter().GetResult() here to preserve the original exception type
+        // instead of wrapping it in an AggregateException, consistent with all other
+        // blocking patterns in this codebase. The antecedent task never throws.
+        antecedent.GetAwaiter().GetResult();
 
         ExecuteSynchronously(completion, d, state);
     }

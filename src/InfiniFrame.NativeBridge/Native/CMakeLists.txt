@@ -43,6 +43,8 @@ set(COMMON_SOURCES
         src/Api/Utilities/ExportErrorState.cpp
         src/Runtime/Shared/Window/WindowEvents.cpp
         src/Runtime/Shared/Window/WindowState.cpp
+        src/Runtime/Shared/Operations/NativeOperation.cpp
+        src/Runtime/Shared/Operations/DialogOperation.cpp
         src/Api/Exports/Exports.CustomSchemes.cpp
         src/Api/Exports/Exports.Dispatch.cpp
         src/Api/Exports/Exports.Dialog.cpp
@@ -152,6 +154,8 @@ set(MAC_SOURCES
 set(HEADER_FILES
         src/Embedded/Embedded.h
         src/Runtime/Shared/WebView/CustomSchemeResponse.h
+        src/Runtime/Shared/Operations/NativeOperation.h
+        src/Runtime/Shared/Operations/NavigationOperation.h
         src/Api/Exports/Exports.h
         src/Api/Utilities/ExportErrorState.h
         src/Api/Utilities/ExportExecution.h

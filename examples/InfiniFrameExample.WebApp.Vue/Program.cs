@@ -16,7 +16,7 @@ public static class Program {
         // WebApplicationBuilder appBuilder = builder.WebApp;
 
         if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) appBuilder.WindowBuilder.Debugging.SetRemoteDebuggingPort(9222);
-        
+
         appBuilder.WindowBuilder
             .CenteredOnMainMonitor()
             // .SetTransparent(true)
@@ -31,15 +31,15 @@ public static class Program {
             .RegisterWebMessageReceivedHandler((_, message) => {
                 // ReSharper disable twice UnusedVariable
                 string response = $"Received message: \"{message}\"";
-                
+
                 // ... do something with the message
             })
             ;
-        
+
         InfiniFrameWebApplication application = appBuilder.Build();
 
         application.UseAutoServerClose();
-        
+
         application.WebApp.UseStaticFiles();
         application.WebApp.MapStaticAssets();
 

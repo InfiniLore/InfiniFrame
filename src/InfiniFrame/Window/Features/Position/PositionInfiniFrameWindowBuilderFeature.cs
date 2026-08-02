@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge.Parameters;
@@ -41,7 +41,7 @@ public class PositionInfiniFrameWindowBuilderFeature : IPositionInfiniFrameWindo
     /// <inheritdoc cref="IPositionInfiniFrameWindowBuilderFeature.SetTop"/>
     public void SetTop(int top) {
         StartAtOsDefaultLocation = false;
-        Top = top;   
+        Top = top;
     }
     /// <inheritdoc cref="IPositionInfiniFrameWindowBuilderFeature.UseOsDefaultLocation"/>
     public void UseOsDefaultLocation(bool enabled) {
@@ -52,11 +52,11 @@ public class PositionInfiniFrameWindowBuilderFeature : IPositionInfiniFrameWindo
         if (enabled) StartAtOsDefaultLocation = false;
         StartCentered = enabled;
     }
-    
+
     public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
         parameters.Top = Top;
         parameters.Left = Left;
         parameters.CenterOnInitialize = StartCentered;
-        parameters.UseOsDefaultLocation = StartAtOsDefaultLocation;        
+        parameters.UseOsDefaultLocation = StartAtOsDefaultLocation;
     }
 }

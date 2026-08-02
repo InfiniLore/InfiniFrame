@@ -13,12 +13,12 @@ public static class FullScreenWebMessageHandler {
             JsHandlerNames.FullscreenEnter,
             (window, _) => window.Features.State.SetFullScreen()
         );
-        
+
         builder.RegisterWebMessagePostHandler(
             JsHandlerNames.FullscreenExit,
             (window, _) => window.Features.State.SetFullScreen(false)
         );
-        
+
         builder.RegisterWebMessagePostHandler(
             JsHandlerNames.FullscreenToggle,
             (window, _) => window.Features.State.SetFullScreen(!window.Features.State.IsFullScreen)

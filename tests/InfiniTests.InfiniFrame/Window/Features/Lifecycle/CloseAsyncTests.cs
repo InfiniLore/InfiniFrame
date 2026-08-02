@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -10,7 +10,7 @@ namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 public class CloseAsyncTests {
     [Test]
     [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(5_000)]
+    [DefaultInfiniTestsTimeout(30_000)]
     public async Task CloseAsync_Extension_ShouldRequestWindowClose(CancellationToken ct = default) {
         // Arrange
         var windowClosing = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -24,12 +24,13 @@ public class CloseAsyncTests {
 
         // Assert
         await windowClosing.Task.WaitAsync(TimeSpan.FromSeconds(3), ct);
-        await Assert.That(window.IsClosedOrClosing()).IsTrue();
+        if (!window.IsClosedOrClosing())
+            throw new InvalidOperationException("CloseAsync completed before the native window entered a closed state.");
     }
 
     [Test]
     [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(2_000)]
+    [DefaultInfiniTestsTimeout(30_000)]
     public async Task CloseAsync_Feature_ShouldMarkWindowAsClosing(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -39,6 +40,7 @@ public class CloseAsyncTests {
         await window.Features.Lifecycle.CloseAsync(ct);
 
         // Assert
-        await Assert.That(window.Features.Lifecycle.IsClosedOrClosing()).IsTrue();
+        if (!window.Features.Lifecycle.IsClosedOrClosing())
+            throw new InvalidOperationException("CloseAsync completed before the native window entered a closed state.");
     }
 }

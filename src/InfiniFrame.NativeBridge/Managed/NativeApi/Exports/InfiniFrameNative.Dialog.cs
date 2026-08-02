@@ -10,6 +10,14 @@ namespace InfiniFrame.NativeBridge;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public partial class InfiniFrameNative {
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    internal delegate void FileDialogCompletedCallback(
+        IntPtr context,
+        ulong operationId,
+        int result,
+        int valueCount,
+        IntPtr values
+    );
     /// <summary>
     ///     Shows an open-file dialog via native code.
     /// </summary>
@@ -98,6 +106,44 @@ public partial class InfiniFrameNative {
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_ShowMessage", SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus ShowMessage(IntPtr inst, string title, string text, InfiniFrameDialogButtons buttons, InfiniFrameDialogIcon icon, out InfiniFrameDialogResult value);
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_BeginShowOpenFile", SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus BeginShowOpenFile(
+        IntPtr instance, ulong operationId, string title, string defaultPath,
+        [MarshalAs(UnmanagedType.I1)] bool multiSelect, string[] filters, int filterCount,
+        FileDialogCompletedCallback completion, IntPtr completionContext
+    );
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_BeginShowOpenFolder", SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus BeginShowOpenFolder(
+        IntPtr instance, ulong operationId, string title, string defaultPath,
+        [MarshalAs(UnmanagedType.I1)] bool multiSelect,
+        FileDialogCompletedCallback completion, IntPtr completionContext
+    );
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_BeginShowSaveFile", SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus BeginShowSaveFile(
+        IntPtr instance, ulong operationId, string title, string defaultPath,
+        string[] filters, int filterCount, string defaultFileName,
+        FileDialogCompletedCallback completion, IntPtr completionContext
+    );
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_BeginShowMessage", SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus BeginShowMessage(
+        IntPtr instance, ulong operationId, string title, string text,
+        InfiniFrameDialogButtons buttons, InfiniFrameDialogIcon icon,
+        OperationCompletedCallback completion, IntPtr completionContext
+    );
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_CancelDialog", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus CancelDialog(
+        IntPtr instance, ulong operationId, [MarshalAs(UnmanagedType.I1)] out bool cancelled
+    );
 
     /// <summary>
     ///     Converts a native pointer to an array of native string pointers into a managed string array.

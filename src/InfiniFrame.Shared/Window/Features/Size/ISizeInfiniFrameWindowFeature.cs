@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Drawing;
@@ -7,7 +7,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface ISizeInfiniFrameWindowFeature{
+public interface ISizeInfiniFrameWindowFeature {
     /// <summary>
     ///     Gets the current size of the window.
     /// </summary>
@@ -16,7 +16,7 @@ public interface ISizeInfiniFrameWindowFeature{
     /// <summary>
     ///     Gets the current height of the window.
     /// </summary>
-    int Height { get; } 
+    int Height { get; }
 
     /// <summary>
     ///     Gets the current width of the window.
@@ -57,7 +57,7 @@ public interface ISizeInfiniFrameWindowFeature{
     ///     Gets whether the window is resizable.
     /// </summary>
     bool IsResizable { get; }
-    
+
     /// <summary>
     ///     Sets the size of the window using width and height values.
     /// </summary>

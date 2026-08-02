@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "../Window.Cocoa.Internal.h"
+#include "Runtime/Shared/Operations/NativeOperation.h"
 
 #include <atomic>
 #include <chrono>
@@ -47,4 +48,22 @@ void InfiniFrameWindow::Invoke(ACTION callback) {
 
     // Execution already began. Do not return while native code still owns the managed reverse P/Invoke callback.
     dispatch_semaphore_wait(state->completion, DISPATCH_TIME_FOREVER);
+}
+
+bool InfiniFrameWindow::ScheduleOperation(const std::shared_ptr<NativeOperation>& operation) {
+    CFRunLoopRef mainRunLoop = CFRunLoopGetMain();
+    if (mainRunLoop == nullptr)
+        return false;
+
+    // `operation` is a reference parameter. Capturing it directly in an Objective-C block
+    // retains the reference variable rather than creating a new shared_ptr owner. The
+    // operation map may release its owner while this block is still queued (for example,
+    // during window teardown), leaving the run-loop callback with a dangling reference.
+    // Materialize an owning local copy before the block is formed.
+    const std::shared_ptr<NativeOperation> retainedOperation = operation;
+    CFRunLoopPerformBlock(mainRunLoop, kCFRunLoopCommonModes, ^{
+        retainedOperation->Execute();
+    });
+    CFRunLoopWakeUp(mainRunLoop);
+    return true;
 }

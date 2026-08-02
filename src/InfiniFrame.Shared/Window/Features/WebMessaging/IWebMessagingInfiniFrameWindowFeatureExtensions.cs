@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame;
@@ -24,4 +24,8 @@ public static class IWebMessagingInfiniFrameWindowFeatureExtensions {
     public static ValueTask SendWebMessageAsync(this IInfiniFrameWindow window, string message, CancellationToken ct = default) {
         return window.Features.WebMessaging.SendWebMessageAsync(message, ct);
     }
+
+    public static Task SendWebMessageWithAcknowledgementAsync(
+        this IInfiniFrameWindow window, string message, CancellationToken ct = default
+    ) => window.Features.WebMessaging.SendWebMessageWithAcknowledgementAsync(message, ct);
 }

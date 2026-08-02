@@ -103,6 +103,46 @@ namespace infiniframe::linux_gtk::ui_thread {
         return std::this_thread::get_id() == ownerThreadId;
     }
 
+    namespace {
+        gboolean ExecuteAsync(gpointer userData) {
+            std::unique_ptr<std::function<void()>> callback(static_cast<std::function<void()>*>(userData));
+            try {
+                (*callback)();
+            } catch (...) {
+                g_warning("InfiniFrame asynchronous UI callback failed.");
+            }
+            return G_SOURCE_REMOVE;
+        }
+    }
+
+    namespace {
+        bool AttachAsync(std::function<void()> callback, const int priority) {
+            if (!callback)
+                return false;
+            EnsureInitialized();
+            GSource* source = g_idle_source_new();
+            g_source_set_priority(source, priority);
+            g_source_set_callback(
+                source, ExecuteAsync, new std::function<void()>(std::move(callback)), nullptr
+            );
+            const guint sourceId = g_source_attach(source, ownerContext);
+            g_source_unref(source);
+            if (sourceId == 0)
+                return false;
+            return true;
+        }
+    }
+
+    bool InvokeAsync(std::function<void()> callback) {
+        return AttachAsync(std::move(callback), G_PRIORITY_DEFAULT);
+    }
+
+    bool InvokeIdle(std::function<void()> callback) {
+        // WebKit schedules object and process cleanup at the default priority. A low-priority idle acknowledgement
+        // therefore cannot overtake cleanup already queued by destruction of a WebKitWebView.
+        return AttachAsync(std::move(callback), G_PRIORITY_LOW);
+    }
+
     void InvokeSync(std::function<void()> callback) {
         if (!callback) {
             return;

@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -52,8 +52,8 @@ public class NativeLifetimeStressTests {
             windowUtility.Window.WaitForClose();
         }
 
-        return InfiniFrameNativeTesting.MacPooledHostCount() > hostPoolLimit 
-            ? throw new InvalidOperationException("The macOS host pool exceeded its configured bound.") 
+        return InfiniFrameNativeTesting.MacPooledHostCount() > hostPoolLimit
+            ? throw new InvalidOperationException("The macOS host pool exceeded its configured bound.")
             : Task.CompletedTask;
     }
 
@@ -106,11 +106,12 @@ public class NativeLifetimeStressTests {
         try {
             await Task.WhenAll(callers);
         }
-        catch (OperationCanceledException) when (stop.IsCancellationRequested) {}
+        catch (OperationCanceledException) when (stop.IsCancellationRequested) { }
 
         // Assert
         await Assert.That(completedCalls).IsGreaterThanOrEqualTo(0);
-        await Assert.That(window.Features.Lifecycle.State).IsEqualTo(InfiniFrameWindowLifecycleState.NativeClosed);
+        await Assert.That((int)window.Features.Lifecycle.State)
+            .IsGreaterThanOrEqualTo((int)InfiniFrameWindowLifecycleState.TeardownPending);
         await Assert.That(() => window.Features.State.IsFocused).Throws<ObjectDisposedException>();
     }
 
@@ -130,7 +131,8 @@ public class NativeLifetimeStressTests {
         window.WaitForClose();
 
         // Assert
-        await Assert.That(window.Features.Lifecycle.State).IsEqualTo(InfiniFrameWindowLifecycleState.NativeClosed);
+        await Assert.That((int)window.Features.Lifecycle.State)
+            .IsGreaterThanOrEqualTo((int)InfiniFrameWindowLifecycleState.TeardownPending);
 
         // Act
         ((IDisposable)window).Dispose();

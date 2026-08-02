@@ -3,18 +3,36 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include <memory>
+#include <mutex>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "Runtime/Shared/Types/Basic.h"
 #include "Runtime/Shared/Types/Callbacks.h"
 #include "Runtime/Shared/Window/InfiniFrameDialog.h"
+#include "Runtime/Shared/Operations/NativeOperation.h"
+#include "Runtime/Shared/Operations/NavigationOperation.h"
+#include "Runtime/Shared/Operations/DialogOperation.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 class InfiniFrameWindow;
 
 struct InfiniFrameWindowImpl {
+    std::mutex _operationMutex;
+    std::unordered_map<uint64_t, std::shared_ptr<NativeOperation>> _operations;
+    std::mutex _navigationMutex;
+    std::unique_ptr<NavigationOperation> _navigationOperation;
+    std::mutex _dialogOperationMutex;
+    std::unordered_map<uint64_t, std::shared_ptr<DialogOperation>> _dialogOperations;
+    std::mutex _milestoneMutex;
+    ContextAction _readyCallback = nullptr;
+    void* _readyCallbackContext = nullptr;
+    ContextAction _teardownCallback = nullptr;
+    void* _teardownCallbackContext = nullptr;
+    bool _readySignaled = false;
+    bool _teardownSignaled = false;
     // -----------------------------------------------------------------------------------------------------------------
     // Callbacks
     // -----------------------------------------------------------------------------------------------------------------

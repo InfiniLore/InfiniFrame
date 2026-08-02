@@ -1,11 +1,11 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IPageNavigationInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBuilderFeature{
+public interface IPageNavigationInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBuilderFeature {
     /// <summary>
     ///     Gets the start page content to display when the window is created.
     /// </summary>
@@ -15,7 +15,7 @@ public interface IPageNavigationInfiniFrameWindowBuilderFeature : IInfiniFrameWi
     ///     Gets the start page URL to navigate to when the window is created.
     /// </summary>
     string? StartUrl { get; }
-    
+
     /// <summary>
     ///     Sets the content to display as the start page.
     /// </summary>

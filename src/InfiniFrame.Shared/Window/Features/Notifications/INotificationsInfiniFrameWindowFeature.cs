@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge.Dialogs;
@@ -24,4 +24,12 @@ public interface INotificationsInfiniFrameWindowFeature {
     /// <param name="icon">The icon to display on the dialog.</param>
     /// <returns>The user's response as an <see cref="InfiniFrameDialogResult"/>.</returns>
     InfiniFrameDialogResult ShowMessage(string title, string? text, InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok, InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info);
+
+    /// <summary>Displays a native message dialog and completes when it is answered, cancelled, or its owner closes.</summary>
+    Task<InfiniFrameDialogResult> ShowMessageAsync(
+        string title, string? text,
+        InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok,
+        InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info,
+        CancellationToken ct = default
+    );
 }

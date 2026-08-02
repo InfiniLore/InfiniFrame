@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -53,7 +53,7 @@ public sealed class InfiniFrameBlazorAppTeardownTests {
     }
 
     private sealed class TestComponent : IComponent {
-        public void Attach(RenderHandle renderHandle) {}
+        public void Attach(RenderHandle renderHandle) { }
 
         public Task SetParametersAsync(ParameterView parameters) => Task.CompletedTask;
     }

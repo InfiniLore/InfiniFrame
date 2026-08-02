@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame;
@@ -16,7 +16,7 @@ public static class IStateInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.State.SetFullScreen(fullScreen);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets whether the window should start maximized and returns the builder for chaining.
     /// </summary>
@@ -27,7 +27,7 @@ public static class IStateInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.State.SetMaximized(maximized);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets whether the window should start minimized and returns the builder for chaining.
     /// </summary>
@@ -38,7 +38,7 @@ public static class IStateInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.State.SetMinimized(minimized);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets whether the window should start as top-most and returns the builder for chaining.
     /// </summary>
@@ -49,7 +49,7 @@ public static class IStateInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.State.SetTopMost(topMost);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets the initial zoom factor for the window content and returns the builder for chaining.
     /// </summary>
@@ -60,7 +60,7 @@ public static class IStateInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.State.SetZoomFactor(zoom);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets whether zoom is enabled for the window content and returns the builder for chaining.
     /// </summary>

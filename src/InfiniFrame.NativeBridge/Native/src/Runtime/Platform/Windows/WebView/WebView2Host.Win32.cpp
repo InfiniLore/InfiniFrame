@@ -23,6 +23,8 @@ void InfiniFrameWindow::CloseWebView() {
             m_impl->_webviewWindow->remove_PermissionRequested(m_impl->_permissionRequestedToken);
         if (m_impl->_hasNavigationCompletedToken)
             m_impl->_webviewWindow->remove_NavigationCompleted(m_impl->_navigationCompletedToken);
+        if (m_impl->_hasNavigationStartingToken)
+            m_impl->_webviewWindow->remove_NavigationStarting(m_impl->_navigationStartingToken);
         if (m_impl->_hasProcessFailedToken) {
             auto webview2_2 = m_impl->_webviewWindow.try_query<ICoreWebView2_2>();
             if (webview2_2)
@@ -34,6 +36,7 @@ void InfiniFrameWindow::CloseWebView() {
     m_impl->_hasWebResourceRequestedToken = false;
     m_impl->_hasPermissionRequestedToken = false;
     m_impl->_hasNavigationCompletedToken = false;
+    m_impl->_hasNavigationStartingToken = false;
     m_impl->_hasProcessFailedToken = false;
     m_impl->_webMessageReceivedToken = {};
     m_impl->_webResourceRequestedTokenForCustomScheme = {};
@@ -55,6 +58,13 @@ void InfiniFrameWindow::CloseWebView() {
 
     m_impl->_isInitialized = false;
     m_impl->_isWebView2Initializing = false;
+
+    // WinToast is thread-local. Its destructor runs from the loader's TLS
+    // detach path, where clear() can deadlock by activating notification COM
+    // services while ExitProcess is draining loader work. Release everything
+    // explicitly on the owning STA while its message loop is still unwinding.
+    if (m_impl->_notificationsEnabled)
+        WinToastLib::WinToast::instance()->shutdown();
 
     TraceTeardown(L"CloseWebView end instance=%p", this);
 }

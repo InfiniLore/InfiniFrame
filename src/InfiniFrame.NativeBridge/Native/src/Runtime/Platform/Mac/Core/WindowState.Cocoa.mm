@@ -161,7 +161,9 @@ void InfiniFrameWindow::NavigateToString(AutoString content)
     if (m_impl->_isClosingOrClosed || m_impl->_webview == nil)
         return;
 
-    [m_impl->_webview loadHTMLString:RequireUtf8String(content, "content") baseURL:nil];
+    WKNavigation* navigation = [m_impl->_webview loadHTMLString:RequireUtf8String(content, "content") baseURL:nil];
+    if (navigation != nil)
+        BindNavigationBackendId(reinterpret_cast<uint64_t>(navigation));
 }
 
 void InfiniFrameWindow::NavigateToUrl(AutoString url)
@@ -174,7 +176,9 @@ void InfiniFrameWindow::NavigateToUrl(AutoString url)
     if (nsurl == nil)
         throw std::invalid_argument("url is not a valid URL.");
     NSURLRequest *nsrequest = [NSURLRequest requestWithURL: nsurl];
-    [m_impl->_webview loadRequest: nsrequest];
+    WKNavigation* navigation = [m_impl->_webview loadRequest: nsrequest];
+    if (navigation != nil)
+        BindNavigationBackendId(reinterpret_cast<uint64_t>(navigation));
 }
 
 void InfiniFrameWindow::Restore()
@@ -214,14 +218,13 @@ static std::string BuildMacWebMessageJs(AutoString message) {
 
 void InfiniFrameWindow::FlushPendingWebMessages() {
     m_impl->_webviewReady = true;
-    if (m_impl->_pendingWebMessages.empty())
-        return;
-
-    for (const auto& js : m_impl->_pendingWebMessages) {
-        NSString* nsJs = [NSString stringWithUTF8String: js.c_str()];
-        [m_impl->_webview evaluateJavaScript: nsJs completionHandler: nil];
+    if (!m_impl->_pendingWebMessages.empty()) {
+        for (const auto& js : m_impl->_pendingWebMessages) {
+            NSString* nsJs = [NSString stringWithUTF8String: js.c_str()];
+            [m_impl->_webview evaluateJavaScript: nsJs completionHandler: nil];
+        }
+        m_impl->_pendingWebMessages.clear();
     }
-    m_impl->_pendingWebMessages.clear();
 }
 
 void InfiniFrameWindow::SendWebMessage(AutoString message)

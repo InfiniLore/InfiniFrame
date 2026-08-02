@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -18,9 +18,9 @@ public class TryGetRemoteDebuggingEndpointTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        #pragma warning disable CA1416
+#pragma warning disable CA1416
         bool foundValue = window.Features.Debugging.TryGetRemoteDebuggingEndpoint(out Uri? endpoint);
-        #pragma warning restore CA1416
+#pragma warning restore CA1416
 
         // Assert
         await Assert.That(foundValue).IsFalse();
@@ -35,9 +35,9 @@ public class TryGetRemoteDebuggingEndpointTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        #pragma warning disable CA1416
+#pragma warning disable CA1416
         bool foundValue = window.TryGetRemoteDebuggingEndpoint(out Uri? endpoint);
-        #pragma warning restore CA1416
+#pragma warning restore CA1416
 
         // Assert
         await Assert.That(foundValue).IsFalse();
@@ -59,9 +59,9 @@ public class TryGetRemoteDebuggingEndpointTests {
         bool supportsRemoteEndpoint = OperatingSystem.IsWindows() || OperatingSystem.IsLinux();
 
         // Act
-        #pragma warning disable CA1416
+#pragma warning disable CA1416
         bool foundValue = window.TryGetRemoteDebuggingEndpoint(out Uri? endpoint);
-        #pragma warning restore CA1416
+#pragma warning restore CA1416
 
         // Assert
         await Assert.That(builder.Features.Debugging.RemoteDebuggingPort).IsEqualTo(supportsRemoteEndpoint ? value : 0);
@@ -97,9 +97,9 @@ public class TryGetRemoteDebuggingEndpointTests {
             await Task.Delay(50, ct);
         }
 
-        #pragma warning disable CA1416
+#pragma warning disable CA1416
         bool foundValue = window.TryGetRemoteDebuggingEndpoint(out Uri? endpoint);
-        #pragma warning restore CA1416
+#pragma warning restore CA1416
 
         // Assert
         await Assert.That(foundValue).IsFalse();

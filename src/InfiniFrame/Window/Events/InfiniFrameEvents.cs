@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge.Delegates;
@@ -59,7 +59,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         WebMessageReceivedHandler = (message, origin) => InvokeNativeCallback("web message received", () => OnWebMessageReceived(message, origin));
         CustomSchemeHandler = OnCustomScheme;
     }
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     public void PopulateFromBuilderEventStore(IInfiniFrameEventsStore eventStore) {
         eventStore.CopyTo(EventsStore);
     }
-    
+
     public void AssignToNativeParameters(ref InfiniFrameNativeParameters parameters) {
         // Rebind callbacks to the per-window event instance that has Sender set via CompleteSetup.
         parameters.ClosedHandler = ClosedHandler;
@@ -147,7 +147,12 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         ArgumentNullException.ThrowIfNull(Sender);
 
         Sender.Features.Lifecycle.MarkAsClosed();
-        EventsStore.WindowClosed.Invoke(Sender);
+        try {
+            EventsStore.WindowClosed.Invoke(Sender);
+        }
+        finally {
+            Sender.Features.Lifecycle.MarkClosedCallbacksDelivered();
+        }
     }
 
     /// <inheritdoc cref="IInfiniFrameEvents.OnWindowClosingRequested"/>
@@ -166,6 +171,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         if (doNotClose.Any(r => r == WindowClosingResult.Cancel)) {
             cancel = 1;
             Sender.CancelCloseRequest();
+            Sender.Features.Lifecycle.MarkCloseRejected();
         }
 
         return cancel;

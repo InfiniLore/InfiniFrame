@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -52,9 +52,7 @@ public class RemoteDebuggingEndpointReadinessTests {
     }
 
     private static int GetAvailableLoopbackPort() {
-        using var listener = new TcpListener(IPAddress.Loopback, 0);
-        listener.Start();
-        return ((IPEndPoint)listener.LocalEndpoint).Port;
+        return PortUtils.GetOpenPortValue();
     }
 
     private static async Task<bool> WaitUntilPortIsReachable(int port, TimeSpan timeout, CancellationToken ct) {

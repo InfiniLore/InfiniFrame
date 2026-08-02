@@ -49,3 +49,18 @@ void InfiniFrameWindow::WaitForExit() {
     messageLoopRootWindowHandle = nullptr;
     TraceTeardown(L"WaitForExit end instance=%p hwnd=%p", this, impl->_hWnd);
 }
+
+namespace {
+    DWORD CALLBACK CompleteTeardown(void* context) {
+        static_cast<InfiniFrameWindow*>(context)->SignalTeardown();
+        return 0;
+    }
+}
+
+void InfiniFrameWindow::ScheduleTeardownCompletion() {
+    CompleteOperationsForClose();
+    CompleteNavigationForClose();
+    CompleteDialogsForClose();
+    if (!QueueUserWorkItem(CompleteTeardown, this, WT_EXECUTEONLYONCE))
+        SignalTeardown();
+}

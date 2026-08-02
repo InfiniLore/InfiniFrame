@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
@@ -26,7 +26,7 @@ public class FilePickerDialogsInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IFilePickerDialogsInfiniFrameWindowFeature.ShowOpenFileAsync" />
     public Task<string?[]> ShowOpenFileAsync(string title = DefaultFilePickerTitle, string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default)
-        => ShowOpenDialogAsync(workItem: () => ShowOpenFile(title, defaultPath, multiSelect, filters), ct);
+        => ShowDialogAsync(InfiniFileDialogKind.OpenFile, title, defaultPath, multiSelect, filters, ct);
 
     /// <inheritdoc cref="IFilePickerDialogsInfiniFrameWindowFeature.ShowOpenFolder" />
     public string?[] ShowOpenFolder(string title = DefaultFolderPickerTitle, string? defaultPath = null, bool multiSelect = false)
@@ -34,7 +34,7 @@ public class FilePickerDialogsInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IFilePickerDialogsInfiniFrameWindowFeature.ShowOpenFolderAsync" />
     public Task<string?[]> ShowOpenFolderAsync(string title = DefaultFolderPickerTitle, string? defaultPath = null, bool multiSelect = false, CancellationToken ct = default)
-        => ShowOpenDialogAsync(workItem: () => ShowOpenFolder(title, defaultPath, multiSelect), ct);
+        => ShowDialogAsync(InfiniFileDialogKind.OpenFolder, title, defaultPath, multiSelect, null, ct);
 
     /// <inheritdoc cref="IFilePickerDialogsInfiniFrameWindowFeature.ShowSaveFile" />
     public string? ShowSaveFile(string title = DefaultSaveFilePickerTitle, string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null) {
@@ -62,7 +62,7 @@ public class FilePickerDialogsInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IFilePickerDialogsInfiniFrameWindowFeature.ShowSaveFileAsync" />
     public Task<string?> ShowSaveFileAsync(string title = DefaultSaveFilePickerTitle, string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default)
-        => ShowOpenDialogAsync(workItem: () => ShowSaveFile(title, defaultPath, filters), ct);
+        => ShowSaveDialogAsync(title, defaultPath, filters, ct);
 
     private string?[] ShowOpenDialog(bool foldersOnly, string title, string? defaultPath, bool multiSelect, (string Name, string[] Extensions)[]? filters) {
         if (window.IsClosedOrClosing()) return [];
@@ -101,13 +101,36 @@ public class FilePickerDialogsInfiniFrameWindowFeature(
         return results ?? [];
     }
 
-    private static Task<TResult> ShowOpenDialogAsync<TResult>(Func<TResult> workItem, CancellationToken ct = default) {
+    private async Task<string?[]> ShowDialogAsync(
+        InfiniFileDialogKind kind,
+        string title,
+        string? defaultPath,
+        bool multiSelect,
+        (string Name, string[] Extensions)[]? filters,
+        CancellationToken ct
+    ) {
         ct.ThrowIfCancellationRequested();
+        if (window.IsClosedOrClosing()) return [];
+        defaultPath ??= Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        filters ??= [];
+        var operation = new InfiniFileDialogOperation(
+            window, logger, kind, title, defaultPath, multiSelect,
+            GetNativeFilters(filters, kind == InfiniFileDialogKind.OpenFolder), ct
+        );
+        _ = operation.StartAsync();
+        return await operation.Task.WaitAsync(ct).ConfigureAwait(false);
+    }
 
-        // These platform dialogs are modal APIs with no native completion callback. Running
-        // them on the thread pool is both fake asynchrony and invalid for several UI toolkits.
-        // Preserve the API while reporting the actual, synchronous platform behavior.
-        return Task.FromResult(workItem());
+    private async Task<string?> ShowSaveDialogAsync(
+        string title,
+        string? defaultPath,
+        (string Name, string[] Extensions)[]? filters,
+        CancellationToken ct
+    ) {
+        string?[] values = await ShowDialogAsync(
+            InfiniFileDialogKind.SaveFile, title, defaultPath, false, filters, ct
+        ).ConfigureAwait(false);
+        return values.FirstOrDefault();
     }
 
     private static string[] GetNativeFilters((string Name, string[] Extensions)[] filters, bool empty = false) {

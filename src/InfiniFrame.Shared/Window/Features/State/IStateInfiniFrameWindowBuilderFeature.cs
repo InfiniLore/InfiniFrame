@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame;
@@ -35,7 +35,7 @@ public interface IStateInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBuild
     ///     Gets whether zoom is enabled for the window.
     /// </summary>
     bool IsZoomEnabled { get; }
-    
+
     /// <summary>
     ///     Sets whether the window should start in full-screen mode.
     /// </summary>

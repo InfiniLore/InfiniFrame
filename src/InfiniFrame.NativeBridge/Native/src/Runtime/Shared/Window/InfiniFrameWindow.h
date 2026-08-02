@@ -42,6 +42,9 @@ class InfiniFrameDialog;
 struct InfiniFrameInitParams;
 
 struct InfiniFrameWindowImpl;
+struct NativeOperation;
+struct DialogOperation;
+enum class NativeOperationResult : int32_t;
 
 /**
  * @brief Main window class providing WebView-based UI
@@ -67,6 +70,49 @@ class InfiniFrameWindow {
          * @return Pointer to InfiniFrameDialog
          */
     [[nodiscard]] InfiniFrameDialog* GetDialog() const;
+
+    void BeginShowOpenFile(
+        uint64_t operationId,
+        AutoString title,
+        AutoString defaultPath,
+        bool multiSelect,
+        AutoString* filters,
+        int filterCount,
+        FileDialogCompletedCallback completion,
+        void* completionContext
+    );
+    void BeginShowOpenFolder(
+        uint64_t operationId,
+        AutoString title,
+        AutoString defaultPath,
+        bool multiSelect,
+        FileDialogCompletedCallback completion,
+        void* completionContext
+    );
+    void BeginShowSaveFile(
+        uint64_t operationId,
+        AutoString title,
+        AutoString defaultPath,
+        AutoString* filters,
+        int filterCount,
+        AutoString defaultFileName,
+        FileDialogCompletedCallback completion,
+        void* completionContext
+    );
+    void BeginShowMessage(
+        uint64_t operationId, AutoString title, AutoString text,
+        DialogButtons buttons, DialogIcon icon,
+        OperationCompletedCallback completion, void* completionContext
+    );
+    bool CancelDialog(uint64_t operationId);
+    std::shared_ptr<DialogOperation> RegisterFileDialogOperation(
+        uint64_t operationId, const char* name,
+        FileDialogCompletedCallback completion, void* completionContext
+    );
+    std::shared_ptr<DialogOperation> RegisterMessageDialogOperation(
+        uint64_t operationId, OperationCompletedCallback completion, void* completionContext
+    );
+    void CompleteDialogsForClose();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Window Operations
@@ -266,6 +312,26 @@ class InfiniFrameWindow {
          * @param url UTF-8 URL to load (http/https or custom scheme)
          */
     void NavigateToUrl(AutoString url);
+
+    bool BeginNavigateToString(
+        uint64_t operationId,
+        AutoString content,
+        OperationCompletedCallback completion,
+        void* completionContext
+    );
+    bool BeginNavigateToUrl(
+        uint64_t operationId,
+        AutoString url,
+        OperationCompletedCallback completion,
+        void* completionContext
+    );
+    bool CancelNavigation(uint64_t operationId);
+    void BindNavigationBackendId(uint64_t backendId);
+    void CompleteNavigation(uint64_t backendId, bool succeeded, int nativeCode, const char* failureUtf8);
+    void CompleteNavigationAndSignalReady(
+        uint64_t backendId, bool succeeded, int nativeCode, const char* failureUtf8
+    );
+    void CompleteNavigationForClose();
 
     /** @brief Restore the window from a minimized or maximized state */
     void Restore();
@@ -516,6 +582,40 @@ class InfiniFrameWindow {
          * @param callback Action to invoke on the UI thread
          */
     void Invoke(ACTION callback);
+
+    /** Queue a cancellable callback without blocking the caller. */
+    bool BeginInvoke(
+        uint64_t operationId,
+        ContextAction callback,
+        void* callbackContext,
+        OperationCompletedCallback completion,
+        void* completionContext
+    );
+
+    /** Cancel a queued operation. Running callbacks cannot be cancelled. */
+    bool CancelOperation(uint64_t operationId, NativeOperationResult result);
+    void CompleteOperationsForClose();
+
+    /** Complete and detach an operation before invoking managed completion. */
+    void FinalizeOperation(
+        uint64_t operationId,
+        OperationCompletedCallback completion,
+        void* completionContext,
+        NativeOperationResult result,
+        int nativeCode,
+        const char* failure
+    ) noexcept;
+
+    /** Platform-specific non-blocking event-loop enqueue. */
+    bool ScheduleOperation(const std::shared_ptr<NativeOperation>& operation);
+    void SetReadyCallback(ContextAction callback, void* context);
+    void SetTeardownCallback(ContextAction callback, void* context);
+    void SignalReady();
+    void SignalTeardown();
+    void ScheduleTeardownCompletion();
+#ifdef __linux__
+    void NotifyWebViewFinalized();
+#endif
 
     /**
          * @brief Fire the closing callback

@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Tools.Pack.Services;
@@ -58,9 +58,9 @@ public class InfiniFramePackNativeArtifactManifestTests {
     public async Task RequiredFileNamesForRid_Throws_WhenRidIsUnsupported() {
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() => {
-                InfiniFramePackNativeArtifactManifest.RequiredFileNamesForRid("browser-wasm");
-                return Task.CompletedTask;
-            })
+            InfiniFramePackNativeArtifactManifest.RequiredFileNamesForRid("browser-wasm");
+            return Task.CompletedTask;
+        })
             .WithMessage("Unsupported RID for native artifact validation: browser-wasm");
     }
 

@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using FluentValidation;
@@ -23,7 +23,7 @@ public class CleanupNativeHandleTests {
         var windowId = Guid.NewGuid();
         window.Id.Returns(windowId);
         window.Events.Returns(events);
-        window.LifecycleState.Returns(InfiniFrameWindowLifecycleState.NativeClosed);
+        window.LifecycleState.Returns(InfiniFrameWindowLifecycleState.TeardownComplete);
 
         var validator = Substitute.For<IValidator<InfiniFrameNativeParameters>>();
         var lifecycle = new LifecycleInfiniFrameWindowFeature(

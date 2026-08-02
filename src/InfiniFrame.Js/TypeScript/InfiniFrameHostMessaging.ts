@@ -64,6 +64,19 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
             this.markReadyHandshakeAcknowledged();
         })
 
+        this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.webMessageAckRequest, payload => {
+            if (!payload) return;
+            try {
+                const request = JSON.parse(payload) as { OperationId?: string; Message?: string };
+                if (!request.OperationId || typeof request.Message !== "string") return;
+                if (!this.handleInteropMessage(request.Message)) return;
+                this.sendMessageToHost(SendToHostMessageIds.webMessageAckResponse, request.OperationId);
+            }
+            catch (error) {
+                console.warn("Could not process acknowledged host message.", error);
+            }
+        })
+
         this.sendReadyHandshake();
     }
 
@@ -91,13 +104,13 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
     
     public async getMessageFromHostAsync(command: string, args?: any): Promise<string> {
         try {
-            return window.infiniframe.messaging.getMessageFromHostRawAsync(
+            return await window.infiniframe.messaging.getMessageFromHostRawAsync(
                 createGetEnvelope(command, args)
             );
         }
         catch (e) {
             console.error("Failed to get response message from host.", e);
-            return Promise.reject(e);
+            throw e;
         }
     }
 
@@ -161,8 +174,12 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
 
         document.addEventListener("keydown", async (e: KeyboardEvent) => {
             if (e.key !== "F11") return;
-            if (document.fullscreenElement) await document.exitFullscreen();
-            else await document.body.requestFullscreen();
+            try {
+                if (document.fullscreenElement) await document.exitFullscreen();
+                else await document.body.requestFullscreen();
+            } catch (error) {
+                console.warn("Fullscreen toggle failed.", error);
+            }
         });
     }
 

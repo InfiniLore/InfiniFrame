@@ -27,6 +27,8 @@ public static class JsHandlerNames {
     internal const string WindowReadyAck = $"{InfiniFramePrefix}:ready:ack";
     internal const string GetRequest = $"{InfiniFramePrefix}:get";
     internal const string GetResponse = $"{InfiniFramePrefix}:get:response";
+    internal const string WebMessageAckRequest = $"{InfiniFramePrefix}:message:ack:request";
+    internal const string WebMessageAckResponse = $"{InfiniFramePrefix}:message:ack:response";
     internal const string WindowFeatureRequest = $"{InfiniFramePrefix}:window:features";
 
     internal const string WindowMinimize = $"{InfiniFramePrefix}:window:minimize";

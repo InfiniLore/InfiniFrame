@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.CompilerServices;
@@ -38,4 +38,28 @@ public partial class InfiniFrameNative {
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SendWebMessage", SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus SendWebMessage(IntPtr instance, string message);
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_BeginNavigateToString", SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus BeginNavigateToString(
+        IntPtr instance,
+        ulong operationId,
+        string content,
+        OperationCompletedCallback completion,
+        IntPtr completionContext
+    );
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_BeginNavigateToUrl", SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus BeginNavigateToUrl(
+        IntPtr instance,
+        ulong operationId,
+        string url,
+        OperationCompletedCallback completion,
+        IntPtr completionContext
+    );
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_CancelNavigation", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus CancelNavigation(IntPtr instance, ulong operationId);
 }

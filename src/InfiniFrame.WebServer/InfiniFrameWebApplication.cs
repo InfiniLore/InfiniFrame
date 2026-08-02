@@ -12,11 +12,11 @@ namespace InfiniFrame.WebServer;
 ///     <see cref="IInfiniFrameWindow" />, providing lifecycle management for both the web server and the native window.
 /// </summary>
 public class InfiniFrameWebApplication {
-    #if NET9_0_OR_GREATER
+#if NET9_0_OR_GREATER
     private readonly Lock _shutdownLock = new();
-    #else
+#else
     private readonly object _shutdownLock = new();
-    #endif
+#endif
     private Task? _shutdownTask;
 
     /// <summary>Gets or sets the logger for the application.</summary>
@@ -71,15 +71,15 @@ public class InfiniFrameWebApplication {
     /// <returns>A task that completes when the window has been closed and the web app has stopped.</returns>
     public async Task RunAsync(CancellationToken ct = default) {
         try {
-            await WebApp.StartAsync(ct);
-            await Window.WaitForCloseAsync(ct);
+            await WebApp.StartAsync(ct).ConfigureAwait(false);
+            await Window.WaitForCloseAsync(ct).ConfigureAwait(false);
         }
         finally {
             try {
-                await StopWebAppAsync(CancellationToken.None);
+                await StopWebAppAsync(CancellationToken.None).ConfigureAwait(false);
             }
             finally {
-                await WebApp.DisposeAsync();
+                await WebApp.DisposeAsync().ConfigureAwait(false);
             }
         }
     }
@@ -130,9 +130,9 @@ public class InfiniFrameWebApplication {
     /// <param name="ct">A cancellation token that can be used to cancel the stop operation.</param>
     /// <returns>A task that completes when both the web app and window have been stopped.</returns>
     public async Task StopAsync(CancellationToken ct = default) {
-        await StopWebAppAsync(ct);
-        await Window.CloseAsync(ct);
-        await Window.WaitForCloseAsync(ct);
+        await StopWebAppAsync(ct).ConfigureAwait(false);
+        await Window.CloseAsync(ct).ConfigureAwait(false);
+        await Window.WaitForCloseAsync(ct).ConfigureAwait(false);
     }
 
     private Task StopWebAppAsync(CancellationToken ct = default) {
@@ -148,7 +148,7 @@ public class InfiniFrameWebApplication {
         try {
             // Cancellation only cancels an individual caller's wait. Once shutdown starts it
             // must run to completion for all callers.
-            await WebApp.StopAsync(CancellationToken.None);
+            await WebApp.StopAsync(CancellationToken.None).ConfigureAwait(false);
         }
         catch (Exception e) when (ExceptionsUtility.IsNonFatalException(e)) {
             Logger.LogError(e, "Error stopping web app");

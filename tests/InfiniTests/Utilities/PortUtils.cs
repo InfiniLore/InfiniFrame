@@ -10,14 +10,29 @@ namespace InfiniTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class PortUtils {
+    private static readonly object RecentlyReturnedPortsLock = new();
+    private static readonly HashSet<int> RecentlyReturnedPorts = [];
+
     /// <summary>
     ///     Returns a currently available loopback port after releasing the temporary reservation.
     ///     Intended for deferred test-data factories, so discovery never holds a port while a test is running.
     /// </summary>
     public static int GetOpenPortValue() {
-        using var listener = new TcpListener(IPAddress.Loopback, 0);
-        listener.Start();
-        return ((IPEndPoint)listener.LocalEndpoint).Port;
+        // WebView2 can keep its debugging listener alive briefly after its owning window
+        // has completed teardown. Never hand the same ephemeral port to another test in
+        // this process; otherwise deferred MethodDataSource rows can collide with that
+        // still-draining browser process, especially on Windows ARM64.
+        for (int attempt = 0; attempt < 100; attempt++) {
+            using var listener = new TcpListener(IPAddress.Loopback, 0);
+            listener.Start();
+            int port = ((IPEndPoint)listener.LocalEndpoint).Port;
+            lock (RecentlyReturnedPortsLock) {
+                if (RecentlyReturnedPorts.Add(port))
+                    return port;
+            }
+        }
+
+        throw new InvalidOperationException("Could not allocate a unique loopback port for the test process.");
     }
 
     public static async Task<int> GetOpenPort(CancellationToken cancellationToken = default) {

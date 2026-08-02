@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge.Parameters;
@@ -18,7 +18,7 @@ public class NotificationsInfiniFrameWindowBuilderFeature : INotificationsInfini
     public void EnableNotifications(bool enable) {
         IsNotificationsEnabled = enable;
     }
-    
+
     public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
         parameters.NotificationsEnabled = IsNotificationsEnabled;
     }

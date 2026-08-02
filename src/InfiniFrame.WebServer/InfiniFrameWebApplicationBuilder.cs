@@ -12,7 +12,7 @@ public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilde
     public required WebApplicationBuilder WebApp { get; init; }
     /// <inheritdoc cref="IInfiniFrameWebApplicationBuilder.WindowBuilder"/>
     public required IInfiniFrameWindowBuilder WindowBuilder { get; init; }
-    
+
     /// <inheritdoc cref="IInfiniFrameWebApplicationBuilder.Services"/>
     public IServiceCollection Services => WebApp.Services;
 
@@ -39,7 +39,7 @@ public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilde
         if (startUrl is not null) WindowBuilder.SetStartPageUrl(startUrl);
 
         WindowBuilder.RegisterGetWebMessageHandler();
-        
+
         return this;
     }
 

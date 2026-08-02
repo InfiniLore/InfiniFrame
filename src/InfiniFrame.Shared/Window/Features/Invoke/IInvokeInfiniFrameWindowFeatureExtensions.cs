@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame;
@@ -18,11 +18,10 @@ public static class IInvokeInfiniFrameWindowFeatureExtensions {
     }
 
     /// <summary>Dispatches work to the native window thread without blocking the caller.</summary>
-    public static Task<InfiniFrameDispatchResult> DispatchAsync(
+    public static ValueTask<InfiniFrameDispatchResult> DispatchAsync(
         this IInfiniFrameWindow window,
         Action callback,
         TimeSpan? timeout = null,
         CancellationToken cancellationToken = default
-    ) =>
-        window.Features.Invoke.DispatchAsync(callback, timeout, cancellationToken);
+    ) => window.Features.Invoke.DispatchAsync(callback, timeout, cancellationToken);
 }

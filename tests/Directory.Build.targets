@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Project>
-    <PropertyGroup Condition="'$(IsTestingPlatformApplication)' == 'true' and '$(InfiniFrameUseMacOsTestingPlatformHost)' == ''">
+    <PropertyGroup Condition="'$(IsTestingPlatformApplication)' == 'true' and '$(InfiniFrameUseMacOsTestingPlatformHost)' == '' and $([MSBuild]::IsOSPlatform('OSX'))">
         <InfiniFrameUseMacOsTestingPlatformHost>true</InfiniFrameUseMacOsTestingPlatformHost>
     </PropertyGroup>
 

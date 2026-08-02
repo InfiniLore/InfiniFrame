@@ -62,11 +62,13 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     EventRegistrationToken _webResourceRequestedTokenForCustomScheme = {};
     EventRegistrationToken _permissionRequestedToken = {};
     EventRegistrationToken _navigationCompletedToken = {};
+    EventRegistrationToken _navigationStartingToken = {};
     EventRegistrationToken _processFailedToken = {};
     bool _hasWebMessageReceivedToken = false;
     bool _hasWebResourceRequestedToken = false;
     bool _hasPermissionRequestedToken = false;
     bool _hasNavigationCompletedToken = false;
+    bool _hasNavigationStartingToken = false;
     bool _hasProcessFailedToken = false;
 
     // Messages queued while WebView2 is still initializing (e.g. sent from WindowCreated).

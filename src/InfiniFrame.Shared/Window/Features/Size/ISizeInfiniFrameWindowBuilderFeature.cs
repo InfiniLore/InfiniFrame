@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Drawing;
@@ -7,11 +7,11 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface ISizeInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBuilderFeature{
+public interface ISizeInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBuilderFeature {
     /// <summary>
     ///     Gets the configured height of the window.
     /// </summary>
-    int Height { get; } 
+    int Height { get; }
 
     /// <summary>
     ///     Gets the configured width of the window.
@@ -47,7 +47,7 @@ public interface ISizeInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBuilde
     ///     Gets whether the window should start with the OS default size.
     /// </summary>
     bool StartWithOsDefaultSize { get; }
-    
+
     /// <summary>
     ///     Sets the size of the window using width and height values.
     /// </summary>

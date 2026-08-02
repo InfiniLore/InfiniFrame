@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Extensions.FileProviders;
@@ -20,7 +20,7 @@ internal static class StaticAssetSchemeHandler {
             }
 
             string contentType = GetContentType(assetPath);
-            return ( file.CreateReadStream(), contentType);
+            return (file.CreateReadStream(), contentType);
         };
     }
 

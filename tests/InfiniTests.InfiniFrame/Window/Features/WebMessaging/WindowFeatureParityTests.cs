@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -67,7 +67,10 @@ public class WindowFeatureParityTests {
             [typeof(ILifecycleInfiniFrameWindowFeature)] = IncludedAndExcluded(
                 ["State", "Close", "CloseAsync", "IsClosedOrClosing"],
                 ("WaitForClose", "Blocking the web-message/UI thread would deadlock."),
-                ("WaitForCloseAsync", "A JS wait requires a future event-backed Promise.")
+                ("WaitForCloseAsync", "A JS wait requires a future event-backed Promise."),
+                ("WaitForReadyAsync", "Readiness is already represented by the JS handshake."),
+                ("WaitForClosedCallbacksAsync", "Managed callback delivery is not a browser feature."),
+                ("WaitForTeardownAsync", "Backend teardown is a managed/native lifetime concern.")
             ),
             [typeof(IMonitorsInfiniFrameWindowFeature)] = Included(
                 "GetMonitors",
@@ -76,13 +79,16 @@ public class WindowFeatureParityTests {
             ),
             [typeof(INotificationsInfiniFrameWindowFeature)] = Included(
                 "ShowNotification",
-                "ShowMessage"
+                "ShowMessage",
+                "ShowMessageAsync"
             ),
             [typeof(IPageNavigationInfiniFrameWindowFeature)] = IncludedWithCounts(
                 ("Load", 2),
+                ("LoadAsync", 1),
                 ("TryLoadUri", 1),
                 ("TryLoadPath", 1),
-                ("LoadRawString", 1)
+                ("LoadRawString", 1),
+                ("LoadRawStringAsync", 1)
             ),
             [typeof(IPositionInfiniFrameWindowFeature)] = IncludedWithCounts(
                 ("Location", 1),
@@ -141,7 +147,8 @@ public class WindowFeatureParityTests {
             ),
             [typeof(IWebMessagingInfiniFrameWindowFeature)] = Included(
                 "SendWebMessage",
-                "SendWebMessageAsync"
+                "SendWebMessageAsync",
+                "SendWebMessageWithAcknowledgementAsync"
             )
         };
 
@@ -154,12 +161,12 @@ public class WindowFeatureParityTests {
                 .Concat(featureType.GetMethods(BindingFlags.Instance | BindingFlags.Public).Where(method => !method.IsSpecialName))
                 .GroupBy(member => member.Name)
                 .ToDictionary(
-                keySelector: group => group.Key, 
+                keySelector: group => group.Key,
                 elementSelector: group => group.Count(), StringComparer.Ordinal);
             Dictionary<string, int> audited = expected.Included
                 .Concat(expected.Excluded.Keys.Select(name => new KeyValuePair<string, int>(name, 1)))
                 .ToDictionary(
-                keySelector: pair => pair.Key, 
+                keySelector: pair => pair.Key,
                 elementSelector: pair => pair.Value, StringComparer.Ordinal);
 
             await Assert.That(actual).IsEquivalentTo(audited);
@@ -169,29 +176,29 @@ public class WindowFeatureParityTests {
 
     private static FeatureMembers Included(params string[] names)
         => new(names.ToDictionary(
-            keySelector: name => name, 
+            keySelector: name => name,
             elementSelector: _ => 1, StringComparer.Ordinal), new Dictionary<string, string>()
         );
 
     private static FeatureMembers IncludedWithCounts(params (string Name, int Count)[] members)
         => new(members.ToDictionary(
-            keySelector: member => member.Name, 
+            keySelector: member => member.Name,
             elementSelector: member => member.Count, StringComparer.Ordinal), new Dictionary<string, string>()
         );
 
     private static FeatureMembers Excluded(params (string Name, string Reason)[] members)
         => new(new Dictionary<string, int>(), members.ToDictionary(
-            keySelector: member => member.Name, 
+            keySelector: member => member.Name,
             elementSelector: member => member.Reason, StringComparer.Ordinal)
         );
 
     private static FeatureMembers IncludedAndExcluded(string[] included, params (string Name, string Reason)[] excluded)
         => new(
             included.ToDictionary(
-            keySelector: name => name, 
+            keySelector: name => name,
             elementSelector: _ => 1, StringComparer.Ordinal),
             excluded.ToDictionary(
-            keySelector: member => member.Name, 
+            keySelector: member => member.Name,
             elementSelector: member => member.Reason, StringComparer.Ordinal)
         );
 }

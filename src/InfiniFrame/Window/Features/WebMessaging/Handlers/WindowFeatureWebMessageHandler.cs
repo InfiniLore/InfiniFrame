@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Interop;
@@ -62,7 +62,7 @@ internal static class WindowFeatureWebMessageHandler {
         command = string.Empty;
         if (string.IsNullOrWhiteSpace(qualifiedCommand)) return false;
 
-        if (qualifiedCommand.Split(':') is not ["__infiniframe", "window", "features", {} parsedFeature, {} parsedCommand]
+        if (qualifiedCommand.Split(':') is not ["__infiniframe", "window", "features", { } parsedFeature, { } parsedCommand]
             || string.IsNullOrWhiteSpace(parsedFeature)
             || string.IsNullOrWhiteSpace(parsedCommand))
             return false;

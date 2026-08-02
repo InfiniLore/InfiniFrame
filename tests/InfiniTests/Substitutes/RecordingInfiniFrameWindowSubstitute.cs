@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -12,12 +12,12 @@ namespace InfiniTests.Substitutes;
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class RecordingInfiniFrameWindowSubstitute {
     private readonly List<string> _sentWebMessages = [];
-    #if NET9_0_OR_GREATER
+#if NET9_0_OR_GREATER
     private readonly Lock _sentWebMessagesLock = new();
-    #else
+#else
     // ReSharper disable once ChangeFieldTypeToSystemThreadingLock
     private readonly object _sentWebMessagesLock = new();
-    #endif
+#endif
     public IInfiniFrameWindow Window { get; }
 
     // -----------------------------------------------------------------------------------------------------------------

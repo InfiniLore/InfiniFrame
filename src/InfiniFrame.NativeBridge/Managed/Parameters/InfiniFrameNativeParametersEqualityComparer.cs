@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame.NativeBridge.Parameters;
@@ -15,7 +15,7 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
     /// </summary>
     internal static readonly InfiniFrameNativeParametersEqualityComparer Instance = new();
 
-    private InfiniFrameNativeParametersEqualityComparer() {}
+    private InfiniFrameNativeParametersEqualityComparer() { }
 
     /// <summary>
     ///     Determines whether two <see cref="InfiniFrameNativeParameters" /> instances are equal

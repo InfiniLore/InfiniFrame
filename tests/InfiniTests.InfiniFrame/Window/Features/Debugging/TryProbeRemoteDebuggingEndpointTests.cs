@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -22,9 +22,9 @@ public class TryProbeRemoteDebuggingEndpointTests {
         bool supportsRemoteEndpoint = OperatingSystem.IsWindows() || OperatingSystem.IsLinux();
 
         // Act
-        #pragma warning disable CA1416
+#pragma warning disable CA1416
         bool foundValue = window.Features.Debugging.TryProbeEndpoint(out Uri? endpoint, out string? reason);
-        #pragma warning restore CA1416
+#pragma warning restore CA1416
 
         // Assert
         await Assert.That(foundValue).IsFalse();
@@ -41,9 +41,9 @@ public class TryProbeRemoteDebuggingEndpointTests {
         bool supportsRemoteEndpoint = OperatingSystem.IsWindows() || OperatingSystem.IsLinux();
 
         // Act
-        #pragma warning disable CA1416
+#pragma warning disable CA1416
         bool foundValue = window.TryProbeRemoteDebuggingEndpoint(out Uri? endpoint, out string? reason);
-        #pragma warning restore CA1416
+#pragma warning restore CA1416
 
         // Assert
         await Assert.That(foundValue).IsFalse();
@@ -65,9 +65,9 @@ public class TryProbeRemoteDebuggingEndpointTests {
         bool supportsRemoteEndpoint = OperatingSystem.IsWindows() || OperatingSystem.IsLinux();
 
         // Act
-        #pragma warning disable CA1416
+#pragma warning disable CA1416
         bool foundValue = window.TryProbeRemoteDebuggingEndpoint(out Uri? endpoint, out string? reason);
-        #pragma warning restore CA1416
+#pragma warning restore CA1416
 
         // Assert
         if (!supportsRemoteEndpoint) {

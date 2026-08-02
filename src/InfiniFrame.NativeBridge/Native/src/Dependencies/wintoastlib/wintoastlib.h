@@ -236,6 +236,10 @@ namespace WinToastLib {
         virtual INT64 showToast(_In_ WinToastTemplate const& toast, _In_ IWinToastHandler* eventHandler,
                                 _Out_opt_ WinToastError* error = nullptr);
         virtual void clear();
+        // Releases thread-affine COM and dynamically loaded resources while the
+        // owning thread is still running.  Do not defer this work to the TLS
+        // destructor, which executes under the Windows loader lock.
+        virtual void shutdown();
         virtual enum ShortcutResult createShortcut();
 
         std::wstring const& appName() const;

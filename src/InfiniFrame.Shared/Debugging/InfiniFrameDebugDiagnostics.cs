@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame.Debugging;
@@ -60,4 +60,16 @@ public sealed record InfiniFrameDebugDiagnostics {
     ///     Gets platform-specific notes about the debug configuration.
     /// </summary>
     public string? PlatformNotes { get; init; }
+
+    /// <summary>Gets the most recently observed lifecycle state.</summary>
+    public InfiniFrameWindowLifecycleState LifecycleState { get; init; }
+
+    /// <summary>Gets the UTC time of the most recent lifecycle transition.</summary>
+    public DateTimeOffset LastLifecycleTransitionUtc { get; init; }
+
+    /// <summary>Gets operations that have not reached a terminal native callback.</summary>
+    public IReadOnlyList<InfiniFrameOperationDiagnostics> OutstandingOperations { get; init; } = [];
+
+    /// <summary>Gets the most recently completed operation, including its terminal reason.</summary>
+    public InfiniFrameOperationDiagnostics? LastOperation { get; init; }
 }

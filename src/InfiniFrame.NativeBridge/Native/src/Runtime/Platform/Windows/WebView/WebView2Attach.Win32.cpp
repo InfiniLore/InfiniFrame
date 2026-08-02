@@ -281,6 +281,23 @@ void InfiniFrameWindow::AttachWebView() {
                             m_impl->_permissionRequestedToken = permissionRequestedToken;
                             m_impl->_hasPermissionRequestedToken = true;
 
+                            EventRegistrationToken navigationStartingToken;
+                            m_impl->_webviewWindow->add_NavigationStarting(
+                                Callback<ICoreWebView2NavigationStartingEventHandler>(
+                                    [this](ICoreWebView2*, ICoreWebView2NavigationStartingEventArgs* args) -> HRESULT {
+                                        if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire) || args == nullptr)
+                                            return S_OK;
+                                        UINT64 navigationId = 0;
+                                        args->get_NavigationId(&navigationId);
+                                        BindNavigationBackendId(navigationId);
+                                        return S_OK;
+                                    }
+                                ).Get(),
+                                &navigationStartingToken
+                            );
+                            m_impl->_navigationStartingToken = navigationStartingToken;
+                            m_impl->_hasNavigationStartingToken = true;
+
                             // Subscribe to NavigationCompleted so that any messages queued
                             // before WebView2 was ready (e.g. from a WindowCreated handler)
                             // are flushed once the first page navigation finishes and the
@@ -295,9 +312,11 @@ void InfiniFrameWindow::AttachWebView() {
                                         BOOL isSuccess = TRUE;
                                         COREWEBVIEW2_WEB_ERROR_STATUS webErrorStatus =
                                             COREWEBVIEW2_WEB_ERROR_STATUS_UNKNOWN;
+                                        UINT64 navigationId = 0;
                                         if (args != nullptr) {
                                             args->get_IsSuccess(&isSuccess);
                                             args->get_WebErrorStatus(&webErrorStatus);
+                                            args->get_NavigationId(&navigationId);
                                         }
 
                                         wil::unique_cotaskmem_string source;
@@ -339,11 +358,15 @@ void InfiniFrameWindow::AttachWebView() {
                                             );
                                         }
 
-                                        if (m_impl->_pendingWebMessages.empty() || !m_impl->_webviewWindow)
-                                            return S_OK;
-                                        for (const auto& msg : m_impl->_pendingWebMessages)
-                                            m_impl->_webviewWindow->PostWebMessageAsString(msg.c_str());
-                                        m_impl->_pendingWebMessages.clear();
+                                        if (!m_impl->_pendingWebMessages.empty() && m_impl->_webviewWindow) {
+                                            for (const auto& msg : m_impl->_pendingWebMessages)
+                                                m_impl->_webviewWindow->PostWebMessageAsString(msg.c_str());
+                                            m_impl->_pendingWebMessages.clear();
+                                        }
+                                        CompleteNavigationAndSignalReady(
+                                            navigationId, isSuccess != FALSE, static_cast<int>(webErrorStatus),
+                                            isSuccess ? nullptr : "WebView2 navigation failed."
+                                        );
                                         return S_OK;
                                     }
                                 ).Get(),

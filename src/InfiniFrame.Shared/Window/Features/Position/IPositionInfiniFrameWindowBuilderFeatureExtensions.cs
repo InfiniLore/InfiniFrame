@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Drawing;
@@ -22,7 +22,7 @@ public static class IPositionInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.Position.SetLocation(left, top);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets the position of the window using a <see cref="Point"/> and returns the builder for chaining.
     /// </summary>
@@ -33,7 +33,7 @@ public static class IPositionInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.Position.SetLocation(location);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets the left edge position of the window and returns the builder for chaining.
     /// </summary>
@@ -44,7 +44,7 @@ public static class IPositionInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.Position.SetLeft(left);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets the top edge position of the window and returns the builder for chaining.
     /// </summary>
@@ -55,7 +55,7 @@ public static class IPositionInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.Position.SetTop(top);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets whether the window should use the OS default location and returns the builder for chaining.
     /// </summary>
@@ -66,7 +66,7 @@ public static class IPositionInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.Position.UseOsDefaultLocation(enabled);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets whether the window should be centered on the main monitor and returns the builder for chaining.
     /// </summary>

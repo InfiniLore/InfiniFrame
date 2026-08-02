@@ -21,7 +21,7 @@ public interface IInfiniFrameWindowBuilderConfiguration {
     ///     Gets the list of child windows to associate with the window being built.
     /// </summary>
     List<IInfiniFrameWindow> ChildWindows { get; }
-    
+
     /// <summary>
     ///     Applies the builder configuration values to the native parameters.
     /// </summary>

@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Utilities;
@@ -38,10 +38,10 @@ public class InfiniFrameBlazorApp(
         }
 
         try {
-            await window.WaitForCloseAsync(ct);
+            await window.WaitForCloseAsync(ct).ConfigureAwait(false);
         }
         finally {
-            await DisposeAsync();
+            await DisposeAsync().ConfigureAwait(false);
         }
     }
 
@@ -79,7 +79,7 @@ public class InfiniFrameBlazorApp(
 
             switch (ServiceProvider) {
                 case IAsyncDisposable asyncDisposable:
-                    await asyncDisposable.DisposeAsync();
+                    await asyncDisposable.DisposeAsync().ConfigureAwait(false);
                     break;
 
                 case IDisposable disposable:

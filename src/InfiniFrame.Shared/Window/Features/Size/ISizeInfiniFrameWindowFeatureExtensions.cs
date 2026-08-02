@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Drawing;
@@ -19,7 +19,7 @@ public static class ISizeInfiniFrameWindowFeatureExtensions {
         window.Features.Size.SetSize(width, height);
         return window;
     }
-    
+
     /// <summary>
     ///     Sets the size of the window using a <see cref="Size"/> value and returns the window for chaining.
     /// </summary>
@@ -30,7 +30,7 @@ public static class ISizeInfiniFrameWindowFeatureExtensions {
         window.Features.Size.SetSize(size);
         return window;
     }
-    
+
     /// <summary>
     ///     Sets the height of the window and returns the window for chaining.
     /// </summary>
@@ -41,7 +41,7 @@ public static class ISizeInfiniFrameWindowFeatureExtensions {
         window.Features.Size.SetHeight(height);
         return window;
     }
-    
+
     /// <summary>
     ///     Sets the maximum size of the window and returns the window for chaining.
     /// </summary>
@@ -53,7 +53,7 @@ public static class ISizeInfiniFrameWindowFeatureExtensions {
         window.Features.Size.SetMaxSize(maxWidth, maxHeight);
         return window;
     }
-    
+
     /// <summary>
     ///     Sets the maximum size of the window using a <see cref="Size"/> value and returns the window for chaining.
     /// </summary>
@@ -64,7 +64,7 @@ public static class ISizeInfiniFrameWindowFeatureExtensions {
         window.Features.Size.SetMaxSize(size);
         return window;
     }
-    
+
     /// <summary>
     ///     Sets the maximum height of the window and returns the window for chaining.
     /// </summary>
@@ -75,7 +75,7 @@ public static class ISizeInfiniFrameWindowFeatureExtensions {
         window.Features.Size.SetMaxHeight(maxHeight);
         return window;
     }
-    
+
     /// <summary>
     ///     Sets the maximum width of the window and returns the window for chaining.
     /// </summary>
@@ -86,7 +86,7 @@ public static class ISizeInfiniFrameWindowFeatureExtensions {
         window.Features.Size.SetMaxWidth(maxWidth);
         return window;
     }
-    
+
     /// <summary>
     ///     Sets the minimum size of the window and returns the window for chaining.
     /// </summary>
@@ -98,7 +98,7 @@ public static class ISizeInfiniFrameWindowFeatureExtensions {
         window.Features.Size.SetMinSize(minWidth, minHeight);
         return window;
     }
-    
+
     /// <summary>
     ///     Sets the minimum size of the window using a <see cref="Size"/> value and returns the window for chaining.
     /// </summary>
@@ -109,7 +109,7 @@ public static class ISizeInfiniFrameWindowFeatureExtensions {
         window.Features.Size.SetMinSize(size);
         return window;
     }
-    
+
     /// <summary>
     ///     Sets the minimum height of the window and returns the window for chaining.
     /// </summary>
@@ -120,7 +120,7 @@ public static class ISizeInfiniFrameWindowFeatureExtensions {
         window.Features.Size.SetMinHeight(minHeight);
         return window;
     }
-    
+
     /// <summary>
     ///     Sets the minimum width of the window and returns the window for chaining.
     /// </summary>
@@ -131,7 +131,7 @@ public static class ISizeInfiniFrameWindowFeatureExtensions {
         window.Features.Size.SetMinWidth(minWidth);
         return window;
     }
-    
+
     /// <summary>
     ///     Sets the width of the window and returns the window for chaining.
     /// </summary>
@@ -142,7 +142,7 @@ public static class ISizeInfiniFrameWindowFeatureExtensions {
         window.Features.Size.SetWidth(width);
         return window;
     }
-    
+
     /// <summary>
     ///     Resizes the window by the specified offsets from the given origin and returns the window for chaining.
     /// </summary>
@@ -155,7 +155,7 @@ public static class ISizeInfiniFrameWindowFeatureExtensions {
         window.Features.Size.Resize(widthOffset, heightOffset, origin);
         return window;
     }
-    
+
     /// <summary>
     ///     Sets whether the window is resizable and returns the window for chaining.
     /// </summary>

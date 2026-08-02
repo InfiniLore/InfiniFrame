@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Debugging;
@@ -32,7 +32,7 @@ public record InfiniFrameEventsStore : IInfiniFrameEventsStore {
     public OrderedEvent WindowCreating { get; } = new();
     /// <inheritdoc cref="IInfiniFrameEventsStore.WindowCreated"/>
     public OrderedEvent WindowCreated { get; } = new();
-    
+
     /// <inheritdoc cref="IInfiniFrameEventsStore.WebMessageReceived"/>
     public OrderedEvent<InfiniFrameWebMessageReceivedEvent> WebMessageReceived { get; } = new();
     /// <inheritdoc cref="IInfiniFrameEventsStore.DebuggingEvent"/>
@@ -41,7 +41,7 @@ public record InfiniFrameEventsStore : IInfiniFrameEventsStore {
     public KeyedEvent<string, string?> WebMessagePostData { get; } = new();
     /// <inheritdoc cref="IInfiniFrameEventsStore.WebMessageGetData"/>
     public KeyedResultEvent<string, string?, string?> WebMessageGetData { get; } = new();
-    
+
     /// <inheritdoc cref="IInfiniFrameEventsStore.CustomScheme"/>
     public KeyedResultEvent<string, string, (Stream? Data, string? ContentType)> CustomScheme { get; } = new();
     /// <inheritdoc cref="IInfiniFrameEventsStore.CopyTo"/>
@@ -51,7 +51,7 @@ public record InfiniFrameEventsStore : IInfiniFrameEventsStore {
         CopyHandlers(WebMessagePostData.Snapshot, static (t, item) => t.WebMessagePostData.Add(item.Key, item.Value), target);
         CopyHandlers(WebMessageGetData.Snapshot, static (t, item) => t.WebMessageGetData.Add(item.Key, item.Value), target);
         CopyHandlers(CustomScheme.Snapshot, static (t, item) => t.CustomScheme.Add(item.Key, item.Value), target);
-        
+
         CopyHandlers(WindowClosed.Snapshot, target.WindowClosed.Add);
         CopyHandlers(Closing.Snapshot, target.Closing.Add);
         CopyHandlers(WindowClosingRequested.Snapshot, target.WindowClosingRequested.Add);

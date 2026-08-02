@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
@@ -21,6 +21,17 @@ public class PageNavigationInfiniFrameWindowFeature(
     /// <inheritdoc cref="IPageNavigationInfiniFrameWindowFeature.Load(Uri)" />
     public void Load(Uri uri)
         => TryLoadUri(uri);
+
+    public Task<NavigationResult> LoadAsync(Uri uri, CancellationToken ct = default) {
+        ArgumentNullException.ThrowIfNull(uri);
+        IInfiniFrameUriSecurityPolicy policy = InfiniFrameUriSecurityPolicyRegistry.GetForWindow(window);
+        if (!uri.IsFile && !policy.TrustAllOrigins && !policy.IsTrustedOrigin(uri))
+            return Task.FromResult(new NavigationResult(0, NavigationStatus.Failed, uri, FailureReason: "URI origin is not trusted."));
+
+        var operation = new InfiniNavigationOperation(window, logger, uri.ToString(), uri, false, ct);
+        _ = operation.StartAsync();
+        return operation.Task;
+    }
 
     /// <inheritdoc cref="IPageNavigationInfiniFrameWindowFeature.Load(string)" />
     public void Load(string path)
@@ -73,6 +84,13 @@ public class PageNavigationInfiniFrameWindowFeature(
             content
         );
 
+    }
+
+    public Task<NavigationResult> LoadRawStringAsync(string content, CancellationToken ct = default) {
+        ArgumentNullException.ThrowIfNull(content);
+        var operation = new InfiniNavigationOperation(window, logger, content, null, true, ct);
+        _ = operation.StartAsync();
+        return operation.Task;
     }
 
     private bool TryResolveStaticAssetUri(string path, [NotNullWhen(true)] out Uri? uri) {

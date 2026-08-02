@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame;
@@ -11,6 +11,8 @@ namespace InfiniFrame;
 public interface ILifecycleInfiniFrameWindowFeature {
     /// <summary>Gets the current deterministic lifecycle state.</summary>
     InfiniFrameWindowLifecycleState State { get; }
+
+    ValueTask WaitForReadyAsync(CancellationToken ct = default);
 
     /// <summary>
     ///     Initializes the window lifecycle, performing native window creation and setup.
@@ -29,6 +31,10 @@ public interface ILifecycleInfiniFrameWindowFeature {
     /// <returns>A task that completes when the window closes or cancellation is requested.</returns>
     ValueTask WaitForCloseAsync(CancellationToken ct = default);
 
+    ValueTask WaitForClosedCallbacksAsync(CancellationToken ct = default);
+
+    ValueTask WaitForTeardownAsync(CancellationToken ct = default);
+
     /// <summary>
     ///     Closes the window synchronously.
     /// </summary>
@@ -45,6 +51,8 @@ public interface ILifecycleInfiniFrameWindowFeature {
     ///     Marks the window as closed without performing native cleanup.
     /// </summary>
     internal void MarkAsClosed();
+    internal void MarkClosedCallbacksDelivered();
+    internal void MarkCloseRejected();
 
     /// <summary>
     ///     Frees the native window handle. Must be called outside of native signal handlers.
@@ -52,6 +60,7 @@ public interface ILifecycleInfiniFrameWindowFeature {
     internal void CleanupNativeHandle();
 
     internal bool CanWaitForCloseDuringDispose();
+    internal bool CanWaitForTeardownDuringDispose();
 
     /// <summary>
     ///     Checks whether the window is closed or in the process of closing.

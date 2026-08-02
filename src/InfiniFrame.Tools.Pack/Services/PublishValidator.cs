@@ -10,7 +10,7 @@ namespace InfiniFrame.Tools.Pack.Services;
 internal static class PublishValidator {
     private const ushort ImageFileMachineAmd64 = 0x8664;
     private const ushort ImageFileMachineArm64 = 0xAA64;
-    
+
     private static readonly StringComparison PathComparison =
         OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
 

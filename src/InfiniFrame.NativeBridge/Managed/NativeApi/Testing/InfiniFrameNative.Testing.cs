@@ -4,7 +4,6 @@
 using InfiniFrame.NativeBridge.Parameters;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.Marshalling;
 
 namespace InfiniFrame.NativeBridge;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -26,11 +25,7 @@ public static partial class InfiniFrameNativeTesting {
     /// </summary>
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeTests_NativeParametersReturnAsIs", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    private static partial InfiniFrameNativeInteropStatus NativeParametersReturnAsIsNative(
-        [MarshalUsing(typeof(InfiniFrameNativeParametersMarshaller))]
-        in InfiniFrameNativeParameters parameters,
-        out IntPtr newParameters
-    );
+    private static partial InfiniFrameNativeInteropStatus NativeParametersReturnAsIsNative(IntPtr parameters, out IntPtr newParameters);
 
     /// <summary>
     ///     Native test helper that frees init parameters allocated by native code.
@@ -64,7 +59,21 @@ public static partial class InfiniFrameNativeTesting {
     /// <param name="newParametersPtr">The native pointer to the cloned parameters.</param>
     /// <returns>A status code indicating success or failure.</returns>
     internal static InfiniFrameNativeInteropStatus NativeParametersReturnAsIsPtr(ref InfiniFrameNativeParameters parameters, out IntPtr newParametersPtr) {
-        InfiniFrameNativeInteropStatus status = NativeParametersReturnAsIsNative(in parameters, out newParametersPtr);
+        var marshaller = new InfiniFrameNativeParametersMarshaller.ManagedToUnmanagedIn();
+        marshaller.FromManaged(parameters);
+        InfiniFrameNativeParametersMarshaller.Unmanaged unmanaged = marshaller.ToUnmanaged();
+        InfiniFrameNativeInteropStatus status;
+        IntPtr unmanagedPtr = IntPtr.Zero;
+
+        try {
+            unmanagedPtr = Marshal.AllocHGlobal(Marshal.SizeOf<InfiniFrameNativeParametersMarshaller.Unmanaged>());
+            Marshal.StructureToPtr(unmanaged, unmanagedPtr, false);
+            status = NativeParametersReturnAsIsNative(unmanagedPtr, out newParametersPtr);
+        }
+        finally {
+            if (unmanagedPtr != IntPtr.Zero) Marshal.FreeHGlobal(unmanagedPtr);
+            marshaller.Free();
+        }
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
         if (newParametersPtr == IntPtr.Zero) throw new InvalidOperationException("Native function returned null pointer");

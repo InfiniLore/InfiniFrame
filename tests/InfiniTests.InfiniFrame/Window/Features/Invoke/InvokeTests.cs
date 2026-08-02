@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -15,7 +15,7 @@ public class InvokeTests {
         IInfiniFrameWindow window = windowUtility.Window;
         int callbacks = 0;
 
-        Task<InfiniFrameDispatchResult>[] dispatches = Enumerable.Range(0, 32)
+        ValueTask<InfiniFrameDispatchResult>[] dispatches = Enumerable.Range(0, 32)
             .Select(_ => window.DispatchAsync(callback: () => {
                 Interlocked.Increment(ref callbacks);
                 InfiniFrameDispatchResult nested = window.Features.Invoke.Invoke(() => Interlocked.Increment(ref callbacks));
@@ -24,7 +24,7 @@ public class InvokeTests {
             }, TimeSpan.FromSeconds(5), ct))
             .ToArray();
 
-        InfiniFrameDispatchResult[] results = await Task.WhenAll(dispatches);
+        InfiniFrameDispatchResult[] results = await Task.WhenAll(dispatches.Select(static d => d.AsTask()));
 
         await Assert.That(results.All(x => x == InfiniFrameDispatchResult.Completed)).IsTrue();
         await Assert.That(callbacks).IsEqualTo(64);
@@ -41,7 +41,7 @@ public class InvokeTests {
         Task<InfiniFrameDispatchResult> blocker = window.DispatchAsync(callback: () => {
             entered.SetResult();
             Thread.Sleep(250);
-        }, TimeSpan.FromSeconds(5), ct);
+        }, TimeSpan.FromSeconds(5), ct).AsTask();
         // macOS UI tests begin on the AppKit main queue. Do not capture that queue here:
         // the continuation must enqueue the short-timeout operation while the callback
         // above is still blocking the main queue, not after its sleep has completed.
