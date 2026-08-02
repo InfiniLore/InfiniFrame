@@ -50,4 +50,12 @@ public static class IPageNavigationInfiniFrameWindowFeatureExtensions {
         string content,
         CancellationToken ct = default
     ) => window.Features.PageNavigation.LoadRawStringAsync(content, ct);
+
+    /// <summary>
+    ///     Gets the current page URL as a string, or null if no URL is available.
+    /// </summary>
+    /// <param name="window">The window instance.</param>
+    /// <returns>The current page URL, or null.</returns>
+    public static string? GetCurrentUrl(this IInfiniFrameWindow window)
+        => window.Features.PageNavigation.CurrentUrl;
 }

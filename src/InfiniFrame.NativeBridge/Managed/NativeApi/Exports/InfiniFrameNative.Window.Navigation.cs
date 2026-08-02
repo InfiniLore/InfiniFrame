@@ -62,4 +62,30 @@ public partial class InfiniFrameNative {
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_CancelNavigation", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus CancelNavigation(IntPtr instance, ulong operationId);
+
+    /// <summary>
+    ///     Retrieves the current page URL string pointer from the native layer.
+    /// </summary>
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_GetCurrentUrl", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial InfiniFrameNativeInteropStatus GetCurrentUrlPtr(IntPtr instance, out IntPtr value);
+    /// <summary>
+    ///     Gets the current page URL, or null if no URL is available.
+    /// </summary>
+    /// <param name="instance">The native window instance handle.</param>
+    /// <param name="url">The current page URL.</param>
+    /// <returns>A status code indicating success or failure.</returns>
+    internal static InfiniFrameNativeInteropStatus GetCurrentUrl(IntPtr instance, out string? url) {
+        InfiniFrameNativeInteropStatus status = GetCurrentUrlPtr(instance, out IntPtr ptr);
+        try {
+            url = PtrToNativeString(ptr);
+        }
+        finally {
+            if (ptr != IntPtr.Zero) {
+                FreeString(ptr);
+            }
+        }
+
+        return status;
+    }
 }

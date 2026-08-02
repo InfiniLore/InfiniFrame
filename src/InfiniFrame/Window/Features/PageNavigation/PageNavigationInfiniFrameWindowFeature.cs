@@ -6,6 +6,7 @@ using InfiniFrame.Security;
 using InfiniFrame.StaticAssets;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace InfiniFrame;
@@ -17,6 +18,30 @@ public class PageNavigationInfiniFrameWindowFeature(
     ILogger<PageNavigationInfiniFrameWindowFeature> logger,
     IInfiniFrameStaticAssets? staticAssets
 ) : IPageNavigationInfiniFrameWindowFeature {
+
+    /// <inheritdoc cref="IPageNavigationInfiniFrameWindowFeature.CurrentUrl" />
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public string? CurrentUrl {
+        get {
+            if (window.IsClosedOrClosing()) return null;
+            string? url = NativeInvoke.InvokeSyncWithValidation<string?>(
+                logger,
+                window,
+                window.ManagedThreadId,
+                InfiniFrameNative.GetCurrentUrl
+            );
+            return string.IsNullOrEmpty(url) ? null : url;
+        }
+    }
+
+    /// <inheritdoc cref="IPageNavigationInfiniFrameWindowFeature.CurrentUri" />
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public Uri? CurrentUri {
+        get {
+            string? url = CurrentUrl;
+            return url != null && Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) ? uri : null;
+        }
+    }
 
     /// <inheritdoc cref="IPageNavigationInfiniFrameWindowFeature.Load(Uri)" />
     public void Load(Uri uri)

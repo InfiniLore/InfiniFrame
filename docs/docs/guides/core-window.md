@@ -367,6 +367,17 @@ window.Monitors    // ImmutableArray<InfiniMonitor>; all connected monitors
 window.MainMonitor // The monitor the window is currently on
 ```
 
+### Page navigation properties
+
+```csharp
+string? url  = window.Features.PageNavigation.CurrentUrl;   // Current page URL (null after LoadRawString)
+Uri? uri     = window.Features.PageNavigation.CurrentUri;   // Parsed Uri convenience property
+string? url2 = window.GetCurrentUrl();                      // Extension method equivalent
+```
+
+`CurrentUrl` returns the active top-level URL after any redirects. It is `null` when the window has loaded raw HTML
+via `LoadRawString` because there is no associated URL.
+
 ### Window operations
 
 ```csharp

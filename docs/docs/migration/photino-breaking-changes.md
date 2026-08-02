@@ -118,6 +118,7 @@ InfiniFrame can pull window configuration from `IConfiguration` under an `"Infin
 | `IInfiniFrameWindow.CachedPreFullScreenBounds` / `CachedPreMaximizedBounds` | Saved geometry for restore                                                          |
 | `RegisterCustomSchemeHandler()`                                             | Returns `IInfiniFrameWindow` (fluent); in Photino it returned void                  |
 | `ZoomEnabled`                                                               | Separate bool controlling whether the user can zoom, distinct from the `Zoom` level |
+| `PageNavigation.CurrentUrl` / `CurrentUri` / `GetCurrentUrl()`              | First-class equivalent of Photino's `GetCurrentUrl()`; returns null after `LoadRawString` |
 
 ## Javascript Debugging
 

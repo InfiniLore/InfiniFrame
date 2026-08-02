@@ -90,7 +90,9 @@ public class WindowFeatureParityTests {
                 ("TryLoadUri", 1),
                 ("TryLoadPath", 1),
                 ("LoadRawString", 1),
-                ("LoadRawStringAsync", 1)
+                ("LoadRawStringAsync", 1),
+                ("CurrentUrl", 1),
+                ("CurrentUri", 1)
             ),
             [typeof(IPositionInfiniFrameWindowFeature)] = IncludedWithCounts(
                 ("Location", 1),

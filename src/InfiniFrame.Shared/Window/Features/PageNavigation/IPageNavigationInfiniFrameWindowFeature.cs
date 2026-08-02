@@ -41,4 +41,14 @@ public interface IPageNavigationInfiniFrameWindowFeature {
     void LoadRawString(string content);
 
     Task<NavigationResult> LoadRawStringAsync(string content, CancellationToken ct = default);
+
+    /// <summary>
+    ///     Gets the current page URL as a string, or null if no URL is available (e.g. after LoadRawString).
+    /// </summary>
+    string? CurrentUrl { get; }
+
+    /// <summary>
+    ///     Convenience property that parses <see cref="CurrentUrl"/> into a <see cref="Uri"/>.
+    /// </summary>
+    Uri? CurrentUri { get; }
 }
