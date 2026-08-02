@@ -370,8 +370,8 @@ window.MainMonitor // The monitor the window is currently on
 ### Page navigation properties
 
 ```csharp
-string? url  = window.Features.PageNavigation.CurrentUrl;   // Current page URL (null after LoadRawString)
-Uri? uri     = window.Features.PageNavigation.CurrentUri;   // Parsed Uri convenience property
+string? url  = window.Features.PageNavigation.GetCurrentUrl();   // Current page URL (null after LoadRawString)
+Uri? uri     = window.Features.PageNavigation.GetCurrentUri();   // Parsed Uri convenience property
 string? url2 = window.GetCurrentUrl();                      // Extension method equivalent
 ```
 

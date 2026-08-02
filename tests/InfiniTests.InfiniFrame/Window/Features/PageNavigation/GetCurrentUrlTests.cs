@@ -17,10 +17,10 @@ public class GetCurrentUrlTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        string? currentUrl = window.Features.PageNavigation.CurrentUrl;
+        string? currentUrl = window.Features.PageNavigation.GetCurrentUrl();
 
         // Assert - a window loaded via StartString has no meaningful URL
-        await Assert.That(currentUrl == null || currentUrl == "about:blank").IsTrue();
+        await Assert.That(currentUrl is null or "about:blank").IsTrue();
     }
 
     [Test]
@@ -35,8 +35,8 @@ public class GetCurrentUrlTests {
         window.Features.PageNavigation.LoadRawString("<html><body>raw content</body></html>");
 
         // Assert - macOS WKWebView assigns "about:blank" to raw string content
-        string? currentUrl = window.Features.PageNavigation.CurrentUrl;
-        await Assert.That(currentUrl == null || currentUrl == "about:blank").IsTrue();
+        string? currentUrl = window.Features.PageNavigation.GetCurrentUrl();
+        await Assert.That(currentUrl is null or "about:blank").IsTrue();
     }
 
     [Test]
@@ -51,7 +51,7 @@ public class GetCurrentUrlTests {
         window.Close();
 
         // Assert - should not throw
-        string? currentUrl = window.Features.PageNavigation.CurrentUrl;
+        string? currentUrl = window.Features.PageNavigation.GetCurrentUrl();
         await Assert.That(currentUrl).IsNull();
     }
 
@@ -67,7 +67,7 @@ public class GetCurrentUrlTests {
         window.Features.PageNavigation.LoadRawString("<html><body>raw</body></html>");
 
         // Assert - macOS WKWebView assigns "about:blank" to raw string content
-        Uri? currentUri = window.Features.PageNavigation.CurrentUri;
+        Uri? currentUri = window.Features.PageNavigation.GetCurrentUri();
         await Assert.That(currentUri == null || currentUri.ToString() == "about:blank").IsTrue();
     }
 
@@ -80,10 +80,10 @@ public class GetCurrentUrlTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        string? currentUrl = window.Features.PageNavigation.CurrentUrl;
+        string? currentUrl = window.Features.PageNavigation.GetCurrentUrl();
 
         // Assert - fresh window has about:blank which is an absolute URI
-        Uri? currentUri = window.Features.PageNavigation.CurrentUri;
+        Uri? currentUri = window.Features.PageNavigation.GetCurrentUri();
         if (currentUrl != null) {
             await Assert.That(currentUri).IsNotNull();
             await Assert.That(currentUri!.IsAbsoluteUri).IsTrue();
@@ -99,7 +99,7 @@ public class GetCurrentUrlTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        string? viaProperty = window.Features.PageNavigation.CurrentUrl;
+        string? viaProperty = window.Features.PageNavigation.GetCurrentUrl();
         string? viaExtension = window.GetCurrentUrl();
 
         // Assert

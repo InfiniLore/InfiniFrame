@@ -12,6 +12,11 @@ public interface IPageNavigationInfiniFrameWindowFeature {
     /// <param name="uri">The URI to load.</param>
     void Load(Uri uri);
 
+    /// <summary>
+    ///     Loads the content at the specified path in the window.
+    /// </summary>
+    /// <param name="uri">The file path or URL string to load.</param>
+    /// <param name="ct">The cancellation token to use.</param>
     Task<NavigationResult> LoadAsync(Uri uri, CancellationToken ct = default);
 
     /// <summary>
@@ -19,6 +24,13 @@ public interface IPageNavigationInfiniFrameWindowFeature {
     /// </summary>
     /// <param name="path">The file path or URL string to load.</param>
     void Load(string path);
+    
+    /// <summary>
+    ///     Loads the content at the specified path in the window.
+    /// </summary>
+    /// <param name="path">The file path or URL string to load.</param>
+    /// <param name="ct">The cancellation token to use.</param>
+    Task<NavigationResult> LoadAsync(string path, CancellationToken ct = default);
 
     /// <summary>
     ///     Attempts to load the specified URI in the window.
@@ -43,12 +55,12 @@ public interface IPageNavigationInfiniFrameWindowFeature {
     Task<NavigationResult> LoadRawStringAsync(string content, CancellationToken ct = default);
 
     /// <summary>
-    ///     Gets the current page URL as a string, or null if no URL is available (e.g. after LoadRawString).
+    ///     Gets the current page URL as a string, or null if no URL is available (e.g., after LoadRawString).
     /// </summary>
-    string? CurrentUrl { get; }
+    string? GetCurrentUrl();
 
     /// <summary>
-    ///     Convenience property that parses <see cref="CurrentUrl"/> into a <see cref="Uri"/>.
+    ///     Convenience property that parses <see cref="GetCurrentUrl"/> into a <see cref="Uri"/>.
     /// </summary>
-    Uri? CurrentUri { get; }
+    Uri? GetCurrentUri();
 }

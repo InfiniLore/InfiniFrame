@@ -19,8 +19,8 @@ internal sealed class PageNavigationWebMessageDispatcher : WindowFeatureWebMessa
     protected override object? Get(IPageNavigationInfiniFrameWindowFeature feature, string command, JsonElement? args) => command switch {
         "tryLoadUri" => feature.TryLoadUri(new Uri(Required<string>(args, "uri"), UriKind.RelativeOrAbsolute)),
         "tryLoadPath" => feature.TryLoadPath(Required<string>(args, "path")),
-        "getCurrentUrl" => feature.CurrentUrl,
-        "getCurrentUri" => feature.CurrentUri?.ToString(),
+        "getCurrentUrl" => feature.GetCurrentUrl(),
+        "getCurrentUri" => feature.GetCurrentUri()?.ToString(),
         _ => throw Unsupported(command)
     };
 

@@ -24,8 +24,7 @@ public partial class InfiniFrameEvents {
         // advances the window from Creating to Ready. Native WebView message
         // delivery itself proves that the transport is live; only reject work
         // before creation or once close has been requested.
-        if (state < InfiniFrameWindowLifecycleState.Creating
-            || state >= InfiniFrameWindowLifecycleState.CloseRequested) {
+        if (state is < InfiniFrameWindowLifecycleState.Creating or >= InfiniFrameWindowLifecycleState.CloseRequested) {
             Logger.LogDebug("Skipping web message handling because window is closed.");
             return;
         }

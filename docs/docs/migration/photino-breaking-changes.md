@@ -109,16 +109,16 @@ InfiniFrame can pull window configuration from `IConfiguration` under an `"Infin
 
 ### New APIs not in Photino
 
-| API                                                                         | Description                                                                         |
-|-----------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| `IInfiniFrameWindow.Focused`                                                | Query or set keyboard focus state                                                   |
-| `IInfiniFrameWindow.WaitForCloseAsync()`                                    | Async wait for window close                                                         |
-| `IInfiniFrameWindow.ManagedThreadId`                                        | Thread ID of the window's message loop                                              |
-| `IInfiniFrameWindow.AcquireNativeHandle()` / `NativeHandleLease.Handle`     | Lifetime-safe low-level native access; dispose the lease after the native call       |
+| API                                                                       | Description                                                                         |
+|---------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| `IInfiniFrameWindow.Focused`                                              | Query or set keyboard focus state                                                   |
+| `IInfiniFrameWindow.WaitForCloseAsync()`                                  | Async wait for window close                                                         |
+| `IInfiniFrameWindow.ManagedThreadId`                                      | Thread ID of the window's message loop                                              |
+| `IInfiniFrameWindow.AcquireNativeHandle()` / `NativeHandleLease.Handle`   | Lifetime-safe low-level native access; dispose the lease after the native call       |
 | `IInfiniFrameWindow.CachedPreFullScreenBounds` / `CachedPreMaximizedBounds` | Saved geometry for restore                                                          |
-| `RegisterCustomSchemeHandler()`                                             | Returns `IInfiniFrameWindow` (fluent); in Photino it returned void                  |
-| `ZoomEnabled`                                                               | Separate bool controlling whether the user can zoom, distinct from the `Zoom` level |
-| `PageNavigation.CurrentUrl` / `CurrentUri` / `GetCurrentUrl()`              | First-class equivalent of Photino's `GetCurrentUrl()`; returns null after `LoadRawString` |
+| `RegisterCustomSchemeHandler()`                                           | Returns `IInfiniFrameWindow` (fluent); in Photino it returned void                  |
+| `ZoomEnabled`                                                             | Separate bool controlling whether the user can zoom, distinct from the `Zoom` level |
+| `PageNavigation.GetCurrentUri()` / `GetCurrentUrl()`              | First-class equivalent of Photino's `GetCurrentUrl()`; returns null after `LoadRawString` |
 
 ## Javascript Debugging
 
