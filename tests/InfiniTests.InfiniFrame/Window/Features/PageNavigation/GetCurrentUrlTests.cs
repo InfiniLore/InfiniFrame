@@ -26,7 +26,7 @@ public class GetCurrentUrlTests {
     [Test]
     [NotInParallelInfiniTests]
     [SkipOnLinux]
-    public async Task AfterLoadRawString_ReturnsNull(CancellationToken ct) {
+    public async Task AfterLoadRawString_ReturnsNullOrAboutBlank(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -34,9 +34,9 @@ public class GetCurrentUrlTests {
         // Act
         window.Features.PageNavigation.LoadRawString("<html><body>raw content</body></html>");
 
-        // Assert
+        // Assert - macOS WKWebView assigns "about:blank" to raw string content
         string? currentUrl = window.Features.PageNavigation.CurrentUrl;
-        await Assert.That(currentUrl).IsNull();
+        await Assert.That(currentUrl == null || currentUrl == "about:blank").IsTrue();
     }
 
     [Test]
@@ -58,7 +58,7 @@ public class GetCurrentUrlTests {
     [Test]
     [NotInParallelInfiniTests]
     [SkipOnLinux]
-    public async Task CurrentUri_WhenUrlIsNull_ReturnsNull(CancellationToken ct) {
+    public async Task CurrentUri_WhenUrlIsNull_ReturnsNullOrAboutBlank(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -66,9 +66,9 @@ public class GetCurrentUrlTests {
         // Act
         window.Features.PageNavigation.LoadRawString("<html><body>raw</body></html>");
 
-        // Assert
+        // Assert - macOS WKWebView assigns "about:blank" to raw string content
         Uri? currentUri = window.Features.PageNavigation.CurrentUri;
-        await Assert.That(currentUri).IsNull();
+        await Assert.That(currentUri == null || currentUri.ToString() == "about:blank").IsTrue();
     }
 
     [Test]
