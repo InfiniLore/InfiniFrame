@@ -102,7 +102,7 @@ public class DecorationsInfiniFrameWindowFeature(
             handle => InfiniFrameNative.SetBackgroundColor(handle, r, g, b, a)
         );
 
-        _backgroundColor = color is null or "transparent" ? null : color;
+        _backgroundColor = color;
     }
 
     /// <inheritdoc cref="IDecorationsInfiniFrameWindowFeature.SetTitle" />
