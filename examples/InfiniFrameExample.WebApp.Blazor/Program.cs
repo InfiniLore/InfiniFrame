@@ -48,7 +48,7 @@ public static class Program {
         appBuilder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ServerApi"));
 
         appBuilder.Services.AddInfiniFrameJs();
-        
+
         appBuilder.WebApp.WebHost.UseStaticWebAssets();
 
         appBuilder.WindowBuilder
@@ -72,7 +72,7 @@ public static class Program {
         // -------------------------------------------------------------------------------------------------------------
         InfiniFrameWebApplication application = appBuilder.Build();
         application.UseAutoServerClose();
-        
+
         WebApplication webApp = application.WebApp;
 
         webApp.UseRouting();

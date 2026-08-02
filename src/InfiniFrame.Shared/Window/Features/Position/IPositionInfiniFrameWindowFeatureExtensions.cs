@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Drawing;
@@ -19,7 +19,7 @@ public static class IPositionInfiniFrameWindowFeatureExtensions {
         window.Features.Position.SetLocation(left, top);
         return window;
     }
-    
+
     /// <summary>
     ///     Sets the position of the window using a <see cref="Point"/> and returns the window for chaining.
     /// </summary>
@@ -30,7 +30,7 @@ public static class IPositionInfiniFrameWindowFeatureExtensions {
         window.Features.Position.SetLocation(location);
         return window;
     }
-    
+
     /// <summary>
     ///     Sets the left edge position of the window and returns the window for chaining.
     /// </summary>
@@ -41,7 +41,7 @@ public static class IPositionInfiniFrameWindowFeatureExtensions {
         window.Features.Position.SetLeft(left);
         return window;
     }
-    
+
     /// <summary>
     ///     Sets the top edge position of the window and returns the window for chaining.
     /// </summary>
@@ -52,7 +52,7 @@ public static class IPositionInfiniFrameWindowFeatureExtensions {
         window.Features.Position.SetTop(top);
         return window;
     }
-    
+
     /// <summary>
     ///     Offsets the window position by the specified amount and returns the window for chaining.
     /// </summary>
@@ -64,7 +64,7 @@ public static class IPositionInfiniFrameWindowFeatureExtensions {
         window.Features.Position.Offset(left, top);
         return window;
     }
-    
+
     /// <summary>
     ///     Offsets the window position by the specified <see cref="Point"/> and returns the window for chaining.
     /// </summary>
@@ -75,7 +75,7 @@ public static class IPositionInfiniFrameWindowFeatureExtensions {
         window.Features.Position.Offset(offset);
         return window;
     }
-    
+
     /// <summary>
     ///     Offsets the window position by the specified amount and returns the window for chaining.
     /// </summary>
@@ -87,7 +87,7 @@ public static class IPositionInfiniFrameWindowFeatureExtensions {
         window.Features.Position.Offset(left, top);
         return window;
     }
-    
+
     /// <summary>
     ///     Centers the window on the screen and returns the window for chaining.
     /// </summary>
@@ -97,7 +97,7 @@ public static class IPositionInfiniFrameWindowFeatureExtensions {
         window.Features.Position.Center();
         return window;
     }
-    
+
     /// <summary>
     ///     Centers the window on the current monitor and returns the window for chaining.
     /// </summary>
@@ -107,7 +107,7 @@ public static class IPositionInfiniFrameWindowFeatureExtensions {
         window.Features.Position.CenterOnCurrentMonitor();
         return window;
     }
-    
+
     /// <summary>
     ///     Centers the window on the specified monitor and returns the window for chaining.
     /// </summary>
@@ -118,7 +118,7 @@ public static class IPositionInfiniFrameWindowFeatureExtensions {
         window.Features.Position.CenterOnMonitor(monitorIndex);
         return window;
     }
-    
+
     /// <summary>
     ///     Moves the window within the current monitor's work area using pixel coordinates and returns the window for chaining.
     /// </summary>
@@ -130,7 +130,7 @@ public static class IPositionInfiniFrameWindowFeatureExtensions {
         window.Features.Position.MoveWithinCurrentMonitorArea(left, top);
         return window;
     }
-    
+
     /// <summary>
     ///     Moves the window within the current monitor's work area using a <see cref="Point"/> and returns the window for chaining.
     /// </summary>
@@ -141,7 +141,7 @@ public static class IPositionInfiniFrameWindowFeatureExtensions {
         window.Features.Position.MoveWithinCurrentMonitorArea(location);
         return window;
     }
-    
+
     /// <summary>
     ///     Moves the window within the current monitor's work area using pixel coordinates and returns the window for chaining.
     /// </summary>

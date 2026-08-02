@@ -18,7 +18,7 @@ public class InfiniFrameWindowConfiguration : IInfiniFrameWindowConfiguration {
     public IInfiniFrameWindow? ParentWindow { get; set; }
     /// <inheritdoc cref="IInfiniFrameWindowConfiguration.ChildWindows"/>
     public List<IInfiniFrameWindow> ChildWindows { get; } = [];
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------

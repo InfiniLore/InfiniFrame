@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Tools.Pack.Services;
@@ -32,7 +32,7 @@ public class PublishValidatorTests {
 
         // IMAGE_FILE_HEADER.Machine
         bytes[0x84] = (byte)(machine & 0xFF);
-        bytes[0x85] = (byte)(machine>> 8 & 0xFF);
+        bytes[0x85] = (byte)(machine >> 8 & 0xFF);
 
         File.WriteAllBytes(path, bytes);
     }
@@ -61,9 +61,9 @@ public class PublishValidatorTests {
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() => {
-                PublishValidator.ValidateNativeArtifacts(missingDirectory, "win-x64");
-                return Task.CompletedTask;
-            })
+            PublishValidator.ValidateNativeArtifacts(missingDirectory, "win-x64");
+            return Task.CompletedTask;
+        })
             .WithMessage($"Native artifacts directory was not found: {missingDirectory}");
     }
 
@@ -79,9 +79,9 @@ public class PublishValidatorTests {
         // Act & Assert
         string expectedMissingFile = Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsLoaderFileName);
         await Assert.ThrowsAsync<InvalidOperationException>(() => {
-                PublishValidator.ValidateNativeArtifacts(artifactsDirectory, "win-x64");
-                return Task.CompletedTask;
-            })
+            PublishValidator.ValidateNativeArtifacts(artifactsDirectory, "win-x64");
+            return Task.CompletedTask;
+        })
             .WithMessage($"Required native artifact was not found: {expectedMissingFile}");
     }
 
@@ -179,36 +179,36 @@ public class PublishValidatorTests {
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() => {
-                PublishValidator.ValidateNativeArtifacts(artifactsDirectory, "browser-wasm");
-                return Task.CompletedTask;
-            })
+            PublishValidator.ValidateNativeArtifacts(artifactsDirectory, "browser-wasm");
+            return Task.CompletedTask;
+        })
             .WithMessage("Unsupported RID for native artifact validation: browser-wasm");
     }
 
     [Test]
     public async Task ValidateRidConsistency_Throws_WhenRidIsEmpty() {
         await Assert.ThrowsAsync<InvalidOperationException>(() => {
-                PublishValidator.ValidateRidConsistency(string.Empty);
-                return Task.CompletedTask;
-            })
+            PublishValidator.ValidateRidConsistency(string.Empty);
+            return Task.CompletedTask;
+        })
             .WithMessage("Runtime identifier (RID) cannot be empty.");
     }
 
     [Test]
     public async Task ValidateRidConsistency_Throws_WhenRidFormatIsInvalid() {
         await Assert.ThrowsAsync<InvalidOperationException>(() => {
-                PublishValidator.ValidateRidConsistency("linuxx64");
-                return Task.CompletedTask;
-            })
+            PublishValidator.ValidateRidConsistency("linuxx64");
+            return Task.CompletedTask;
+        })
             .WithMessage("Invalid RID format: 'linuxx64'. Expected format like 'win-x64', 'linux-arm64'.");
     }
 
     [Test]
     public async Task ValidateRidConsistency_Throws_WhenRidIsUnsupported() {
         await Assert.ThrowsAsync<InvalidOperationException>(() => {
-                PublishValidator.ValidateRidConsistency("browser-wasm");
-                return Task.CompletedTask;
-            })
+            PublishValidator.ValidateRidConsistency("browser-wasm");
+            return Task.CompletedTask;
+        })
             .WithMessage("Unsupported or unknown RID: 'browser-wasm'.");
     }
 

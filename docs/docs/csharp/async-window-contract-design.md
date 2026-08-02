@@ -6,22 +6,26 @@ title: Awaitable window operations design
 
 Status: implemented. This document records the shipped contract and additive ABI used by the managed layer.
 
+## Return-type convention
+
+Fire-and-forget dispatch and lightweight submission APIs return `ValueTask` or `ValueTask<T>`. Operations that produce a computed result (navigation, dialogs) return `Task<T>`. This avoids allocating a `Task` for the common fast-path (dispatch completes synchronously on the native thread) while keeping the result-bearing APIs compatible with `await`.
+
 ## Scope and current inventory
 
 This inventory covers the public .NET window-feature surface and the corresponding JavaScript window facade. It does not classify unrelated ASP.NET, Blazor, test, or tooling tasks.
 
-| API | Current completion meaning | Classification | Proposed treatment |
-| --- | --- | --- | --- |
-| `CloseAsync` | Native close callback reached `NativeWindowClosed` | Real native completion | Concurrent requests share the close attempt; cancellation affects only one waiter |
-| `WaitForCloseAsync` | `NativeWindowClosed` | Real native event observation | Use `WaitForTeardownAsync` when backend resource safety is required |
-| `DispatchAsync` | Registered callback ran on the owning native loop, or reached a terminal suppression state | Real native completion | Cancellation/timeout removes or suppresses pending work so it cannot execute later |
-| `SendWebMessageAsync` | The platform WebView accepted or locally queued the message | Local submission acknowledgement | Keep the lightweight behavior under an honest name/contract; add a JavaScript acknowledgement API |
-| `ShowOpenFileAsync` | Native response/cancellation callback | Real native completion | Cancellation closes the native dialog and terminal callback owns cleanup |
-| `ShowOpenFolderAsync` | Native response/cancellation callback | Real native completion | Same operation model as open-file |
-| `ShowSaveFileAsync` | Native response/cancellation callback | Real native completion | Same operation model as open-file |
-| `.NET ShowMessageAsync` | Native response/cancellation callback | Real native completion | Windows uses a dedicated STA; macOS sheets and GTK response signals remain on their owning loops |
-| JavaScript `showMessageAsync` | Existing synchronous web-feature routing | Compatibility limitation | The .NET/native async API is available; asynchronous web-handler routing requires a separate protocol revision |
-| JavaScript getters and `tryLoad*Async` | A correlated browser-to-managed request receives its managed response | Real request/response, but `tryLoad*Async` means request acceptance rather than navigation completion | Keep getters; add navigation-result APIs and stop describing `tryLoad*Async` as load completion |
+| API | Current completion meaning | Classification |
+| --- | --- | --- |
+| `CloseAsync` | Native close callback reached `NativeClosed` | Real native completion; concurrent requests share the close attempt; cancellation affects only one waiter |
+| `WaitForCloseAsync` | `NativeClosed` | Real native event observation |
+| `DispatchAsync` | Registered callback ran on the owning native loop, or reached a terminal suppression state | Real native completion; cancellation/timeout removes or suppresses pending work so it cannot execute later |
+| `SendWebMessageAsync` | The platform WebView accepted or locally queued the message | Local submission acknowledgement |
+| `SendWebMessageWithAcknowledgementAsync` | JavaScript acknowledgement received after WebView accepted the message | Request/response with JS receipt confirmation |
+| `ShowOpenFileAsync` | Native response/cancellation callback | Real native completion; cancellation closes the native dialog and terminal callback owns cleanup |
+| `ShowOpenFolderAsync` | Native response/cancellation callback | Real native completion; same operation model as open-file |
+| `ShowSaveFileAsync` | Native response/cancellation callback | Real native completion; same operation model as open-file |
+| `.NET ShowMessageAsync` | Native response/cancellation callback | Real native completion; Windows uses a dedicated STA; macOS sheets and GTK response signals remain on their owning loops |
+| JavaScript `tryLoad*Async` | A correlated browser-to-managed request receives its managed response | Real request/response, but `tryLoad*Async` means request acceptance rather than navigation completion |
 
 There is currently no .NET async readiness or navigation-completion API. `InputDataProbe.tsx` is a generated React input component and has no lifecycle, navigation, or bridge-protocol coupling.
 
@@ -29,22 +33,22 @@ There is currently no .NET async readiness or navigation-completion API. `InputD
 
 The common successful path is:
 
-`Creating -> Ready -> CloseRequested -> NativeClosed -> TeardownPending -> TeardownComplete -> Disposed`
+`Created -> Creating -> Ready -> CloseRequested -> NativeClosed -> TeardownPending -> TeardownComplete -> NativeHandleReleased -> Disposed`
 
-The public enum should use those names. Existing `Created`, `Initializing`, `Running`, `ClosingRequested`, `NativeClosed`, and `Disposed` values need a source-compatibility migration plan; aliases may be retained for one release, but code must not depend on enum ordinal ordering.
+The public enum `InfiniFrameWindowLifecycleState` uses those names. Existing `Created`, `Initializing`, `Running`, `ClosingRequested`, `NativeClosed`, and `Disposed` values are aliases or ordinal matches; code must not depend on enum ordinal ordering.
 
 The observable milestones are distinct:
 
 | Milestone | Exact meaning |
 | --- | --- |
 | `CloseRequested` | InfiniFrame accepted one shared close attempt and successfully scheduled it on the owning native loop |
-| `NativeWindowClosed` | The logical native window session can no longer receive window/browser work. On macOS this is the InfiniFrame session boundary; a pooled `NSWindow`/`WKWebView` may remain alive internally |
-| `ManagedClosedCallbacksDelivered` | Every managed `WindowClosed` callback for the session returned; callback exceptions were contained |
-| `BackendTeardownComplete` | InfiniFrame-owned signals, event tokens, pending operations, dialogs, and browser callback routes are disconnected or terminal, and backend resources are safe to release |
+| `NativeClosed` | The logical native window session can no longer receive window/browser work. On macOS this is the InfiniFrame session boundary; a pooled `NSWindow`/`WKWebView` may remain alive internally |
+| `TeardownPending` | Backend resources are being released; managed callback routes and owned session resources are quiescent |
+| `TeardownComplete` | InfiniFrame-owned signals, event tokens, pending operations, dialogs, and browser callback routes are disconnected or terminal, and backend resources are safe to release |
 | `NativeHandleReleased` | Native ownership was relinquished and the session pointer is no longer usable |
 | `Disposed` | The managed handle, operation sink, callback registrations, and GC roots were released exactly once |
 
-`BackendTeardownComplete` on macOS does not promise that private Apple WebKit display-link or process-pool work is fully drained. It promises only that InfiniFrame callback routes and owned session resources are quiescent and safe to release.
+`TeardownComplete` on macOS does not promise that private Apple WebKit display-link or process-pool work is fully drained. It promises only that InfiniFrame callback routes and owned session resources are quiescent and safe to release.
 
 A close veto is the only exceptional branch. If an existing `Closing` handler rejects a close attempt, that attempt completes with `CloseRejectedException` and the window returns to `Ready`. Concurrent callers share that attempt but have independent cancellation. Cancellation only stops one caller waiting; it never retracts a close already accepted by native code.
 
@@ -53,13 +57,13 @@ Recommended lifecycle API:
 ```csharp
 ValueTask WaitForReadyAsync(CancellationToken cancellationToken = default);
 ValueTask CloseAsync(CancellationToken cancellationToken = default);
-ValueTask WaitForCloseAsync(CancellationToken cancellationToken = default); // NativeWindowClosed
+ValueTask WaitForCloseAsync(CancellationToken cancellationToken = default); // NativeClosed
 ValueTask WaitForClosedCallbacksAsync(CancellationToken cancellationToken = default);
 ValueTask WaitForTeardownAsync(CancellationToken cancellationToken = default);
 ValueTask DisposeAsync();
 ```
 
-`Close()` remains a non-blocking compatibility request. `WaitForClose()` and `Dispose()` remain explicitly blocking compatibility APIs and must reject or avoid waits that would deadlock the owning event loop. `InfiniFrameWindow` should implement `IAsyncDisposable`.
+`Close()` remains a non-blocking compatibility request. `WaitForClose()` and `Dispose()` remain explicitly blocking compatibility APIs and must reject or avoid waits that would deadlock the owning event loop. `InfiniFrameWindow` implements `IAsyncDisposable`.
 
 Windows synchronous `Build()` remains caller-STA-owned. Because WebView2 cannot finish initialization until that STA pumps messages, add an opt-in `BuildAsync`/hosted-window path that creates the window on an InfiniFrame-owned STA and starts its message loop before awaiting readiness. `WaitForReadyAsync` is valid on an already-pumping caller-owned window; it does not secretly pump or move UI work to the thread pool. Linux continues to use its owning GLib context. macOS creation is scheduled on the process main run loop and requires the embedding host to run that loop.
 
@@ -67,7 +71,7 @@ Windows synchronous `Build()` remains caller-STA-owned. Because WebView2 cannot 
 
 ## Reusable native-operation model
 
-Each window owns a `NativeOperationRegistry`. Managed code assigns monotonically increasing unsigned 64-bit IDs; zero is reserved for unsolicited lifecycle events. An operation record contains:
+Each window owns a native operation registry. Managed code assigns monotonically increasing unsigned 64-bit IDs; zero is reserved for unsolicited lifecycle events. An operation record contains:
 
 - ID, kind/name, start timestamp, and owning window/session;
 - `Pending`, `Running`, or one terminal state;
@@ -82,18 +86,18 @@ Managed `WindowOperation<T>` records diagnostics, owns a `NativeHandleLease`, an
 
 For dispatch, cancellation or timeout performs a native `Pending -> Cancelled/TimedOut` compare/exchange and removes/suppresses the queued source or message. If execution already won `Pending -> Running`, cancellation cannot pretend the callback did not run; completion follows the callback. A callback whose cancellation/timeout won is never invoked later.
 
-## Proposed operation APIs
+## Shipped operation APIs
 
 ### Dispatch
 
 ```csharp
-Task<InfiniFrameDispatchResult> DispatchAsync(
+ValueTask<InfiniFrameDispatchResult> DispatchAsync(
     Action callback,
     TimeSpan? timeout = null,
     CancellationToken cancellationToken = default);
 ```
 
-The signature can remain. `Completed` means the callback returned on the native UI thread. `Failed` includes callback/native scheduling failure. `Invoke` remains the only explicitly blocking dispatcher.
+`Completed` means the callback returned on the native UI thread. `Failed` includes callback/native scheduling failure. `Invoke` remains the only explicitly blocking dispatcher. Cancellation/timeout removes or suppresses pending work so it cannot execute later.
 
 ### Navigation
 
@@ -118,21 +122,18 @@ Existing `Load`, `LoadRawString`, and `TryLoad*` methods remain request/acceptan
 
 ### Web messages
 
-Keep `SendWebMessageAsync` for source compatibility, but document it as local WebView submission only and add an explicit acknowledgement API:
-
 ```csharp
-ValueTask QueueWebMessageAsync(string message, CancellationToken cancellationToken = default);
-Task<WebMessageReply> SendWebMessageWithReplyAsync(
-    string message,
-    TimeSpan? timeout = null,
-    CancellationToken cancellationToken = default);
+ValueTask SendWebMessageAsync(string message, CancellationToken ct = default);
+Task SendWebMessageWithAcknowledgementAsync(string message, CancellationToken ct = default);
 ```
 
-The wire envelope adds a protocol-owned `operationId`, `kind` (`request`, `ack`, `reply`, `error`), and payload. The injected JavaScript bridge sends `ack` only after its receive handler accepts the envelope, and may later send `reply`. Managed code validates the current document/navigation generation before completing. Cancellation, timeout, navigation replacement, close, and disposal all terminate the request. Native dispatch or WebView submission never counts as JavaScript receipt.
+`SendWebMessageAsync` is a lightweight local-submission acknowledgement. `SendWebMessageWithAcknowledgementAsync` adds a JavaScript acknowledgement envelope: the injected bridge sends `ack` after its receive handler accepts the envelope, and may later send `reply`. Managed code validates the current document/navigation generation before completing. Cancellation, timeout, navigation replacement, close, and disposal all terminate the request. Native dispatch or WebView submission never counts as JavaScript receipt.
+
+The wire envelope adds a protocol-owned `operationId`, `kind` (`request`, `ack`, `reply`, `error`), and payload.
 
 ### Dialogs
 
-The existing async method signatures remain but become genuinely event-backed. New structured-result overloads may distinguish user cancellation from owner close without breaking existing `null`/empty-array projections. Add `ShowMessageAsync` to the managed notifications contract and route the JavaScript method through an asynchronous managed web-message handler.
+The existing async method signatures remain genuinely event-backed. New structured-result overloads may distinguish user cancellation from owner close without breaking existing `null`/empty-array projections.
 
 - macOS: `beginSheetModalForWindow:completionHandler:` for file panels and `NSAlert`; completion runs on the main run loop. Owner close calls `endSheet` and completes `WindowClosed`.
 - Linux: create/show dialogs on the owning `GMainContext`, subscribe to `response`/`destroy`, and avoid `gtk_dialog_run`. Cancellation destroys the dialog on that context after disconnecting exactly once.
@@ -191,5 +192,14 @@ On timeout or crash diagnostics print the window ID, last lifecycle transition w
 2. Implement native async dispatch and lifecycle readiness/teardown/release.
 3. Add correlated navigation.
 4. Add async file/message dialogs and async web-message routing.
-5. Add JavaScript acknowledgement/reply envelopes.
+5. Add JavaScript acknowledgement envelopes and reply handling.
 6. Add event-backed window-state waits where portable signals are reliable.
+
+### Planned / future work
+
+The following items are deferred and not yet implemented:
+
+- `BuildAsync` / hosted-STA window construction path (Windows caller-STA only; see lifecycle contract section above).
+- JavaScript reply envelope and `WebMessageReply` protocol (the acknowledgement envelope is shipped; JS-side reply routing is planned).
+- State async waits (`WaitForStateAsync`, `SetFullScreenAsync`, etc.) where native events are not yet reliable.
+- Native operation registry (`NativeOperationRegistry` abstraction) — currently the operation lifecycle is inline within each operation type.

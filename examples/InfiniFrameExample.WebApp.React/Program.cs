@@ -20,7 +20,7 @@ public static class Program {
         InfiniFrameWebApplicationBuilder appBuilder = InfiniFrameWebApplication.CreateBuilder(args);
         // WebApplicationBuilder appBuilder = builder.WebApp;
         appBuilder.WebApp.Services.AddSingleton<WebMessageCounter>();
-        
+
         appBuilder.WindowBuilder
             .UseOsDefaultSize(false)
             .SetResizable()
@@ -35,14 +35,14 @@ public static class Program {
                         }, 1000);
                     })();
                     """u8.ToArray())
-                ,"text/javascript")
+                , "text/javascript")
             )
-            .RegisterWebMessageReceivedHandler((IInfiniFrameWindow window, string message, WebMessageCounter counter ) => {
+            .RegisterWebMessageReceivedHandler((IInfiniFrameWindow window, string message, WebMessageCounter counter) => {
                 int count = counter.Increment();
                 string response = $"[{count}] Received message: \"{message}\"";
                 window.SendWebMessage(response);
             });
-        
+
         InfiniFrameWebApplication application = appBuilder.Build();
 
         application.UseAutoServerClose();

@@ -3,8 +3,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
-using InfiniFrame.Security;
 using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.Security;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
@@ -392,7 +392,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     private sealed class TestJsComponent : IComponent {
-        public void Attach(RenderHandle renderHandle) {}
+        public void Attach(RenderHandle renderHandle) { }
 
         public Task SetParametersAsync(ParameterView parameters) => Task.CompletedTask;
     }

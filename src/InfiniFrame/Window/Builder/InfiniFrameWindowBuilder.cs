@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using FluentValidation;
@@ -66,7 +66,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             window,
             InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(this)
         );
-        
+
         validator.ValidateAndThrow(nativeParameters);
 
         window.Features.Lifecycle.Initialize();
@@ -77,7 +77,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
     internal InfiniFrameNativeParameters CollectNativeParameters() {
         var parameters = new InfiniFrameNativeParameters();
-        
+
         Configuration.ApplyToNativeParameters(ref parameters);
         Features.ApplyToNativeParameters(ref parameters);
 

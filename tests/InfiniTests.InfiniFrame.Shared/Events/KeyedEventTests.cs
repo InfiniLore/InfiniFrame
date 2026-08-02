@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -19,7 +19,7 @@ public class KeyedEventTests {
         var evt = new KeyedEvent<string, int>();
 
         // Act & Assert
-        await Assert.That(() => evt.Add(null!, handler: (_, _) => {})).Throws<ArgumentNullException>();
+        await Assert.That(() => evt.Add(null!, handler: (_, _) => { })).Throws<ArgumentNullException>();
     }
 
     [Test]
@@ -37,8 +37,8 @@ public class KeyedEventTests {
         var evt = new KeyedEvent<string, int>();
 
         // Act
-        evt.Add("a", handler: (_, _) => {});
-        evt.Add("b", handler: (_, _) => {});
+        evt.Add("a", handler: (_, _) => { });
+        evt.Add("b", handler: (_, _) => { });
 
         // Assert
         await Assert.That(evt.Count).IsEqualTo(2);
@@ -78,7 +78,7 @@ public class KeyedEventTests {
     public async Task Remove_ExistingKey_DecreasesCount(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        evt.Add("key", handler: (_, _) => {});
+        evt.Add("key", handler: (_, _) => { });
 
         // Act
         evt.Remove("key");
@@ -103,7 +103,7 @@ public class KeyedEventTests {
     public async Task ContainsKey_AddedKey_ReturnsTrue(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        evt.Add("present", handler: (_, _) => {});
+        evt.Add("present", handler: (_, _) => { });
 
         // Act & Assert
         await Assert.That(evt.ContainsKey("present")).IsTrue();
@@ -122,7 +122,7 @@ public class KeyedEventTests {
     public async Task ContainsKey_AfterRemove_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        evt.Add("key", handler: (_, _) => {});
+        evt.Add("key", handler: (_, _) => { });
         evt.Remove("key");
 
         // Act & Assert
@@ -203,7 +203,7 @@ public class KeyedEventTests {
         // Arrange
         var evt = new KeyedEvent<string, int>();
         var window = Substitute.For<IInfiniFrameWindow>();
-        evt.Add("key", handler: (_, _) => {});
+        evt.Add("key", handler: (_, _) => { });
         evt.Remove("key");
 
         // Act
@@ -220,8 +220,8 @@ public class KeyedEventTests {
     public async Task Snapshot_ContainsAllRegisteredHandlers(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        evt.Add("a", handler: (_, _) => {});
-        evt.Add("b", handler: (_, _) => {});
+        evt.Add("a", handler: (_, _) => { });
+        evt.Add("b", handler: (_, _) => { });
 
         // Act
         List<KeyValuePair<string, Action<IInfiniFrameWindow, int>>> snapshot = evt.Snapshot.ToList();

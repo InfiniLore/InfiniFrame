@@ -42,9 +42,9 @@ public class WebInspectorTests {
 
         // Act & Assert
         Assert.Throws<PlatformNotSupportedException>(() => {
-            #pragma warning disable CA1416
+#pragma warning disable CA1416
             builder.Features.Debugging.EnableWebInspector(value);
-            #pragma warning restore CA1416
+#pragma warning restore CA1416
         });
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
 
@@ -86,9 +86,9 @@ public class WebInspectorTests {
 
         // Act & Assert
         Assert.Throws<PlatformNotSupportedException>(() => {
-            #pragma warning disable CA1416
+#pragma warning disable CA1416
             builder.EnableWebInspector(value);
-            #pragma warning restore CA1416
+#pragma warning restore CA1416
         });
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
 

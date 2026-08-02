@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Drawing;
@@ -19,7 +19,7 @@ public static class ISizeInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.Size.SetSize(width, height);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets the size of the window using a <see cref="Size"/> value and returns the builder for chaining.
     /// </summary>
@@ -30,7 +30,7 @@ public static class ISizeInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.Size.SetSize(size);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets the height of the window and returns the builder for chaining.
     /// </summary>
@@ -41,7 +41,7 @@ public static class ISizeInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.Size.SetHeight(height);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets the width of the window and returns the builder for chaining.
     /// </summary>
@@ -52,7 +52,7 @@ public static class ISizeInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.Size.SetWidth(width);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets the maximum size of the window and returns the builder for chaining.
     /// </summary>
@@ -64,7 +64,7 @@ public static class ISizeInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.Size.SetMaxSize(maxWidth, maxHeight);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets the maximum size of the window using a <see cref="Size"/> value and returns the builder for chaining.
     /// </summary>
@@ -75,7 +75,7 @@ public static class ISizeInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.Size.SetMaxSize(size);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets the maximum height of the window and returns the builder for chaining.
     /// </summary>
@@ -86,7 +86,7 @@ public static class ISizeInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.Size.SetMaxHeight(maxHeight);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets the maximum width of the window and returns the builder for chaining.
     /// </summary>
@@ -97,7 +97,7 @@ public static class ISizeInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.Size.SetMaxWidth(maxWidth);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets the minimum size of the window and returns the builder for chaining.
     /// </summary>
@@ -109,7 +109,7 @@ public static class ISizeInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.Size.SetMinSize(minWidth, minHeight);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets the minimum size of the window using a <see cref="Size"/> value and returns the builder for chaining.
     /// </summary>
@@ -120,7 +120,7 @@ public static class ISizeInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.Size.SetMinSize(size);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets the minimum height of the window and returns the builder for chaining.
     /// </summary>
@@ -131,7 +131,7 @@ public static class ISizeInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.Size.SetMinHeight(minHeight);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets the minimum width of the window and returns the builder for chaining.
     /// </summary>
@@ -142,7 +142,7 @@ public static class ISizeInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.Size.SetMinWidth(minWidth);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets whether the window should start with the OS default size and returns the builder for chaining.
     /// </summary>
@@ -153,7 +153,7 @@ public static class ISizeInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.Size.UseOsDefaultSize(enabled);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets whether the window is resizable and returns the builder for chaining.
     /// </summary>

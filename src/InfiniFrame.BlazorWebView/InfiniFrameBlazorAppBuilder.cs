@@ -25,8 +25,8 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    private InfiniFrameBlazorAppBuilder() {}
-    
+    private InfiniFrameBlazorAppBuilder() { }
+
     public static InfiniFrameBlazorAppBuilder CreateDefault(
         string[]? args = null,
         Action<IInfiniFrameWindowBuilder>? windowBuilder = null
@@ -71,7 +71,7 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
             .AddSingleton(appBuilder.RootComponents.JSComponents);
 
         appBuilder.Services.TryAddSingleton<IInfiniFrameUnhandledExceptionSource, AppDomainUnhandledExceptionSource>();
-        
+
         appBuilder.Services.AddInfiniFrameJs();
         appBuilder.WindowBuilder.RegisterGetWebMessageHandler();
 
@@ -177,22 +177,22 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
         Uri appBaseUri = configuration.AppBaseUri;
         string hostPage = NormalizeHostPage(configuration.HostPage);
 
-        return string.Equals(hostPage, "index.html", StringComparison.OrdinalIgnoreCase) 
-            ? appBaseUri.ToString() 
+        return string.Equals(hostPage, "index.html", StringComparison.OrdinalIgnoreCase)
+            ? appBaseUri.ToString()
             : new Uri(appBaseUri, hostPage).ToString();
     }
 
-    private static string NormalizeHostPage(string? hostPage) 
-        => !string.IsNullOrWhiteSpace(hostPage) 
+    private static string NormalizeHostPage(string? hostPage)
+        => !string.IsNullOrWhiteSpace(hostPage)
             ? hostPage.TrimStart('/')
             : "index.html";
 
     private static IDisposable? TryRegisterUnhandledExceptionHandler(IServiceProvider serviceProvider) {
         bool enableGlobalUnhandledExceptionHandler = serviceProvider.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?
             .Value.EnableGlobalUnhandledExceptionHandler ?? true;
-        
+
         if (!enableGlobalUnhandledExceptionHandler) return null;
-        
+
         var exceptionSource = serviceProvider.GetRequiredService<IInfiniFrameUnhandledExceptionSource>();
 
         return exceptionSource.Register((_, error) => {

@@ -1,4 +1,4 @@
-using InfiniAutomationTests.TestUtility;
+﻿using InfiniAutomationTests.TestUtility;
 using InfiniFrame;
 using InfiniTests;
 using Microsoft.AspNetCore.Builder;

@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
@@ -134,8 +134,6 @@ internal sealed class InfiniDispatchOperation {
         if (Interlocked.Exchange(ref _completed, 1) != 0)
             return;
 
-        _timeoutTimer?.Dispose();
-        _cancellationRegistration.Dispose();
         if (exception is not null)
             _logger.LogError(exception, "Native-window dispatch {OperationId} failed. WindowId={WindowId}", Id, _window.Id);
         else if (result is not InfiniFrameDispatchResult.Completed)

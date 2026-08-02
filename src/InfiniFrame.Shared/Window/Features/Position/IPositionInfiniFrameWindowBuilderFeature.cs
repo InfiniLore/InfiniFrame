@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Drawing;
@@ -7,7 +7,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IPositionInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBuilderFeature{
+public interface IPositionInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBuilderFeature {
     /// <summary>
     ///     Gets the configured top position of the window.
     /// </summary>
@@ -27,7 +27,7 @@ public interface IPositionInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBu
     ///     Gets whether the window should start centered on the main monitor.
     /// </summary>
     bool StartCentered { get; }
-    
+
     /// <summary>
     ///     Sets the position of the window using pixel coordinates.
     /// </summary>

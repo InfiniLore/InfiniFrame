@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge.Parameters;
@@ -50,7 +50,7 @@ public interface IInfiniFrameWindowBuilderFeatures {
     ///     Gets the state feature builder.
     /// </summary>
     IStateInfiniFrameWindowBuilderFeature State { get; }
-    
+
     /// <summary>
     ///     Applies all feature builder configurations to the native parameters.
     /// </summary>

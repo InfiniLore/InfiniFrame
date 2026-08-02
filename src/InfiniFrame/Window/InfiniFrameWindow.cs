@@ -291,6 +291,5 @@ public sealed class InfiniFrameWindow(
         if (!Features.Lifecycle.IsClosedOrClosing()) await Features.Lifecycle.CloseAsync().ConfigureAwait(false);
         await Features.Lifecycle.WaitForTeardownAsync().ConfigureAwait(false);
         Features.Lifecycle.CleanupNativeHandle();
-        // GC.SuppressFinalize(this);
     }
 }

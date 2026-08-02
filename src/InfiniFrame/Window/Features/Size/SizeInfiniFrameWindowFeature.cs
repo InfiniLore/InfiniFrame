@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
@@ -246,54 +246,54 @@ public class SizeInfiniFrameWindowFeature(
         int y = originalY;
         switch (origin) {
             case ResizeOrigin.TopLeft: {
-                x += widthOffset;
-                y += heightOffset;
-                width -= widthOffset;
-                height -= heightOffset;
-                break;
-            }
+                    x += widthOffset;
+                    y += heightOffset;
+                    width -= widthOffset;
+                    height -= heightOffset;
+                    break;
+                }
 
             case ResizeOrigin.Top: {
-                y += heightOffset;
-                height -= heightOffset;
-                break;
-            }
+                    y += heightOffset;
+                    height -= heightOffset;
+                    break;
+                }
 
             case ResizeOrigin.TopRight: {
-                y += heightOffset;
-                width += widthOffset;
-                height -= heightOffset;
-                break;
-            }
+                    y += heightOffset;
+                    width += widthOffset;
+                    height -= heightOffset;
+                    break;
+                }
 
             case ResizeOrigin.Right: {
-                width += widthOffset;
-                break;
-            }
+                    width += widthOffset;
+                    break;
+                }
 
             case ResizeOrigin.BottomRight: {
-                width += widthOffset;
-                height += heightOffset;
-                break;
-            }
+                    width += widthOffset;
+                    height += heightOffset;
+                    break;
+                }
 
             case ResizeOrigin.Bottom: {
-                height += heightOffset;
-                break;
-            }
+                    height += heightOffset;
+                    break;
+                }
 
             case ResizeOrigin.BottomLeft: {
-                x += widthOffset;
-                width -= widthOffset;
-                height += heightOffset;
-                break;
-            }
+                    x += widthOffset;
+                    width -= widthOffset;
+                    height += heightOffset;
+                    break;
+                }
 
             case ResizeOrigin.Left: {
-                x += widthOffset;
-                width -= widthOffset;
-                break;
-            }
+                    x += widthOffset;
+                    width -= widthOffset;
+                    break;
+                }
 
             default: throw new ArgumentOutOfRangeException(nameof(origin), origin, null);
         }

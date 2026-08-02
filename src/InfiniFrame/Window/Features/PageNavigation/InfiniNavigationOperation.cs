@@ -12,6 +12,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed class InfiniNavigationOperation {
+    private const int NativeOperationResultSuperseded = 5;
     private static long _nextId;
     private static readonly InfiniFrameNative.OperationCompletedCallback CompletionCallback = Complete;
 
@@ -139,7 +140,7 @@ internal sealed class InfiniNavigationOperation {
             case (int)InfiniFrameDispatchResult.WindowClosed:
                 operation.Finish(new NavigationResult(operation.Id, NavigationStatus.WindowClosed, operation._uri));
                 break;
-            case 5:
+            case NativeOperationResultSuperseded:
                 operation.Finish(new NavigationResult(operation.Id, NavigationStatus.Superseded, operation._uri));
                 break;
             default:

@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Drawing;
@@ -22,7 +22,7 @@ public interface IPositionInfiniFrameWindowFeature {
     ///     Gets the left edge position of the window.
     /// </summary>
     int Left { get; }
-    
+
     /// <summary>
     ///     Sets the position of the window using pixel coordinates.
     /// </summary>

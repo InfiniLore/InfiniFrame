@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -52,8 +52,8 @@ public class NativeLifetimeStressTests {
             windowUtility.Window.WaitForClose();
         }
 
-        return InfiniFrameNativeTesting.MacPooledHostCount() > hostPoolLimit 
-            ? throw new InvalidOperationException("The macOS host pool exceeded its configured bound.") 
+        return InfiniFrameNativeTesting.MacPooledHostCount() > hostPoolLimit
+            ? throw new InvalidOperationException("The macOS host pool exceeded its configured bound.")
             : Task.CompletedTask;
     }
 
@@ -106,7 +106,7 @@ public class NativeLifetimeStressTests {
         try {
             await Task.WhenAll(callers);
         }
-        catch (OperationCanceledException) when (stop.IsCancellationRequested) {}
+        catch (OperationCanceledException) when (stop.IsCancellationRequested) { }
 
         // Assert
         await Assert.That(completedCalls).IsGreaterThanOrEqualTo(0);

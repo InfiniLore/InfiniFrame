@@ -21,7 +21,7 @@ public sealed class RecordingJsRuntime : IJSRuntime {
         var invocation = new Invocation(identifier, args ?? [], cancellationToken);
         Invocations.Add(invocation);
 
-        if (ExceptionFactory?.Invoke(invocation) is {} ex) return ValueTask.FromException<TValue>(ex);
+        if (ExceptionFactory?.Invoke(invocation) is { } ex) return ValueTask.FromException<TValue>(ex);
 
         return ValueTask.FromResult(default(TValue)!);
     }

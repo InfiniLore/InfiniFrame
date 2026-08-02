@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
@@ -21,11 +21,11 @@ namespace InfiniFrame;
 public static class InfiniFrameSingleFileBootstrap {
     private const string WebView2LoaderLibraryName = ArtifactManifest.WindowsLoaderLibraryName;
 
-    #if NET9_0_OR_GREATER
+#if NET9_0_OR_GREATER
     private static readonly Lock InitLock = new();
-    #else
+#else
     private static readonly object InitLock = new();
-    #endif
+#endif
     private static int _initialized;
     private static string? _nativeDir;
 

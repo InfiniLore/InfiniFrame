@@ -96,12 +96,12 @@ public class RemoteDebuggingPortTests {
         var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
-        #pragma warning disable CA1416
+#pragma warning disable CA1416
         var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
             Task.Run(function: () => {
                 return builder.Features.Debugging.SetRemoteDebuggingPort(value);
             }, ct));
-        #pragma warning restore CA1416
+#pragma warning restore CA1416
 
         // Assert
         await Assert.That(exception).IsNotNull();

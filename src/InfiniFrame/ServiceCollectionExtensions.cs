@@ -24,9 +24,9 @@ public static class ServiceCollectionExtensions {
         services.AddTransient<IInfiniFrameWindowConfiguration, InfiniFrameWindowConfiguration>();
         services.AddTransient<InfiniFrameWindow>();
         services.AddSingleton<IValidator<InfiniFrameNativeParameters>, InfiniFrameNativeParametersValidator>();
-        
+
         services.AddSingleton<InfiniFrameWindowFeaturesFactory>();
-        
+
         return services;
     }
 }

@@ -1,9 +1,10 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Dialogs;
 using InfiniFrame.NativeBridge.Handles;
+using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
@@ -57,7 +58,7 @@ internal sealed class InfiniMessageDialogOperation {
             _cancellationRegistration = _cancellationToken.Register(
                 static state => ((InfiniMessageDialogOperation)state!).OnCancellationRequested(), this
             );
-            await _window.WaitForReadyAsync().ConfigureAwait(false);
+            await _window.WaitForReadyAsync(_cancellationToken).ConfigureAwait(false);
             _lease = _window.AcquireNativeHandle();
             _selfHandle = GCHandle.Alloc(this);
             IntPtr context = GCHandle.ToIntPtr(_selfHandle);
@@ -80,7 +81,7 @@ internal sealed class InfiniMessageDialogOperation {
             if (Volatile.Read(ref _cancellationRequested) != 0)
                 StartCancellationDispatch();
         }
-        catch (Exception exception) {
+        catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
             _logger.LogError(exception, "Asynchronous message dialog {OperationId} failed.", Id);
             Finish(InfiniFrameDialogResult.Cancel);
         }

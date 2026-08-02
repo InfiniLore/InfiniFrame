@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame.Interop;
@@ -28,6 +28,6 @@ internal sealed class WindowRegistrationStateMachine {
             : WindowRegistrationHandshakeState.Failed;
     }
 
-    public bool IsReadyPending() 
+    public bool IsReadyPending()
         => HandshakeState == WindowRegistrationHandshakeState.ReadyPending;
 }

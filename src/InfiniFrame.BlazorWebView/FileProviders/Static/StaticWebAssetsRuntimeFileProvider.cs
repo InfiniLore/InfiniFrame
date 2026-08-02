@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Extensions.FileProviders;
@@ -288,17 +288,17 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, 
             char c = pattern[i];
             switch (c) {
                 case '*': {
-                    bool isDoubleStar = i + 1 < pattern.Length && pattern[i + 1] == '*';
-                    if (isDoubleStar) {
-                        regex.Append(".*");
-                        i++;
-                    }
-                    else {
-                        regex.Append("[^/]*");
-                    }
+                        bool isDoubleStar = i + 1 < pattern.Length && pattern[i + 1] == '*';
+                        if (isDoubleStar) {
+                            regex.Append(".*");
+                            i++;
+                        }
+                        else {
+                            regex.Append("[^/]*");
+                        }
 
-                    break;
-                }
+                        break;
+                    }
 
                 case '?':
                     regex.Append("[^/]");

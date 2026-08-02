@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame;
@@ -28,7 +28,7 @@ public interface IInfiniFrameWindowBuilder : IHasInfiniFrameEventsStore {
     ///     Gets the features builder for configuring individual window features.
     /// </summary>
     IInfiniFrameWindowBuilderFeatures Features { get; }
-    
+
     /// <summary>
     ///     Builds and returns the <see cref="IInfiniFrameWindow"/> instance.
     /// </summary>

@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge.Parameters;
@@ -27,7 +27,7 @@ public sealed class InfiniFrameWindowBuilderFeatures : IInfiniFrameWindowBuilder
     public ISizeInfiniFrameWindowBuilderFeature Size { get; } = new SizeInfiniFrameWindowBuilderFeature();
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.State"/>
     public IStateInfiniFrameWindowBuilderFeature State { get; } = new StateInfiniFrameWindowBuilderFeature();
-    
+
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods

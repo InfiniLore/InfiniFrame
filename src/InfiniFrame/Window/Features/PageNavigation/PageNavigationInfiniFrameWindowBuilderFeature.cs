@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge.Parameters;
@@ -20,12 +20,12 @@ public class PageNavigationInfiniFrameWindowBuilderFeature : IPageNavigationInfi
     public void SetStartPageContent(string? startString) {
         StartString = startString;
     }
-    
+
     /// <inheritdoc cref="IPageNavigationInfiniFrameWindowBuilderFeature.SetStartPageUrl"/>
     public void SetStartPageUrl(string? startUrl) {
         StartUrl = startUrl;
     }
-    
+
     /// <inheritdoc cref="IPageNavigationInfiniFrameWindowBuilderFeature.SetUrl"/>
     public void SetUrl(Uri? startUrl) {
         StartUrl = startUrl?.ToString();

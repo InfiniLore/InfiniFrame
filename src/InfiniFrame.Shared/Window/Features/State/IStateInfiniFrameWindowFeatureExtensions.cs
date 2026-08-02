@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame;
@@ -16,7 +16,7 @@ public static class IStateInfiniFrameWindowFeatureExtension {
         window.Features.State.SetMaximized(maximized);
         return window;
     }
-    
+
     /// <summary>
     ///     Toggles the maximized state of the window and returns the window for chaining.
     /// </summary>
@@ -26,7 +26,7 @@ public static class IStateInfiniFrameWindowFeatureExtension {
         window.Features.State.ToggleMaximized();
         return window;
     }
-    
+
     /// <summary>
     ///     Sets whether the window is minimized and returns the window for chaining.
     /// </summary>
@@ -37,7 +37,7 @@ public static class IStateInfiniFrameWindowFeatureExtension {
         window.Features.State.SetMinimized(minimized);
         return window;
     }
-    
+
     /// <summary>
     ///     Sets whether the window is in full-screen mode and returns the window for chaining.
     /// </summary>
@@ -48,7 +48,7 @@ public static class IStateInfiniFrameWindowFeatureExtension {
         window.Features.State.SetFullScreen(fullScreen);
         return window;
     }
-    
+
     /// <summary>
     ///     Sets focus to the window and returns the window for chaining.
     /// </summary>
@@ -58,7 +58,7 @@ public static class IStateInfiniFrameWindowFeatureExtension {
         window.Features.State.SetFocused();
         return window;
     }
-    
+
     /// <summary>
     ///     Sets the zoom factor for the window content and returns the window for chaining.
     /// </summary>
@@ -69,7 +69,7 @@ public static class IStateInfiniFrameWindowFeatureExtension {
         window.Features.State.SetZoomFactor(zoom);
         return window;
     }
-    
+
     /// <summary>
     ///     Sets whether zoom is enabled for the window content and returns the window for chaining.
     /// </summary>
@@ -80,7 +80,7 @@ public static class IStateInfiniFrameWindowFeatureExtension {
         window.Features.State.EnableZoom(zoomEnabled);
         return window;
     }
-    
+
     /// <summary>
     ///     Sets whether the window is top-most and returns the window for chaining.
     /// </summary>

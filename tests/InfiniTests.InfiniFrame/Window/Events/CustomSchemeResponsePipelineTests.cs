@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -160,7 +160,7 @@ public class CustomSchemeResponsePipelineTests {
         public override bool CanWrite => false;
         public override long Length => length;
         public override long Position { get; set; }
-        public override void Flush() {}
+        public override void Flush() { }
         public override int Read(byte[] buffer, int offset, int count) => 0;
         public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
         public override void SetLength(long value) => throw new NotSupportedException();

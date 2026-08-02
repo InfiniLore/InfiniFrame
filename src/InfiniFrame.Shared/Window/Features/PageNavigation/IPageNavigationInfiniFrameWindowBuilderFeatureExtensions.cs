@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame;
@@ -16,7 +16,7 @@ public static class IPageNavigationInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.PageNavigation.SetStartPageContent(content);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets the URL to navigate to as the start page and returns the builder for chaining.
     /// </summary>
@@ -27,7 +27,7 @@ public static class IPageNavigationInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.PageNavigation.SetStartPageUrl(url);
         return builder;
     }
-    
+
     /// <summary>
     ///     Sets the URI to navigate to when the window is created and returns the builder for chaining.
     /// </summary>

@@ -26,5 +26,5 @@ public readonly record struct InfiniMonitor(Rectangle MonitorArea, Rectangle Wor
             new Rectangle(monitor.X, monitor.Y, monitor.Width, monitor.Height),
             new Rectangle(work.X, work.Y, work.Width, work.Height),
             scale
-        ) {}
+        ) { }
 }

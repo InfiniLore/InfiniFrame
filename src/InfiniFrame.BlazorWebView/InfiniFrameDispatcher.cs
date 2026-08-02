@@ -39,7 +39,7 @@ internal class InfiniFrameDispatcher : Dispatcher {
             : _context.InvokeAsync(workItem);
 
     public override Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> workItem)
-        => CheckAccess() 
+        => CheckAccess()
             ? workItem()
             : _context.InvokeAsync(workItem);
 }

@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge.Parameters;
@@ -95,7 +95,7 @@ public class SizeInfiniFrameWindowBuilderFeature : ISizeInfiniFrameWindowBuilder
     public void SetResizable(bool enabled = true) {
         IsResizable = enabled;
     }
-    
+
     public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
         parameters.Height = Height;
         parameters.Width = Width;

@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniTests.Native;
@@ -43,7 +43,7 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
         }
     }
 
-    private static bool RequiresMainQueue(TestContext context) 
+    private static bool RequiresMainQueue(TestContext context)
         => context.Metadata.TestDetails.HasAttribute<RunOnMacOsMainThreadAttribute>()
             || IsNativeWindowTest(context);
 

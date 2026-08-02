@@ -26,7 +26,7 @@ public interface IInfiniFrameWindowConfiguration {
     ///     Gets the list of child windows associated with this window.
     /// </summary>
     List<IInfiniFrameWindow> ChildWindows { get; }
-    
+
     /// <summary>
     ///     Assigns the native parameters to this configuration.
     /// </summary>

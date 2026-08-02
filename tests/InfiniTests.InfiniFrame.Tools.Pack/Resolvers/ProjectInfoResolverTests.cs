@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Tools.Pack.Resolvers;
@@ -80,8 +80,8 @@ public class ProjectInfoResolverTests {
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(async () => {
-                _ = await ProjectInfoResolver.ResolveFrameworkAsync(projectPath);
-            })
+            _ = await ProjectInfoResolver.ResolveFrameworkAsync(projectPath);
+        })
             .WithMessage("Could not resolve target framework from project evaluation. Use --framework.");
     }
 

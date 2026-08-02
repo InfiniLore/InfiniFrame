@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -49,7 +49,7 @@ public class FilePickerDialogsWhenClosedAsyncTests {
     [Test]
     [NotInParallelInfiniTests]
     [DefaultInfiniTestsTimeout(30_000)]
-    public async Task  ShowOpenFileAsync_Cancellation_ClosesNativeDialog(CancellationToken ct) {
+    public async Task ShowOpenFileAsync_Cancellation_ClosesNativeDialog(CancellationToken ct) {
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
         using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(ct);

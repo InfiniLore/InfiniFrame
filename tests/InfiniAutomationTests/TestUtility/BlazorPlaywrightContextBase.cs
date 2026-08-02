@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -49,9 +49,9 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
     protected override Uri CreatePlaywrightConnectionUri(string relativeUrl)
         => new(PlaywrightConnectionUtility.CreateCdpConnectionUrl(_playwrightDevtoolsPort), relativeUrl);
 
-    protected virtual void ConfigureServices(IServiceCollection services) {}
+    protected virtual void ConfigureServices(IServiceCollection services) { }
 
-    protected virtual void ConfigureRootComponents(IInfiniFrameRootComponentList rootComponents) {}
+    protected virtual void ConfigureRootComponents(IInfiniFrameRootComponentList rootComponents) { }
 
     protected virtual void ConfigureWindowBuilder(IInfiniFrameWindowBuilder windowBuilder, int playwrightDevtoolsPort) {
         if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) windowBuilder.Debugging.SetRemoteDebuggingPort(playwrightDevtoolsPort);

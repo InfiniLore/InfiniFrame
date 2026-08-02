@@ -55,7 +55,7 @@ public interface IInfiniFrameEventsStore {
     ///     Gets the event that fires with debugging information.
     /// </summary>
     OrderedEvent<InfiniFrameDebugEventArgs> DebuggingEvent { get; }
-    
+
     /// <summary>
     ///     Gets the keyed event for posting web message data.
     /// </summary>
@@ -65,7 +65,7 @@ public interface IInfiniFrameEventsStore {
     ///     Gets the keyed result event for retrieving web message data.
     /// </summary>
     KeyedResultEvent<string, string?, string?> WebMessageGetData { get; }
-    
+
     /// <summary>
     ///     Gets the event that fires when a window close is requested.
     /// </summary>
@@ -95,7 +95,7 @@ public interface IInfiniFrameEventsStore {
     ///     Gets the keyed result event for handling custom scheme requests.
     /// </summary>
     KeyedResultEvent<string, string, (Stream? Data, string? ContentType)> CustomScheme { get; }
-    
+
     /// <summary>
     ///     Copies all event handlers from this store to the target store.
     /// </summary>
