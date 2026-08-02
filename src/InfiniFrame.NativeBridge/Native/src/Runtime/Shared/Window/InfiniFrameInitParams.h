@@ -63,6 +63,10 @@ struct InfiniFrameInitParams {
     bool CenterOnInitialize;
     bool Chromeless;
     bool Transparent;
+    uint8_t BackgroundColorR;
+    uint8_t BackgroundColorG;
+    uint8_t BackgroundColorB;
+    uint8_t BackgroundColorA;
     bool ContextMenuEnabled;
     bool ZoomEnabled;
     bool DevToolsEnabled;

@@ -33,6 +33,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
         if (initParams->Transparent)
             SetTransparentEnabled(true);
 
+        if (m_impl->_backgroundColorR != 0 || m_impl->_backgroundColorG != 0 || m_impl->_backgroundColorB != 0 || m_impl->_backgroundColorA != 0)
+            SetBackgroundColor(m_impl->_backgroundColorR, m_impl->_backgroundColorG, m_impl->_backgroundColorB, m_impl->_backgroundColorA);
+
         if (m_impl->_zoom != 100.0)
             SetZoom(m_impl->_zoom);
     });

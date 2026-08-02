@@ -76,6 +76,14 @@ public class DecorationsInfiniFrameWindowBuilderFeature : IDecorationsInfiniFram
             ? resolvedIconFilePath
             : null;
         parameters.WindowsAppUserModelId = WindowsAppUserModelId;
+
+        DecorationsInfiniFrameWindowFeature.ParseBackgroundColor(
+            BackgroundColor, out byte r, out byte g, out byte b, out byte a);
+        parameters.BackgroundColorR = r;
+        parameters.BackgroundColorG = g;
+        parameters.BackgroundColorB = b;
+        parameters.BackgroundColorA = a;
+
         // parameters.LimitLinuxWindowTitleLength = LimitLinuxWindowTitleLength; // Not a C++ parameter.
     }
 }

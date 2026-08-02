@@ -48,6 +48,10 @@ void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameInitParams* 
     }
 
     _transparentEnabled = initParams->Transparent;
+    _backgroundColorR = initParams->BackgroundColorR;
+    _backgroundColorG = initParams->BackgroundColorG;
+    _backgroundColorB = initParams->BackgroundColorB;
+    _backgroundColorA = initParams->BackgroundColorA;
     _contextMenuEnabled = initParams->ContextMenuEnabled;
     _zoomEnabled = initParams->ZoomEnabled;
     _devToolsEnabled = initParams->DevToolsEnabled;

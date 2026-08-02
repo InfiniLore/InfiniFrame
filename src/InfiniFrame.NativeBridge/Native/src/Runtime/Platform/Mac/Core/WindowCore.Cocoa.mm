@@ -316,6 +316,10 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
         [this->m_impl->_window setReleasedWhenClosed:NO];
 
         this->m_impl->_transparentEnabled = params->Transparent;
+        this->m_impl->_backgroundColorR = params->BackgroundColorR;
+        this->m_impl->_backgroundColorG = params->BackgroundColorG;
+        this->m_impl->_backgroundColorB = params->BackgroundColorB;
+        this->m_impl->_backgroundColorA = params->BackgroundColorA;
 
         if (this->m_impl->_parent != nullptr && this->m_impl->_parent->m_impl != nullptr)
         {
