@@ -302,6 +302,12 @@ class InfiniFrameWindow {
     // -----------------------------------------------------------------------------------------------------------------
 
     /**
+         * @brief Get the current page URL
+         * @return UTF-8 URL string; caller must free with InfiniFrameNative_FreeString. Returns empty string if no URL is available (e.g. after LoadRawString).
+         */
+    [[nodiscard]] AutoString GetCurrentUrl() const;
+
+    /**
          * @brief Load HTML content directly from a string
          * @param content UTF-8 HTML source to display
          */

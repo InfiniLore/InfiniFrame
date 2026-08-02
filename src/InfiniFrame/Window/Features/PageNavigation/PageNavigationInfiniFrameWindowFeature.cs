@@ -18,10 +18,35 @@ public class PageNavigationInfiniFrameWindowFeature(
     IInfiniFrameStaticAssets? staticAssets
 ) : IPageNavigationInfiniFrameWindowFeature {
 
+    /// <inheritdoc cref="IPageNavigationInfiniFrameWindowFeature.GetCurrentUrl" />
+    public string? GetCurrentUrl() {
+        if (window.IsClosedOrClosing()) return null;
+        
+        string? url = NativeInvoke.InvokeSyncWithValidation<string?>(
+            logger,
+            window,
+            window.ManagedThreadId,
+            InfiniFrameNative.GetCurrentUrl
+        );
+        
+        return !string.IsNullOrEmpty(url) 
+            ? url 
+            : null;
+    }
+
+    /// <inheritdoc cref="IPageNavigationInfiniFrameWindowFeature.GetCurrentUri" />
+    public Uri? GetCurrentUri() {
+        string? url = GetCurrentUrl();
+        return url != null && Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) 
+            ? uri 
+            : null;
+    }
+
     /// <inheritdoc cref="IPageNavigationInfiniFrameWindowFeature.Load(Uri)" />
     public void Load(Uri uri)
         => TryLoadUri(uri);
-
+    
+    /// <inheritdoc cref="IPageNavigationInfiniFrameWindowFeature.LoadAsync(Uri,CancellationToken)" />
     public Task<NavigationResult> LoadAsync(Uri uri, CancellationToken ct = default) {
         ArgumentNullException.ThrowIfNull(uri);
         IInfiniFrameUriSecurityPolicy policy = InfiniFrameUriSecurityPolicyRegistry.GetForWindow(window);
@@ -36,6 +61,18 @@ public class PageNavigationInfiniFrameWindowFeature(
     /// <inheritdoc cref="IPageNavigationInfiniFrameWindowFeature.Load(string)" />
     public void Load(string path)
         => TryLoadPath(path);
+
+    /// <inheritdoc cref="IPageNavigationInfiniFrameWindowFeature.LoadAsync(string,CancellationToken)" />
+    public Task<NavigationResult> LoadAsync(string path, CancellationToken ct = default) {
+        ArgumentNullException.ThrowIfNull(path);
+
+        if (Uri.TryCreate(path, UriKind.Absolute, out Uri? uri))
+            return LoadAsync(uri, ct);
+
+        var operation = new InfiniNavigationOperation(window, logger, path, null, false, ct);
+        _ = operation.StartAsync();
+        return operation.Task;
+    }
 
     /// <inheritdoc cref="IPageNavigationInfiniFrameWindowFeature.TryLoadUri" />
     public bool TryLoadUri(Uri uri) {

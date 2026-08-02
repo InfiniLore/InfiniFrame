@@ -72,6 +72,14 @@ AutoString InfiniFrameWindow::GetTitle() const {
     return AllocateStringCopy(m_impl->_windowTitle);
 }
 
+AutoString InfiniFrameWindow::GetCurrentUrl() const {
+    if (!m_impl->_webviewWindow)
+        return AllocateStringCopy(NativeString());
+    wil::unique_cotaskmem_string source;
+    m_impl->_webviewWindow->get_Source(&source);
+    return AllocateStringCopy(source.get() ? std::wstring(source.get()) : std::wstring());
+}
+
 void InfiniFrameWindow::GetTopmost(bool* topmost) const {
     *topmost = m_impl->_topmost;
 }

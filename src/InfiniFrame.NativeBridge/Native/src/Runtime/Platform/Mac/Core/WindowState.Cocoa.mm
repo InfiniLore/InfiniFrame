@@ -144,6 +144,14 @@ AutoString InfiniFrameWindow::GetTitle() const
     return AllocateStringCopy(m_impl->_windowTitle);
 }
 
+AutoString InfiniFrameWindow::GetCurrentUrl() const
+{
+    if (m_impl->_webview == nil)
+        return AllocateStringCopy(NativeString());
+    NSString* url = m_impl->_webview.URL.absoluteString;
+    return AllocateStringCopy(url ? std::string([url UTF8String]) : std::string());
+}
+
 void InfiniFrameWindow::GetTopmost(bool* topmost) const
 {
     *topmost = [m_impl->_window level] == NSFloatingWindowLevel;

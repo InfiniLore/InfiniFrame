@@ -34,6 +34,8 @@ public class WindowFeatureDispatcherCommandTests {
         Get("notifications", "showMessage", "ShowMessage", "{\"title\":\"Title\"}"),
         Get("pageNavigation", "tryLoadUri", "TryLoadUri", "{\"uri\":\"https://example.test\"}"),
         Get("pageNavigation", "tryLoadPath", "TryLoadPath", "{\"path\":\"index.html\"}"),
+        Get("pageNavigation", "getCurrentUrl", "GetCurrentUrl"),
+        Get("pageNavigation", "getCurrentUri", "GetCurrentUri"),
         Get("position", "location", "get_Location"), Get("position", "top", "get_Top"), Get("position", "left", "get_Left"),
         Get("size", "size", "get_Size"), Get("size", "height", "get_Height"), Get("size", "width", "get_Width"),
         Get("size", "maxSize", "get_MaxSize"), Get("size", "maxHeight", "get_MaxHeight"), Get("size", "maxWidth", "get_MaxWidth"),

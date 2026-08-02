@@ -83,6 +83,13 @@ AutoString InfiniFrameWindow::GetTitle() const {
     return g_strdup(title ? title : "");
 }
 
+AutoString InfiniFrameWindow::GetCurrentUrl() const {
+    if (m_impl->_webview == nullptr)
+        return g_strdup("");
+    const gchar* uri = webkit_web_view_get_uri(WEBKIT_WEB_VIEW(m_impl->_webview));
+    return g_strdup(uri ? uri : "");
+}
+
 void InfiniFrameWindow::GetTopmost(bool* topmost) const {
     GdkWindow* gdk_window = gtk_widget_get_window(GTK_WIDGET(m_impl->_window));
     GdkWindowState flags = gdk_window_get_state(gdk_window);

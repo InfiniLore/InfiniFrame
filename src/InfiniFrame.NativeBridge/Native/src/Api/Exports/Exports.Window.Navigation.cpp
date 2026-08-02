@@ -63,4 +63,14 @@ EXPORTED InteropStatus InfiniFrameNative_CancelNavigation(InfiniFrameWindow* ins
         window->CancelNavigation(operationId);
     });
 }
+
+/// @param[out] value Owned string, caller must free with InfiniFrameNative_FreeString.
+EXPORTED InteropStatus InfiniFrameNative_GetCurrentUrl(InfiniFrameWindow* instance, AutoString* value) {
+    ResetOut(value, static_cast<AutoString>(nullptr));
+    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+        if (!EnsureOutNotNull(value, "value"))
+            return;
+        *value = window->GetCurrentUrl();
+    });
+}
 }

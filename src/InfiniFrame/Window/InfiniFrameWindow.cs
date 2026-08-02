@@ -44,8 +44,7 @@ public sealed class InfiniFrameWindow(
     public IntPtr WindowHandle {
         get {
             InfiniFrameWindowLifecycleState state = LifecycleState;
-            if (state < InfiniFrameWindowLifecycleState.Creating
-                || state >= InfiniFrameWindowLifecycleState.CloseRequested)
+            if (state is < InfiniFrameWindowLifecycleState.Creating or >= InfiniFrameWindowLifecycleState.CloseRequested)
                 return IntPtr.Zero;
 
             try {

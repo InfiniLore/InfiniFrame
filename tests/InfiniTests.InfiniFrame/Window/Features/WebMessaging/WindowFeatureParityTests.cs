@@ -86,11 +86,13 @@ public class WindowFeatureParityTests {
             ),
             [typeof(IPageNavigationInfiniFrameWindowFeature)] = IncludedWithCounts(
                 ("Load", 2),
-                ("LoadAsync", 1),
+                ("LoadAsync", 2),
                 ("TryLoadUri", 1),
                 ("TryLoadPath", 1),
                 ("LoadRawString", 1),
-                ("LoadRawStringAsync", 1)
+                ("LoadRawStringAsync", 1),
+                ("GetCurrentUrl", 1),
+                ("GetCurrentUri", 1)
             ),
             [typeof(IPositionInfiniFrameWindowFeature)] = IncludedWithCounts(
                 ("Location", 1),

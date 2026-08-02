@@ -28,4 +28,12 @@ export class PageNavigationInfiniFrameWindowFeature extends InfiniFrameWindowFea
     loadRawString(content: string) {
         return this.post("loadRawString", {content});
     }
+
+    getCurrentUrlAsync() {
+        return this.get<string | null>("getCurrentUrl");
+    }
+
+    getCurrentUriAsync() {
+        return this.get<string | null>("getCurrentUri");
+    }
 }
