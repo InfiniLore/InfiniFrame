@@ -158,6 +158,10 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     m_impl->_remoteDebuggingPort = initParams->RemoteDebuggingPort;
 
     m_impl->_transparentEnabled = initParams->Transparent;
+    m_impl->_backgroundColorR = initParams->BackgroundColorR;
+    m_impl->_backgroundColorG = initParams->BackgroundColorG;
+    m_impl->_backgroundColorB = initParams->BackgroundColorB;
+    m_impl->_backgroundColorA = initParams->BackgroundColorA;
     m_impl->_contextMenuEnabled = initParams->ContextMenuEnabled;
     m_impl->_zoomEnabled = initParams->ZoomEnabled;
     m_impl->_devToolsEnabled = initParams->DevToolsEnabled;

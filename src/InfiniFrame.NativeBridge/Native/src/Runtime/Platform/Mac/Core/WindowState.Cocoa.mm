@@ -463,3 +463,21 @@ void InfiniFrameWindow::SetFocused()
         [m_impl->_window makeKeyWindow];
     }
 }
+
+void InfiniFrameWindow::SetBackgroundColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+{
+    m_impl->_backgroundColorR = r;
+    m_impl->_backgroundColorG = g;
+    m_impl->_backgroundColorB = b;
+    m_impl->_backgroundColorA = a;
+
+    if (m_impl->_webview == nil)
+        return;
+
+    CGFloat cr = r / 255.0;
+    CGFloat cg = g / 255.0;
+    CGFloat cb = b / 255.0;
+    CGFloat ca = a / 255.0;
+    NSColor* nsColor = [NSColor colorWithCalibratedRed:cr green:cg blue:cb alpha:ca];
+    [m_impl->_webview setUnderPageBackgroundColor:nsColor];
+}

@@ -17,6 +17,10 @@ export class DecorationsInfiniFrameWindowFeature extends InfiniFrameWindowFeatur
         return this.get<boolean>("isTransparent");
     }
 
+    backgroundColorAsync() {
+        return this.get<string | null>("backgroundColor");
+    }
+
     getTitleAsync() {
         return this.get<string | null>("title");
     }
@@ -31,6 +35,10 @@ export class DecorationsInfiniFrameWindowFeature extends InfiniFrameWindowFeatur
 
     setTransparent(enabled = true) {
         return this.post("setTransparent", {enabled});
+    }
+
+    setBackgroundColor(color: string | null) {
+        return this.post("setBackgroundColor", {color});
     }
 
     setTitle(title: string | null) {

@@ -46,6 +46,8 @@ void InfiniFrameWindow::AttachWebView()
     [infiniFrameWebView setInfiniFrameContextMenuEnabled:m_impl->_contextMenuEnabled ? YES : NO];
     [infiniFrameWebView setInfiniFrameZoomEnabled:m_impl->_zoomEnabled ? YES : NO];
     SetTransparentEnabled(m_impl->_transparentEnabled);
+    if (m_impl->_backgroundColorR != 0 || m_impl->_backgroundColorG != 0 || m_impl->_backgroundColorB != 0 || m_impl->_backgroundColorA != 0)
+        SetBackgroundColor(m_impl->_backgroundColorR, m_impl->_backgroundColorG, m_impl->_backgroundColorB, m_impl->_backgroundColorA);
 
     SEL setInspectableSelector = NSSelectorFromString(@"setInspectable:");
     if ([m_impl->_webview respondsToSelector: setInspectableSelector])

@@ -197,6 +197,22 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.I1)]
     internal bool Transparent;
 
+    ///<summary>OPTIONAL: Background color of the webview as RGBA bytes. Default is (0, 0, 0, 0).</summary>
+    [MarshalAs(UnmanagedType.U1)]
+    internal byte BackgroundColorR;
+
+    ///<summary>OPTIONAL: Background color of the webview as RGBA bytes. Default is (0, 0, 0, 0).</summary>
+    [MarshalAs(UnmanagedType.U1)]
+    internal byte BackgroundColorG;
+
+    ///<summary>OPTIONAL: Background color of the webview as RGBA bytes. Default is (0, 0, 0, 0).</summary>
+    [MarshalAs(UnmanagedType.U1)]
+    internal byte BackgroundColorB;
+
+    ///<summary>OPTIONAL: Background color of the webview as RGBA bytes. Default is (0, 0, 0, 0).</summary>
+    [MarshalAs(UnmanagedType.U1)]
+    internal byte BackgroundColorA;
+
     ///<summary>OPTIONAL: If true, the user can access the browser control's context menu. Default is true.</summary>
     [MarshalAs(UnmanagedType.I1)]
     internal bool ContextMenuEnabled;

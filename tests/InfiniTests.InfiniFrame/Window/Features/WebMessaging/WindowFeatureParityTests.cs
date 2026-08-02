@@ -44,10 +44,12 @@ public class WindowFeatureParityTests {
             [typeof(IDecorationsInfiniFrameWindowFeature)] = Included(
                 "IsChromeless",
                 "IsTransparent",
+                "BackgroundColor",
                 "Title",
                 "IconFilePath",
                 "LimitLinuxWindowTitleLength",
                 "SetTransparent",
+                "SetBackgroundColor",
                 "SetTitle",
                 "SetIconFile",
                 "SetLimitLinuxWindowTitleLength"

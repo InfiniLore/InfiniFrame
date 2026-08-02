@@ -355,3 +355,16 @@ void InfiniFrameWindow::SetTransparentEnabled(const bool enabled) {
         webkit_web_view_set_background_color(WEBKIT_WEB_VIEW(m_impl->_webview), &color);
     }
 }
+
+void InfiniFrameWindow::SetBackgroundColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    m_impl->_backgroundColorR = r;
+    m_impl->_backgroundColorG = g;
+    m_impl->_backgroundColorB = b;
+    m_impl->_backgroundColorA = a;
+
+    if (m_impl->_webview == nullptr)
+        return;
+
+    GdkRGBA rgba = {r / 255.0, g / 255.0, b / 255.0, a / 255.0};
+    webkit_web_view_set_background_color(WEBKIT_WEB_VIEW(m_impl->_webview), &rgba);
+}

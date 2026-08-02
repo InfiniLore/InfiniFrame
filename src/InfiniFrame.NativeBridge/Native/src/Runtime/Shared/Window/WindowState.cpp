@@ -47,3 +47,10 @@ void InfiniFrameWindow::GetIgnoreCertificateErrorsEnabled(bool* enabled) const {
 AutoString InfiniFrameWindow::GetIconFileName() const {
     return AllocateStringCopy(ImplBase()->_iconFileName);
 }
+
+void InfiniFrameWindow::GetBackgroundColor(uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a) const {
+    *r = ImplBase()->_backgroundColorR;
+    *g = ImplBase()->_backgroundColorG;
+    *b = ImplBase()->_backgroundColorB;
+    *a = ImplBase()->_backgroundColorA;
+}

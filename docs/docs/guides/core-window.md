@@ -7,6 +7,7 @@ This guide covers everything available through the `InfiniLore.InfiniFrame` pack
 - [Building a Window](#building-a-window)
 - [Single-File Native Packaging](#single-file-native-packaging)
 - [Window Configuration](#window-configuration)
+- [Background Color](#background-color)
 - [Browser Features](#browser-features)
 - [DevTools and Remote Debugging](#devtools-and-remote-debugging)
 - [Debug Tooling](#debug-tooling)
@@ -122,6 +123,35 @@ builder
 ```
 
 On Windows, enabling `SetChromeless` automatically disables `UseOsDefaultLocation`, `UseOsDefaultSize`, and `Resizable` since they are incompatible.
+
+### Background Color
+
+Set the native window background color using hex color strings:
+
+```csharp
+builder
+    .SetBackgroundColor("#FF5733")    // Set to a specific color at builder stage
+    .SetBackgroundColor("#AARRGGBB")  // With alpha channel
+    .SetBackgroundColor("transparent") // Reset to platform default
+    .SetBackgroundColor(null)          // Same as "transparent"
+```
+
+At runtime, the background color can be changed dynamically:
+
+```csharp
+window.SetBackgroundColor("#00FF00");
+window.Features.Decorations.SetBackgroundColor(null); // Reset
+string? currentColor = window.Features.Decorations.BackgroundColor;
+```
+
+| Platform         | Builder-time                                                              | Runtime                                                          | Notes                                                                |
+|------------------|---------------------------------------------------------------------------|------------------------------------------------------------------|----------------------------------------------------------------------|
+| Windows (WebView2) | Sets `DefaultBackgroundColor` at init; also applies if called before window creation | Sets `DefaultBackgroundColor` and reloads the webview | Color format: `#RRGGBB` or `#AARRGGBB`. Alpha=0 means transparent. |
+| Linux (WebKitGTK)  | Sets WebKitGTK background color at init                                   | Sets WebKitGTK background color via `webkit_web_view_set_background_color` | Color format: `#RRGGBB`. GTK handles alpha via RGBA visual.         |
+| macOS (WKWebView)  | Sets WKWebView `backgroundColor` at init                                  | Sets WKWebView `backgroundColor`                                | Color format: `#RRGGBB`. NSColor parsing from hex string.           |
+
+- Pass `null` or `"transparent"` to reset to the platform default (no background color override).
+- Invalid hex strings throw `ArgumentException` at runtime.
 
 ### Content
 

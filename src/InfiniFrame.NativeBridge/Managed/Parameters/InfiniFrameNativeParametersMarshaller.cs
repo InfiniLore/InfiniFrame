@@ -76,6 +76,10 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal byte CenterOnInitialize;
         internal byte Chromeless;
         internal byte Transparent;
+        internal byte BackgroundColorR;
+        internal byte BackgroundColorG;
+        internal byte BackgroundColorB;
+        internal byte BackgroundColorA;
         internal byte ContextMenuEnabled;
         internal byte ZoomEnabled;
         internal byte DevToolsEnabled;
@@ -163,6 +167,10 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 CenterOnInitialize = ToByte(managed.CenterOnInitialize),
                 Chromeless = ToByte(managed.Chromeless),
                 Transparent = ToByte(managed.Transparent),
+                BackgroundColorR = managed.BackgroundColorR,
+                BackgroundColorG = managed.BackgroundColorG,
+                BackgroundColorB = managed.BackgroundColorB,
+                BackgroundColorA = managed.BackgroundColorA,
                 ContextMenuEnabled = ToByte(managed.ContextMenuEnabled),
                 ZoomEnabled = ToByte(managed.ZoomEnabled),
                 DevToolsEnabled = ToByte(managed.DevToolsEnabled),

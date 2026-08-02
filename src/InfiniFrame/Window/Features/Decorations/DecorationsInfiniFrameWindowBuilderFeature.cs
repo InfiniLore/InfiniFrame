@@ -15,6 +15,9 @@ public class DecorationsInfiniFrameWindowBuilderFeature : IDecorationsInfiniFram
     /// <inheritdoc cref="IDecorationsInfiniFrameWindowBuilderFeature.IsTransparent" />
     public bool IsTransparent { get; private set; }
 
+    /// <inheritdoc cref="IDecorationsInfiniFrameWindowBuilderFeature.BackgroundColor" />
+    public string? BackgroundColor { get; private set; }
+
     /// <inheritdoc cref="IDecorationsInfiniFrameWindowBuilderFeature.Title" />
     public string? Title { get; private set; } = TitleStringUtility.DefaultTitle;
 
@@ -38,6 +41,11 @@ public class DecorationsInfiniFrameWindowBuilderFeature : IDecorationsInfiniFram
     /// <inheritdoc cref="IDecorationsInfiniFrameWindowBuilderFeature.SetTransparent" />
     public void SetTransparent(bool enabled) {
         IsTransparent = enabled;
+    }
+
+    /// <inheritdoc cref="IDecorationsInfiniFrameWindowBuilderFeature.SetBackgroundColor" />
+    public void SetBackgroundColor(string? color) {
+        BackgroundColor = color;
     }
 
     /// <inheritdoc cref="IDecorationsInfiniFrameWindowBuilderFeature.SetTitle" />
@@ -68,6 +76,14 @@ public class DecorationsInfiniFrameWindowBuilderFeature : IDecorationsInfiniFram
             ? resolvedIconFilePath
             : null;
         parameters.WindowsAppUserModelId = WindowsAppUserModelId;
+
+        DecorationsInfiniFrameWindowFeature.ParseBackgroundColor(
+            BackgroundColor, out byte r, out byte g, out byte b, out byte a);
+        parameters.BackgroundColorR = r;
+        parameters.BackgroundColorG = g;
+        parameters.BackgroundColorB = b;
+        parameters.BackgroundColorA = a;
+
         // parameters.LimitLinuxWindowTitleLength = LimitLinuxWindowTitleLength; // Not a C++ parameter.
     }
 }

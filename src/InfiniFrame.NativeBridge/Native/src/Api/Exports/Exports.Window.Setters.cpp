@@ -10,6 +10,10 @@ EXPORTED InteropStatus InfiniFrameNative_SetTransparentEnabled(InfiniFrameWindow
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetTransparentEnabled(enabled); });
 }
 
+EXPORTED InteropStatus InfiniFrameNative_SetBackgroundColor(InfiniFrameWindow* instance, const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) {
+    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetBackgroundColor(r, g, b, a); });
+}
+
 EXPORTED InteropStatus InfiniFrameNative_SetContextMenuEnabled(InfiniFrameWindow* instance, const bool enabled) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetContextMenuEnabled(enabled); });
 }
