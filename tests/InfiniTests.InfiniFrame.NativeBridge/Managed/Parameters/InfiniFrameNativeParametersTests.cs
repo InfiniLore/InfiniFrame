@@ -120,6 +120,10 @@ public class InfiniFrameNativeParametersTests {
                 CenterOnInitialize = true,
                 Chromeless = true,
                 Transparent = true,
+                BackgroundColorR = 128,
+                BackgroundColorG = 64,
+                BackgroundColorB = 32,
+                BackgroundColorA = 255,
                 ContextMenuEnabled = true,
                 DevToolsEnabled = true,
                 WebInspectorEnabled = true,
@@ -184,6 +188,10 @@ public class InfiniFrameNativeParametersTests {
             await Assert.That(newParameters.CenterOnInitialize).IsEqualTo(parameters.CenterOnInitialize);
             await Assert.That(newParameters.Chromeless).IsEqualTo(parameters.Chromeless);
             await Assert.That(newParameters.Transparent).IsEqualTo(parameters.Transparent);
+            await Assert.That(newParameters.BackgroundColorR).IsEqualTo(parameters.BackgroundColorR);
+            await Assert.That(newParameters.BackgroundColorG).IsEqualTo(parameters.BackgroundColorG);
+            await Assert.That(newParameters.BackgroundColorB).IsEqualTo(parameters.BackgroundColorB);
+            await Assert.That(newParameters.BackgroundColorA).IsEqualTo(parameters.BackgroundColorA);
             await Assert.That(newParameters.ContextMenuEnabled).IsEqualTo(parameters.ContextMenuEnabled);
             await Assert.That(newParameters.DevToolsEnabled).IsEqualTo(parameters.DevToolsEnabled);
             await Assert.That(newParameters.WebInspectorEnabled).IsEqualTo(parameters.WebInspectorEnabled);

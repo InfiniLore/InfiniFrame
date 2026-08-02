@@ -78,6 +78,10 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         (*new_params)->CenterOnInitialize = params->CenterOnInitialize;
         (*new_params)->Chromeless = params->Chromeless;
         (*new_params)->Transparent = params->Transparent;
+        (*new_params)->BackgroundColorR = params->BackgroundColorR;
+        (*new_params)->BackgroundColorG = params->BackgroundColorG;
+        (*new_params)->BackgroundColorB = params->BackgroundColorB;
+        (*new_params)->BackgroundColorA = params->BackgroundColorA;
         (*new_params)->ContextMenuEnabled = params->ContextMenuEnabled;
         (*new_params)->ZoomEnabled = params->ZoomEnabled;
         (*new_params)->DevToolsEnabled = params->DevToolsEnabled;
