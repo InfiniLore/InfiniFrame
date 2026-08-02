@@ -138,7 +138,7 @@ internal sealed class InfiniFileDialogOperation {
 
         string?[] resultValues = [];
         if (result == 0 && values != IntPtr.Zero && valueCount > 0) {
-            var pointers = new IntPtr[valueCount];
+            IntPtr[] pointers = new IntPtr[valueCount];
             Marshal.Copy(values, pointers, 0, valueCount);
             resultValues = pointers.Select(pointer => OperatingSystem.IsWindows()
                 ? Marshal.PtrToStringUni(pointer)

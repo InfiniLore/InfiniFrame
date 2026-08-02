@@ -121,7 +121,7 @@ public sealed class DebuggingInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IDebuggingInfiniFrameWindowFeature.GetDiagnostics" />
     public InfiniFrameDebugDiagnostics GetDiagnostics() {
-        var operationDiagnostics = window is InfiniFrameWindow concreteWindow
+        (DateTimeOffset TransitionUtc, IReadOnlyList<InfiniFrameOperationDiagnostics> Outstanding, InfiniFrameOperationDiagnostics? Last) operationDiagnostics = window is InfiniFrameWindow concreteWindow
             ? concreteWindow.GetOperationDiagnostics()
             : (DateTimeOffset.UtcNow, (IReadOnlyList<InfiniFrameOperationDiagnostics>)[], null);
         Uri? endpoint = null;
