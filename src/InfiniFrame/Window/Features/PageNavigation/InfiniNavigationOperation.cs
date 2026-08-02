@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
@@ -113,7 +113,16 @@ internal sealed class InfiniNavigationOperation {
             return;
         }
 
-        _ = _window.DispatchAsync(() => InfiniFrameNative.CancelNavigation(lease.Handle, Id));
+        // Best-effort cancellation dispatch: faults are observed via ContinueWith to avoid
+        // dropping exceptions on a background thread.
+        _ = _window.DispatchAsync(() => InfiniFrameNative.CancelNavigation(lease.Handle, Id))
+            .AsTask()
+            .ContinueWith(
+                t => _logger.LogWarning(t.Exception, "Unhandled error while cancelling navigation {OperationId}.", Id),
+                CancellationToken.None,
+                TaskContinuationOptions.OnlyOnFaulted,
+                TaskScheduler.Default
+            );
     }
 
     private static void Complete(IntPtr context, ulong operationId, int result, int nativeCode, IntPtr failureUtf8) {

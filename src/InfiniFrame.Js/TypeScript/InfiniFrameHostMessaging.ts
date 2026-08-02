@@ -104,13 +104,13 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
     
     public async getMessageFromHostAsync(command: string, args?: any): Promise<string> {
         try {
-            return window.infiniframe.messaging.getMessageFromHostRawAsync(
+            return await window.infiniframe.messaging.getMessageFromHostRawAsync(
                 createGetEnvelope(command, args)
             );
         }
         catch (e) {
             console.error("Failed to get response message from host.", e);
-            return Promise.reject(e);
+            throw e;
         }
     }
 
@@ -174,8 +174,12 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
 
         document.addEventListener("keydown", async (e: KeyboardEvent) => {
             if (e.key !== "F11") return;
-            if (document.fullscreenElement) await document.exitFullscreen();
-            else await document.body.requestFullscreen();
+            try {
+                if (document.fullscreenElement) await document.exitFullscreen();
+                else await document.body.requestFullscreen();
+            } catch (error) {
+                console.warn("Fullscreen toggle failed.", error);
+            }
         });
     }
 

@@ -35,14 +35,14 @@ public class InfiniFrameHttpHandler : DelegatingHandler {
     /// <param name="request">The HTTP request message.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>The HTTP response message.</returns>
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) {
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) {
         (Stream? Data, string? ContentType) result = _manager.HandleWebRequest(null, request.RequestUri?.AbsoluteUri);
-        if (result is not ({} content, {} contentType)) return await base.SendAsync(request, cancellationToken);
+        if (result is not ( { } content, { } contentType))
+            return base.SendAsync(request, cancellationToken);
 
         var response = new HttpResponseMessage(HttpStatusCode.OK);
         response.Content = new StreamContent(content);
         response.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
-        return response;
-
+        return Task.FromResult(response);
     }
 }

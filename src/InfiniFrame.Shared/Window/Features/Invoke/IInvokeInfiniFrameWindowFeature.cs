@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame;
@@ -16,7 +16,7 @@ public interface IInvokeInfiniFrameWindowFeature {
     ///     Dispatches work without blocking the caller. A callback that has not started when cancellation, timeout, or
     ///     window shutdown wins is suppressed.
     /// </summary>
-    Task<InfiniFrameDispatchResult> DispatchAsync(
+    ValueTask<InfiniFrameDispatchResult> DispatchAsync(
         Action callback,
         TimeSpan? timeout = null,
         CancellationToken cancellationToken = default

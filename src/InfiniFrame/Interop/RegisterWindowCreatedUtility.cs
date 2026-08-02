@@ -2,6 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 
 namespace InfiniFrame.Interop;
@@ -64,13 +66,14 @@ public static class RegisterWindowCreatedUtility {
                 registrationMessages = state.RegistrationMessageIds.ToArray();
             }
 
-            // window.Logger.LogDebug(
-            //     "Received '{ReadyMessageId}' handshake. Sending {RegistrationCount} registration messages before acknowledgement.",
-            //     JsHandlerNames.WindowReady,
-            //     registrationMessages.Length
-            // );
-
-            _ = SendRegistrationsAndAckAsync(window, state, windowState, registrationMessages);
+            ILogger? logger = window.ServiceProvider?.GetService<ILoggerFactory>()?.CreateLogger(typeof(RegisterWindowCreatedUtility));
+            _ = SendRegistrationsAndAckAsync(window, state, windowState, registrationMessages)
+                .ContinueWith(
+                    t => logger?.LogWarning(t.Exception, "Unhandled error while sending window-created registration messages."),
+                    CancellationToken.None,
+                    TaskContinuationOptions.OnlyOnFaulted,
+                    TaskScheduler.Default
+                );
         });
     }
 
@@ -82,7 +85,7 @@ public static class RegisterWindowCreatedUtility {
     ) {
         bool allMessagesSent = false;
         try {
-            allMessagesSent = await SendRegistrationsAndAckAsync(window, registrationMessages);
+            allMessagesSent = await SendRegistrationsAndAckAsync(window, registrationMessages).ConfigureAwait(false);
         }
         catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
             // window.Logger.LogError(ex, "Unhandled error while sending window-created registration messages.");
@@ -97,10 +100,10 @@ public static class RegisterWindowCreatedUtility {
     private static async Task<bool> SendRegistrationsAndAckAsync(IInfiniFrameWindow window, IReadOnlyList<string> registrationMessages) {
         foreach (string registrationMessage in registrationMessages) {
             string envelope = InteropEnvelopeProtocol.CreateEnvelopeMessage(registrationMessage);
-            await window.SendWebMessageAsync(envelope);
+            await window.SendWebMessageAsync(envelope).ConfigureAwait(false);
         }
 
-        await window.SendWebMessageAsync(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.WindowReadyAck));
+        await window.SendWebMessageAsync(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.WindowReadyAck)).ConfigureAwait(false);
         // window.Logger.LogDebug("Sent '{ReadyAckMessageId}' handshake acknowledgement.", JsHandlerNames.WindowReadyAck);
         return true;
     }

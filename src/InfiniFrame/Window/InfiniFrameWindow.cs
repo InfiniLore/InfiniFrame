@@ -1,12 +1,12 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using InfiniFrame.Debugging;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -27,12 +27,12 @@ public sealed class InfiniFrameWindow(
     private readonly object _diagnosticsLock = new();
     private readonly Dictionary<string, InfiniFrameOperationDiagnostics> _outstandingOperations = [];
     private InfiniFrameOperationDiagnostics? _lastOperation;
-    #if NET9_0_OR_GREATER
+#if NET9_0_OR_GREATER
     private readonly Lock _disposeLock = new();
-    #else
+#else
     // ReSharper disable once ConvertToAutoPropertyWhenPossible
     private readonly object _disposeLock = new();
-    #endif
+#endif
     /// <inheritdoc cref="IInfiniFrameWindow.MainProgramHandle" />
     public IntPtr MainProgramHandle => LazyMainProgramHandle.Value;
 
@@ -277,6 +277,10 @@ public sealed class InfiniFrameWindow(
 
         if (LifecycleState < InfiniFrameWindowLifecycleState.TeardownComplete
             && Features.Lifecycle.CanWaitForTeardownDuringDispose()) {
+            // Blocking here is safe: CanWaitForTeardownDuringDispose guarantees either the
+            // message loop has already exited (non-owning thread or teardown complete) or we
+            // are on a non-owning thread, so there is no risk of re-entrant UI deadlock.
+            // For fully asynchronous disposal, prefer DisposeAsync() instead.
             Features.Lifecycle.WaitForTeardownAsync().AsTask().GetAwaiter().GetResult();
         }
 

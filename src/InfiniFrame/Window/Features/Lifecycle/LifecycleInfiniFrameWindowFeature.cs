@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using FluentValidation;
@@ -145,10 +145,10 @@ public class LifecycleInfiniFrameWindowFeature(
                             $"Native registration failed with status {registerStatus}. Error #{lastError}. {nativeMessage}");
                     }
                 }
-                else if (OperatingSystem.IsLinux()) {}// No specific implementation for Linux
+                else if (OperatingSystem.IsLinux()) { }// No specific implementation for Linux
                 else throw new PlatformNotSupportedException();
 
-                using NativeHandleLease? parentLease = window.Configuration.ParentWindow is {} parent
+                using NativeHandleLease? parentLease = window.Configuration.ParentWindow is { } parent
                     ? parent.AcquireNativeHandle()
                     : null;
                 startupParameters.NativeParent = parentLease?.Handle ?? IntPtr.Zero;
@@ -217,6 +217,9 @@ public class LifecycleInfiniFrameWindowFeature(
             && (window.LifecycleState == InfiniFrameWindowLifecycleState.ClosingRequested
                 || Volatile.Read(ref _messageLoopStarted) != 0);
         if (isNonOwningThread && canObserveNativeClose) {
+            // Blocking here is safe: we are on a non-owning thread, so we are not
+            // holding a native message loop that would deadlock. The native loop
+            // runs on the owning thread; we merely wait for its completion signal.
             _closed.Task.GetAwaiter().GetResult();
             return;
         }
@@ -230,6 +233,8 @@ public class LifecycleInfiniFrameWindowFeature(
                     lease = window.AcquireNativeHandle(NativeHandleAccess.WaitForExit);
                 }
                 catch (ObjectDisposedException) when (IsClosed()) {
+                    // Safe to block: the window was already closed, so the _closed signal
+                    // has been set. We are on a thread that does not own the message loop.
                     _closed.Task.GetAwaiter().GetResult();
                     return;
                 }

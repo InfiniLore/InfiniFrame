@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
@@ -47,21 +47,21 @@ public class InvokeInfiniFrameWindowFeature(
         }
     }
 
-    public Task<InfiniFrameDispatchResult> DispatchAsync(
+    public ValueTask<InfiniFrameDispatchResult> DispatchAsync(
         Action callback,
         TimeSpan? timeout = null,
         CancellationToken cancellationToken = default
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        if (timeout is {} value && value <= TimeSpan.Zero)
-            return Task.FromResult(InfiniFrameDispatchResult.TimedOut);
+        if (timeout is { } value && value <= TimeSpan.Zero)
+            return new ValueTask<InfiniFrameDispatchResult>(InfiniFrameDispatchResult.TimedOut);
         if (cancellationToken.IsCancellationRequested)
-            return Task.FromResult(InfiniFrameDispatchResult.Cancelled);
+            return new ValueTask<InfiniFrameDispatchResult>(InfiniFrameDispatchResult.Cancelled);
         if (window.Features.Lifecycle.IsClosedOrClosing())
-            return Task.FromResult(InfiniFrameDispatchResult.WindowClosed);
+            return new ValueTask<InfiniFrameDispatchResult>(InfiniFrameDispatchResult.WindowClosed);
 
         var operation = new InfiniDispatchOperation(window, logger, callback, timeout ?? DefaultTimeout, cancellationToken);
         operation.Start();
-        return operation.Task;
+        return new ValueTask<InfiniFrameDispatchResult>(operation.Task);
     }
 }
