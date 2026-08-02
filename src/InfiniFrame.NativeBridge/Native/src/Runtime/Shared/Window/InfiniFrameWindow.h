@@ -347,15 +347,27 @@ class InfiniFrameWindow {
     // -----------------------------------------------------------------------------------------------------------------
 
     /**
-         * @brief Enable or disable transparent window background
-         * @param enabled true to enable transparency
-         */
+     * @brief Enable or disable transparent window background
+     * @param enabled true to enable transparency
+     */
     void SetTransparentEnabled(bool enabled);
 
     /**
-         * @brief Enable or disable the browser right-click context menu
-         * @param enabled true to show the context menu
-         */
+     * @brief Set the native window background color
+     * @param color UTF-8 hex color string (e.g. "#RRGGBB" or "#AARRGGBB"), or nullptr to reset
+     */
+    void SetBackgroundColor(AutoString color);
+
+    /**
+     * @brief Get the current native window background color
+     * @return UTF-8 color string; caller must free with InfiniFrameNative_FreeString
+     */
+    [[nodiscard]] AutoString GetBackgroundColor() const;
+
+    /**
+     * @brief Enable or disable the browser right-click context menu
+     * @param enabled true to show the context menu
+     */
     void SetContextMenuEnabled(bool enabled);
 
     /**

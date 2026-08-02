@@ -41,6 +41,10 @@ public class DecorationsInfiniFrameWindowFeature(
         }
     }
 
+    /// <inheritdoc cref="IDecorationsInfiniFrameWindowFeature.BackgroundColor" />
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public string? BackgroundColor => window.Configuration.StartupParameters.BackgroundColor;
+
     /// <inheritdoc cref="IDecorationsInfiniFrameWindowFeature.Title" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? Title => NativeInvoke.InvokeSyncWithValidation<string?>(
@@ -77,6 +81,22 @@ public class DecorationsInfiniFrameWindowFeature(
             window.ManagedThreadId,
             InfiniFrameNative.SetTransparentEnabled,
             enabled
+        );
+    }
+
+    /// <inheritdoc cref="IDecorationsInfiniFrameWindowFeature.SetBackgroundColor" />
+    public void SetBackgroundColor(string? color) {
+        if (color is not null && color != "transparent" && !IsValidBackgroundColor(color)) {
+            throw new ArgumentException("Background color must be a valid hex color string (e.g. #RRGGBB or #AARRGGBB), null, or 'transparent'.", nameof(color));
+        }
+
+        logger.LogDebug("Invoking InfiniFrameNative.SetBackgroundColor({color})", color);
+        NativeInvoke.InvokeSyncWithoutValidation(
+            logger,
+            window,
+            window.ManagedThreadId,
+            InfiniFrameNative.SetBackgroundColor,
+            color
         );
     }
 
@@ -134,5 +154,18 @@ public class DecorationsInfiniFrameWindowFeature(
     public void SetLimitLinuxWindowTitleLength(bool enabled = true) {
         LimitLinuxWindowTitleLength = enabled;
     }
+
+    private static bool IsValidBackgroundColor(string? color) {
+        if (string.IsNullOrEmpty(color))
+            return false;
+        if (color.StartsWith('#')) {
+            string hex = color[1..];
+            return hex.Length is 6 or 8 && hex.All(c => IsHexDigit(c));
+        }
+        return false;
+    }
+
+    private static bool IsHexDigit(char c) =>
+        c is >= '0' and <= '9' or >= 'A' and <= 'F' or >= 'a' and <= 'f';
 
 }

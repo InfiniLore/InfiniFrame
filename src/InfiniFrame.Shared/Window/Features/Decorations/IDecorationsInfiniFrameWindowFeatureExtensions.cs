@@ -18,6 +18,17 @@ public static class IDecorationsInfiniFrameWindowFeatureExtensions {
     }
 
     /// <summary>
+    ///     Sets the window background color. Pass <c>null</c> or <c>"transparent"</c> to reset to default.
+    /// </summary>
+    /// <param name="window">The window instance.</param>
+    /// <param name="color">A hex color string (e.g. "#RRGGBB" or "#AARRGGBB"), or <c>null</c>/<c>"transparent"</c> to reset.</param>
+    /// <returns>The window instance for chaining.</returns>
+    public static IInfiniFrameWindow SetBackgroundColor(this IInfiniFrameWindow window, string? color) {
+        window.Features.Decorations.SetBackgroundColor(color);
+        return window;
+    }
+
+    /// <summary>
     ///     Sets the window title.
     /// </summary>
     /// <param name="window">The window instance.</param>

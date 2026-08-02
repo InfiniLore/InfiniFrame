@@ -234,6 +234,36 @@ public partial class InfiniFrameNative {
     internal static partial InfiniFrameNativeInteropStatus GetMinSize(IntPtr instance, out int minWidth, out int minHeight);
 
     /// <summary>
+    ///     Gets the current window background color.
+    /// </summary>
+    /// <param name="instance">The native window instance handle.</param>
+    /// <param name="color">The background color string; caller must free with InfiniFrameNative_FreeString.</param>
+    /// <returns>A status code indicating success or failure.</returns>
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_GetBackgroundColor", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial InfiniFrameNativeInteropStatus GetBackgroundColorPtr(IntPtr instance, out IntPtr value);
+
+    /// <summary>
+    ///     Gets the current window background color.
+    /// </summary>
+    /// <param name="instance">The native window instance handle.</param>
+    /// <param name="color">The background color string.</param>
+    /// <returns>A status code indicating success or failure.</returns>
+    internal static InfiniFrameNativeInteropStatus GetBackgroundColor(IntPtr instance, out string? color) {
+        InfiniFrameNativeInteropStatus status = GetBackgroundColorPtr(instance, out IntPtr ptr);
+        try {
+            color = PtrToNativeString(ptr);
+        }
+        finally {
+            if (ptr != IntPtr.Zero) {
+                FreeString(ptr);
+            }
+        }
+
+        return status;
+    }
+
+    /// <summary>
     ///     Gets the screen DPI value for the window's display.
     /// </summary>
     /// <param name="instance">The native window instance handle.</param>

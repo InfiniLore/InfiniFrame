@@ -17,6 +17,11 @@ public interface IDecorationsInfiniFrameWindowBuilderFeature : IInfiniFrameWindo
     bool IsTransparent { get; }
 
     /// <summary>
+    ///     Gets the current window background color.
+    /// </summary>
+    string? BackgroundColor { get; }
+
+    /// <summary>
     ///     Gets the current window title.
     /// </summary>
     string? Title { get; }
@@ -47,6 +52,12 @@ public interface IDecorationsInfiniFrameWindowBuilderFeature : IInfiniFrameWindo
     /// </summary>
     /// <param name="enabled">Whether the window should be transparent.</param>
     void SetTransparent(bool enabled);
+
+    /// <summary>
+    ///     Sets the window background color. Pass <c>null</c> or <c>"transparent"</c> to reset to default.
+    /// </summary>
+    /// <param name="color">A hex color string (e.g. "#RRGGBB" or "#AARRGGBB"), or <c>null</c>/<c>"transparent"</c> to reset.</param>
+    void SetBackgroundColor(string? color);
 
     /// <summary>
     ///     Sets the window title.

@@ -183,6 +183,16 @@ public partial class InfiniFrameNative {
     internal static partial InfiniFrameNativeInteropStatus SetMaxSize(IntPtr instance, int maxWidth, int maxHeight);
 
     /// <summary>
+    ///     Sets the window background color. Pass <c>null</c> or <c>"transparent"</c> to reset to default.
+    /// </summary>
+    /// <param name="instance">The native window instance handle.</param>
+    /// <param name="color">A hex color string (e.g. "#RRGGBB" or "#AARRGGBB"), or <c>null</c>/<c>"transparent"</c> to reset.</param>
+    /// <returns>A status code indicating success or failure.</returns>
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetBackgroundColor", SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus SetBackgroundColor(IntPtr instance, string? color);
+
+    /// <summary>
     ///     Sets the minimum window size.
     /// </summary>
     /// <param name="instance">The native window instance handle.</param>
