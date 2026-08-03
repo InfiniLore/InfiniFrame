@@ -281,7 +281,7 @@ public partial class InfiniFrameNative {
     internal static InfiniFrameNativeInteropStatus GetUserAgent(IntPtr instance, out string? userAgent) {
         InfiniFrameNativeInteropStatus status = GetUserAgentPtr(instance, out IntPtr ptr);
         try {
-            userAgent = PtrToNativeString(ptr);
+            userAgent = MarshalNativeToString(ptr);
         }
         finally {
             if (ptr != IntPtr.Zero) {
@@ -307,7 +307,7 @@ public partial class InfiniFrameNative {
     internal static InfiniFrameNativeInteropStatus GetTitle(IntPtr instance, out string? title) {
         InfiniFrameNativeInteropStatus status = GetTitlePtr(instance, out IntPtr ptr);
         try {
-            title = PtrToNativeString(ptr);
+            title = MarshalNativeToString(ptr);
         }
         finally {
             if (ptr != IntPtr.Zero) {
@@ -333,7 +333,7 @@ public partial class InfiniFrameNative {
     internal static InfiniFrameNativeInteropStatus GetIconFileName(IntPtr instance, out string iconFileName) {
         InfiniFrameNativeInteropStatus status = GetIconFileNamePtr(instance, out IntPtr ptr);
         try {
-            iconFileName = PtrToNativeString(ptr) ?? string.Empty;
+            iconFileName = MarshalNativeToString(ptr) ?? string.Empty;
         }
         finally {
             if (ptr != IntPtr.Zero) {

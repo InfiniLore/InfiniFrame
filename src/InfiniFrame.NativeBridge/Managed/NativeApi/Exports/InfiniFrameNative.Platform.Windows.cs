@@ -74,7 +74,7 @@ public partial class InfiniFrameNative {
             return null;
 
         try {
-            return PtrToNativeString(ptr);
+            return MarshalNativeToString(ptr);
         }
         finally {
             FreeString(ptr);

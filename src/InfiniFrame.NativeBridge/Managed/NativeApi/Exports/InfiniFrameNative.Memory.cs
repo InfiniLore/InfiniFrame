@@ -44,7 +44,7 @@ public partial class InfiniFrameNative {
         if (status != InfiniFrameNativeInteropStatus.Success || ptr == IntPtr.Zero) return null;
 
         try {
-            return PtrToNativeString(ptr);
+            return MarshalNativeToString(ptr);
         }
         finally {
             FreeString(ptr);
