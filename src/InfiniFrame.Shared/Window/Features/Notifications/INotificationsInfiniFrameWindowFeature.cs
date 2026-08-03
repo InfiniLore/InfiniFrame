@@ -25,7 +25,7 @@ public interface INotificationsInfiniFrameWindowFeature {
     /// <returns>The user's response as an <see cref="InfiniFrameDialogResult"/>.</returns>
     InfiniFrameDialogResult ShowMessage(string title, string? text, InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok, InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info);
 
-    /// <summary>Displays a native message dialog and completes when it is answered, cancelled, or its owner closes.</summary>
+    /// <summary>Displays a native message dialog and completes when it is answered, canceled, or its owner closes.</summary>
     Task<InfiniFrameDialogResult> ShowMessageAsync(
         string title, string? text,
         InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok,

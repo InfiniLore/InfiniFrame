@@ -18,6 +18,10 @@ extern void on_webview_process_terminated(
     WebKitWebView* web_view, WebKitWebProcessTerminationReason reason, gpointer user_data
 );
 extern void on_webview_size_allocate(GtkWidget* widget, GtkAllocation* allocation, gpointer user_data);
+extern gboolean on_webview_decide_policy(
+    WebKitWebView* web_view, WebKitPolicyDecision* decision,
+    WebKitPolicyDecisionType decision_type, gpointer user_data
+);
 
 void InfiniFrameWindow::Show(bool isAlreadyShown) {
     (void)isAlreadyShown;
@@ -66,6 +70,7 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
         G_OBJECT(m_impl->_webview), "web-process-terminated", G_CALLBACK(on_webview_process_terminated), this
     );
     g_signal_connect(G_OBJECT(m_impl->_webview), "size-allocate", G_CALLBACK(on_webview_size_allocate), this);
+    g_signal_connect(G_OBJECT(m_impl->_webview), "decide-policy", G_CALLBACK(on_webview_decide_policy), this);
 
     if (!m_impl->_startUrl.empty()) {
         NavigateToUrl(const_cast<AutoString>(m_impl->_startUrl.c_str()));

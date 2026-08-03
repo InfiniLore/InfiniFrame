@@ -2,11 +2,14 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InfiniTests.InfiniFrame.Window.Features.FilePickerDialogs;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+[SuppressMessage("ReSharper", "MethodHasAsyncOverload")]
+[SuppressMessage("ReSharper", "MethodHasAsyncOverloadWithCancellation")]
 public class FilePickerDialogsWhenClosedAsyncTests {
     [Test]
     [NotInParallelInfiniTests]
@@ -60,16 +63,16 @@ public class FilePickerDialogsWhenClosedAsyncTests {
         await WaitForOutstandingOperation(window, "OpenFile", ct);
         cancellation.Cancel();
 
-        bool cancelled = false;
+        bool canceled = false;
         try {
             await operation;
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested) {
-            cancelled = true;
+            canceled = true;
         }
 
         await WaitForOperationCompletion(window, ct);
-        await Assert.That(cancelled).IsTrue();
+        await Assert.That(canceled).IsTrue();
         await Assert.That(window.GetDebugDiagnostics().LastOperation?.FinalState).IsEqualTo("Cancelled");
     }
 
@@ -100,6 +103,6 @@ public class FilePickerDialogsWhenClosedAsyncTests {
                 return;
             await Task.Delay(25, ct);
         }
-        throw new TimeoutException("The cancelled native dialog did not complete.");
+        throw new TimeoutException("The canceled native dialog did not complete.");
     }
 }

@@ -15,7 +15,7 @@ internal static class ProjectInfoResolver {
     /// If not provided, the default timeout is used.
     /// </param>
     /// <param name="cancellationToken">
-    /// A token that allows the operation to be cancelled.
+    /// A token that allows the operation to be canceled.
     /// </param>
     /// <returns>
     /// The value of <c>TargetFramework</c>, or the first framework from <c>TargetFrameworks</c> when multi-targeted.

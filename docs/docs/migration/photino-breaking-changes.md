@@ -121,6 +121,7 @@ InfiniFrame can pull window configuration from `IConfiguration` under an `"Infin
 | `PageNavigation.GetCurrentUri()` / `GetCurrentUrl()`              | First-class equivalent of Photino's `GetCurrentUrl()`; returns null after `LoadRawString` |
 | `SetInstanceArbitrationMode(InstanceArbitrationMode)`            | Single-instance enforcement via named mutex; not available in Photino                    |
 | `SetInstanceArbitrationMutexName(string)`                        | Configure the mutex name for instance arbitration                                        |
+| `RegisterNavigationStartingHandler(handler)`                     | Inspect/cancel navigation requests before commit; not available in Photino               |
 
 ## Javascript Debugging
 

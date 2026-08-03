@@ -378,6 +378,35 @@ string? url2 = window.GetCurrentUrl();                      // Extension method 
 `CurrentUrl` returns the active top-level URL after any redirects. It is `null` when the window has loaded raw HTML
 via `LoadRawString` because there is no associated URL.
 
+### Navigation interception
+
+You can inspect and cancel navigation requests before they are committed by the browser engine:
+
+```csharp
+window.RegisterNavigationStartingHandler((window, args) => {
+    Console.WriteLine($"Navigation to {args.Url} (userInitiated={args.IsUserInitiated})");
+
+    // Block navigations to external origins
+    if (!args.Url.StartsWith("app://"))
+        return NavigationStartingResult.Cancel;
+
+    return NavigationStartingResult.Allow;
+});
+```
+
+`NavigationStartingEventArgs` provides:
+
+- **Url** — the target URL
+- **IsUserInitiated** — `true` for link clicks and form submissions
+- **IsRedirect** — `true` for server redirects
+- **IsMainFrame** — `true` for main frame navigations (sub-frame navigations may not fire on all platforms)
+
+**Platform notes:**
+
+- **Windows (WebView2):** Uses `ICoreWebView2NavigationStartingEventArgs`. `IsMainFrame` is always `true` because WebView2's `NavigationStartingEventArgs` does not expose this flag. `IsRedirect` maps to the `IsRedirected` property.
+- **macOS (WKWebView):** Uses `WKNavigationDelegate.decidePolicyForNavigationAction:`. `IsUserInitiated` is `true` for `WKNavigationTypeLinkActivated` and `WKNavigationTypeFormSubmitted`.
+- **Linux (WebKitGTK):** Uses the `decide-policy` signal. `IsMainFrame` is always `true` because WebKitGTK's `decide-policy` with `WEBKIT_POLICY_DECISION_TYPE_NAVIGATION_ACTION` only fires for main frame navigations.
+
 ### Window operations
 
 ```csharp

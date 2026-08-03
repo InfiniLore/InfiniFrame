@@ -84,6 +84,7 @@ void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameInitParams* 
     _restoredCallback = initParams->RestoredHandler;
     _debugEventCallback = initParams->DebugEventHandler;
     _customSchemeCallback = initParams->CustomSchemeHandler;
+    _navigationStartingCallback = initParams->NavigationStartingHandler;
 
     _customSchemeNames.clear();
     for (auto* customSchemeName : initParams->CustomSchemeNames) {

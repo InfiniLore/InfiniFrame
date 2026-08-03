@@ -236,7 +236,7 @@ public class InfiniFrameWebViewManagerTests {
         // Act
         await manager.DisposeAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(1), ct);
 
-        // Assert: DisposeAsync does not return before the cancelled native send has exited.
+        // Assert: DisposeAsync does not return before the canceled native sending has exited.
         await Assert.That(sendStopped.Task.IsCompleted).IsTrue();
         manager.SendMessageForTest("after-dispose");
         await webMessaging.Received(1).SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());

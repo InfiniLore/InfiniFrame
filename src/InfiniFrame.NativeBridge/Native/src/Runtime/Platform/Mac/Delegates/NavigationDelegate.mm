@@ -111,4 +111,37 @@ namespace {
         );
     }
 
+    - (void)webView:(WKWebView *)webView
+        decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
+        decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
+        if (infiniFrame == nullptr) {
+            decisionHandler(WKNavigationActionPolicyAllow);
+            return;
+        }
+
+        NavigationStartingCallback callback = infiniFrame->GetNavigationStartingCallback();
+        if (callback == nullptr) {
+            decisionHandler(WKNavigationActionPolicyAllow);
+            return;
+        }
+
+        NSURL *url = navigationAction.request.URL;
+        if (url == nil) {
+            decisionHandler(WKNavigationActionPolicyAllow);
+            return;
+        }
+
+        bool isUserInitiated = (navigationAction.navigationType == WKNavigationTypeLinkActivated ||
+                                navigationAction.navigationType == WKNavigationTypeFormSubmitted);
+        bool isRedirect = (navigationAction.navigationType == WKNavigationTypeOther);
+        bool isMainFrame = navigationAction.targetFrame.mainFrame;
+
+        const char *urlUtf8 = [url.absoluteString UTF8String];
+        int cancel = callback(
+            urlUtf8, isUserInitiated ? 1 : 0, isRedirect ? 1 : 0, isMainFrame ? 1 : 0
+        );
+
+        decisionHandler(cancel ? WKNavigationActionPolicyCancel : WKNavigationActionPolicyAllow);
+    }
+
 @end

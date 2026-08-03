@@ -32,7 +32,7 @@ public static class INotificationsInfiniFrameWindowFeatureExtensions {
     public static InfiniFrameDialogResult ShowMessage(this IInfiniFrameWindow window, string title, string? text, InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok, InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info)
         => window.Features.Notifications.ShowMessage(title, text, buttons, icon);
 
-    /// <summary>Displays a native message dialog and completes when it is answered, cancelled, or its owner closes.</summary>
+    /// <summary>Displays a native message dialog and completes when it is answered, canceled, or its owner closes.</summary>
     public static Task<InfiniFrameDialogResult> ShowMessageAsync(
         this IInfiniFrameWindow window, string title, string? text,
         InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok,

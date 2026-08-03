@@ -193,6 +193,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     m_impl->_focusOutCallback = initParams->FocusOutHandler;
     m_impl->_debugEventCallback = initParams->DebugEventHandler;
     m_impl->_customSchemeCallback = initParams->CustomSchemeHandler;
+    m_impl->_navigationStartingCallback = initParams->NavigationStartingHandler;
 
     for (int i = 0; i < 16; ++i) {
         if (initParams->CustomSchemeNames[i] != nullptr)

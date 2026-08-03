@@ -66,7 +66,7 @@ public interface IInfiniFrameEvents : IHasInfiniFrameEventsStore {
     /// <summary>
     ///     Called when the window is about to close, allowing cancellation of the close operation.
     /// </summary>
-    /// <returns>A byte indicating whether the close should be cancelled (non-zero) or allowed (zero).</returns>
+    /// <returns>A byte indicating whether the close should be canceled (non-zero) or allowed (zero).</returns>
     byte OnWindowClosing();
 
     /// <summary>
@@ -83,6 +83,16 @@ public interface IInfiniFrameEvents : IHasInfiniFrameEventsStore {
     ///     Called before the native window is created.
     /// </summary>
     void OnWindowCreating();
+
+    /// <summary>
+    ///     Called by the native layer when navigation is starting.
+    /// </summary>
+    /// <param name="url">The target URL of the navigation.</param>
+    /// <param name="isUserInitiated">Non-zero if the user initiated the navigation.</param>
+    /// <param name="isRedirect">Non-zero if the navigation is the result of a redirect.</param>
+    /// <param name="isMainFrame">Non-zero if the navigation is in the main frame.</param>
+    /// <returns>0 to allow, 1 to cancel.</returns>
+    byte OnNavigationStarting(string url, int isUserInitiated, int isRedirect, int isMainFrame);
 
     /// <summary>
     ///     Handles a custom scheme URL request and returns the response data.
@@ -111,7 +121,7 @@ public interface IInfiniFrameEvents : IHasInfiniFrameEventsStore {
     internal void AssignToWindow(IInfiniFrameWindow window);
 
     /// <summary>
-    ///     Assigns default event callbacks that handle basic window lifecycle.
+    ///     Assigns default event callbacks that handle the basic window lifecycle.
     /// </summary>
     internal void AssignDefaultEventCallbacks();
 

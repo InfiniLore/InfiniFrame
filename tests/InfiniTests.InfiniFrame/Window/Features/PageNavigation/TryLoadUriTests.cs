@@ -51,4 +51,21 @@ public class TryLoadUriTests {
         // Assert
         await Assert.That(loaded).IsFalse();
     }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    [SkipOnLinux]
+    public async Task AtWindowStage_NavigationStartingCancel_ReturnsFalse(CancellationToken ct) {
+        // Arrange
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow window = windowUtility.Window;
+        window.RegisterNavigationStartingHandler((_, _) => NavigationStartingResult.Cancel);
+        Uri uri = new("https://example.com");
+
+        // Act
+        bool loaded = window.Features.PageNavigation.TryLoadUri(uri);
+
+        // Assert
+        await Assert.That(loaded).IsFalse();
+    }
 }

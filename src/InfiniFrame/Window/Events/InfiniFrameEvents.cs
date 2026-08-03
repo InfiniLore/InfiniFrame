@@ -37,6 +37,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     private CppRestoredDelegate RestoredHandler { get; }
     private CppWebMessageReceivedDelegate WebMessageReceivedHandler { get; }
     private CppWebResourceRequestedDelegate CustomSchemeHandler { get; }
+    private CppNavigationStartingDelegate NavigationStartingHandler { get; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -58,6 +59,8 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         RestoredHandler = () => InvokeNativeCallback("window restored", OnRestored);
         WebMessageReceivedHandler = (message, origin) => InvokeNativeCallback("web message received", () => OnWebMessageReceived(message, origin));
         CustomSchemeHandler = OnCustomScheme;
+        NavigationStartingHandler = (url, isUserInitiated, isRedirect, isMainFrame) =>
+            InvokeNativeCallback("navigation starting", () => OnNavigationStarting(url, isUserInitiated, isRedirect, isMainFrame), static () => (byte)0);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -92,6 +95,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         parameters.ResizedHandler = ResizedHandler;
         parameters.RestoredHandler = RestoredHandler;
         parameters.WebMessageReceivedHandler = WebMessageReceivedHandler;
+        parameters.NavigationStartingHandler = NavigationStartingHandler;
 
         ApplyCustomSchemeNames(ref parameters);
     }
@@ -175,6 +179,24 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         }
 
         return cancel;
+    }
+
+    /// <inheritdoc cref="IInfiniFrameEvents.OnNavigationStarting"/>
+    public byte OnNavigationStarting(string url, int isUserInitiated, int isRedirect, int isMainFrame) {
+        ArgumentNullException.ThrowIfNull(Sender);
+        ArgumentNullException.ThrowIfNull(url);
+
+        Logger.LogDebug("Navigation starting: {Url}", url);
+
+        NavigationStartingResult[] results = EventsStore.NavigationStarting.Invoke(
+            Sender, new NavigationStartingEventArgs(url, isUserInitiated != 0, isRedirect != 0, isMainFrame != 0)
+        );
+
+        if (results.Any(r => r == NavigationStartingResult.Cancel)) {
+            Logger.LogDebug("Navigation canceled by handler: {Url}", url);
+            return 1;
+        }
+        return 0;
     }
 
     /// <inheritdoc cref="IInfiniFrameEvents.OnWindowCreating"/>

@@ -44,6 +44,8 @@ public record InfiniFrameEventsStore : IInfiniFrameEventsStore {
 
     /// <inheritdoc cref="IInfiniFrameEventsStore.CustomScheme"/>
     public KeyedResultEvent<string, string, (Stream? Data, string? ContentType)> CustomScheme { get; } = new();
+    /// <inheritdoc cref="IInfiniFrameEventsStore.NavigationStarting"/>
+    public OrderedResultEvent<NavigationStartingEventArgs, NavigationStartingResult> NavigationStarting { get; } = new();
     /// <inheritdoc cref="IInfiniFrameEventsStore.CopyTo"/>
     public void CopyTo(IInfiniFrameEventsStore target) {
         CopyHandlers(WebMessageReceived.Snapshot, target.WebMessageReceived.Add);
@@ -64,6 +66,7 @@ public record InfiniFrameEventsStore : IInfiniFrameEventsStore {
         CopyHandlers(WindowMinimized.Snapshot, target.WindowMinimized.Add);
         CopyHandlers(WindowRestored.Snapshot, target.WindowRestored.Add);
         CopyHandlers(WindowSizeChanged.Snapshot, target.WindowSizeChanged.Add);
+        CopyHandlers(NavigationStarting.Snapshot, target.NavigationStarting.Add);
     }
 
     // -----------------------------------------------------------------------------------------------------------------

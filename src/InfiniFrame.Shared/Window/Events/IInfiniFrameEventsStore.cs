@@ -92,6 +92,11 @@ public interface IInfiniFrameEventsStore {
     OrderedEvent WindowCreated { get; }
 
     /// <summary>
+    ///     Gets the event that fires when navigation is starting, allowing cancellation.
+    /// </summary>
+    OrderedResultEvent<NavigationStartingEventArgs, NavigationStartingResult> NavigationStarting { get; }
+
+    /// <summary>
     ///     Gets the keyed result event for handling custom scheme requests.
     /// </summary>
     KeyedResultEvent<string, string, (Stream? Data, string? ContentType)> CustomScheme { get; }

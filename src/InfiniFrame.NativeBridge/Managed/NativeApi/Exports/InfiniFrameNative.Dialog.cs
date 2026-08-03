@@ -142,7 +142,7 @@ public partial class InfiniFrameNative {
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_CancelDialog", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus CancelDialog(
-        IntPtr instance, ulong operationId, [MarshalAs(UnmanagedType.I1)] out bool cancelled
+        IntPtr instance, ulong operationId, [MarshalAs(UnmanagedType.I1)] out bool canceled
     );
 
     /// <summary>
