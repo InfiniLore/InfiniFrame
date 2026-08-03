@@ -359,7 +359,7 @@ gboolean on_webview_decide_policy(
         bool isRedirect = (navType == WEBKIT_NAVIGATION_TYPE_OTHER);
         bool isMainFrame = true;
 
-        int cancel = callback(uri, isUserInitiated ? 1 : 0, isRedirect ? 1 : 0, isMainFrame ? 1 : 0);
+        int cancel = callback((AutoString)uri, isUserInitiated ? 1 : 0, isRedirect ? 1 : 0, isMainFrame ? 1 : 0);
         if (cancel) {
             webkit_policy_decision_ignore(decision);
             return TRUE;
