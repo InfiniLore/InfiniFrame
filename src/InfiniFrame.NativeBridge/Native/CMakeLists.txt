@@ -63,6 +63,7 @@ set(COMMON_SOURCES
 
 set(TEST_SOURCES
         src/Api/Testing/Exports.Tests.cpp
+        src/Api/Testing/Exports.CustomSchemeResponseTests.cpp
 )
 
 set(WINDOWS_SOURCES

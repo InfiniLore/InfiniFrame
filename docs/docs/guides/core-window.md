@@ -524,6 +524,24 @@ builder.RegisterCustomSchemeHandler("app", (sender, scheme, url, out string? con
 - Additional handlers can be added after `Build()` via `window.RegisterCustomSchemeHandler(...)`.
 - Scheme names are lowercased automatically.
 
+### CORS and same-origin policy
+
+Custom scheme responses automatically include CORS headers when the request originates from the same origin (same scheme, host, and port). This allows `fetch()` and `XMLHttpRequest` to work without disabling web security.
+
+**Same-origin behavior** (e.g., `app://localhost` page fetching `app://localhost/data.json`):
+- `Access-Control-Allow-Origin: app://localhost`
+- `Access-Control-Allow-Credentials: true`
+- `Vary: Origin`
+
+**Cross-origin behavior** (e.g., `https://example.com` page fetching `app://localhost/data.json`):
+- No CORS headers are added
+- The browser engine may block the request entirely depending on web security settings
+
+**Platform notes:**
+- **Windows (WebView2):** CORS headers are built via `BuildCustomSchemeResponseHeaders` and set on the `ICoreWebView2WebResourceResponse`. The `app` scheme is registered with `TreatAsSecure(TRUE)` and `HasAuthorityComponent(TRUE)`.
+- **Linux (WebKitGTK):** The `app` scheme is registered as CORS-enabled via `webkit_security_manager_register_uri_scheme_as_cors_enabled()`. WebKitGTK handles CORS header injection natively.
+- **macOS (WKWebView):** CORS headers are built in the `UrlSchemeHandler` delegate using the same `IsSameOrigin` logic as Windows.
+
 ## Dialogs
 
 InfiniFrame exposes the native OS dialog system.
