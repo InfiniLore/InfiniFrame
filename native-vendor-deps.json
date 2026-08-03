@@ -3,7 +3,7 @@
     {
       "name": "simdjson",
       "repo": "simdjson/simdjson",
-      "tag": "v4.6.4",
+      "tag": "v4.6.6",
       "assets": [
         {
           "asset": "simdjson.h",
