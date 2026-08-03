@@ -78,7 +78,7 @@ public partial class InfiniFrameNative {
     internal static InfiniFrameNativeInteropStatus GetCurrentUrl(IntPtr instance, out string? url) {
         InfiniFrameNativeInteropStatus status = GetCurrentUrlPtr(instance, out IntPtr ptr);
         try {
-            url = PtrToNativeString(ptr);
+            url = MarshalNativeToString(ptr);
         }
         finally {
             if (ptr != IntPtr.Zero) {
