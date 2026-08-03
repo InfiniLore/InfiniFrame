@@ -25,6 +25,7 @@ internal sealed class InfiniFileDialogOperation {
     private readonly string _defaultPath;
     private readonly bool _multiSelect;
     private readonly string[] _filters;
+    private readonly string? _defaultFileName;
     private readonly CancellationToken _cancellationToken;
     private readonly string? _diagnosticKey;
     private readonly TaskCompletionSource<string?[]> _completion =
@@ -48,6 +49,7 @@ internal sealed class InfiniFileDialogOperation {
         string defaultPath,
         bool multiSelect,
         string[] filters,
+        string? defaultFileName,
         CancellationToken cancellationToken
     ) {
         _window = window;
@@ -57,6 +59,7 @@ internal sealed class InfiniFileDialogOperation {
         _defaultPath = defaultPath;
         _multiSelect = multiSelect;
         _filters = filters;
+        _defaultFileName = defaultFileName;
         _cancellationToken = cancellationToken;
         _diagnosticKey = (window as InfiniFrameWindow)?.BeginDiagnosticOperation(kind.ToString(), Id);
     }
@@ -79,7 +82,7 @@ internal sealed class InfiniFileDialogOperation {
                         _lease.Handle, Id, _title, _defaultPath, _multiSelect, CompletionCallback, context),
                     InfiniFileDialogKind.SaveFile => InfiniFrameNative.BeginShowSaveFile(
                         _lease.Handle, Id, _title, _defaultPath,
-                        _filters, _filters.Length, string.Empty, CompletionCallback, context),
+                        _filters, _filters.Length, _defaultFileName ?? string.Empty, CompletionCallback, context),
                     _ => InfiniFrameNativeInteropStatus.InvalidArgument
                 };
                 if (status != InfiniFrameNativeInteropStatus.Success)

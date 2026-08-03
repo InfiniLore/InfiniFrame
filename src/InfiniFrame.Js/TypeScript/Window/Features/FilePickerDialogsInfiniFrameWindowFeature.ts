@@ -17,7 +17,7 @@ export class FilePickerDialogsInfiniFrameWindowFeature extends InfiniFrameWindow
         return this.get<(string | null)[]>("showOpenFolder", {title, defaultPath, multiSelect});
     }
 
-    showSaveFileAsync(title = "Save file", defaultPath: string | null = null, filters: FilePickerFilter[] | null = null) {
-        return this.get<string | null>("showSaveFile", {title, defaultPath, filters});
+    showSaveFileAsync(title = "Save file", defaultPath: string | null = null, filters: FilePickerFilter[] | null = null, defaultFileName: string | null = null) {
+        return this.get<string | null>("showSaveFile", {title, defaultPath, filters, defaultFileName});
     }
 }

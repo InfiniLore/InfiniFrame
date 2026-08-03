@@ -61,9 +61,10 @@ public static class IFilePickerDialogsInfiniFrameWindowFeatureExtensions {
     /// <param name="title">The dialog title.</param>
     /// <param name="defaultPath">The default directory path.</param>
     /// <param name="filters">File extension filters.</param>
+    /// <param name="defaultFileName">The default file name to pre-populate in the save dialog.</param>
     /// <returns>The selected file path, or <c>null</c> if cancelled.</returns>
-    public static string? ShowSaveFile(this IInfiniFrameWindow window, string title = "Save file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null)
-        => window.Features.FilePickerDialogs.ShowSaveFile(title, defaultPath, filters);
+    public static string? ShowSaveFile(this IInfiniFrameWindow window, string title = "Save file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, string? defaultFileName = null)
+        => window.Features.FilePickerDialogs.ShowSaveFile(title, defaultPath, filters, defaultFileName);
 
     /// <summary>
     ///     Shows a save file dialog asynchronously and returns the selected file path.
@@ -72,8 +73,9 @@ public static class IFilePickerDialogsInfiniFrameWindowFeatureExtensions {
     /// <param name="title">The dialog title.</param>
     /// <param name="defaultPath">The default directory path.</param>
     /// <param name="filters">File extension filters.</param>
+    /// <param name="defaultFileName">The default file name to pre-populate in the save dialog.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>A task that resolves to the selected file path, or <c>null</c> if cancelled.</returns>
-    public static Task<string?> ShowSaveFileAsync(this IInfiniFrameWindow window, string title = "Choose file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default)
-        => window.Features.FilePickerDialogs.ShowSaveFileAsync(title, defaultPath, filters, ct);
+    public static Task<string?> ShowSaveFileAsync(this IInfiniFrameWindow window, string title = "Choose file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, string? defaultFileName = null, CancellationToken ct = default)
+        => window.Features.FilePickerDialogs.ShowSaveFileAsync(title, defaultPath, filters, defaultFileName, ct);
 }

@@ -561,7 +561,8 @@ string?[] folders = window.ShowOpenFolder("Select Folder", multiSelect: false);
 string? path = window.ShowSaveFile(
     title: "Save As",
     defaultPath: null,
-    filters: [("Text Files", ["txt"])]
+    filters: [("Text Files", ["txt"])],
+    defaultFileName: "document.txt"
 );
 ```
 

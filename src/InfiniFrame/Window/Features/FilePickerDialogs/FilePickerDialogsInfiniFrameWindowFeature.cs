@@ -26,7 +26,7 @@ public class FilePickerDialogsInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IFilePickerDialogsInfiniFrameWindowFeature.ShowOpenFileAsync" />
     public Task<string?[]> ShowOpenFileAsync(string title = DefaultFilePickerTitle, string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default)
-        => ShowDialogAsync(InfiniFileDialogKind.OpenFile, title, defaultPath, multiSelect, filters, ct);
+        => ShowDialogAsync(InfiniFileDialogKind.OpenFile, title, defaultPath, multiSelect, filters, null, ct);
 
     /// <inheritdoc cref="IFilePickerDialogsInfiniFrameWindowFeature.ShowOpenFolder" />
     public string?[] ShowOpenFolder(string title = DefaultFolderPickerTitle, string? defaultPath = null, bool multiSelect = false)
@@ -34,10 +34,10 @@ public class FilePickerDialogsInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IFilePickerDialogsInfiniFrameWindowFeature.ShowOpenFolderAsync" />
     public Task<string?[]> ShowOpenFolderAsync(string title = DefaultFolderPickerTitle, string? defaultPath = null, bool multiSelect = false, CancellationToken ct = default)
-        => ShowDialogAsync(InfiniFileDialogKind.OpenFolder, title, defaultPath, multiSelect, null, ct);
+        => ShowDialogAsync(InfiniFileDialogKind.OpenFolder, title, defaultPath, multiSelect, null, null, ct);
 
     /// <inheritdoc cref="IFilePickerDialogsInfiniFrameWindowFeature.ShowSaveFile" />
-    public string? ShowSaveFile(string title = DefaultSaveFilePickerTitle, string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null) {
+    public string? ShowSaveFile(string title = DefaultSaveFilePickerTitle, string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, string? defaultFileName = null) {
         if (window.IsClosedOrClosing()) return null;
 
         defaultPath ??= Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -54,15 +54,15 @@ public class FilePickerDialogsInfiniFrameWindowFeature(
             defaultPath,
             nativeFilters,
             filters.Length,
-            null// TODO actually assign this
+            defaultFileName
         );
 
         return result;
     }
 
     /// <inheritdoc cref="IFilePickerDialogsInfiniFrameWindowFeature.ShowSaveFileAsync" />
-    public Task<string?> ShowSaveFileAsync(string title = DefaultSaveFilePickerTitle, string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default)
-        => ShowSaveDialogAsync(title, defaultPath, filters, ct);
+    public Task<string?> ShowSaveFileAsync(string title = DefaultSaveFilePickerTitle, string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, string? defaultFileName = null, CancellationToken ct = default)
+        => ShowSaveDialogAsync(title, defaultPath, filters, defaultFileName, ct);
 
     private string?[] ShowOpenDialog(bool foldersOnly, string title, string? defaultPath, bool multiSelect, (string Name, string[] Extensions)[]? filters) {
         if (window.IsClosedOrClosing()) return [];
@@ -107,6 +107,7 @@ public class FilePickerDialogsInfiniFrameWindowFeature(
         string? defaultPath,
         bool multiSelect,
         (string Name, string[] Extensions)[]? filters,
+        string? defaultFileName,
         CancellationToken ct
     ) {
         ct.ThrowIfCancellationRequested();
@@ -115,7 +116,7 @@ public class FilePickerDialogsInfiniFrameWindowFeature(
         filters ??= [];
         var operation = new InfiniFileDialogOperation(
             window, logger, kind, title, defaultPath, multiSelect,
-            GetNativeFilters(filters, kind == InfiniFileDialogKind.OpenFolder), ct
+            GetNativeFilters(filters, kind == InfiniFileDialogKind.OpenFolder), defaultFileName, ct
         );
         _ = operation.StartAsync();
         return await operation.Task.WaitAsync(ct).ConfigureAwait(false);
@@ -125,10 +126,11 @@ public class FilePickerDialogsInfiniFrameWindowFeature(
         string title,
         string? defaultPath,
         (string Name, string[] Extensions)[]? filters,
+        string? defaultFileName,
         CancellationToken ct
     ) {
         string?[] values = await ShowDialogAsync(
-            InfiniFileDialogKind.SaveFile, title, defaultPath, false, filters, ct
+            InfiniFileDialogKind.SaveFile, title, defaultPath, false, filters, defaultFileName, ct
         ).ConfigureAwait(false);
         return values.FirstOrDefault();
     }
