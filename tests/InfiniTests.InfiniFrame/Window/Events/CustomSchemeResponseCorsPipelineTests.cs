@@ -26,7 +26,7 @@ public class CustomSchemeResponseCorsPipelineTests {
         int handled = events.OnCustomScheme("app://localhost/data.json", ref response);
         try {
             await Assert.That(handled).IsEqualTo(1);
-            string contentType = InfiniFrameNativeTesting.MarshalNativeToString(response.ContentTypeUtf8)!;
+            string contentType = Marshal.PtrToStringUTF8(response.ContentTypeUtf8)!;
 
             // Build headers via native function with same origin
             InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.BuildHeaders(
@@ -60,7 +60,7 @@ public class CustomSchemeResponseCorsPipelineTests {
         int handled = events.OnCustomScheme("app://localhost/data.json", ref response);
         try {
             await Assert.That(handled).IsEqualTo(1);
-            string contentType = InfiniFrameNativeTesting.MarshalNativeToString(response.ContentTypeUtf8)!;
+            string contentType = Marshal.PtrToStringUTF8(response.ContentTypeUtf8)!;
 
             // Build headers via native function with different origin
             InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.BuildHeaders(
@@ -93,7 +93,7 @@ public class CustomSchemeResponseCorsPipelineTests {
         int handled = events.OnCustomScheme("app://localhost/page.html", ref response);
         try {
             await Assert.That(handled).IsEqualTo(1);
-            string contentType = InfiniFrameNativeTesting.MarshalNativeToString(response.ContentTypeUtf8)!;
+            string contentType = Marshal.PtrToStringUTF8(response.ContentTypeUtf8)!;
 
             // Build headers via native function with empty origin
             InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.BuildHeaders(
@@ -124,7 +124,7 @@ public class CustomSchemeResponseCorsPipelineTests {
         int handled = events.OnCustomScheme("app://localhost/data.bin", ref response);
         try {
             await Assert.That(handled).IsEqualTo(1);
-            string contentType = InfiniFrameNativeTesting.MarshalNativeToString(response.ContentTypeUtf8)!;
+            string contentType = Marshal.PtrToStringUTF8(response.ContentTypeUtf8)!;
 
             // Build headers via native function with different port (same host)
             InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.BuildHeaders(
@@ -155,7 +155,7 @@ public class CustomSchemeResponseCorsPipelineTests {
         int handled = events.OnCustomScheme("app://localhost/page.txt", ref response);
         try {
             await Assert.That(handled).IsEqualTo(1);
-            string contentType = InfiniFrameNativeTesting.MarshalNativeToString(response.ContentTypeUtf8)!;
+            string contentType = Marshal.PtrToStringUTF8(response.ContentTypeUtf8)!;
 
             // Build headers via native function with different scheme
             InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.BuildHeaders(
@@ -200,8 +200,8 @@ public class CustomSchemeResponseCorsPipelineTests {
                 // Assert
                 await Assert.That(statusA).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
                 await Assert.That(statusB).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
-                string headerStringA = Marshal.PtrToStringUTF8(headersA)!;
-                string headerStringB = Marshal.PtrToStringUTF8(headersB)!;
+                string headerStringA = InfiniFrameNativeTesting.MarshalNativeToString(headersA)!;
+                string headerStringB = InfiniFrameNativeTesting.MarshalNativeToString(headersB)!;
                 await Assert.That(headerStringA).Contains("Access-Control-Allow-Origin: app://localhost");
                 await Assert.That(headerStringB).Contains("Access-Control-Allow-Origin: app://localhost");
             }

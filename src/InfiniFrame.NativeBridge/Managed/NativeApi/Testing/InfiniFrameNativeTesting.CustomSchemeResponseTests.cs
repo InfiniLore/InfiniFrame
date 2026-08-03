@@ -49,7 +49,7 @@ public static partial class InfiniFrameNativeTesting {
             return ParseOriginNative(valuePtr, out scheme, out host, out port, out valid);
         }
         finally {
-            FreeNativeString(valuePtr);
+            MarshalFreeNativeString(valuePtr);
         }
     }
 
@@ -64,8 +64,8 @@ public static partial class InfiniFrameNativeTesting {
             return IsSameOriginNative(leftPtr, rightPtr, out result);
         }
         finally {
-            FreeNativeString(leftPtr);
-            FreeNativeString(rightPtr);
+            MarshalFreeNativeString(leftPtr);
+            MarshalFreeNativeString(rightPtr);
         }
     }
 
@@ -82,19 +82,17 @@ public static partial class InfiniFrameNativeTesting {
             return BuildHeadersNative(contentTypePtr, resourceUriPtr, requestOriginPtr, out headers);
         }
         finally {
-            FreeNativeString(contentTypePtr);
-            FreeNativeString(resourceUriPtr);
-            FreeNativeString(requestOriginPtr);
+            MarshalFreeNativeString(contentTypePtr);
+            MarshalFreeNativeString(resourceUriPtr);
+            MarshalFreeNativeString(requestOriginPtr);
         }
     }
 
     internal static string? MarshalNativeToString(IntPtr ptr) {
         if (ptr == IntPtr.Zero) return null;
-#if WINDOWS
-        return Marshal.PtrToStringUni(ptr);
-#else
-        return Marshal.PtrToStringUTF8(ptr);
-#endif
+        return OperatingSystem.IsWindows()
+            ? Marshal.PtrToStringUni(ptr)
+            : Marshal.PtrToStringUTF8(ptr);
     }
 
     internal static InfiniFrameNativeInteropStatus FreeTestString(IntPtr value)
@@ -102,14 +100,12 @@ public static partial class InfiniFrameNativeTesting {
 
     private static IntPtr MarshalStringToNative(string? value) {
         if (value == null) return IntPtr.Zero;
-#if WINDOWS
-        return Marshal.StringToHGlobalUni(value);
-#else
-        return Marshal.StringToHGlobalAnsi(value);
-#endif
+        return OperatingSystem.IsWindows()
+            ? Marshal.StringToHGlobalUni(value)
+            : Marshal.StringToHGlobalAnsi(value);
     }
 
-    private static void FreeNativeString(IntPtr ptr) {
+    private static void MarshalFreeNativeString(IntPtr ptr) {
         if (ptr != IntPtr.Zero) Marshal.FreeHGlobal(ptr);
     }
 }
