@@ -75,7 +75,8 @@ const contracts: FeatureContract[] = [
         gets: [
             {method: "showOpenFileAsync", command: "showOpenFile", parameters: ["Open", "/tmp", true, [{name: "Text", extensions: ["txt"]}]], args: {title: "Open", defaultPath: "/tmp", multiSelect: true, filters: [{name: "Text", extensions: ["txt"]}]}, result: ["/tmp/a.txt"]},
             {method: "showOpenFolderAsync", command: "showOpenFolder", parameters: ["Folder", "/tmp", true], args: {title: "Folder", defaultPath: "/tmp", multiSelect: true}, result: ["/tmp"]},
-            {method: "showSaveFileAsync", command: "showSaveFile", parameters: ["Save", "/tmp/a.txt", null], args: {title: "Save", defaultPath: "/tmp/a.txt", filters: null}, result: "/tmp/a.txt"}
+            {method: "showSaveFileAsync", command: "showSaveFile", parameters: ["Save", "/tmp/a.txt", null, null], args: {title: "Save", defaultPath: "/tmp/a.txt", filters: null, defaultFileName: null}, result: "/tmp/a.txt"},
+            {method: "showSaveFileAsync", command: "showSaveFile", parameters: ["Save", "/tmp/a.txt", null, "document.txt"], args: {title: "Save", defaultPath: "/tmp/a.txt", filters: null, defaultFileName: "document.txt"}, result: "/tmp/a.txt"}
         ]
     },
     {

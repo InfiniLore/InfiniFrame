@@ -52,8 +52,9 @@ public interface IFilePickerDialogsInfiniFrameWindowFeature {
     /// <param name="title">The dialog title.</param>
     /// <param name="defaultPath">The default directory path.</param>
     /// <param name="filters">File extension filters.</param>
+    /// <param name="defaultFileName">The default file name to pre-populate in the save dialog.</param>
     /// <returns>The selected file path, or <c>null</c> if cancelled.</returns>
-    string? ShowSaveFile(string title = "Save file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null);
+    string? ShowSaveFile(string title = "Save file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, string? defaultFileName = null);
 
     /// <summary>
     ///     Shows a save file dialog asynchronously and returns the selected file path.
@@ -61,7 +62,8 @@ public interface IFilePickerDialogsInfiniFrameWindowFeature {
     /// <param name="title">The dialog title.</param>
     /// <param name="defaultPath">The default directory path.</param>
     /// <param name="filters">File extension filters.</param>
+    /// <param name="defaultFileName">The default file name to pre-populate in the save dialog.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>A task that resolves to the selected file path, or <c>null</c> if cancelled.</returns>
-    Task<string?> ShowSaveFileAsync(string title = "Choose file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default);
+    Task<string?> ShowSaveFileAsync(string title = "Choose file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, string? defaultFileName = null, CancellationToken ct = default);
 }
