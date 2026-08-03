@@ -20,11 +20,12 @@ internal sealed class FilePickerDialogsWebMessageDispatcher : WindowFeatureWebMe
         string? defaultPath = Arg<string?>(args, "defaultPath", null);
         WindowFeatureFilePickerFilter[]? filterDtos = Arg<WindowFeatureFilePickerFilter[]?>(args, "filters", null);
         (string Name, string[] Extensions)[]? filters = filterDtos?.Select(filter => (filter.Name, filter.Extensions)).ToArray();
+        string? defaultFileName = Arg<string?>(args, "defaultFileName", null);
 
         return command switch {
             "showOpenFile" => feature.ShowOpenFile(Arg(args, "title", "Choose file"), defaultPath, Arg(args, "multiSelect", false), filters),
             "showOpenFolder" => feature.ShowOpenFolder(Arg(args, "title", "Select folder"), defaultPath, Arg(args, "multiSelect", false)),
-            "showSaveFile" => feature.ShowSaveFile(Arg(args, "title", "Save file"), defaultPath, filters),
+            "showSaveFile" => feature.ShowSaveFile(Arg(args, "title", "Save file"), defaultPath, filters, defaultFileName),
             _ => throw Unsupported(command)
         };
     }
