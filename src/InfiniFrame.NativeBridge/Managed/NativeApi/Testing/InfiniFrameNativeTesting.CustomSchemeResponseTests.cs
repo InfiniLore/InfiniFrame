@@ -88,13 +88,6 @@ public static partial class InfiniFrameNativeTesting {
         }
     }
 
-    internal static string? MarshalNativeToString(IntPtr ptr) {
-        if (ptr == IntPtr.Zero) return null;
-        return OperatingSystem.IsWindows()
-            ? Marshal.PtrToStringUni(ptr)
-            : Marshal.PtrToStringUTF8(ptr);
-    }
-
     internal static InfiniFrameNativeInteropStatus FreeTestString(IntPtr value)
         => InfiniFrameNative.FreeString(value);
 

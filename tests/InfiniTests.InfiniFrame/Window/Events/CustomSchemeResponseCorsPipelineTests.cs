@@ -34,7 +34,7 @@ public class CustomSchemeResponseCorsPipelineTests {
             try {
                 // Assert
                 await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
-                string headerString = InfiniFrameNativeTesting.MarshalNativeToString(headers)!;
+                string headerString = InfiniFrameNative.MarshalNativeToString(headers)!;
                 await Assert.That(headerString).Contains("Content-Type: application/json");
                 await Assert.That(headerString).Contains("Access-Control-Allow-Origin: app://localhost");
                 await Assert.That(headerString).Contains("Access-Control-Allow-Credentials: true");
@@ -68,7 +68,7 @@ public class CustomSchemeResponseCorsPipelineTests {
             try {
                 // Assert
                 await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
-                string headerString = InfiniFrameNativeTesting.MarshalNativeToString(headers)!;
+                string headerString = InfiniFrameNative.MarshalNativeToString(headers)!;
                 await Assert.That(headerString).Contains("Content-Type: application/json");
                 await Assert.That(headerString).DoesNotContain("Access-Control-Allow-Origin");
                 await Assert.That(headerString).DoesNotContain("Access-Control-Allow-Credentials");
@@ -101,7 +101,7 @@ public class CustomSchemeResponseCorsPipelineTests {
             try {
                 // Assert
                 await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
-                string headerString = InfiniFrameNativeTesting.MarshalNativeToString(headers)!;
+                string headerString = InfiniFrameNative.MarshalNativeToString(headers)!;
                 await Assert.That(headerString).DoesNotContain("Access-Control-Allow-Origin");
             }
             finally {
@@ -132,7 +132,7 @@ public class CustomSchemeResponseCorsPipelineTests {
             try {
                 // Assert
                 await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
-                string headerString = InfiniFrameNativeTesting.MarshalNativeToString(headers)!;
+                string headerString = InfiniFrameNative.MarshalNativeToString(headers)!;
                 await Assert.That(headerString).DoesNotContain("Access-Control-Allow-Origin");
             }
             finally {
@@ -163,7 +163,7 @@ public class CustomSchemeResponseCorsPipelineTests {
             try {
                 // Assert
                 await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
-                string headerString = InfiniFrameNativeTesting.MarshalNativeToString(headers)!;
+                string headerString = InfiniFrameNative.MarshalNativeToString(headers)!;
                 await Assert.That(headerString).DoesNotContain("Access-Control-Allow-Origin");
             }
             finally {
@@ -200,8 +200,8 @@ public class CustomSchemeResponseCorsPipelineTests {
                 // Assert
                 await Assert.That(statusA).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
                 await Assert.That(statusB).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
-                string headerStringA = InfiniFrameNativeTesting.MarshalNativeToString(headersA)!;
-                string headerStringB = InfiniFrameNativeTesting.MarshalNativeToString(headersB)!;
+                string headerStringA = InfiniFrameNative.MarshalNativeToString(headersA)!;
+                string headerStringB = InfiniFrameNative.MarshalNativeToString(headersB)!;
                 await Assert.That(headerStringA).Contains("Access-Control-Allow-Origin: app://localhost");
                 await Assert.That(headerStringB).Contains("Access-Control-Allow-Origin: app://localhost");
             }

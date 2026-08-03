@@ -82,7 +82,7 @@ public partial class InfiniFrameNative {
     internal static InfiniFrameNativeInteropStatus ShowSaveFile(IntPtr instance, string title, string defaultPath, string[] filters, int filtersCount, string? defaultFileName, out string? value) {
         InfiniFrameNativeInteropStatus status = ShowSaveFilePtr(instance, title, defaultPath, filters, filtersCount, defaultFileName, out IntPtr ptrValue);
         try {
-            value = PtrToNativeString(ptrValue);
+            value = MarshalNativeToString(ptrValue);
         }
         finally {
             if (ptrValue != IntPtr.Zero) {
@@ -161,7 +161,7 @@ public partial class InfiniFrameNative {
             string?[] values = new string?[count];
             Marshal.Copy(valuesPtr, ptrArray, 0, count);
             for (int i = 0; i < count; i++) {
-                values[i] = PtrToNativeString(ptrArray[i]);
+                values[i] = MarshalNativeToString(ptrArray[i]);
             }
 
             return values;

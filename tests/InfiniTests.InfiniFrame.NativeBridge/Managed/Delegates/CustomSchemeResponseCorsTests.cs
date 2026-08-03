@@ -18,9 +18,9 @@ public class CustomSchemeResponseCorsTests {
             // Assert
             await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
             await Assert.That(valid).IsEqualTo(1);
-            await Assert.That(InfiniFrameNativeTesting.MarshalNativeToString(scheme)).IsEqualTo("app");
-            await Assert.That(InfiniFrameNativeTesting.MarshalNativeToString(host)).IsEqualTo("localhost");
-            await Assert.That(InfiniFrameNativeTesting.MarshalNativeToString(port)).IsEqualTo("");
+            await Assert.That(InfiniFrameNative.MarshalNativeToString(scheme)).IsEqualTo("app");
+            await Assert.That(InfiniFrameNative.MarshalNativeToString(host)).IsEqualTo("localhost");
+            await Assert.That(InfiniFrameNative.MarshalNativeToString(port)).IsEqualTo("");
         }
         finally {
             FreeIfNonZero(scheme);
@@ -38,9 +38,9 @@ public class CustomSchemeResponseCorsTests {
             // Assert
             await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
             await Assert.That(valid).IsEqualTo(1);
-            await Assert.That(InfiniFrameNativeTesting.MarshalNativeToString(scheme)).IsEqualTo("https");
-            await Assert.That(InfiniFrameNativeTesting.MarshalNativeToString(host)).IsEqualTo("example.com");
-            await Assert.That(InfiniFrameNativeTesting.MarshalNativeToString(port)).IsEqualTo("8443");
+            await Assert.That(InfiniFrameNative.MarshalNativeToString(scheme)).IsEqualTo("https");
+            await Assert.That(InfiniFrameNative.MarshalNativeToString(host)).IsEqualTo("example.com");
+            await Assert.That(InfiniFrameNative.MarshalNativeToString(port)).IsEqualTo("8443");
         }
         finally {
             FreeIfNonZero(scheme);
@@ -58,9 +58,9 @@ public class CustomSchemeResponseCorsTests {
             // Assert
             await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
             await Assert.That(valid).IsEqualTo(1);
-            await Assert.That(InfiniFrameNativeTesting.MarshalNativeToString(scheme)).IsEqualTo("http");
-            await Assert.That(InfiniFrameNativeTesting.MarshalNativeToString(host)).IsEqualTo("example.com");
-            await Assert.That(InfiniFrameNativeTesting.MarshalNativeToString(port)).IsEqualTo("80");
+            await Assert.That(InfiniFrameNative.MarshalNativeToString(scheme)).IsEqualTo("http");
+            await Assert.That(InfiniFrameNative.MarshalNativeToString(host)).IsEqualTo("example.com");
+            await Assert.That(InfiniFrameNative.MarshalNativeToString(port)).IsEqualTo("80");
         }
         finally {
             FreeIfNonZero(scheme);
@@ -78,9 +78,9 @@ public class CustomSchemeResponseCorsTests {
             // Assert
             await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
             await Assert.That(valid).IsEqualTo(1);
-            await Assert.That(InfiniFrameNativeTesting.MarshalNativeToString(scheme)).IsEqualTo("https");
-            await Assert.That(InfiniFrameNativeTesting.MarshalNativeToString(host)).IsEqualTo("example.com");
-            await Assert.That(InfiniFrameNativeTesting.MarshalNativeToString(port)).IsEqualTo("443");
+            await Assert.That(InfiniFrameNative.MarshalNativeToString(scheme)).IsEqualTo("https");
+            await Assert.That(InfiniFrameNative.MarshalNativeToString(host)).IsEqualTo("example.com");
+            await Assert.That(InfiniFrameNative.MarshalNativeToString(port)).IsEqualTo("443");
         }
         finally {
             FreeIfNonZero(scheme);
@@ -218,7 +218,7 @@ public class CustomSchemeResponseCorsTests {
         try {
             // Assert
             await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
-            string headerString = InfiniFrameNativeTesting.MarshalNativeToString(headers)!;
+            string headerString = InfiniFrameNative.MarshalNativeToString(headers)!;
             await Assert.That(headerString).Contains("Content-Type: application/json");
             await Assert.That(headerString).Contains("Access-Control-Allow-Origin: app://localhost");
             await Assert.That(headerString).Contains("Access-Control-Allow-Credentials: true");
@@ -237,7 +237,7 @@ public class CustomSchemeResponseCorsTests {
         try {
             // Assert
             await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
-            string headerString = InfiniFrameNativeTesting.MarshalNativeToString(headers)!;
+            string headerString = InfiniFrameNative.MarshalNativeToString(headers)!;
             await Assert.That(headerString).Contains("Content-Type: application/json");
             await Assert.That(headerString).DoesNotContain("Access-Control-Allow-Origin");
             await Assert.That(headerString).DoesNotContain("Access-Control-Allow-Credentials");
@@ -256,7 +256,7 @@ public class CustomSchemeResponseCorsTests {
         try {
             // Assert
             await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
-            string headerString = InfiniFrameNativeTesting.MarshalNativeToString(headers)!;
+            string headerString = InfiniFrameNative.MarshalNativeToString(headers)!;
             await Assert.That(headerString).Contains("Content-Type: text/plain");
             await Assert.That(headerString).DoesNotContain("Access-Control-Allow-Origin");
         }
