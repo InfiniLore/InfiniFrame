@@ -347,13 +347,13 @@ gboolean on_webview_decide_policy(
         if (callback == nullptr)
             return FALSE;
 
-        WebKitNavigationPolicyRequest* navRequest = WEBKIT_NAVIGATION_POLICY_REQUEST(decision);
-        const gchar* uri = webkit_navigation_policy_request_get_uri(navRequest);
+        WebKitNavigationPolicyDecision* navDecision = WEBKIT_NAVIGATION_POLICY_DECISION(decision);
+        WebKitNavigationAction* action = webkit_navigation_policy_decision_get_navigation_action(navDecision);
+        WebKitNavigationType navType = webkit_navigation_action_get_navigation_type(action);
+        WebKitURIRequest* request = webkit_navigation_action_get_request(action);
+        const gchar* uri = webkit_uri_request_get_uri(request);
         if (uri == nullptr)
             return FALSE;
-
-        WebKitNavigationAction* action = webkit_navigation_policy_get_navigation_action(navRequest);
-        WebKitNavigationType navType = webkit_navigation_action_get_navigation_action_type(action);
         bool isUserInitiated = (navType == WEBKIT_NAVIGATION_TYPE_LINK_CLICKED ||
                                 navType == WEBKIT_NAVIGATION_TYPE_FORM_SUBMITTED);
         bool isRedirect = (navType == WEBKIT_NAVIGATION_TYPE_OTHER);
