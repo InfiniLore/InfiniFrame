@@ -287,9 +287,31 @@ void InfiniFrameWindow::AttachWebView() {
                                     [this](ICoreWebView2*, ICoreWebView2NavigationStartingEventArgs* args) -> HRESULT {
                                         if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire) || args == nullptr)
                                             return S_OK;
+
                                         UINT64 navigationId = 0;
                                         args->get_NavigationId(&navigationId);
                                         BindNavigationBackendId(navigationId);
+
+                                        if (m_impl->_navigationStartingCallback == nullptr)
+                                            return S_OK;
+
+                                        wil::unique_cotaskmem_string uri;
+                                        args->get_Uri(&uri);
+                                        BOOL isUserInitiated = FALSE;
+                                        args->get_IsUserInitiated(&isUserInitiated);
+                                        BOOL isRedirected = FALSE;
+                                        args->get_IsRedirected(&isRedirected);
+
+                                        // WebView2 NavigationStartingEventArgs does not expose IsMainFrame.
+                                        // Default to TRUE (main frame) for the managed callback.
+                                        int isMainFrame = 1;
+
+                                        int cancel = m_impl->_navigationStartingCallback(
+                                            uri.get(), isUserInitiated ? 1 : 0, isRedirected ? 1 : 0, isMainFrame
+                                        );
+                                        if (cancel) {
+                                            args->put_Cancel(TRUE);
+                                        }
                                         return S_OK;
                                     }
                                 ).Get(),

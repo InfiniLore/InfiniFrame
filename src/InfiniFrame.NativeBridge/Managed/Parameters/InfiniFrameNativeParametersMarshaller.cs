@@ -64,6 +64,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal IntPtr CustomSchemeNames14;
         internal IntPtr CustomSchemeNames15;
         internal IntPtr CustomSchemeHandler;
+        internal IntPtr NavigationStartingHandler;
         internal int Left;
         internal int Top;
         internal int Width;
@@ -155,6 +156,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 CustomSchemeNames14 = GetCustomSchemeName(managed.CustomSchemeNames, 14),
                 CustomSchemeNames15 = GetCustomSchemeName(managed.CustomSchemeNames, 15),
                 CustomSchemeHandler = ToFunctionPtr(managed.CustomSchemeHandler),
+                NavigationStartingHandler = ToFunctionPtr(managed.NavigationStartingHandler),
                 Left = managed.Left,
                 Top = managed.Top,
                 Width = managed.Width,
@@ -202,7 +204,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         public Unmanaged ToUnmanaged() => _unmanaged;
 
         /// <summary>
-        ///     Frees CoTaskMem-allocated string pointers that were marshalled to the unmanaged struct.
+        ///     Frees CoTaskMem-allocated string pointers marshaled to the unmanaged struct.
         /// </summary>
         public void Free() {
             // CustomSchemeNames are unmanaged HGlobal pointers allocated by managed builders.
@@ -257,6 +259,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
             CppWebMessageReceivedDelegate webMessageReceived => Marshal.GetFunctionPointerForDelegate(webMessageReceived),
             CppDebugEventDelegate debugEvent => Marshal.GetFunctionPointerForDelegate(debugEvent),
             CppWebResourceRequestedDelegate webResourceRequested => Marshal.GetFunctionPointerForDelegate(webResourceRequested),
+            CppNavigationStartingDelegate navigationStarting => Marshal.GetFunctionPointerForDelegate(navigationStarting),
             _ => throw new ArgumentOutOfRangeException(nameof(callback), callback.GetType(), "Unsupported callback delegate type.")
         };
 

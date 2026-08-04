@@ -253,6 +253,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
         this->m_impl->_restoredCallback = params->RestoredHandler;
         this->m_impl->_debugEventCallback = params->DebugEventHandler;
         this->m_impl->_customSchemeCallback = params->CustomSchemeHandler;
+        this->m_impl->_navigationStartingCallback = params->NavigationStartingHandler;
 
         for (int i = 0; i < 16; ++i)
         {

@@ -1,21 +1,20 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Represents the result of a window closing operation.
+///     Represents the result of a navigation-starting operation.
 /// </summary>
-public enum WindowClosingResult {
+public enum NavigationStartingResult {
     /// <summary>
-    ///     The window should be closed.
+    ///     The navigation should be allowed.
     /// </summary>
-    Close = 0,
+    Allow = 0,
     /// <summary>
-    ///     The window closing should be canceled.
+    ///     The navigation should be canceled.
     /// </summary>
     Cancel = 1
 }

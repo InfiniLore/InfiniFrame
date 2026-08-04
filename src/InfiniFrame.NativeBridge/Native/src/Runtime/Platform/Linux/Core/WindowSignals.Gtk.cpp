@@ -329,3 +329,41 @@ void on_webview_size_allocate(GtkWidget* widget, GtkAllocation* allocation, gpoi
         );
     });
 }
+
+gboolean on_webview_decide_policy(
+    WebKitWebView* web_view, WebKitPolicyDecision* decision,
+    WebKitPolicyDecisionType decision_type, gpointer user_data
+) {
+    (void)web_view;
+    return infiniframe::linux_gtk::RunGtkCallbackNoThrow("decide-policy", FALSE, [&] -> gboolean {
+        if (user_data == nullptr || decision == nullptr)
+            return FALSE;
+
+        if (decision_type != WEBKIT_POLICY_DECISION_TYPE_NAVIGATION_ACTION)
+            return FALSE;
+
+        auto* instance = reinterpret_cast<InfiniFrameWindow*>(user_data);
+        NavigationStartingCallback callback = instance->GetNavigationStartingCallback();
+        if (callback == nullptr)
+            return FALSE;
+
+        WebKitNavigationPolicyDecision* navDecision = WEBKIT_NAVIGATION_POLICY_DECISION(decision);
+        WebKitNavigationAction* action = webkit_navigation_policy_decision_get_navigation_action(navDecision);
+        WebKitNavigationType navType = webkit_navigation_action_get_navigation_type(action);
+        WebKitURIRequest* request = webkit_navigation_action_get_request(action);
+        const gchar* uri = webkit_uri_request_get_uri(request);
+        if (uri == nullptr)
+            return FALSE;
+        bool isUserInitiated = (navType == WEBKIT_NAVIGATION_TYPE_LINK_CLICKED ||
+                                navType == WEBKIT_NAVIGATION_TYPE_FORM_SUBMITTED);
+        bool isRedirect = (navType == WEBKIT_NAVIGATION_TYPE_OTHER);
+        bool isMainFrame = true;
+
+        int cancel = callback((AutoString)uri, isUserInitiated ? 1 : 0, isRedirect ? 1 : 0, isMainFrame ? 1 : 0);
+        if (cancel) {
+            webkit_policy_decision_ignore(decision);
+            return TRUE;
+        }
+        return FALSE;
+    });
+}

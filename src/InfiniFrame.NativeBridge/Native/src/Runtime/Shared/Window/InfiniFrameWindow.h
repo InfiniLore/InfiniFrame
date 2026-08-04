@@ -292,6 +292,12 @@ class InfiniFrameWindow {
     void GetIgnoreCertificateErrorsEnabled(bool* enabled) const;
 
     /**
+         * @brief Get the navigation starting callback function pointer
+         * @return The callback, or nullptr if none is registered
+         */
+    [[nodiscard]] NavigationStartingCallback GetNavigationStartingCallback() const;
+
+    /**
          * @brief Get whether the window currently has keyboard focus
          * @param isFocused Output: true if the window is the foreground window
          */

@@ -44,6 +44,10 @@ void InfiniFrameWindow::GetIgnoreCertificateErrorsEnabled(bool* enabled) const {
     *enabled = ImplBase()->_ignoreCertificateErrorsEnabled;
 }
 
+NavigationStartingCallback InfiniFrameWindow::GetNavigationStartingCallback() const {
+    return ImplBase()->_navigationStartingCallback;
+}
+
 AutoString InfiniFrameWindow::GetIconFileName() const {
     return AllocateStringCopy(ImplBase()->_iconFileName);
 }

@@ -26,7 +26,7 @@ public static class HasInfiniFrameEventsStoreExtensions {
     }
 
     /// <summary>
-    ///     Registers a handler that is invoked when the window size changes.
+    ///     Registers a handler invoked when the window size changes.
     /// </summary>
     /// <param name="obj">The object with an events store.</param>
     /// <param name="handler">The handler to invoke with the window and new size.</param>
@@ -38,7 +38,7 @@ public static class HasInfiniFrameEventsStoreExtensions {
     }
 
     /// <summary>
-    ///     Registers a handler that is invoked when the window receives focus.
+    ///     Registers a handler invoked when the window receives focus.
     /// </summary>
     /// <param name="obj">The object with an events store.</param>
     /// <param name="handler">The handler to invoke with the window.</param>
@@ -50,7 +50,7 @@ public static class HasInfiniFrameEventsStoreExtensions {
     }
 
     /// <summary>
-    ///     Registers a handler that is invoked when the window is maximized.
+    ///     Registers a handler invoked when the window is maximized.
     /// </summary>
     /// <param name="obj">The object with an events store.</param>
     /// <param name="handler">The handler to invoke with the window.</param>
@@ -62,7 +62,7 @@ public static class HasInfiniFrameEventsStoreExtensions {
     }
 
     /// <summary>
-    ///     Registers a handler that is invoked when the window is restored.
+    ///     Registers a handler invoked when the window is restored.
     /// </summary>
     /// <param name="obj">The object with an events store.</param>
     /// <param name="handler">The handler to invoke with the window.</param>
@@ -74,7 +74,7 @@ public static class HasInfiniFrameEventsStoreExtensions {
     }
 
     /// <summary>
-    ///     Registers a handler that is invoked when the window loses focus.
+    ///     Registers a handler invoked when the window loses focus.
     /// </summary>
     /// <param name="obj">The object with an events store.</param>
     /// <param name="handler">The handler to invoke with the window.</param>
@@ -86,7 +86,7 @@ public static class HasInfiniFrameEventsStoreExtensions {
     }
 
     /// <summary>
-    ///     Registers a handler that is invoked when the window is minimized.
+    ///     Registers a handler invoked when the window is minimized.
     /// </summary>
     /// <param name="obj">The object with an events store.</param>
     /// <param name="handler">The handler to invoke with the window.</param>
@@ -148,7 +148,22 @@ public static class HasInfiniFrameEventsStoreExtensions {
     }
 
     /// <summary>
-    ///     Registers a handler that is invoked when the window closing is requested.
+    ///     Registers a handler that determines whether a navigation should be allowed or canceled.
+    /// </summary>
+    /// <param name="obj">The object with an events store.</param>
+    /// <param name="handler">
+    ///     The handler to invoke with the window and navigation args, returning a
+    ///     <see cref="NavigationStartingResult" />.
+    /// </param>
+    /// <typeparam name="T">The type of the object with an events store.</typeparam>
+    /// <returns>The same instance for chaining.</returns>
+    public static T RegisterNavigationStartingHandler<T>(this T obj, Func<IInfiniFrameWindow, NavigationStartingEventArgs, NavigationStartingResult> handler) where T : IHasInfiniFrameEventsStore {
+        obj.EventsStore.NavigationStarting.Add(handler);
+        return obj;
+    }
+
+    /// <summary>
+    ///     Registers a handler invoked when the window closing is requested.
     /// </summary>
     /// <param name="obj">The object with an events store.</param>
     /// <param name="handler">The handler to invoke with the window.</param>
@@ -175,7 +190,7 @@ public static class HasInfiniFrameEventsStoreExtensions {
     }
 
     /// <summary>
-    ///     Registers a handler that is invoked when the window is being created.
+    ///     Registers a handler invoked when the window is being created.
     /// </summary>
     /// <param name="obj">The object with an events store.</param>
     /// <param name="handler">The handler to invoke with the window.</param>
@@ -187,7 +202,7 @@ public static class HasInfiniFrameEventsStoreExtensions {
     }
 
     /// <summary>
-    ///     Registers a handler that is invoked when the window has been created.
+    ///     Registers a handler invoked when the window has been created.
     /// </summary>
     /// <param name="obj">The object with an events store.</param>
     /// <param name="handler">The handler to invoke with the window.</param>
@@ -199,7 +214,7 @@ public static class HasInfiniFrameEventsStoreExtensions {
     }
 
     /// <summary>
-    ///     Registers a handler that is invoked when the window has been closed.
+    ///     Registers a handler invoked when the window has been closed.
     /// </summary>
     /// <param name="obj">The object with an events store.</param>
     /// <param name="handler">The handler to invoke with the window.</param>

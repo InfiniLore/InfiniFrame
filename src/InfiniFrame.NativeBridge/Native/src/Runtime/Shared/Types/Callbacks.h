@@ -149,3 +149,13 @@ using FocusInCallback = void (*)();
 
 /** @brief Called when the window loses keyboard focus */
 using FocusOutCallback = void (*)();
+
+/**
+ * @brief Called when navigation is starting, allowing cancellation.
+ * @param url Platform-native URL (UTF-16 on Windows, UTF-8 on Unix); borrowed for the duration of the call
+ * @param isUserInitiated Non-zero if the navigation was initiated by the user (e.g. link click)
+ * @param isRedirect Non-zero if the navigation is the result of a redirect
+ * @param isMainFrame Non-zero if the navigation is in the main frame
+ * @return 0 to allow navigation, 1 to cancel
+ */
+using NavigationStartingCallback = int (*)(AutoString url, int isUserInitiated, int isRedirect, int isMainFrame);

@@ -3,11 +3,14 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Dialogs;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Notifications;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+[SuppressMessage("ReSharper", "MethodHasAsyncOverloadWithCancellation")]
+[SuppressMessage("ReSharper", "MethodHasAsyncOverload")]
 public class ShowMessageTests {
     [Test]
     [NotInParallelInfiniTests]
@@ -66,16 +69,16 @@ public class ShowMessageTests {
         await WaitForOutstandingOperation(window, "ShowMessage", ct);
         cancellation.Cancel();
 
-        bool cancelled = false;
+        bool canceled = false;
         try {
             await operation;
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested) {
-            cancelled = true;
+            canceled = true;
         }
 
         await WaitForOperationCompletion(window, ct);
-        await Assert.That(cancelled).IsTrue();
+        await Assert.That(canceled).IsTrue();
         await Assert.That(window.GetDebugDiagnostics().LastOperation?.FinalState).IsEqualTo("Cancelled");
     }
 
@@ -106,6 +109,6 @@ public class ShowMessageTests {
                 return;
             await Task.Delay(25, ct);
         }
-        throw new TimeoutException("The cancelled native dialog did not complete.");
+        throw new TimeoutException("The canceled native dialog did not complete.");
     }
 }

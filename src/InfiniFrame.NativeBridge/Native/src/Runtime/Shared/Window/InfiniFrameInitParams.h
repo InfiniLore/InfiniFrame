@@ -47,6 +47,7 @@ struct InfiniFrameInitParams {
     DebugEventCallback DebugEventHandler;
     AutoString CustomSchemeNames[MaxCustomSchemeNames]; // NOLINT(*-avoid-c-arrays)
     WebResourceRequestedCallback CustomSchemeHandler;
+    NavigationStartingCallback NavigationStartingHandler;
 
     // Position and size
     int Left;
