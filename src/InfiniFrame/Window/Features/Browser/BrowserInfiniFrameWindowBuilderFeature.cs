@@ -42,6 +42,9 @@ public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowB
     /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsSmoothScrollingEnabled"/>
     public bool IsSmoothScrollingEnabled { get; private set; } = true;
 
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsStatusBarEnabled"/>
+    public bool IsStatusBarEnabled { get; private set; } = true;
+
     /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.BrowserControlInitParameters"/>
     public string? BrowserControlInitParameters { get; private set; }
 
@@ -109,6 +112,11 @@ public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowB
         IsSmoothScrollingEnabled = enabled;
     }
 
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableStatusBar"/>
+    public void EnableStatusBar(bool enabled) {
+        IsStatusBarEnabled = enabled;
+    }
+
     /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.SetBrowserControlInitParameters"/>
     public void SetBrowserControlInitParameters(string? parameters) {
         BrowserControlInitParameters = parameters;
@@ -139,6 +147,7 @@ public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowB
         parameters.IgnoreCertificateErrorsEnabled = IsIgnoreCertificateErrorsEnabled;
         parameters.GrantBrowserPermissions = GrantBrowserPermissions;
         parameters.SmoothScrollingEnabled = IsSmoothScrollingEnabled;
+        parameters.StatusBarEnabled = IsStatusBarEnabled;
         parameters.BrowserControlInitParameters = BrowserControlInitParameters;
         parameters.TemporaryFilesPath = TemporaryFilesPath;
         parameters.WebView2RuntimePath = WebView2RuntimePath;

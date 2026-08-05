@@ -22,6 +22,10 @@ void InfiniFrameWindow::GetZoomEnabled(bool* enabled) const {
     *enabled = m_impl->_zoomEnabled;
 }
 
+void InfiniFrameWindow::GetStatusBarEnabled(bool* enabled) const {
+    *enabled = m_impl->_statusBarEnabled;
+}
+
 void InfiniFrameWindow::GetDevToolsEnabled(bool* enabled) const {
     WebKitSettings* settings = webkit_web_view_get_settings(WEBKIT_WEB_VIEW(m_impl->_webview));
     *enabled = webkit_settings_get_enable_developer_extras(settings);
@@ -241,6 +245,10 @@ void InfiniFrameWindow::SetUserAgent(const AutoString userAgent) {
 
 void InfiniFrameWindow::SetZoomEnabled(bool enabled) {
     m_impl->_zoomEnabled = enabled;
+}
+
+void InfiniFrameWindow::SetStatusBarEnabled(bool enabled) {
+    m_impl->_statusBarEnabled = enabled;
 }
 
 void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled) {

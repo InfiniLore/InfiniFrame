@@ -102,6 +102,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal byte MediaStreamEnabled;
         internal byte SmoothScrollingEnabled;
         internal byte IgnoreCertificateErrorsEnabled;
+        internal byte StatusBarEnabled;
         internal byte NotificationsEnabled;
         internal int Size;
     }
@@ -196,6 +197,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 MediaStreamEnabled = ToByte(managed.MediaStreamEnabled),
                 SmoothScrollingEnabled = ToByte(managed.SmoothScrollingEnabled),
                 IgnoreCertificateErrorsEnabled = ToByte(managed.IgnoreCertificateErrorsEnabled),
+                StatusBarEnabled = ToByte(managed.StatusBarEnabled),
                 NotificationsEnabled = ToByte(managed.NotificationsEnabled),
                 Size = managed.Size
             };

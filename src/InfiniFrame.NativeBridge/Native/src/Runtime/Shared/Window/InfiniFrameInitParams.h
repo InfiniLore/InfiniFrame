@@ -89,6 +89,7 @@ struct InfiniFrameInitParams {
     bool MediaStreamEnabled;
     bool SmoothScrollingEnabled;
     bool IgnoreCertificateErrorsEnabled;
+    bool StatusBarEnabled;
     bool NotificationsEnabled;
 
     // Struct size (for version checking)

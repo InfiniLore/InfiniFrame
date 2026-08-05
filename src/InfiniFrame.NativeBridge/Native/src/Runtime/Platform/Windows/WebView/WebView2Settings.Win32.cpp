@@ -22,6 +22,8 @@ HRESULT InfiniFrameWindow::ApplyInitialWebViewSettings() {
         SetZoomEnabled(false);
     if (!m_impl->_devToolsEnabled)
         SetDevToolsEnabled(false);
+    if (!m_impl->_statusBarEnabled)
+        SetStatusBarEnabled(false);
     if (m_impl->_transparentEnabled)
         SetTransparentEnabled(true);
     if (m_impl->_backgroundColorR != 0 || m_impl->_backgroundColorG != 0 || m_impl->_backgroundColorB != 0 || m_impl->_backgroundColorA != 0)
@@ -69,6 +71,19 @@ void InfiniFrameWindow::GetZoomEnabled(bool* enabled) const {
     if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings) {
         BOOL boolValue = FALSE;
         settings->get_IsZoomControlEnabled(&boolValue);
+        *enabled = (boolValue != FALSE);
+    }
+}
+
+void InfiniFrameWindow::GetStatusBarEnabled(bool* enabled) const {
+    if (!m_impl->_webviewWindow) {
+        *enabled = m_impl->_statusBarEnabled;
+        return;
+    }
+    wil::com_ptr<ICoreWebView2Settings> settings;
+    if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings) {
+        BOOL boolValue = FALSE;
+        settings->get_IsStatusBarEnabled(&boolValue);
         *enabled = (boolValue != FALSE);
     }
 }
@@ -145,6 +160,17 @@ void InfiniFrameWindow::SetZoomEnabled(const bool enabled) {
     wil::com_ptr<ICoreWebView2Settings> settings;
     if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings) {
         settings->put_IsZoomControlEnabled(enabled);
+        m_impl->_webviewWindow->Reload();
+    }
+}
+
+void InfiniFrameWindow::SetStatusBarEnabled(const bool enabled) {
+    m_impl->_statusBarEnabled = enabled;
+    if (!m_impl->_webviewWindow)
+        return;
+    wil::com_ptr<ICoreWebView2Settings> settings;
+    if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings) {
+        settings->put_IsStatusBarEnabled(enabled);
         m_impl->_webviewWindow->Reload();
     }
 }

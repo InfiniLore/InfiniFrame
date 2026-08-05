@@ -56,6 +56,11 @@ void InfiniFrameWindow::GetZoomEnabled(bool* enabled) const
     *enabled = m_impl->_zoomEnabled;
 }
 
+void InfiniFrameWindow::GetStatusBarEnabled(bool* enabled) const
+{
+    *enabled = m_impl->_statusBarEnabled;
+}
+
 void InfiniFrameWindow::GetDevToolsEnabled(bool* enabled) const
 {
     *enabled = m_impl->_devToolsEnabled;
@@ -321,6 +326,11 @@ void InfiniFrameWindow::SetZoomEnabled(bool enabled)
         InfiniFrameWebView* webView = (InfiniFrameWebView*)m_impl->_webview;
         [webView setInfiniFrameZoomEnabled:enabled ? YES : NO];
     }
+}
+
+void InfiniFrameWindow::SetStatusBarEnabled(bool enabled)
+{
+    m_impl->_statusBarEnabled = enabled;
 }
 
 void InfiniFrameWindow::SetIconFile(AutoString filename)

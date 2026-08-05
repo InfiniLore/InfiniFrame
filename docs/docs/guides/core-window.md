@@ -179,7 +179,29 @@ builder
     .SetMediaStreamEnabled(true)           // Camera/microphone access
     .SetSmoothScrollingEnabled()
     .EnableIgnoreCertificateErrors()
+    .EnableStatusBar(false)                // Suppress URL hover indicator (Windows only)
     .SetUserAgent("MyApp/1.0")
+```
+
+### Status Bar
+
+`EnableStatusBar(bool)` controls whether the URL hover status indicator (status bar) is shown at the bottom-left of the browser window when hovering over a hyperlink.
+
+- Default: `true` (status bar shown)
+- Platform support: **Windows only** (maps to `ICoreWebView2Settings.IsStatusBarEnabled`)
+- Linux/macOS: The flag is accepted and stored, but has no native effect (no WebKitGTK or WKWebView equivalent)
+
+```csharp
+// Builder (startup-only)
+builder.EnableStatusBar(false);                    // fluent extension
+builder.Features.Browser.EnableStatusBar(false);  // direct
+
+// Runtime (live window)
+window.EnableStatusBar(false);                     // fluent extension
+window.Features.Browser.EnableStatusBar(false);    // direct
+
+// Read
+bool enabled = window.Features.Browser.IsStatusBarEnabled; // default: true
 ```
 
 ### Certificate Error Handling

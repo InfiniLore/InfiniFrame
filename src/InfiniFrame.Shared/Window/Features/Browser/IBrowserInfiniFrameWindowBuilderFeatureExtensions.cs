@@ -120,6 +120,17 @@ public static class IBrowserInfiniFrameWindowBuilderFeatureExtensions {
     }
 
     /// <summary>
+    ///     Enables or disables the status bar (URL hover indicator) for the builder.
+    /// </summary>
+    /// <param name="builder">The builder instance.</param>
+    /// <param name="enabled">Whether the status bar should be enabled.</param>
+    /// <returns>The builder instance for chaining.</returns>
+    public static IInfiniFrameWindowBuilder EnableStatusBar(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
+        builder.Features.Browser.EnableStatusBar(enabled);
+        return builder;
+    }
+
+    /// <summary>
     ///     Sets the browser control initialization parameters for the builder.
     /// </summary>
     /// <param name="builder">The builder instance.</param>
