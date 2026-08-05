@@ -175,7 +175,8 @@ void InfiniFrameWindow::Impl::ConnectWindowSignals(InfiniFrameWindow* window) {
     g_signal_connect(G_OBJECT(_window), "focus-out-event", G_CALLBACK(on_focus_out_event), window);
 
     if (_dragDropEnabled) {
-        gtk_drag_dest_set(GTK_WIDGET(_window), GTK_DEST_DEFAULT_ALL, nullptr, 0, GDK_ACTION_COPY);
+        const GtkTargetEntry targets[] = {};
+        gtk_drag_dest_set(GTK_WIDGET(_window), GTK_DEST_DEFAULT_ALL, targets, 0, GDK_ACTION_COPY);
 
         g_signal_connect(G_OBJECT(_window), "drag-data-received",
             G_CALLBACK(+[](GtkWidget* /*widget*/, GdkDragContext* context, gint x, gint y,

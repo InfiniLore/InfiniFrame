@@ -78,7 +78,7 @@
     if (infiniFrame == nullptr) return NO;
     infiniframe::macos::NativeCallbackScope callbackScope;
 
-    NSPasteboard* pasteboard = sender.draggingpasteboard;
+    NSPasteboard* pasteboard = [sender draggingPasteboard];
     NSArray<NSURL*>* urls = [pasteboard readObjectsForClasses:@[[NSURL class]] options:nil];
 
     if (urls.count > 0) {
@@ -90,11 +90,11 @@
         }
 
         if (!paths.empty()) {
-            NSPoint dropPoint = sender.dragginglocation;
+            NSPoint dropPoint = [sender draggingLocation];
             std::vector<AutoString> autoStrings;
             autoStrings.reserve(paths.size());
             for (const auto& p : paths) {
-                autoStrings.push_back(p.c_str());
+                autoStrings.push_back(const_cast<AutoString>(p.c_str()));
             }
 
             infiniFrame->InvokeFileDropped(
