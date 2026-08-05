@@ -43,6 +43,10 @@ public class IgnoreCertificateErrorsTests {
         await Assert.That(initParameters.IgnoreCertificateErrorsEnabled).IsEqualTo(value);
     }
 
+    // NOTE: Direct runtime assignment of IgnoreCertificateErrors is not supported because the native layer
+    // only implements a getter (read from init params). The value is startup-only and cannot be changed
+    // after window creation. Use AtWindowStage_ThroughBuilderAssignment to test the builder-time path.
+    //
     // [Test]
     // [NotInParallelInfiniTests]
     // [Arguments(true)]

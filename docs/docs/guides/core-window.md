@@ -178,9 +178,22 @@ builder
     .SetJavascriptClipboardAccessEnabled(true)
     .SetMediaStreamEnabled(true)           // Camera/microphone access
     .SetSmoothScrollingEnabled()
-    .SetIgnoreCertificateErrorsEnabled()
+    .EnableIgnoreCertificateErrors()
     .SetUserAgent("MyApp/1.0")
 ```
+
+### Certificate Error Handling
+
+`EnableIgnoreCertificateErrors(bool)` controls whether SSL/TLS certificate errors are ignored by the browser engine.
+
+> ⚠️ **Security Warning**: Enabling this feature bypasses SSL/TLS certificate validation. Only use in controlled development/test scenarios. Never enable in production applications handling sensitive data.
+
+- This is a **startup-only** configuration and cannot be changed at runtime.
+- The builder default is `true`; the native layer default is `false`.
+- Platform-specific behavior:
+  - **Windows**: Passes `--ignore-certificate-errors` Chromium flag to WebView2
+  - **Linux**: Sets `WEBKIT_TLS_ERRORS_POLICY_IGNORE` on WebKit data manager
+  - **macOS**: Trusts all server certificates in `didReceiveAuthenticationChallenge:` delegate
 
 ## DevTools and Remote Debugging
 
