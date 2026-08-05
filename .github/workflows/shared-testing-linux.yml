@@ -139,7 +139,7 @@ jobs:
 
                       echo "Launching Weston (headless Wayland compositor)..."
                       weston --backend=headless --socket="$WAYLAND_DISPLAY" \
-                        --width=1920 --height=1080 --depth=24 \
+                        --width=1920 --height=1080 \
                         &> weston.log &
 
                       echo "Waiting for Wayland compositor..."
