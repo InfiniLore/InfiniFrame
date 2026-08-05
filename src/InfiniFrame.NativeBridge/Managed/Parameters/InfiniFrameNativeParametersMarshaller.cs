@@ -65,6 +65,8 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal IntPtr CustomSchemeNames15;
         internal IntPtr CustomSchemeHandler;
         internal IntPtr NavigationStartingHandler;
+        internal IntPtr DragDropHandler;
+        internal byte DragDropEnabled;
         internal int Left;
         internal int Top;
         internal int Width;
@@ -157,6 +159,8 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 CustomSchemeNames15 = GetCustomSchemeName(managed.CustomSchemeNames, 15),
                 CustomSchemeHandler = ToFunctionPtr(managed.CustomSchemeHandler),
                 NavigationStartingHandler = ToFunctionPtr(managed.NavigationStartingHandler),
+                DragDropHandler = ToFunctionPtr(managed.FileDroppedHandler),
+                DragDropEnabled = ToByte(managed.DragDropEnabled),
                 Left = managed.Left,
                 Top = managed.Top,
                 Width = managed.Width,
@@ -260,6 +264,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
             CppDebugEventDelegate debugEvent => Marshal.GetFunctionPointerForDelegate(debugEvent),
             CppWebResourceRequestedDelegate webResourceRequested => Marshal.GetFunctionPointerForDelegate(webResourceRequested),
             CppNavigationStartingDelegate navigationStarting => Marshal.GetFunctionPointerForDelegate(navigationStarting),
+            CppFileDroppedDelegate fileDropped => Marshal.GetFunctionPointerForDelegate(fileDropped),
             _ => throw new ArgumentOutOfRangeException(nameof(callback), callback.GetType(), "Unsupported callback delegate type.")
         };
 
