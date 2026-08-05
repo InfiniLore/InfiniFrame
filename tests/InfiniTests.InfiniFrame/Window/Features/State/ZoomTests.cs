@@ -47,7 +47,6 @@ public class ZoomTests {
     [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
-    [SkipOnLinux]
     public async Task AtWindowStage_DirectAssignment(bool value, CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -64,7 +63,6 @@ public class ZoomTests {
     [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
-    [SkipOnLinux]
     public async Task AtWindowStage_ExtensionAssignment(bool value, CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

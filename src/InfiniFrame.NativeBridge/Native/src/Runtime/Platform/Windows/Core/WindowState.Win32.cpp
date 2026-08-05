@@ -297,6 +297,11 @@ void InfiniFrameWindow::SetTopmost(const bool topmost) {
 }
 
 void InfiniFrameWindow::SetZoom(const int zoom) {
+    // Software guard: respect EnableZoom(false) to match cross-platform API semantics.
+    if (!m_impl->_zoomEnabled)
+        return;
+
+    // Clamp to valid range (25-500%) to match Linux/macOS behavior.
     if (zoom < 25 || zoom > 500)
         return;
 

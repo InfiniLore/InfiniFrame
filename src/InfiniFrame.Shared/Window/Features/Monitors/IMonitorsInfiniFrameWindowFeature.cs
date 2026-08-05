@@ -20,7 +20,11 @@ public interface IMonitorsInfiniFrameWindowFeature {
 
     /// <summary>
     ///     Gets the screen DPI of the main monitor.
+    ///     This value is read-only and reflects the per-monitor DPI
+    ///     as reported by the operating system. The standard minimum
+    ///     DPI is 96 (100% scaling). Higher values indicate display
+    ///     scaling (e.g., 192 for 200% scaling on a 4K display).
     /// </summary>
-    /// <returns>The DPI value of the main monitor.</returns>
+    /// <returns>The DPI value of the main monitor, guaranteed to be at least 96.</returns>
     int GetMainMonitorScreenDpi();
 }

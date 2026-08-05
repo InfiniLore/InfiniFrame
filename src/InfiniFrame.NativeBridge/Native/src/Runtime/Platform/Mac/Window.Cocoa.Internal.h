@@ -65,6 +65,7 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     // Flushed on the first didFinishNavigation callback.
     std::vector<std::string> _pendingWebMessages;
 
+    int _zoom = 100;
     CGFloat _preMaximizedWidth = 0;
     CGFloat _preMaximizedHeight = 0;
     CGFloat _preMaximizedXPosition = 0;
