@@ -81,6 +81,10 @@ public class InfiniFrameWindowFeaturesFactory(IServiceProvider provider) {
             Browser: new BrowserInfiniFrameWindowFeature(
                 window,
                 GetLogger<BrowserInfiniFrameWindowFeature>(provider)
+            ),
+            DragDrop: new DragDropInfiniFrameWindowFeature(
+                window,
+                GetLogger<DragDropInfiniFrameWindowFeature>(provider)
             )
         );
 }

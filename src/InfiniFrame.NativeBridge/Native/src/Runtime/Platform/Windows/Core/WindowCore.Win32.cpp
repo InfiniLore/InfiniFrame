@@ -194,6 +194,8 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     m_impl->_debugEventCallback = initParams->DebugEventHandler;
     m_impl->_customSchemeCallback = initParams->CustomSchemeHandler;
     m_impl->_navigationStartingCallback = initParams->NavigationStartingHandler;
+    m_impl->_fileDroppedCallback = initParams->DragDropHandler;
+    m_impl->_dragDropEnabled = initParams->DragDropEnabled;
 
     for (int i = 0; i < 16; ++i) {
         if (initParams->CustomSchemeNames[i] != nullptr)
@@ -296,6 +298,10 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     }
 
     m_impl->_dialog = std::make_unique<InfiniFrameDialog>(this);
+
+    if (initParams->DragDropEnabled) {
+        DragAcceptFiles(m_impl->_hWnd, TRUE);
+    }
 
     bool isAlreadyShown = initParams->Minimized || initParams->Maximized;
     Show(isAlreadyShown);

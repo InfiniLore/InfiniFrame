@@ -144,6 +144,14 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.FunctionPtr)]
     internal CppNavigationStartingDelegate? NavigationStartingHandler;
 
+    ///<summary>Set by InfiniFrameOptionsBuilder</summary>
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    internal CppFileDroppedDelegate? FileDroppedHandler;
+
+    ///<summary>OPTIONAL: Enables native drag-and-drop file handling. Default is false.</summary>
+    [MarshalAs(UnmanagedType.I1)]
+    internal bool DragDropEnabled;
+
     ///<summary>OPTIONAL: Initial window position in pixels. Default is 0. Can be overridden with UseOsDefaultLocation.</summary>
     [MarshalAs(UnmanagedType.I4)]
     internal int Left;

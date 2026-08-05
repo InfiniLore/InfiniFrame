@@ -159,3 +159,12 @@ using FocusOutCallback = void (*)();
  * @return 0 to allow navigation, 1 to cancel
  */
 using NavigationStartingCallback = int (*)(AutoString url, int isUserInitiated, int isRedirect, int isMainFrame);
+
+/**
+ * @brief Called when files are dropped onto the window.
+ * @param paths Array of file path strings (UTF-8 on Unix, UTF-16 on Windows)
+ * @param count Number of file paths
+ * @param x Screen X coordinate of drop location
+ * @param y Screen Y coordinate of drop location
+ */
+using FileDroppedCallback = void (*)(AutoString* paths, int count, int x, int y);

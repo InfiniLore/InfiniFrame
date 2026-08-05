@@ -85,6 +85,8 @@ void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameInitParams* 
     _debugEventCallback = initParams->DebugEventHandler;
     _customSchemeCallback = initParams->CustomSchemeHandler;
     _navigationStartingCallback = initParams->NavigationStartingHandler;
+    _fileDroppedCallback = initParams->DragDropHandler;
+    _dragDropEnabled = initParams->DragDropEnabled;
 
     _customSchemeNames.clear();
     for (auto* customSchemeName : initParams->CustomSchemeNames) {
@@ -171,6 +173,42 @@ void InfiniFrameWindow::Impl::ConnectWindowSignals(InfiniFrameWindow* window) {
     g_signal_connect(G_OBJECT(_window), "focus-in-event", G_CALLBACK(on_focus_in_event), window);
 
     g_signal_connect(G_OBJECT(_window), "focus-out-event", G_CALLBACK(on_focus_out_event), window);
+
+    if (_dragDropEnabled) {
+        const GtkTargetEntry targets[] = {};
+        gtk_drag_dest_set(GTK_WIDGET(_window), GTK_DEST_DEFAULT_ALL, targets, 0, GDK_ACTION_COPY);
+
+        g_signal_connect(G_OBJECT(_window), "drag-data-received",
+            G_CALLBACK(+[](GtkWidget* /*widget*/, GdkDragContext* context, gint x, gint y,
+                           GtkSelectionData* data, guint /*info*/, guint time, gpointer userData) {
+                auto* instance = static_cast<InfiniFrameWindow*>(userData);
+
+                gchar** uris = gtk_selection_data_get_uris(data);
+                if (uris) {
+                    int count = 0;
+                    while (uris[count]) count++;
+
+                    std::vector<std::string> paths;
+                    for (int i = 0; i < count; i++) {
+                        gchar* filename = g_filename_from_uri(uris[i], nullptr, nullptr);
+                        if (filename) {
+                            paths.push_back(filename);
+                            g_free(filename);
+                        }
+                    }
+
+                    std::vector<AutoString> autoStrings;
+                    autoStrings.reserve(paths.size());
+                    for (const auto& p : paths) {
+                        autoStrings.push_back(const_cast<AutoString>(p.c_str()));
+                    }
+
+                    instance->InvokeFileDropped(autoStrings.data(), static_cast<int>(autoStrings.size()), x, y);
+                }
+                g_free(uris);
+                gtk_drag_finish(context, TRUE, FALSE, time);
+            }), window);
+    }
 }
 
 void InfiniFrameWindow::Impl::ConnectWebViewSignals(InfiniFrameWindow* window) {

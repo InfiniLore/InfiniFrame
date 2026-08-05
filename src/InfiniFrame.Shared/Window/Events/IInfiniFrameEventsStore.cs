@@ -97,6 +97,11 @@ public interface IInfiniFrameEventsStore {
     OrderedResultEvent<NavigationStartingEventArgs, NavigationStartingResult> NavigationStarting { get; }
 
     /// <summary>
+    ///     Gets the event that fires when files are dropped onto the window.
+    /// </summary>
+    OrderedEvent<FileDroppedEventArgs> FileDropped { get; }
+
+    /// <summary>
     ///     Gets the keyed result event for handling custom scheme requests.
     /// </summary>
     KeyedResultEvent<string, string, (Stream? Data, string? ContentType)> CustomScheme { get; }

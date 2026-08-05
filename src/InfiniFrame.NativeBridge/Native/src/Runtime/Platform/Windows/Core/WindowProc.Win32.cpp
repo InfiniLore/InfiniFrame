@@ -4,6 +4,8 @@
 #include "Runtime/Platform/Windows/DarkMode.h"
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
 #include "Runtime/Shared/Operations/NativeOperation.h"
+#include "Runtime/Shared/Window/InfiniFrameWindow.h"
+#include <shellapi.h>
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -289,6 +291,35 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             );
             if (retained && *retained)
                 (*retained)->Execute();
+            return 0;
+        }
+        case WM_DROPFILES: {
+            if (auto* instance = LookupWindowInstance(hwnd)) {
+                HDROP hDrop = reinterpret_cast<HDROP>(wParam);
+                UINT fileCount = DragQueryFileW(hDrop, 0xFFFFFFFF, nullptr, 0);
+
+                std::vector<std::wstring> files;
+                files.reserve(fileCount);
+
+                for (UINT i = 0; i < fileCount; i++) {
+                    UINT pathLen = DragQueryFileW(hDrop, i, nullptr, 0);
+                    std::wstring path(pathLen + 1, L'\0');
+                    DragQueryFileW(hDrop, i, path.data(), pathLen + 1);
+                    files.push_back(path);
+                }
+
+                POINT pt;
+                DragQueryPoint(hDrop, &pt);
+                DragFinish(hDrop);
+
+                std::vector<AutoString> autoStrings;
+                autoStrings.reserve(files.size());
+                for (const auto& f : files) {
+                    autoStrings.push_back(const_cast<AutoString>(f.c_str()));
+                }
+
+                instance->InvokeFileDropped(autoStrings.data(), static_cast<int>(autoStrings.size()), pt.x, pt.y);
+            }
             return 0;
         }
     }

@@ -29,4 +29,12 @@ EXPORTED InteropStatus InfiniFrameNative_SetMovedCallback(InfiniFrameWindow* ins
 EXPORTED InteropStatus InfiniFrameNative_SetResizedCallback(InfiniFrameWindow* instance, const ResizedCallback callback) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetResizedCallback(callback); });
 }
+
+EXPORTED InteropStatus InfiniFrameNative_SetFileDroppedCallback(InfiniFrameWindow* instance, const FileDroppedCallback callback) {
+    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetFileDroppedCallback(callback); });
+}
+
+EXPORTED InteropStatus InfiniFrameNative_SetDragDropEnabled(InfiniFrameWindow* instance, const int enabled) {
+    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetDragDropEnabled(enabled != 0); });
+}
 }

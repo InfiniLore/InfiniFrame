@@ -345,6 +345,10 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
         [this->m_impl->_window setCollectionBehavior:
             [this->m_impl->_window collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
 
+        if (params->DragDropEnabled) {
+            [this->m_impl->_window registerForDraggedTypes:@[NSPasteboardTypeFileURL]];
+        }
+
         this->m_impl->_windowDelegate = [[WindowDelegate alloc] init];
         this->m_impl->_windowDelegate->infiniFrame = this;
         this->m_impl->_window.delegate = this->m_impl->_windowDelegate;

@@ -308,4 +308,16 @@ public static class HasInfiniFrameEventsStoreExtensions {
         return obj;
     }
 
+    /// <summary>
+    ///     Registers a handler invoked when files are dropped onto the window.
+    /// </summary>
+    /// <param name="obj">The object with an events store.</param>
+    /// <param name="handler">The handler to invoke with the window and file drop arguments.</param>
+    /// <typeparam name="T">The type of the object with an events store.</typeparam>
+    /// <returns>The same instance for chaining.</returns>
+    public static T RegisterFileDroppedHandler<T>(this T obj, Action<IInfiniFrameWindow, FileDroppedEventArgs> handler) where T : IHasInfiniFrameEventsStore {
+        obj.EventsStore.FileDropped.Add(handler);
+        return obj;
+    }
+
 }

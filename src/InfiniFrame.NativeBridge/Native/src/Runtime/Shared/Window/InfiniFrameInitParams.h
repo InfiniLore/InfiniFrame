@@ -48,6 +48,8 @@ struct InfiniFrameInitParams {
     AutoString CustomSchemeNames[MaxCustomSchemeNames]; // NOLINT(*-avoid-c-arrays)
     WebResourceRequestedCallback CustomSchemeHandler;
     NavigationStartingCallback NavigationStartingHandler;
+    FileDroppedCallback DragDropHandler;
+    bool DragDropEnabled;
 
     // Position and size
     int Left;

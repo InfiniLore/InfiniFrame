@@ -69,4 +69,24 @@ public partial class InfiniFrameNative {
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetResizedCallback", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus SetResizedCallback(IntPtr instance, CppResizedDelegate callback);
+
+    /// <summary>
+    ///     Sets the callback invoked when files are dropped onto the window.
+    /// </summary>
+    /// <param name="instance">The native window instance handle.</param>
+    /// <param name="callback">The file dropped delegate.</param>
+    /// <returns>A status code indicating success or failure.</returns>
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetFileDroppedCallback", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus SetFileDroppedCallback(IntPtr instance, CppFileDroppedDelegate callback);
+
+    /// <summary>
+    ///     Enables or disables file drag-and-drop on the window.
+    /// </summary>
+    /// <param name="instance">The native window instance handle.</param>
+    /// <param name="enabled">Whether to enable drag and drop.</param>
+    /// <returns>A status code indicating success or failure.</returns>
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetDragDropEnabled", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus SetDragDropEnabled(IntPtr instance, [MarshalAs(UnmanagedType.U1)] bool enabled);
 }

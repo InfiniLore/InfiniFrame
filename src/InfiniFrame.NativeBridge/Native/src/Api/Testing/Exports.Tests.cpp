@@ -66,6 +66,10 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         (*new_params)->CustomSchemeHandler = params->CustomSchemeHandler;
         memcpy((*new_params)->CustomSchemeNames, params->CustomSchemeNames, sizeof(params->CustomSchemeNames));
 
+        (*new_params)->NavigationStartingHandler = params->NavigationStartingHandler;
+        (*new_params)->DragDropHandler = params->DragDropHandler;
+        (*new_params)->DragDropEnabled = params->DragDropEnabled;
+
         (*new_params)->Left = params->Left;
         (*new_params)->Top = params->Top;
         (*new_params)->Width = params->Width;

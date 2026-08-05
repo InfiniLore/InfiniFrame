@@ -49,6 +49,8 @@ struct InfiniFrameWindowImpl {
     FocusOutCallback _focusOutCallback = nullptr;
     DebugEventCallback _debugEventCallback = nullptr;
     NavigationStartingCallback _navigationStartingCallback = nullptr;
+    FileDroppedCallback _fileDroppedCallback = nullptr;
+    bool _dragDropEnabled = false;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Feature flags
