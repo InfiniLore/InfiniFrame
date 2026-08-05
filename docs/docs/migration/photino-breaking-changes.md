@@ -13,6 +13,7 @@ This document walks through what changed to help you migrate.
 - [Event System](#event-system)
 - [Web Messaging and Message Routing](#web-messaging-and-message-routing)
 - [Web Security, CORS, and Trusted Origins](#web-security-cors-and-trusted-origins)
+- [Certificate Error Handling](#certificate-error-handling)
 - [Logging](#logging)
 - [Native C++ Interface](#native-c-interface)
 - [Known Photino Issues Addressed](#known-photino-issues-addressed)
@@ -265,6 +266,45 @@ var app = InfiniFrameBlazorAppBuilder.CreateDefault(windowBuilder: wb => {
 | Replace trusted origin list         | `builder.SetTrustedOrigins("https://a", "https://b")` |
 | Trust all origins (explicit opt-in) | `builder.SetTrustAllOrigins(true)`                    |
 | Browser engine security toggle      | `builder.SetWebSecurityEnabled(bool)`                 |
+
+## Certificate Error Handling
+
+### Photino: no built-in API
+
+Photino had no built-in API for bypassing SSL/certificate errors. Users needed custom handling, often involving raw browser startup arguments or platform-specific workarounds.
+
+### InfiniFrame: first-class API
+
+InfiniFrame provides a first-class `EnableIgnoreCertificateErrors(bool)` API:
+
+```csharp
+var window = InfiniFrameWindowBuilder.Create()
+    .EnableIgnoreCertificateErrors(true) // Default: true in builder
+    .Build();
+```
+
+- **Builder-time configuration only** — like Photino's behavior, this is startup-only and cannot be changed at runtime.
+- **Default is `true`** in the builder, `false` in the native layer.
+- **Platform-specific behavior**:
+  - Windows: Passes `--ignore-certificate-errors` Chromium flag to WebView2
+  - Linux: Sets `WEBKIT_TLS_ERRORS_POLICY_IGNORE` on WebKit data manager
+  - macOS: Trusts all server certificates in `didReceiveAuthenticationChallenge:` delegate
+
+### Migration pattern
+
+Replace custom certificate bypass code with the builder API:
+
+```csharp
+// Before (Photino custom workaround)
+// window.SetBrowserControlInitParameters("--ignore-certificate-errors");
+
+// After (InfiniFrame)
+var window = InfiniFrameWindowBuilder.Create()
+    .EnableIgnoreCertificateErrors(true)
+    .Build();
+```
+
+> ⚠️ **Security Warning**: Enabling this feature bypasses SSL/TLS certificate validation. Only use in controlled development/test scenarios. Never enable in production applications handling sensitive data.
 
 ## Logging
 
