@@ -45,6 +45,7 @@ void InfiniFrameWindow::AttachWebView()
     InfiniFrameWebView* infiniFrameWebView = (InfiniFrameWebView*)m_impl->_webview;
     [infiniFrameWebView setInfiniFrameContextMenuEnabled:m_impl->_contextMenuEnabled ? YES : NO];
     [infiniFrameWebView setInfiniFrameZoomEnabled:m_impl->_zoomEnabled ? YES : NO];
+    [m_impl->_webview setMagnification: m_impl->_zoom / 100.0];
     SetTransparentEnabled(m_impl->_transparentEnabled);
     if (m_impl->_backgroundColorR != 0 || m_impl->_backgroundColorG != 0 || m_impl->_backgroundColorB != 0 || m_impl->_backgroundColorA != 0)
         SetBackgroundColor(m_impl->_backgroundColorR, m_impl->_backgroundColorG, m_impl->_backgroundColorB, m_impl->_backgroundColorA);

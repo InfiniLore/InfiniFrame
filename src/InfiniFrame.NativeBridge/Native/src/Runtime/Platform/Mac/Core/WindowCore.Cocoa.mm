@@ -230,6 +230,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
         this->m_impl->_ignoreCertificateErrorsEnabled = params->IgnoreCertificateErrorsEnabled;
         this->m_impl->_contextMenuEnabled = params->ContextMenuEnabled;
         this->m_impl->_zoomEnabled = params->ZoomEnabled;
+        this->m_impl->_zoom = params->Zoom;
         this->m_impl->_devToolsEnabled = params->DevToolsEnabled;
         this->m_impl->_webInspectorEnabled = params->WebInspectorEnabled;
         this->m_impl->_grantBrowserPermissions = params->GrantBrowserPermissions;

@@ -240,7 +240,7 @@ void InfiniFrameWindow::SetUserAgent(const AutoString userAgent) {
 }
 
 void InfiniFrameWindow::SetZoomEnabled(bool enabled) {
-    (void)enabled;
+    m_impl->_zoomEnabled = enabled;
 }
 
 void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled) {
@@ -337,6 +337,15 @@ void InfiniFrameWindow::SetTopmost(const bool topmost) {
 }
 
 void InfiniFrameWindow::SetZoom(const int zoom) {
+    // Software guard: respect EnableZoom(false) to match cross-platform API semantics.
+    if (!m_impl->_zoomEnabled)
+        return;
+
+    // Clamp to valid range (25-500%) to match Windows/macOS behavior.
+    if (zoom < 25 || zoom > 500)
+        return;
+
+    m_impl->_zoom = zoom;
     double newZoom = zoom / 100.0;
     webkit_web_view_set_zoom_level(WEBKIT_WEB_VIEW(m_impl->_webview), newZoom);
 }

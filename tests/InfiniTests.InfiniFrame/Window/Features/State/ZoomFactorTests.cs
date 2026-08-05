@@ -11,7 +11,10 @@ namespace InfiniTests.InfiniFrame.Window.Features.State;
 public class ZoomFactorTests {
 
     [Test]
+    [Arguments(50)]
     [Arguments(100)]
+    [Arguments(150)]
+    [Arguments(200)]
     public async Task AtBuilderStage_DirectAssignment(int value, CancellationToken ct) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -26,7 +29,10 @@ public class ZoomFactorTests {
     }
 
     [Test]
+    [Arguments(50)]
     [Arguments(100)]
+    [Arguments(150)]
+    [Arguments(200)]
     public async Task AtBuilderStage_ExtensionAssignment(int value, CancellationToken ct) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -43,7 +49,10 @@ public class ZoomFactorTests {
 
     [Test]
     [NotInParallelInfiniTests]
+    [Arguments(50)]
     [Arguments(100)]
+    [Arguments(150)]
+    [Arguments(200)]
     public async Task AtWindowStage_DirectAssignment(int value, CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -58,7 +67,10 @@ public class ZoomFactorTests {
 
     [Test]
     [NotInParallelInfiniTests]
+    [Arguments(50)]
     [Arguments(100)]
+    [Arguments(150)]
+    [Arguments(200)]
     public async Task AtWindowStage_ExtensionAssignment(int value, CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -74,7 +86,10 @@ public class ZoomFactorTests {
 
     [Test]
     [NotInParallelInfiniTests]
+    [Arguments(50)]
     [Arguments(100)]
+    [Arguments(150)]
+    [Arguments(200)]
     public async Task AtWindowStage_ThroughBuilderAssignment(int value, CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {

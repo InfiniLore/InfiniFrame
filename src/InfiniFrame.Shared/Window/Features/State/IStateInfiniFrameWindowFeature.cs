@@ -35,11 +35,19 @@ public interface IStateInfiniFrameWindowFeature {
 
     /// <summary>
     ///     Gets the current zoom factor of the window content.
+    ///     The value is a percentage where 100 represents no zoom.
+    ///     Valid range is 25 to 500 inclusive. Values outside this range
+    ///     are rejected by the native layer on all platforms.
     /// </summary>
     int ZoomFactor { get; }
 
     /// <summary>
     ///     Gets whether zoom is currently enabled for the window.
+    ///     When disabled, programmatic calls to <see cref="SetZoomFactor"/> are
+    ///     silently ignored. On Windows, this also disables Ctrl+Scroll zoom.
+    ///     On macOS, native pinch-to-zoom gestures are also suppressed.
+    ///     On Linux, native Ctrl+Scroll gestures cannot be suppressed at
+    ///     the WebKit2GTK level, but programmatic zoom changes are blocked.
     /// </summary>
     bool IsZoomEnabled { get; }
 
@@ -84,11 +92,16 @@ public interface IStateInfiniFrameWindowFeature {
     /// <summary>
     ///     Sets the zoom factor for the window content.
     /// </summary>
-    /// <param name="zoom">The zoom factor percentage.</param>
+    /// <param name="zoom">The zoom factor percentage. Valid range is 25 to 500 inclusive.</param>
     void SetZoomFactor(int zoom);
 
     /// <summary>
     ///     Sets whether zoom is enabled for the window.
+    ///     When disabled, programmatic calls to <see cref="SetZoomFactor"/> are
+    ///     silently ignored. On Windows, this also disables Ctrl+Scroll zoom.
+    ///     On macOS, native pinch-to-zoom gestures are also suppressed.
+    ///     On Linux, native Ctrl+Scroll gestures cannot be suppressed at
+    ///     the WebKit2GTK level, but programmatic zoom changes are blocked.
     /// </summary>
     /// <param name="zoomEnabled">Whether zoom should be enabled.</param>
     void EnableZoom(bool zoomEnabled = true);

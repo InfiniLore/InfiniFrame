@@ -451,6 +451,15 @@ void InfiniFrameWindow::SetTopmost(bool topmost)
 
 void InfiniFrameWindow::SetZoom(int zoom)
 {
+    // Software guard: respect EnableZoom(false) to match cross-platform API semantics.
+    if (!m_impl->_zoomEnabled)
+        return;
+
+    // Clamp to valid range (25-500%) to match Windows/Linux behavior.
+    if (zoom < 25 || zoom > 500)
+        return;
+
+    m_impl->_zoom = zoom;
     CGFloat newZoom = zoom / 100.0;
     [m_impl->_webview setMagnification: newZoom];
 }
