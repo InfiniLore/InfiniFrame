@@ -22,9 +22,11 @@ public class WindowFeatureParityTests {
                 "IsIgnoreCertificateErrorsEnabled",
                 "GrantBrowserPermissions",
                 "IsSmoothScrollingEnabled",
+                "IsStatusBarEnabled",
                 "BrowserControlInitParameters",
                 "EnableContextMenu",
                 "EnableMediaAutoplay",
+                "EnableStatusBar",
                 "SetUserAgent",
                 "Win32SetWebView2Path",
                 "ClearBrowserAutoFill"

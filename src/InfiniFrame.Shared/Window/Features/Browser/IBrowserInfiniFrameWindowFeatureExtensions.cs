@@ -7,6 +7,17 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class IBrowserInfiniFrameWindowFeatureExtensions {
     /// <summary>
+    ///     Enables or disables the status bar (URL hover indicator) for the window.
+    /// </summary>
+    /// <param name="window">The window instance.</param>
+    /// <param name="enabled">Whether the status bar should be enabled.</param>
+    /// <returns>The window instance for chaining.</returns>
+    public static IInfiniFrameWindow EnableStatusBar(this IInfiniFrameWindow window, bool enabled = true) {
+        window.Features.Browser.EnableStatusBar(enabled);
+        return window;
+    }
+
+    /// <summary>
     ///     Enables or disables the context menu for the window.
     /// </summary>
     /// <param name="window">The window instance.</param>

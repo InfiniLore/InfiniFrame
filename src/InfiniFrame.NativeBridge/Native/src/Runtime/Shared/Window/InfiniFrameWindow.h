@@ -210,6 +210,12 @@ class InfiniFrameWindow {
     void GetSmoothScrollingEnabled(bool* enabled) const;
 
     /**
+         * @brief Get whether the status bar (URL hover indicator) is enabled
+         * @param enabled Output: true if the status bar is shown
+         */
+    void GetStatusBarEnabled(bool* enabled) const;
+
+    /**
          * @brief Get the window icon file path
          * @return UTF-8 path to the icon file; caller must free with InfiniFrameNative_FreeString
          */
@@ -393,6 +399,12 @@ class InfiniFrameWindow {
          * @param enabled true to allow pinch/keyboard zoom
          */
     void SetZoomEnabled(bool enabled);
+
+    /**
+         * @brief Enable or disable the status bar (URL hover indicator)
+         * @param enabled true to show the status bar
+         */
+    void SetStatusBarEnabled(bool enabled);
 
     /**
          * @brief Enable or disable media autoplay

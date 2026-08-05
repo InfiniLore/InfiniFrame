@@ -104,12 +104,32 @@ public class BrowserInfiniFrameWindowFeature(
         InfiniFrameNative.GetSmoothScrollingEnabled
     );
 
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowFeature.IsStatusBarEnabled" />
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool IsStatusBarEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(
+        logger,
+        window,
+        window.ManagedThreadId,
+        InfiniFrameNative.GetStatusBarEnabled
+    );
+
     /// <inheritdoc cref="IBrowserInfiniFrameWindowFeature.BrowserControlInitParameters" />
     public string? BrowserControlInitParameters => window.Configuration.StartupParameters.BrowserControlInitParameters;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowFeature.EnableStatusBar" />
+    public void EnableStatusBar(bool enabled = true) {
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window,
+            window.ManagedThreadId,
+            InfiniFrameNative.SetStatusBarEnabled,
+            enabled
+        );
+    }
+
     /// <inheritdoc cref="IBrowserInfiniFrameWindowFeature.EnableContextMenu" />
     public void EnableContextMenu(bool enabled = true) {
         logger.LogDebug(".EnableContextMenu({Enabled})", enabled);

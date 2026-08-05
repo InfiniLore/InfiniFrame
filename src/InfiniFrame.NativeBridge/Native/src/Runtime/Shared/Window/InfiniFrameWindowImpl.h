@@ -68,6 +68,7 @@ struct InfiniFrameWindowImpl {
     bool _mediaStreamEnabled = false;
     bool _smoothScrollingEnabled = true;
     bool _ignoreCertificateErrorsEnabled = false;
+    bool _statusBarEnabled = true;
     int _remoteDebuggingPort = 0;
 
     // -----------------------------------------------------------------------------------------------------------------

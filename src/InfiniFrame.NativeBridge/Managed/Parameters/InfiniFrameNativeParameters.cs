@@ -343,6 +343,10 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.I1)]
     internal bool IgnoreCertificateErrorsEnabled;
 
+    ///<summary>OPTIONAL: If true, the status bar (URL hover indicator) is shown. Default is true.</summary>
+    [MarshalAs(UnmanagedType.I1)]
+    internal bool StatusBarEnabled;
+
     /// <summary>
     ///     WINDOWS: OPTIONAL: If true, toast notifications are allowed on Windows by calling ShowNotification. Requires
     ///     registering the app with Windows, which is not always desirable as it creates shortcuts, etc. Default is true.

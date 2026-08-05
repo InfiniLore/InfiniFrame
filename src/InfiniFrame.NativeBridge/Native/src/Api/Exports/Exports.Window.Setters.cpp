@@ -30,6 +30,10 @@ EXPORTED InteropStatus InfiniFrameNative_SetZoomEnabled(InfiniFrameWindow* insta
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetZoomEnabled(enabled); });
 }
 
+EXPORTED InteropStatus InfiniFrameNative_SetStatusBarEnabled(InfiniFrameWindow* instance, const bool enabled) {
+    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetStatusBarEnabled(enabled); });
+}
+
 EXPORTED InteropStatus InfiniFrameNative_SetDevToolsEnabled(InfiniFrameWindow* instance, const bool enabled) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetDevToolsEnabled(enabled); });
 }

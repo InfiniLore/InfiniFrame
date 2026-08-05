@@ -57,6 +57,11 @@ public interface IBrowserInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBui
     bool IsSmoothScrollingEnabled { get; }
 
     /// <summary>
+    ///     Gets whether the status bar (URL hover indicator) is enabled.
+    /// </summary>
+    bool IsStatusBarEnabled { get; }
+
+    /// <summary>
     ///     Gets the browser control initialization parameters.
     /// </summary>
     string? BrowserControlInitParameters { get; }
@@ -133,6 +138,12 @@ public interface IBrowserInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBui
     /// </summary>
     /// <param name="enabled">Whether smooth scrolling should be enabled.</param>
     void EnableSmoothScrolling(bool enabled);
+
+    /// <summary>
+    ///     Enables or disables the status bar (URL hover indicator).
+    /// </summary>
+    /// <param name="enabled">Whether the status bar should be enabled.</param>
+    void EnableStatusBar(bool enabled);
 
     /// <summary>
     ///     Sets the browser control initialization parameters.

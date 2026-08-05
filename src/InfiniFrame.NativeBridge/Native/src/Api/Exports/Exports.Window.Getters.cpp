@@ -136,6 +136,15 @@ EXPORTED InteropStatus InfiniFrameNative_GetSmoothScrollingEnabled(InfiniFrameWi
     });
 }
 
+EXPORTED InteropStatus InfiniFrameNative_GetStatusBarEnabled(InfiniFrameWindow* instance, bool* enabled) {
+    ResetOut(enabled, false);
+    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+        if (!EnsureOutNotNull(enabled, "enabled"))
+            return;
+        window->GetStatusBarEnabled(enabled);
+    });
+}
+
 EXPORTED InteropStatus InfiniFrameNative_GetMaximized(InfiniFrameWindow* instance, bool* isMaximized) {
     ResetOut(isMaximized, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {

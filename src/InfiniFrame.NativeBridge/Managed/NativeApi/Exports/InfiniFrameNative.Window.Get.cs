@@ -130,6 +130,16 @@ public partial class InfiniFrameNative {
     internal static partial InfiniFrameNativeInteropStatus GetSmoothScrollingEnabled(IntPtr instance, [MarshalAs(UnmanagedType.I1)] out bool enabled);
 
     /// <summary>
+    ///     Gets whether the status bar (URL hover indicator) is enabled.
+    /// </summary>
+    /// <param name="instance">The native window instance handle.</param>
+    /// <param name="enabled">Whether the status bar is enabled.</param>
+    /// <returns>A status code indicating success or failure.</returns>
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_GetStatusBarEnabled", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus GetStatusBarEnabled(IntPtr instance, [MarshalAs(UnmanagedType.I1)] out bool enabled);
+
+    /// <summary>
     ///     Gets whether certificate errors are ignored.
     /// </summary>
     /// <param name="instance">The native window instance handle.</param>
