@@ -23,7 +23,7 @@ on:
 
 jobs:
     linux:
-        name: CI Testing - Linux (${{ matrix.arch }})
+        name: CI Testing - Linux (${{ matrix.arch }}/${{ matrix.display_server }})
         runs-on: ${{ matrix.os }}
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -34,10 +34,22 @@ jobs:
                 include:
                     -   os: ubuntu-latest
                         arch: x64
+                        display_server: x11
+                        libName: linux
+                        rid: linux-x64
+                    -   os: ubuntu-latest
+                        arch: x64
+                        display_server: wayland
                         libName: linux
                         rid: linux-x64
                     -   os: ubuntu-24.04-arm
                         arch: arm64
+                        display_server: x11
+                        libName: linux
+                        rid: linux-arm64
+                    -   os: ubuntu-24.04-arm
+                        arch: arm64
+                        display_server: wayland
                         libName: linux
                         rid: linux-arm64
         permissions:
@@ -65,7 +77,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Linux/${{ matrix.arch }}
+                    context: CI Testing - Linux/${{ matrix.arch }}/${{ matrix.display_server }}
                     state: pending
                     status-description: Linux tests in progress
                     target-url: ${{ inputs.workflow_url }}
@@ -78,6 +90,12 @@ jobs:
 
             -   name: Compile GSettings schemas
                 run: sudo glib-compile-schemas /usr/share/glib-2.0/schemas/
+
+            -   name: Install Weston (Wayland)
+                if: matrix.display_server == 'wayland'
+                run: |
+                    sudo apt-get update
+                    sudo apt-get install -y weston
 
             -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
@@ -107,58 +125,87 @@ jobs:
             -   name: Run Tests
                 run: |
                     echo "Starting desktop environment..."
-                    
+
                     eval "$(dbus-launch --sh-syntax)"
-                    
-                    echo "Launching Xvfb..."
-                    Xvfb :99 \
-                      -screen 0 1920x1080x24 \
-                      -ac \
-                      +extension GLX \
-                      +extension RANDR \
-                      +extension RENDER \
-                      -nolisten tcp \
-                      -noreset &> xvfb.log &
-                    
-                    export DISPLAY=:99
-                    
-                    export XDG_RUNTIME_DIR="/tmp/runtime-$USER"
-                    export XDG_SESSION_TYPE=x11
-                    export DESKTOP_SESSION=openbox
-                    export XDG_CURRENT_DESKTOP=Openbox
-                    
-                    mkdir -p "$XDG_RUNTIME_DIR"
-                    chmod 700 "$XDG_RUNTIME_DIR"
-                    
-                    echo "Waiting for X server..."
-                    timeout 30 bash -c 'until xdpyinfo >/dev/null 2>&1; do sleep 1; done' || {
-                      echo "X server failed to start."
-                      cat xvfb.log || true
-                      exit 1
-                    }
-                    
-                    echo "Starting Openbox..."
-                    openbox &> openbox.log &
-                    
-                    timeout 20 bash -c 'until pgrep -x openbox >/dev/null; do sleep 1; done' || {
-                      echo "Openbox failed to start."
-                      cat openbox.log || true
-                      exit 1
-                    }
-                    
-                    echo "Openbox is running:"
-                    ps aux | grep "[o]penbox" || echo "Openbox missing unexpectedly"
-                    
-                    timeout 5 xwininfo -root >/dev/null 2>&1 && echo "Window manager responding" || {
-                      echo "Window manager not responding"
-                      exit 1
-                    }
-                    
-                    echo "=== Environment Status ==="
-                    echo "Display: $DISPLAY"
-                    echo "Desktop: $XDG_CURRENT_DESKTOP"
-                    echo "D-Bus: $DBUS_SESSION_BUS_ADDRESS"
-                    
+
+                    if [ "${{ matrix.display_server }}" = "wayland" ]; then
+                      echo "=== Wayland Setup ==="
+
+                      export XDG_RUNTIME_DIR="/tmp/runtime-$USER"
+                      mkdir -p "$XDG_RUNTIME_DIR"
+                      chmod 700 "$XDG_RUNTIME_DIR"
+                      export XDG_SESSION_TYPE=wayland
+                      export WAYLAND_DISPLAY=wayland-0
+
+                      echo "Launching Weston (headless Wayland compositor)..."
+                      weston --backend=headless --socket="$WAYLAND_DISPLAY" \
+                        --width=1920 --height=1080 \
+                        &> weston.log &
+
+                      echo "Waiting for Wayland compositor..."
+                      timeout 30 bash -c 'until [ -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]; do sleep 1; done' || {
+                        echo "Weston failed to start."
+                        cat weston.log || true
+                        exit 1
+                      }
+
+                      echo "=== Environment Status ==="
+                      echo "Session: $XDG_SESSION_TYPE"
+                      echo "Wayland display: $WAYLAND_DISPLAY"
+                      echo "D-Bus: $DBUS_SESSION_BUS_ADDRESS"
+                    else
+                      echo "=== X11 Setup ==="
+
+                      echo "Launching Xvfb..."
+                      Xvfb :99 \
+                        -screen 0 1920x1080x24 \
+                        -ac \
+                        +extension GLX \
+                        +extension RANDR \
+                        +extension RENDER \
+                        -nolisten tcp \
+                        -noreset &> xvfb.log &
+
+                      export DISPLAY=:99
+
+                      export XDG_RUNTIME_DIR="/tmp/runtime-$USER"
+                      export XDG_SESSION_TYPE=x11
+                      export DESKTOP_SESSION=openbox
+                      export XDG_CURRENT_DESKTOP=Openbox
+
+                      mkdir -p "$XDG_RUNTIME_DIR"
+                      chmod 700 "$XDG_RUNTIME_DIR"
+
+                      echo "Waiting for X server..."
+                      timeout 30 bash -c 'until xdpyinfo >/dev/null 2>&1; do sleep 1; done' || {
+                        echo "X server failed to start."
+                        cat xvfb.log || true
+                        exit 1
+                      }
+
+                      echo "Starting Openbox..."
+                      openbox &> openbox.log &
+
+                      timeout 20 bash -c 'until pgrep -x openbox >/dev/null; do sleep 1; done' || {
+                        echo "Openbox failed to start."
+                        cat openbox.log || true
+                        exit 1
+                      }
+
+                      echo "Openbox is running:"
+                      ps aux | grep "[o]penbox" || echo "Openbox missing unexpectedly"
+
+                      timeout 5 xwininfo -root >/dev/null 2>&1 && echo "Window manager responding" || {
+                        echo "Window manager not responding"
+                        exit 1
+                      }
+
+                      echo "=== Environment Status ==="
+                      echo "Display: $DISPLAY"
+                      echo "Desktop: $XDG_CURRENT_DESKTOP"
+                      echo "D-Bus: $DBUS_SESSION_BUS_ADDRESS"
+                    fi
+
                     export LIBGL_ALWAYS_SOFTWARE=1
                     export GALLIUM_DRIVER=llvmpipe
                     export MESA_LOADER_DRIVER_OVERRIDE=llvmpipe
@@ -168,7 +215,7 @@ jobs:
                     export INFINIFRAME_LINUX_FORCE_SOFTWARE_RENDERING=1
 
                     xdpyinfo | head -3 || true
-                    
+
                     echo "=== OpenGL Info ==="
                     glxinfo | grep -E "OpenGL renderer|OpenGL vendor|OpenGL version" || true
                     
@@ -274,7 +321,7 @@ jobs:
                 if: always()
                 uses: actions/upload-artifact@v7
                 with:
-                    name: linux-native-crash-${{ matrix.arch }}
+                    name: linux-native-crash-${{ matrix.arch }}-${{ matrix.display_server }}
                     path: |
                         artifacts/native-crash/**
                         core*
@@ -302,7 +349,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Linux/${{ matrix.arch }}
+                    context: CI Testing - Linux/${{ matrix.arch }}/${{ matrix.display_server }}
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
                     success-description: Linux tests passed
