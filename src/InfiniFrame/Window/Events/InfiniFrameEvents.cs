@@ -7,6 +7,7 @@ using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Drawing;
+using System.Runtime.InteropServices;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -38,6 +39,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     private CppWebMessageReceivedDelegate WebMessageReceivedHandler { get; }
     private CppWebResourceRequestedDelegate CustomSchemeHandler { get; }
     private CppNavigationStartingDelegate NavigationStartingHandler { get; }
+    private CppFileDroppedDelegate FileDroppedHandler { get; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -61,6 +63,8 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         CustomSchemeHandler = OnCustomScheme;
         NavigationStartingHandler = (url, isUserInitiated, isRedirect, isMainFrame) =>
             InvokeNativeCallback("navigation starting", () => OnNavigationStarting(url, isUserInitiated, isRedirect, isMainFrame), static () => (byte)0);
+        FileDroppedHandler = (pathsPtr, count, x, y) =>
+            InvokeNativeCallback("file dropped", () => OnFileDropped(pathsPtr, count, x, y));
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -96,6 +100,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         parameters.RestoredHandler = RestoredHandler;
         parameters.WebMessageReceivedHandler = WebMessageReceivedHandler;
         parameters.NavigationStartingHandler = NavigationStartingHandler;
+        parameters.FileDroppedHandler = FileDroppedHandler;
 
         ApplyCustomSchemeNames(ref parameters);
     }
@@ -211,6 +216,26 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         ArgumentNullException.ThrowIfNull(Sender);
 
         EventsStore.WindowCreated.Invoke(Sender);
+    }
+
+    /// <summary>
+    ///     Called when files are dropped onto the window.
+    /// </summary>
+    /// <param name="pathsPtr">Pointer to an array of file path strings.</param>
+    /// <param name="count">Number of file paths.</param>
+    /// <param name="x">Screen X coordinate of drop location.</param>
+    /// <param name="y">Screen Y coordinate of drop location.</param>
+    public void OnFileDropped(IntPtr pathsPtr, int count, int x, int y) {
+        ArgumentNullException.ThrowIfNull(Sender);
+
+        var files = new List<string>(count);
+        for (int i = 0; i < count; i++) {
+            IntPtr pathPtr = Marshal.ReadIntPtr(pathsPtr, i * IntPtr.Size);
+            files.Add(Marshal.PtrToStringAuto(pathPtr) ?? string.Empty);
+        }
+
+        var args = new FileDroppedEventArgs(files, new Point(x, y));
+        EventsStore.FileDropped.Invoke(Sender, args);
     }
 
     void IInfiniFrameEvents.ReleaseNativeCallbackRoot() {

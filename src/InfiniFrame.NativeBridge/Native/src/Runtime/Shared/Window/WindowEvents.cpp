@@ -53,6 +53,14 @@ void InfiniFrameWindow::SetDebugEventCallback(const DebugEventCallback callback)
     ImplBase()->_debugEventCallback = callback;
 }
 
+void InfiniFrameWindow::SetFileDroppedCallback(const FileDroppedCallback callback) {
+    ImplBase()->_fileDroppedCallback = callback;
+}
+
+void InfiniFrameWindow::SetDragDropEnabled(const bool enabled) {
+    ImplBase()->_dragDropEnabled = enabled;
+}
+
 // -----------------------------------------------------------------------------------------------------------------
 // Callback Invokers
 // -----------------------------------------------------------------------------------------------------------------
@@ -121,4 +129,9 @@ void InfiniFrameWindow::InvokeDebugEvent(
             timestampUnixMillisecondsUtc,
             const_cast<AutoString>(platformPayload)
         );
+}
+
+void InfiniFrameWindow::InvokeFileDropped(AutoString* paths, const int count, const int x, const int y) const noexcept {
+    if (ImplBase()->_fileDroppedCallback)
+        ImplBase()->_fileDroppedCallback(paths, count, x, y);
 }

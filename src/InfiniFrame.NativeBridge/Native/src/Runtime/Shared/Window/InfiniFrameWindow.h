@@ -603,9 +603,21 @@ class InfiniFrameWindow {
     void SetMinimizedCallback(MinimizedCallback callback);
 
     /**
-         * @brief Set callback invoked when a debug diagnostics event is emitted by the platform web runtime.
-         */
+     * @brief Set callback invoked when a debug diagnostics event is emitted by the platform web runtime.
+     */
     void SetDebugEventCallback(DebugEventCallback callback);
+
+    /**
+     * @brief Set callback invoked when files are dropped onto the window
+     * @param callback Receives array of file paths, count, and drop coordinates
+     */
+    void SetFileDroppedCallback(FileDroppedCallback callback);
+
+    /**
+     * @brief Enable or disable file drag-and-drop on the window
+     * @param enabled true to accept file drops
+     */
+    void SetDragDropEnabled(bool enabled);
 
     /**
          * @brief Marshal a callback onto the UI thread and execute it synchronously
@@ -686,8 +698,8 @@ class InfiniFrameWindow {
     void InvokeMinimized() const noexcept;
 
     /**
-         * @brief Fire a debug diagnostics callback event.
-         */
+     * @brief Fire a debug diagnostics callback event.
+     */
     void InvokeDebugEvent(
         AutoStringConst kind,
         AutoStringConst message,
@@ -697,6 +709,15 @@ class InfiniFrameWindow {
         int64_t timestampUnixMillisecondsUtc,
         AutoStringConst platformPayload
     ) const noexcept;
+
+    /**
+     * @brief Fire the file-dropped callback
+     * @param paths Array of file path strings
+     * @param count Number of file paths
+     * @param x Screen X coordinate of drop location
+     * @param y Screen Y coordinate of drop location
+     */
+    void InvokeFileDropped(AutoString* paths, int count, int x, int y) const noexcept;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Platform-specific

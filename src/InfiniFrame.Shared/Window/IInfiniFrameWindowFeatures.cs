@@ -73,4 +73,9 @@ public interface IInfiniFrameWindowFeatures {
     ///     Gets the browser feature for configuring web view behavior.
     /// </summary>
     IBrowserInfiniFrameWindowFeature Browser { get; }
+
+    /// <summary>
+    ///     Gets the drag and drop feature for handling file drop operations.
+    /// </summary>
+    IDragDropInfiniFrameWindowFeature DragDrop { get; }
 }

@@ -69,4 +69,40 @@
     if (infiniFrame == nullptr) return;
     infiniFrame->CloseWebView();
 }
+
+- (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender {
+    return NSDragOperationCopy;
+}
+
+- (BOOL)performDragOperation:(id<NSDraggingInfo>)sender {
+    if (infiniFrame == nullptr) return NO;
+    infiniframe::macos::NativeCallbackScope callbackScope;
+
+    NSPasteboard* pasteboard = sender.draggingpasteboard;
+    NSArray<NSURL*>* urls = [pasteboard readObjectsForClasses:@[[NSURL class]] options:nil];
+
+    if (urls.count > 0) {
+        std::vector<std::string> paths;
+        for (NSURL* url in urls) {
+            if (url.isFileURL) {
+                paths.push_back(url.path.UTF8String);
+            }
+        }
+
+        if (!paths.empty()) {
+            NSPoint dropPoint = sender.dragginglocation;
+            std::vector<AutoString> autoStrings;
+            autoStrings.reserve(paths.size());
+            for (const auto& p : paths) {
+                autoStrings.push_back(p.c_str());
+            }
+
+            infiniFrame->InvokeFileDropped(
+                autoStrings.data(), static_cast<int>(autoStrings.size()),
+                static_cast<int>(dropPoint.x), static_cast<int>(dropPoint.y));
+            return YES;
+        }
+    }
+    return NO;
+}
 @end
