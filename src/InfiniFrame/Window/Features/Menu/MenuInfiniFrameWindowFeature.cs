@@ -1,9 +1,11 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.NativeBridge;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Text.Json;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -12,7 +14,6 @@ namespace InfiniFrame;
 /// <summary>
 ///     Runtime feature implementation for managing native menu bars.
 ///     Stores the menu bar in memory and provides get/set/enable/disable/click operations.
-///     When native P/Invoke is available, it will call the native layer.
 /// </summary>
 public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature {
     private readonly IInfiniFrameWindow _window;
@@ -47,7 +48,17 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
 
         _menuBar = menuBar ?? new();
 
-        // TODO: Call InfiniFrameNative.SetMenuBar when native P/Invoke is available.
+        string? json = _menuBar.Items.IsEmpty
+            ? null
+            : JsonSerializer.Serialize(_menuBar, MenuJsonContext.Default.InfiniFrameMenuBar);
+
+        NativeInvoke.InvokeSyncWithValidation(
+            _logger,
+            _window,
+            _window.ManagedThreadId,
+            InfiniFrameNative.SetMenuBar,
+            json
+        );
     }
 
     /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.SetMenuItemEnabled"/>
@@ -56,7 +67,14 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
 
         _menuBar = UpdateMenuItemProperty(_menuBar, menuItemId, item => item with { IsEnabled = enabled });
 
-        // TODO: Call InfiniFrameNative.SetMenuItemEnabled when native P/Invoke is available.
+        NativeInvoke.InvokeSyncWithValidation(
+            _logger,
+            _window,
+            _window.ManagedThreadId,
+            InfiniFrameNative.SetMenuItemEnabled,
+            menuItemId,
+            enabled
+        );
     }
 
     /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.SetMenuItemVisible"/>
@@ -65,14 +83,27 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
 
         _menuBar = UpdateMenuItemProperty(_menuBar, menuItemId, item => item with { IsVisible = visible });
 
-        // TODO: Call InfiniFrameNative.SetMenuItemVisible when native P/Invoke is available.
+        NativeInvoke.InvokeSyncWithValidation(
+            _logger,
+            _window,
+            _window.ManagedThreadId,
+            InfiniFrameNative.SetMenuItemVisible,
+            menuItemId,
+            visible
+        );
     }
 
     /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.ClickMenuItem"/>
     public void ClickMenuItem(string menuItemId) {
         _logger.LogDebug(".ClickMenuItem({MenuItemId})", menuItemId);
 
-        // TODO: Call InfiniFrameNative.ClickMenuItem when native P/Invoke is available.
+        NativeInvoke.InvokeSyncWithValidation(
+            _logger,
+            _window,
+            _window.ManagedThreadId,
+            InfiniFrameNative.ClickMenuItem,
+            menuItemId
+        );
     }
 
     private static InfiniFrameMenuBar UpdateMenuItemProperty(

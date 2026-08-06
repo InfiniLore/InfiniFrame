@@ -172,7 +172,6 @@ public class StateInfiniFrameWindowFeature(
             return;
         }
 
-        // TODO test on other OS?
         // If the window is chromeless then we need to manually register the maximize size else it will just fullscreen
         if (!MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out InfiniMonitor monitor)) {
             logger.LogWarning("Monitor {Monitor} not found", monitor);

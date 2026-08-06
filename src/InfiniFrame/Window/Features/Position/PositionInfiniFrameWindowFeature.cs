@@ -180,8 +180,10 @@ public class PositionInfiniFrameWindowFeature(
             InfiniFrameNative.GetSize
         );
 
-        // TODO think about proper unhappy flow here
-        if (!MonitorsUtility.TryGetCurrentMonitor(monitors, new Rectangle(x, y, width, height), out InfiniMonitor monitor)) return;
+        if (!MonitorsUtility.TryGetCurrentMonitor(monitors, new Rectangle(x, y, width, height), out InfiniMonitor monitor)) {
+            logger.LogWarning("Could not determine monitor for window at ({X}, {Y}) - skipping centering.", x, y);
+            return;
+        }
 
         Rectangle area = monitor.MonitorArea;
 
