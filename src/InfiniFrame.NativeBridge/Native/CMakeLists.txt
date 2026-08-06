@@ -59,6 +59,7 @@ set(COMMON_SOURCES
         src/Api/Exports/Exports.Window.Getters.cpp
         src/Api/Exports/Exports.Window.Navigation.cpp
         src/Api/Exports/Exports.Window.Setters.cpp
+        src/Api/Exports/Exports.Window.Taskbar.cpp
 )
 
 set(TEST_SOURCES
@@ -86,6 +87,7 @@ set(WINDOWS_SOURCES
         src/Runtime/Platform/Windows/Dpi.Win32.cpp
         src/Runtime/Platform/Windows/Monitors.Win32.cpp
         src/Runtime/Platform/Windows/Notifications.WinToast.cpp
+        src/Runtime/Platform/Windows/Taskbar.Win32.cpp
         src/Runtime/Platform/Windows/WebView/WebView2Attach.Win32.cpp
         src/Runtime/Platform/Windows/WebView/WebView2Controller.Win32.cpp
         src/Runtime/Platform/Windows/WebView/WebView2CustomSchemes.Win32.cpp
@@ -112,6 +114,7 @@ set(LINUX_SOURCES
         src/Runtime/Platform/Linux/Dialog.cpp
         src/Runtime/Platform/Linux/Monitors.Gtk.cpp
         src/Runtime/Platform/Linux/Notifications.LibNotify.cpp
+        src/Runtime/Platform/Linux/Taskbar.Gtk.cpp
         src/Runtime/Platform/Linux/WebKit/WebKitCustomSchemes.Gtk.cpp
         src/Runtime/Platform/Linux/WebKit/WebKitHost.Gtk.cpp
         src/Runtime/Platform/Linux/WebKit/WebKitInspector.Gtk.cpp
@@ -146,6 +149,7 @@ set(MAC_SOURCES
         src/Runtime/Platform/Mac/MacDiagnostics.mm
         src/Runtime/Platform/Mac/NSWindowBorderless.mm
         src/Runtime/Platform/Mac/Notifications.UserNotifications.mm
+        src/Runtime/Platform/Mac/Taskbar.Cocoa.mm
         src/Runtime/Platform/Mac/WebKit/WebKitBridge.Cocoa.mm
         src/Runtime/Platform/Mac/WebKit/WebKitCustomSchemes.Cocoa.mm
         src/Runtime/Platform/Mac/WebKit/WebKitHost.Cocoa.mm

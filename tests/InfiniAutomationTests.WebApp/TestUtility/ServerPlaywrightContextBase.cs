@@ -31,6 +31,8 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
         => new(PlaywrightConnectionUtility.CreateCdpConnectionUrl(_playwrightDevtoolsPort), relativeUrl);
 
     public override async Task RestoreDefaultStateAsync() {
+        if (Window.Features.Lifecycle.IsClosedOrClosing()) return;
+
         Window.Features.State.SetFullScreen(false);
         Window.Features.Decorations.SetTitle(DefaultDocumentTitle);
 

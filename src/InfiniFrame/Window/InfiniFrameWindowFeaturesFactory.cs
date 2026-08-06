@@ -85,6 +85,10 @@ public class InfiniFrameWindowFeaturesFactory(IServiceProvider provider) {
             DragDrop: new DragDropInfiniFrameWindowFeature(
                 window,
                 GetLogger<DragDropInfiniFrameWindowFeature>(provider)
+            ),
+            Taskbar: new TaskbarInfiniFrameWindowFeature(
+                window,
+                GetLogger<TaskbarInfiniFrameWindowFeature>(provider)
             )
         );
 }

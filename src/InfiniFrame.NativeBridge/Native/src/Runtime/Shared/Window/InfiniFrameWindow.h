@@ -504,6 +504,37 @@ class InfiniFrameWindow {
     void SetFocused();
 
     // -----------------------------------------------------------------------------------------------------------------
+    // Taskbar
+    // -----------------------------------------------------------------------------------------------------------------
+
+    /**
+         * @brief Set the taskbar progress indicator
+         * @param state Progress state (0=None, 1=Indeterminate, 2=Normal, 3=Error, 4=Paused)
+         * @param current Current progress value
+         * @param total Total progress value
+         */
+    void SetTaskbarProgress(int state, uint64_t current, uint64_t total);
+
+    /** @brief Clear the taskbar progress indicator */
+    void ClearTaskbarProgress();
+
+    /**
+         * @brief Flash the taskbar icon
+         * @param mode Flash mode (0=Stop, 1=All, 2=Timer, 3=TimerAll)
+         * @param count Number of times to flash (for Timer modes)
+         */
+    void SetTaskbarFlash(int mode, uint32_t count);
+
+    /** @brief Stop the taskbar icon from flashing */
+    void StopTaskbarFlash();
+
+    /**
+         * @brief Get whether taskbar progress is supported on this platform
+         * @param supported Output: true if supported
+         */
+    void GetTaskbarProgressSupported(bool* supported) const;
+
+    // -----------------------------------------------------------------------------------------------------------------
     // Notifications
     // -----------------------------------------------------------------------------------------------------------------
 

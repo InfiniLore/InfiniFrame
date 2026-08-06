@@ -123,6 +123,7 @@ InfiniFrame can pull window configuration from `IConfiguration` under an `"Infin
 | `SetInstanceArbitrationMode(InstanceArbitrationMode)`            | Single-instance enforcement via named mutex; not available in Photino                    |
 | `SetInstanceArbitrationMutexName(string)`                        | Configure the mutex name for instance arbitration                                        |
 | `RegisterNavigationStartingHandler(handler)`                     | Inspect/cancel navigation requests before commit; not available in Photino               |
+| `window.Taskbar.SetProgress(...)` / `Taskbar.SetFlashMode(...)` | Taskbar progress indicator and flash notification; cross-platform with capability detection; not available in Photino |
 
 ## Javascript Debugging
 

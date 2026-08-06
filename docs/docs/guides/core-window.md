@@ -13,6 +13,7 @@ This guide covers everything available through the `InfiniLore.InfiniFrame` pack
 - [Debug Tooling](#debug-tooling)
 - [Runtime Window Control](#runtime-window-control)
 - [Events](#events)
+- [Taskbar Progress and Flash](#taskbar-progress-and-flash)
 - [Web Messaging](#web-messaging)
 - [Custom URL Schemes](#custom-url-schemes)
 - [Dialogs](#dialogs)
@@ -528,6 +529,65 @@ builder.Events.WindowClosing.Add((window, cancel) => {
 ```
 
 See the generated C# API reference for the full event system documentation.
+
+## Taskbar Progress and Flash
+
+InfiniFrame provides cross-platform taskbar integration for progress indicators and flash notifications. Access the taskbar feature through `window.Features.Taskbar`.
+
+### Platform Support
+
+| Feature | Windows | macOS | Linux |
+|---------|---------|-------|-------|
+| Progress states | ✅ | ✅ | ⚠️ (desktop-dependent) |
+| Flash notifications | ✅ | ✅ | ⚠️ (desktop-dependent) |
+| Capability detection | ✅ | ✅ | ✅ |
+
+**Platform details:**
+- **Windows:** Full support via `ITaskbarList3` COM and `FlashWindowEx`
+- **macOS:** Progress via dock tile badge label, flash via `NSApp.requestUserAttention`
+- **Linux:** D-Bus StatusNotifierItem + UnityLauncherEntry (GNOME may report `IsSupported=false`)
+
+### Progress Indicator
+
+```csharp
+// Show download progress
+window.Features.Taskbar.SetProgress(TaskbarProgressState.Normal, 75);
+
+// Show indeterminate progress
+window.Features.Taskbar.SetProgress(TaskbarProgressState.Indeterminate);
+
+// Show error state
+window.Features.Taskbar.SetProgress(TaskbarProgressState.Error);
+
+// Clear progress
+window.Features.Taskbar.SetProgress(TaskbarProgressState.None);
+```
+
+### Flash Notifications
+
+```csharp
+// Flash continuously until user interacts
+window.Features.Taskbar.SetFlashMode(TaskbarFlashMode.Continuous);
+
+// Flash once
+window.Features.Taskbar.SetFlashMode(TaskbarFlashMode.UntilFocused);
+
+// Stop flashing
+window.Features.Taskbar.SetFlashMode(TaskbarFlashMode.None);
+```
+
+### Capability Detection
+
+```csharp
+InfiniFrameTaskbarCapabilities caps = window.Features.Taskbar.Capabilities;
+
+if (caps.IsSupported) {
+    window.Features.Taskbar.SetProgress(TaskbarProgressState.Normal, 50);
+} else {
+    // Fallback to in-app progress indicator
+    Console.WriteLine("Taskbar progress not supported on this platform");
+}
+```
 
 ## Web Messaging
 

@@ -78,4 +78,9 @@ public interface IInfiniFrameWindowFeatures {
     ///     Gets the drag and drop feature for handling file drop operations.
     /// </summary>
     IDragDropInfiniFrameWindowFeature DragDrop { get; }
+
+    /// <summary>
+    ///     Gets the taskbar feature for controlling taskbar progress indicators and icon flashing.
+    /// </summary>
+    ITaskbarInfiniFrameWindowFeature Taskbar { get; }
 }
