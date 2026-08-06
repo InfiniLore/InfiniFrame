@@ -84,14 +84,14 @@ void InfiniFrameWindow::GetMinSize(int* width, int* height) const {
 
 const char* InfiniFrameWindow::GetTitle() const {
     const char* title = gtk_window_get_title(GTK_WINDOW(m_impl->_window));
-    return g_strdup(title ? title : "");
+    return AllocateStringCopy(std::string(title ? title : ""));
 }
 
 const char* InfiniFrameWindow::GetCurrentUrl() const {
     if (m_impl->_webview == nullptr)
-        return g_strdup("");
+        return AllocateStringCopy(std::string(""));
     const gchar* uri = webkit_web_view_get_uri(WEBKIT_WEB_VIEW(m_impl->_webview));
-    return g_strdup(uri ? uri : "");
+    return AllocateStringCopy(std::string(uri ? uri : ""));
 }
 
 void InfiniFrameWindow::GetTopmost(bool* topmost) const {

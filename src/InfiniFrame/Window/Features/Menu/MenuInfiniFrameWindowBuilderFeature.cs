@@ -25,7 +25,7 @@ public class MenuInfiniFrameWindowBuilderFeature : IMenuInfiniFrameWindowBuilder
 
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeature.ApplyToNativeParameters"/>
     public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
-        parameters.MenuBarJson = MenuBar.Items.IsEmpty
+        parameters.MenuBarJson = MenuBar?.Items.IsEmpty != false
             ? null
             : System.Text.Json.JsonSerializer.Serialize(MenuBar, MenuJsonContext.Default.InfiniFrameMenuBar);
     }

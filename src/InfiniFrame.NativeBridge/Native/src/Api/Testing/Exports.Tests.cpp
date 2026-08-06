@@ -74,7 +74,11 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         (*new_params)->DebugEventHandler = params->DebugEventHandler;
 
         // Custom scheme support
-        memcpy((*new_params)->CustomSchemeNames, params->CustomSchemeNames, sizeof(params->CustomSchemeNames));
+        for (size_t i = 0; i < InfiniFrameInitParams::MaxCustomSchemeNames; ++i) {
+            (*new_params)->CustomSchemeNames[i] = params->CustomSchemeNames[i] != nullptr
+                ? DuplicateString(params->CustomSchemeNames[i])
+                : nullptr;
+        }
         (*new_params)->CustomSchemeHandler = params->CustomSchemeHandler;
         (*new_params)->NavigationStartingHandler = params->NavigationStartingHandler;
 

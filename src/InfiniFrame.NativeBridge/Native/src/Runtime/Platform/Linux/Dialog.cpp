@@ -125,7 +125,7 @@ const char** ShowDialog(
         int count = g_slist_length(pathList);
         auto* results = AllocateStringArray(count);
         for (int i = 0; i < count; i++) {
-            results[i] = g_strdup(static_cast<char*>(g_slist_nth_data(pathList, i)));
+            results[i] = AllocateStringCopy(std::string(static_cast<char*>(g_slist_nth_data(pathList, i))));
         }
         g_slist_free_full(pathList, g_free);
         *resultCount = count;
@@ -339,7 +339,7 @@ namespace {
             values = AllocateStringArray(count);
             int index = 0;
             for (GSList* item = paths; item != nullptr; item = item->next)
-                values[index++] = g_strdup(static_cast<char*>(item->data));
+                values[index++] = AllocateStringCopy(std::string(static_cast<char*>(item->data)));
             g_slist_free_full(paths, g_free);
         }
 

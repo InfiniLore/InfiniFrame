@@ -219,9 +219,6 @@ public class InfiniFrameNativeParametersTests {
             await Assert.That(newParameters.ZoomEnabled).IsEqualTo(parameters.ZoomEnabled);
         }
         finally {
-            // Clean up allocated memory
-            if (namePtr != IntPtr.Zero) Marshal.FreeHGlobal(namePtr);
-
             // Native allocates returned init params; managed side must free.
             InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.FreeInitParams(newParametersPtr);
             await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
