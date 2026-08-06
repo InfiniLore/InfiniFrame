@@ -55,4 +55,54 @@ public partial class InfiniFrameNative {
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_ShowNotification", SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus ShowNotification(IntPtr instance, string title, string body);
+
+    /// <summary>
+    ///     Shows a rich native toast notification with extended options.
+    /// </summary>
+    /// <param name="instance">The native window instance handle.</param>
+    /// <param name="title">The notification title.</param>
+    /// <param name="body">The notification body text.</param>
+    /// <param name="iconPath">Optional path to an image file, or empty string for none.</param>
+    /// <param name="urgency">Urgency level (maps to platform-specific importance).</param>
+    /// <param name="tag">Optional tag for grouping/replacing notifications, or empty string for none.</param>
+    /// <returns>A status code indicating success or failure.</returns>
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_ShowNotificationWithOptions", SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus ShowNotificationWithOptions(
+        IntPtr instance, string title, string body, string iconPath, int urgency, string tag
+    );
+
+    /// <summary>
+    ///     Shows a rich native toast notification with extended options and an activation callback.
+    /// </summary>
+    /// <param name="instance">The native window instance handle.</param>
+    /// <param name="operationId">Unique identifier for this notification operation.</param>
+    /// <param name="title">The notification title.</param>
+    /// <param name="body">The notification body text.</param>
+    /// <param name="iconPath">Optional path to an image file, or empty string for none.</param>
+    /// <param name="urgency">Urgency level (maps to platform-specific importance).</param>
+    /// <param name="tag">Optional tag for grouping/replacing notifications, or empty string for none.</param>
+    /// <param name="completion">Callback invoked when the notification is activated or dismissed.</param>
+    /// <param name="completionContext">Opaque context pointer passed to the completion callback.</param>
+    /// <returns>A status code indicating success or failure.</returns>
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_BeginShowNotification", SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus BeginShowNotification(
+        IntPtr instance, ulong operationId,
+        string title, string body, string iconPath, int urgency, string tag,
+        OperationCompletedCallback completion, IntPtr completionContext
+    );
+
+    /// <summary>
+    ///     Cancels a pending notification operation.
+    /// </summary>
+    /// <param name="instance">The native window instance handle.</param>
+    /// <param name="operationId">The operation identifier of the notification to cancel.</param>
+    /// <param name="canceled">Output: true if the notification was successfully canceled.</param>
+    /// <returns>A status code indicating success or failure.</returns>
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_CancelNotification", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus CancelNotification(
+        IntPtr instance, ulong operationId, [MarshalAs(UnmanagedType.I1)] out bool canceled
+    );
 }

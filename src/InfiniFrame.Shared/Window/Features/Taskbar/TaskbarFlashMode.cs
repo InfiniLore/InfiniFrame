@@ -9,7 +9,7 @@ namespace InfiniFrame;
 ///     Defines how the taskbar icon should flash.
 ///     Maps to the Windows <c>FLASHW_*</c> flags.
 /// </summary>
-public enum TaskbarFlashMode : int {
+public enum TaskbarFlashMode {
     /// <summary>
     ///     Stop flashing.
     /// </summary>

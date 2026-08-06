@@ -21,6 +21,32 @@ public static class INotificationsInfiniFrameWindowFeatureExtensions {
     }
 
     /// <summary>
+    ///     Displays a rich notification configured through <paramref name="options"/>
+    ///     and returns the window for chaining.
+    /// </summary>
+    /// <param name="window">The window instance.</param>
+    /// <param name="options">The notification configuration.</param>
+    /// <returns>The <see cref="IInfiniFrameWindow"/> for method chaining.</returns>
+    public static IInfiniFrameWindow ShowNotification(this IInfiniFrameWindow window, InfiniFrameNotificationOptions options) {
+        window.Features.Notifications.ShowNotification(options);
+        return window;
+    }
+
+    /// <summary>
+    ///     Displays a rich notification and returns a <see cref="Task"/> that completes with the
+    ///     user's interaction result.
+    /// </summary>
+    /// <param name="window">The window instance.</param>
+    /// <param name="options">The notification configuration.</param>
+    /// <param name="ct">Optional cancellation token.</param>
+    /// <returns>The activation result.</returns>
+    public static Task<InfiniFrameNotificationActivation> ShowNotificationAsync(
+        this IInfiniFrameWindow window,
+        InfiniFrameNotificationOptions options,
+        CancellationToken ct = default
+    ) => window.Features.Notifications.ShowNotificationAsync(options, ct);
+
+    /// <summary>
     ///     Displays a message dialog with the specified parameters and returns the user's response.
     /// </summary>
     /// <param name="window">The window instance.</param>

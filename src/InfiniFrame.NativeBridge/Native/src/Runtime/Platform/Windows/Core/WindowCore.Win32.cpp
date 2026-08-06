@@ -175,6 +175,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     m_impl->_ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
     m_impl->_statusBarEnabled = initParams->StatusBarEnabled;
     m_impl->_notificationsEnabled = initParams->NotificationsEnabled;
+    m_impl->_defaultNotificationIcon = ToUTF8String(initParams->DefaultNotificationIcon);
 
     m_impl->_zoom = initParams->Zoom;
     m_impl->_minWidth = initParams->MinWidth;

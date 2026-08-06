@@ -362,10 +362,13 @@ builder.SetTrustAllOrigins(true);
 
 ```csharp
 builder
-    .SetNotificationsEnabled()
+    .EnableNotifications(true)
     .SetNotificationRegistrationId("com.myapp.notifications")  // Windows only
+    .SetDefaultNotificationIcon("/path/to/icon.png")          // Optional default icon
     .GrantBrowserPermissions()  // Auto-grant camera/mic permissions (Windows only)
 ```
+
+See the [Notifications guide](notifications.md) for full API details including rich notifications, action buttons, and async callbacks.
 
 ### Platform-specific browser parameters
 
@@ -713,10 +716,30 @@ All dialogs also have async overloads (`ShowOpenFileAsync`, `ShowSaveFileAsync`,
 ### Notifications (Windows only)
 
 ```csharp
-window.SendNotification("Update available", "A new version is ready to install");
+// Simple notification
+window.ShowNotification("Update available", "A new version is ready to install");
+
+// Rich notification with options
+window.ShowNotification(new InfiniFrameNotificationOptions {
+    Title = "Download Complete",
+    Body = "report.pdf has been downloaded.",
+    Urgency = InfiniFrameNotificationUrgency.Normal,
+    Tag = "download"
+});
+
+// Async notification with callback
+InfiniFrameNotificationActivation result = await window.ShowNotificationAsync(
+    new InfiniFrameNotificationOptions {
+        Title = "New message",
+        Body = "You have a new message.",
+        Actions = [new InfiniFrameNotificationAction("Reply", "reply")]
+    },
+    cancellationToken
+);
 ```
 
-Requires `SetNotificationsEnabled()` and `SetNotificationRegistrationId(...)` to be set during configuration.
+Requires `EnableNotifications(true)` and `SetNotificationRegistrationId(...)` to be set during configuration.
+See the [Notifications guide](notifications.md) for full details.
 
 ## Monitor Information
 

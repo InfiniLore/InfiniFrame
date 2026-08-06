@@ -31,7 +31,7 @@ public class NotificationsInfiniFrameWindowFeature(
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    /// <inheritdoc cref="INotificationsInfiniFrameWindowFeature.ShowNotification" />
+    /// <inheritdoc cref="INotificationsInfiniFrameWindowFeature.ShowNotification(string, string)" />
     public void ShowNotification(string title, string body) {
         if (window.IsClosedOrClosing()) return;
 
@@ -43,6 +43,37 @@ public class NotificationsInfiniFrameWindowFeature(
             title,
             body
         );
+    }
+
+    /// <inheritdoc cref="INotificationsInfiniFrameWindowFeature.ShowNotification(InfiniFrameNotificationOptions)" />
+    public void ShowNotification(InfiniFrameNotificationOptions options) {
+        if (window.IsClosedOrClosing()) return;
+
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window,
+            window.ManagedThreadId,
+            InfiniFrameNative.ShowNotificationWithOptions,
+            options.Title,
+            options.Body,
+            options.IconPath ?? string.Empty,
+            (int)options.Urgency,
+            options.Tag ?? string.Empty
+        );
+    }
+
+    /// <inheritdoc cref="INotificationsInfiniFrameWindowFeature.ShowNotificationAsync" />
+    public async Task<InfiniFrameNotificationActivation> ShowNotificationAsync(
+        InfiniFrameNotificationOptions options,
+        CancellationToken ct = default
+    ) {
+        ct.ThrowIfCancellationRequested();
+        if (window.IsClosedOrClosing()) return new InfiniFrameNotificationActivation(InfiniFrameNotificationResult.Dismissed);
+        var operation = new InfiniNotificationOperation(
+            window, logger, options, ct
+        );
+        _ = operation.StartAsync();
+        return await operation.Task.WaitAsync(ct).ConfigureAwait(false);
     }
 
     /// <inheritdoc cref="INotificationsInfiniFrameWindowFeature.ShowMessage" />

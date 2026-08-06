@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniTests;
 using Microsoft.Playwright;
-using System.Text.Json;
 
 namespace InfiniAutomationTests.Tests;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -61,6 +60,6 @@ public abstract class ZoomDpiParityAutomationTests : InfiniFramePlaywrightTestBa
         );
 
         await Assert.That(nativeDpi).IsGreaterThan(0);
-        await Assert.That(jsDpi).IsEqualTo((double)nativeDpi);
+        await Assert.That(jsDpi).IsEqualTo(nativeDpi);
     }
 }

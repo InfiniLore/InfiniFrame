@@ -34,6 +34,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal IntPtr WebView2RuntimePath;
         internal IntPtr NotificationRegistrationId;
         internal IntPtr WindowsAppUserModelId;
+        internal IntPtr DefaultNotificationIcon;
         internal int RemoteDebuggingPort;
         internal IntPtr NativeParent;
         internal IntPtr ClosingHandler;
@@ -129,6 +130,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 WebView2RuntimePath = ToUtf8Ptr(managed.WebView2RuntimePath),
                 NotificationRegistrationId = ToUtf8Ptr(managed.NotificationRegistrationId),
                 WindowsAppUserModelId = ToUtf8Ptr(managed.WindowsAppUserModelId),
+                DefaultNotificationIcon = ToUtf8Ptr(managed.DefaultNotificationIcon),
                 RemoteDebuggingPort = managed.RemoteDebuggingPort,
                 NativeParent = managed.NativeParent,
                 ClosingHandler = ToFunctionPtr(managed.ClosingHandler),
@@ -225,6 +227,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
             Marshal.FreeCoTaskMem(_unmanaged.WebView2RuntimePath);
             Marshal.FreeCoTaskMem(_unmanaged.NotificationRegistrationId);
             Marshal.FreeCoTaskMem(_unmanaged.WindowsAppUserModelId);
+            Marshal.FreeCoTaskMem(_unmanaged.DefaultNotificationIcon);
         }
     }
 

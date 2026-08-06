@@ -24,6 +24,7 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     std::wstring _windowsAppUserModelId;
 
     bool _notificationsEnabled = false;
+    std::string _defaultNotificationIcon;
     bool _isInitialized = false;
     bool _isWebView2Initializing = false;
     std::atomic<bool> _isClosingOrClosed = false;

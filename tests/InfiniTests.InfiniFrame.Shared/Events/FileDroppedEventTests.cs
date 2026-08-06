@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.DragDrop;
 using NSubstitute;
 using System.Drawing;
 
@@ -43,7 +44,7 @@ public class FileDroppedEventTests {
         eventsStore.FileDropped.Add((_, _) => handlerCount++);
         eventsStore.FileDropped.Add((_, _) => handlerCount++);
 
-        var args = new FileDroppedEventArgs(new[] { "file.txt" }, Point.Empty);
+        var args = new FileDroppedEventArgs(["file.txt"], Point.Empty);
 
         // Act
         eventsStore.FileDropped.Invoke(window, args);
@@ -61,7 +62,7 @@ public class FileDroppedEventTests {
 
         eventsStore.FileDropped.Add((w, _) => receivedWindow = w);
 
-        var args = new FileDroppedEventArgs(new[] { "file.txt" }, Point.Empty);
+        var args = new FileDroppedEventArgs(["file.txt"], Point.Empty);
 
         // Act
         eventsStore.FileDropped.Invoke(window, args);
@@ -82,7 +83,7 @@ public class FileDroppedEventTests {
         // Act
         source.CopyTo(target);
 
-        var args = new FileDroppedEventArgs(new[] { "file.txt" }, Point.Empty);
+        var args = new FileDroppedEventArgs(["file.txt"], Point.Empty);
         target.FileDropped.Invoke(Substitute.For<IInfiniFrameWindow>(), args);
 
         // Assert

@@ -546,6 +546,40 @@ class InfiniFrameWindow {
     void ShowNotification(AutoString title, AutoString message);
 
     /**
+         * @brief Show a rich native notification with extended options
+         * @param title   UTF-8 notification title
+         * @param body    UTF-8 notification body text
+         * @param iconPath UTF-8 path to an image file, or empty for none
+         * @param urgency Urgency level (0=Normal, 1=Low, 2=High, 3=Critical)
+         * @param tag     UTF-8 tag for grouping/replacing notifications, or empty for none
+         */
+    void ShowNotificationWithOptions(AutoString title, AutoString body, AutoString iconPath, int urgency, AutoString tag);
+
+    /**
+         * @brief Show a rich native notification with an activation callback
+         * @param operationId      Unique identifier for this notification operation
+         * @param title            UTF-8 notification title
+         * @param body             UTF-8 notification body text
+         * @param iconPath         UTF-8 path to an image file, or empty for none
+         * @param urgency          Urgency level (0=Normal, 1=Low, 2=High, 3=Critical)
+         * @param tag              UTF-8 tag for grouping/replacing notifications, or empty for none
+         * @param completion       Callback invoked when the notification is activated or dismissed
+         * @param completionContext Opaque context pointer passed to the completion callback
+         */
+    void BeginShowNotification(
+        uint64_t operationId,
+        AutoString title, AutoString body, AutoString iconPath, int urgency, AutoString tag,
+        OperationCompletedCallback completion, void* completionContext
+    );
+
+    /**
+         * @brief Cancel a pending notification operation
+         * @param operationId The operation identifier to cancel
+         * @param canceled    Output: true if the notification was successfully canceled
+         */
+    void CancelNotification(uint64_t operationId, bool* canceled);
+
+    /**
          * @brief Block the calling thread until the window is closed; runs the platform message loop.
          * Must be called from the thread that created the window.
          */

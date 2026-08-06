@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
+using InfiniFrame.DragDrop;
 using System.Drawing;
 
 namespace InfiniTests.InfiniFrame.Shared.Events;
@@ -27,7 +27,7 @@ public class FileDroppedEventArgsTests {
     [Test]
     public async Task Files_IsReadOnlyList(CancellationToken ct = default) {
         // Arrange
-        var args = new FileDroppedEventArgs(new[] { "file.txt" }, Point.Empty);
+        var args = new FileDroppedEventArgs(["file.txt"], Point.Empty);
 
         // Act & Assert
         await Assert.That(args.Files).IsAssignableTo<IReadOnlyList<string>>();
@@ -36,7 +36,7 @@ public class FileDroppedEventArgsTests {
     [Test]
     public async Task Constructor_EmptyFiles_SetsEmptyList(CancellationToken ct = default) {
         // Arrange & Act
-        var args = new FileDroppedEventArgs(Array.Empty<string>(), new Point(50, 50));
+        var args = new FileDroppedEventArgs([], new Point(50, 50));
 
         // Assert
         await Assert.That(args.Files.Count).IsEqualTo(0);

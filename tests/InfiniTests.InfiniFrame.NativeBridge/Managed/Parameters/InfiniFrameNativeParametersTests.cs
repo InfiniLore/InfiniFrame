@@ -143,6 +143,7 @@ public class InfiniFrameNativeParametersTests {
                 SmoothScrollingEnabled = true,
                 IgnoreCertificateErrorsEnabled = true,
                 NotificationsEnabled = true,
+                DefaultNotificationIcon = "/path/to/icon.png",
                 ZoomEnabled = true
             };
 
@@ -211,6 +212,7 @@ public class InfiniFrameNativeParametersTests {
             await Assert.That(newParameters.SmoothScrollingEnabled).IsEqualTo(parameters.SmoothScrollingEnabled);
             await Assert.That(newParameters.IgnoreCertificateErrorsEnabled).IsEqualTo(parameters.IgnoreCertificateErrorsEnabled);
             await Assert.That(newParameters.NotificationsEnabled).IsEqualTo(parameters.NotificationsEnabled);
+            await Assert.That(newParameters.DefaultNotificationIcon).IsEqualTo(parameters.DefaultNotificationIcon);
             await Assert.That(newParameters.Size).IsEqualTo(parameters.Size);
             await Assert.That(newParameters.ZoomEnabled).IsEqualTo(parameters.ZoomEnabled);
         }

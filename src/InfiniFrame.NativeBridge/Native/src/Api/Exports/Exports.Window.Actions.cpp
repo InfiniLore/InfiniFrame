@@ -31,4 +31,49 @@ EXPORTED InteropStatus InfiniFrameNative_ShowNotification(
         window->ShowNotification(NullToEmpty(title), NullToEmpty(body));
     });
 }
+
+EXPORTED InteropStatus InfiniFrameNative_ShowNotificationWithOptions(
+    InfiniFrameWindow* instance,
+    const AutoString title,
+    const AutoString body,
+    const AutoString iconPath,
+    const int urgency,
+    const AutoString tag
+) {
+    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+        window->ShowNotificationWithOptions(
+            NullToEmpty(title), NullToEmpty(body), NullToEmpty(iconPath), urgency, NullToEmpty(tag)
+        );
+    });
+}
+
+EXPORTED InteropStatus InfiniFrameNative_BeginShowNotification(
+    InfiniFrameWindow* instance,
+    const uint64_t operationId,
+    const AutoString title,
+    const AutoString body,
+    const AutoString iconPath,
+    const int urgency,
+    const AutoString tag,
+    const OperationCompletedCallback completion,
+    void* completionContext
+) {
+    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+        window->BeginShowNotification(
+            operationId,
+            NullToEmpty(title), NullToEmpty(body), NullToEmpty(iconPath), urgency, NullToEmpty(tag),
+            completion, completionContext
+        );
+    });
+}
+
+EXPORTED InteropStatus InfiniFrameNative_CancelNotification(
+    InfiniFrameWindow* instance,
+    const uint64_t operationId,
+    bool* canceled
+) {
+    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+        window->CancelNotification(operationId, canceled);
+    });
+}
 }
