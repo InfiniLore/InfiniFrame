@@ -35,9 +35,9 @@ public class MenuBarSerializationTests {
 
         // Assert
         await Assert.That(deserialized).IsNotNull();
-        await Assert.That(deserialized!.Items).HasCount().EqualTo(3);
+        await Assert.That(deserialized!.Items).Count().IsEqualTo(3);
         await Assert.That(deserialized.Items[0].Id).IsEqualTo("file");
-        await Assert.That(deserialized.Items[0].Children).HasCount().EqualTo(4);
+        await Assert.That(deserialized.Items[0].Children).Count().IsEqualTo(4);
         await Assert.That(deserialized.Items[0].Children[2].Type).IsEqualTo(InfiniFrameMenuItemType.Separator);
         await Assert.That(deserialized.Items[2].IsEnabled).IsFalse();
         await Assert.That(deserialized.Items[2].IsVisible).IsFalse();

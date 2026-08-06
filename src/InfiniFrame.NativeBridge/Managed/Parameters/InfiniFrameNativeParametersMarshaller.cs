@@ -21,11 +21,15 @@ namespace InfiniFrame.NativeBridge.Parameters;
 internal static class InfiniFrameNativeParametersMarshaller {
     /// <summary>
     ///     Unmanaged layout of <see cref="InfiniFrameNativeParameters" /> used for native interop.
+    ///     Field order must match the C++ InfiniFrameInitParams struct exactly.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     internal struct Unmanaged {
+        // ── Content strings ────────────────────────────────────────────
         internal IntPtr StartString;
         internal IntPtr StartUrl;
+
+        // ── Window identity / appearance strings ───────────────────────
         internal IntPtr Title;
         internal IntPtr WindowIconFile;
         internal IntPtr TemporaryFilesPath;
@@ -35,8 +39,14 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal IntPtr NotificationRegistrationId;
         internal IntPtr WindowsAppUserModelId;
         internal IntPtr DefaultNotificationIcon;
+
+        // ── Runtime configuration ──────────────────────────────────────
         internal int RemoteDebuggingPort;
+
+        // ── Parent window ──────────────────────────────────────────────
         internal IntPtr NativeParent;
+
+        // ── Event callbacks ────────────────────────────────────────────
         internal IntPtr ClosingHandler;
         internal IntPtr ClosedHandler;
         internal IntPtr FocusInHandler;
@@ -48,6 +58,8 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal IntPtr MovedHandler;
         internal IntPtr WebMessageReceivedHandler;
         internal IntPtr DebugEventHandler;
+
+        // ── Custom scheme support ──────────────────────────────────────
         internal IntPtr CustomSchemeNames0;
         internal IntPtr CustomSchemeNames1;
         internal IntPtr CustomSchemeNames2;
@@ -66,8 +78,12 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal IntPtr CustomSchemeNames15;
         internal IntPtr CustomSchemeHandler;
         internal IntPtr NavigationStartingHandler;
+
+        // ── Drag-and-drop ──────────────────────────────────────────────
         internal IntPtr DragDropHandler;
         internal byte DragDropEnabled;
+
+        // ── Window geometry ────────────────────────────────────────────
         internal int Left;
         internal int Top;
         internal int Width;
@@ -77,13 +93,11 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal int MinHeight;
         internal int MaxWidth;
         internal int MaxHeight;
+
+        // ── Behavior flags ─────────────────────────────────────────────
         internal byte CenterOnInitialize;
         internal byte Chromeless;
         internal byte Transparent;
-        internal byte BackgroundColorR;
-        internal byte BackgroundColorG;
-        internal byte BackgroundColorB;
-        internal byte BackgroundColorA;
         internal byte ContextMenuEnabled;
         internal byte ZoomEnabled;
         internal byte DevToolsEnabled;
@@ -105,7 +119,17 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal byte IgnoreCertificateErrorsEnabled;
         internal byte StatusBarEnabled;
         internal byte NotificationsEnabled;
+
+        // ── Background color (RGBA) ────────────────────────────────────
+        internal byte BackgroundColorR;
+        internal byte BackgroundColorG;
+        internal byte BackgroundColorB;
+        internal byte BackgroundColorA;
+
+        // ── Menu ───────────────────────────────────────────────────────
         internal IntPtr MenuBarJson;
+
+        // ── ABI version ────────────────────────────────────────────────
         internal int Size;
     }
 
@@ -121,8 +145,11 @@ internal static class InfiniFrameNativeParametersMarshaller {
         /// <param name="managed">The managed parameters source.</param>
         public void FromManaged(InfiniFrameNativeParameters managed) {
             _unmanaged = new Unmanaged {
+                // Content strings
                 StartString = ToUtf8Ptr(managed.StartString),
                 StartUrl = ToUtf8Ptr(managed.StartUrl),
+
+                // Window identity strings
                 Title = ToUtf8Ptr(managed.Title),
                 WindowIconFile = ToUtf8Ptr(managed.WindowIconFile),
                 TemporaryFilesPath = ToUtf8Ptr(managed.TemporaryFilesPath),
@@ -132,8 +159,14 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 NotificationRegistrationId = ToUtf8Ptr(managed.NotificationRegistrationId),
                 WindowsAppUserModelId = ToUtf8Ptr(managed.WindowsAppUserModelId),
                 DefaultNotificationIcon = ToUtf8Ptr(managed.DefaultNotificationIcon),
+
+                // Runtime configuration
                 RemoteDebuggingPort = managed.RemoteDebuggingPort,
+
+                // Parent window
                 NativeParent = managed.NativeParent,
+
+                // Event callbacks
                 ClosingHandler = ToFunctionPtr(managed.ClosingHandler),
                 ClosedHandler = ToFunctionPtr(managed.ClosedHandler),
                 FocusInHandler = ToFunctionPtr(managed.FocusInHandler),
@@ -145,6 +178,8 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 MovedHandler = ToFunctionPtr(managed.MovedHandler),
                 WebMessageReceivedHandler = ToFunctionPtr(managed.WebMessageReceivedHandler),
                 DebugEventHandler = ToFunctionPtr(managed.DebugEventHandler),
+
+                // Custom scheme support
                 CustomSchemeNames0 = GetCustomSchemeName(managed.CustomSchemeNames, 0),
                 CustomSchemeNames1 = GetCustomSchemeName(managed.CustomSchemeNames, 1),
                 CustomSchemeNames2 = GetCustomSchemeName(managed.CustomSchemeNames, 2),
@@ -163,8 +198,12 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 CustomSchemeNames15 = GetCustomSchemeName(managed.CustomSchemeNames, 15),
                 CustomSchemeHandler = ToFunctionPtr(managed.CustomSchemeHandler),
                 NavigationStartingHandler = ToFunctionPtr(managed.NavigationStartingHandler),
+
+                // Drag-and-drop
                 DragDropHandler = ToFunctionPtr(managed.FileDroppedHandler),
                 DragDropEnabled = ToByte(managed.DragDropEnabled),
+
+                // Window geometry
                 Left = managed.Left,
                 Top = managed.Top,
                 Width = managed.Width,
@@ -174,13 +213,11 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 MinHeight = managed.MinHeight,
                 MaxWidth = managed.MaxWidth,
                 MaxHeight = managed.MaxHeight,
+
+                // Behavior flags
                 CenterOnInitialize = ToByte(managed.CenterOnInitialize),
                 Chromeless = ToByte(managed.Chromeless),
                 Transparent = ToByte(managed.Transparent),
-                BackgroundColorR = managed.BackgroundColorR,
-                BackgroundColorG = managed.BackgroundColorG,
-                BackgroundColorB = managed.BackgroundColorB,
-                BackgroundColorA = managed.BackgroundColorA,
                 ContextMenuEnabled = ToByte(managed.ContextMenuEnabled),
                 ZoomEnabled = ToByte(managed.ZoomEnabled),
                 DevToolsEnabled = ToByte(managed.DevToolsEnabled),
@@ -202,7 +239,17 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 IgnoreCertificateErrorsEnabled = ToByte(managed.IgnoreCertificateErrorsEnabled),
                 StatusBarEnabled = ToByte(managed.StatusBarEnabled),
                 NotificationsEnabled = ToByte(managed.NotificationsEnabled),
+
+                // Background color
+                BackgroundColorR = managed.BackgroundColorR,
+                BackgroundColorG = managed.BackgroundColorG,
+                BackgroundColorB = managed.BackgroundColorB,
+                BackgroundColorA = managed.BackgroundColorA,
+
+                // Menu
                 MenuBarJson = ToUtf8Ptr(managed.MenuBarJson),
+
+                // ABI version
                 Size = managed.Size
             };
         }

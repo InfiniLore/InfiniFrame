@@ -92,7 +92,8 @@ public class InfiniFrameWindowFeaturesFactory(IServiceProvider provider) {
             ),
             Menu: new MenuInfiniFrameWindowFeature(
                 window,
-                GetLogger<MenuInfiniFrameWindowFeature>(provider)
+                GetLogger<MenuInfiniFrameWindowFeature>(provider),
+                originalBuilder.Features.Menu.MenuBar
             )
         );
 }

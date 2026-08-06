@@ -68,16 +68,16 @@ void InfiniFrameWindow::GetMinSize(int* width, int* height) const {
         *height = m_impl->_minHeight;
 }
 
-AutoString InfiniFrameWindow::GetTitle() const {
-    return AllocateStringCopy(m_impl->_windowTitle);
+const char* InfiniFrameWindow::GetTitle() const {
+    return AllocateUtf8FromWide(m_impl->_windowTitle);
 }
 
-AutoString InfiniFrameWindow::GetCurrentUrl() const {
+const char* InfiniFrameWindow::GetCurrentUrl() const {
     if (!m_impl->_webviewWindow)
-        return AllocateStringCopy(NativeString());
+        return AllocateUtf8FromWide(NativeString());
     wil::unique_cotaskmem_string source;
     m_impl->_webviewWindow->get_Source(&source);
-    return AllocateStringCopy(source.get() ? std::wstring(source.get()) : std::wstring());
+    return AllocateUtf8FromWide(source.get() ? std::wstring(source.get()) : std::wstring());
 }
 
 void InfiniFrameWindow::GetTopmost(bool* topmost) const {
@@ -102,7 +102,7 @@ void InfiniFrameWindow::GetZoom(int* zoom) const {
     *zoom = static_cast<int>(rawValue);
 }
 
-void InfiniFrameWindow::NavigateToString(AutoString content) {
+void InfiniFrameWindow::NavigateToString(const char* content) {
     if (!m_impl->_hWnd || !IsWindow(m_impl->_hWnd) || m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
         return;
     if (!m_impl->_webviewWindow)
@@ -112,7 +112,7 @@ void InfiniFrameWindow::NavigateToString(AutoString content) {
     m_impl->_webviewWindow->NavigateToString(wideContent.c_str());
 }
 
-void InfiniFrameWindow::NavigateToUrl(AutoString url) {
+void InfiniFrameWindow::NavigateToUrl(const char* url) {
     if (!m_impl->_hWnd || !IsWindow(m_impl->_hWnd) || m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
         return;
     if (!m_impl->_webviewWindow)
@@ -126,7 +126,7 @@ void InfiniFrameWindow::Restore() {
     ShowWindow(m_impl->_hWnd, SW_RESTORE);
 }
 
-void InfiniFrameWindow::SendWebMessage(AutoString message) {
+void InfiniFrameWindow::SendWebMessage(const char* message) {
     if (!m_impl->_hWnd || !IsWindow(m_impl->_hWnd) || m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
         return;
 
@@ -183,7 +183,7 @@ void InfiniFrameWindow::SetFullScreen(const bool fullScreen) {
     }
 }
 
-void InfiniFrameWindow::SetIconFile(const AutoString filename) {
+void InfiniFrameWindow::SetIconFile(const char* filename) {
     std::wstring wideFilename = ToUTF16String(filename);
     m_impl->_iconFileName = wideFilename;
     if (wideFilename.empty())
@@ -274,7 +274,7 @@ void InfiniFrameWindow::SetSize(const int width, const int height) {
     SetWindowPos(m_impl->_hWnd, HWND_TOP, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
 }
 
-void InfiniFrameWindow::SetTitle(AutoString title) {
+void InfiniFrameWindow::SetTitle(const char* title) {
     std::wstring wideTitle = ToUTF16String(title);
     m_impl->_windowTitle = wideTitle;
     SetWindowText(m_impl->_hWnd, wideTitle.c_str());

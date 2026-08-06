@@ -12,8 +12,12 @@ void InfiniFrameWindow::GetGrantBrowserPermissions(bool* grant) const {
     *grant = ImplBase()->_grantBrowserPermissions;
 }
 
-AutoString InfiniFrameWindow::GetUserAgent() const {
+const char* InfiniFrameWindow::GetUserAgent() const {
+#ifdef _WIN32
+    return AllocateUtf8FromWide(ImplBase()->_userAgent);
+#else
     return AllocateStringCopy(ImplBase()->_userAgent);
+#endif
 }
 
 void InfiniFrameWindow::GetMediaAutoplayEnabled(bool* enabled) const {
@@ -48,8 +52,12 @@ NavigationStartingCallback InfiniFrameWindow::GetNavigationStartingCallback() co
     return ImplBase()->_navigationStartingCallback;
 }
 
-AutoString InfiniFrameWindow::GetIconFileName() const {
+const char* InfiniFrameWindow::GetIconFileName() const {
+#ifdef _WIN32
+    return AllocateUtf8FromWide(ImplBase()->_iconFileName);
+#else
     return AllocateStringCopy(ImplBase()->_iconFileName);
+#endif
 }
 
 void InfiniFrameWindow::GetBackgroundColor(uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a) const {

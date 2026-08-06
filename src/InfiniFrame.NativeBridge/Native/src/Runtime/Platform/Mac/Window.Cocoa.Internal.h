@@ -72,10 +72,10 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     CGFloat _preMaximizedYPosition = 0;
 
     std::vector<Monitor> GetMonitors() const;
-    void SetUserAgent(AutoString userAgent);
+    void SetUserAgent(const char* userAgent);
     void SetPreference(NSString* key, NSNumber* value);
     void SetPreference(NSString* key, NSString* value);
-    void AddCustomScheme(const AutoStringConst scheme, WebResourceRequestedCallback requestHandler);
+    void AddCustomScheme(const char* scheme, WebResourceRequestedCallback requestHandler);
     bool LeasePooledMacHost(const std::string& compatibilityKey);
     void ReturnPooledMacHost();
 };

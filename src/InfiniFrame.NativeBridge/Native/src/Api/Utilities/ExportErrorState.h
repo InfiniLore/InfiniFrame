@@ -64,7 +64,7 @@ namespace infiniframe::exports {
         return InteropStatus::OperationFailed;
     }
 
-    inline AutoString GetLastErrorMessageCopy() {
+    inline const char* GetLastErrorMessageCopy() {
         return AllocateErrorMessageString(g_lastErrorMessage);
     }
 }

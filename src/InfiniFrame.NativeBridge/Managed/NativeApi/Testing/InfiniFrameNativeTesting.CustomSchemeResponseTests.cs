@@ -93,12 +93,10 @@ public static partial class InfiniFrameNativeTesting {
 
     private static IntPtr MarshalStringToNative(string? value) {
         if (value == null) return IntPtr.Zero;
-        return OperatingSystem.IsWindows()
-            ? Marshal.StringToHGlobalUni(value)
-            : Marshal.StringToHGlobalAnsi(value);
+        return Marshal.StringToCoTaskMemUTF8(value);
     }
 
     private static void MarshalFreeNativeString(IntPtr ptr) {
-        if (ptr != IntPtr.Zero) Marshal.FreeHGlobal(ptr);
+        if (ptr != IntPtr.Zero) Marshal.FreeCoTaskMem(ptr);
     }
 }

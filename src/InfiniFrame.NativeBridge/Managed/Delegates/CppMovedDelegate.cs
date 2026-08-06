@@ -12,5 +12,5 @@ namespace InfiniFrame.NativeBridge.Delegates;
 /// </summary>
 /// <param name="x">The new x-coordinate of the window.</param>
 /// <param name="y">The new y-coordinate of the window.</param>
-[UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)]
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public delegate void CppMovedDelegate(int x, int y);

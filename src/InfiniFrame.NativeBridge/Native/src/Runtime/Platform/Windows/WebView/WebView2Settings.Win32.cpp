@@ -136,7 +136,7 @@ void InfiniFrameWindow::SetMediaAutoplayEnabled(const bool enabled) {
     m_impl->_webviewWindow->Reload();
 }
 
-void InfiniFrameWindow::SetUserAgent(const AutoString userAgent) {
+void InfiniFrameWindow::SetUserAgent(const char* userAgent) {
     m_impl->_userAgent = userAgent != nullptr ? ToUTF16String(userAgent) : L"";
     if (!m_impl->_webviewWindow)
         return;

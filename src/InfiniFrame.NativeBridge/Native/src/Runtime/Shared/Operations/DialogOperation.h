@@ -38,7 +38,7 @@ struct DialogOperation final {
         messageCompletion(completion), completionContext(context) {}
 
     void SetCancelAction(std::function<void()> action);
-    bool CompleteFile(int32_t result, int32_t valueCount, AutoString* values) noexcept;
+    bool CompleteFile(int32_t result, int32_t valueCount, const char** values) noexcept;
     bool CompleteMessage(DialogResult value) noexcept;
     bool Cancel(NativeOperationResult result) noexcept;
 

@@ -237,7 +237,9 @@ void InfiniFrameWindow::AttachWebView() {
 
                                         // Guard: skip empty/null messages to avoid invoking managed delegate with invalid data
                                         if (message.get() != nullptr && message.get()[0] != L'\0') {
-                                            m_impl->_webMessageReceivedCallback(message.get(), source.get());
+                                            auto msgUtf8 = WideToUtf8(message.get());
+                                            auto srcUtf8 = WideToUtf8(source.get());
+                                            m_impl->_webMessageReceivedCallback(msgUtf8.c_str(), srcUtf8.c_str());
                                         }
                                         return S_OK;
                                     }
@@ -306,8 +308,9 @@ void InfiniFrameWindow::AttachWebView() {
                                         // Default to TRUE (main frame) for the managed callback.
                                         int isMainFrame = 1;
 
+                                        auto uriUtf8 = WideToUtf8(uri.get());
                                         int cancel = m_impl->_navigationStartingCallback(
-                                            uri.get(), isUserInitiated ? 1 : 0, isRedirected ? 1 : 0, isMainFrame
+                                            uriUtf8.c_str(), isUserInitiated ? 1 : 0, isRedirected ? 1 : 0, isMainFrame
                                         );
                                         if (cancel) {
                                             args->put_Cancel(TRUE);
@@ -346,11 +349,12 @@ void InfiniFrameWindow::AttachWebView() {
                                             m_impl->_webviewWindow->get_Source(&source);
 
                                         if (isSuccess) {
+                                            auto sourceUtf8 = WideToUtf8(source.get());
                                             InvokeDebugEvent(
-                                                L"Navigation",
-                                                L"Navigation completed",
-                                                L"Info",
-                                                source.get(),
+                                                "Navigation",
+                                                "Navigation completed",
+                                                "Info",
+                                                sourceUtf8.c_str(),
                                                 0,
                                                 unix_timestamp_milliseconds_utc(),
                                                 nullptr
@@ -360,23 +364,25 @@ void InfiniFrameWindow::AttachWebView() {
                                                 L"{{\"webErrorStatus\":{}}}",
                                                 static_cast<int>(webErrorStatus)
                                             );
+                                            auto sourceUtf8 = WideToUtf8(source.get());
+                                            auto payloadUtf8 = WideToUtf8(payload.c_str());
                                             InvokeDebugEvent(
-                                                L"Navigation",
-                                                L"Navigation failed",
-                                                L"Error",
-                                                source.get(),
+                                                "Navigation",
+                                                "Navigation failed",
+                                                "Error",
+                                                sourceUtf8.c_str(),
                                                 static_cast<int>(webErrorStatus),
                                                 unix_timestamp_milliseconds_utc(),
-                                                payload.c_str()
+                                                payloadUtf8.c_str()
                                             );
                                             InvokeDebugEvent(
-                                                L"ScriptError",
-                                                L"Navigation failed",
-                                                L"Error",
-                                                source.get(),
+                                                "ScriptError",
+                                                "Navigation failed",
+                                                "Error",
+                                                sourceUtf8.c_str(),
                                                 static_cast<int>(webErrorStatus),
                                                 unix_timestamp_milliseconds_utc(),
-                                                payload.c_str()
+                                                payloadUtf8.c_str()
                                             );
                                         }
 
@@ -414,14 +420,15 @@ void InfiniFrameWindow::AttachWebView() {
                                                 L"{{\"processFailedKind\":{}}}",
                                                 static_cast<int>(processFailedKind)
                                             );
+                                            auto payloadUtf8 = WideToUtf8(payload.c_str());
                                             InvokeDebugEvent(
-                                                L"Process",
-                                                L"WebView2 process failed",
-                                                L"Error",
+                                                "Process",
+                                                "WebView2 process failed",
+                                                "Error",
                                                 nullptr,
                                                 static_cast<int>(processFailedKind),
                                                 unix_timestamp_milliseconds_utc(),
-                                                payload.c_str()
+                                                payloadUtf8.c_str()
                                             );
                                             return S_OK;
                                         }

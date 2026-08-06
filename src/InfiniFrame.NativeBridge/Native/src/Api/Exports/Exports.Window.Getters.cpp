@@ -73,8 +73,8 @@ EXPORTED InteropStatus InfiniFrameNative_GetGrantBrowserPermissions(InfiniFrameW
 }
 
 /// @param[out] value Owned string, caller must free with InfiniFrameNative_FreeString.
-EXPORTED InteropStatus InfiniFrameNative_GetUserAgent(InfiniFrameWindow* instance, AutoString* value) {
-    ResetOut(value, static_cast<AutoString>(nullptr));
+EXPORTED InteropStatus InfiniFrameNative_GetUserAgent(InfiniFrameWindow* instance, const char** value) {
+    ResetOut(value, static_cast<const char*>(nullptr));
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(value, "value"))
             return;
@@ -227,8 +227,8 @@ EXPORTED InteropStatus InfiniFrameNative_GetMinSize(InfiniFrameWindow* instance,
 }
 
 /// @param[out] value Owned string, caller must free with InfiniFrameNative_FreeString.
-EXPORTED InteropStatus InfiniFrameNative_GetTitle(InfiniFrameWindow* instance, AutoString* value) {
-    ResetOut(value, static_cast<AutoString>(nullptr));
+EXPORTED InteropStatus InfiniFrameNative_GetTitle(InfiniFrameWindow* instance, const char** value) {
+    ResetOut(value, static_cast<const char*>(nullptr));
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(value, "value"))
             return;
@@ -264,8 +264,8 @@ EXPORTED InteropStatus InfiniFrameNative_GetFocused(InfiniFrameWindow* instance,
 }
 
 /// @param[out] value Owned string, caller must free with InfiniFrameNative_FreeString.
-EXPORTED InteropStatus InfiniFrameNative_GetIconFileName(InfiniFrameWindow* instance, AutoString* value) {
-    ResetOut(value, static_cast<AutoString>(nullptr));
+EXPORTED InteropStatus InfiniFrameNative_GetIconFileName(InfiniFrameWindow* instance, const char** value) {
+    ResetOut(value, static_cast<const char*>(nullptr));
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(value, "value"))
             return;

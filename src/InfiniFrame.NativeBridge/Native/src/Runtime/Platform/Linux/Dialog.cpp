@@ -26,7 +26,7 @@ enum DialogType {
  * @param filters UTF-8 filter strings (array of length filterCount)
  * @param filterCount Number of filters
  */
-void AddFilters(GtkWidget* dialog, AutoString* filters, const int filterCount) {
+void AddFilters(GtkWidget* dialog, const char** filters, const int filterCount) {
     for (int i = 0; i < filterCount; i++) {
         GtkFileFilter* filter = gtk_file_filter_new();
 
@@ -64,15 +64,15 @@ void AddFilters(GtkWidget* dialog, AutoString* filters, const int filterCount) {
  * @param defaultFileName UTF-8 pre-filled filename for SaveFile; may be null
  * @return Heap-allocated array of UTF-8 path strings, or null if cancelled
  */
-AutoString* ShowDialog(
+const char** ShowDialog(
     const DialogType type,
-    const AutoString title,
-    const AutoString defaultPath,
+    const char* title,
+    const char* defaultPath,
     const bool multiSelect,
-    AutoString* filters,
+    const char** filters,
     const int filterCount,
     int* resultCount,
-    const AutoString defaultFileName = nullptr
+    const char* defaultFileName = nullptr
 ) {
     GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
     const char* buttonText = "_Open";
@@ -144,29 +144,29 @@ InfiniFrameDialog::InfiniFrameDialog() {}
 
 InfiniFrameDialog::~InfiniFrameDialog() {}
 
-AutoString* InfiniFrameDialog::ShowOpenFile(
-    const AutoString title,
-    const AutoString defaultPath,
+const char** InfiniFrameDialog::ShowOpenFile(
+    const char* title,
+    const char* defaultPath,
     const bool multiSelect,
-    AutoString* filters,
+    const char** filters,
     const int filterCount,
     int* resultCount
 ) {
     return ShowDialog(OpenFile, title, defaultPath, multiSelect, filters, filterCount, resultCount);
 }
 
-AutoString* InfiniFrameDialog::ShowOpenFolder(
-    const AutoString title, const AutoString defaultPath, const bool multiSelect, int* resultCount
+const char** InfiniFrameDialog::ShowOpenFolder(
+    const char* title, const char* defaultPath, const bool multiSelect, int* resultCount
 ) {
     return ShowDialog(OpenFolder, title, defaultPath, multiSelect, nullptr, 0, resultCount);
 }
 
-AutoString InfiniFrameDialog::ShowSaveFile(
-    const AutoString title,
-    const AutoString defaultPath,
-    AutoString* filters,
+const char* InfiniFrameDialog::ShowSaveFile(
+    const char* title,
+    const char* defaultPath,
+    const char** filters,
     const int filterCount,
-    const AutoString defaultFileName
+    const char* defaultFileName
 ) {
     char** result = ShowDialog(SaveFile, title, defaultPath, false, filters, filterCount, nullptr, defaultFileName);
     if (result != nullptr) {
@@ -178,7 +178,7 @@ AutoString InfiniFrameDialog::ShowSaveFile(
 }
 
 DialogResult InfiniFrameDialog::ShowMessage(
-    const AutoString title, const AutoString text, const DialogButtons buttons, const DialogIcon icon
+    const char* title, const char* text, const DialogButtons buttons, const DialogIcon icon
 ) {
     GtkWidget* dialog;
     GtkMessageType type;
@@ -284,7 +284,7 @@ namespace {
     }
 
     GtkWidget* CreateAsyncMessageDialog(
-        InfiniFrameWindow* owner, AutoString title, AutoString text,
+        InfiniFrameWindow* owner, const char* title, const char* text,
         const DialogButtons buttons, const DialogIcon icon
     ) {
         GtkMessageType type = GTK_MESSAGE_OTHER;
@@ -331,7 +331,7 @@ namespace {
             return;
         state->completed = true;
 
-        AutoString* values = nullptr;
+        const char** values = nullptr;
         int count = 0;
         if (response == GTK_RESPONSE_ACCEPT) {
             GSList* paths = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(state->dialog));
@@ -394,12 +394,12 @@ namespace {
     GtkWidget* CreateAsyncFileDialog(
         InfiniFrameWindow* owner,
         const DialogType type,
-        AutoString title,
-        AutoString defaultPath,
+        const char* title,
+        const char* defaultPath,
         const bool multiSelect,
-        AutoString* filters,
+        const char** filters,
         const int filterCount,
-        AutoString defaultFileName
+        const char* defaultFileName
     ) {
         const GtkFileChooserAction action = type == OpenFile ? GTK_FILE_CHOOSER_ACTION_OPEN
             : type == OpenFolder ? GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER
@@ -428,12 +428,12 @@ namespace {
         InfiniFrameWindow* owner,
         const DialogType type,
         const uint64_t operationId,
-        AutoString title,
-        AutoString defaultPath,
+        const char* title,
+        const char* defaultPath,
         const bool multiSelect,
-        AutoString* filters,
+        const char** filters,
         const int filterCount,
-        AutoString defaultFileName,
+        const char* defaultFileName,
         const FileDialogCompletedCallback completion,
         void* completionContext
     ) {
@@ -453,7 +453,7 @@ namespace {
 }
 
 void InfiniFrameWindow::BeginShowMessage(
-    const uint64_t id, AutoString title, AutoString text,
+    const uint64_t id, const char* title, const char* text,
     const DialogButtons buttons, const DialogIcon icon,
     const OperationCompletedCallback completion, void* context
 ) {
@@ -469,22 +469,22 @@ void InfiniFrameWindow::BeginShowMessage(
 }
 
 void InfiniFrameWindow::BeginShowOpenFile(
-    const uint64_t id, AutoString title, AutoString path, const bool multiSelect,
-    AutoString* filters, const int filterCount, const FileDialogCompletedCallback completion, void* context
+    const uint64_t id, const char* title, const char* path, const bool multiSelect,
+    const char** filters, const int filterCount, const FileDialogCompletedCallback completion, void* context
 ) {
     BeginAsyncFileDialog(this, OpenFile, id, title, path, multiSelect, filters, filterCount, nullptr, completion, context);
 }
 
 void InfiniFrameWindow::BeginShowOpenFolder(
-    const uint64_t id, AutoString title, AutoString path, const bool multiSelect,
+    const uint64_t id, const char* title, const char* path, const bool multiSelect,
     const FileDialogCompletedCallback completion, void* context
 ) {
     BeginAsyncFileDialog(this, OpenFolder, id, title, path, multiSelect, nullptr, 0, nullptr, completion, context);
 }
 
 void InfiniFrameWindow::BeginShowSaveFile(
-    const uint64_t id, AutoString title, AutoString path, AutoString* filters, const int filterCount,
-    AutoString defaultFileName, const FileDialogCompletedCallback completion, void* context
+    const uint64_t id, const char* title, const char* path, const char** filters, const int filterCount,
+    const char* defaultFileName, const FileDialogCompletedCallback completion, void* context
 ) {
     BeginAsyncFileDialog(this, SaveFile, id, title, path, false, filters, filterCount, defaultFileName, completion, context);
 }

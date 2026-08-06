@@ -26,10 +26,12 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
     /// <param name="logger">The logger instance.</param>
     public MenuInfiniFrameWindowFeature(
         IInfiniFrameWindow window,
-        ILogger<MenuInfiniFrameWindowFeature> logger
+        ILogger<MenuInfiniFrameWindowFeature> logger,
+        InfiniFrameMenuBar? menuBar = null
     ) {
         _window = window;
         _logger = logger;
+        _menuBar = menuBar ?? new();
     }
 
     /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.MenuBar"/>
@@ -99,6 +101,6 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
             }
         }
 
-        return builder.MoveToImmutable();
+        return builder.ToImmutable();
     }
 }

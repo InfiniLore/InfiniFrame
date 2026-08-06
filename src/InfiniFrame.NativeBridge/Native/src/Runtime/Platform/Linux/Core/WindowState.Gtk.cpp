@@ -82,12 +82,12 @@ void InfiniFrameWindow::GetMinSize(int* width, int* height) const {
         *height = m_impl->_minHeight;
 }
 
-AutoString InfiniFrameWindow::GetTitle() const {
+const char* InfiniFrameWindow::GetTitle() const {
     const char* title = gtk_window_get_title(GTK_WINDOW(m_impl->_window));
     return g_strdup(title ? title : "");
 }
 
-AutoString InfiniFrameWindow::GetCurrentUrl() const {
+const char* InfiniFrameWindow::GetCurrentUrl() const {
     if (m_impl->_webview == nullptr)
         return g_strdup("");
     const gchar* uri = webkit_web_view_get_uri(WEBKIT_WEB_VIEW(m_impl->_webview));
@@ -110,14 +110,14 @@ void InfiniFrameWindow::GetFocused(bool* isFocused) const {
     *isFocused = gtk_window_is_active(GTK_WINDOW(m_impl->_window));
 }
 
-void InfiniFrameWindow::NavigateToString(const AutoString content) {
+void InfiniFrameWindow::NavigateToString(const char* content) {
     if (m_impl->_webviewClosed || m_impl->_webview == nullptr)
         return;
 
     webkit_web_view_load_html(WEBKIT_WEB_VIEW(m_impl->_webview), content, nullptr);
 }
 
-void InfiniFrameWindow::NavigateToUrl(const AutoString url) {
+void InfiniFrameWindow::NavigateToUrl(const char* url) {
     if (m_impl->_webviewClosed || m_impl->_webview == nullptr)
         return;
 
@@ -193,7 +193,7 @@ void InfiniFrameWindow::FlushPendingWebMessages() {
     }
 }
 
-void InfiniFrameWindow::SendWebMessage(const AutoString message) {
+void InfiniFrameWindow::SendWebMessage(const char* message) {
     if (m_impl->_webviewClosed || m_impl->_webview == nullptr)
         return;
 
@@ -230,7 +230,7 @@ void InfiniFrameWindow::SetMediaAutoplayEnabled(const bool enabled) {
     webkit_web_view_reload(WEBKIT_WEB_VIEW(m_impl->_webview));
 }
 
-void InfiniFrameWindow::SetUserAgent(const AutoString userAgent) {
+void InfiniFrameWindow::SetUserAgent(const char* userAgent) {
     m_impl->_userAgent = userAgent != nullptr ? userAgent : "";
     if (m_impl->_webview == nullptr)
         return;
@@ -266,7 +266,7 @@ void InfiniFrameWindow::SetFullScreen(const bool fullScreen) {
     m_impl->_isFullScreen = fullScreen;
 }
 
-void InfiniFrameWindow::SetIconFile(const AutoString filename) {
+void InfiniFrameWindow::SetIconFile(const char* filename) {
     gtk_window_set_icon_from_file(GTK_WINDOW(m_impl->_window), filename, nullptr);
     m_impl->_iconFileName = filename ? filename : "";
 }
@@ -336,7 +336,7 @@ void InfiniFrameWindow::SetSize(const int width, const int height) {
     gtk_window_resize(GTK_WINDOW(m_impl->_window), width, height);
 }
 
-void InfiniFrameWindow::SetTitle(const AutoString title) {
+void InfiniFrameWindow::SetTitle(const char* title) {
     gtk_window_set_title(GTK_WINDOW(m_impl->_window), title);
 }
 

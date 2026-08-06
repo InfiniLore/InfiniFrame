@@ -69,10 +69,10 @@ void InfiniFrameWindow::CloseWebView() {
     TraceTeardown(L"CloseWebView end instance=%p", this);
 }
 
-std::string InfiniFrameWindow::ToUTF8String(const AutoString source) const {
-    return WideToUtf8(source);
+std::string InfiniFrameWindow::ToUTF8String(const char* source) const {
+    return source != nullptr ? std::string(source) : std::string();
 }
 
-std::wstring InfiniFrameWindow::ToUTF16String(const AutoString source) const {
-    return AutoStringUtf8ToWide(source);
+std::wstring InfiniFrameWindow::ToUTF16String(const char* source) const {
+    return Utf8ToWide(source);
 }

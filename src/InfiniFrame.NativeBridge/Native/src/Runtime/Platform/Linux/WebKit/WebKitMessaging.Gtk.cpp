@@ -12,9 +12,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 namespace gtk_webkit {
     struct GFreeGuard {
-        AutoString value = nullptr;
+        const char* value = nullptr;
 
-        explicit GFreeGuard(AutoString initialValue = nullptr) : value(initialValue) {}
+        explicit GFreeGuard(const char* initialValue = nullptr) : value(initialValue) {}
         ~GFreeGuard() {
             if (value != nullptr)
                 g_free(value);

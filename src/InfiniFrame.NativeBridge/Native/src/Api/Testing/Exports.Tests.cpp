@@ -39,8 +39,11 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
 
         *new_params = new InfiniFrameInitParams();
 
+        // Content strings
         (*new_params)->StartString = DuplicateString(params->StartString);
         (*new_params)->StartUrl = DuplicateString(params->StartUrl);
+
+        // Window identity strings
         (*new_params)->Title = DuplicateString(params->Title);
         (*new_params)->WindowIconFile = DuplicateString(params->WindowIconFile);
         (*new_params)->TemporaryFilesPath = DuplicateString(params->TemporaryFilesPath);
@@ -50,9 +53,14 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         (*new_params)->NotificationRegistrationId = DuplicateString(params->NotificationRegistrationId);
         (*new_params)->WindowsAppUserModelId = DuplicateString(params->WindowsAppUserModelId);
         (*new_params)->DefaultNotificationIcon = DuplicateString(params->DefaultNotificationIcon);
+
+        // Runtime configuration
         (*new_params)->RemoteDebuggingPort = params->RemoteDebuggingPort;
 
+        // Parent window
         (*new_params)->ParentInstance = params->ParentInstance;
+
+        // Event callbacks
         (*new_params)->ClosingHandler = params->ClosingHandler;
         (*new_params)->ClosedHandler = params->ClosedHandler;
         (*new_params)->FocusInHandler = params->FocusInHandler;
@@ -64,13 +72,17 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         (*new_params)->MovedHandler = params->MovedHandler;
         (*new_params)->WebMessageReceivedHandler = params->WebMessageReceivedHandler;
         (*new_params)->DebugEventHandler = params->DebugEventHandler;
-        (*new_params)->CustomSchemeHandler = params->CustomSchemeHandler;
-        memcpy((*new_params)->CustomSchemeNames, params->CustomSchemeNames, sizeof(params->CustomSchemeNames));
 
+        // Custom scheme support
+        memcpy((*new_params)->CustomSchemeNames, params->CustomSchemeNames, sizeof(params->CustomSchemeNames));
+        (*new_params)->CustomSchemeHandler = params->CustomSchemeHandler;
         (*new_params)->NavigationStartingHandler = params->NavigationStartingHandler;
+
+        // Drag-and-drop
         (*new_params)->DragDropHandler = params->DragDropHandler;
         (*new_params)->DragDropEnabled = params->DragDropEnabled;
 
+        // Window geometry
         (*new_params)->Left = params->Left;
         (*new_params)->Top = params->Top;
         (*new_params)->Width = params->Width;
@@ -80,13 +92,11 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         (*new_params)->MinHeight = params->MinHeight;
         (*new_params)->MaxWidth = params->MaxWidth;
         (*new_params)->MaxHeight = params->MaxHeight;
+
+        // Behavior flags
         (*new_params)->CenterOnInitialize = params->CenterOnInitialize;
         (*new_params)->Chromeless = params->Chromeless;
         (*new_params)->Transparent = params->Transparent;
-        (*new_params)->BackgroundColorR = params->BackgroundColorR;
-        (*new_params)->BackgroundColorG = params->BackgroundColorG;
-        (*new_params)->BackgroundColorB = params->BackgroundColorB;
-        (*new_params)->BackgroundColorA = params->BackgroundColorA;
         (*new_params)->ContextMenuEnabled = params->ContextMenuEnabled;
         (*new_params)->ZoomEnabled = params->ZoomEnabled;
         (*new_params)->DevToolsEnabled = params->DevToolsEnabled;
@@ -106,7 +116,19 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         (*new_params)->MediaStreamEnabled = params->MediaStreamEnabled;
         (*new_params)->SmoothScrollingEnabled = params->SmoothScrollingEnabled;
         (*new_params)->IgnoreCertificateErrorsEnabled = params->IgnoreCertificateErrorsEnabled;
+        (*new_params)->StatusBarEnabled = params->StatusBarEnabled;
         (*new_params)->NotificationsEnabled = params->NotificationsEnabled;
+
+        // Background color
+        (*new_params)->BackgroundColorR = params->BackgroundColorR;
+        (*new_params)->BackgroundColorG = params->BackgroundColorG;
+        (*new_params)->BackgroundColorB = params->BackgroundColorB;
+        (*new_params)->BackgroundColorA = params->BackgroundColorA;
+
+        // Menu
+        (*new_params)->MenuBarJson = DuplicateString(params->MenuBarJson);
+
+        // ABI version
         (*new_params)->StructSize = params->StructSize;
     });
 }
@@ -117,6 +139,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_FreeInitParams(InfiniFrameInitPara
             return;
         }
 
+        // Free all heap-allocated const char* fields
         delete[] params->StartString;
         delete[] params->StartUrl;
         delete[] params->Title;
@@ -128,6 +151,10 @@ EXPORTED InteropStatus InfiniFrameNativeTests_FreeInitParams(InfiniFrameInitPara
         delete[] params->NotificationRegistrationId;
         delete[] params->WindowsAppUserModelId;
         delete[] params->DefaultNotificationIcon;
+        for (size_t i = 0; i < InfiniFrameInitParams::MaxCustomSchemeNames; ++i) {
+            delete[] params->CustomSchemeNames[i];
+        }
+        delete[] params->MenuBarJson;
 
         delete params;
     });
@@ -153,11 +180,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_ConsumeCustomSchemeResponse(
 
         auto callback = reinterpret_cast<WebResourceRequestedCallback>(callbackPointer);
         CustomSchemeResponse response{};
-#ifdef _WIN32
-        wchar_t testUrl[] = L"test://platform-abi";
-#else
         char testUrl[] = "test://platform-abi";
-#endif
         const int handled = callback(testUrl, &response);
         infiniframe::CustomSchemeResponseLease responseLease(response);
         if (handled == 0 || !infiniframe::IsValidBufferedCustomSchemeResponse(response)) return;

@@ -24,8 +24,8 @@ EXPORTED InteropStatus InfiniFrameNative_SetFocused(InfiniFrameWindow* instance)
 
 EXPORTED InteropStatus InfiniFrameNative_ShowNotification(
     InfiniFrameWindow* instance,
-    const AutoString title,
-    const AutoString body
+    const char* title,
+    const char* body
 ) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         window->ShowNotification(NullToEmpty(title), NullToEmpty(body));
@@ -34,11 +34,11 @@ EXPORTED InteropStatus InfiniFrameNative_ShowNotification(
 
 EXPORTED InteropStatus InfiniFrameNative_ShowNotificationWithOptions(
     InfiniFrameWindow* instance,
-    const AutoString title,
-    const AutoString body,
-    const AutoString iconPath,
+    const char* title,
+    const char* body,
+    const char* iconPath,
     const int urgency,
-    const AutoString tag
+    const char* tag
 ) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         window->ShowNotificationWithOptions(
@@ -50,11 +50,11 @@ EXPORTED InteropStatus InfiniFrameNative_ShowNotificationWithOptions(
 EXPORTED InteropStatus InfiniFrameNative_BeginShowNotification(
     InfiniFrameWindow* instance,
     const uint64_t operationId,
-    const AutoString title,
-    const AutoString body,
-    const AutoString iconPath,
+    const char* title,
+    const char* body,
+    const char* iconPath,
     const int urgency,
-    const AutoString tag,
+    const char* tag,
     const OperationCompletedCallback completion,
     void* completionContext
 ) {

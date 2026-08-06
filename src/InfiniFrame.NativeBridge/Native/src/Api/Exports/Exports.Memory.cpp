@@ -6,21 +6,15 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
-EXPORTED InteropStatus InfiniFrameNative_FreeString(AutoString value) {
+EXPORTED InteropStatus InfiniFrameNative_FreeString(const char* value) {
     return RunExportStatus([&] {
         if (!EnsureNotNull(value, "value"))
             return;
-#ifdef _WIN32
         delete[] value;
-#elif __linux__
-        g_free(value);
-#else
-        free(value);
-#endif
     });
 }
 
-EXPORTED InteropStatus InfiniFrameNative_FreeStringArray(AutoString* values, const int count) {
+EXPORTED InteropStatus InfiniFrameNative_FreeStringArray(const char** values, const int count) {
     return RunExportStatus([&] {
         if (!EnsureNotNull(values, "values"))
             return;
@@ -31,21 +25,15 @@ EXPORTED InteropStatus InfiniFrameNative_FreeStringArray(AutoString* values, con
                 InfiniFrameNative_FreeString(values[i]);
             }
         }
-#ifdef _WIN32
         delete[] values;
-#elif __linux__
-        delete[] values;
-#else
-        free(values);
-#endif
     });
 }
 
 /// @param[out] value Owned string, caller must free with InfiniFrameNative_FreeString.
-EXPORTED InteropStatus InfiniFrameNative_GetLastErrorMessage(AutoString* value) {
+EXPORTED InteropStatus InfiniFrameNative_GetLastErrorMessage(const char** value) {
     // Must NOT go through RunExportStatus, that helper calls SetSuccess() first, which would wipe g_lastErrorMessage 
     // before we can read it.
-    ResetOut(value, static_cast<AutoString>(nullptr));
+    ResetOut(value, static_cast<const char*>(nullptr));
     if (!EnsureOutNotNull(value, "value")) {
         return InteropStatus::OutParameterSetToInvalidNull;
     }

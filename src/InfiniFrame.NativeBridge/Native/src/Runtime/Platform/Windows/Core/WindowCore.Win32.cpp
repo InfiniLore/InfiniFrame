@@ -111,7 +111,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         );
     }
 
-    if (initParams->WindowsAppUserModelId != nullptr && initParams->WindowsAppUserModelId[0] != L'\0') {
+    if (initParams->WindowsAppUserModelId != nullptr && initParams->WindowsAppUserModelId[0] != '\0') {
         const std::wstring appUserModelId = ToUTF16String(initParams->WindowsAppUserModelId);
         m_impl->_windowsAppUserModelId = appUserModelId;
         const HRESULT result = SetCurrentProcessExplicitAppUserModelID(appUserModelId.c_str());

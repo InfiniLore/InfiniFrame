@@ -73,34 +73,34 @@ class InfiniFrameWindow {
 
     void BeginShowOpenFile(
         uint64_t operationId,
-        AutoString title,
-        AutoString defaultPath,
+        const char* title,
+        const char* defaultPath,
         bool multiSelect,
-        AutoString* filters,
+        const char** filters,
         int filterCount,
         FileDialogCompletedCallback completion,
         void* completionContext
     );
     void BeginShowOpenFolder(
         uint64_t operationId,
-        AutoString title,
-        AutoString defaultPath,
+        const char* title,
+        const char* defaultPath,
         bool multiSelect,
         FileDialogCompletedCallback completion,
         void* completionContext
     );
     void BeginShowSaveFile(
         uint64_t operationId,
-        AutoString title,
-        AutoString defaultPath,
-        AutoString* filters,
+        const char* title,
+        const char* defaultPath,
+        const char** filters,
         int filterCount,
-        AutoString defaultFileName,
+        const char* defaultFileName,
         FileDialogCompletedCallback completion,
         void* completionContext
     );
     void BeginShowMessage(
-        uint64_t operationId, AutoString title, AutoString text,
+        uint64_t operationId, const char* title, const char* text,
         DialogButtons buttons, DialogIcon icon,
         OperationCompletedCallback completion, void* completionContext
     );
@@ -171,7 +171,7 @@ class InfiniFrameWindow {
          * @brief Get the custom user-agent string
          * @return UTF-8 user-agent string; caller must free with InfiniFrameNative_FreeString
          */
-    [[nodiscard]] AutoString GetUserAgent() const;
+    [[nodiscard]] const char* GetUserAgent() const;
 
     /**
          * @brief Get whether media autoplay is enabled
@@ -219,7 +219,7 @@ class InfiniFrameWindow {
          * @brief Get the window icon file path
          * @return UTF-8 path to the icon file; caller must free with InfiniFrameNative_FreeString
          */
-    [[nodiscard]] AutoString GetIconFileName() const;
+    [[nodiscard]] const char* GetIconFileName() const;
 
     /**
          * @brief Get whether the window is maximized
@@ -277,7 +277,7 @@ class InfiniFrameWindow {
          * @brief Get the window title bar text
          * @return UTF-8 title string; caller must free with InfiniFrameNative_FreeString
          */
-    [[nodiscard]] AutoString GetTitle() const;
+    [[nodiscard]] const char* GetTitle() const;
 
     /**
          * @brief Get whether the window is always on top of other windows
@@ -317,29 +317,29 @@ class InfiniFrameWindow {
          * @brief Get the current page URL
          * @return UTF-8 URL string; caller must free with InfiniFrameNative_FreeString. Returns empty string if no URL is available (e.g. after LoadRawString).
          */
-    [[nodiscard]] AutoString GetCurrentUrl() const;
+    [[nodiscard]] const char* GetCurrentUrl() const;
 
     /**
          * @brief Load HTML content directly from a string
          * @param content UTF-8 HTML source to display
          */
-    void NavigateToString(AutoString content);
+    void NavigateToString(const char* content);
 
     /**
          * @brief Navigate the WebView to a URL
          * @param url UTF-8 URL to load (http/https or custom scheme)
          */
-    void NavigateToUrl(AutoString url);
+    void NavigateToUrl(const char* url);
 
     bool BeginNavigateToString(
         uint64_t operationId,
-        AutoString content,
+        const char* content,
         OperationCompletedCallback completion,
         void* completionContext
     );
     bool BeginNavigateToUrl(
         uint64_t operationId,
-        AutoString url,
+        const char* url,
         OperationCompletedCallback completion,
         void* completionContext
     );
@@ -358,7 +358,7 @@ class InfiniFrameWindow {
          * @brief Post a message string to the web content (received via window.chrome.webview.addEventListener)
          * @param message UTF-8 message payload
          */
-    void SendWebMessage(AutoString message);
+    void SendWebMessage(const char* message);
 
     // -----------------------------------------------------------------------------------------------------------------
     // Set Properties
@@ -416,7 +416,7 @@ class InfiniFrameWindow {
          * @brief Set the browser user-agent string
          * @param userAgent UTF-8 user-agent string; empty/null clears custom override
          */
-    void SetUserAgent(AutoString userAgent);
+    void SetUserAgent(const char* userAgent);
 
     /**
          * @brief Enable or disable the browser DevTools panel
@@ -428,7 +428,7 @@ class InfiniFrameWindow {
          * @brief Set the window icon from a file
          * @param filename UTF-8 path to an image file
          */
-    void SetIconFile(AutoString filename);
+    void SetIconFile(const char* filename);
 
     /**
          * @brief Enter or exit fullscreen mode
@@ -486,7 +486,7 @@ class InfiniFrameWindow {
          * @brief Set the window title bar text
          * @param title UTF-8 title string
          */
-    void SetTitle(AutoString title);
+    void SetTitle(const char* title);
 
     /**
          * @brief Pin or unpin the window above all other windows
@@ -543,7 +543,7 @@ class InfiniFrameWindow {
          * @param title   UTF-8 notification title
          * @param message UTF-8 notification body text
          */
-    void ShowNotification(AutoString title, AutoString message);
+    void ShowNotification(const char* title, const char* message);
 
     /**
          * @brief Show a rich native notification with extended options
@@ -553,7 +553,7 @@ class InfiniFrameWindow {
          * @param urgency Urgency level (0=Normal, 1=Low, 2=High, 3=Critical)
          * @param tag     UTF-8 tag for grouping/replacing notifications, or empty for none
          */
-    void ShowNotificationWithOptions(AutoString title, AutoString body, AutoString iconPath, int urgency, AutoString tag);
+    void ShowNotificationWithOptions(const char* title, const char* body, const char* iconPath, int urgency, const char* tag);
 
     /**
          * @brief Show a rich native notification with an activation callback
@@ -568,7 +568,7 @@ class InfiniFrameWindow {
          */
     void BeginShowNotification(
         uint64_t operationId,
-        AutoString title, AutoString body, AutoString iconPath, int urgency, AutoString tag,
+        const char* title, const char* body, const char* iconPath, int urgency, const char* tag,
         OperationCompletedCallback completion, void* completionContext
     );
 
@@ -617,7 +617,7 @@ class InfiniFrameWindow {
          * @brief Register a custom URI scheme to be intercepted by WebResourceRequestedCallback
          * @param scheme UTF-8 scheme name without "://" (e.g. "app")
          */
-    void AddCustomSchemeName(AutoStringConst scheme);
+    void AddCustomSchemeName(const char* scheme);
 
     /**
          * @brief Enumerate all connected monitors by invoking a callback for each one
@@ -778,13 +778,13 @@ class InfiniFrameWindow {
      * @brief Fire a debug diagnostics callback event.
      */
     void InvokeDebugEvent(
-        AutoStringConst kind,
-        AutoStringConst message,
-        AutoStringConst level,
-        AutoStringConst uri,
+        const char* kind,
+        const char* message,
+        const char* level,
+        const char* uri,
         int statusCode,
         int64_t timestampUnixMillisecondsUtc,
-        AutoStringConst platformPayload
+        const char* platformPayload
     ) const noexcept;
 
     /**
@@ -794,7 +794,7 @@ class InfiniFrameWindow {
      * @param x Screen X coordinate of drop location
      * @param y Screen Y coordinate of drop location
      */
-    void InvokeFileDropped(AutoString* paths, int count, int x, int y) const noexcept;
+    void InvokeFileDropped(const char** paths, int count, int x, int y) const noexcept;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Platform-specific
@@ -826,7 +826,7 @@ class InfiniFrameWindow {
          * @brief Override the WebView2 fixed-version runtime path
          * @param pathToWebView2 UTF-8 path to the WebView2 runtime directory
          */
-    void SetWebView2RuntimePath(AutoString pathToWebView2);
+    void SetWebView2RuntimePath(const char* pathToWebView2);
 
     /**
          * @brief Get the native Win32 window handle
@@ -850,18 +850,18 @@ class InfiniFrameWindow {
     void GetNotificationsEnabled(bool* enabled) const;
 
     /**
-         * @brief Convert a UTF-8 AutoString to a UTF-16 wide string using simdutf
+         * @brief Convert a UTF-8 const char* to a UTF-16 wide string using simdutf
          * @param source Null-terminated UTF-8 string
          * @return std::wstring containing the UTF-16 representation
          */
-    std::wstring ToUTF16String(AutoString source) const;
+    std::wstring ToUTF16String(const char* source) const;
 
     /**
-         * @brief Convert a UTF-16 AutoString to a UTF-8 std::string using simdutf
-         * @param source Null-terminated UTF-16 string (passed as AutoString / const char*)
+         * @brief Convert a UTF-8 const char* to a UTF-8 std::string (identity, for API consistency)
+         * @param source Null-terminated UTF-8 string
          * @return std::string containing the UTF-8 representation
          */
-    std::string ToUTF8String(AutoString source) const;
+    std::string ToUTF8String(const char* source) const;
 #elif __APPLE__
     /**
          * @brief Initialise the NSApplication shared instance; must be called once before creating any window

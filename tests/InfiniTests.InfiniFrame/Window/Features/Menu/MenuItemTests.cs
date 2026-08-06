@@ -72,7 +72,7 @@ public class MenuItemTests {
 
         // Assert
         await Assert.That(submenu.Type).IsEqualTo(InfiniFrameMenuItemType.Submenu);
-        await Assert.That(submenu.Children).HasCount().EqualTo(2);
+        await Assert.That(submenu.Children).Count().IsEqualTo(2);
         await Assert.That(submenu.Children[0].Id).IsEqualTo("child1");
         await Assert.That(submenu.Children[1].Id).IsEqualTo("child2");
     }
@@ -97,7 +97,7 @@ public class MenuItemTests {
         );
 
         // Assert
-        await Assert.That(menuBar.Items).HasCount().EqualTo(2);
+        await Assert.That(menuBar.Items).Count().IsEqualTo(2);
         await Assert.That(menuBar.Items[0].Id).IsEqualTo("file");
         await Assert.That(menuBar.Items[1].Id).IsEqualTo("edit");
     }
