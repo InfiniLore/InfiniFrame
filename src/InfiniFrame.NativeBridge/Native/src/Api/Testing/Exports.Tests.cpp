@@ -49,6 +49,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         (*new_params)->WebView2RuntimePath = DuplicateString(params->WebView2RuntimePath);
         (*new_params)->NotificationRegistrationId = DuplicateString(params->NotificationRegistrationId);
         (*new_params)->WindowsAppUserModelId = DuplicateString(params->WindowsAppUserModelId);
+        (*new_params)->DefaultNotificationIcon = DuplicateString(params->DefaultNotificationIcon);
         (*new_params)->RemoteDebuggingPort = params->RemoteDebuggingPort;
 
         (*new_params)->ParentInstance = params->ParentInstance;
@@ -126,6 +127,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_FreeInitParams(InfiniFrameInitPara
         delete[] params->WebView2RuntimePath;
         delete[] params->NotificationRegistrationId;
         delete[] params->WindowsAppUserModelId;
+        delete[] params->DefaultNotificationIcon;
 
         delete params;
     });

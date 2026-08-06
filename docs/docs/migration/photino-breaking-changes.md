@@ -124,6 +124,9 @@ InfiniFrame can pull window configuration from `IConfiguration` under an `"Infin
 | `SetInstanceArbitrationMutexName(string)`                        | Configure the mutex name for instance arbitration                                        |
 | `RegisterNavigationStartingHandler(handler)`                     | Inspect/cancel navigation requests before commit; not available in Photino               |
 | `window.Taskbar.SetProgress(...)` / `Taskbar.SetFlashMode(...)` | Taskbar progress indicator and flash notification; cross-platform with capability detection; not available in Photino |
+| `ShowNotification(InfiniFrameNotificationOptions)`               | Rich notifications with action buttons, custom icons, urgency levels, and tagging        |
+| `ShowNotificationAsync(options, ct)`                             | Async notification with activation callback and cancellation support                     |
+| `SetDefaultNotificationIcon(string)`                             | Builder API to set default icon for all notifications                                    |
 
 ## Javascript Debugging
 

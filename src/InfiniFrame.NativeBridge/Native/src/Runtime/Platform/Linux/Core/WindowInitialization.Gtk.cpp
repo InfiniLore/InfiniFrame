@@ -66,6 +66,8 @@ void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameInitParams* 
     _statusBarEnabled = initParams->StatusBarEnabled;
     _remoteDebuggingPort = initParams->RemoteDebuggingPort;
     _isFullScreen = initParams->FullScreen;
+    if (initParams->DefaultNotificationIcon != nullptr)
+        _defaultNotificationIcon = initParams->DefaultNotificationIcon;
 
     _zoom = initParams->Zoom;
     _minWidth = initParams->MinWidth;

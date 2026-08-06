@@ -79,6 +79,12 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     internal string? WindowsAppUserModelId;
 
+    /// <summary>
+    ///     OPTIONAL: Default icon path applied to notifications when IconPath is not specified.
+    /// </summary>
+    [MarshalAs(UnmanagedType.LPUTF8Str)]
+    internal string? DefaultNotificationIcon;
+
     ///<summary>OPTIONAL: Windows-only remote debugging port for loopback endpoint. 0 disables remote debugging.</summary>
     [MarshalAs(UnmanagedType.I4)]
     internal int RemoteDebuggingPort;

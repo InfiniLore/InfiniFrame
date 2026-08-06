@@ -81,6 +81,7 @@ struct InfiniFrameWindowImpl {
     NativeString _browserControlInitParameters;
     NativeString _webView2RuntimePath;
     NativeString _iconFileName;
+    NativeString _defaultNotificationIcon;
     uint8_t _backgroundColorR = 0;
     uint8_t _backgroundColorG = 0;
     uint8_t _backgroundColorB = 0;

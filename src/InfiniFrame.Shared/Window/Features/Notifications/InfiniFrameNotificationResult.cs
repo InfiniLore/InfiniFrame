@@ -6,28 +6,32 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Defines the visual state of the taskbar progress indicator.
-///     Maps to the Windows <c>TBPFLAG</c> enum.
+///     Represents the outcome of a notification interaction.
 /// </summary>
-public enum TaskbarProgressState {
+public enum InfiniFrameNotificationResult {
     /// <summary>
-    ///     No progress indicator is displayed.
+    ///     The notification was dismissed without activation (timeout, swipe, or programmatic dismiss).
     /// </summary>
-    None = 0,
+    Dismissed,
+
     /// <summary>
-    ///     The progress indicator shows an indeterminate (marquee) animation.
+    ///     The user clicked the notification body or the window was brought to the foreground.
     /// </summary>
-    Indeterminate = 1,
+    BodyClicked,
+
     /// <summary>
-    ///     The progress indicator shows a normal progress bar.
+    ///     The user clicked an action button. The <see cref="InfiniFrameNotificationActivation.ActionIdentifier"/>
+    ///     field identifies which action was activated.
     /// </summary>
-    Normal = 2,
+    ActionClicked,
+
     /// <summary>
-    ///     The progress indicator shows an error state (red).
+    ///     The notification timed out before the user interacted with it.
     /// </summary>
-    Error = 3,
+    TimedOut,
+
     /// <summary>
-    ///     The progress indicator shows a paused state (yellow).
+    ///     The notification failed to display due to a platform error.
     /// </summary>
-    Paused = 4
+    Failed
 }

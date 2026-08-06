@@ -28,6 +28,7 @@ struct InfiniFrameInitParams {
     AutoString WebView2RuntimePath;
     AutoString NotificationRegistrationId;
     AutoString WindowsAppUserModelId;
+    AutoString DefaultNotificationIcon;
     int RemoteDebuggingPort;
 
     // Parent window

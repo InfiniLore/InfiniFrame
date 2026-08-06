@@ -81,10 +81,11 @@ public class WindowFeatureParityTests {
                 "GetMainMonitor",
                 "GetMainMonitorScreenDpi"
             ),
-            [typeof(INotificationsInfiniFrameWindowFeature)] = Included(
-                "ShowNotification",
-                "ShowMessage",
-                "ShowMessageAsync"
+            [typeof(INotificationsInfiniFrameWindowFeature)] = IncludedWithCounts(
+                ("ShowNotification", 2),
+                ("ShowNotificationAsync", 1),
+                ("ShowMessage", 1),
+                ("ShowMessageAsync", 1)
             ),
             [typeof(IPageNavigationInfiniFrameWindowFeature)] = IncludedWithCounts(
                 ("Load", 2),

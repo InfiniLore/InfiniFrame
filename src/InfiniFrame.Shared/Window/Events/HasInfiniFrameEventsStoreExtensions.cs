@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.DragDrop;
 using InfiniFrame.NativeBridge;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Drawing;
