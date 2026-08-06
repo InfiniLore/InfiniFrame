@@ -1,0 +1,88 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+#include "Api/Exports/Exports.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+extern "C" {
+#ifdef _WIN32
+EXPORTED InteropStatus InfiniFrameNative_SetTaskbarProgress(
+    InfiniFrameWindow* instance,
+    int state,
+    uint64_t current,
+    uint64_t total
+) {
+    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+        window->SetTaskbarProgress(state, current, total);
+    });
+}
+
+EXPORTED InteropStatus InfiniFrameNative_ClearTaskbarProgress(InfiniFrameWindow* instance) {
+    return RunWindowExportStatus(instance, [](InfiniFrameWindow* window) {
+        window->ClearTaskbarProgress();
+    });
+}
+
+EXPORTED InteropStatus InfiniFrameNative_SetTaskbarFlash(
+    InfiniFrameWindow* instance,
+    int mode,
+    uint32_t count
+) {
+    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+        window->SetTaskbarFlash(mode, count);
+    });
+}
+
+EXPORTED InteropStatus InfiniFrameNative_StopTaskbarFlash(InfiniFrameWindow* instance) {
+    return RunWindowExportStatus(instance, [](InfiniFrameWindow* window) {
+        window->StopTaskbarFlash();
+    });
+}
+
+EXPORTED InteropStatus InfiniFrameNative_GetTaskbarProgressSupported(
+    InfiniFrameWindow* instance,
+    bool* supported
+) {
+    ResetOut(supported, false);
+    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+        if (!EnsureOutNotNull(supported, "supported"))
+            return;
+        window->GetTaskbarProgressSupported(supported);
+    });
+}
+#else
+EXPORTED InteropStatus InfiniFrameNative_SetTaskbarProgress(
+    InfiniFrameWindow* instance,
+    int state,
+    uint64_t current,
+    uint64_t total
+) {
+    return InteropStatus::OperationFailed;
+}
+
+EXPORTED InteropStatus InfiniFrameNative_ClearTaskbarProgress(InfiniFrameWindow* instance) {
+    return InteropStatus::OperationFailed;
+}
+
+EXPORTED InteropStatus InfiniFrameNative_SetTaskbarFlash(
+    InfiniFrameWindow* instance,
+    int mode,
+    uint32_t count
+) {
+    return InteropStatus::OperationFailed;
+}
+
+EXPORTED InteropStatus InfiniFrameNative_StopTaskbarFlash(InfiniFrameWindow* instance) {
+    return InteropStatus::OperationFailed;
+}
+
+EXPORTED InteropStatus InfiniFrameNative_GetTaskbarProgressSupported(
+    InfiniFrameWindow* instance,
+    bool* supported
+) {
+    ResetOut(supported, false);
+    return InteropStatus::Success;
+}
+#endif
+}

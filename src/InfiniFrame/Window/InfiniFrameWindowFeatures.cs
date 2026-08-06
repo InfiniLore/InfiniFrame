@@ -38,5 +38,7 @@ public sealed record InfiniFrameWindowFeatures(
     /// <inheritdoc cref="IInfiniFrameWindowFeatures.Browser"/>
     IBrowserInfiniFrameWindowFeature Browser,
     /// <inheritdoc cref="IInfiniFrameWindowFeatures.DragDrop"/>
-    IDragDropInfiniFrameWindowFeature DragDrop
+    IDragDropInfiniFrameWindowFeature DragDrop,
+    /// <inheritdoc cref="IInfiniFrameWindowFeatures.Taskbar"/>
+    ITaskbarInfiniFrameWindowFeature Taskbar
 ) : IInfiniFrameWindowFeatures;

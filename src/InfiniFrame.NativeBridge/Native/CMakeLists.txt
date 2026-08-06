@@ -59,6 +59,7 @@ set(COMMON_SOURCES
         src/Api/Exports/Exports.Window.Getters.cpp
         src/Api/Exports/Exports.Window.Navigation.cpp
         src/Api/Exports/Exports.Window.Setters.cpp
+        src/Api/Exports/Exports.Window.Taskbar.cpp
 )
 
 set(TEST_SOURCES
@@ -86,6 +87,7 @@ set(WINDOWS_SOURCES
         src/Runtime/Platform/Windows/Dpi.Win32.cpp
         src/Runtime/Platform/Windows/Monitors.Win32.cpp
         src/Runtime/Platform/Windows/Notifications.WinToast.cpp
+        src/Runtime/Platform/Windows/Taskbar.Win32.cpp
         src/Runtime/Platform/Windows/WebView/WebView2Attach.Win32.cpp
         src/Runtime/Platform/Windows/WebView/WebView2Controller.Win32.cpp
         src/Runtime/Platform/Windows/WebView/WebView2CustomSchemes.Win32.cpp
