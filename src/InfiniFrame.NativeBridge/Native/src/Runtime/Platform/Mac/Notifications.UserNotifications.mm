@@ -84,5 +84,6 @@ void InfiniFrameWindow::BeginShowNotification(
 }
 
 void InfiniFrameWindow::CancelNotification(uint64_t operationId, bool* canceled) {
+    (void)operationId;
     if (canceled) *canceled = false;
 }

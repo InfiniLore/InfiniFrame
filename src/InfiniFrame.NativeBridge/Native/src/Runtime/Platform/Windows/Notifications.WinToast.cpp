@@ -26,6 +26,7 @@ void InfiniFrameWindow::ShowNotification(AutoString title, AutoString body) {
 void InfiniFrameWindow::ShowNotificationWithOptions(
     AutoString title, AutoString body, AutoString iconPath, int urgency, AutoString tag
 ) {
+    (void)tag;
     std::wstring wideTitle = ToUTF16String(title);
     std::wstring wideBody = ToUTF16String(body);
     if (m_impl->_notificationsEnabled && WinToast::isCompatible()) {
@@ -59,6 +60,7 @@ void InfiniFrameWindow::BeginShowNotification(
     AutoString title, AutoString body, AutoString iconPath, int urgency, AutoString tag,
     OperationCompletedCallback completion, void* completionContext
 ) {
+    (void)tag;
     std::wstring wideTitle = ToUTF16String(title);
     std::wstring wideBody = ToUTF16String(body);
     if (m_impl->_notificationsEnabled && WinToast::isCompatible()) {
@@ -92,5 +94,6 @@ void InfiniFrameWindow::BeginShowNotification(
 }
 
 void InfiniFrameWindow::CancelNotification(uint64_t operationId, bool* canceled) {
+    (void)operationId;
     if (canceled) *canceled = false;
 }

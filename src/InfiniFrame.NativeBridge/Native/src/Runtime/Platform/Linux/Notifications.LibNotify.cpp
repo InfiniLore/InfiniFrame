@@ -20,6 +20,9 @@ void InfiniFrameWindow::ShowNotification(const AutoString title, const AutoStrin
 void InfiniFrameWindow::ShowNotificationWithOptions(
     AutoString title, AutoString body, AutoString iconPath, int urgency, AutoString tag
 ) {
+    (void)iconPath;
+    (void)urgency;
+    (void)tag;
     NotifyNotification* notification = notify_notification_new(title, body, nullptr);
     notify_notification_set_icon_from_pixbuf(notification, gtk_window_get_icon(GTK_WINDOW(m_impl->_window)));
 
@@ -49,5 +52,6 @@ void InfiniFrameWindow::BeginShowNotification(
 }
 
 void InfiniFrameWindow::CancelNotification(uint64_t operationId, bool* canceled) {
+    (void)operationId;
     if (canceled) *canceled = false;
 }
