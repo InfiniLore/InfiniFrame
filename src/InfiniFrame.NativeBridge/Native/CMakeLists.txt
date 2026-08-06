@@ -114,6 +114,7 @@ set(LINUX_SOURCES
         src/Runtime/Platform/Linux/Dialog.cpp
         src/Runtime/Platform/Linux/Monitors.Gtk.cpp
         src/Runtime/Platform/Linux/Notifications.LibNotify.cpp
+        src/Runtime/Platform/Linux/Taskbar.Gtk.cpp
         src/Runtime/Platform/Linux/WebKit/WebKitCustomSchemes.Gtk.cpp
         src/Runtime/Platform/Linux/WebKit/WebKitHost.Gtk.cpp
         src/Runtime/Platform/Linux/WebKit/WebKitInspector.Gtk.cpp
@@ -148,6 +149,7 @@ set(MAC_SOURCES
         src/Runtime/Platform/Mac/MacDiagnostics.mm
         src/Runtime/Platform/Mac/NSWindowBorderless.mm
         src/Runtime/Platform/Mac/Notifications.UserNotifications.mm
+        src/Runtime/Platform/Mac/Taskbar.Cocoa.mm
         src/Runtime/Platform/Mac/WebKit/WebKitBridge.Cocoa.mm
         src/Runtime/Platform/Mac/WebKit/WebKitCustomSchemes.Cocoa.mm
         src/Runtime/Platform/Mac/WebKit/WebKitHost.Cocoa.mm

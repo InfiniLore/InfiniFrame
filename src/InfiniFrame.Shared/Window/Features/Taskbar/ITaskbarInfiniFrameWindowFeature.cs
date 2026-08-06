@@ -7,12 +7,15 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
 ///     Provides taskbar progress and flash functionality for the window.
-///     Currently supported on Windows only via ITaskbarList3 and FlashWindowEx.
-///     On Linux and macOS, all methods throw <see cref="PlatformNotSupportedException"/>.
+///     On Windows, uses ITaskbarList3 and FlashWindowEx.
+///     On macOS, uses NSDockTile badge and NSRequestUserAttention.
+///     On Linux, uses D-Bus StatusNotifierItem or Unity LauncherEntry where available.
 /// </summary>
 public interface ITaskbarInfiniFrameWindowFeature {
     /// <summary>
     ///     Gets whether the taskbar progress and flash APIs are supported on the current platform.
+    ///     Windows: always true. macOS: progress via dock badge, flash via requestUserAttention.
+    ///     Linux: depends on desktop environment D-Bus support.
     /// </summary>
     bool IsSupported { get; }
 

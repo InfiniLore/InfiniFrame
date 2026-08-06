@@ -18,6 +18,8 @@ public sealed class WindowTestStateResetCoordinator {
     public event Func<Task>? Resetting;
 
     public async Task RestoreAsync(IInfiniFrameWindow window) {
+        if (window.Features.Lifecycle.IsClosedOrClosing()) return;
+
         WindowTestState.Default.Restore(window);
 
         if (Resetting is null) return;

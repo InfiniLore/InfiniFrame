@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
 
 namespace InfiniFrame.NativeBridge;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -18,7 +17,6 @@ public partial class InfiniFrameNative {
     /// <param name="current">The current progress value.</param>
     /// <param name="total">The total progress value.</param>
     /// <returns>A status code indicating success or failure.</returns>
-    [SupportedOSPlatform("windows")]
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetTaskbarProgress", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus SetTaskbarProgress(IntPtr instance, int state, ulong current, ulong total);
@@ -28,7 +26,6 @@ public partial class InfiniFrameNative {
     /// </summary>
     /// <param name="instance">The native window instance handle.</param>
     /// <returns>A status code indicating success or failure.</returns>
-    [SupportedOSPlatform("windows")]
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_ClearTaskbarProgress", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus ClearTaskbarProgress(IntPtr instance);
@@ -40,7 +37,6 @@ public partial class InfiniFrameNative {
     /// <param name="mode">The flash mode.</param>
     /// <param name="count">The number of times to flash.</param>
     /// <returns>A status code indicating success or failure.</returns>
-    [SupportedOSPlatform("windows")]
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetTaskbarFlash", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus SetTaskbarFlash(IntPtr instance, int mode, uint count);
@@ -50,7 +46,6 @@ public partial class InfiniFrameNative {
     /// </summary>
     /// <param name="instance">The native window instance handle.</param>
     /// <returns>A status code indicating success or failure.</returns>
-    [SupportedOSPlatform("windows")]
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_StopTaskbarFlash", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus StopTaskbarFlash(IntPtr instance);
@@ -61,7 +56,6 @@ public partial class InfiniFrameNative {
     /// <param name="instance">The native window instance handle.</param>
     /// <param name="supported">Output: true if taskbar progress is supported.</param>
     /// <returns>A status code indicating success or failure.</returns>
-    [SupportedOSPlatform("windows")]
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_GetTaskbarProgressSupported", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus GetTaskbarProgressSupported(IntPtr instance, [MarshalAs(UnmanagedType.I1)] out bool supported);

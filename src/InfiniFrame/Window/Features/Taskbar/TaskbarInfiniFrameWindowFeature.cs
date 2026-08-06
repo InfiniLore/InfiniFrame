@@ -4,8 +4,6 @@
 using InfiniFrame.NativeBridge;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -13,8 +11,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
 ///     Provides taskbar progress and flash functionality for the window.
-///     Currently supported on Windows only via ITaskbarList3 and FlashWindowEx.
-///     On Linux and macOS, all methods throw <see cref="PlatformNotSupportedException"/>.
+///     On Windows, uses ITaskbarList3 and FlashWindowEx.
+///     On macOS, uses NSDockTile badge and NSRequestUserAttention.
+///     On Linux, uses D-Bus StatusNotifierItem or Unity LauncherEntry where available.
 /// </summary>
 public sealed class TaskbarInfiniFrameWindowFeature(
     IInfiniFrameWindow window,
@@ -28,11 +27,6 @@ public sealed class TaskbarInfiniFrameWindowFeature(
     public bool IsSupported {
         get {
             if (_isSupported.HasValue) return _isSupported.Value;
-
-            if (!OperatingSystem.IsWindows()) {
-                _isSupported = false;
-                return false;
-            }
 
             _isSupported = NativeInvoke.InvokeSyncWithValidation<bool>(
                 logger,
@@ -48,7 +42,7 @@ public sealed class TaskbarInfiniFrameWindowFeature(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public InfiniFrameTaskbarCapabilities Capabilities => new() {
         SupportsProgress = IsSupported,
-        SupportsFlash = OperatingSystem.IsWindows()
+        SupportsFlash = OperatingSystem.IsWindows() || OperatingSystem.IsMacOS()
     };
 
     /// <inheritdoc cref="ITaskbarInfiniFrameWindowFeature.CurrentProgressState" />
@@ -61,10 +55,6 @@ public sealed class TaskbarInfiniFrameWindowFeature(
     /// <inheritdoc cref="ITaskbarInfiniFrameWindowFeature.SetProgress" />
     public void SetProgress(TaskbarProgressState state, ulong current, ulong total) {
         logger.LogDebug(".SetTaskbarProgress({State}, {Current}, {Total})", state, current, total);
-
-        if (!OperatingSystem.IsWindows()) {
-            throw new PlatformNotSupportedException("Taskbar progress is only supported on Windows.");
-        }
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
@@ -82,10 +72,6 @@ public sealed class TaskbarInfiniFrameWindowFeature(
     public void ClearProgress() {
         logger.LogDebug(".ClearTaskbarProgress()");
 
-        if (!OperatingSystem.IsWindows()) {
-            throw new PlatformNotSupportedException("Taskbar progress is only supported on Windows.");
-        }
-
         NativeInvoke.InvokeSyncWithValidation(
             logger,
             window,
@@ -98,10 +84,6 @@ public sealed class TaskbarInfiniFrameWindowFeature(
     /// <inheritdoc cref="ITaskbarInfiniFrameWindowFeature.SetFlash" />
     public void SetFlash(TaskbarFlashMode mode, uint count) {
         logger.LogDebug(".SetTaskbarFlash({Mode}, {Count})", mode, count);
-
-        if (!OperatingSystem.IsWindows()) {
-            throw new PlatformNotSupportedException("Taskbar flash is only supported on Windows.");
-        }
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
@@ -116,10 +98,6 @@ public sealed class TaskbarInfiniFrameWindowFeature(
     /// <inheritdoc cref="ITaskbarInfiniFrameWindowFeature.StopFlash" />
     public void StopFlash() {
         logger.LogDebug(".StopTaskbarFlash()");
-
-        if (!OperatingSystem.IsWindows()) {
-            throw new PlatformNotSupportedException("Taskbar flash is only supported on Windows.");
-        }
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,

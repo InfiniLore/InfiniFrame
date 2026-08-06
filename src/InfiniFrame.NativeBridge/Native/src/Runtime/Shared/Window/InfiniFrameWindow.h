@@ -507,7 +507,6 @@ class InfiniFrameWindow {
     // Taskbar
     // -----------------------------------------------------------------------------------------------------------------
 
-#ifdef _WIN32
     /**
          * @brief Set the taskbar progress indicator
          * @param state Progress state (0=None, 1=Indeterminate, 2=Normal, 3=Error, 4=Paused)
@@ -531,10 +530,9 @@ class InfiniFrameWindow {
 
     /**
          * @brief Get whether taskbar progress is supported on this platform
-         * @param supported Output: true if supported (always true on Windows)
+         * @param supported Output: true if supported
          */
     void GetTaskbarProgressSupported(bool* supported) const;
-#endif
 
     // -----------------------------------------------------------------------------------------------------------------
     // Notifications
