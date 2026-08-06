@@ -105,6 +105,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal byte IgnoreCertificateErrorsEnabled;
         internal byte StatusBarEnabled;
         internal byte NotificationsEnabled;
+        internal IntPtr MenuBarJson;
         internal int Size;
     }
 
@@ -201,6 +202,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 IgnoreCertificateErrorsEnabled = ToByte(managed.IgnoreCertificateErrorsEnabled),
                 StatusBarEnabled = ToByte(managed.StatusBarEnabled),
                 NotificationsEnabled = ToByte(managed.NotificationsEnabled),
+                MenuBarJson = ToUtf8Ptr(managed.MenuBarJson),
                 Size = managed.Size
             };
         }
@@ -228,6 +230,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
             Marshal.FreeCoTaskMem(_unmanaged.NotificationRegistrationId);
             Marshal.FreeCoTaskMem(_unmanaged.WindowsAppUserModelId);
             Marshal.FreeCoTaskMem(_unmanaged.DefaultNotificationIcon);
+            Marshal.FreeCoTaskMem(_unmanaged.MenuBarJson);
         }
     }
 

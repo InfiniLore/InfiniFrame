@@ -89,6 +89,10 @@ public class InfiniFrameWindowFeaturesFactory(IServiceProvider provider) {
             Taskbar: new TaskbarInfiniFrameWindowFeature(
                 window,
                 GetLogger<TaskbarInfiniFrameWindowFeature>(provider)
+            ),
+            Menu: new MenuInfiniFrameWindowFeature(
+                window,
+                GetLogger<MenuInfiniFrameWindowFeature>(provider)
             )
         );
 }

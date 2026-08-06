@@ -361,6 +361,12 @@ public struct InfiniFrameNativeParameters() {
     internal bool NotificationsEnabled;
 
     /// <summary>
+    ///     OPTIONAL: JSON-serialized menu bar structure. Passed to the native layer at window creation.
+    /// </summary>
+    [MarshalAs(UnmanagedType.LPUTF8Str)]
+    internal string? MenuBarJson;
+
+    /// <summary>
     ///     Set when GetParamErrors() is called before initializing the native window. It is a check to make sure the
     ///     struct matches what C++ is expecting.
     /// </summary>

@@ -83,4 +83,9 @@ public interface IInfiniFrameWindowFeatures {
     ///     Gets the taskbar feature for controlling taskbar progress indicators and icon flashing.
     /// </summary>
     ITaskbarInfiniFrameWindowFeature Taskbar { get; }
+
+    /// <summary>
+    ///     Gets the menu feature for managing native menu bars.
+    /// </summary>
+    IMenuInfiniFrameWindowFeature Menu { get; }
 }

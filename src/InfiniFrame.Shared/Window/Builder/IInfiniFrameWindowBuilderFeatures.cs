@@ -57,6 +57,11 @@ public interface IInfiniFrameWindowBuilderFeatures {
     IInstanceArbitrationInfiniFrameWindowBuilderFeature InstanceArbitration { get; }
 
     /// <summary>
+    ///     Gets the menu feature builder for configuring native menu bars.
+    /// </summary>
+    IMenuInfiniFrameWindowBuilderFeature Menu { get; }
+
+    /// <summary>
     ///     Applies all feature builder configurations to the native parameters.
     /// </summary>
     /// <param name="parameters">The native parameters to update.</param>

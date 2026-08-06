@@ -85,6 +85,7 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         if (x.StatusBarEnabled != y.StatusBarEnabled) return false;
         if (x.NotificationsEnabled != y.NotificationsEnabled) return false;
         if (x.DefaultNotificationIcon != y.DefaultNotificationIcon) return false;
+        if (x.MenuBarJson != y.MenuBarJson) return false;
         if (x.Size != y.Size) return false;
         if (x.ZoomEnabled != y.ZoomEnabled) return false;
 
@@ -149,6 +150,7 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         hashCode.Add(obj.StatusBarEnabled);
         hashCode.Add(obj.NotificationsEnabled);
         hashCode.Add(obj.DefaultNotificationIcon);
+        hashCode.Add(obj.MenuBarJson);
         hashCode.Add(obj.Size);
         hashCode.Add(obj.ZoomEnabled);
         return hashCode.ToHashCode();

@@ -144,6 +144,7 @@ public class InfiniFrameNativeParametersTests {
                 IgnoreCertificateErrorsEnabled = true,
                 NotificationsEnabled = true,
                 DefaultNotificationIcon = "/path/to/icon.png",
+                MenuBarJson = "{\"Items\":[{\"Id\":\"file\",\"Label\":\"File\"}]}",
                 ZoomEnabled = true
             };
 
@@ -213,6 +214,7 @@ public class InfiniFrameNativeParametersTests {
             await Assert.That(newParameters.IgnoreCertificateErrorsEnabled).IsEqualTo(parameters.IgnoreCertificateErrorsEnabled);
             await Assert.That(newParameters.NotificationsEnabled).IsEqualTo(parameters.NotificationsEnabled);
             await Assert.That(newParameters.DefaultNotificationIcon).IsEqualTo(parameters.DefaultNotificationIcon);
+            await Assert.That(newParameters.MenuBarJson).IsEqualTo(parameters.MenuBarJson);
             await Assert.That(newParameters.Size).IsEqualTo(parameters.Size);
             await Assert.That(newParameters.ZoomEnabled).IsEqualTo(parameters.ZoomEnabled);
         }

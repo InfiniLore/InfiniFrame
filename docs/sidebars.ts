@@ -18,6 +18,7 @@ const sidebars: SidebarsConfig = {
         "guides/custom-window-chrome",
         "guides/instance-arbitration",
         "guides/notifications",
+        "guides/native-menu",
         "guides/scripts",
       ],
     },
