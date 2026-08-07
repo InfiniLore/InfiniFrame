@@ -11,6 +11,7 @@
 #endif
 
 #include <string>
+#include <cstring>
 
 #include "Runtime/Shared/Window/InfiniFrame.h"
 // ---------------------------------------------------------------------------------------------------------------------
@@ -37,7 +38,7 @@ namespace infiniframe::exports {
 
         const size_t len = strlen(str);
         auto* copy = new char[len + 1];
-        strcpy(copy, str);
+        memcpy(copy, str, len + 1);
         return copy;
     }
 }
