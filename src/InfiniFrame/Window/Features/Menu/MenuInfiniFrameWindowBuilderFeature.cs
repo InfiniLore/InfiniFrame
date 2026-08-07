@@ -19,13 +19,13 @@ public class MenuInfiniFrameWindowBuilderFeature : IMenuInfiniFrameWindowBuilder
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     /// <inheritdoc cref="IMenuInfiniFrameWindowBuilderFeature.SetMenuBar"/>
-    public void SetMenuBar(InfiniFrameMenuBar menuBar) {
-        MenuBar = menuBar ?? new();
+    public void SetMenuBar(InfiniFrameMenuBar? menuBar) {
+        MenuBar = menuBar ?? new InfiniFrameMenuBar();
     }
 
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeature.ApplyToNativeParameters"/>
     public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
-        parameters.MenuBarJson = MenuBar?.Items.IsEmpty != false
+        parameters.MenuBarJson = MenuBar.Items.IsEmpty
             ? null
             : System.Text.Json.JsonSerializer.Serialize(MenuBar, MenuJsonContext.Default.InfiniFrameMenuBar);
     }

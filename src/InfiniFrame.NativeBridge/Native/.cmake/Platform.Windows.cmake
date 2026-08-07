@@ -29,6 +29,7 @@ function(infiniframe_configure_windows_target target_name common_sources test_so
 
     target_link_libraries(${target_name} PRIVATE
             simdutf::simdutf
+            simdjson::simdjson
             wintoastlib::wintoastlib
             webview2::sdk
             wil::headers

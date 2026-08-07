@@ -18,13 +18,14 @@ namespace InfiniFrame;
 public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature {
     private readonly IInfiniFrameWindow _window;
     private readonly ILogger<MenuInfiniFrameWindowFeature> _logger;
-    private InfiniFrameMenuBar _menuBar = new();
+    private InfiniFrameMenuBar _menuBar;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MenuInfiniFrameWindowFeature"/> class.
     /// </summary>
     /// <param name="window">The window instance.</param>
     /// <param name="logger">The logger instance.</param>
+    /// <param name="menuBar">The meny bar instance</param>
     public MenuInfiniFrameWindowFeature(
         IInfiniFrameWindow window,
         ILogger<MenuInfiniFrameWindowFeature> logger,
@@ -32,7 +33,7 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
     ) {
         _window = window;
         _logger = logger;
-        _menuBar = menuBar ?? new();
+        _menuBar = menuBar ?? new InfiniFrameMenuBar();
     }
 
     /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.MenuBar"/>
@@ -43,10 +44,10 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.SetMenuBar"/>
-    public void SetMenuBar(InfiniFrameMenuBar menuBar) {
+    public void SetMenuBar(InfiniFrameMenuBar? menuBar) {
         _logger.LogDebug(".SetMenuBar()");
 
-        _menuBar = menuBar ?? new();
+        _menuBar = menuBar ?? new InfiniFrameMenuBar();
 
         string? json = _menuBar.Items.IsEmpty
             ? null

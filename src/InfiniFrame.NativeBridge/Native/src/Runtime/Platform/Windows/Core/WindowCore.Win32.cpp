@@ -305,6 +305,10 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         DragAcceptFiles(m_impl->_hWnd, TRUE);
     }
 
+    if (initParams->MenuBarJson != nullptr && initParams->MenuBarJson[0] != '\0') {
+        ApplyInitMenuBar(initParams->MenuBarJson);
+    }
+
     bool isAlreadyShown = initParams->Minimized || initParams->Maximized;
     Show(isAlreadyShown);
 }

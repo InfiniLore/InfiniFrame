@@ -813,6 +813,13 @@ class InfiniFrameWindow {
          * @return GtkWidget* for this window
          */
     GtkWidget* getGtkWindow();
+
+    // ── Native menu bar ──────────────────────────────────────────────────
+    void ApplyInitMenuBar(const char* menuBarJson);
+    void SetMenuBarJson(const char* menuBarJson);
+    void SetMenuItemEnabledById(const char* menuItemId, bool enabled);
+    void SetMenuItemVisibleById(const char* menuItemId, bool visible);
+    void ClickMenuItemById(const char* menuItemId);
 #endif
 
 #ifdef _WIN32
@@ -862,6 +869,14 @@ class InfiniFrameWindow {
          * @return std::string containing the UTF-8 representation
          */
     std::string ToUTF8String(const char* source) const;
+
+    // ── Native menu bar ──────────────────────────────────────────────────
+    void ApplyInitMenuBar(const char* menuBarJson);
+    void SetMenuBarJson(const char* menuBarJson);
+    void SetMenuItemEnabledById(const char* menuItemId, bool enabled);
+    void SetMenuItemVisibleById(const char* menuItemId, bool visible);
+    void ClickMenuItemById(const char* menuItemId);
+    void HandleMenuCommand(WPARAM wParam);
 #elif __APPLE__
     /**
          * @brief Initialise the NSApplication shared instance; must be called once before creating any window
@@ -876,11 +891,20 @@ class InfiniFrameWindow {
          * @return NSWindow* for this window
          */
     NSWindow* getNSWindow();
+
+    // ── Native menu bar ──────────────────────────────────────────────────
+    void ApplyInitMenuBar(const char* menuBarJson);
+    void SetMenuBarJson(const char* menuBarJson);
+    void SetMenuItemEnabledById(const char* menuItemId, bool enabled);
+    void SetMenuItemVisibleById(const char* menuItemId, bool visible);
+    void ClickMenuItemById(const char* menuItemId);
 #endif
 
     // -----------------------------------------------------------------------------------------------------------------
     // Private Implementation (Pimpl)
     // -----------------------------------------------------------------------------------------------------------------
+    public:
+    struct Impl;
 
     private:
     void Show(bool isAlreadyShown);
@@ -901,7 +925,6 @@ class InfiniFrameWindow {
     InfiniFrameWindowImpl* ImplBase() noexcept;
     const InfiniFrameWindowImpl* ImplBase() const noexcept;
 
-    struct Impl;
     std::unique_ptr<Impl> m_impl;
 };
 

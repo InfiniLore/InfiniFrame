@@ -70,6 +70,7 @@ set(TEST_SOURCES
 
 set(WINDOWS_SOURCES
         src/Runtime/Platform/Windows/DarkMode.h
+        src/Runtime/Platform/Windows/Menu.Win32.h
         src/Runtime/Platform/Windows/ToastHandler.h
         src/Runtime/Platform/Windows/Window.Win32.Context.h
         src/Runtime/Platform/Windows/Window.Win32.Internal.h
@@ -86,6 +87,7 @@ set(WINDOWS_SOURCES
         src/Runtime/Platform/Windows/DarkMode.cpp
         src/Runtime/Platform/Windows/Dialog.cpp
         src/Runtime/Platform/Windows/Dpi.Win32.cpp
+        src/Runtime/Platform/Windows/Menu.Win32.cpp
         src/Runtime/Platform/Windows/Monitors.Win32.cpp
         src/Runtime/Platform/Windows/Notifications.WinToast.cpp
         src/Runtime/Platform/Windows/Taskbar.Win32.cpp
@@ -113,6 +115,7 @@ set(LINUX_SOURCES
         src/Runtime/Platform/Linux/Core/WindowSignals.Gtk.cpp
         src/Runtime/Platform/Linux/Core/WindowState.Gtk.cpp
         src/Runtime/Platform/Linux/Dialog.cpp
+        src/Runtime/Platform/Linux/Menu.Gtk.cpp
         src/Runtime/Platform/Linux/Monitors.Gtk.cpp
         src/Runtime/Platform/Linux/Notifications.LibNotify.cpp
         src/Runtime/Platform/Linux/Taskbar.Gtk.cpp
@@ -146,6 +149,7 @@ set(MAC_SOURCES
         src/Runtime/Platform/Mac/Delegates/UrlSchemeHandler.mm
         src/Runtime/Platform/Mac/Delegates/WindowDelegate.mm
         src/Runtime/Platform/Mac/Dialog.mm
+        src/Runtime/Platform/Mac/Menu.Cocoa.mm
         src/Runtime/Platform/Mac/Monitors.Cocoa.mm
         src/Runtime/Platform/Mac/MacDiagnostics.mm
         src/Runtime/Platform/Mac/NSWindowBorderless.mm

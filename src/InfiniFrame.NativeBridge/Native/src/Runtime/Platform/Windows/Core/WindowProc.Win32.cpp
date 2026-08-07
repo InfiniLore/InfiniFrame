@@ -293,6 +293,11 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
                 (*retained)->Execute();
             return 0;
         }
+        case WM_COMMAND: {
+            if (auto* instance = LookupWindowInstance(hwnd))
+                instance->HandleMenuCommand(wParam);
+            return 0;
+        }
         case WM_DROPFILES: {
             if (auto* instance = LookupWindowInstance(hwnd)) {
                 HDROP hDrop = reinterpret_cast<HDROP>(wParam);

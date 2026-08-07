@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InfiniFrame Native Menu Example</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background: #16213e;
+            padding: 20px 32px;
+            border-bottom: 1px solid #0f3460;
+        }
+        header h1 { font-size: 20px; font-weight: 600; color: #e94560; }
+        header p { font-size: 13px; color: #888; margin-top: 4px; }
+        main {
+            flex: 1;
+            display: flex;
+            gap: 24px;
+            padding: 24px 32px;
+            overflow: hidden;
+        }
+        .panel {
+            flex: 1;
+            background: #16213e;
+            border-radius: 8px;
+            border: 1px solid #0f3460;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .panel-header {
+            padding: 14px 18px;
+            background: #0f3460;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #aaa;
+        }
+        .panel-body {
+            flex: 1;
+            padding: 18px;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .log-entry {
+            padding: 6px 10px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Fira Code', monospace;
+            font-size: 13px;
+            animation: fadeIn 0.2s ease-in;
+        }
+        .log-entry.click { background: #1a3a2a; border-left: 3px solid #4caf50; }
+        .log-entry.status { background: #2a2a3a; border-left: 3px solid #5c6bc0; }
+        .log-entry.info { background: #3a2a1a; border-left: 3px solid #ff9800; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+        .controls { display: flex; flex-direction: column; gap: 10px; }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 10px 16px;
+            border: 1px solid #0f3460;
+            border-radius: 6px;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .btn:hover { background: #0f3460; border-color: #e94560; }
+        .btn:active { background: #e94560; }
+        .section-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #666;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Native Menu Example</h1>
+        <p>Use the menu bar above to interact. Click items to see events below.</p>
+    </header>
+    <main>
+        <div class="panel">
+            <div class="panel-header">Event Log</div>
+            <div class="panel-body" id="log"></div>
+        </div>
+        <div class="panel" style="max-width: 280px;">
+            <div class="panel-header">Quick Actions</div>
+            <div class="panel-body controls">
+                <div class="section-label">File Menu</div>
+                <button class="btn" onclick="sendAction('enable-save')">Enable Save</button>
+                <button class="btn" onclick="sendAction('disable-save')">Disable Save</button>
+                <div class="section-label">Edit Menu</div>
+                <button class="btn" onclick="sendAction('toggle-undo')">Toggle Undo Visibility</button>
+            </div>
+        </div>
+    </main>
+    <script>
+        const logEl = document.getElementById('log');
+        let logCount = 0;
+
+        function addLog(text, type) {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry ' + type;
+            entry.textContent = text;
+            logEl.prepend(entry);
+            if (++logCount > 100) logEl.lastChild.remove();
+        }
+
+        function sendAction(action) {
+            window.infiniframe.messaging.sendMessageToHost("menu:action", { action });
+            addLog('Sent: ' + action, 'info');
+        }
+
+        window.infiniframe.host.receiveCallback((message) => {
+            addLog('Received: ' + message, 'status');
+        });
+
+        addLog('Ready. Use the native menu bar or buttons to interact.', 'info');
+    </script>
+</body>
+</html>

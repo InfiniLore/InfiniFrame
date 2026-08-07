@@ -6,6 +6,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include <gtk/gtk.h>
 #include <webkit2/webkit2.h>
@@ -23,6 +24,13 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     int _remoteDebuggingPort = 0;
 
     std::string _temporaryFilesPath;
+
+    GtkWidget* _menuBar = nullptr;
+    std::string _menuBarJson;
+    std::unordered_map<std::string, guint> _menuItemIdToCommandId;
+    std::unordered_map<guint, std::string> _menuCommandIdToItemId;
+    guint _nextMenuCommandId = 1;
+    std::vector<void*> _menuActivateDataList;
 
     bool _isFullScreen = false;
     bool _webviewReady = false;

@@ -67,7 +67,7 @@ public class InfiniFrameNativeParametersTests {
     public async Task ReturnAsIsIsValid(CancellationToken ct = default) {
         // Arrange
         IntPtr[] customSchemeNames = new IntPtr[16];
-        IntPtr namePtr = IntPtr.Zero;
+        IntPtr namePtr;
         IntPtr newParametersPtr = IntPtr.Zero;
 
         try {

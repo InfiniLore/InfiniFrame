@@ -503,6 +503,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
 
         this->m_impl->_dialog = std::make_unique<InfiniFrameDialog>();
 
+        if (params->MenuBarJson != nullptr && params->MenuBarJson[0] != '\0')
+            this->ApplyInitMenuBar(params->MenuBarJson);
+
         bool isAlreadyShown = params->Minimized || params->Maximized;
         this->Show(isAlreadyShown);
         this->SetFullScreen(params->FullScreen);

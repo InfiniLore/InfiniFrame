@@ -4,6 +4,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #include <atomic>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include <windows.h>
@@ -77,4 +78,11 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     std::vector<std::wstring> _pendingWebMessages;
 
     std::unique_ptr<WinToastHandler> _toastHandler;
+
+    // ── Native menu bar ──────────────────────────────────────────────────
+    HMENU _menuBar = nullptr;
+    std::string _menuBarJson;
+    std::unordered_map<std::string, UINT> _menuItemIdToCommandId;
+    std::unordered_map<UINT, std::string> _menuCommandIdToItemId;
+    UINT _nextMenuCommandId = 1;
 };
