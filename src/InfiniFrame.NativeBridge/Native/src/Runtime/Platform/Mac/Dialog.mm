@@ -73,7 +73,7 @@ const char** InfiniFrameDialog::ShowOpenFile(const char* title, const char* defa
   if ([openDlg runModal] == NSModalResponseOK) {
     NSArray* files = [openDlg URLs];
     *resultCount = static_cast<int>([files count]);
-    auto** result = static_cast<char**>(malloc(*resultCount * sizeof(char*)));
+    auto** result = static_cast<const char**>(malloc(*resultCount * sizeof(const char*)));
     for (int i = 0; i < *resultCount; i++) {
       result[i] = strdup([[[files objectAtIndex:i] path] UTF8String]);
     }
@@ -97,7 +97,7 @@ const char** InfiniFrameDialog::ShowOpenFolder(const char* title, const char* de
   if ([openDlg runModal] == NSModalResponseOK) {
     NSArray* files = [openDlg URLs];
     *resultCount = static_cast<int>([files count]);
-    auto** result = static_cast<char**>(malloc(*resultCount * sizeof(char*)));
+    auto** result = static_cast<const char**>(malloc(*resultCount * sizeof(const char*)));
     for (int i = 0; i < *resultCount; i++) {
       result[i] = strdup([[[files objectAtIndex:i] path] UTF8String]);
     }

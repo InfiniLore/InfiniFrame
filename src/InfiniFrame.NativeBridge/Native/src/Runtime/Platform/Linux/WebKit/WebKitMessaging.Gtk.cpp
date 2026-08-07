@@ -17,7 +17,7 @@ namespace gtk_webkit {
         explicit GFreeGuard(const char* initialValue = nullptr) : value(initialValue) {}
         ~GFreeGuard() {
             if (value != nullptr)
-                g_free(value);
+                g_free(const_cast<char*>(value));
         }
 
         GFreeGuard(const GFreeGuard&) = delete;
