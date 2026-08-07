@@ -141,31 +141,14 @@ public class InfiniFrameNativeParametersMarshallerTests {
     [Test]
     public async Task Unmanaged_SequentialLayout_SizeMatchesExpectedFieldLayout(CancellationToken ct = default) {
         // Arrange
-        // Layout (LayoutKind.Sequential, default packing):
-        //   42 × IntPtr  — 10 string pointers + callbacks + NativeParent + CustomSchemeHandler + NavigationStartingHandler + DragDropHandler
-        //   10 × int     — RemoteDebuggingPort + Left, Top, Width, Height, Zoom, MinWidth, MinHeight, MaxWidth, MaxHeight
-        //   28 × byte    — DragDropEnabled + boolean options mapped to bytes + BackgroundColor RGBA
-        //    4 bytes     — padding after RemoteDebuggingPort so NativeParent stays pointer-aligned
-        //    N bytes     — padding to re-align the trailing int (Size) to 4-byte boundary
-        //    1 × int     — Size
-        //    trailing padding to struct alignment boundary (max alignment = pointer size)
-        int pointers = 42 * IntPtr.Size;
-        int ints = 10 * sizeof(int);
-        int bytes = 28 * sizeof(byte);
-        int padBeforeNativeParent = 4; // align to pointer boundary after RemoteDebuggingPort (int)
-        int sizeField = sizeof(int);
-        int contentSize = pointers + ints + bytes + padBeforeNativeParent;
-        // Pad contentSize up to 4-byte boundary for int Size field
-        contentSize = (contentSize + 3) & ~3;
-        int totalBeforeTrailingPad = contentSize + sizeField;
-        // Pad struct to its natural alignment (max alignment of all fields = pointer size)
-        int structAlignment = IntPtr.Size;
-        int expected = (totalBeforeTrailingPad + structAlignment - 1) & ~(structAlignment - 1);
+        // The Unmanaged struct must have the same size as InfiniFrameNativeParameters
+        // so that Marshal.PtrToStructure / the native boundary works correctly.
+        int expected = Marshal.SizeOf<InfiniFrameNativeParameters>();
 
         // Act
         int actual = Marshal.SizeOf<InfiniFrameNativeParametersMarshaller.Unmanaged>();
 
-        // Assert — verify the marshaled size matches our computed layout
+        // Assert — verify the marshaled size matches the managed parameter struct size
         await Assert.That(actual).IsEqualTo(expected);
     }
 

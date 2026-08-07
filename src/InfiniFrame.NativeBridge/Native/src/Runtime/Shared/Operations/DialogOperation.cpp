@@ -20,7 +20,7 @@ void DialogOperation::SetCancelAction(std::function<void()> action) {
         invokeAction();
 }
 
-bool DialogOperation::CompleteFile(const int32_t result, const int32_t valueCount, AutoString* values) noexcept {
+bool DialogOperation::CompleteFile(const int32_t result, const int32_t valueCount, const char** values) noexcept {
     bool expected = false;
     if (!terminal.compare_exchange_strong(expected, true, std::memory_order_acq_rel))
         return false;

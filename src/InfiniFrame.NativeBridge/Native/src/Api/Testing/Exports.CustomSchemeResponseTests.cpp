@@ -23,7 +23,7 @@ namespace {
     }
 
     template <typename CharT>
-    AutoString CallBuildHeaders(
+    const char* CallBuildHeaders(
         const CharT* contentType,
         const CharT* resourceUri,
         const CharT* requestOrigin
@@ -39,10 +39,10 @@ namespace {
 extern "C" {
 
 EXPORTED InteropStatus InfiniFrameNativeTests_ParseOrigin(
-    AutoStringConst value,
-    AutoString* scheme,
-    AutoString* host,
-    AutoString* port,
+    const char* value,
+    const char** scheme,
+    const char** host,
+    const char** port,
     int* valid
 ) {
     if (scheme != nullptr) *scheme = nullptr;
@@ -70,8 +70,8 @@ EXPORTED InteropStatus InfiniFrameNativeTests_ParseOrigin(
 }
 
 EXPORTED InteropStatus InfiniFrameNativeTests_IsSameOrigin(
-    AutoStringConst left,
-    AutoStringConst right,
+    const char* left,
+    const char* right,
     int* result
 ) {
     if (result != nullptr) *result = 0;
@@ -88,10 +88,10 @@ EXPORTED InteropStatus InfiniFrameNativeTests_IsSameOrigin(
 }
 
 EXPORTED InteropStatus InfiniFrameNativeTests_BuildHeaders(
-    AutoStringConst contentType,
-    AutoStringConst resourceUri,
-    AutoStringConst requestOrigin,
-    AutoString* headers
+    const char* contentType,
+    const char* resourceUri,
+    const char* requestOrigin,
+    const char** headers
 ) {
     if (headers != nullptr) *headers = nullptr;
 

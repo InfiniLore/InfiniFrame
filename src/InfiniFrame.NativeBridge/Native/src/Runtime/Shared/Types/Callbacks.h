@@ -33,7 +33,7 @@ using FileDialogCompletedCallback = void (*)(
     uint64_t operationId,
     int32_t result,
     int32_t valueCount,
-    AutoString* values
+    const char** values
 );
 
 /**
@@ -41,7 +41,7 @@ using FileDialogCompletedCallback = void (*)(
  * @param message UTF-8 encoded message string
  * @param origin UTF-8 encoded sender origin URL, or null if unavailable
  */
-using WebMessageReceivedCallback = void (*)(AutoString message, AutoString origin);
+using WebMessageReceivedCallback = void (*)(const char* message, const char* origin);
 
 /**
  * @brief Called when a debug/diagnostic event is produced by the platform WebView runtime.
@@ -51,16 +51,16 @@ using WebMessageReceivedCallback = void (*)(AutoString message, AutoString origi
  * @param uri Related URI where available
  * @param statusCode Status or native code when available, or 0 when unavailable
  * @param timestampUnixMillisecondsUtc UTC timestamp in unix milliseconds
- * @param platformPayload Optional platform-specific payload string
+ * @param platformPayload Optional platform-specific payload string (UTF-8)
  */
 using DebugEventCallback = void (*)(
-    AutoString kind,
-    AutoString message,
-    AutoString level,
-    AutoString uri,
+    const char* kind,
+    const char* message,
+    const char* level,
+    const char* uri,
     int statusCode,
     int64_t timestampUnixMillisecondsUtc,
-    AutoString platformPayload
+    const char* platformPayload
 );
 
 /** Version 1 custom-scheme response body kinds. Kind 2 is reserved for a future pull-based stream ABI. */
@@ -99,11 +99,11 @@ static_assert(sizeof(uintptr_t) != 8 || sizeof(CustomSchemeResponse) == 72, "Une
 
 /**
  * @brief Called when the WebView requests a custom-scheme resource.
- * @param url Platform-native URL (UTF-16 on Windows, UTF-8 on Unix); borrowed for the duration of the call
+ * @param url Platform-native URL (UTF-8); borrowed for the duration of the call
  * @param response Caller-owned, zero-initialized output descriptor
  * @return Non-zero if a response was produced; zero for not found or handler failure
  */
-using WebResourceRequestedCallback = int (*)(AutoString url, CustomSchemeResponse* response);
+using WebResourceRequestedCallback = int (*)(const char* url, CustomSchemeResponse* response);
 
 /**
  * @brief Called once per monitor during a GetAllMonitors enumeration.
@@ -152,19 +152,19 @@ using FocusOutCallback = void (*)();
 
 /**
  * @brief Called when navigation is starting, allowing cancellation.
- * @param url Platform-native URL (UTF-16 on Windows, UTF-8 on Unix); borrowed for the duration of the call
+ * @param url Platform-native URL (UTF-8); borrowed for the duration of the call
  * @param isUserInitiated Non-zero if the navigation was initiated by the user (e.g. link click)
  * @param isRedirect Non-zero if the navigation is the result of a redirect
  * @param isMainFrame Non-zero if the navigation is in the main frame
  * @return 0 to allow navigation, 1 to cancel
  */
-using NavigationStartingCallback = int (*)(AutoString url, int isUserInitiated, int isRedirect, int isMainFrame);
+using NavigationStartingCallback = int (*)(const char* url, int isUserInitiated, int isRedirect, int isMainFrame);
 
 /**
  * @brief Called when files are dropped onto the window.
- * @param paths Array of file path strings (UTF-8 on Unix, UTF-16 on Windows)
+ * @param paths Array of file path strings (UTF-8)
  * @param count Number of file paths
  * @param x Screen X coordinate of drop location
  * @param y Screen Y coordinate of drop location
  */
-using FileDroppedCallback = void (*)(AutoString* paths, int count, int x, int y);
+using FileDroppedCallback = void (*)(const char** paths, int count, int x, int y);

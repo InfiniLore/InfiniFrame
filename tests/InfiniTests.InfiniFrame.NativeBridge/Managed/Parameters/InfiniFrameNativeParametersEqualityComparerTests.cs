@@ -148,4 +148,18 @@ public class InfiniFrameNativeParametersEqualityComparerTests {
         // Assert
         await Assert.That(result).IsFalse();
     }
+
+    [Test]
+    public async Task Equals_DifferentMenuBarJson_ReturnsFalse(CancellationToken ct = default) {
+        // Arrange
+        InfiniFrameNativeParameters a = CreateDefault();
+        InfiniFrameNativeParameters b = CreateDefault();
+        b.MenuBarJson = "{\"Items\":[]}";
+
+        // Act
+        bool result = Comparer.Equals(a, b);
+
+        // Assert
+        await Assert.That(result).IsFalse();
+    }
 }

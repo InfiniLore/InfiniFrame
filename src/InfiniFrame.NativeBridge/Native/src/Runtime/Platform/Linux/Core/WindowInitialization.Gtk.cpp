@@ -137,7 +137,7 @@ void InfiniFrameWindow::Impl::ConfigureInitialWindow(InfiniFrameWindow* window, 
 void InfiniFrameWindow::Impl::ApplyInitialWindowState(
     InfiniFrameWindow* window, const InfiniFrameInitParams* initParams
 ) {
-    window->SetTitle(const_cast<AutoString>(_windowTitle.c_str()));
+    window->SetTitle(const_cast<const char*>(_windowTitle.c_str()));
 
     if (initParams->Chromeless) {
         gtk_window_set_decorated(GTK_WINDOW(_window), false);
@@ -200,10 +200,10 @@ void InfiniFrameWindow::Impl::ConnectWindowSignals(InfiniFrameWindow* window) {
                         }
                     }
 
-                    std::vector<AutoString> autoStrings;
+                    std::vector<const char*> autoStrings;
                     autoStrings.reserve(paths.size());
                     for (const auto& p : paths) {
-                        autoStrings.push_back(const_cast<AutoString>(p.c_str()));
+                        autoStrings.push_back(p.c_str());
                     }
 
                     instance->InvokeFileDropped(autoStrings.data(), static_cast<int>(autoStrings.size()), x, y);

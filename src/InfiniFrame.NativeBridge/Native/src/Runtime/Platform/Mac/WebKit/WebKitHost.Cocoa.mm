@@ -83,9 +83,9 @@ void InfiniFrameWindow::AttachWebView()
     m_impl->_webview.navigationDelegate = m_impl->_navigationDelegate;
 
     if (!m_impl->_startUrl.empty())
-        NavigateToUrl(const_cast<AutoString>(m_impl->_startUrl.c_str()));
+        NavigateToUrl(const_cast<const char*>(m_impl->_startUrl.c_str()));
     else if (!m_impl->_startString.empty())
-        NavigateToString(const_cast<AutoString>(m_impl->_startString.c_str()));
+        NavigateToString(const_cast<const char*>(m_impl->_startString.c_str()));
     else
     {
         NSAlert *alert = [[[NSAlert alloc] init] autorelease];

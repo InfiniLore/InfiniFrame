@@ -10,31 +10,36 @@
 class InfiniFrameWindow; // Forward declaration
 
 /**
- * @brief Initialization parameters for InfiniFrame window
+ * @brief Initialization parameters for InfiniFrame window.
+ *
+ * Field order defines the ABI layout shared with the managed (.NET) side via LayoutKind.Sequential.
+ * When adding or removing fields, append at the end (before StructSize) and bump StructSize.
  */
 struct InfiniFrameInitParams {
     static constexpr std::size_t MaxCustomSchemeNames = 16;
-    
-    // Content
-    AutoString StartString;
-    AutoString StartUrl;
 
-    // Window appearance
-    AutoString Title;
-    AutoString WindowIconFile;
-    AutoString TemporaryFilesPath;
-    AutoString UserAgent;
-    AutoString BrowserControlInitParameters;
-    AutoString WebView2RuntimePath;
-    AutoString NotificationRegistrationId;
-    AutoString WindowsAppUserModelId;
-    AutoString DefaultNotificationIcon;
+    // ── Content strings ────────────────────────────────────────────────────
+    const char* StartString;
+    const char* StartUrl;
+
+    // ── Window identity / appearance strings ───────────────────────────────
+    const char* Title;
+    const char* WindowIconFile;
+    const char* TemporaryFilesPath;
+    const char* UserAgent;
+    const char* BrowserControlInitParameters;
+    const char* WebView2RuntimePath;
+    const char* NotificationRegistrationId;
+    const char* WindowsAppUserModelId;
+    const char* DefaultNotificationIcon;
+
+    // ── Runtime configuration ──────────────────────────────────────────────
     int RemoteDebuggingPort;
 
-    // Parent window
+    // ── Parent window ──────────────────────────────────────────────────────
     InfiniFrameWindow* ParentInstance;
 
-    // Event handlers
+    // ── Event callbacks ────────────────────────────────────────────────────
     ClosingCallback ClosingHandler;
     ClosedCallback ClosedHandler;
     FocusInCallback FocusInHandler;
@@ -46,13 +51,17 @@ struct InfiniFrameInitParams {
     MovedCallback MovedHandler;
     WebMessageReceivedCallback WebMessageReceivedHandler;
     DebugEventCallback DebugEventHandler;
-    AutoString CustomSchemeNames[MaxCustomSchemeNames]; // NOLINT(*-avoid-c-arrays)
+
+    // ── Custom scheme support ──────────────────────────────────────────────
+    const char* CustomSchemeNames[MaxCustomSchemeNames]; // NOLINT(*-avoid-c-arrays)
     WebResourceRequestedCallback CustomSchemeHandler;
     NavigationStartingCallback NavigationStartingHandler;
+
+    // ── Drag-and-drop ──────────────────────────────────────────────────────
     FileDroppedCallback DragDropHandler;
     bool DragDropEnabled;
 
-    // Position and size
+    // ── Window geometry ────────────────────────────────────────────────────
     int Left;
     int Top;
     int Width;
@@ -63,14 +72,10 @@ struct InfiniFrameInitParams {
     int MaxWidth;
     int MaxHeight;
 
-    // Behavior flags
+    // ── Behavior flags ─────────────────────────────────────────────────────
     bool CenterOnInitialize;
     bool Chromeless;
     bool Transparent;
-    uint8_t BackgroundColorR;
-    uint8_t BackgroundColorG;
-    uint8_t BackgroundColorB;
-    uint8_t BackgroundColorA;
     bool ContextMenuEnabled;
     bool ZoomEnabled;
     bool DevToolsEnabled;
@@ -93,6 +98,15 @@ struct InfiniFrameInitParams {
     bool StatusBarEnabled;
     bool NotificationsEnabled;
 
-    // Struct size (for version checking)
+    // ── Background color (RGBA) ────────────────────────────────────────────
+    uint8_t BackgroundColorR;
+    uint8_t BackgroundColorG;
+    uint8_t BackgroundColorB;
+    uint8_t BackgroundColorA;
+
+    // ── Menu ───────────────────────────────────────────────────────────────
+    const char* MenuBarJson;
+
+    // ── ABI version (must remain last) ─────────────────────────────────────
     int StructSize;
 };

@@ -29,6 +29,8 @@ public sealed class InfiniFrameWindowBuilderFeatures : IInfiniFrameWindowBuilder
     public IStateInfiniFrameWindowBuilderFeature State { get; } = new StateInfiniFrameWindowBuilderFeature();
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.InstanceArbitration"/>
     public IInstanceArbitrationInfiniFrameWindowBuilderFeature InstanceArbitration { get; } = new InstanceArbitrationInfiniFrameWindowBuilderFeature();
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Menu"/>
+    public IMenuInfiniFrameWindowBuilderFeature Menu { get; } = new MenuInfiniFrameWindowBuilderFeature();
 
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -49,5 +51,6 @@ public sealed class InfiniFrameWindowBuilderFeatures : IInfiniFrameWindowBuilder
         Size.ApplyToNativeParameters(ref parameters);
         State.ApplyToNativeParameters(ref parameters);
         InstanceArbitration.ApplyToNativeParameters(ref parameters);
+        Menu.ApplyToNativeParameters(ref parameters);
     }
 }

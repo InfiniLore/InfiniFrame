@@ -12,5 +12,5 @@ namespace InfiniFrame.NativeBridge.Delegates;
 /// </summary>
 /// <param name="width">The new width of the window.</param>
 /// <param name="height">The new height of the window.</param>
-[UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)]
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public delegate void CppResizedDelegate(int width, int height);

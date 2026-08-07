@@ -8,7 +8,7 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 void InfiniFrameWindow::Impl::AddCustomScheme(
-    const AutoStringConst scheme,
+    const const char* scheme,
     WebResourceRequestedCallback requestHandler
     )
 {

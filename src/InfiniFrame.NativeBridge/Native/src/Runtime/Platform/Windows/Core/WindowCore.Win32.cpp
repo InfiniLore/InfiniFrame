@@ -111,7 +111,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         );
     }
 
-    if (initParams->WindowsAppUserModelId != nullptr && initParams->WindowsAppUserModelId[0] != L'\0') {
+    if (initParams->WindowsAppUserModelId != nullptr && initParams->WindowsAppUserModelId[0] != '\0') {
         const std::wstring appUserModelId = ToUTF16String(initParams->WindowsAppUserModelId);
         m_impl->_windowsAppUserModelId = appUserModelId;
         const HRESULT result = SetCurrentProcessExplicitAppUserModelID(appUserModelId.c_str());
@@ -303,6 +303,10 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
 
     if (initParams->DragDropEnabled) {
         DragAcceptFiles(m_impl->_hWnd, TRUE);
+    }
+
+    if (initParams->MenuBarJson != nullptr && initParams->MenuBarJson[0] != '\0') {
+        ApplyInitMenuBar(initParams->MenuBarJson);
     }
 
     bool isAlreadyShown = initParams->Minimized || initParams->Maximized;

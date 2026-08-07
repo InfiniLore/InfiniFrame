@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-void InfiniFrameWindow::AddCustomSchemeName(const AutoStringConst scheme) {
+void InfiniFrameWindow::AddCustomSchemeName(const char* scheme) {
     if (scheme == nullptr)
         return;
     if (m_impl->_customSchemeNames.size() >= InfiniFrameInitParams::MaxCustomSchemeNames)

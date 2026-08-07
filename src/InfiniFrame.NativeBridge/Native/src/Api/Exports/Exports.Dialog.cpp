@@ -9,16 +9,16 @@ extern "C" {
 /// @param[out] values Owned string array, caller must free with InfiniFrameNative_FreeStringArray(values, resultCount).
 EXPORTED InteropStatus InfiniFrameNative_ShowOpenFile(
     InfiniFrameWindow* inst,
-    const AutoString title,
-    const AutoString defaultPath,
+    const char* title,
+    const char* defaultPath,
     const bool multiSelect,
-    AutoString* filters,
+    const char** filters,
     const int filterCount,
     int* resultCount,
-    AutoString** values
+    const char*** values
 ) {
     ResetOut(resultCount, 0);
-    ResetOut(values, static_cast<AutoString*>(nullptr));
+    ResetOut(values, static_cast<const char**>(nullptr));
     return RunWindowExportStatus(inst, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(resultCount, "resultCount"))
             return;
@@ -35,14 +35,14 @@ EXPORTED InteropStatus InfiniFrameNative_ShowOpenFile(
 /// @param[out] values Owned string array, caller must free with InfiniFrameNative_FreeStringArray(values, resultCount).
 EXPORTED InteropStatus InfiniFrameNative_ShowOpenFolder(
     InfiniFrameWindow* inst,
-    const AutoString title,
-    const AutoString defaultPath,
+    const char* title,
+    const char* defaultPath,
     const bool multiSelect,
     int* resultCount,
-    AutoString** values
+    const char*** values
 ) {
     ResetOut(resultCount, 0);
-    ResetOut(values, static_cast<AutoString*>(nullptr));
+    ResetOut(values, static_cast<const char**>(nullptr));
     return RunWindowExportStatus(inst, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(resultCount, "resultCount"))
             return;
@@ -56,14 +56,14 @@ EXPORTED InteropStatus InfiniFrameNative_ShowOpenFolder(
 /// @param[out] value Owned string, caller must free with InfiniFrameNative_FreeString.
 EXPORTED InteropStatus InfiniFrameNative_ShowSaveFile(
     InfiniFrameWindow* inst,
-    const AutoString title,
-    const AutoString defaultPath,
-    AutoString* filters,
+    const char* title,
+    const char* defaultPath,
+    const char** filters,
     const int filterCount,
-    const AutoString defaultFileName,
-    AutoString* value
+    const char* defaultFileName,
+    const char** value
 ) {
-    ResetOut(value, static_cast<AutoString>(nullptr));
+    ResetOut(value, static_cast<const char*>(nullptr));
     return RunWindowExportStatus(inst, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(value, "value"))
             return;
@@ -77,8 +77,8 @@ EXPORTED InteropStatus InfiniFrameNative_ShowSaveFile(
 
 EXPORTED InteropStatus InfiniFrameNative_ShowMessage(
     InfiniFrameWindow* inst,
-    const AutoString title,
-    const AutoString text,
+    const char* title,
+    const char* text,
     const DialogButtons buttons,
     const DialogIcon icon,
     DialogResult* value
@@ -94,10 +94,10 @@ EXPORTED InteropStatus InfiniFrameNative_ShowMessage(
 EXPORTED InteropStatus InfiniFrameNative_BeginShowOpenFile(
     InfiniFrameWindow* instance,
     const uint64_t operationId,
-    const AutoString title,
-    const AutoString defaultPath,
+    const char* title,
+    const char* defaultPath,
     const bool multiSelect,
-    AutoString* filters,
+    const char** filters,
     const int filterCount,
     const FileDialogCompletedCallback completion,
     void* completionContext
@@ -115,8 +115,8 @@ EXPORTED InteropStatus InfiniFrameNative_BeginShowOpenFile(
 EXPORTED InteropStatus InfiniFrameNative_BeginShowOpenFolder(
     InfiniFrameWindow* instance,
     const uint64_t operationId,
-    const AutoString title,
-    const AutoString defaultPath,
+    const char* title,
+    const char* defaultPath,
     const bool multiSelect,
     const FileDialogCompletedCallback completion,
     void* completionContext
@@ -134,11 +134,11 @@ EXPORTED InteropStatus InfiniFrameNative_BeginShowOpenFolder(
 EXPORTED InteropStatus InfiniFrameNative_BeginShowSaveFile(
     InfiniFrameWindow* instance,
     const uint64_t operationId,
-    const AutoString title,
-    const AutoString defaultPath,
-    AutoString* filters,
+    const char* title,
+    const char* defaultPath,
+    const char** filters,
     const int filterCount,
-    const AutoString defaultFileName,
+    const char* defaultFileName,
     const FileDialogCompletedCallback completion,
     void* completionContext
 ) {
@@ -155,8 +155,8 @@ EXPORTED InteropStatus InfiniFrameNative_BeginShowSaveFile(
 EXPORTED InteropStatus InfiniFrameNative_BeginShowMessage(
     InfiniFrameWindow* instance,
     const uint64_t operationId,
-    const AutoString title,
-    const AutoString text,
+    const char* title,
+    const char* text,
     const DialogButtons buttons,
     const DialogIcon icon,
     const OperationCompletedCallback completion,

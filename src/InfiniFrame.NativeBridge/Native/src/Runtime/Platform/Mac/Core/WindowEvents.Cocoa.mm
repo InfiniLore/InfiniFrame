@@ -8,7 +8,7 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 
-void InfiniFrameWindow::AddCustomSchemeName(const AutoStringConst scheme)
+void InfiniFrameWindow::AddCustomSchemeName(const const char* scheme)
 {
     if (scheme == nullptr)
         return;

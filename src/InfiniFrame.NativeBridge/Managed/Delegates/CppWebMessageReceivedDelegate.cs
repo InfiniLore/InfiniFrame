@@ -12,5 +12,8 @@ namespace InfiniFrame.NativeBridge.Delegates;
 /// </summary>
 /// <param name="message">The message content.</param>
 /// <param name="origin">The origin of the message.</param>
-[UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)]
-public delegate void CppWebMessageReceivedDelegate(string message, string? origin);
+[UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+public delegate void CppWebMessageReceivedDelegate(
+    [MarshalAs(UnmanagedType.LPUTF8Str)] string message,
+    [MarshalAs(UnmanagedType.LPUTF8Str)] string? origin
+);

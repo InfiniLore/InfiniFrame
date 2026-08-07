@@ -26,6 +26,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
         m_impl->ApplyInitialWindowState(this, initParams);
         m_impl->ConnectWindowSignals(this);
 
+        if (initParams->MenuBarJson != nullptr && initParams->MenuBarJson[0] != '\0')
+            ApplyInitMenuBar(initParams->MenuBarJson);
+
         Show(false);
 
         m_impl->ConnectWebViewSignals(this);

@@ -10,7 +10,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using namespace infiniframe::exports;
 
-void InfiniFrameWindow::ShowNotification(const AutoString title, const AutoString message) {
+void InfiniFrameWindow::ShowNotification(const char* title, const char* message) {
     NotifyNotification* notification = notify_notification_new(title, message, nullptr);
     notify_notification_set_icon_from_pixbuf(notification, gtk_window_get_icon(GTK_WINDOW(m_impl->_window)));
     notify_notification_show(notification, nullptr);
@@ -18,7 +18,7 @@ void InfiniFrameWindow::ShowNotification(const AutoString title, const AutoStrin
 }
 
 void InfiniFrameWindow::ShowNotificationWithOptions(
-    AutoString title, AutoString body, AutoString iconPath, int urgency, AutoString tag
+    const char* title, const char* body, const char* iconPath, int urgency, const char* tag
 ) {
     (void)iconPath;
     (void)urgency;
@@ -41,7 +41,7 @@ void InfiniFrameWindow::ShowNotificationWithOptions(
 
 void InfiniFrameWindow::BeginShowNotification(
     uint64_t operationId,
-    AutoString title, AutoString body, AutoString iconPath, int urgency, AutoString tag,
+    const char* title, const char* body, const char* iconPath, int urgency, const char* tag,
     OperationCompletedCallback completion, void* completionContext
 ) {
     ShowNotificationWithOptions(title, body, iconPath, urgency, tag);

@@ -293,6 +293,11 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
                 (*retained)->Execute();
             return 0;
         }
+        case WM_COMMAND: {
+            if (auto* instance = LookupWindowInstance(hwnd))
+                instance->HandleMenuCommand(wParam);
+            return 0;
+        }
         case WM_DROPFILES: {
             if (auto* instance = LookupWindowInstance(hwnd)) {
                 HDROP hDrop = reinterpret_cast<HDROP>(wParam);
@@ -312,10 +317,16 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
                 DragQueryPoint(hDrop, &pt);
                 DragFinish(hDrop);
 
-                std::vector<AutoString> autoStrings;
-                autoStrings.reserve(files.size());
+                std::vector<std::string> utf8Files;
+                utf8Files.reserve(files.size());
                 for (const auto& f : files) {
-                    autoStrings.push_back(const_cast<AutoString>(f.c_str()));
+                    utf8Files.push_back(WideToUtf8(f.c_str()));
+                }
+
+                std::vector<const char*> autoStrings;
+                autoStrings.reserve(utf8Files.size());
+                for (const auto& f : utf8Files) {
+                    autoStrings.push_back(f.c_str());
                 }
 
                 instance->InvokeFileDropped(autoStrings.data(), static_cast<int>(autoStrings.size()), pt.x, pt.y);

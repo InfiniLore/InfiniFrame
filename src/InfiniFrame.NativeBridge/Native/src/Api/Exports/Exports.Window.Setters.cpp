@@ -22,7 +22,7 @@ EXPORTED InteropStatus InfiniFrameNative_SetMediaAutoplayEnabled(InfiniFrameWind
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetMediaAutoplayEnabled(enabled); });
 }
 
-EXPORTED InteropStatus InfiniFrameNative_SetUserAgent(InfiniFrameWindow* instance, const AutoString userAgent) {
+EXPORTED InteropStatus InfiniFrameNative_SetUserAgent(InfiniFrameWindow* instance, const char* userAgent) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetUserAgent(userAgent); });
 }
 
@@ -42,7 +42,7 @@ EXPORTED InteropStatus InfiniFrameNative_SetFullScreen(InfiniFrameWindow* instan
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetFullScreen(fullScreen); });
 }
 
-EXPORTED InteropStatus InfiniFrameNative_SetIconFile(InfiniFrameWindow* instance, const AutoString filename) {
+EXPORTED InteropStatus InfiniFrameNative_SetIconFile(InfiniFrameWindow* instance, const char* filename) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         window->SetIconFile(NullToEmpty(filename));
     });
@@ -76,7 +76,7 @@ EXPORTED InteropStatus InfiniFrameNative_SetSize(InfiniFrameWindow* instance, co
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetSize(width, height); });
 }
 
-EXPORTED InteropStatus InfiniFrameNative_SetTitle(InfiniFrameWindow* instance, const AutoString title) {
+EXPORTED InteropStatus InfiniFrameNative_SetTitle(InfiniFrameWindow* instance, const char* title) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetTitle(NullToEmpty(title)); });
 }
 

@@ -111,27 +111,27 @@ void InfiniFrameWindow::InvokeMinimized() const noexcept {
 }
 
 void InfiniFrameWindow::InvokeDebugEvent(
-    const AutoStringConst kind,
-    const AutoStringConst message,
-    const AutoStringConst level,
-    const AutoStringConst uri,
+    const char* kind,
+    const char* message,
+    const char* level,
+    const char* uri,
     const int statusCode,
     const int64_t timestampUnixMillisecondsUtc,
-    const AutoStringConst platformPayload
+    const char* platformPayload
 ) const noexcept {
     if (ImplBase()->_debugEventCallback)
         ImplBase()->_debugEventCallback(
-            const_cast<AutoString>(kind),
-            const_cast<AutoString>(message),
-            const_cast<AutoString>(level),
-            const_cast<AutoString>(uri),
+            kind,
+            message,
+            level,
+            uri,
             statusCode,
             timestampUnixMillisecondsUtc,
-            const_cast<AutoString>(platformPayload)
+            platformPayload
         );
 }
 
-void InfiniFrameWindow::InvokeFileDropped(AutoString* paths, const int count, const int x, const int y) const noexcept {
+void InfiniFrameWindow::InvokeFileDropped(const char** paths, const int count, const int x, const int y) const noexcept {
     if (ImplBase()->_fileDroppedCallback)
         ImplBase()->_fileDroppedCallback(paths, count, x, y);
 }

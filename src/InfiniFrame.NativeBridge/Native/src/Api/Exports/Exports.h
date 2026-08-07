@@ -24,13 +24,13 @@
 // Every exported function follows these pointer-ownership rules:
 //
 //  OWNED (caller-frees):
-//    Any AutoString written to an out-parameter (AutoString*) is heap-allocated
+//    Any const char* written to an out-parameter (const char**) is heap-allocated
 //    by the native layer. The caller MUST free it with InfiniFrameNative_FreeString().
-//    Multi-string results (AutoString** from dialog APIs) must be freed with
+//    Multi-string results (const char*** from dialog APIs) must be freed with
 //    InfiniFrameNative_FreeStringArray(values, count).
 //
 //  BORROWED (callee does not take ownership):
-//    All AutoString input parameters (const AutoString) are borrowed for the
+//    All const char* input parameters (const char*) are borrowed for the
 //    duration of the call. The native layer copies what it needs internally.
 //    The caller retains ownership and may free after the call returns.
 //

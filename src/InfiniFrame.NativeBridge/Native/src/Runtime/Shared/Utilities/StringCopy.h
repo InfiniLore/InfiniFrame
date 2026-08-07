@@ -5,39 +5,30 @@
 #include <cstring>
 #include <cstdlib>
 #include <string>
-
-#ifdef __linux__
-#include <glib.h>
-#endif
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+inline char* AllocateStringCopy(const std::string& str) {
+    const size_t len = str.length();
+    auto* copy = new char[len + 1];
+    std::memcpy(copy, str.c_str(), len + 1);
+    return copy;
+}
+
 #ifdef _WIN32
-inline wchar_t* AllocateStringCopy(const std::wstring& str) {
-    const size_t len = str.length();
-    auto* copy = new wchar_t[len + 1];
-    std::memcpy(copy, str.c_str(), (len + 1) * sizeof(wchar_t));
-    return copy;
-}
-
-#elif __linux__
-inline char* AllocateStringCopy(const std::string& str) {
-    return g_strdup(str.c_str());
-}
-
-#elif __APPLE__
-inline char* AllocateStringCopy(const std::string& str) {
-    const size_t len = str.length();
-    char* copy = static_cast<char*>(malloc(len + 1));
-    std::memcpy(copy, str.c_str(), len + 1);
-    return copy;
-}
-
-#else
-inline char* AllocateStringCopy(const std::string& str) {
-    const size_t len = str.length();
-    char* copy = static_cast<char*>(malloc(len + 1));
-    std::memcpy(copy, str.c_str(), len + 1);
+/// Convert a wide string to a newly allocated UTF-8 string (caller owns the result).
+inline char* AllocateUtf8FromWide(const std::wstring& wstr) {
+    if (wstr.empty()) {
+        auto* copy = new char[1];
+        copy[0] = '\0';
+        return copy;
+    }
+    const int utf8Count = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), static_cast<int>(wstr.size()), nullptr, 0, nullptr, nullptr);
+    if (utf8Count <= 0)
+        return nullptr;
+    auto* copy = new char[utf8Count + 1];
+    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), static_cast<int>(wstr.size()), copy, utf8Count, nullptr, nullptr);
+    copy[utf8Count] = '\0';
     return copy;
 }
 #endif

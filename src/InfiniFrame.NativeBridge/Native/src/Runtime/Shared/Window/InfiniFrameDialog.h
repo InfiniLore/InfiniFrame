@@ -48,11 +48,11 @@ class InfiniFrameDialog {
          * @param resultCount Output: number of selected files
          * @return Array of selected file paths
          */
-    AutoString* ShowOpenFile(
-        AutoString title,
-        AutoString defaultPath,
+    const char** ShowOpenFile(
+        const char* title,
+        const char* defaultPath,
         bool multiSelect,
-        AutoString* filters,
+        const char** filters,
         int filterCount,
         int* resultCount
     );
@@ -65,7 +65,7 @@ class InfiniFrameDialog {
          * @param resultCount Output: number of selected folders
          * @return Array of selected folder paths
          */
-    AutoString* ShowOpenFolder(AutoString title, AutoString defaultPath, bool multiSelect, int* resultCount);
+    const char** ShowOpenFolder(const char* title, const char* defaultPath, bool multiSelect, int* resultCount);
 
     /**
          * @brief Show save file dialog
@@ -76,12 +76,12 @@ class InfiniFrameDialog {
          * @param defaultFileName Default file name
          * @return Selected file path
          */
-    AutoString ShowSaveFile(
-        AutoString title,
-        AutoString defaultPath,
-        AutoString* filters,
+    const char* ShowSaveFile(
+        const char* title,
+        const char* defaultPath,
+        const char** filters,
         int filterCount,
-        AutoString defaultFileName = nullptr
+        const char* defaultFileName = nullptr
     );
 
     /**
@@ -92,7 +92,7 @@ class InfiniFrameDialog {
          * @param icon Icon type
          * @return User's response
          */
-    DialogResult ShowMessage(AutoString title, AutoString text, DialogButtons buttons, DialogIcon icon);
+    DialogResult ShowMessage(const char* title, const char* text, DialogButtons buttons, DialogIcon icon);
 
     protected:
 #ifdef __APPLE__

@@ -71,7 +71,9 @@ void InfiniFrameWindow::Center() {
 }
 
 void InfiniFrameWindow::ClearBrowserAutoFill() {
-    // TODO
+    // ClearBrowserAutoFill is Windows-only (WebView2).
+    // The managed layer logs a warning and returns on non-Windows platforms,
+    // but the native export must exist for all platforms.
 }
 
 void InfiniFrameWindow::Close() {

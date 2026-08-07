@@ -5,6 +5,7 @@
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
+#include <unordered_map>
 #include <vector>
 #include <string>
 
@@ -71,11 +72,19 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     CGFloat _preMaximizedXPosition = 0;
     CGFloat _preMaximizedYPosition = 0;
 
+    // Menu bar state
+    NSMenu* _menuBar = nil;
+    NSString* _menuBarJson = nil;
+    std::unordered_map<std::string, NSInteger> _menuItemIdToTag;
+    std::unordered_map<NSInteger, std::string> _menuTagToItemId;
+    NSInteger _nextMenuTag = 1;
+    id _menuActionHandler = nil;
+
     std::vector<Monitor> GetMonitors() const;
-    void SetUserAgent(AutoString userAgent);
+    void SetUserAgent(const char* userAgent);
     void SetPreference(NSString* key, NSNumber* value);
     void SetPreference(NSString* key, NSString* value);
-    void AddCustomScheme(const AutoStringConst scheme, WebResourceRequestedCallback requestHandler);
+    void AddCustomScheme(const char* scheme, WebResourceRequestedCallback requestHandler);
     bool LeasePooledMacHost(const std::string& compatibilityKey);
     void ReturnPooledMacHost();
 };
