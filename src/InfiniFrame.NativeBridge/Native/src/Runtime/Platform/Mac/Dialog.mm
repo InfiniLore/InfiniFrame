@@ -47,7 +47,7 @@ InfiniFrameDialog::~InfiniFrameDialog() {
   [_warningIcon release];
 }
 
-AutoString* InfiniFrameDialog::ShowOpenFile(AutoString title, AutoString defaultPath, bool multiSelect, AutoString* filters, int filterCount, int* resultCount) {
+const char** InfiniFrameDialog::ShowOpenFile(const char* title, const char* defaultPath, bool multiSelect, const char** filters, int filterCount, int* resultCount) {
   NSOpenPanel* openDlg = [NSOpenPanel openPanel];
 
   [openDlg setTitle:[NSString stringWithUTF8String:title]];
@@ -83,7 +83,7 @@ AutoString* InfiniFrameDialog::ShowOpenFile(AutoString title, AutoString default
   return nullptr;
 }
 
-AutoString* InfiniFrameDialog::ShowOpenFolder(AutoString title, AutoString defaultPath, bool multiSelect, int* resultCount) {
+const char** InfiniFrameDialog::ShowOpenFolder(const char* title, const char* defaultPath, bool multiSelect, int* resultCount) {
   NSOpenPanel* openDlg = [NSOpenPanel openPanel];
 
   [openDlg setTitle:[NSString stringWithUTF8String:title]];
@@ -107,7 +107,7 @@ AutoString* InfiniFrameDialog::ShowOpenFolder(AutoString title, AutoString defau
   return nullptr;
 }
 
-AutoString InfiniFrameDialog::ShowSaveFile(AutoString title, AutoString defaultPath, AutoString* filters, int filterCount, AutoString defaultFileName) {
+const char* InfiniFrameDialog::ShowSaveFile(const char* title, const char* defaultPath, const char** filters, int filterCount, const char* defaultFileName) {
   NSSavePanel* saveDlg = [NSSavePanel savePanel];
 
   [saveDlg setTitle:[NSString stringWithUTF8String:title]];
@@ -137,7 +137,7 @@ AutoString InfiniFrameDialog::ShowSaveFile(AutoString title, AutoString defaultP
   return nullptr;
 }
 
-DialogResult InfiniFrameDialog::ShowMessage(AutoString title, AutoString text, DialogButtons buttons, DialogIcon icon) {
+DialogResult InfiniFrameDialog::ShowMessage(const char* title, const char* text, DialogButtons buttons, DialogIcon icon) {
   NSAlert* alert = [[[NSAlert alloc] init] autorelease];
   [alert setMessageText:[NSString stringWithUTF8String:title]];
   [alert setInformativeText:[NSString stringWithUTF8String:text]];
@@ -282,8 +282,8 @@ namespace {
   }
 
   void ConfigureOpenPanel(
-      NSOpenPanel* panel, AutoString title, AutoString defaultPath,
-      const bool folders, const bool multiSelect, AutoString* filters, const int filterCount
+      NSOpenPanel* panel, const char* title, const char* defaultPath,
+      const bool folders, const bool multiSelect, const char** filters, const int filterCount
   ) {
     [panel setTitle:[NSString stringWithUTF8String:title]];
     [panel setCanChooseFiles:!folders];
@@ -307,7 +307,7 @@ namespace {
       NSOpenPanel* panel, const NSModalResponse response,
       const std::shared_ptr<DialogOperation>& operation
   ) {
-    AutoString* values = nullptr;
+    const char** values = nullptr;
     int count = 0;
     if (response == NSModalResponseOK) {
       NSArray* urls = [panel URLs];
@@ -322,8 +322,8 @@ namespace {
 }
 
 void InfiniFrameWindow::BeginShowOpenFile(
-    const uint64_t id, AutoString title, AutoString path, const bool multiSelect,
-    AutoString* filters, const int filterCount, const FileDialogCompletedCallback completion, void* context
+    const uint64_t id, const char* title, const char* path, const bool multiSelect,
+    const char** filters, const int filterCount, const FileDialogCompletedCallback completion, void* context
 ) {
   auto operation = RegisterFileDialogOperation(id, "ShowOpenFile", completion, context);
   NSOpenPanel* panel = [NSOpenPanel openPanel];
@@ -335,7 +335,7 @@ void InfiniFrameWindow::BeginShowOpenFile(
 }
 
 void InfiniFrameWindow::BeginShowOpenFolder(
-    const uint64_t id, AutoString title, AutoString path, const bool multiSelect,
+    const uint64_t id, const char* title, const char* path, const bool multiSelect,
     const FileDialogCompletedCallback completion, void* context
 ) {
   auto operation = RegisterFileDialogOperation(id, "ShowOpenFolder", completion, context);
@@ -348,8 +348,8 @@ void InfiniFrameWindow::BeginShowOpenFolder(
 }
 
 void InfiniFrameWindow::BeginShowSaveFile(
-    const uint64_t id, AutoString title, AutoString path, AutoString* filters, const int filterCount,
-    AutoString defaultFileName, const FileDialogCompletedCallback completion, void* context
+    const uint64_t id, const char* title, const char* path, const char** filters, const int filterCount,
+    const char* defaultFileName, const FileDialogCompletedCallback completion, void* context
 ) {
   auto operation = RegisterFileDialogOperation(id, "ShowSaveFile", completion, context);
   NSSavePanel* panel = [NSSavePanel savePanel];
@@ -367,7 +367,7 @@ void InfiniFrameWindow::BeginShowSaveFile(
 #endif
   }
   [panel beginSheetModalForWindow:getNSWindow() completionHandler:^(NSModalResponse response) {
-    AutoString* values = nullptr;
+    const char** values = nullptr;
     int count = 0;
     if (response == NSModalResponseOK) {
       values = AllocateStringArray(1);
@@ -381,7 +381,7 @@ void InfiniFrameWindow::BeginShowSaveFile(
 }
 
 void InfiniFrameWindow::BeginShowMessage(
-    const uint64_t id, AutoString title, AutoString text,
+    const uint64_t id, const char* title, const char* text,
     const DialogButtons buttons, const DialogIcon icon,
     const OperationCompletedCallback completion, void* context
 ) {

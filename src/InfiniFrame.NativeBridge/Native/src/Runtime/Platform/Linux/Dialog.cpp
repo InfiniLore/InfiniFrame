@@ -168,9 +168,9 @@ const char* InfiniFrameDialog::ShowSaveFile(
     const int filterCount,
     const char* defaultFileName
 ) {
-    char** result = ShowDialog(SaveFile, title, defaultPath, false, filters, filterCount, nullptr, defaultFileName);
+    const char** result = ShowDialog(SaveFile, title, defaultPath, false, filters, filterCount, nullptr, defaultFileName);
     if (result != nullptr) {
-        char* value = result[0];
+        const char* value = result[0];
         delete[] result;
         return value;
     }

@@ -91,7 +91,7 @@
 
         if (!paths.empty()) {
             NSPoint dropPoint = [sender draggingLocation];
-            std::vector<AutoString> autoStrings;
+            std::vector<const char*> autoStrings;
             autoStrings.reserve(paths.size());
             for (const auto& p : paths) {
                 autoStrings.push_back(p.c_str());
