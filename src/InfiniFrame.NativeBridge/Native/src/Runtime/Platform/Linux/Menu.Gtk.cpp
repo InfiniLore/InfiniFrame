@@ -28,9 +28,6 @@ namespace {
         auto* data = static_cast<MenuActivateData*>(userData);
         if (data == nullptr || data->window == nullptr) return;
 
-        auto* impl = static_cast<InfiniFrameWindow::Impl*>(data->window->ImplBase());
-        if (impl->_webMessageReceivedCallback == nullptr) return;
-
         std::string message = std::string("menu:") + data->itemId;
         data->window->SendWebMessage(message.c_str());
     }
@@ -52,13 +49,13 @@ namespace {
                 continue;
 
             int64_t type = 0;
-            obj["type"].get_int64().get(type);
+            (void)obj["type"].get_int64().get(type);
 
             bool isEnabled = true;
-            obj["isEnabled"].get_bool().get(isEnabled);
+            (void)obj["isEnabled"].get_bool().get(isEnabled);
 
             bool isVisible = true;
-            obj["isVisible"].get_bool().get(isVisible);
+            (void)obj["isVisible"].get_bool().get(isVisible);
 
             if (!isVisible)
                 continue;
@@ -70,7 +67,7 @@ namespace {
             }
 
             std::string label;
-            obj["label"].get_string().get(label);
+            (void)obj["label"].get_string().get(label);
 
             guint commandId = nextId++;
             idToCommand[id] = commandId;
@@ -230,7 +227,7 @@ void InfiniFrameWindow::SetMenuItemVisibleById(const char* menuItemId, bool visi
 }
 
 void InfiniFrameWindow::ClickMenuItemById(const char* menuItemId) {
-    if (ImplBase()->_webMessageReceivedCallback == nullptr)
+    if (m_impl->_webMessageReceivedCallback == nullptr)
         return;
 
     std::string message = std::string("menu:") + menuItemId;
