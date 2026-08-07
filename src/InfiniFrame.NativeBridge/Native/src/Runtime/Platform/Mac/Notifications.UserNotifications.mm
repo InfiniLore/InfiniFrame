@@ -8,7 +8,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using namespace infiniframe::exports;
 
-void InfiniFrameWindow::ShowNotification(AutoString title, AutoString body)
+void InfiniFrameWindow::ShowNotification(const char* title, const char* body)
 {
     UNMutableNotificationContent *objNotificationContent = [[UNMutableNotificationContent alloc] init];
     objNotificationContent.title = [NSString stringWithUTF8String: title];
@@ -26,7 +26,7 @@ void InfiniFrameWindow::ShowNotification(AutoString title, AutoString body)
 }
 
 void InfiniFrameWindow::ShowNotificationWithOptions(
-    AutoString title, AutoString body, AutoString iconPath, int urgency, AutoString tag
+    const char* title, const char* body, const char* iconPath, int urgency, const char* tag
 ) {
     UNMutableNotificationContent *objNotificationContent = [[UNMutableNotificationContent alloc] init];
     objNotificationContent.title = [NSString stringWithUTF8String: title];
@@ -73,7 +73,7 @@ void InfiniFrameWindow::ShowNotificationWithOptions(
 
 void InfiniFrameWindow::BeginShowNotification(
     uint64_t operationId,
-    AutoString title, AutoString body, AutoString iconPath, int urgency, AutoString tag,
+    const char* title, const char* body, const char* iconPath, int urgency, const char* tag,
     OperationCompletedCallback completion, void* completionContext
 ) {
     ShowNotificationWithOptions(title, body, iconPath, urgency, tag);

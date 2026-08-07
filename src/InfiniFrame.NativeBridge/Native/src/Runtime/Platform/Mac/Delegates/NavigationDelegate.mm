@@ -136,7 +136,7 @@ namespace {
         bool isRedirect = (navigationAction.navigationType == WKNavigationTypeOther);
         bool isMainFrame = navigationAction.targetFrame.mainFrame;
 
-        AutoString urlUtf8 = (AutoString)[url.absoluteString UTF8String];
+        const char* urlUtf8 = (const char*)[url.absoluteString UTF8String];
         int cancel = callback(
             urlUtf8, isUserInitiated ? 1 : 0, isRedirect ? 1 : 0, isMainFrame ? 1 : 0
         );

@@ -6,7 +6,7 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
-EXPORTED InteropStatus InfiniFrameNative_NavigateToString(InfiniFrameWindow* instance, const AutoString content) {
+EXPORTED InteropStatus InfiniFrameNative_NavigateToString(InfiniFrameWindow* instance, const char* content) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureNotNull(content, "content"))
             return;
@@ -14,7 +14,7 @@ EXPORTED InteropStatus InfiniFrameNative_NavigateToString(InfiniFrameWindow* ins
     });
 }
 
-EXPORTED InteropStatus InfiniFrameNative_NavigateToUrl(InfiniFrameWindow* instance, const AutoString url) {
+EXPORTED InteropStatus InfiniFrameNative_NavigateToUrl(InfiniFrameWindow* instance, const char* url) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureNotNull(url, "url"))
             return;
@@ -22,7 +22,7 @@ EXPORTED InteropStatus InfiniFrameNative_NavigateToUrl(InfiniFrameWindow* instan
     });
 }
 
-EXPORTED InteropStatus InfiniFrameNative_SendWebMessage(InfiniFrameWindow* instance, const AutoString message) {
+EXPORTED InteropStatus InfiniFrameNative_SendWebMessage(InfiniFrameWindow* instance, const char* message) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         window->SendWebMessage(NullToEmpty(message));
     });
@@ -31,7 +31,7 @@ EXPORTED InteropStatus InfiniFrameNative_SendWebMessage(InfiniFrameWindow* insta
 EXPORTED InteropStatus InfiniFrameNative_BeginNavigateToString(
     InfiniFrameWindow* instance,
     const uint64_t operationId,
-    const AutoString content,
+    const char* content,
     const OperationCompletedCallback completion,
     void* completionContext
 ) {
@@ -45,7 +45,7 @@ EXPORTED InteropStatus InfiniFrameNative_BeginNavigateToString(
 EXPORTED InteropStatus InfiniFrameNative_BeginNavigateToUrl(
     InfiniFrameWindow* instance,
     const uint64_t operationId,
-    const AutoString url,
+    const char* url,
     const OperationCompletedCallback completion,
     void* completionContext
 ) {
@@ -65,8 +65,8 @@ EXPORTED InteropStatus InfiniFrameNative_CancelNavigation(InfiniFrameWindow* ins
 }
 
 /// @param[out] value Owned string, caller must free with InfiniFrameNative_FreeString.
-EXPORTED InteropStatus InfiniFrameNative_GetCurrentUrl(InfiniFrameWindow* instance, AutoString* value) {
-    ResetOut(value, static_cast<AutoString>(nullptr));
+EXPORTED InteropStatus InfiniFrameNative_GetCurrentUrl(InfiniFrameWindow* instance, const char** value) {
+    ResetOut(value, static_cast<const char*>(nullptr));
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(value, "value"))
             return;

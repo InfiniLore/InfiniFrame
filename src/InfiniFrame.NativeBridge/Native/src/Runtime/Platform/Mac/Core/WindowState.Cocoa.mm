@@ -12,7 +12,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 static const int MAX_WINDOW_DIMENSION = 10000;
 
-static NSString* RequireUtf8String(const AutoStringConst value, const char* argumentName)
+static NSString* RequireUtf8String(const const char* value, const char* argumentName)
 {
     if (value == nullptr)
         throw std::invalid_argument(std::string(argumentName) + " is null.");
@@ -144,12 +144,12 @@ void InfiniFrameWindow::GetMinSize(int* width, int* height) const
     if (height) *height = static_cast<int>(roundf(minSize.height));
 }
 
-AutoString InfiniFrameWindow::GetTitle() const
+const char* InfiniFrameWindow::GetTitle() const
 {
     return AllocateStringCopy(m_impl->_windowTitle);
 }
 
-AutoString InfiniFrameWindow::GetCurrentUrl() const
+const char* InfiniFrameWindow::GetCurrentUrl() const
 {
     if (m_impl->_webview == nil)
         return AllocateStringCopy(NativeString());
@@ -169,7 +169,7 @@ void InfiniFrameWindow::GetZoom(int* zoom) const
     *zoom = static_cast<int>(rawValue);
 }
 
-void InfiniFrameWindow::NavigateToString(AutoString content)
+void InfiniFrameWindow::NavigateToString(const char* content)
 {
     if (m_impl->_isClosingOrClosed || m_impl->_webview == nil)
         return;
@@ -179,7 +179,7 @@ void InfiniFrameWindow::NavigateToString(AutoString content)
         BindNavigationBackendId(reinterpret_cast<uint64_t>(navigation));
 }
 
-void InfiniFrameWindow::NavigateToUrl(AutoString url)
+void InfiniFrameWindow::NavigateToUrl(const char* url)
 {
     if (m_impl->_isClosingOrClosed || m_impl->_webview == nil)
         return;
@@ -204,7 +204,7 @@ void InfiniFrameWindow::Restore()
     if (maximized) SetMaximized(false);
 }
 
-static std::string BuildMacWebMessageJs(AutoString message) {
+static std::string BuildMacWebMessageJs(const char* message) {
     @autoreleasepool {
         NSString* nsmessage = RequireUtf8String(message, "message");
 
@@ -240,7 +240,7 @@ void InfiniFrameWindow::FlushPendingWebMessages() {
     }
 }
 
-void InfiniFrameWindow::SendWebMessage(AutoString message)
+void InfiniFrameWindow::SendWebMessage(const char* message)
 {
     if (m_impl->_isClosingOrClosed || m_impl->_webview == nil)
         return;
@@ -311,7 +311,7 @@ void InfiniFrameWindow::SetMediaAutoplayEnabled(bool enabled)
         [m_impl->_webview reload];
 }
 
-void InfiniFrameWindow::SetUserAgent(AutoString userAgent)
+void InfiniFrameWindow::SetUserAgent(const char* userAgent)
 {
     m_impl->SetUserAgent(userAgent);
 
@@ -333,7 +333,7 @@ void InfiniFrameWindow::SetStatusBarEnabled(bool enabled)
     m_impl->_statusBarEnabled = enabled;
 }
 
-void InfiniFrameWindow::SetIconFile(AutoString filename)
+void InfiniFrameWindow::SetIconFile(const char* filename)
 {
     NSString* path = RequireUtf8String(filename, "filename");
     NSImage* icon = [[NSImage alloc] initWithContentsOfFile: path];
@@ -447,7 +447,7 @@ void InfiniFrameWindow::SetMaxSize(int width, int height)
     [m_impl->_window setMaxSize: NSMakeSize(width, height)];
 }
 
-void InfiniFrameWindow::SetTitle(AutoString title)
+void InfiniFrameWindow::SetTitle(const char* title)
 {
     m_impl->_windowTitle = title ? title : "";
     [m_impl->_window setTitle:RequireUtf8String(title, "title")];

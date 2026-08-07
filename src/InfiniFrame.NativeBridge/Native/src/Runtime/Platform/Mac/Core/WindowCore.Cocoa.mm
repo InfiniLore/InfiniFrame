@@ -356,7 +356,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
         this->m_impl->_windowDelegate->infiniFrame = this;
         this->m_impl->_window.delegate = this->m_impl->_windowDelegate;
 
-        this->SetTitle(const_cast<AutoString>(this->m_impl->_windowTitle.c_str()));
+        this->SetTitle(const_cast<const char*>(this->m_impl->_windowTitle.c_str()));
 
         if (params->WindowIconFile != nullptr && params->WindowIconFile[0] != '\0')
             this->SetIconFile(params->WindowIconFile);
@@ -485,7 +485,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
                         usingBlock:^(NSNotification*) { [childWindow orderOut:nil]; }];
                 }
             }
-            this->SetTitle(const_cast<AutoString>(this->m_impl->_windowTitle.c_str()));
+            this->SetTitle(const_cast<const char*>(this->m_impl->_windowTitle.c_str()));
             this->SetTopmost(params->Topmost);
             this->SetPosition(params->Left, params->Top);
             this->SetMinSize(params->MinWidth, params->MinHeight);
@@ -502,6 +502,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
         }
 
         this->m_impl->_dialog = std::make_unique<InfiniFrameDialog>();
+
+        if (params->MenuBarJson != nullptr && params->MenuBarJson[0] != '\0')
+            this->ApplyInitMenuBar(params->MenuBarJson);
 
         bool isAlreadyShown = params->Minimized || params->Maximized;
         this->Show(isAlreadyShown);

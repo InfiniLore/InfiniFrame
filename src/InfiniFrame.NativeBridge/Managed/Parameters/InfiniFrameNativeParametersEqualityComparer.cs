@@ -39,9 +39,11 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         // && x.DebugEventHandler == y.DebugEventHandler
         // && x.CustomSchemeHandler == y.CustomSchemeHandler
 
-        if (!x.CustomSchemeNames.AsSpan().SequenceEqual(y.CustomSchemeNames.AsSpan())) return false;
+        // Content strings
         if (x.StartString != y.StartString) return false;
         if (x.StartUrl != y.StartUrl) return false;
+
+        // Window identity strings
         if (x.Title != y.Title) return false;
         if (x.WindowIconFile != y.WindowIconFile) return false;
         if (x.TemporaryFilesPath != y.TemporaryFilesPath) return false;
@@ -50,8 +52,18 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         if (x.WebView2RuntimePath != y.WebView2RuntimePath) return false;
         if (x.NotificationRegistrationId != y.NotificationRegistrationId) return false;
         if (x.WindowsAppUserModelId != y.WindowsAppUserModelId) return false;
+        if (x.DefaultNotificationIcon != y.DefaultNotificationIcon) return false;
+
+        // Runtime configuration
         if (x.RemoteDebuggingPort != y.RemoteDebuggingPort) return false;
+
+        // Parent window
         if (x.NativeParent != y.NativeParent) return false;
+
+        // Custom scheme support
+        if (!x.CustomSchemeNames.AsSpan().SequenceEqual(y.CustomSchemeNames.AsSpan())) return false;
+
+        // Window geometry
         if (x.Left != y.Left) return false;
         if (x.Top != y.Top) return false;
         if (x.Width != y.Width) return false;
@@ -61,10 +73,13 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         if (x.MinHeight != y.MinHeight) return false;
         if (x.MaxWidth != y.MaxWidth) return false;
         if (x.MaxHeight != y.MaxHeight) return false;
+
+        // Behavior flags
         if (x.CenterOnInitialize != y.CenterOnInitialize) return false;
         if (x.Chromeless != y.Chromeless) return false;
         if (x.Transparent != y.Transparent) return false;
         if (x.ContextMenuEnabled != y.ContextMenuEnabled) return false;
+        if (x.ZoomEnabled != y.ZoomEnabled) return false;
         if (x.DevToolsEnabled != y.DevToolsEnabled) return false;
         if (x.WebInspectorEnabled != y.WebInspectorEnabled) return false;
         if (x.FullScreen != y.FullScreen) return false;
@@ -84,9 +99,18 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         if (x.IgnoreCertificateErrorsEnabled != y.IgnoreCertificateErrorsEnabled) return false;
         if (x.StatusBarEnabled != y.StatusBarEnabled) return false;
         if (x.NotificationsEnabled != y.NotificationsEnabled) return false;
-        if (x.DefaultNotificationIcon != y.DefaultNotificationIcon) return false;
+
+        // Background color
+        if (x.BackgroundColorR != y.BackgroundColorR) return false;
+        if (x.BackgroundColorG != y.BackgroundColorG) return false;
+        if (x.BackgroundColorB != y.BackgroundColorB) return false;
+        if (x.BackgroundColorA != y.BackgroundColorA) return false;
+
+        // Menu
+        if (x.MenuBarJson != y.MenuBarJson) return false;
+
+        // ABI version
         if (x.Size != y.Size) return false;
-        if (x.ZoomEnabled != y.ZoomEnabled) return false;
 
         return true;
     }
@@ -99,8 +123,12 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
     /// <returns>A hash code value.</returns>
     public int GetHashCode(InfiniFrameNativeParameters obj) {
         var hashCode = new HashCode();
+
+        // Content strings
         hashCode.Add(obj.StartString);
         hashCode.Add(obj.StartUrl);
+
+        // Window identity strings
         hashCode.Add(obj.Title);
         hashCode.Add(obj.WindowIconFile);
         hashCode.Add(obj.TemporaryFilesPath);
@@ -109,13 +137,20 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         hashCode.Add(obj.WebView2RuntimePath);
         hashCode.Add(obj.NotificationRegistrationId);
         hashCode.Add(obj.WindowsAppUserModelId);
+        hashCode.Add(obj.DefaultNotificationIcon);
+
+        // Runtime configuration
         hashCode.Add(obj.RemoteDebuggingPort);
+
+        // Parent window
         hashCode.Add(obj.NativeParent);
 
+        // Custom scheme names
         foreach (IntPtr ptr in obj.CustomSchemeNames) {
             hashCode.Add(ptr);
         }
 
+        // Window geometry
         hashCode.Add(obj.Left);
         hashCode.Add(obj.Top);
         hashCode.Add(obj.Width);
@@ -125,10 +160,13 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         hashCode.Add(obj.MinHeight);
         hashCode.Add(obj.MaxWidth);
         hashCode.Add(obj.MaxHeight);
+
+        // Behavior flags
         hashCode.Add(obj.CenterOnInitialize);
         hashCode.Add(obj.Chromeless);
         hashCode.Add(obj.Transparent);
         hashCode.Add(obj.ContextMenuEnabled);
+        hashCode.Add(obj.ZoomEnabled);
         hashCode.Add(obj.DevToolsEnabled);
         hashCode.Add(obj.WebInspectorEnabled);
         hashCode.Add(obj.FullScreen);
@@ -148,9 +186,19 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         hashCode.Add(obj.IgnoreCertificateErrorsEnabled);
         hashCode.Add(obj.StatusBarEnabled);
         hashCode.Add(obj.NotificationsEnabled);
-        hashCode.Add(obj.DefaultNotificationIcon);
+
+        // Background color
+        hashCode.Add(obj.BackgroundColorR);
+        hashCode.Add(obj.BackgroundColorG);
+        hashCode.Add(obj.BackgroundColorB);
+        hashCode.Add(obj.BackgroundColorA);
+
+        // Menu
+        hashCode.Add(obj.MenuBarJson);
+
+        // ABI version
         hashCode.Add(obj.Size);
-        hashCode.Add(obj.ZoomEnabled);
+
         return hashCode.ToHashCode();
     }
 }

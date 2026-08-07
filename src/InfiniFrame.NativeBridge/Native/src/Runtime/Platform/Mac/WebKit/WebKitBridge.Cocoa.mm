@@ -36,7 +36,7 @@ std::vector<Monitor> InfiniFrameWindow::Impl::GetMonitors() const
     return monitors;
 }
 
-void InfiniFrameWindow::Impl::SetUserAgent(AutoString userAgent)
+void InfiniFrameWindow::Impl::SetUserAgent(const char* userAgent)
 {
     if (userAgent != nullptr)
     {

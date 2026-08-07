@@ -17,13 +17,13 @@ namespace InfiniFrame.NativeBridge.Delegates;
 /// <param name="statusCode">The HTTP status code.</param>
 /// <param name="timestampUnixMillisecondsUtc">The event timestamp in UTC milliseconds.</param>
 /// <param name="platformPayload">Optional platform-specific payload.</param>
-[UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)]
+[UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
 public delegate void CppDebugEventDelegate(
-    string kind,
-    string? message,
-    string? level,
-    string? uri,
+    [MarshalAs(UnmanagedType.LPUTF8Str)] string kind,
+    [MarshalAs(UnmanagedType.LPUTF8Str)] string? message,
+    [MarshalAs(UnmanagedType.LPUTF8Str)] string? level,
+    [MarshalAs(UnmanagedType.LPUTF8Str)] string? uri,
     int statusCode,
     long timestampUnixMillisecondsUtc,
-    string? platformPayload
+    [MarshalAs(UnmanagedType.LPUTF8Str)] string? platformPayload
 );

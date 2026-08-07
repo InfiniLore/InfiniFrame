@@ -9,7 +9,7 @@
 using namespace WinToastLib;
 using namespace infiniframe::exports;
 
-void InfiniFrameWindow::ShowNotification(AutoString title, AutoString body) {
+void InfiniFrameWindow::ShowNotification(const char* title, const char* body) {
     std::wstring wideTitle = ToUTF16String(title);
     std::wstring wideBody = ToUTF16String(body);
     if (m_impl->_notificationsEnabled && WinToast::isCompatible()) {
@@ -24,7 +24,7 @@ void InfiniFrameWindow::ShowNotification(AutoString title, AutoString body) {
 }
 
 void InfiniFrameWindow::ShowNotificationWithOptions(
-    AutoString title, AutoString body, AutoString iconPath, int urgency, AutoString tag
+    const char* title, const char* body, const char* iconPath, int urgency, const char* tag
 ) {
     (void)tag;
     std::wstring wideTitle = ToUTF16String(title);
@@ -35,9 +35,9 @@ void InfiniFrameWindow::ShowNotificationWithOptions(
         toast.setTextField(wideTitle.c_str(), WinToastTemplate::FirstLine);
         toast.setTextField(wideBody.c_str(), WinToastTemplate::SecondLine);
 
-        AutoString iconStr = NullToEmpty(iconPath);
-        if (iconStr[0] != L'\0') {
-            toast.setImagePath(iconStr);
+        const char* iconStr = NullToEmpty(iconPath);
+        if (iconStr[0] != '\0') {
+            toast.setImagePath(ToUTF16String(iconStr));
         }
         else if (!m_impl->_iconFileName.empty()) {
             toast.setImagePath(m_impl->_iconFileName);
@@ -57,7 +57,7 @@ void InfiniFrameWindow::ShowNotificationWithOptions(
 
 void InfiniFrameWindow::BeginShowNotification(
     uint64_t operationId,
-    AutoString title, AutoString body, AutoString iconPath, int urgency, AutoString tag,
+    const char* title, const char* body, const char* iconPath, int urgency, const char* tag,
     OperationCompletedCallback completion, void* completionContext
 ) {
     (void)tag;
@@ -69,9 +69,9 @@ void InfiniFrameWindow::BeginShowNotification(
         toast.setTextField(wideTitle.c_str(), WinToastTemplate::FirstLine);
         toast.setTextField(wideBody.c_str(), WinToastTemplate::SecondLine);
 
-        AutoString iconStr = NullToEmpty(iconPath);
-        if (iconStr[0] != L'\0') {
-            toast.setImagePath(iconStr);
+        const char* iconStr = NullToEmpty(iconPath);
+        if (iconStr[0] != '\0') {
+            toast.setImagePath(ToUTF16String(iconStr));
         }
         else if (!m_impl->_iconFileName.empty()) {
             toast.setImagePath(m_impl->_iconFileName);

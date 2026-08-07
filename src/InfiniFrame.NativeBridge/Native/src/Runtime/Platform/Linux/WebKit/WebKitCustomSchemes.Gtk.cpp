@@ -33,7 +33,7 @@ namespace gtk_webkit {
 
             const gchar* uri = webkit_uri_scheme_request_get_uri(request);
             CustomSchemeResponse managedResponse{};
-            const int handled = webResourceRequestedCallback(const_cast<AutoString>(uri), &managedResponse);
+            const int handled = webResourceRequestedCallback(const_cast<const char*>(uri), &managedResponse);
             infiniframe::CustomSchemeResponseLease responseLease(managedResponse);
             if (handled == 0) {
                 FinishCustomSchemeError(request, G_IO_ERROR_NOT_FOUND, "Custom scheme resource was not found.");

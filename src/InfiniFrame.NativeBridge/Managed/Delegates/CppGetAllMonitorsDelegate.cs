@@ -13,5 +13,5 @@ namespace InfiniFrame.NativeBridge.Delegates;
 /// </summary>
 /// <param name="monitor">The monitor information.</param>
 /// <returns>Non-zero to continue enumeration, zero to stop.</returns>
-[UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)]
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public delegate int CppGetAllMonitorsDelegate(in NativeMonitor monitor);

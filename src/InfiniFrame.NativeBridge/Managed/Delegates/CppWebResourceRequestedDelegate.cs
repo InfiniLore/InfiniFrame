@@ -40,5 +40,8 @@ public struct CustomSchemeResponse {
 /// <param name="url">Platform-native URL string (UTF-16 on Windows, UTF-8 on Unix).</param>
 /// <param name="response">Caller-owned descriptor, initially zeroed.</param>
 /// <returns>Non-zero when a response was produced; zero for not found or handler failure.</returns>
-[UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)]
-public delegate int CppWebResourceRequestedDelegate(string url, ref CustomSchemeResponse response);
+[UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+public delegate int CppWebResourceRequestedDelegate(
+    [MarshalAs(UnmanagedType.LPUTF8Str)] string url,
+    ref CustomSchemeResponse response
+);

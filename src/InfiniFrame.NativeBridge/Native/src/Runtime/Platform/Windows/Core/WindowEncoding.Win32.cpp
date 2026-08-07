@@ -27,11 +27,7 @@ std::wstring Utf8ToWide(const char* source) {
     return {reinterpret_cast<const wchar_t*>(utf16.data()), utf16.size()};
 }
 
-std::wstring AutoStringUtf8ToWide(const AutoString source) {
-    return Utf8ToWide(reinterpret_cast<const char*>(source));
-}
-
-std::string WideToUtf8(const AutoString source) {
+std::string WideToUtf8(const wchar_t* source) {
     if (source == nullptr)
         return {};
 

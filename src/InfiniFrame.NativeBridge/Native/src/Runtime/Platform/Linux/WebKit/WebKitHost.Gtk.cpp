@@ -73,9 +73,9 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
     g_signal_connect(G_OBJECT(m_impl->_webview), "decide-policy", G_CALLBACK(on_webview_decide_policy), this);
 
     if (!m_impl->_startUrl.empty()) {
-        NavigateToUrl(const_cast<AutoString>(m_impl->_startUrl.c_str()));
+        NavigateToUrl(const_cast<const char*>(m_impl->_startUrl.c_str()));
     } else if (!m_impl->_startString.empty()) {
-        NavigateToString(const_cast<AutoString>(m_impl->_startString.c_str()));
+        NavigateToString(const_cast<const char*>(m_impl->_startString.c_str()));
     } else {
         GtkWidget* dialog = gtk_message_dialog_new(
             nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,

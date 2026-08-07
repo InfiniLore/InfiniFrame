@@ -146,8 +146,9 @@ void InfiniFrameWindow::AttachCustomSchemeHandler() {
                     if (it != m_impl->_customSchemeNames.end() &&
                         m_impl->_customSchemeCallback != nullptr) {
                         CustomSchemeResponse managedResponse{};
+                        auto uriUtf8 = WideToUtf8(uriString.c_str());
                         const int handled = m_impl->_customSchemeCallback(
-                            const_cast<AutoString>(uriString.c_str()), &managedResponse
+                            uriUtf8.c_str(), &managedResponse
                         );
                         infiniframe::CustomSchemeResponseLease responseLease(managedResponse);
                         if (handled == 0 || !infiniframe::IsValidBufferedCustomSchemeResponse(managedResponse))
@@ -189,12 +190,12 @@ void InfiniFrameWindow::AttachCustomSchemeHandler() {
     m_impl->_hasWebResourceRequestedToken = true;
 }
 
-void InfiniFrameWindow::AddCustomSchemeName(const AutoStringConst scheme) {
+void InfiniFrameWindow::AddCustomSchemeName(const char* scheme) {
     if (scheme == nullptr)
         return;
     if (m_impl->_customSchemeNames.size() >= InfiniFrameInitParams::MaxCustomSchemeNames)
         return;
-    std::wstring wide = ToUTF16String(const_cast<AutoString>(scheme));
+    std::wstring wide = ToUTF16String(scheme);
     for (const auto& existing : m_impl->_customSchemeNames) {
         if (_wcsicmp(existing.c_str(), wide.c_str()) == 0)
             return;

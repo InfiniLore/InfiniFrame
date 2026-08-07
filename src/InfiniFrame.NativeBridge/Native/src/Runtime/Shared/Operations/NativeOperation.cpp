@@ -193,7 +193,7 @@ namespace {
 
 bool InfiniFrameWindow::BeginNavigateToString(
     const uint64_t operationId,
-    AutoString content,
+    const char* content,
     const OperationCompletedCallback completion,
     void* completionContext
 ) {
@@ -212,7 +212,7 @@ bool InfiniFrameWindow::BeginNavigateToString(
 
 bool InfiniFrameWindow::BeginNavigateToUrl(
     const uint64_t operationId,
-    AutoString url,
+    const char* url,
     const OperationCompletedCallback completion,
     void* completionContext
 ) {

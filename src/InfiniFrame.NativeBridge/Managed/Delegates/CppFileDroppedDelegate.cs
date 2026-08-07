@@ -14,5 +14,5 @@ namespace InfiniFrame.NativeBridge.Delegates;
 /// <param name="count">Number of file paths in the array.</param>
 /// <param name="x">Screen X coordinate of the drop location.</param>
 /// <param name="y">Screen Y coordinate of the drop location.</param>
-[UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)]
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public delegate void CppFileDroppedDelegate(IntPtr paths, int count, int x, int y);

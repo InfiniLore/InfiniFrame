@@ -67,7 +67,7 @@ public class InfiniFrameNativeParametersTests {
     public async Task ReturnAsIsIsValid(CancellationToken ct = default) {
         // Arrange
         IntPtr[] customSchemeNames = new IntPtr[16];
-        IntPtr namePtr = IntPtr.Zero;
+        IntPtr namePtr;
         IntPtr newParametersPtr = IntPtr.Zero;
 
         try {
@@ -144,6 +144,7 @@ public class InfiniFrameNativeParametersTests {
                 IgnoreCertificateErrorsEnabled = true,
                 NotificationsEnabled = true,
                 DefaultNotificationIcon = "/path/to/icon.png",
+                MenuBarJson = "{\"Items\":[{\"Id\":\"file\",\"Label\":\"File\"}]}",
                 ZoomEnabled = true
             };
 
@@ -213,13 +214,11 @@ public class InfiniFrameNativeParametersTests {
             await Assert.That(newParameters.IgnoreCertificateErrorsEnabled).IsEqualTo(parameters.IgnoreCertificateErrorsEnabled);
             await Assert.That(newParameters.NotificationsEnabled).IsEqualTo(parameters.NotificationsEnabled);
             await Assert.That(newParameters.DefaultNotificationIcon).IsEqualTo(parameters.DefaultNotificationIcon);
+            await Assert.That(newParameters.MenuBarJson).IsEqualTo(parameters.MenuBarJson);
             await Assert.That(newParameters.Size).IsEqualTo(parameters.Size);
             await Assert.That(newParameters.ZoomEnabled).IsEqualTo(parameters.ZoomEnabled);
         }
         finally {
-            // Clean up allocated memory
-            if (namePtr != IntPtr.Zero) Marshal.FreeHGlobal(namePtr);
-
             // Native allocates returned init params; managed side must free.
             InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.FreeInitParams(newParametersPtr);
             await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);

@@ -2,6 +2,9 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Api/Exports/Exports.h"
+#ifdef _WIN32
+#include "Runtime/Platform/Windows/Window.Win32.Context.h"
+#endif
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -25,7 +28,7 @@ EXPORTED InteropStatus InfiniFrameNative_getHwnd_win32(InfiniFrameWindow* instan
 }
 
 EXPORTED InteropStatus
-InfiniFrameNative_setWebView2RuntimePath_win32(InfiniFrameWindow* instance, const AutoString webView2RuntimePath) {
+InfiniFrameNative_setWebView2RuntimePath_win32(InfiniFrameWindow* instance, const char* webView2RuntimePath) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureNotNull(webView2RuntimePath, "webView2RuntimePath"))
             return;
@@ -42,8 +45,8 @@ EXPORTED InteropStatus InfiniFrameNative_GetNotificationsEnabled(InfiniFrameWind
     });
 }
 
-EXPORTED InteropStatus InfiniFrameNative_getWebView2RuntimeVersion_win32(AutoString* value) {
-    ResetOut(value, static_cast<AutoString>(nullptr));
+EXPORTED InteropStatus InfiniFrameNative_getWebView2RuntimeVersion_win32(const char** value) {
+    ResetOut(value, static_cast<const char*>(nullptr));
     return RunExportStatus([&] {
         if (!EnsureOutNotNull(value, "value"))
             return;
@@ -53,7 +56,8 @@ EXPORTED InteropStatus InfiniFrameNative_getWebView2RuntimeVersion_win32(AutoStr
         if (FAILED(hr) || versionInfo == nullptr)
             return;
 
-        *value = DuplicateString(versionInfo);
+        auto versionUtf8 = WideToUtf8(versionInfo);
+        *value = DuplicateString(versionUtf8.c_str());
         CoTaskMemFree(versionInfo);
     });
 }

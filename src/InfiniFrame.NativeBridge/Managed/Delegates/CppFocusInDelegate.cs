@@ -10,5 +10,5 @@ namespace InfiniFrame.NativeBridge.Delegates;
 /// <summary>
 ///     Represents a native callback invoked when the native window receives focus.
 /// </summary>
-[UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)]
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public delegate void CppFocusInDelegate();

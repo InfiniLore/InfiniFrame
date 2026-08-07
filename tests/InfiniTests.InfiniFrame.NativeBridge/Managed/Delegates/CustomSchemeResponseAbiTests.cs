@@ -24,8 +24,9 @@ public class CustomSchemeResponseAbiTests {
             UnmanagedFunctionPointerAttribute? interop = delegateType.GetCustomAttributes(typeof(UnmanagedFunctionPointerAttribute), false)
                 .Cast<UnmanagedFunctionPointerAttribute>()
                 .Single();
-            // Auto is UTF-16 on Windows and UTF-8 on Unix, matching AutoString in Basic.h.
-            await Assert.That(interop.CharSet).IsEqualTo(CharSet.Auto);
+            // Ansi (the default) maps to the platform native encoding: UTF-8 on all platforms,
+            // matching AutoString = const char* in Basic.h.
+            await Assert.That(interop.CharSet).IsEqualTo(CharSet.Ansi);
         }
     }
 

@@ -48,9 +48,9 @@ bool InfiniFrameWindow::InstallWebView2() {
     return false;
 }
 
-void InfiniFrameWindow::SetWebView2RuntimePath(const AutoString pathToWebView2) {
+void InfiniFrameWindow::SetWebView2RuntimePath(const char* pathToWebView2) {
     if (pathToWebView2 == nullptr)
         return;
 
-    m_impl->_webView2RuntimePath = AutoStringUtf8ToWide(pathToWebView2);
+    m_impl->_webView2RuntimePath = Utf8ToWide(pathToWebView2);
 }
