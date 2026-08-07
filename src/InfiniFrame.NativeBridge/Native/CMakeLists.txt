@@ -60,6 +60,7 @@ set(COMMON_SOURCES
         src/Api/Exports/Exports.Window.Navigation.cpp
         src/Api/Exports/Exports.Window.Setters.cpp
         src/Api/Exports/Exports.Window.Taskbar.cpp
+        src/Api/Exports/Exports.Menu.cpp
 )
 
 set(TEST_SOURCES
