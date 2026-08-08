@@ -4,16 +4,15 @@
 using AngleSharp.Dom;
 using Bunit;
 using InfiniFrame.Blazor;
-using TestContext = Bunit.TestContext;
 
 namespace InfiniTests.InfiniFrame.Blazor;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameWindowButtonTests : TestContext {
+public class InfiniFrameWindowButtonTests : BunitContext {
     [Test]
     public async Task MinimizeButton_HasCorrectDataAttribute(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowButton> cut = RenderComponent<InfiniFrameWindowButton>(parameters =>
+        IRenderedComponent<InfiniFrameWindowButton> cut = Render<InfiniFrameWindowButton>(parameters =>
             parameters.Add(p => p.WindowAction, WindowAction.Minimize)
         );
 
@@ -23,7 +22,7 @@ public class InfiniFrameWindowButtonTests : TestContext {
 
     [Test]
     public async Task MaximizeButton_HasCorrectDataAttribute(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowButton> cut = RenderComponent<InfiniFrameWindowButton>(parameters =>
+        IRenderedComponent<InfiniFrameWindowButton> cut = Render<InfiniFrameWindowButton>(parameters =>
             parameters.Add(p => p.WindowAction, WindowAction.Maximize)
         );
 
@@ -33,7 +32,7 @@ public class InfiniFrameWindowButtonTests : TestContext {
 
     [Test]
     public async Task CloseButton_HasCorrectDataAttribute(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowButton> cut = RenderComponent<InfiniFrameWindowButton>(parameters =>
+        IRenderedComponent<InfiniFrameWindowButton> cut = Render<InfiniFrameWindowButton>(parameters =>
             parameters.Add(p => p.WindowAction, WindowAction.Close)
         );
 
@@ -43,7 +42,7 @@ public class InfiniFrameWindowButtonTests : TestContext {
 
     [Test]
     public async Task RendersWindowButtonClass(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowButton> cut = RenderComponent<InfiniFrameWindowButton>(parameters =>
+        IRenderedComponent<InfiniFrameWindowButton> cut = Render<InfiniFrameWindowButton>(parameters =>
             parameters.Add(p => p.WindowAction, WindowAction.Minimize)
         );
 
@@ -53,7 +52,7 @@ public class InfiniFrameWindowButtonTests : TestContext {
 
     [Test]
     public async Task RendersActionSpecificClass(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowButton> cut = RenderComponent<InfiniFrameWindowButton>(parameters =>
+        IRenderedComponent<InfiniFrameWindowButton> cut = Render<InfiniFrameWindowButton>(parameters =>
             parameters.Add(p => p.WindowAction, WindowAction.Close)
         );
 
@@ -63,7 +62,7 @@ public class InfiniFrameWindowButtonTests : TestContext {
 
     [Test]
     public async Task RendersPlatformSpecificClass(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowButton> cut = RenderComponent<InfiniFrameWindowButton>(parameters =>
+        IRenderedComponent<InfiniFrameWindowButton> cut = Render<InfiniFrameWindowButton>(parameters =>
             parameters.Add(p => p.WindowAction, WindowAction.Maximize)
         );
 
@@ -76,7 +75,7 @@ public class InfiniFrameWindowButtonTests : TestContext {
 
     [Test]
     public async Task PassesClassParameter(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowButton> cut = RenderComponent<InfiniFrameWindowButton>(parameters =>
+        IRenderedComponent<InfiniFrameWindowButton> cut = Render<InfiniFrameWindowButton>(parameters =>
             parameters.Add(p => p.WindowAction, WindowAction.Minimize)
                       .Add(p => p.Class, "my-button")
         );
@@ -87,7 +86,7 @@ public class InfiniFrameWindowButtonTests : TestContext {
 
     [Test]
     public async Task RendersIconSpan(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowButton> cut = RenderComponent<InfiniFrameWindowButton>(parameters =>
+        IRenderedComponent<InfiniFrameWindowButton> cut = Render<InfiniFrameWindowButton>(parameters =>
             parameters.Add(p => p.WindowAction, WindowAction.Close)
         );
 
@@ -97,7 +96,7 @@ public class InfiniFrameWindowButtonTests : TestContext {
 
     [Test]
     public async Task RendersStyleTag(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowButton> cut = RenderComponent<InfiniFrameWindowButton>(parameters =>
+        IRenderedComponent<InfiniFrameWindowButton> cut = Render<InfiniFrameWindowButton>(parameters =>
             parameters.Add(p => p.WindowAction, WindowAction.Minimize)
         );
 

@@ -5,7 +5,14 @@
 #include <unordered_map>
 
 #include <windows.h>
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4100 4244)
+#endif
 #include <simdjson.h>
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
 // ---------------------------------------------------------------------------------------------------------------------

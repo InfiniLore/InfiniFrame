@@ -5,16 +5,15 @@ using AngleSharp.Dom;
 using Bunit;
 using InfiniFrame;
 using InfiniFrame.Blazor;
-using TestContext = Bunit.TestContext;
 
 namespace InfiniTests.InfiniFrame.Blazor;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameWindowResizeThumbTests : TestContext {
+public class InfiniFrameWindowResizeThumbTests : BunitContext {
     [Test]
     public async Task TopThumb_HasCorrectDataAttribute(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = RenderComponent<InfiniFrameWindowResizeThumb>(parameters =>
+        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
             parameters.Add(p => p.ResizeThumb, ResizeOrigin.Top)
         );
 
@@ -24,7 +23,7 @@ public class InfiniFrameWindowResizeThumbTests : TestContext {
 
     [Test]
     public async Task RightThumb_HasCorrectDataAttribute(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = RenderComponent<InfiniFrameWindowResizeThumb>(parameters =>
+        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
             parameters.Add(p => p.ResizeThumb, ResizeOrigin.Right)
         );
 
@@ -34,7 +33,7 @@ public class InfiniFrameWindowResizeThumbTests : TestContext {
 
     [Test]
     public async Task BottomThumb_HasCorrectDataAttribute(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = RenderComponent<InfiniFrameWindowResizeThumb>(parameters =>
+        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
             parameters.Add(p => p.ResizeThumb, ResizeOrigin.Bottom)
         );
 
@@ -44,7 +43,7 @@ public class InfiniFrameWindowResizeThumbTests : TestContext {
 
     [Test]
     public async Task LeftThumb_HasCorrectDataAttribute(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = RenderComponent<InfiniFrameWindowResizeThumb>(parameters =>
+        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
             parameters.Add(p => p.ResizeThumb, ResizeOrigin.Left)
         );
 
@@ -54,7 +53,7 @@ public class InfiniFrameWindowResizeThumbTests : TestContext {
 
     [Test]
     public async Task TopLeftThumb_HasCorrectDataAttribute(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = RenderComponent<InfiniFrameWindowResizeThumb>(parameters =>
+        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
             parameters.Add(p => p.ResizeThumb, ResizeOrigin.TopLeft)
         );
 
@@ -64,7 +63,7 @@ public class InfiniFrameWindowResizeThumbTests : TestContext {
 
     [Test]
     public async Task BottomRightThumb_HasCorrectDataAttribute(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = RenderComponent<InfiniFrameWindowResizeThumb>(parameters =>
+        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
             parameters.Add(p => p.ResizeThumb, ResizeOrigin.BottomRight)
         );
 
@@ -74,7 +73,7 @@ public class InfiniFrameWindowResizeThumbTests : TestContext {
 
     [Test]
     public async Task Thumb_HasPositionAbsoluteStyle(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = RenderComponent<InfiniFrameWindowResizeThumb>(parameters =>
+        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
             parameters.Add(p => p.ResizeThumb, ResizeOrigin.Top)
         );
 
@@ -85,7 +84,7 @@ public class InfiniFrameWindowResizeThumbTests : TestContext {
 
     [Test]
     public async Task Thumb_HasCorrectZIndex(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = RenderComponent<InfiniFrameWindowResizeThumb>(parameters =>
+        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
             parameters.Add(p => p.ResizeThumb, ResizeOrigin.Right)
                       .Add(p => p.ZIndex, 500)
         );
@@ -97,7 +96,7 @@ public class InfiniFrameWindowResizeThumbTests : TestContext {
 
     [Test]
     public async Task Thumb_HasCorrectCursor(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = RenderComponent<InfiniFrameWindowResizeThumb>(parameters =>
+        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
             parameters.Add(p => p.ResizeThumb, ResizeOrigin.BottomRight)
         );
 
@@ -116,7 +115,7 @@ public class InfiniFrameWindowResizeThumbTests : TestContext {
     [Arguments(ResizeOrigin.BottomLeft, "sw-resize")]
     [Arguments(ResizeOrigin.Left, "w-resize")]
     public async Task Thumb_HasCorrectCursorForOrigin(ResizeOrigin origin, string expectedCursor, CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = RenderComponent<InfiniFrameWindowResizeThumb>(parameters =>
+        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
             parameters.Add(p => p.ResizeThumb, origin)
         );
 
@@ -127,7 +126,7 @@ public class InfiniFrameWindowResizeThumbTests : TestContext {
 
     [Test]
     public async Task Thumb_HasDefaultResizeArea(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = RenderComponent<InfiniFrameWindowResizeThumb>(parameters =>
+        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
             parameters.Add(p => p.ResizeThumb, ResizeOrigin.Top)
         );
 
@@ -138,7 +137,7 @@ public class InfiniFrameWindowResizeThumbTests : TestContext {
 
     [Test]
     public async Task Thumb_UsesCustomResizeArea(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = RenderComponent<InfiniFrameWindowResizeThumb>(parameters =>
+        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
             parameters.Add(p => p.ResizeThumb, ResizeOrigin.Top)
                       .Add(p => p.ResizeArea, 20)
         );
@@ -150,7 +149,7 @@ public class InfiniFrameWindowResizeThumbTests : TestContext {
 
     [Test]
     public async Task Thumb_HasDefaultZIndex(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = RenderComponent<InfiniFrameWindowResizeThumb>(parameters =>
+        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
             parameters.Add(p => p.ResizeThumb, ResizeOrigin.Left)
         );
 
