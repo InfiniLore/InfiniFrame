@@ -18,7 +18,7 @@ public class DragDropExtensionMethodTests {
         window.Features.DragDrop.Returns(feature);
 
         // Act
-        var result = window.EnableDragDrop();
+        IInfiniFrameWindow result = window.EnableDragDrop();
 
         // Assert
         feature.Received(1).SetEnabled(true);
@@ -33,7 +33,7 @@ public class DragDropExtensionMethodTests {
         window.Features.DragDrop.Returns(feature);
 
         // Act
-        var result = window.EnableDragDrop(".txt", ".png");
+        IInfiniFrameWindow result = window.EnableDragDrop(".txt", ".png");
 
         // Assert
         feature.Received(1).SetEnabled(true);
@@ -49,7 +49,7 @@ public class DragDropExtensionMethodTests {
         window.Features.DragDrop.Returns(feature);
 
         // Act
-        var result = window.DisableDragDrop();
+        IInfiniFrameWindow result = window.DisableDragDrop();
 
         // Assert
         feature.Received(1).SetEnabled(false);
@@ -66,7 +66,7 @@ public class DragDropExtensionMethodTests {
         events.EventsStore.Returns(eventsStore);
 
         // Act
-        var result = window.OnFileDropped((_, _) => { });
+        IInfiniFrameWindow result = window.OnFileDropped((_, _) => { });
 
         // Assert
         await Assert.That(eventsStore.FileDropped.Snapshot.Length).IsEqualTo(1);

@@ -7,6 +7,7 @@ import {installNativeInteropBridge} from "./Interop/NativeInterop/NativeInteropB
 import {initWindowExternalBridge} from "./Interop/NativeInterop/blazorExternalBridge";
 import {initBlazorModulesFetchPatch} from "./Interop/NativeInterop/blazorFetchPatch";
 import {initBlazorCustomElementsPatch, initCustomElements} from "./Interop/NativeInterop/customElements";
+import windowChrome from "./Window/WindowChrome";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -22,5 +23,7 @@ initCustomElements(setup);
 if (!window.infiniframe.messaging || !window.infiniframe.window?.features || !window.infiniframe.utils) {
     window.infiniframe = new InfiniFrame(window.infiniframe);
 }
+
+window.infiniframe.windowChrome = windowChrome;
 
 console.log("InfiniFrame WebView JavaScript bridge initialized.");

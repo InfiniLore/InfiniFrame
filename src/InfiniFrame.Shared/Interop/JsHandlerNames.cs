@@ -34,6 +34,10 @@ public static class JsHandlerNames {
     internal const string WindowMinimize = $"{InfiniFramePrefix}:window:minimize";
     internal const string WindowMaximize = $"{InfiniFramePrefix}:window:maximize";
     internal const string WindowClose = $"{InfiniFramePrefix}:window:close";
+    internal const string WindowToggleMaximize = $"{InfiniFramePrefix}:window:toggleMaximize";
+    internal const string WindowRestoreFromMaximized = $"{InfiniFramePrefix}:window:restoreFromMaximized";
+    internal const string WindowOffsetPosition = $"{InfiniFramePrefix}:window:offsetPosition";
+    internal const string WindowResize = $"{InfiniFramePrefix}:window:resize";
 
     internal const string RegisterWindowClose = $"{InfiniFramePrefix}:register:window:close";
 }

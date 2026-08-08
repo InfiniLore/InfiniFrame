@@ -31,9 +31,9 @@ public class MenuItemEnableDisableTests {
         window.Features.Menu.SetMenuItemEnabled("save", false);
 
         // Assert
-        var menuBar = window.Features.Menu.MenuBar;
-        var fileItem = menuBar.Items[0];
-        var saveItem = fileItem.Children[0];
+        InfiniFrameMenuBar menuBar = window.Features.Menu.MenuBar;
+        InfiniFrameMenuItem fileItem = menuBar.Items[0];
+        InfiniFrameMenuItem saveItem = fileItem.Children[0];
         await Assert.That(saveItem.IsEnabled).IsFalse();
     }
 
@@ -58,9 +58,9 @@ public class MenuItemEnableDisableTests {
         window.Features.Menu.SetMenuItemVisible("save", false);
 
         // Assert
-        var menuBar = window.Features.Menu.MenuBar;
-        var fileItem = menuBar.Items[0];
-        var saveItem = fileItem.Children[0];
+        InfiniFrameMenuBar menuBar = window.Features.Menu.MenuBar;
+        InfiniFrameMenuItem fileItem = menuBar.Items[0];
+        InfiniFrameMenuItem saveItem = fileItem.Children[0];
         await Assert.That(saveItem.IsVisible).IsFalse();
     }
 
@@ -232,7 +232,7 @@ public class MenuItemEnableDisableTests {
         window.Features.Menu.SetMenuItemEnabled("level3", false);
 
         // Assert
-        var item = window.Features.Menu.MenuBar.Items[0].Children[0].Children[0];
+        InfiniFrameMenuItem item = window.Features.Menu.MenuBar.Items[0].Children[0].Children[0];
         await Assert.That(item.IsEnabled).IsFalse();
     }
 
@@ -261,7 +261,7 @@ public class MenuItemEnableDisableTests {
         window.Features.Menu.SetMenuItemVisible("level3", false);
 
         // Assert
-        var item = window.Features.Menu.MenuBar.Items[0].Children[0].Children[0];
+        InfiniFrameMenuItem item = window.Features.Menu.MenuBar.Items[0].Children[0].Children[0];
         await Assert.That(item.IsVisible).IsFalse();
     }
 

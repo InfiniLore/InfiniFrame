@@ -1,139 +1,24 @@
 ﻿@* ------------------------------------------------------------------------------------------------------------------ *@
-@* Imports
-@* ------------------------------------------------------------------------------------------------------------------ *@
-@using InfiniFrame.NativeBridge
-@using InfiniFrame.NativeBridge.Handles
-@using Microsoft.AspNetCore.Components.Web
-@using System.Drawing
-
-@namespace InfiniFrame.Blazor
-@* ------------------------------------------------------------------------------------------------------------------ *@
 @* Descriptors
 @* ------------------------------------------------------------------------------------------------------------------ *@
+@namespace InfiniFrame.Blazor
 @inherits ComponentBase
-@implements IDisposable
 
-@inject IInfiniFrameWindow Window
-@inject IInfiniFrameJs InfiniWindowJs
 @* ------------------------------------------------------------------------------------------------------------------ *@
 @* Html
 @* ------------------------------------------------------------------------------------------------------------------ *@
-@* ReSharper disable CSharpWarnings::CS8974 *@
 <div
-    @ref="_dragArea"
-    onpointerdown:preventDefault
-    ondblclick="@OnDoubleClick"
-    onpointerdown="@OnPointerDown"
-    onpointerup="@OnPointerUp"
-    onpointermove="@OnPointerMove"
+    data-infiniframe-drag-region
     @attributes="ExtraAttributes"
 >
-    @* ReSharper restore CSharpWarnings::CS8974 *@
     @ChildContent
 </div>
 @* ------------------------------------------------------------------------------------------------------------------ *@
 @* Code
 @* ------------------------------------------------------------------------------------------------------------------ *@
-
 @code {
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? ExtraAttributes { get; set; }
-
-    private ElementReference _dragArea;
-
-    private bool _isGrabbing;
-    private bool _suppressRender;
-    private bool _suppressGrabbing;
-    private long _lastKnownPointerId;
-
-    // ReSharper disable once InvertIf
-    protected override bool ShouldRender() {
-        if (!base.ShouldRender()) return false;
-
-        // Reset every time to ensure we don't render until we're ready.
-        if (_suppressRender) {
-            _suppressRender = false;
-            return false;
-        }
-
-        return true;
-    }
-
-    protected override void OnInitialized() {
-        base.OnInitialized();
-
-        Window.Events.EventsStore.WindowMaximized.Add(OnMaximized);
-        Window.Events.EventsStore.WindowRestored.Add(OnRestored);
-    }
-
-    public void Dispose() {
-        Window.Events.EventsStore.WindowMaximized.Remove(OnMaximized);
-        Window.Events.EventsStore.WindowRestored.Remove(OnRestored);
-    }
-
-    private void OnMaximized(IInfiniFrameWindow window) {
-        _suppressGrabbing = true;
-    }
-
-    private void OnRestored(IInfiniFrameWindow window) {
-        _suppressGrabbing = false;
-    }
-
-    private async Task OnPointerDown(PointerEventArgs args) {
-        _suppressRender = true;
-        if (_suppressGrabbing) return;
-        if (args.Detail >= 2) return;
-
-        _isGrabbing = true;
-
-        if (Window.Features.State.CachedPreMaximizedBounds != Rectangle.Empty) {
-            Rectangle bounds = Window.Features.State.CachedPreMaximizedBounds;
-            Window.Features.State.CachedPreMaximizedBounds = Rectangle.Empty;
-
-            using NativeHandleLease lease = Window.AcquireNativeHandle();
-            Window.Invoke(() => {
-                int targetX = (int)(args.ScreenX - bounds.Width / 2f);
-                int targetY = (int)(args.ScreenY - 10);
-                
-                // ReSharper disable once AccessToDisposedClosure
-                InfiniFrameNative.SetSize(lease.Handle, bounds.Width, bounds.Height);
-                
-                // ReSharper disable once AccessToDisposedClosure
-                InfiniFrameNative.SetPosition(lease.Handle, targetX, targetY);
-            });
-        }
-
-        _lastKnownPointerId = args.PointerId;
-        await InfiniWindowJs.SetPointerCaptureAsync(_dragArea, args.PointerId);
-    }
-
-    private async Task OnPointerUp(PointerEventArgs args) {
-        _suppressRender = true;
-
-        _isGrabbing = false;
-        if (_lastKnownPointerId == 0) return;
-
-        await InfiniWindowJs.ReleasePointerCaptureAsync(_dragArea, args.PointerId);
-        _lastKnownPointerId = 0;
-    }
-
-
-    private async Task OnDoubleClick(MouseEventArgs args) {
-        _suppressRender = true;
-        _isGrabbing = false;
-        Window.Features.State.ToggleMaximized();
-        if (_lastKnownPointerId == 0) return;
-
-        await InfiniWindowJs.ReleasePointerCaptureAsync(_dragArea, _lastKnownPointerId);
-    }
-
-    private void OnPointerMove(PointerEventArgs args) {
-        _suppressRender = true;
-        if (_suppressGrabbing) return;
-        if (!_isGrabbing) return;
-
-        Window.Features.Position.Offset(args.MovementX, args.MovementY);
-    }
 }

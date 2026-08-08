@@ -112,7 +112,7 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
         string menuItemId,
         Func<InfiniFrameMenuItem, InfiniFrameMenuItem> updater
     ) {
-        var updatedItems = UpdateItemsRecursive(menuBar.Items, menuItemId, updater);
+        ImmutableArray<InfiniFrameMenuItem> updatedItems = UpdateItemsRecursive(menuBar.Items, menuItemId, updater);
         return menuBar with { Items = updatedItems };
     }
 
@@ -121,7 +121,7 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
         string menuItemId,
         Func<InfiniFrameMenuItem, InfiniFrameMenuItem> updater
     ) {
-        var builder = items.ToBuilder();
+        ImmutableArray<InfiniFrameMenuItem>.Builder builder = items.ToBuilder();
 
         for (int i = 0; i < builder.Count; i++) {
             if (builder[i].Id == menuItemId) {
