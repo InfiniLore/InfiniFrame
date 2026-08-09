@@ -9,27 +9,27 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@angular/common": "^21.2.18",
-    "@angular/compiler": "^21.2.18",
-    "@angular/core": "^21.2.18",
-    "@angular/platform-browser": "^21.2.18",
+    "@angular/common": "^22.1.1",
+    "@angular/compiler": "^22.1.1",
+    "@angular/core": "^22.1.1",
+    "@angular/platform-browser": "^22.1.1",
     "rxjs": "^7.8.2",
     "zone.js": "^0.16.0"
   },
   "devDependencies": {
     "@analogjs/vite-plugin-angular": "^2.6.4",
-    "@angular/build": "^21.2.18",
-    "@angular/compiler-cli": "^21.2.18",
-    "typescript": "^5.9.3",
-    "vite": "^7.3.1"
+    "@angular/build": "^22.1.3",
+    "@angular/compiler-cli": "^22.1.1",
+    "typescript": "^6.0.3",
+    "vite": "^8.2.1"
   },
   "overrides": {
-    "brace-expansion": "5.0.8"
+    "brace-expansion": "^5.0.8"
   },
   "allowScripts": {
     "esbuild@0.28.1": true,
-    "lmdb@3.5.1": true,
     "msgpackr-extract@3.0.4": true,
-    "@parcel/watcher@2.6.0": true
+    "@parcel/watcher@2.6.0": true,
+    "lmdb@3.5.6": true
   }
 }

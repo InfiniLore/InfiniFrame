@@ -78,8 +78,56 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
             WEBKIT_USER_SCRIPT_INJECT_AT_DOCUMENT_START,
             nullptr, nullptr
         );
-        webkit_user_content_manager_add_script(contentManager, shortcutsScript);
-        webkit_user_script_unref(shortcutsScript);
+    webkit_user_content_manager_add_script(contentManager, shortcutsScript);
+    webkit_user_script_unref(shortcutsScript);
+    }
+
+    {
+        static constexpr char kContextMenuJs[] =
+            "(function(){"
+            "if(window.__infiniframe_contextMenuEnabled===undefined)"
+            "window.__infiniframe_contextMenuEnabled=true;"
+            "document.addEventListener('contextmenu',function(e){"
+            "if(!window.__infiniframe_contextMenuEnabled){"
+            "e.preventDefault();e.stopPropagation();return false;}"
+            "},true);"
+            "})();";
+        WebKitUserScript* contextMenuScript = webkit_user_script_new(
+            kContextMenuJs,
+            WEBKIT_USER_CONTENT_INJECT_ALL_FRAMES,
+            WEBKIT_USER_SCRIPT_INJECT_AT_DOCUMENT_START,
+            nullptr, nullptr
+        );
+        webkit_user_content_manager_add_script(contentManager, contextMenuScript);
+        webkit_user_script_unref(contextMenuScript);
+    }
+
+    {
+        static constexpr char kZoomDisabledJs[] =
+            "(function(){"
+            "if(window.__infiniframe_zoomEnabled===undefined)"
+            "window.__infiniframe_zoomEnabled=true;"
+            "document.addEventListener('wheel',function(e){"
+            "if(!window.__infiniframe_zoomEnabled&&(e.ctrlKey||e.metaKey)){"
+            "e.preventDefault();e.stopPropagation();return false;}"
+            "},true);"
+            "document.addEventListener('keydown',function(e){"
+            "if(!window.__infiniframe_zoomEnabled){"
+            "var c=e.ctrlKey||e.metaKey,k=e.key;"
+            "if((c&&(k==='+'||k==='-'||k==='='||k==='0'))||"
+            "(k==='F5')||(c&&k==='0')){"
+            "e.preventDefault();e.stopPropagation();return false;}"
+            "}"
+            "},true);"
+            "})();";
+        WebKitUserScript* zoomScript = webkit_user_script_new(
+            kZoomDisabledJs,
+            WEBKIT_USER_CONTENT_INJECT_ALL_FRAMES,
+            WEBKIT_USER_SCRIPT_INJECT_AT_DOCUMENT_START,
+            nullptr, nullptr
+        );
+        webkit_user_content_manager_add_script(contentManager, zoomScript);
+        webkit_user_script_unref(zoomScript);
     }
 
     m_impl->_webMessageSignalHandlerId = g_signal_connect(
@@ -87,6 +135,22 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
         reinterpret_cast<void*>(m_impl->_webMessageReceivedCallback)
     );
     webkit_user_content_manager_register_script_message_handler(contentManager, "infiniFrameInterop");
+
+    {
+        std::string initJs;
+        if (!m_impl->_contextMenuEnabled)
+            initJs += "window.__infiniframe_contextMenuEnabled=false;";
+        if (!m_impl->_zoomEnabled)
+            initJs += "window.__infiniframe_zoomEnabled=false;";
+        if (!m_impl->_browserShortcutsEnabled)
+            initJs += "window.__infiniframe_browserShortcutsEnabled=false;";
+        if (!initJs.empty()) {
+            webkit_web_view_evaluate_javascript(
+                WEBKIT_WEB_VIEW(m_impl->_webview), initJs.c_str(), -1,
+                nullptr, nullptr, nullptr, nullptr, nullptr
+            );
+        }
+    }
 
     g_signal_connect(G_OBJECT(m_impl->_webview), "load-changed", G_CALLBACK(on_webview_load_changed), this);
     g_signal_connect(G_OBJECT(m_impl->_webview), "load-failed", G_CALLBACK(on_webview_load_failed), this);

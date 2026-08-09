@@ -218,6 +218,14 @@ void InfiniFrameWindow::SendWebMessage(const char* message) {
 
 void InfiniFrameWindow::SetContextMenuEnabled(const bool enabled) {
     m_impl->_contextMenuEnabled = enabled;
+    if (m_impl->_webview == nullptr)
+        return;
+    const char* js = enabled
+        ? "window.__infiniframe_contextMenuEnabled=true;"
+        : "window.__infiniframe_contextMenuEnabled=false;";
+    webkit_web_view_evaluate_javascript(
+        WEBKIT_WEB_VIEW(m_impl->_webview), js, -1, nullptr, nullptr, nullptr, nullptr, nullptr
+    );
 }
 
 void InfiniFrameWindow::SetMediaAutoplayEnabled(const bool enabled) {
@@ -245,9 +253,19 @@ void InfiniFrameWindow::SetUserAgent(const char* userAgent) {
 
 void InfiniFrameWindow::SetZoomEnabled(bool enabled) {
     m_impl->_zoomEnabled = enabled;
+    if (m_impl->_webview == nullptr)
+        return;
+    const char* js = enabled
+        ? "window.__infiniframe_zoomEnabled=true;"
+        : "window.__infiniframe_zoomEnabled=false;";
+    webkit_web_view_evaluate_javascript(
+        WEBKIT_WEB_VIEW(m_impl->_webview), js, -1, nullptr, nullptr, nullptr, nullptr, nullptr
+    );
 }
 
 void InfiniFrameWindow::SetStatusBarEnabled(bool enabled) {
+    // WebKitGTK has no native status bar concept — this is a WebView2-only feature.
+    // The flag is stored for API consistency but has no visible effect on Linux.
     m_impl->_statusBarEnabled = enabled;
 }
 

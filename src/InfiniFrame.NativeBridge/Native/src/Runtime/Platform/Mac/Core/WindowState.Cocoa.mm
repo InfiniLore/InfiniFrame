@@ -48,16 +48,19 @@ void InfiniFrameWindow::GetTransparentEnabled(bool* enabled) const
 
 void InfiniFrameWindow::GetContextMenuEnabled(bool* enabled) const
 {
+    // Returns cached state; actual context menu is controlled via InfiniFrameWebView override.
     *enabled = m_impl->_contextMenuEnabled;
 }
 
 void InfiniFrameWindow::GetZoomEnabled(bool* enabled) const
 {
+    // Returns cached state; actual zoom is controlled via InfiniFrameWebView override.
     *enabled = m_impl->_zoomEnabled;
 }
 
 void InfiniFrameWindow::GetStatusBarEnabled(bool* enabled) const
 {
+    // WKWebView has no native status bar — this flag is stored for API consistency.
     *enabled = m_impl->_statusBarEnabled;
 }
 
@@ -330,6 +333,8 @@ void InfiniFrameWindow::SetZoomEnabled(bool enabled)
 
 void InfiniFrameWindow::SetStatusBarEnabled(bool enabled)
 {
+    // WKWebView has no native status bar concept — this is a WebView2-only feature.
+    // The flag is stored for API consistency but has no visible effect on macOS.
     m_impl->_statusBarEnabled = enabled;
 }
 
