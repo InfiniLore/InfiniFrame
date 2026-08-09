@@ -111,7 +111,7 @@ internal sealed class InfiniNotificationOperation {
         catch (ObjectDisposedException) {
             // Window teardown requests cancellation for every registered notification.
         }
-        catch (Exception exception) {
+        catch (ApplicationException exception) {
             _logger.LogWarning(exception, "Native notification cancellation for {OperationId} failed.", Id);
         }
     }

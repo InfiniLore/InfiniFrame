@@ -185,6 +185,42 @@ namespace {
         instance->ScheduleTeardownCompletion();
     }
 
+    LRESULT handle_file_drop(const HWND hwnd, const WPARAM wParam) {
+        if (auto* instance = LookupWindowInstance(hwnd)) {
+            HDROP hDrop = reinterpret_cast<HDROP>(wParam);
+            UINT fileCount = DragQueryFileW(hDrop, 0xFFFFFFFF, nullptr, 0);
+
+            std::vector<std::wstring> files;
+            files.reserve(fileCount);
+
+            for (UINT i = 0; i < fileCount; i++) {
+                UINT pathLen = DragQueryFileW(hDrop, i, nullptr, 0);
+                std::wstring path(pathLen + 1, L'\0');
+                DragQueryFileW(hDrop, i, path.data(), pathLen + 1);
+                files.push_back(path);
+            }
+
+            POINT pt;
+            DragQueryPoint(hDrop, &pt);
+            DragFinish(hDrop);
+
+            std::vector<std::string> utf8Files;
+            utf8Files.reserve(files.size());
+            for (const auto& f : files) {
+                utf8Files.push_back(WideToUtf8(f.c_str()));
+            }
+
+            std::vector<const char*> autoStrings;
+            autoStrings.reserve(utf8Files.size());
+            for (const auto& f : utf8Files) {
+                autoStrings.push_back(f.c_str());
+            }
+
+            instance->InvokeFileDropped(autoStrings.data(), static_cast<int>(autoStrings.size()), pt.x, pt.y);
+        }
+        return 0;
+    }
+
     LRESULT handle_callback_execution(const WPARAM wParam, const LPARAM lParam) {
         auto callback = reinterpret_cast<ACTION>(wParam);
         auto* waitInfo = reinterpret_cast<InvokeWaitInfo*>(lParam);
@@ -299,39 +335,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             return 0;
         }
         case WM_DROPFILES: {
-            if (auto* instance = LookupWindowInstance(hwnd)) {
-                HDROP hDrop = reinterpret_cast<HDROP>(wParam);
-                UINT fileCount = DragQueryFileW(hDrop, 0xFFFFFFFF, nullptr, 0);
-
-                std::vector<std::wstring> files;
-                files.reserve(fileCount);
-
-                for (UINT i = 0; i < fileCount; i++) {
-                    UINT pathLen = DragQueryFileW(hDrop, i, nullptr, 0);
-                    std::wstring path(pathLen + 1, L'\0');
-                    DragQueryFileW(hDrop, i, path.data(), pathLen + 1);
-                    files.push_back(path);
-                }
-
-                POINT pt;
-                DragQueryPoint(hDrop, &pt);
-                DragFinish(hDrop);
-
-                std::vector<std::string> utf8Files;
-                utf8Files.reserve(files.size());
-                for (const auto& f : files) {
-                    utf8Files.push_back(WideToUtf8(f.c_str()));
-                }
-
-                std::vector<const char*> autoStrings;
-                autoStrings.reserve(utf8Files.size());
-                for (const auto& f : utf8Files) {
-                    autoStrings.push_back(f.c_str());
-                }
-
-                instance->InvokeFileDropped(autoStrings.data(), static_cast<int>(autoStrings.size()), pt.x, pt.y);
-            }
-            return 0;
+            return handle_file_drop(hwnd, wParam);
         }
     }
 

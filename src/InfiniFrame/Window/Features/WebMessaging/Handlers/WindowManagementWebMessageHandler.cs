@@ -37,7 +37,7 @@ public static class WindowManagementWebMessageHandler {
                     double screenY = doc.RootElement.GetProperty("screenY").GetDouble();
                     int halfWidth = window.Features.State.CachedPreMaximizedBounds.Width / 2;
                     window.Features.Position.Offset((int)(screenX - halfWidth), (int)(screenY - 10));
-                } catch { /* Best effort positioning */ }
+                } catch (JsonException) { /* Best effort positioning */ }
             });
 
         builder.RegisterWebMessagePostHandler(
@@ -49,7 +49,7 @@ public static class WindowManagementWebMessageHandler {
                     double left = doc.RootElement.GetProperty("left").GetDouble();
                     double top = doc.RootElement.GetProperty("top").GetDouble();
                     window.Features.Position.Offset(left, top);
-                } catch { /* Best effort positioning */ }
+                } catch (JsonException) { /* Best effort positioning */ }
             });
 
         builder.RegisterWebMessagePostHandler(
@@ -62,7 +62,8 @@ public static class WindowManagementWebMessageHandler {
                     int heightOffset = doc.RootElement.GetProperty("heightOffset").GetInt32();
                     ResizeOrigin origin = Enum.Parse<ResizeOrigin>(doc.RootElement.GetProperty("origin").GetString()!);
                     window.Features.Size.Resize(widthOffset, heightOffset, origin);
-                } catch { /* Best effort resize */ }
+                } catch (JsonException) { /* Best effort resize */ }
+                catch (ArgumentException) { /* Best effort resize */ }
             });
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, JsHandlerNames.RegisterWindowClose);
