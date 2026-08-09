@@ -5,7 +5,7 @@
         copy that <None> items with CopyToOutputDirectory don't reliably provide.
     -->
     <PropertyGroup>
-        <_InfiniFrameNativeBridgeDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../src/InfiniFrame.NativeBridge'))</_InfiniFrameNativeBridgeDir>
+        <_InfiniFrameNativeBridgeDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)src/InfiniFrame.NativeBridge'))</_InfiniFrameNativeBridgeDir>
         <_InfiniFrameNativePlatform Condition="$([MSBuild]::IsOSPlatform('Windows'))">windows</_InfiniFrameNativePlatform>
         <_InfiniFrameNativePlatform Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</_InfiniFrameNativePlatform>
         <_InfiniFrameNativePlatform Condition="$([MSBuild]::IsOSPlatform('OSX'))">osx</_InfiniFrameNativePlatform>
