@@ -128,6 +128,7 @@
   <Folder Name="/tests/">
     <File Path="tests/Directory.Build.props" />
     <File Path="tests/Directory.Build.targets" />
+    <File Path="tests/InfiniFrame.NativeCopy.targets" />
     <Project Path="tests/InfiniTests.InfiniFrame.Blazor/InfiniTests.InfiniFrame.Blazor.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame.BlazorWebView/InfiniTests.InfiniFrame.BlazorWebView.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame.Js/InfiniTests.InfiniFrame.Js.csproj" />
