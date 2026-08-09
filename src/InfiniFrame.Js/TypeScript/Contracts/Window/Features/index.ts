@@ -14,4 +14,5 @@ export * from "./InvokeInfiniFrameWindowFeature";
 export * from "./LifecycleInfiniFrameWindowFeature";
 export * from "./MonitorsInfiniFrameWindowFeature";
 export * from "./PageNavigationInfiniFrameWindowFeature"
+export * from "./JavaScriptInfiniFrameWindowFeature";
 export * from "./WindowFeatureTypes";

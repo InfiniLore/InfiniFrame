@@ -88,4 +88,9 @@ public interface IInfiniFrameWindowFeatures {
     ///     Gets the menu feature for managing native menu bars.
     /// </summary>
     IMenuInfiniFrameWindowFeature Menu { get; }
+
+    /// <summary>
+    ///     Gets the JavaScript feature for executing arbitrary scripts in the browser control.
+    /// </summary>
+    IJavaScriptInfiniFrameWindowFeature JavaScript { get; }
 }

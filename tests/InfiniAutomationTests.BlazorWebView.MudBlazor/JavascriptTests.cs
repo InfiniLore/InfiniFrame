@@ -13,3 +13,9 @@ namespace InfiniAutomationTests.BlazorWebView.MudBlazor;
 public sealed class JavascriptTests : SharedJavascriptTests {
     protected override IPlaywrightRuntimeContext RuntimeContext => PlaywrightContext.Instance;
 }
+
+[InheritsTests]
+// ReSharper disable once UnusedType.Global
+public sealed class JavaScriptEvaluationTests : SharedJavaScriptEvaluationTests {
+    protected override IPlaywrightRuntimeContext RuntimeContext => PlaywrightContext.Instance;
+}
