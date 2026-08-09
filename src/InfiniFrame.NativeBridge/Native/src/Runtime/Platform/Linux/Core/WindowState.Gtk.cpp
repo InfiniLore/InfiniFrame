@@ -251,6 +251,10 @@ void InfiniFrameWindow::SetStatusBarEnabled(bool enabled) {
     m_impl->_statusBarEnabled = enabled;
 }
 
+void InfiniFrameWindow::SetBrowserShortcutsEnabled(bool enabled) {
+    m_impl->_browserShortcutsEnabled = enabled;
+}
+
 void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled) {
     m_impl->_devToolsEnabled = enabled;
     WebKitSettings* settings = webkit_web_view_get_settings(WEBKIT_WEB_VIEW(m_impl->_webview));

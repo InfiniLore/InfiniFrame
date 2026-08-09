@@ -34,6 +34,10 @@ EXPORTED InteropStatus InfiniFrameNative_SetStatusBarEnabled(InfiniFrameWindow* 
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetStatusBarEnabled(enabled); });
 }
 
+EXPORTED InteropStatus InfiniFrameNative_SetBrowserShortcutsEnabled(InfiniFrameWindow* instance, const bool enabled) {
+    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetBrowserShortcutsEnabled(enabled); });
+}
+
 EXPORTED InteropStatus InfiniFrameNative_SetDevToolsEnabled(InfiniFrameWindow* instance, const bool enabled) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetDevToolsEnabled(enabled); });
 }

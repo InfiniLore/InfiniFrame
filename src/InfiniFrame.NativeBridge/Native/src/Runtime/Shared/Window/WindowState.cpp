@@ -48,6 +48,10 @@ void InfiniFrameWindow::GetIgnoreCertificateErrorsEnabled(bool* enabled) const {
     *enabled = ImplBase()->_ignoreCertificateErrorsEnabled;
 }
 
+void InfiniFrameWindow::GetBrowserShortcutsEnabled(bool* enabled) const {
+    *enabled = ImplBase()->_browserShortcutsEnabled;
+}
+
 NavigationStartingCallback InfiniFrameWindow::GetNavigationStartingCallback() const {
     return ImplBase()->_navigationStartingCallback;
 }

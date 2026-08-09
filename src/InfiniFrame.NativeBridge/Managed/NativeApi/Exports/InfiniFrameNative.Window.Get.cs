@@ -140,6 +140,16 @@ public partial class InfiniFrameNative {
     internal static partial InfiniFrameNativeInteropStatus GetStatusBarEnabled(IntPtr instance, [MarshalAs(UnmanagedType.I1)] out bool enabled);
 
     /// <summary>
+    ///     Gets whether browser keyboard shortcuts are enabled.
+    /// </summary>
+    /// <param name="instance">The native window instance handle.</param>
+    /// <param name="enabled">Whether browser shortcuts are enabled.</param>
+    /// <returns>A status code indicating success or failure.</returns>
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_GetBrowserShortcutsEnabled", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus GetBrowserShortcutsEnabled(IntPtr instance, [MarshalAs(UnmanagedType.I1)] out bool enabled);
+
+    /// <summary>
     ///     Gets whether certificate errors are ignored.
     /// </summary>
     /// <param name="instance">The native window instance handle.</param>

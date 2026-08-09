@@ -356,6 +356,10 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.I1)]
     internal bool StatusBarEnabled;
 
+    ///<summary>OPTIONAL: If true, browser keyboard shortcuts (e.g. Ctrl+T, Ctrl+W, F11) are enabled. Default is true.</summary>
+    [MarshalAs(UnmanagedType.I1)]
+    internal bool BrowserShortcutsEnabled;
+
     /// <summary>
     ///     WINDOWS: OPTIONAL: If true, toast notifications are allowed on Windows by calling ShowNotification. Requires
     ///     registering the app with Windows, which is not always desirable as it creates shortcuts, etc. Default is true.

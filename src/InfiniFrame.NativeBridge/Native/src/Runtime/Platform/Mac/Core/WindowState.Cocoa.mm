@@ -333,6 +333,11 @@ void InfiniFrameWindow::SetStatusBarEnabled(bool enabled)
     m_impl->_statusBarEnabled = enabled;
 }
 
+void InfiniFrameWindow::SetBrowserShortcutsEnabled(bool enabled)
+{
+    m_impl->_browserShortcutsEnabled = enabled;
+}
+
 void InfiniFrameWindow::SetIconFile(const char* filename)
 {
     NSString* path = RequireUtf8String(filename, "filename");

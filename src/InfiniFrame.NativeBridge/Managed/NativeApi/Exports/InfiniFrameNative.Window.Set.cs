@@ -70,6 +70,16 @@ public partial class InfiniFrameNative {
     internal static partial InfiniFrameNativeInteropStatus SetStatusBarEnabled(IntPtr instance, [MarshalAs(UnmanagedType.I1)] bool enabled);
 
     /// <summary>
+    ///     Enables or disables browser keyboard shortcuts (e.g. Ctrl+T, Ctrl+W, F11).
+    /// </summary>
+    /// <param name="instance">The native window instance handle.</param>
+    /// <param name="enabled">Whether to enable browser shortcuts.</param>
+    /// <returns>A status code indicating success or failure.</returns>
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetBrowserShortcutsEnabled", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus SetBrowserShortcutsEnabled(IntPtr instance, [MarshalAs(UnmanagedType.I1)] bool enabled);
+
+    /// <summary>
     ///     Enables or disables developer tools.
     /// </summary>
     /// <param name="instance">The native window instance handle.</param>

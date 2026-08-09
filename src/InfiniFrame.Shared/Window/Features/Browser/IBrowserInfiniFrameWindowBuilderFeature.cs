@@ -62,6 +62,11 @@ public interface IBrowserInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBui
     bool IsStatusBarEnabled { get; }
 
     /// <summary>
+    ///     Gets whether browser keyboard shortcuts are enabled.
+    /// </summary>
+    bool IsBrowserShortcutsEnabled { get; }
+
+    /// <summary>
     ///     Gets the browser control initialization parameters.
     /// </summary>
     string? BrowserControlInitParameters { get; }
@@ -144,6 +149,12 @@ public interface IBrowserInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBui
     /// </summary>
     /// <param name="enabled">Whether the status bar should be enabled.</param>
     void EnableStatusBar(bool enabled);
+
+    /// <summary>
+    ///     Enables or disables browser keyboard shortcuts (e.g. Ctrl+T, Ctrl+W, F11).
+    /// </summary>
+    /// <param name="enabled">Whether browser shortcuts should be enabled.</param>
+    void EnableBrowserShortcuts(bool enabled);
 
     /// <summary>
     ///     Sets the browser control initialization parameters.

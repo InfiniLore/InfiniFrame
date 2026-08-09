@@ -23,10 +23,12 @@ public class WindowFeatureParityTests {
                 "GrantBrowserPermissions",
                 "IsSmoothScrollingEnabled",
                 "IsStatusBarEnabled",
+                "IsBrowserShortcutsEnabled",
                 "BrowserControlInitParameters",
                 "EnableContextMenu",
                 "EnableMediaAutoplay",
                 "EnableStatusBar",
+                "EnableBrowserShortcuts",
                 "SetUserAgent",
                 "Win32SetWebView2Path",
                 "ClearBrowserAutoFill"

@@ -175,6 +175,10 @@ void InfiniFrameWindow::SetStatusBarEnabled(const bool enabled) {
     }
 }
 
+void InfiniFrameWindow::SetBrowserShortcutsEnabled(const bool enabled) {
+    m_impl->_browserShortcutsEnabled = enabled;
+}
+
 void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled) {
     m_impl->_devToolsEnabled = enabled;
     if (!m_impl->_webviewWindow)

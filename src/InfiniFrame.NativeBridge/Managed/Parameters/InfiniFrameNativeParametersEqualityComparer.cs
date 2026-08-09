@@ -98,6 +98,7 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         if (x.SmoothScrollingEnabled != y.SmoothScrollingEnabled) return false;
         if (x.IgnoreCertificateErrorsEnabled != y.IgnoreCertificateErrorsEnabled) return false;
         if (x.StatusBarEnabled != y.StatusBarEnabled) return false;
+        if (x.BrowserShortcutsEnabled != y.BrowserShortcutsEnabled) return false;
         if (x.NotificationsEnabled != y.NotificationsEnabled) return false;
 
         // Background color
@@ -185,6 +186,7 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         hashCode.Add(obj.SmoothScrollingEnabled);
         hashCode.Add(obj.IgnoreCertificateErrorsEnabled);
         hashCode.Add(obj.StatusBarEnabled);
+        hashCode.Add(obj.BrowserShortcutsEnabled);
         hashCode.Add(obj.NotificationsEnabled);
 
         // Background color
