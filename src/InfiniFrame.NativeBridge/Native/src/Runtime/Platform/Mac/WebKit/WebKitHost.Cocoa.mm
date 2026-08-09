@@ -33,6 +33,27 @@ void InfiniFrameWindow::AttachWebView()
     [userContentController addUserScript:script];
     [script release];
 
+    {
+        NSString *shortcutsJs = @"(function(){"
+            @"if(window.__infiniframe_browserShortcutsEnabled===undefined)"
+            @"window.__infiniframe_browserShortcutsEnabled=true;"
+            @"document.addEventListener('keydown',function(e){"
+            @"if(window.__infiniframe_browserShortcutsEnabled)return;"
+            @"var c=e.ctrlKey||e.metaKey,s=e.shiftKey,k=e.key.toLowerCase();"
+            @"if(c&&(k==='t'||k==='n'||k==='w'||k==='r'||k==='p'||k==='u'||k==='j'|"
+            @"|k==='l'||k==='i'||k==='o'||k==='h'||(s&&k==='i'))){"
+            @"e.preventDefault();e.stopPropagation();return false;}"
+            @"if(k==='f11'){e.preventDefault();e.stopPropagation();return false;}"
+            @"},true);"
+            @"})();";
+        WKUserScript *shortcutsScript = [[WKUserScript alloc]
+            initWithSource:shortcutsJs
+            injectionTime:WKUserScriptInjectionTimeAtDocumentStart
+            forMainFrameOnly:NO];
+        [userContentController addUserScript:shortcutsScript];
+        [shortcutsScript release];
+    }
+
     m_impl->_webviewConfiguration.userContentController = userContentController;
     if (m_impl->_webview == nil) {
         [userContentController release];

@@ -58,6 +58,30 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
     webkit_user_content_manager_add_script(contentManager, script);
     webkit_user_script_unref(script);
 
+    {
+        static constexpr char kBrowserShortcutsJs[] =
+            "(function(){"
+            "if(window.__infiniframe_browserShortcutsEnabled===undefined)"
+            "window.__infiniframe_browserShortcutsEnabled=true;"
+            "document.addEventListener('keydown',function(e){"
+            "if(window.__infiniframe_browserShortcutsEnabled)return;"
+            "var c=e.ctrlKey||e.metaKey,s=e.shiftKey,k=e.key.toLowerCase();"
+            "if(c&&(k==='t'||k==='n'||k==='w'||k==='r'||k==='p'||k==='u'||k==='j'|"
+            "|k==='l'||k==='i'||k==='o'||k==='h'||(s&&k==='i'))){"
+            "e.preventDefault();e.stopPropagation();return false;}"
+            "if(k==='f11'){e.preventDefault();e.stopPropagation();return false;}"
+            "},true);"
+            "})();";
+        WebKitUserScript* shortcutsScript = webkit_user_script_new(
+            kBrowserShortcutsJs,
+            WEBKIT_USER_CONTENT_INJECT_ALL_FRAMES,
+            WEBKIT_USER_SCRIPT_INJECT_AT_DOCUMENT_START,
+            nullptr, nullptr
+        );
+        webkit_user_content_manager_add_script(contentManager, shortcutsScript);
+        webkit_user_script_unref(shortcutsScript);
+    }
+
     m_impl->_webMessageSignalHandlerId = g_signal_connect(
         contentManager, "script-message-received::infiniFrameInterop", G_CALLBACK(gtk_webkit::HandleWebMessage),
         reinterpret_cast<void*>(m_impl->_webMessageReceivedCallback)

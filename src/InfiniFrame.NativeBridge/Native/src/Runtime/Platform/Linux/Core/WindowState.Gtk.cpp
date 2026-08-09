@@ -253,6 +253,14 @@ void InfiniFrameWindow::SetStatusBarEnabled(bool enabled) {
 
 void InfiniFrameWindow::SetBrowserShortcutsEnabled(bool enabled) {
     m_impl->_browserShortcutsEnabled = enabled;
+    if (m_impl->_webview == nullptr)
+        return;
+    const char* js = enabled
+        ? "window.__infiniframe_browserShortcutsEnabled=true;"
+        : "window.__infiniframe_browserShortcutsEnabled=false;";
+    webkit_web_view_evaluate_javascript(
+        WEBKIT_WEB_VIEW(m_impl->_webview), js, -1, nullptr, nullptr, nullptr, nullptr, nullptr
+    );
 }
 
 void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled) {

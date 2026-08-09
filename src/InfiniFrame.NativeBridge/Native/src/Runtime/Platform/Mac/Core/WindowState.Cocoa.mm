@@ -336,6 +336,12 @@ void InfiniFrameWindow::SetStatusBarEnabled(bool enabled)
 void InfiniFrameWindow::SetBrowserShortcutsEnabled(bool enabled)
 {
     m_impl->_browserShortcutsEnabled = enabled;
+    if (m_impl->_webview == nil)
+        return;
+    NSString *js = enabled
+        ? @"window.__infiniframe_browserShortcutsEnabled=true;"
+        : @"window.__infiniframe_browserShortcutsEnabled=false;";
+    [m_impl->_webview evaluateJavaScript:js completionHandler:nil];
 }
 
 void InfiniFrameWindow::SetIconFile(const char* filename)
