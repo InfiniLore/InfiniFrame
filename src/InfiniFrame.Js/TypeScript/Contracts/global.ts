@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 import type {InfiniFrame} from "./InfiniFrame";
 import type {BlazorCallback, BlazorComponent, BlazorCustomElementParameterDefinition} from "./BlazorInterop";
+import type {WindowChrome} from "../Window/WindowChrome";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

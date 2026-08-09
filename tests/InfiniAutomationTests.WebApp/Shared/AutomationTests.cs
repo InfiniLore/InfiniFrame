@@ -39,3 +39,8 @@ public sealed class WebviewWindowTests : SharedWebviewWindowTests {
 public sealed class WindowFeatureMirroringTests : SharedWindowFeatureMirroringTests {
     protected override IPlaywrightRuntimeContext RuntimeContext => PlaywrightContext.Instance;
 }
+
+[InheritsTests]
+public sealed class WindowChromeTests : SharedWindowChromeTests {
+    protected override IPlaywrightRuntimeContext RuntimeContext => PlaywrightContext.Instance;
+}

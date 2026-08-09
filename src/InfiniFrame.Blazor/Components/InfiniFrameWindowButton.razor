@@ -1,20 +1,14 @@
 ﻿@* ------------------------------------------------------------------------------------------------------------------ *@
-@* Imports
-@* ------------------------------------------------------------------------------------------------------------------ *@
-@using Microsoft.AspNetCore.Components.Web
-
-@namespace InfiniFrame.Blazor
-@* ------------------------------------------------------------------------------------------------------------------ *@
 @* Descriptors
 @* ------------------------------------------------------------------------------------------------------------------ *@
+@namespace InfiniFrame.Blazor
 @inherits ComponentBase
 
-@inject IInfiniFrameWindow Window
 @* ------------------------------------------------------------------------------------------------------------------ *@
 @* Html
 @* ------------------------------------------------------------------------------------------------------------------ *@
 <div class="@Class window-button window-button-@(WindowAction.ToString().ToLower()) window-button-@GetOperatingSystem()"
-     @onclick="@OnClick">
+     data-infiniframe-window-action="@WindowAction.ToString().ToLower()">
     <span class="window-icon">@((MarkupString)GetIcon())</span>
 </div>
 
@@ -146,15 +140,15 @@
     }
 
     .window-button-macos.window-button-close:hover::after {
-        content: '×';
+        content: '\00d7';
     }
 
     .window-button-macos.window-button-minimize:hover::after {
-        content: '−';
+        content: '\2212';
     }
 
     .window-button-macos.window-button-maximize:hover::after {
-        content: '+';
+        content: '\002b';
     }
 
     /* Linux-specific styles */
@@ -180,14 +174,12 @@
 @* ------------------------------------------------------------------------------------------------------------------ *@
 @* Code
 @* ------------------------------------------------------------------------------------------------------------------ *@
-
 @code {
     [EditorRequired]
     [Parameter]
     public required WindowAction WindowAction { get; set; }
     [Parameter]
     public string? Class { get; set; }
-
 
     private const string Windows = "windows";
     private const string MacOs = "macos";
@@ -205,43 +197,19 @@
 
         return WindowAction switch {
             WindowAction.Minimize => os switch {
-                Windows => "&#x1F5D5;",// 🗕 (minimize symbol)
-                Linux => "&#x2212;",// − (minus sign)
+                Windows => "&#x1F5D5;",
+                Linux => "&#x2212;",
                 _ => "&#x1F5D5;"
             },
             WindowAction.Maximize => os switch {
-                Windows => "&#x1F5D6;",// 🗖 (maximize symbol)
-                Linux => "&#x25A1;",// □ (square)
+                Windows => "&#x1F5D6;",
+                Linux => "&#x25A1;",
                 _ => "&#x1F5D6;"
             },
             WindowAction.Close => os switch {
-                Windows => "&#x2715;",// ✕ (multiplication X)
-                Linux => "&#x2715;",// ✕ (multiplication X)
                 _ => "&#x2715;"
             },
             _ => throw new ArgumentOutOfRangeException()
         };
-    }
-
-    private void OnClick(MouseEventArgs args) {
-        switch (WindowAction) {
-
-            case WindowAction.Minimize: {
-                Window.Features.State.SetMinimized();
-                break;
-            }
-
-            case WindowAction.Maximize: {
-                Window.Features.State.ToggleMaximized();
-                break;
-            }
-
-            case WindowAction.Close: {
-                Window.Close();
-                break;
-            }
-
-            default: throw new ArgumentOutOfRangeException();
-        }
     }
 }

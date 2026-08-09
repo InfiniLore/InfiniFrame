@@ -13,7 +13,7 @@ public class FileDroppedEventArgsTests {
     [Test]
     public async Task Constructor_SetsProperties(CancellationToken ct = default) {
         // Arrange
-        var files = new[] { "/path/to/file1.txt", "/path/to/file2.png" };
+        string[] files = new[] { "/path/to/file1.txt", "/path/to/file2.png" };
         var location = new Point(100, 200);
 
         // Act
@@ -46,7 +46,7 @@ public class FileDroppedEventArgsTests {
     [Test]
     public async Task Constructor_MultipleFiles_AllPathsPreserved(CancellationToken ct = default) {
         // Arrange
-        var files = new[] { "a.txt", "b.png", "c.doc" };
+        string[] files = new[] { "a.txt", "b.png", "c.doc" };
 
         // Act
         var args = new FileDroppedEventArgs(files, Point.Empty);

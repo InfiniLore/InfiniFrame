@@ -1,35 +1,20 @@
 ﻿@* ------------------------------------------------------------------------------------------------------------------ *@
-@* Imports
-@* ------------------------------------------------------------------------------------------------------------------ *@
-@using Microsoft.AspNetCore.Components.Web
-
-@namespace InfiniFrame.Blazor
-@* ------------------------------------------------------------------------------------------------------------------ *@
 @* Descriptors
 @* ------------------------------------------------------------------------------------------------------------------ *@
+@namespace InfiniFrame.Blazor
 @inherits ComponentBase
-@implements IDisposable
 
-@inject IInfiniFrameWindow Window
-@inject IInfiniFrameJs InfiniWindowJs
 @* ------------------------------------------------------------------------------------------------------------------ *@
 @* Html
 @* ------------------------------------------------------------------------------------------------------------------ *@
-@* ReSharper disable CSharpWarnings::CS8974 *@
-@if (!_hidden) {
-    <div @ref="_thumbReference"
-         style="position: absolute; z-index: @ZIndex; left: @_left; top: @_top; width: @_width; height: @_height; cursor: @_cursor;"
-         onpointerdown="@OnPointerDown"
-         onpointerup="@OnPointerUp"
-         onpointermove="@OnPointerMove"
-    >
-        @* ReSharper restore CSharpWarnings::CS8974 *@
-    </div>
-}
+<div
+    style="position: absolute; z-index: @ZIndex; left: @_left; top: @_top; width: @_width; height: @_height; cursor: @_cursor;"
+    data-infiniframe-resize="@_resizeValue"
+    @attributes="ExtraAttributes">
+</div>
 @* ------------------------------------------------------------------------------------------------------------------ *@
 @* Code
 @* ------------------------------------------------------------------------------------------------------------------ *@
-
 @code {
     [EditorRequired]
     [Parameter]
@@ -38,59 +23,37 @@
     public int ResizeArea { get; set; } = ResizeAreaValue;
     [Parameter]
     public int ZIndex { get; set; } = ZIndexValue;
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? ExtraAttributes { get; set; }
+
     internal const int ZIndexValue = 1000;
     internal const int ResizeAreaValue = 10;
-
-    private ElementReference _thumbReference;
-    private bool _suppressRender;
-    private bool _isGrabbing;
-    private bool _hidden;
 
     private string _left = string.Empty;
     private string _top = string.Empty;
     private string _width = string.Empty;
     private string _height = string.Empty;
     private string _cursor = string.Empty;
+    private string _resizeValue = string.Empty;
 
     protected override void OnParametersSet() {
         base.OnParametersSet();
-
         UpdateStyleFields();
     }
 
-    protected override bool ShouldRender() {
-        if (!base.ShouldRender()) return false;
-
-        // Reset every time to ensure we don't render until we're ready.
-        if (!_suppressRender) return true;
-
-        _suppressRender = false;
-        return false;
-    }
-
-    protected override void OnInitialized() {
-        base.OnInitialized();
-
-        Window.Events.EventsStore.WindowMaximized.Add(OnMaximized);
-        Window.Events.EventsStore.WindowRestored.Add(OnRestored);
-    }
-
-    public void Dispose() {
-        Window.Events.EventsStore.WindowMaximized.Remove(OnMaximized);
-        Window.Events.EventsStore.WindowRestored.Remove(OnRestored);
-    }
-
-    private void OnMaximized(IInfiniFrameWindow window) {
-        _hidden = true;
-        InvokeAsync(StateHasChanged);
-    }
-
-    private void OnRestored(IInfiniFrameWindow window) {
-        _hidden = false;
-        InvokeAsync(StateHasChanged);
-    }
-
     private void UpdateStyleFields() {
+        _resizeValue = ResizeThumb switch {
+            ResizeOrigin.TopLeft => "top-left",
+            ResizeOrigin.Top => "top",
+            ResizeOrigin.TopRight => "top-right",
+            ResizeOrigin.Right => "right",
+            ResizeOrigin.BottomRight => "bottom-right",
+            ResizeOrigin.Bottom => "bottom",
+            ResizeOrigin.BottomLeft => "bottom-left",
+            ResizeOrigin.Left => "left",
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
         switch (ResizeThumb) {
             case ResizeOrigin.TopLeft: {
                 _width = $"{ResizeArea}px";
@@ -166,24 +129,5 @@
 
             default: throw new ArgumentOutOfRangeException();
         }
-    }
-
-    private async Task OnPointerDown(PointerEventArgs args) {
-        // Because we do change the whole view, we need to rerender render.
-        _isGrabbing = true;
-        await InfiniWindowJs.SetPointerCaptureAsync(_thumbReference, args.PointerId);
-    }
-
-    private async Task OnPointerUp(PointerEventArgs args) {
-        // Because we do change the whole view, we need to rerender render.
-        _isGrabbing = false;
-        await InfiniWindowJs.ReleasePointerCaptureAsync(_thumbReference, args.PointerId);
-    }
-
-    private void OnPointerMove(PointerEventArgs args) {
-        _suppressRender = true;
-        if (!_isGrabbing) return;
-
-        Window.Features.Size.Resize((int)args.MovementX, (int)args.MovementY, ResizeThumb);
     }
 }

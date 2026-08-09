@@ -1,0 +1,52 @@
+<Project>
+    <!--
+        Import this targets file from any project that needs InfiniFrame.Native.dll
+        copied to its output directory. This handles the transitive native artifact
+        copy that <None> items with CopyToOutputDirectory don't reliably provide.
+    -->
+    <PropertyGroup>
+        <_InfiniFrameNativeBridgeDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)src/InfiniFrame.NativeBridge'))</_InfiniFrameNativeBridgeDir>
+        <_InfiniFrameNativePlatform Condition="$([MSBuild]::IsOSPlatform('Windows'))">windows</_InfiniFrameNativePlatform>
+        <_InfiniFrameNativePlatform Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</_InfiniFrameNativePlatform>
+        <_InfiniFrameNativePlatform Condition="$([MSBuild]::IsOSPlatform('OSX'))">osx</_InfiniFrameNativePlatform>
+        <_InfiniFrameNativeArch Condition="'$(PlatformTarget)'=='ARM64' or '$(PlatformTarget)'=='arm64'">arm64</_InfiniFrameNativeArch>
+        <_InfiniFrameNativeArch Condition="'$(PlatformTarget)'=='X64' or '$(PlatformTarget)'=='x64'">x64</_InfiniFrameNativeArch>
+        <_InfiniFrameNativeArch Condition="'$(_InfiniFrameNativeArch)'=='' and $([System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString())=='Arm64'">arm64</_InfiniFrameNativeArch>
+        <_InfiniFrameNativeArch Condition="'$(_InfiniFrameNativeArch)'==''">x64</_InfiniFrameNativeArch>
+        <_InfiniFrameNativeArtifactsDir>$(_InfiniFrameNativeBridgeDir)/artifacts/native/$(_InfiniFrameNativePlatform)/$(_InfiniFrameNativeArch)/$(Configuration)</_InfiniFrameNativeArtifactsDir>
+    </PropertyGroup>
+
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows')) and Exists('$(_InfiniFrameNativeArtifactsDir)/InfiniFrame.Native.dll')">
+        <None Include="$(_InfiniFrameNativeArtifactsDir)/InfiniFrame.Native.dll"
+              Link="InfiniFrame.Native.dll"
+              CopyToOutputDirectory="PreserveNewest"
+              CopyToPublishDirectory="PreserveNewest"
+              Pack="false"
+              Visible="false" />
+        <None Include="$(_InfiniFrameNativeArtifactsDir)/WebView2Loader.dll"
+              Link="WebView2Loader.dll"
+              Condition="Exists('$(_InfiniFrameNativeArtifactsDir)/WebView2Loader.dll')"
+              CopyToOutputDirectory="PreserveNewest"
+              CopyToPublishDirectory="PreserveNewest"
+              Pack="false"
+              Visible="false" />
+    </ItemGroup>
+
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux')) and Exists('$(_InfiniFrameNativeArtifactsDir)/InfiniFrame.Native.so')">
+        <None Include="$(_InfiniFrameNativeArtifactsDir)/InfiniFrame.Native.so"
+              Link="InfiniFrame.Native.so"
+              CopyToOutputDirectory="PreserveNewest"
+              CopyToPublishDirectory="PreserveNewest"
+              Pack="false"
+              Visible="false" />
+    </ItemGroup>
+
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX')) and Exists('$(_InfiniFrameNativeArtifactsDir)/InfiniFrame.Native.dylib')">
+        <None Include="$(_InfiniFrameNativeArtifactsDir)/InfiniFrame.Native.dylib"
+              Link="InfiniFrame.Native.dylib"
+              CopyToOutputDirectory="PreserveNewest"
+              CopyToPublishDirectory="PreserveNewest"
+              Pack="false"
+              Visible="false" />
+    </ItemGroup>
+</Project>

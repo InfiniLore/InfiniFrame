@@ -3,6 +3,7 @@
     <File Path=".gitattributes" />
     <File Path=".gitignore" />
     <File Path="InfiniFrame.GitHubActions.Testing.Automation.slnf" />
+    <File Path="InfiniFrame.NativeCopy.targets" />
     <File Path="LICENSE" />
     <File Path="native-vendor-deps.json" />
     <File Path="README.md" />
@@ -128,6 +129,7 @@
   <Folder Name="/tests/">
     <File Path="tests/Directory.Build.props" />
     <File Path="tests/Directory.Build.targets" />
+    <File Path="tests/InfiniFrame.NativeCopy.targets" />
     <Project Path="tests/InfiniTests.InfiniFrame.Blazor/InfiniTests.InfiniFrame.Blazor.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame.BlazorWebView/InfiniTests.InfiniFrame.BlazorWebView.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame.Js/InfiniTests.InfiniFrame.Js.csproj" />
