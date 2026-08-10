@@ -105,6 +105,7 @@ internal static partial class RemoteDebuggingUtility {
             IAsyncResult connect = client.BeginConnect(endpoint.Host, endpoint.Port, null, null);
             bool signaled = connect.AsyncWaitHandle.WaitOne(TimeSpan.FromMilliseconds(500));
             if (!signaled) {
+                client.Close();
                 reason = "Timed out while probing endpoint.";
                 return false;
             }

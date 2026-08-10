@@ -184,6 +184,8 @@ public partial class InfiniFrameEvents {
     private static IntPtr AllocateResponseStorage(int bodyLength, int contentTypeLength) {
         int allocationSize = checked(bodyLength + contentTypeLength + 1);
         IntPtr storage = Marshal.AllocCoTaskMem(allocationSize);
+        if (storage == IntPtr.Zero)
+            throw new OutOfMemoryException($"Failed to allocate {allocationSize} bytes for custom scheme response.");
         Interlocked.Increment(ref _activeCustomSchemeResponseAllocations);
         return storage;
     }

@@ -64,13 +64,14 @@ public class RemoteDebuggingPortTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [MethodDataSource(nameof(GetPorts))]
     [SkipOnMacOs("Remote TCP debugging endpoints are not supported by WKWebView")]
-    public async Task AtWindowStage_ThroughBuilderAssignment(int value, CancellationToken ct) {
+    public async Task AtWindowStage_ThroughBuilderAssignment(CancellationToken ct) {
         if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) {
             Skip.Test("This test is only run on Windows and Linux");
             return;
         }
+
+        int value = PortUtils.GetOpenPortValue();
 
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
