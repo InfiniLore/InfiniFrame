@@ -216,6 +216,12 @@ class InfiniFrameWindow {
     void GetStatusBarEnabled(bool* enabled) const;
 
     /**
+         * @brief Get whether browser keyboard shortcuts are enabled
+         * @param enabled Output: true if browser shortcuts (e.g. Ctrl+T, Ctrl+W, F11) are enabled
+         */
+    void GetBrowserShortcutsEnabled(bool* enabled) const;
+
+    /**
          * @brief Get the window icon file path
          * @return UTF-8 path to the icon file; caller must free with InfiniFrameNative_FreeString
          */
@@ -405,6 +411,12 @@ class InfiniFrameWindow {
          * @param enabled true to show the status bar
          */
     void SetStatusBarEnabled(bool enabled);
+
+    /**
+         * @brief Enable or disable browser keyboard shortcuts (e.g. Ctrl+T, Ctrl+W, F11)
+         * @param enabled true to allow browser shortcuts
+         */
+    void SetBrowserShortcutsEnabled(bool enabled);
 
     /**
          * @brief Enable or disable media autoplay

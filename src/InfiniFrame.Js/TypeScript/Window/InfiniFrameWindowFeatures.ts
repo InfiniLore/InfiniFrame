@@ -7,6 +7,7 @@ import type {
     DecorationsInfiniFrameWindowFeature as InfiniFrameWindowFeatureDecorationsContract,
     FilePickerDialogsInfiniFrameWindowFeature as InfiniFrameWindowFeatureFilePickerDialogsContract,
     InvokeInfiniFrameWindowFeature as InfiniFrameWindowFeatureInvokeContract,
+    JavaScriptInfiniFrameWindowFeature as InfiniFrameWindowFeatureJavaScriptContract,
     LifecycleInfiniFrameWindowFeature as InfiniFrameWindowFeatureLifecycleContract,
     MonitorsInfiniFrameWindowFeature as InfiniFrameWindowFeatureMonitorsContract,
     NotificationsInfiniFrameWindowFeature as InfiniFrameWindowFeatureNotificationsContract,
@@ -23,6 +24,7 @@ import {
     DecorationsInfiniFrameWindowFeature,
     FilePickerDialogsInfiniFrameWindowFeature,
     InvokeInfiniFrameWindowFeature,
+    JavaScriptInfiniFrameWindowFeature,
     LifecycleInfiniFrameWindowFeature,
     MonitorsInfiniFrameWindowFeature,
     NotificationsInfiniFrameWindowFeature,
@@ -49,6 +51,7 @@ export class InfiniFrameWindowFeatures implements InfiniFrameWindowFeaturesContr
     size: InfiniFrameWindowFeatureSizeContract;
     state: InfiniFrameWindowFeatureStateContract;
     webMessaging: InfiniFrameWindowFeatureWebMessagingContract;
+    javaScript: InfiniFrameWindowFeatureJavaScriptContract;
 
     constructor() {
         this.browser = new BrowserInfiniFrameWindowFeature();
@@ -64,6 +67,7 @@ export class InfiniFrameWindowFeatures implements InfiniFrameWindowFeaturesContr
         this.size = new SizeInfiniFrameWindowFeature();
         this.state = new StateInfiniFrameWindowFeature();
         this.webMessaging = new WebMessagingInfiniFrameWindowFeature();
+        this.javaScript = new JavaScriptInfiniFrameWindowFeature();
     }
     
 }

@@ -64,6 +64,7 @@ void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameInitParams* 
     _smoothScrollingEnabled = initParams->SmoothScrollingEnabled;
     _ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
     _statusBarEnabled = initParams->StatusBarEnabled;
+    _browserShortcutsEnabled = initParams->BrowserShortcutsEnabled;
     _remoteDebuggingPort = initParams->RemoteDebuggingPort;
     _isFullScreen = initParams->FullScreen;
     if (initParams->DefaultNotificationIcon != nullptr)

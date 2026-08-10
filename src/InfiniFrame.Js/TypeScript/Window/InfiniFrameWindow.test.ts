@@ -84,7 +84,8 @@ describe("InfiniFrameWindow", () => {
             "position",
             "size",
             "state",
-            "webMessaging"
+            "webMessaging",
+            "javaScript"
         ]);
     });
 });

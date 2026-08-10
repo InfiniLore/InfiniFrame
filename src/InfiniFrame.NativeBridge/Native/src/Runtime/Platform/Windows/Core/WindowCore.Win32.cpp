@@ -174,6 +174,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     m_impl->_smoothScrollingEnabled = initParams->SmoothScrollingEnabled;
     m_impl->_ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
     m_impl->_statusBarEnabled = initParams->StatusBarEnabled;
+    m_impl->_browserShortcutsEnabled = initParams->BrowserShortcutsEnabled;
     m_impl->_notificationsEnabled = initParams->NotificationsEnabled;
     m_impl->_defaultNotificationIcon = ToUTF8String(initParams->DefaultNotificationIcon);
 

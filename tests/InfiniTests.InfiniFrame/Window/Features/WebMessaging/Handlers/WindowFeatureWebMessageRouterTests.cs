@@ -16,7 +16,7 @@ public class WindowFeatureWebMessageRouterTests {
     [Test]
     public async Task RegisteredDispatchers_HaveUniqueNamesAndCoverEveryFeature() {
         string[] expected = [
-            "browser", "debugging", "decorations", "filePickerDialogs", "invoke", "lifecycle", "monitors",
+            "browser", "debugging", "decorations", "filePickerDialogs", "invoke", "javaScript", "lifecycle", "monitors",
             "notifications", "pageNavigation", "position", "size", "state", "webMessaging"
         ];
 

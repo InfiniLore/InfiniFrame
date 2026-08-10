@@ -118,6 +118,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal byte SmoothScrollingEnabled;
         internal byte IgnoreCertificateErrorsEnabled;
         internal byte StatusBarEnabled;
+        internal byte BrowserShortcutsEnabled;
         internal byte NotificationsEnabled;
 
         // ── Background color (RGBA) ────────────────────────────────────
@@ -238,6 +239,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 SmoothScrollingEnabled = ToByte(managed.SmoothScrollingEnabled),
                 IgnoreCertificateErrorsEnabled = ToByte(managed.IgnoreCertificateErrorsEnabled),
                 StatusBarEnabled = ToByte(managed.StatusBarEnabled),
+                BrowserShortcutsEnabled = ToByte(managed.BrowserShortcutsEnabled),
                 NotificationsEnabled = ToByte(managed.NotificationsEnabled),
 
                 // Background color

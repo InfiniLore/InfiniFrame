@@ -96,6 +96,7 @@ struct InfiniFrameInitParams {
     bool SmoothScrollingEnabled;
     bool IgnoreCertificateErrorsEnabled;
     bool StatusBarEnabled;
+    bool BrowserShortcutsEnabled;
     bool NotificationsEnabled;
 
     // ── Background color (RGBA) ────────────────────────────────────────────

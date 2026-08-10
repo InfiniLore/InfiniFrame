@@ -83,20 +83,7 @@ void InfiniFrameWindow::SetTaskbarProgress(int state, uint64_t current, uint64_t
 
     // Unity LauncherEntry
     if (s_hasLauncherEntry && s_launcherEntryProxy) {
-        GVariantBuilder builder;
-        g_variant_builder_init(&builder, G_VARIANT_TYPE("a{sv}"));
-
         GVariant* progressVariant = g_variant_new_double(progress);
-        g_variant_builder_add(&builder, "{sv}", "quicklist-count", g_variant_new_int32(0));
-
-        if (progress >= 0.0) {
-            g_variant_builder_add(&builder, "{sv}", "progress-visible", g_variant_new_boolean(true));
-            g_variant_builder_add(&builder, "{sv}", "progress", progressVariant);
-        } else {
-            g_variant_builder_add(&builder, "{sv}", "progress-visible", g_variant_new_boolean(false));
-        }
-
-        GVariant* parameters = g_variant_builder_end(&builder);
         GError* error = nullptr;
         g_dbus_connection_call_sync(
             g_dbus_proxy_get_connection(s_launcherEntryProxy),
@@ -111,7 +98,6 @@ void InfiniFrameWindow::SetTaskbarProgress(int state, uint64_t current, uint64_t
             nullptr,
             &error
         );
-        // Also set the progress properties
         g_dbus_connection_call_sync(
             g_dbus_proxy_get_connection(s_launcherEntryProxy),
             LAUNCHER_ENTRY_BUS_NAME,

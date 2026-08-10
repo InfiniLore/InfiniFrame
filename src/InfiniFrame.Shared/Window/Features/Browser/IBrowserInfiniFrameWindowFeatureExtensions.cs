@@ -18,6 +18,17 @@ public static class IBrowserInfiniFrameWindowFeatureExtensions {
     }
 
     /// <summary>
+    ///     Enables or disables browser keyboard shortcuts (e.g. Ctrl+T, Ctrl+W, F11) for the window.
+    /// </summary>
+    /// <param name="window">The window instance.</param>
+    /// <param name="enabled">Whether browser shortcuts should be enabled.</param>
+    /// <returns>The window instance for chaining.</returns>
+    public static IInfiniFrameWindow EnableBrowserShortcuts(this IInfiniFrameWindow window, bool enabled = true) {
+        window.Features.Browser.EnableBrowserShortcuts(enabled);
+        return window;
+    }
+
+    /// <summary>
     ///     Enables or disables the context menu for the window.
     /// </summary>
     /// <param name="window">The window instance.</param>

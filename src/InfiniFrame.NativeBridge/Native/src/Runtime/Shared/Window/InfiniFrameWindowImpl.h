@@ -69,6 +69,7 @@ struct InfiniFrameWindowImpl {
     bool _smoothScrollingEnabled = true;
     bool _ignoreCertificateErrorsEnabled = false;
     bool _statusBarEnabled = true;
+    bool _browserShortcutsEnabled = true;
     int _remoteDebuggingPort = 0;
 
     // -----------------------------------------------------------------------------------------------------------------

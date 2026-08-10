@@ -113,6 +113,15 @@ public class BrowserInfiniFrameWindowFeature(
         InfiniFrameNative.GetStatusBarEnabled
     );
 
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowFeature.IsBrowserShortcutsEnabled" />
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool IsBrowserShortcutsEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(
+        logger,
+        window,
+        window.ManagedThreadId,
+        InfiniFrameNative.GetBrowserShortcutsEnabled
+    );
+
     /// <inheritdoc cref="IBrowserInfiniFrameWindowFeature.BrowserControlInitParameters" />
     public string? BrowserControlInitParameters => window.Configuration.StartupParameters.BrowserControlInitParameters;
 
@@ -126,6 +135,17 @@ public class BrowserInfiniFrameWindowFeature(
             window,
             window.ManagedThreadId,
             InfiniFrameNative.SetStatusBarEnabled,
+            enabled
+        );
+    }
+
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowFeature.EnableBrowserShortcuts" />
+    public void EnableBrowserShortcuts(bool enabled = true) {
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window,
+            window.ManagedThreadId,
+            InfiniFrameNative.SetBrowserShortcutsEnabled,
             enabled
         );
     }

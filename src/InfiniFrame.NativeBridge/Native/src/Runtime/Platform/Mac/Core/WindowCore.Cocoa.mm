@@ -248,6 +248,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
         this->m_impl->_mediaStreamEnabled = params->MediaStreamEnabled;
         this->m_impl->_smoothScrollingEnabled = params->SmoothScrollingEnabled;
         this->m_impl->_statusBarEnabled = params->StatusBarEnabled;
+        this->m_impl->_browserShortcutsEnabled = params->BrowserShortcutsEnabled;
         this->m_impl->_remoteDebuggingPort = params->RemoteDebuggingPort;
         if (params->DefaultNotificationIcon != nullptr)
             this->m_impl->_defaultNotificationIcon = params->DefaultNotificationIcon;

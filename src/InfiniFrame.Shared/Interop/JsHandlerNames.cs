@@ -40,4 +40,8 @@ public static class JsHandlerNames {
     internal const string WindowResize = $"{InfiniFramePrefix}:window:resize";
 
     internal const string RegisterWindowClose = $"{InfiniFramePrefix}:register:window:close";
+
+    internal const string JavaScriptEvalRequest = $"{InfiniFramePrefix}:javascript:eval";
+    internal const string JavaScriptEvalResult = $"{InfiniFramePrefix}:javascript:eval:result";
+    internal const string JavaScriptEvalResponse = $"{InfiniFramePrefix}:javascript:eval:response";
 }

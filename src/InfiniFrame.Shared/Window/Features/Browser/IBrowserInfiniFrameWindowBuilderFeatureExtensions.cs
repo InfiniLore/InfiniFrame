@@ -131,6 +131,17 @@ public static class IBrowserInfiniFrameWindowBuilderFeatureExtensions {
     }
 
     /// <summary>
+    ///     Enables or disables browser keyboard shortcuts (e.g. Ctrl+T, Ctrl+W, F11) for the builder.
+    /// </summary>
+    /// <param name="builder">The builder instance.</param>
+    /// <param name="enabled">Whether browser shortcuts should be enabled.</param>
+    /// <returns>The builder instance for chaining.</returns>
+    public static IInfiniFrameWindowBuilder EnableBrowserShortcuts(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
+        builder.Features.Browser.EnableBrowserShortcuts(enabled);
+        return builder;
+    }
+
+    /// <summary>
     ///     Sets the browser control initialization parameters for the builder.
     /// </summary>
     /// <param name="builder">The builder instance.</param>

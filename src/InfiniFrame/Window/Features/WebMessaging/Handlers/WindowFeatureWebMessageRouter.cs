@@ -22,7 +22,8 @@ internal static class WindowFeatureWebMessageRouter {
         new PositionWebMessageDispatcher(),
         new SizeWebMessageDispatcher(),
         new StateWebMessageDispatcher(),
-        new WebMessagingWebMessageDispatcher()
+        new WebMessagingWebMessageDispatcher(),
+        new JavaScriptWebMessageDispatcher()
     ];
 
     private static readonly Dictionary<string, IWindowFeatureWebMessageDispatcher> Dispatchers

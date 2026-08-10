@@ -42,5 +42,7 @@ public sealed record InfiniFrameWindowFeatures(
     /// <inheritdoc cref="IInfiniFrameWindowFeatures.Taskbar"/>
     ITaskbarInfiniFrameWindowFeature Taskbar,
     /// <inheritdoc cref="IInfiniFrameWindowFeatures.Menu"/>
-    IMenuInfiniFrameWindowFeature Menu
+    IMenuInfiniFrameWindowFeature Menu,
+    /// <inheritdoc cref="IInfiniFrameWindowFeatures.JavaScript"/>
+    IJavaScriptInfiniFrameWindowFeature JavaScript
 ) : IInfiniFrameWindowFeatures;

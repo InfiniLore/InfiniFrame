@@ -121,6 +121,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         (*new_params)->SmoothScrollingEnabled = params->SmoothScrollingEnabled;
         (*new_params)->IgnoreCertificateErrorsEnabled = params->IgnoreCertificateErrorsEnabled;
         (*new_params)->StatusBarEnabled = params->StatusBarEnabled;
+        (*new_params)->BrowserShortcutsEnabled = params->BrowserShortcutsEnabled;
         (*new_params)->NotificationsEnabled = params->NotificationsEnabled;
 
         // Background color

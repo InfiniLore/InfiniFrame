@@ -24,6 +24,8 @@ HRESULT InfiniFrameWindow::ApplyInitialWebViewSettings() {
         SetDevToolsEnabled(false);
     if (!m_impl->_statusBarEnabled)
         SetStatusBarEnabled(false);
+    if (!m_impl->_browserShortcutsEnabled)
+        SetBrowserShortcutsEnabled(false);
     if (m_impl->_transparentEnabled)
         SetTransparentEnabled(true);
     if (m_impl->_backgroundColorR != 0 || m_impl->_backgroundColorG != 0 || m_impl->_backgroundColorB != 0 || m_impl->_backgroundColorA != 0)
@@ -173,6 +175,15 @@ void InfiniFrameWindow::SetStatusBarEnabled(const bool enabled) {
         settings->put_IsStatusBarEnabled(enabled);
         m_impl->_webviewWindow->Reload();
     }
+}
+
+void InfiniFrameWindow::SetBrowserShortcutsEnabled(const bool enabled) {
+    m_impl->_browserShortcutsEnabled = enabled;
+    if (!m_impl->_webviewWindow)
+        return;
+    const auto flag = enabled ? L"true" : L"false";
+    const auto js = std::wstring(L"window.__infiniframe_browserShortcutsEnabled=") + flag + L";";
+    m_impl->_webviewWindow->ExecuteScript(js.c_str(), nullptr);
 }
 
 void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled) {

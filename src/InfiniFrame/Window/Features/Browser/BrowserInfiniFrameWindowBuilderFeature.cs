@@ -45,6 +45,9 @@ public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowB
     /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsStatusBarEnabled"/>
     public bool IsStatusBarEnabled { get; private set; } = true;
 
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsBrowserShortcutsEnabled"/>
+    public bool IsBrowserShortcutsEnabled { get; private set; } = true;
+
     /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.BrowserControlInitParameters"/>
     public string? BrowserControlInitParameters { get; private set; }
 
@@ -117,6 +120,11 @@ public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowB
         IsStatusBarEnabled = enabled;
     }
 
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableBrowserShortcuts"/>
+    public void EnableBrowserShortcuts(bool enabled) {
+        IsBrowserShortcutsEnabled = enabled;
+    }
+
     /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.SetBrowserControlInitParameters"/>
     public void SetBrowserControlInitParameters(string? parameters) {
         BrowserControlInitParameters = parameters;
@@ -148,6 +156,7 @@ public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowB
         parameters.GrantBrowserPermissions = GrantBrowserPermissions;
         parameters.SmoothScrollingEnabled = IsSmoothScrollingEnabled;
         parameters.StatusBarEnabled = IsStatusBarEnabled;
+        parameters.BrowserShortcutsEnabled = IsBrowserShortcutsEnabled;
         parameters.BrowserControlInitParameters = BrowserControlInitParameters;
         parameters.TemporaryFilesPath = TemporaryFilesPath;
         parameters.WebView2RuntimePath = WebView2RuntimePath;
