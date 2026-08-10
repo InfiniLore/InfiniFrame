@@ -15,7 +15,7 @@ export class BrowserInfiniFrameWindowFeature extends InfiniFrameWindowFeature im
     constructor() {
         super("browser");
 
-        window.infiniframe.messaging.assignMessageReceivedHandler(
+        window.infiniframe?.messaging?.assignMessageReceivedHandler(
             ReceiveFromHostMessageIds.setContextMenuEnabled, payload => {
                 if (!payload) return;
                 try {
@@ -25,7 +25,7 @@ export class BrowserInfiniFrameWindowFeature extends InfiniFrameWindowFeature im
             }
         );
 
-        window.infiniframe.messaging.assignMessageReceivedHandler(
+        window.infiniframe?.messaging?.assignMessageReceivedHandler(
             ReceiveFromHostMessageIds.setZoomEnabled, payload => {
                 if (!payload) return;
                 try {
@@ -35,7 +35,7 @@ export class BrowserInfiniFrameWindowFeature extends InfiniFrameWindowFeature im
             }
         );
 
-        window.infiniframe.messaging.assignMessageReceivedHandler(
+        window.infiniframe?.messaging?.assignMessageReceivedHandler(
             ReceiveFromHostMessageIds.setBrowserShortcutsEnabled, payload => {
                 if (!payload) return;
                 try {
