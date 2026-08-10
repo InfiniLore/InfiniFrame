@@ -29,7 +29,7 @@ public class InfiniFrameJsTests {
         await Assert.That(cancellationToken).IsEqualTo(ct);
         await Assert.That(jsArguments.Length).IsEqualTo(2);
         await Assert.That(jsArguments[0]).IsEqualTo((object)element);
-        await Assert.That(jsArguments[1]).IsEqualTo(42L);
+        await Assert.That((long)jsArguments[1]!).IsEqualTo(42L);
     }
 
     [Test]
@@ -49,7 +49,7 @@ public class InfiniFrameJsTests {
         await Assert.That(cancellationToken).IsEqualTo(ct);
         await Assert.That(jsArguments.Length).IsEqualTo(2);
         await Assert.That(jsArguments[0]).IsEqualTo((object)element);
-        await Assert.That(jsArguments[1]).IsEqualTo(7L);
+        await Assert.That((long)jsArguments[1]!).IsEqualTo(7L);
     }
 
     [Test]
