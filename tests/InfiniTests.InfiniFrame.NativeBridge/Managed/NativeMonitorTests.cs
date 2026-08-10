@@ -99,7 +99,7 @@ public class NativeMonitorTests {
 
     [Test]
     public async Task Monitor_WithNegativeOrigin_PreservesCoordinates(CancellationToken ct = default) {
-        // Arrange — secondary monitor to the left of the primary
+        // Arrange, secondary monitor to the left of the primary
         NativeRect rect = new() { X = -1920, Y = 0, Width = 1920, Height = 1080 };
 
         // Act
@@ -125,7 +125,7 @@ public class NativeMonitorTests {
         NativeMonitor copy = original;
         copy.Scale = 2.0;
 
-        // Assert — original is unchanged
+        // Assert, original is unchanged
         await Assert.That(original.Scale).IsEqualTo(1.0);
         await Assert.That(copy.Scale).IsEqualTo(2.0);
     }
@@ -166,7 +166,7 @@ public class NativeMonitorTests {
 
     [Test]
     public async Task Monitor_WorkAreaSmallerThanMonitorArea_BothFieldsCoexist(CancellationToken ct = default) {
-        // Arrange — typical setup: taskbar consumes 40px at the bottom
+        // Arrange, typical setup: taskbar consumes 40px at the bottom
         NativeRect monitorRect = new() { X = 0, Y = 0, Width = 1920, Height = 1080 };
         NativeRect workRect = new() { X = 0, Y = 0, Width = 1920, Height = 1040 };
 

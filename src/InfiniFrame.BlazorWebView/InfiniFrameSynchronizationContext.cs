@@ -147,6 +147,12 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
     /// <param name="d">The callback to invoke.</param>
     /// <param name="state">The state object passed to the callback.</param>
     public override void Send(SendOrPostCallback d, object? state) {
+        if (Environment.CurrentManagedThreadId == LazyWindow.Value.ManagedThreadId) {
+            throw new InvalidOperationException(
+                "InfiniFrameSynchronizationContext.Send cannot be called from the native UI thread " +
+                "as it would cause a deadlock. Use Post or InvokeAsync instead.");
+        }
+
         Task antecedent;
         var completion = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 

@@ -50,7 +50,7 @@ public class ParentChildWindowTests {
         }, ct);
         IInfiniFrameWindow childWindow = childWindowUtility.Window;
         lock (parentWindow.Configuration.ChildWindows) {
-            parentWindow.Configuration.ChildWindows.Add(childWindow);
+            ((List<IInfiniFrameWindow>)parentWindow.Configuration.ChildWindows).Add(childWindow);
         }
 
         // Act

@@ -136,7 +136,7 @@ public class CustomSchemeNameMemoryTests {
         // Arrange
         IntPtr[]? pointers = null;
 
-        // Act — must not throw
+        // Act, must not throw
         CustomSchemeNameMemory.FreeAll(pointers);
 
         // Assert
@@ -148,7 +148,7 @@ public class CustomSchemeNameMemoryTests {
         // Arrange
         IntPtr[] pointers = new IntPtr[16];// all IntPtr.Zero by default
 
-        // Act — must not throw
+        // Act, must not throw
         CustomSchemeNameMemory.FreeAll(pointers);
 
         // Assert
@@ -163,7 +163,7 @@ public class CustomSchemeNameMemoryTests {
         // Act
         CustomSchemeNameMemory.FreeAll(pointers);
 
-        // Assert — every slot is zeroed in-place after freeing
+        // Assert, every slot is zeroed in-place after freeing
         for (int i = 0; i < pointers.Length; i++) {
             await Assert.That(pointers[i]).IsEqualTo(IntPtr.Zero);
         }
@@ -171,11 +171,11 @@ public class CustomSchemeNameMemoryTests {
 
     [Test]
     public async Task FreeAll_CalledTwiceOnSameArray_DoesNotThrow(CancellationToken ct = default) {
-        // Arrange — FreeAll zeroes slots after the first call, so a second call is a no-op
+        // Arrange, FreeAll zeroes slots after the first call, so a second call is a no-op
         IntPtr[] pointers = CustomSchemeNameMemory.Allocate(["once"]);
         CustomSchemeNameMemory.FreeAll(pointers);
 
-        // Act — must not throw (all slots are already IntPtr.Zero)
+        // Act, must not throw (all slots are already IntPtr.Zero)
         CustomSchemeNameMemory.FreeAll(pointers);
 
         // Assert

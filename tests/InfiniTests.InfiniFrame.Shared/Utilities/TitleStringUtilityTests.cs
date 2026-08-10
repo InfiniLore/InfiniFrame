@@ -22,7 +22,7 @@ public class TitleStringUtilityTests {
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Validate — null / whitespace passthrough
+    // Validate, null / whitespace passthrough
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
     public async Task Validate_NullTitle_ReturnsNull(CancellationToken ct = default) {
@@ -44,7 +44,7 @@ public class TitleStringUtilityTests {
 
     [Test]
     public async Task Validate_WhitespaceOnly_ReturnsOriginalWhitespace(CancellationToken ct = default) {
-        // Arrange — whitespace-only strings are returned unchanged (not collapsed to DefaultTitle)
+        // Arrange, whitespace-only strings are returned unchanged (not collapsed to DefaultTitle)
         const string whitespace = "   ";
         string? result = TitleStringUtility.Validate(whitespace, false);
 
@@ -53,7 +53,7 @@ public class TitleStringUtilityTests {
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Validate — trimming
+    // Validate, trimming
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
     public async Task Validate_TitleWithLeadingWhitespace_ReturnsTrimmed(CancellationToken ct = default) {
@@ -92,29 +92,29 @@ public class TitleStringUtilityTests {
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Validate — Linux length limiting
+    // Validate, Linux length limiting
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
     public async Task Validate_LimitLinuxLength_False_DoesNotTruncateLongTitle(CancellationToken ct = default) {
-        // Arrange — a title longer than 31 characters
+        // Arrange, a title longer than 31 characters
         string longTitle = new('A', 50);
 
         // Act
         string? result = TitleStringUtility.Validate(longTitle, false);
 
-        // Assert — limitLinuxLength=false means no truncation regardless of platform
+        // Assert, limitLinuxLength=false means no truncation regardless of platform
         await Assert.That(result!.Length).IsEqualTo(50);
     }
 
     [Test]
     public async Task Validate_LimitLinuxLength_TitleOf31Chars_NotTruncated(CancellationToken ct = default) {
-        // Arrange — exactly at the Linux limit; should never be truncated
+        // Arrange, exactly at the Linux limit; should never be truncated
         string title = new('B', 31);
 
         // Act
         string? result = TitleStringUtility.Validate(title, true);
 
-        // Assert — 31 chars is not > 31, so no truncation on any platform
+        // Assert, 31 chars is not > 31, so no truncation on any platform
         await Assert.That(result!.Length).IsEqualTo(31);
     }
 
@@ -143,7 +143,7 @@ public class TitleStringUtilityTests {
         // Act
         string? result = TitleStringUtility.Validate(longTitle, true);
 
-        // Assert — limitLinuxLength=true has no effect on non-Linux platforms
+        // Assert, limitLinuxLength=true has no effect on non-Linux platforms
         await Assert.That(result!.Length).IsEqualTo(50);
     }
 
@@ -157,7 +157,7 @@ public class TitleStringUtilityTests {
         // Act
         string? result = TitleStringUtility.Validate(title, true);
 
-        // Assert — only the first 31 characters are kept
+        // Assert, only the first 31 characters are kept
         await Assert.That(result).IsEqualTo("ABCDEFGHIJKLMNOPQRSTUVWXYZ12345");
     }
 }

@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
 using InfiniFrame;
 using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge.Dialogs;
@@ -14,6 +15,7 @@ namespace InfiniTests.InfiniFrame.Window.Features.WebMessaging.Handlers;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowFeatureWebMessageRouterTests {
     [Test]
+    [SuppressMessage("ReSharper", "UseCollectionExpression")]
     public async Task RegisteredDispatchers_HaveUniqueNamesAndCoverEveryFeature() {
         string[] expected = [
             "browser", "debugging", "decorations", "filePickerDialogs", "invoke", "javaScript", "lifecycle", "monitors",

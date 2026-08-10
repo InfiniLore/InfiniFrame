@@ -90,7 +90,7 @@ public class InfiniFrameDialogResultTests {
         int cancel = (int)InfiniFrameDialogResult.Cancel;
         int ok = (int)InfiniFrameDialogResult.Ok;
 
-        // Assert — Cancel is -1, negative sentinal value
+        // Assert, Cancel is -1, negative sentinal value
         await Assert.That(cancel).IsLessThan(ok);
     }
 }

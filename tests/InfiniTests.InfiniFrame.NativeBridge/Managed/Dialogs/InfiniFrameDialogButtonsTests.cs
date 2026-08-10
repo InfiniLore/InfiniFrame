@@ -80,7 +80,7 @@ public class InfiniFrameDialogButtonsTests {
         // Arrange
         var values = (InfiniFrameDialogButtons[])Enum.GetValues(typeof(InfiniFrameDialogButtons));
 
-        // Act & Assert — each value matches its ordinal index, important for native interop
+        // Act & Assert, each value matches its ordinal index, important for native interop
         for (int i = 0; i < values.Length; i++) {
             await Assert.That((int)values[i]).IsEqualTo(i);
         }

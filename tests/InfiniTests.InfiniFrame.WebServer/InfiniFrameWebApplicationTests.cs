@@ -131,7 +131,7 @@ public class InfiniFrameWebApplicationTests {
         // Act
         app.UseAutoServerClose();
         Func<IInfiniFrameWindow, EventArgs?, WindowClosingResult>? capturedHandler = mockEvents.EventsStore.Closing.Snapshot.LastOrDefault();
-        WindowClosingResult? result = capturedHandler?.Invoke(mockWindow, EventArgs.Empty);
+        WindowClosingResult result = capturedHandler?.Invoke(mockWindow, EventArgs.Empty) ?? WindowClosingResult.Cancel;
 
         // Assert
         await Assert.That(capturedHandler).IsNotNull();

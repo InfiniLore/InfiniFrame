@@ -13,6 +13,7 @@ namespace InfiniTests.InfiniFrame.Window.Features.JavaScript;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [SuppressMessage("ReSharper", "AsyncMethodWithoutAwait")]
+[SuppressMessage("Usage", "TUnitAssertions0005:Assert.That(...) should not be used with a constant value")]
 public class ExecuteJavaScriptTests {
     [Test]
     public async Task EvalResultHandler_CompletesPendingEval(CancellationToken ct) {

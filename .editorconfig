@@ -3,7 +3,7 @@
 charset = utf-8-bom
 end_of_line = crlf
 trim_trailing_whitespace = false
-insert_final_newline = false
+insert_final_newline = true
 indent_style = space
 indent_size = 4
 
@@ -95,7 +95,7 @@ dotnet_naming_symbols.unity_serialized_field_symbols_1.applicable_accessibilitie
 dotnet_naming_symbols.unity_serialized_field_symbols_1.applicable_kinds =
 dotnet_naming_symbols.unity_serialized_field_symbols_1.resharper_applicable_kinds = unity_serialised_field
 dotnet_naming_symbols.unity_serialized_field_symbols_1.resharper_required_modifiers = instance
-dotnet_sort_system_directives_first = false
+dotnet_sort_system_directives_first = true
 csharp_new_line_between_members = false
 dotnet_style_parentheses_in_arithmetic_binary_operators = never_if_unnecessary:none
 dotnet_style_parentheses_in_other_binary_operators = always_for_clarity:none

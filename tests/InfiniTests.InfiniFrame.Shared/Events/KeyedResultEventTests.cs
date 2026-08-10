@@ -192,7 +192,7 @@ public class KeyedResultEventTests {
         // Act
         bool success = evt.TryInvoke("key", window, 0, out string? result);
 
-        // Assert — a registered handler completed successfully, even when its result is null.
+        // Assert, a registered handler completed successfully, even when its result is null.
         await Assert.That(success).IsTrue();
         await Assert.That(result).IsNull();
     }

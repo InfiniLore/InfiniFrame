@@ -40,9 +40,10 @@ public class CrossThreadWindowLifecycleTests {
     [DefaultInfiniTestsTimeout(30_000)]
     public async Task ParallelCreateCloseAcrossManagedThreads_DoesNotFail(CancellationToken ct) {
         // Arrange
-        Task[] operations = Enumerable.Range(0, 4)
-            .Select(_ => Task.Run(action: () => CreateCloseAndWaitWindow(ct), ct))
-            .ToArray();
+        Task[] operations = [
+            .. Enumerable.Range(0, 4)
+                .Select(_ => Task.Run(action: () => CreateCloseAndWaitWindow(ct), ct))
+        ];
 
         // Act
         await Task.WhenAll(operations);

@@ -16,8 +16,12 @@ public class InfiniFrameWindowConfiguration : IInfiniFrameWindowConfiguration {
     public InfiniFrameNativeParameters StartupParameters { get; private set; }
     /// <inheritdoc cref="IInfiniFrameWindowConfiguration.ParentWindow"/>
     public IInfiniFrameWindow? ParentWindow { get; set; }
+    /// <summary>
+    ///     Gets the mutable list of child windows.
+    /// </summary>
+    internal List<IInfiniFrameWindow> ChildWindowsInternal { get; } = [];
     /// <inheritdoc cref="IInfiniFrameWindowConfiguration.ChildWindows"/>
-    public List<IInfiniFrameWindow> ChildWindows { get; } = [];
+    IReadOnlyList<IInfiniFrameWindow> IInfiniFrameWindowConfiguration.ChildWindows => ChildWindowsInternal;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods

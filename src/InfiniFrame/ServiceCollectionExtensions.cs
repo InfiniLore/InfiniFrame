@@ -19,9 +19,9 @@ public static class ServiceCollectionExtensions {
     /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
     /// <returns>The same service collection so calls can be chained.</returns>
     public static IServiceCollection AddInfiniFrame(this IServiceCollection services) {
-        services.AddTransient<IInfiniFrameEvents, InfiniFrameEvents>();
-        services.AddTransient<IInfiniFrameEventsStore, InfiniFrameEventsStore>();
-        services.AddTransient<IInfiniFrameWindowConfiguration, InfiniFrameWindowConfiguration>();
+        services.AddScoped<IInfiniFrameEvents, InfiniFrameEvents>();
+        services.AddScoped<IInfiniFrameEventsStore, InfiniFrameEventsStore>();
+        services.AddScoped<IInfiniFrameWindowConfiguration, InfiniFrameWindowConfiguration>();
         services.AddTransient<InfiniFrameWindow>();
         services.AddSingleton<IValidator<InfiniFrameNativeParameters>, InfiniFrameNativeParametersValidator>();
 

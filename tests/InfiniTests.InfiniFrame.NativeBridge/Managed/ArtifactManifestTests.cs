@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
 using InfiniFrame.NativeBridge;
 using System.Runtime.InteropServices;
 
@@ -8,15 +9,16 @@ namespace InfiniTests.InfiniFrame.NativeBridge.Managed;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+[SuppressMessage("Usage", "TUnitAssertions0005:Assert.That(...) should not be used with a constant value")]
 public class ArtifactManifestTests {
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Constants — exact values
+    // Constants, exact values
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
     public async Task NativeLibraryName_IsExpectedValue(CancellationToken ct = default) {
         // Arrange & Act
-        string name = ArtifactManifest.NativeLibraryName;
+        const string name = ArtifactManifest.NativeLibraryName;
 
         // Assert
         await Assert.That(name).IsEqualTo("InfiniFrame.Native");
@@ -25,7 +27,7 @@ public class ArtifactManifestTests {
     [Test]
     public async Task WindowsNativeFileName_IsNativeLibraryNameWithDllExtension(CancellationToken ct = default) {
         // Arrange & Act
-        string fileName = ArtifactManifest.WindowsNativeFileName;
+        const string fileName = ArtifactManifest.WindowsNativeFileName;
 
         // Assert
         await Assert.That(fileName).IsEqualTo("InfiniFrame.Native.dll");
@@ -34,7 +36,7 @@ public class ArtifactManifestTests {
     [Test]
     public async Task WindowsLoaderLibraryName_IsExpectedValue(CancellationToken ct = default) {
         // Arrange & Act
-        string name = ArtifactManifest.WindowsLoaderLibraryName;
+        const string name = ArtifactManifest.WindowsLoaderLibraryName;
 
         // Assert
         await Assert.That(name).IsEqualTo("WebView2Loader");
@@ -43,7 +45,7 @@ public class ArtifactManifestTests {
     [Test]
     public async Task WindowsLoaderFileName_IsLoaderLibraryNameWithDllExtension(CancellationToken ct = default) {
         // Arrange & Act
-        string fileName = ArtifactManifest.WindowsLoaderFileName;
+        const string fileName = ArtifactManifest.WindowsLoaderFileName;
 
         // Assert
         await Assert.That(fileName).IsEqualTo("WebView2Loader.dll");
@@ -52,7 +54,7 @@ public class ArtifactManifestTests {
     [Test]
     public async Task LinuxNativeFileName_IsNativeLibraryNameWithSoExtension(CancellationToken ct = default) {
         // Arrange & Act
-        string fileName = ArtifactManifest.LinuxNativeFileName;
+        const string fileName = ArtifactManifest.LinuxNativeFileName;
 
         // Assert
         await Assert.That(fileName).IsEqualTo("InfiniFrame.Native.so");
@@ -61,14 +63,14 @@ public class ArtifactManifestTests {
     [Test]
     public async Task OsxNativeFileName_IsNativeLibraryNameWithDylibExtension(CancellationToken ct = default) {
         // Arrange & Act
-        string fileName = ArtifactManifest.OsxNativeFileName;
+        const string fileName = ArtifactManifest.OsxNativeFileName;
 
         // Assert
         await Assert.That(fileName).IsEqualTo("InfiniFrame.Native.dylib");
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Constants — structural invariants
+    // Constants, structural invariants
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
     public async Task WindowsNativeFileName_ContainsNativeLibraryName(CancellationToken ct = default) {
@@ -146,7 +148,7 @@ public class ArtifactManifestTests {
         // Act
         string result = ArtifactManifest.ResolveNativeLibraryFileNameForCurrentPlatform();
 
-        // Assert — the native library base name must always appear in the file name
+        // Assert, the native library base name must always appear in the file name
         await Assert.That(result).Contains(ArtifactManifest.NativeLibraryName);
     }
 
@@ -160,8 +162,10 @@ public class ArtifactManifestTests {
             expected = ArtifactManifest.LinuxNativeFileName;
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             expected = ArtifactManifest.OsxNativeFileName;
-        else
-            return;// unsupported platform — skip without failing
+        else {
+            Skip.Test("Unsupported platform, skip without failing");
+            return;
+        }
 
         // Act
         string actual = ArtifactManifest.ResolveNativeLibraryFileNameForCurrentPlatform();
@@ -180,8 +184,10 @@ public class ArtifactManifestTests {
             expectedExtension = ".so";
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             expectedExtension = ".dylib";
-        else
-            return;// unsupported platform — skip without failing
+        else {
+            Skip.Test("Unsupported platform, skip without failing");
+            return;
+        }
 
         // Act
         string result = ArtifactManifest.ResolveNativeLibraryFileNameForCurrentPlatform();
@@ -210,7 +216,7 @@ public class ArtifactManifestTests {
         // Act
         string[] required = ArtifactManifest.RequiredFileNamesForCurrentPlatform();
 
-        // Assert — the native library must always be in the required set
+        // Assert, the native library must always be in the required set
         await Assert.That(required).Contains(nativeFileName);
     }
 
@@ -221,7 +227,7 @@ public class ArtifactManifestTests {
         // Act
         string[] required = ArtifactManifest.RequiredFileNamesForCurrentPlatform();
 
-        // Assert — Windows needs the native DLL and the WebView2Loader DLL
+        // Assert, Windows needs the native DLL and the WebView2Loader DLL
         await Assert.That(required.Length).IsEqualTo(2);
     }
 

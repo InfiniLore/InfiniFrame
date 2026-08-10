@@ -1,9 +1,9 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Collections.Immutable;
 using InfiniFrame;
 using NSubstitute;
-using System.Collections.Immutable;
 
 namespace InfiniTests.InfiniFrame.Shared.Events;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ public class OrderedEventTests {
     public async Task Add_SingleHandler_SnapshotContainsOneEntry(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        Action<IInfiniFrameWindow> handler = _ => { };
+        Action<IInfiniFrameWindow> handler = _ => {};
 
         // Act
         orderedEvent.Add(handler);
@@ -40,7 +40,7 @@ public class OrderedEventTests {
     public async Task Add_SameHandlerTwice_AppendsBothEntries(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        Action<IInfiniFrameWindow> handler = _ => { };
+        Action<IInfiniFrameWindow> handler = _ => {};
 
         // Act
         orderedEvent.Add(handler);
@@ -66,7 +66,7 @@ public class OrderedEventTests {
     public async Task Remove_RegisteredHandler_ReducesSnapshotCount(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        Action<IInfiniFrameWindow> handler = _ => { };
+        Action<IInfiniFrameWindow> handler = _ => {};
         orderedEvent.Add(handler);
 
         // Act
@@ -80,9 +80,9 @@ public class OrderedEventTests {
     public async Task Remove_HandlerNotRegistered_DoesNotThrow(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        Action<IInfiniFrameWindow> unregistered = _ => { };
+        Action<IInfiniFrameWindow> unregistered = _ => {};
 
-        // Act & Assert — removing a handler that was never added must not throw
+        // Act & Assert, removing a handler that was never added must not throw
         await Assert.That(() => orderedEvent.Remove(unregistered)).ThrowsNothing();
     }
 
@@ -159,7 +159,7 @@ public class OrderedEventTests {
         var window = Substitute.For<IInfiniFrameWindow>();
         orderedEvent.Add(_ => throw new InvalidOperationException("boom"));
 
-        // Act & Assert — OrderedEvent.Invoke does not swallow exceptions
+        // Act & Assert, OrderedEvent.Invoke does not swallow exceptions
         await Assert.That(() => orderedEvent.Invoke(window)).Throws<InvalidOperationException>();
     }
 
@@ -170,17 +170,19 @@ public class OrderedEventTests {
     public async Task Snapshot_IsImmutable_SubsequentAddDoesNotAffectCapturedSnapshot(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        Action<IInfiniFrameWindow> handler1 = _ => { };
-        Action<IInfiniFrameWindow> handler2 = _ => { };
-        orderedEvent.Add(handler1);
+
+        orderedEvent.Add(Action);
 
         // Act
         ImmutableArray<Action<IInfiniFrameWindow>> snapshot = orderedEvent.Snapshot;
-        orderedEvent.Add(handler2);
+        orderedEvent.Add(Action);
 
-        // Assert — the captured snapshot must not reflect the later add
+        // Assert, the captured snapshot must not reflect the later add
         await Assert.That(snapshot.Length).IsEqualTo(1);
         await Assert.That(orderedEvent.Snapshot.Length).IsEqualTo(2);
+        return;
+
+        void Action(IInfiniFrameWindow _) {}
     }
 
     [Test]
@@ -189,6 +191,6 @@ public class OrderedEventTests {
         var orderedEvent = new OrderedEvent();
 
         // Assert
-        await Assert.That(orderedEvent.Snapshot).IsEmpty();
+        await Assert.That(orderedEvent.Snapshot.ToArray()).IsEmpty();
     }
 }

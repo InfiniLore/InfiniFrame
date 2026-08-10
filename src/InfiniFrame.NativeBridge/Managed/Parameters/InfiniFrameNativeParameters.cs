@@ -1,8 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.NativeBridge.Delegates;
 using System.Runtime.InteropServices;
+using InfiniFrame.NativeBridge.Delegates;
 
 namespace InfiniFrame.NativeBridge.Parameters;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -10,7 +10,7 @@ namespace InfiniFrame.NativeBridge.Parameters;
 // ---------------------------------------------------------------------------------------------------------------------
 // These are the parameter names that are passed to InfiniFrame.Native.
 // Field order defines the ABI layout shared with the native (C++) side via LayoutKind.Sequential.
-// DO NOT reorder fields — append new fields before Size and update Size accordingly.
+// DO NOT reorder fields, append new fields before Size and update Size accordingly.
 /// <summary>
 ///     Represents the parameters used to configure and initialize a native InfiniFrame window.
 ///     Passed to the native layer as a sequentially laid-out struct.

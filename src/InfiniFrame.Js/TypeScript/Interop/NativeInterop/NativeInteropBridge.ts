@@ -201,7 +201,10 @@ function normalizeGetMessageInput(message: InteropEnvelopeV1 | string): InteropE
 }
 
 function createRequestId(): string {
-    return `if_req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+    const randomBytes = new Uint8Array(16);
+    crypto.getRandomValues(randomBytes);
+    const randomHex = Array.from(randomBytes, b => b.toString(16).padStart(2, '0')).join('');
+    return `if_req_${Date.now().toString(36)}_${randomHex}`;
 }
 
 function normalizeEnvelope(
@@ -276,7 +279,12 @@ function attachReceiveBridgeOnce(existingReceiveCallback?: (callback: (message: 
     }
 
     if (window.webkit?.messageHandlers?.infiniFrameInterop) {
-        window.__dispatchMessageCallback = dispatch;
+        Object.defineProperty(window, '__infiniframe_dispatch', {
+            value: dispatch,
+            writable: false,
+            configurable: false,
+            enumerable: false
+        });
         receiveBridgeAttached = true;
         return;
     }

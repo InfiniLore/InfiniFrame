@@ -20,12 +20,14 @@ public partial class InfiniFrameEvents {
     private void CloseChildWindows(IInfiniFrameWindow window) {
         if (window.LifecycleState >= InfiniFrameWindowLifecycleState.NativeClosed) return;
 
-        IInfiniFrameWindow[] childWindows;
-        lock (window.Configuration.ChildWindows) {
-            if (window.Configuration.ChildWindows.Count <= 0) return; // No child windows to close
+        if (window.Configuration is not InfiniFrameWindowConfiguration config) return;
 
-            childWindows = window.Configuration.ChildWindows.ToArray();
-            window.Configuration.ChildWindows.Clear();
+        IInfiniFrameWindow[] childWindows;
+        lock (config.ChildWindowsInternal) {
+            if (config.ChildWindowsInternal.Count <= 0) return; // No child windows to close
+
+            childWindows = config.ChildWindowsInternal.ToArray();
+            config.ChildWindowsInternal.Clear();
         }
 
         Logger.LogDebug("Lifecycle child windows");

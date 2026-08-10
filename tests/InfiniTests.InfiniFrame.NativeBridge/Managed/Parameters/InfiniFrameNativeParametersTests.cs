@@ -17,7 +17,7 @@ public class InfiniFrameNativeParametersTests {
         // Size must be consistent across managed/native boundary; Marshal.SizeOf is the source of truth.
         int expectedSize = Marshal.SizeOf<InfiniFrameNativeParameters>();
 
-        // Act — read back to confirm it's stable
+        // Act, read back to confirm it's stable
         int actualSize = Marshal.SizeOf<InfiniFrameNativeParameters>();
 
         // Assert

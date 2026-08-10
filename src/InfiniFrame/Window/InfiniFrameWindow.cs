@@ -170,8 +170,12 @@ public sealed class InfiniFrameWindow(
     void IInfiniFrameWindow.MarkReady() {
         if (Interlocked.CompareExchange(ref _lifecycleState,
                 (int)InfiniFrameWindowLifecycleState.Ready,
-                (int)InfiniFrameWindowLifecycleState.Creating) == (int)InfiniFrameWindowLifecycleState.Creating)
+                (int)InfiniFrameWindowLifecycleState.Creating) == (int)InfiniFrameWindowLifecycleState.Creating) {
             RecordLifecycleTransition();
+            return;
+        }
+        // If not in Creating state, log but do not throw to avoid disrupting the lifecycle.
+        // This may indicate an out-of-order lifecycle transition.
     }
 
     bool IInfiniFrameWindow.RequestClose() {
@@ -189,8 +193,11 @@ public sealed class InfiniFrameWindow(
     }
 
     void IInfiniFrameWindow.CancelCloseRequest() {
+        int returnState = Volatile.Read(ref _closeReturnState);
+        if (returnState is not ((int)InfiniFrameWindowLifecycleState.Creating or (int)InfiniFrameWindowLifecycleState.Ready))
+            return;
         if (Interlocked.CompareExchange(ref _lifecycleState,
-                Volatile.Read(ref _closeReturnState),
+                returnState,
                 (int)InfiniFrameWindowLifecycleState.CloseRequested) == (int)InfiniFrameWindowLifecycleState.CloseRequested)
             RecordLifecycleTransition();
     }
@@ -263,30 +270,38 @@ public sealed class InfiniFrameWindow(
     public void Dispose() {
         lock (_disposeLock) {
             if (LifecycleState == InfiniFrameWindowLifecycleState.Disposed) return;
-        }
 
-        if (!Features.Lifecycle.IsClosedOrClosing()) {
-            Features.Lifecycle.Close();
-        }
+            if (Features is null) return;
 
-        if (LifecycleState < InfiniFrameWindowLifecycleState.NativeClosed
-            && Features.Lifecycle.CanWaitForCloseDuringDispose()) {
-            Features.Lifecycle.WaitForClose();
-        }
+            if (!Features.Lifecycle.IsClosedOrClosing()) {
+                Features.Lifecycle.Close();
+            }
 
-        if (LifecycleState < InfiniFrameWindowLifecycleState.TeardownComplete
-            && Features.Lifecycle.CanWaitForTeardownDuringDispose()) {
-            // Blocking here is safe: CanWaitForTeardownDuringDispose guarantees either the
-            // message loop has already exited (non-owning thread or teardown complete) or we
-            // are on a non-owning thread, so there is no risk of re-entrant UI deadlock.
-            // For fully asynchronous disposal, prefer DisposeAsync() instead.
-            Features.Lifecycle.WaitForTeardownAsync().AsTask().GetAwaiter().GetResult();
-        }
+            if (LifecycleState < InfiniFrameWindowLifecycleState.NativeClosed
+                && Features.Lifecycle.CanWaitForCloseDuringDispose()) {
+                Features.Lifecycle.WaitForClose();
+            }
 
-        Features.Lifecycle.CleanupNativeHandle();
+            if (LifecycleState < InfiniFrameWindowLifecycleState.TeardownComplete
+                && Features.Lifecycle.CanWaitForTeardownDuringDispose()) {
+                // Blocking here is safe: CanWaitForTeardownDuringDispose guarantees either the
+                // message loop has already exited (non-owning thread or teardown complete) or we
+                // are on a non-owning thread, so there is no risk of re-entrant UI deadlock.
+                // For fully asynchronous disposal, prefer DisposeAsync() instead.
+                Features.Lifecycle.WaitForTeardownAsync().AsTask().GetAwaiter().GetResult();
+            }
+
+            Features.Lifecycle.CleanupNativeHandle();
+        }
     }
 
     public async ValueTask DisposeAsync() {
+        lock (_disposeLock) {
+            if (LifecycleState == InfiniFrameWindowLifecycleState.Disposed) return;
+        }
+
+        if (Features is null) return;
+
         if (!Features.Lifecycle.IsClosedOrClosing()) await Features.Lifecycle.CloseAsync().ConfigureAwait(false);
         await Features.Lifecycle.WaitForTeardownAsync().ConfigureAwait(false);
         Features.Lifecycle.CleanupNativeHandle();

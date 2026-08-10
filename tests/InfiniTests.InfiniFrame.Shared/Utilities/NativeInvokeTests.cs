@@ -25,13 +25,14 @@ public class NativeInvokeTests {
             NullLogger.Instance,
             owner,
             Environment.CurrentManagedThreadId,
-            callback: (_, out value) => {
-                value = "out-value";
-                return InfiniFrameNativeInteropStatus.Success;
-            });
+            callback: Callback);
 
         // Assert
         await Assert.That(result).IsEqualTo("out-value");
+    }
+    private static InfiniFrameNativeInteropStatus Callback(IntPtr _, out string value) {
+        value = "out-value";
+        return InfiniFrameNativeInteropStatus.Success;
     }
 
     [Test]
@@ -42,15 +43,17 @@ public class NativeInvokeTests {
         IntPtr received = IntPtr.Zero;
 
         // Act
+        InfiniFrameNativeInteropStatus FuncWithOut(IntPtr h, out int v) {
+            received = h;
+            v = 0;
+            return InfiniFrameNativeInteropStatus.Success;
+        }
+
         NativeInvoke.InvokeSyncWithValidation<int>(
             NullLogger.Instance,
             owner,
             Environment.CurrentManagedThreadId,
-            callback: (h, out v) => {
-                received = h;
-                v = 0;
-                return InfiniFrameNativeInteropStatus.Success;
-            });
+            callback: FuncWithOut);
 
         // Assert
         await Assert.That(received).IsEqualTo(expectedHandle);

@@ -19,7 +19,7 @@ public class CustomSchemeResponseCorsPipelineTests {
     public async Task Callback_SameOriginRequest_ProducesResponseWithCorsHeaders(CancellationToken ct = default) {
         // Arrange
         InfiniFrameEvents events = CreateEvents((_, _) => (
-            new MemoryStream("test"u8.ToArray()), "application/json"));
+            new MemoryStream([.. "test"u8]), "application/json"));
         var response = new CustomSchemeResponse();
 
         // Act
@@ -53,7 +53,7 @@ public class CustomSchemeResponseCorsPipelineTests {
     public async Task Callback_CrossOriginRequest_ProducesResponseWithoutCorsHeaders(CancellationToken ct = default) {
         // Arrange
         InfiniFrameEvents events = CreateEvents((_, _) => (
-            new MemoryStream("test"u8.ToArray()), "application/json"));
+            new MemoryStream([.. "test"u8]), "application/json"));
         var response = new CustomSchemeResponse();
 
         // Act
@@ -86,7 +86,7 @@ public class CustomSchemeResponseCorsPipelineTests {
     public async Task Callback_NullOrigin_ProducesResponseWithoutCorsHeaders(CancellationToken ct = default) {
         // Arrange
         InfiniFrameEvents events = CreateEvents((_, _) => (
-            new MemoryStream("test"u8.ToArray()), "text/html"));
+            new MemoryStream([.. "test"u8]), "text/html"));
         var response = new CustomSchemeResponse();
 
         // Act
@@ -117,7 +117,7 @@ public class CustomSchemeResponseCorsPipelineTests {
     public async Task Callback_DifferentPorts_ProducesResponseWithoutCorsHeaders(CancellationToken ct = default) {
         // Arrange
         InfiniFrameEvents events = CreateEvents((_, _) => (
-            new MemoryStream("test"u8.ToArray()), "application/octet-stream"));
+            new MemoryStream([.. "test"u8]), "application/octet-stream"));
         var response = new CustomSchemeResponse();
 
         // Act
@@ -148,7 +148,7 @@ public class CustomSchemeResponseCorsPipelineTests {
     public async Task Callback_DifferentSchemes_ProducesResponseWithoutCorsHeaders(CancellationToken ct = default) {
         // Arrange
         InfiniFrameEvents events = CreateEvents((_, _) => (
-            new MemoryStream("test"u8.ToArray()), "text/plain"));
+            new MemoryStream([.. "test"u8]), "text/plain"));
         var response = new CustomSchemeResponse();
 
         // Act
@@ -179,7 +179,7 @@ public class CustomSchemeResponseCorsPipelineTests {
     public async Task Callback_SubpathRequests_AreSameOrigin(CancellationToken ct = default) {
         // Arrange
         InfiniFrameEvents events = CreateEvents((_, _) => (
-            new MemoryStream("test"u8.ToArray()), "text/html"));
+            new MemoryStream([.. "test"u8]), "text/html"));
         var responseA = new CustomSchemeResponse();
         var responseB = new CustomSchemeResponse();
 

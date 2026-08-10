@@ -5,6 +5,7 @@
         <OutputType>Library</OutputType>
         <EnableDynamicLoading>true</EnableDynamicLoading>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>

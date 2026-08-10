@@ -52,7 +52,7 @@ public class InfiniFrameDialogOptionsTests {
         byte forceOverwrite = (byte)InfiniFrameDialogOptions.ForceOverwrite;
         byte disableCreateFolder = (byte)InfiniFrameDialogOptions.DisableCreateFolder;
 
-        // Assert — no two flags share a bit
+        // Assert, no two flags share a bit
         await Assert.That(multiSelect & forceOverwrite).IsEqualTo(0);
         await Assert.That(multiSelect & disableCreateFolder).IsEqualTo(0);
         await Assert.That(forceOverwrite & disableCreateFolder).IsEqualTo(0);

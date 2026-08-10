@@ -15,7 +15,7 @@ export function handleJavaScriptEvalRequest(payload: unknown) {
     if (!requestId || !script) return;
 
     try {
-        const result = eval(script);
+        const result = new Function(`return (${script})`)();
         const resultJson = result === undefined ? null : JSON.stringify(result);
         window.infiniframe.messaging.sendMessageToHost(
             "__infiniframe:javascript:eval:result",
