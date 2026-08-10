@@ -54,6 +54,7 @@ internal sealed class InfiniNavigationOperation {
     }
 
     public async Task StartAsync() {
+
         try {
             await _window.WaitForReadyAsync(_cancellationToken).ConfigureAwait(false);
             _lease = _window.AcquireNativeHandle();
@@ -72,6 +73,7 @@ internal sealed class InfiniNavigationOperation {
                 FinishCancelled();
                 return;
             }
+
             if (dispatch != InfiniFrameDispatchResult.Completed) {
                 Finish(new NavigationResult(
                     Id,
@@ -86,12 +88,20 @@ internal sealed class InfiniNavigationOperation {
                 static state => ((InfiniNavigationOperation)state!).RequestCancellation(), this
             );
             _cancellationRegistration = registration;
+            
             // A backend is allowed to complete synchronously while BeginNavigate is returning.
             // In that race cleanup may have run before this registration was assigned.
-            if (Volatile.Read(ref _completed) != 0) {
-                registration.Dispose();
-                return;
+            try {
+                if (Volatile.Read(ref _completed) != 0) {
+                    await registration.DisposeAsync();
+                    return;
+                }
             }
+            catch {
+                await registration.DisposeAsync();
+                throw;
+            }
+
             if (_cancellationToken.IsCancellationRequested)
                 RequestCancellation();
         }

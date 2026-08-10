@@ -6,28 +6,36 @@ namespace InfiniFrame.Interop;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed class WindowRegistrationStateMachine {
-    private WindowRegistrationHandshakeState HandshakeState { get; set; } = WindowRegistrationHandshakeState.ReadyPending;
-    private bool RegistrationSendInProgress { get; set; }
+    private readonly object _lock = new();
+    private WindowRegistrationHandshakeState _handshakeState = WindowRegistrationHandshakeState.ReadyPending;
+    private bool _registrationSendInProgress;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public bool TryBeginRegistrationSendOnReady() {
-        if (RegistrationSendInProgress) return false;
-        if (HandshakeState == WindowRegistrationHandshakeState.ReadyAcknowledged) return false;
+        lock (_lock) {
+            if (_registrationSendInProgress) return false;
+            if (_handshakeState == WindowRegistrationHandshakeState.ReadyAcknowledged) return false;
 
-        HandshakeState = WindowRegistrationHandshakeState.RegistrationSending;
-        RegistrationSendInProgress = true;
-        return true;
+            _handshakeState = WindowRegistrationHandshakeState.RegistrationSending;
+            _registrationSendInProgress = true;
+            return true;
+        }
     }
 
     public void CompleteRegistrationSend(bool success) {
-        RegistrationSendInProgress = false;
-        HandshakeState = success
-            ? WindowRegistrationHandshakeState.ReadyAcknowledged
-            : WindowRegistrationHandshakeState.Failed;
+        lock (_lock) {
+            _registrationSendInProgress = false;
+            _handshakeState = success
+                ? WindowRegistrationHandshakeState.ReadyAcknowledged
+                : WindowRegistrationHandshakeState.Failed;
+        }
     }
 
-    public bool IsReadyPending()
-        => HandshakeState == WindowRegistrationHandshakeState.ReadyPending;
+    public bool IsReadyPending() {
+        lock (_lock) {
+            return _handshakeState == WindowRegistrationHandshakeState.ReadyPending;
+        }
+    }
 }

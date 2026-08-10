@@ -220,12 +220,9 @@ void InfiniFrameWindow::SetContextMenuEnabled(const bool enabled) {
     m_impl->_contextMenuEnabled = enabled;
     if (m_impl->_webview == nullptr)
         return;
-    const char* js = enabled
-        ? "window.__infiniframe_contextMenuEnabled=true;"
-        : "window.__infiniframe_contextMenuEnabled=false;";
-    webkit_web_view_evaluate_javascript(
-        WEBKIT_WEB_VIEW(m_impl->_webview), js, -1, nullptr, nullptr, nullptr, nullptr, nullptr
-    );
+    std::string payload = "{\"enabled\":" + std::string(enabled ? "true" : "false") + "}";
+    std::string envelope = "{\"version\":1,\"messageId\":\"__infiniframe:browser:setContextMenuEnabled\",\"payload\":\"" + escapeJsonString(payload) + "\"}";
+    SendWebMessage(envelope.c_str());
 }
 
 void InfiniFrameWindow::SetMediaAutoplayEnabled(const bool enabled) {
@@ -255,12 +252,9 @@ void InfiniFrameWindow::SetZoomEnabled(bool enabled) {
     m_impl->_zoomEnabled = enabled;
     if (m_impl->_webview == nullptr)
         return;
-    const char* js = enabled
-        ? "window.__infiniframe_zoomEnabled=true;"
-        : "window.__infiniframe_zoomEnabled=false;";
-    webkit_web_view_evaluate_javascript(
-        WEBKIT_WEB_VIEW(m_impl->_webview), js, -1, nullptr, nullptr, nullptr, nullptr, nullptr
-    );
+    std::string payload = "{\"enabled\":" + std::string(enabled ? "true" : "false") + "}";
+    std::string envelope = "{\"version\":1,\"messageId\":\"__infiniframe:browser:setZoomEnabled\",\"payload\":\"" + escapeJsonString(payload) + "\"}";
+    SendWebMessage(envelope.c_str());
 }
 
 void InfiniFrameWindow::SetStatusBarEnabled(bool enabled) {
@@ -273,12 +267,9 @@ void InfiniFrameWindow::SetBrowserShortcutsEnabled(bool enabled) {
     m_impl->_browserShortcutsEnabled = enabled;
     if (m_impl->_webview == nullptr)
         return;
-    const char* js = enabled
-        ? "window.__infiniframe_browserShortcutsEnabled=true;"
-        : "window.__infiniframe_browserShortcutsEnabled=false;";
-    webkit_web_view_evaluate_javascript(
-        WEBKIT_WEB_VIEW(m_impl->_webview), js, -1, nullptr, nullptr, nullptr, nullptr, nullptr
-    );
+    std::string payload = "{\"enabled\":" + std::string(enabled ? "true" : "false") + "}";
+    std::string envelope = "{\"version\":1,\"messageId\":\"__infiniframe:browser:setBrowserShortcutsEnabled\",\"payload\":\"" + escapeJsonString(payload) + "\"}";
+    SendWebMessage(envelope.c_str());
 }
 
 void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled) {

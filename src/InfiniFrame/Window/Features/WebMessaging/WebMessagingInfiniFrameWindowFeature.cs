@@ -14,7 +14,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WebMessagingInfiniFrameWindowFeature : IWebMessagingInfiniFrameWindowFeature {
-    private static long _nextAcknowledgementId;
+    private long _nextAcknowledgementId;
     private readonly IInfiniFrameWindow window;
     private readonly ILogger<WebMessagingInfiniFrameWindowFeature> logger;
     private readonly ConcurrentDictionary<ulong, TaskCompletionSource> _acknowledgements = new();

@@ -1,7 +1,16 @@
-﻿$Root = Join-Path $PSScriptRoot ".."
+﻿param(
+    [switch]$KillProcesses
+)
 
-Get-Process dotnet,MSBuild,vstest,playwright,node -ErrorAction SilentlyContinue |
-    Stop-Process -Force -ErrorAction SilentlyContinue
+$Root = Join-Path $PSScriptRoot ".."
+
+if ($KillProcesses) {
+    Write-Host "Stopping dotnet/MSBuild/vstest/playwright/node processes..."
+    Get-Process dotnet,MSBuild,vstest,playwright,node -ErrorAction SilentlyContinue |
+        Stop-Process -Force -ErrorAction SilentlyContinue
+} else {
+    Write-Host "Skipping process cleanup (use -KillProcesses to stop dotnet/MSBuild/vstest/playwright/node)"
+}
 
 Get-ChildItem -Path $Root -Directory -Recurse |
     Where-Object { $_.Name -in @('bin', 'obj') } |

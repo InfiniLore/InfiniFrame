@@ -1,13 +1,95 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+import {ReceiveFromHostMessageIds} from "../../Contracts";
 import type {BrowserInfiniFrameWindowFeature as Contract} from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export class BrowserInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
-    constructor() { super("browser"); }
+    private contextMenuEnabled = true;
+    private zoomEnabled = true;
+    private browserShortcutsEnabled = true;
+
+    constructor() {
+        super("browser");
+
+        window.infiniframe.messaging.assignMessageReceivedHandler(
+            ReceiveFromHostMessageIds.setContextMenuEnabled, payload => {
+                if (!payload) return;
+                try {
+                    const {enabled} = JSON.parse(payload);
+                    this.contextMenuEnabled = !!enabled;
+                } catch { /* ignore malformed payload */ }
+            }
+        );
+
+        window.infiniframe.messaging.assignMessageReceivedHandler(
+            ReceiveFromHostMessageIds.setZoomEnabled, payload => {
+                if (!payload) return;
+                try {
+                    const {enabled} = JSON.parse(payload);
+                    this.zoomEnabled = !!enabled;
+                } catch { /* ignore malformed payload */ }
+            }
+        );
+
+        window.infiniframe.messaging.assignMessageReceivedHandler(
+            ReceiveFromHostMessageIds.setBrowserShortcutsEnabled, payload => {
+                if (!payload) return;
+                try {
+                    const {enabled} = JSON.parse(payload);
+                    this.browserShortcutsEnabled = !!enabled;
+                } catch { /* ignore malformed payload */ }
+            }
+        );
+
+        this.installGuards();
+    }
+
+    private installGuards(): void {
+        document.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (this.browserShortcutsEnabled) return;
+            const ctrl = e.ctrlKey || e.metaKey;
+            const k = e.key.toLowerCase();
+            if (ctrl && (k === "t" || k === "n" || k === "w" || k === "r" || k === "p"
+                || k === "u" || k === "j" || k === "l" || k === "i" || k === "o"
+                || k === "h" || (e.shiftKey && k === "i"))) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+            if (k === "f11") {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, true);
+
+        document.addEventListener("contextmenu", (e: Event) => {
+            if (!this.contextMenuEnabled) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, true);
+
+        document.addEventListener("wheel", (e: WheelEvent) => {
+            if (!this.zoomEnabled && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, {capture: true, passive: false});
+
+        document.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (this.zoomEnabled) return;
+            const ctrl = e.ctrlKey || e.metaKey;
+            const k = e.key;
+            if ((ctrl && (k === "+" || k === "-" || k === "=" || k === "0")) || k === "F5") {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, true);
+    }
 
     isContextMenuEnabledAsync() {
         return this.get<boolean>("isContextMenuEnabled");

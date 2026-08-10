@@ -63,7 +63,11 @@ internal static class StaticAssetSchemeHandler {
         if (assetPath.EndsWith('/')) assetPath += defaultDocument;
 
         assetPath = assetPath.Replace('\\', '/');
-        if (assetPath.Split('/', StringSplitOptions.RemoveEmptyEntries).Any(segment => segment == "..")) return false;
+        if (assetPath.Contains("..", StringComparison.Ordinal)
+            || assetPath.Contains("%2e", StringComparison.OrdinalIgnoreCase)
+            || assetPath.Contains("%2f", StringComparison.OrdinalIgnoreCase)
+            || assetPath.Contains("%5c", StringComparison.OrdinalIgnoreCase))
+            return false;
 
         return true;
     }

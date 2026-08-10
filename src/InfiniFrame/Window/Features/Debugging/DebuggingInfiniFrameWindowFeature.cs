@@ -123,7 +123,7 @@ public sealed class DebuggingInfiniFrameWindowFeature(
     public InfiniFrameDebugDiagnostics GetDiagnostics() {
         (DateTimeOffset TransitionUtc, IReadOnlyList<InfiniFrameOperationDiagnostics> Outstanding, InfiniFrameOperationDiagnostics? Last) operationDiagnostics = window is InfiniFrameWindow concreteWindow
             ? concreteWindow.GetOperationDiagnostics()
-            : (DateTimeOffset.UtcNow, (IReadOnlyList<InfiniFrameOperationDiagnostics>)[], null);
+            : (DateTimeOffset.UtcNow, [], null);
         Uri? endpoint = null;
         string? endpointReason = null;
         InfiniFrameDebugEndpointStatus endpointStatus;

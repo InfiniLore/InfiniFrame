@@ -15,17 +15,17 @@ namespace InfiniFrame.BlazorWebView;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
-    /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.RootComponents"/>
+    /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.RootComponents" />
     public IInfiniFrameRootComponentList RootComponents { get; } = new InfiniFrameRootComponentList();
-    /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.Services"/>
+    /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.Services" />
     public IServiceCollection Services { get; } = new ServiceCollection();
-    /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.WindowBuilder"/>
+    /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.WindowBuilder" />
     public IInfiniFrameWindowBuilder WindowBuilder { get; } = InfiniFrameWindowBuilder.Create();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    private InfiniFrameBlazorAppBuilder() { }
+    private InfiniFrameBlazorAppBuilder() {}
 
     public static InfiniFrameBlazorAppBuilder CreateDefault(
         string[]? args = null,
@@ -151,7 +151,7 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
             ?? new InfiniFrameBlazorAppConfiguration();
         InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(
             WindowBuilder,
-            policyBuilder => policyBuilder.AddTrustedOrigin(appConfig.AppBaseUri));
+            configure: policyBuilder => policyBuilder.AddTrustedOrigin(appConfig.AppBaseUri));
         string startupUrl = BuildStartupUrl(appConfig);
         var staticAssets = serviceProvider.GetRequiredService<IInfiniFrameStaticAssets>();
 
@@ -207,8 +207,11 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
                     );
                 });
             }
-            catch (Exception) {
-                // Never throw from global exception handler
+            catch (ObjectDisposedException) {
+                // Window already closed; nothing to report.
+            }
+            catch (InvalidOperationException) {
+                // Service not available; nothing to report.
             }
         });
     }

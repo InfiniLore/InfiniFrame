@@ -12,7 +12,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class JavaScriptInfiniFrameWindowFeature : IJavaScriptInfiniFrameWindowFeature {
-    private static long _nextRequestId;
+    private long _nextRequestId;
     private readonly IInfiniFrameWindow window;
     private readonly ILogger<JavaScriptInfiniFrameWindowFeature> logger;
     private readonly ConcurrentDictionary<string, TaskCompletionSource<string?>> _pendingEvals = new();
@@ -177,8 +177,3 @@ public class JavaScriptInfiniFrameWindowFeature : IJavaScriptInfiniFrameWindowFe
         return Encoding.UTF8.GetString(stream.ToArray());
     }
 }
-
-/// <summary>
-///     Represents an error that occurred during JavaScript evaluation in the browser control.
-/// </summary>
-public sealed class JavaScriptEvaluationException(string message) : Exception(message);

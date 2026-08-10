@@ -216,6 +216,7 @@ try {
     # COPY OUTPUTS
     # -----------------------------------------------------------------------------------------------------------------
     Get-ChildItem $BuildDir -Recurse -Include *.dll, *.so, *.dylib -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -like "InfiniFrame.Native*" } |
         Copy-Item -Destination "$ArtifactsDir/$Platform/$Arch/$Configuration" -Force
 
     Write-Host ""

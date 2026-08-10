@@ -1,8 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using Microsoft.Extensions.FileProviders;
 using System.Reflection;
+using Microsoft.Extensions.FileProviders;
 
 namespace InfiniFrame.StaticAssets;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -17,9 +17,18 @@ public static class FileProviderFactory {
     ///     wwwroot directory.
     /// </summary>
     /// <param name="assembly">The assembly that contains embedded wwwroot resources. Defaults to the entry assembly.</param>
-    /// <param name="physicalWwwrootPath">An optional physical wwwroot path. Defaults to <c>wwwroot</c> under the base directory.</param>
-    /// <param name="includePhysicalFallback">Whether to include a physical file provider as a fallback when the directory exists.</param>
-    /// <returns>A composite file provider that aggregates all available sources.</returns>
+    /// <param name="physicalWwwrootPath">
+    ///     An optional physical wwwroot path. Defaults to <c>wwwroot</c> under the base
+    ///     directory.
+    /// </param>
+    /// <param name="includePhysicalFallback">
+    ///     Whether to include a physical file provider as a fallback when the directory
+    ///     exists.
+    /// </param>
+    /// <returns>
+    ///     A composite file provider that aggregates all available sources. The caller is responsible for disposing the
+    ///     returned provider if it implements <see cref="IDisposable" />.
+    /// </returns>
     public static IFileProvider CreateWwwrootProvider(
         Assembly? assembly = null,
         string? physicalWwwrootPath = null,
@@ -48,7 +57,7 @@ public static class FileProviderFactory {
         var physicalProvider = new PhysicalFileProvider(fallbackPath);
         providers.Add(physicalProvider);
 
-        return new CompositeFileProvider(providers);
+        return new DisposableCompositeFileProvider(providers, physicalProvider);
 
     }
 }

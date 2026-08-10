@@ -24,9 +24,11 @@ public sealed class InfiniFrameWindow(
     private int _closeReturnState = (int)InfiniFrameWindowLifecycleState.Ready;
     private int _managedThreadId = Environment.CurrentManagedThreadId;
     private long _lastLifecycleTransitionUtcTicks = DateTimeOffset.UtcNow.UtcTicks;
+    private int _asyncDisposing;
     private readonly object _diagnosticsLock = new();
     private readonly Dictionary<string, InfiniFrameOperationDiagnostics> _outstandingOperations = [];
     private InfiniFrameOperationDiagnostics? _lastOperation;
+    private bool _ownsServiceProvider;
 #if NET9_0_OR_GREATER
     private readonly Lock _disposeLock = new();
 #else
@@ -90,6 +92,10 @@ public sealed class InfiniFrameWindow(
     // -----------------------------------------------------------------------------------------------------------------
     internal void AssignFeatures(IInfiniFrameWindowFeatures features) {
         Features = features;
+    }
+
+    internal void SetOwnsServiceProvider(bool owns) {
+        _ownsServiceProvider = owns;
     }
 
     internal string BeginDiagnosticOperation(string name, ulong id) {
@@ -168,12 +174,13 @@ public sealed class InfiniFrameWindow(
     }
 
     void IInfiniFrameWindow.MarkReady() {
-        if (Interlocked.CompareExchange(ref _lifecycleState,
-                (int)InfiniFrameWindowLifecycleState.Ready,
-                (int)InfiniFrameWindowLifecycleState.Creating) == (int)InfiniFrameWindowLifecycleState.Creating) {
-            RecordLifecycleTransition();
-            return;
-        }
+        if (Interlocked.CompareExchange(
+                ref _lifecycleState, 
+                (int)InfiniFrameWindowLifecycleState.Ready, 
+                (int)InfiniFrameWindowLifecycleState.Creating) != (int)InfiniFrameWindowLifecycleState.Creating
+        ) return;
+
+        RecordLifecycleTransition();
         // If not in Creating state, log but do not throw to avoid disrupting the lifecycle.
         // This may indicate an out-of-order lifecycle transition.
     }
@@ -271,8 +278,6 @@ public sealed class InfiniFrameWindow(
         lock (_disposeLock) {
             if (LifecycleState == InfiniFrameWindowLifecycleState.Disposed) return;
 
-            if (Features is null) return;
-
             if (!Features.Lifecycle.IsClosedOrClosing()) {
                 Features.Lifecycle.Close();
             }
@@ -292,18 +297,26 @@ public sealed class InfiniFrameWindow(
             }
 
             Features.Lifecycle.CleanupNativeHandle();
+
+            if (_ownsServiceProvider && ServiceProvider is IDisposable disposableProvider) {
+                disposableProvider.Dispose();
+            }
         }
     }
 
     public async ValueTask DisposeAsync() {
+        if (Interlocked.CompareExchange(ref _asyncDisposing, 1, 0) != 0) return;
+
         lock (_disposeLock) {
             if (LifecycleState == InfiniFrameWindowLifecycleState.Disposed) return;
         }
 
-        if (Features is null) return;
-
         if (!Features.Lifecycle.IsClosedOrClosing()) await Features.Lifecycle.CloseAsync().ConfigureAwait(false);
         await Features.Lifecycle.WaitForTeardownAsync().ConfigureAwait(false);
         Features.Lifecycle.CleanupNativeHandle();
+
+        if (_ownsServiceProvider && ServiceProvider is IDisposable disposableProvider) {
+            disposableProvider.Dispose();
+        }
     }
 }

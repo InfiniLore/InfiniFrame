@@ -155,7 +155,7 @@ public class PageNavigationInfiniFrameWindowFeature(
             );
             return true;
         }
-        catch (Exception ex) when (!ExceptionsUtility.IsNonFatalException(ex)) {
+        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
             logger.LogWarning(ex, "Failed to navigate to {Target}", target);
             return false;
         }

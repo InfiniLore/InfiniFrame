@@ -459,28 +459,6 @@ void InfiniFrameWindow::AttachWebView() {
                                 ).Get()
                             );
 
-                            {
-                                static constexpr wchar_t kBrowserShortcutsJs[] =
-                                    L"(function(){"
-                                    L"if(window.__infiniframe_browserShortcutsEnabled===undefined)"
-                                    L"window.__infiniframe_browserShortcutsEnabled=true;"
-                                    L"document.addEventListener('keydown',function(e){"
-                                    L"if(window.__infiniframe_browserShortcutsEnabled)return;"
-                                    L"var c=e.ctrlKey||e.metaKey,s=e.shiftKey,k=e.key.toLowerCase();"
-                                    L"if(c&&(k==='t'||k==='n'||k==='w'||k==='r'||k==='p'||k==='u'||k==='j'|"
-                                    L"|k==='l'||k==='i'||k==='o'||k==='h'||(s&&k==='i'))){"
-                                    L"e.preventDefault();e.stopPropagation();return false;}"
-                                    L"if(k==='f11'){e.preventDefault();e.stopPropagation();return false;}"
-                                    L"},true);"
-                                    L"})();";
-                                m_impl->_webviewWindow->AddScriptToExecuteOnDocumentCreated(
-                                    kBrowserShortcutsJs,
-                                    Callback<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>(
-                                        [](HRESULT, LPCWSTR) -> HRESULT { return S_OK; }
-                                    ).Get()
-                                );
-                            }
-
                             if (FAILED(addScriptHr))
                                 nav->navigate();
 

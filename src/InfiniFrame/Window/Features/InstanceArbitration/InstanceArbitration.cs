@@ -2,7 +2,9 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.Versioning;
+using System.Security;
 using System.Security.Principal;
+using InfiniFrame.Utilities;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -36,7 +38,7 @@ public static class InstanceArbitration {
         string name = mutexName ?? DefaultMutexName;
 
         try {
-            _primaryMutex = new Mutex(initiallyOwned: true, name: name, createdNew: out bool createdNew);
+            _primaryMutex = new Mutex(true, name, out bool createdNew);
 
             if (createdNew) return true;
 
@@ -71,14 +73,12 @@ public static class InstanceArbitration {
             var principal = new WindowsPrincipal(identity);
             return principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
-        catch {
+        catch (SecurityException) {
             return false;
         }
     }
 
     [SupportedOSPlatform("linux")]
     [SupportedOSPlatform("osx")]
-    private static bool IsProcessElevatedUnix() {
-        return Utilities.UnixPInvoke.GetUid() == 0;
-    }
+    private static bool IsProcessElevatedUnix() => UnixPInvoke.GetUid() == 0;
 }
