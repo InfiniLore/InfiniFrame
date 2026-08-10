@@ -295,7 +295,7 @@ public struct InfiniFrameNativeParameters() {
     internal bool UseOsDefaultLocation;
 
     /// <summary>
-    ///     OPTIONAL: If true, overrides Height and Width parameters and lets the OS position the newly created window.
+    ///     OPTIONAL: If true, overrides Height and Width parameters and lets the OS size the newly created window.
     ///     Default is true.
     /// </summary>
     [MarshalAs(UnmanagedType.I1)]
@@ -325,7 +325,7 @@ public struct InfiniFrameNativeParameters() {
 
     /// <summary>
     ///     OPTIONAL: Enables JavaScript access to the system clipboard when set to true.
-    ///     Default behavior is disabled (false), which restricts clipboard operations.
+    ///     Default is true.
     /// </summary>
     [MarshalAs(UnmanagedType.I1)]
     internal bool JavascriptClipboardAccessEnabled;
@@ -397,7 +397,7 @@ public struct InfiniFrameNativeParameters() {
 
     /// <summary>
     ///     Set when GetParamErrors() is called before initializing the native window. It is a check to make sure the
-    ///     struct matches what C++ is expecting.
+    ///     struct matches what C++ is expecting. This field is readonly to ensure ABI stability; do not modify after construction.
     /// </summary>
     [MarshalAs(UnmanagedType.I4)]
     internal readonly int Size = Marshal.SizeOf<InfiniFrameNativeParameters>();

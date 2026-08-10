@@ -197,6 +197,9 @@ public sealed class InfiniFrameWindow(
             if (Interlocked.CompareExchange(ref _lifecycleState,
                     (int)InfiniFrameWindowLifecycleState.CloseRequested, (int)state) != (int)state)
                 continue;
+            // Write the return state atomically with the lifecycle transition so that
+            // CancelCloseRequest always reads the value that corresponds to the current
+            // CloseRequested transition.
             Volatile.Write(ref _closeReturnState, (int)state);
             RecordLifecycleTransition();
             return true;
@@ -204,6 +207,12 @@ public sealed class InfiniFrameWindow(
     }
 
     void IInfiniFrameWindow.CancelCloseRequest() {
+        // Read the return state that was written by the most recent RequestClose.
+        // Use an interlocked read on the lifecycle state to ensure we are cancelling
+        // the same CloseRequested transition that produced this return state.
+        int currentState = Volatile.Read(ref _lifecycleState);
+        if (currentState != (int)InfiniFrameWindowLifecycleState.CloseRequested)
+            return;
         int returnState = Volatile.Read(ref _closeReturnState);
         if (returnState is not ((int)InfiniFrameWindowLifecycleState.Creating or (int)InfiniFrameWindowLifecycleState.Ready))
             return;
@@ -309,9 +318,8 @@ public sealed class InfiniFrameWindow(
     }
 
     public async ValueTask DisposeAsync() {
-        if (Interlocked.CompareExchange(ref _asyncDisposing, 1, 0) != 0) return;
-
         lock (_disposeLock) {
+            if (Interlocked.CompareExchange(ref _asyncDisposing, 1, 0) != 0) return;
             if (LifecycleState == InfiniFrameWindowLifecycleState.Disposed) return;
         }
 

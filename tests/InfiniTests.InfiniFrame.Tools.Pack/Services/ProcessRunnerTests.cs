@@ -2,12 +2,15 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Tools.Pack.Services;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniTests.InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class ProcessRunnerTests {
+    private readonly ProcessRunner _processRunner = new(NullLogger<ProcessRunner>.Instance);
+
     [Test]
     public async Task RunAsync_ReturnsZero_ForSuccessfulCommand() {
         // Arrange
@@ -15,7 +18,7 @@ public class ProcessRunnerTests {
         string[] arguments = ["--version"];
 
         // Act
-        int exitCode = await ProcessRunner.RunAsync(fileName, arguments);
+        int exitCode = await _processRunner.RunAsync(fileName, arguments);
 
         // Assert
         await Assert.That(exitCode).IsEqualTo(0);
@@ -28,7 +31,7 @@ public class ProcessRunnerTests {
         string[] arguments = ["command-that-does-not-exist"];
 
         // Act
-        int exitCode = await ProcessRunner.RunAsync(fileName, arguments);
+        int exitCode = await _processRunner.RunAsync(fileName, arguments);
 
         // Assert
         await Assert.That(exitCode).IsNotEqualTo(0);
@@ -42,7 +45,7 @@ public class ProcessRunnerTests {
 
         // Act & Assert
         await Assert.ThrowsAsync<Exception>(async () => {
-            await ProcessRunner.RunAsync(fileName, arguments);
+            await _processRunner.RunAsync(fileName, arguments);
         });
     }
 
@@ -53,7 +56,7 @@ public class ProcessRunnerTests {
         string[] arguments = ["command-that-does-not-exist"];
 
         // Act
-        ProcessRunner.ProcessRunResult result = await ProcessRunner.RunWithOutputAsync(fileName, arguments);
+        ProcessRunner.ProcessRunResult result = await _processRunner.RunWithOutputAsync(fileName, arguments);
 
         // Assert
         await Assert.That(result.ExitCode).IsNotEqualTo(0);
@@ -67,7 +70,7 @@ public class ProcessRunnerTests {
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<TimeoutException>(async () => {
-            await ProcessRunner.RunAsync(fileName, arguments, timeout: TimeSpan.FromMilliseconds(250));
+            await _processRunner.RunAsync(fileName, arguments, timeout: TimeSpan.FromMilliseconds(250));
         });
 
         await Assert.That(ex).IsNotNull();

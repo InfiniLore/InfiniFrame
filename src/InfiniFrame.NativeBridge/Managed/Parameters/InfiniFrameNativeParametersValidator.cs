@@ -100,6 +100,7 @@ public sealed class InfiniFrameNativeParametersValidator
     // -----------------------------------------------------------------------------------------------------------------
     /// <summary>
     ///     Checks whether the given path is writable by creating and deleting a temporary probe file.
+    ///     If the directory does not exist, it will be created as a side effect of this check.
     /// </summary>
     /// <param name="path">The directory path to check.</param>
     /// <returns><c>true</c> if the path is writable; otherwise, <c>false</c>.</returns>

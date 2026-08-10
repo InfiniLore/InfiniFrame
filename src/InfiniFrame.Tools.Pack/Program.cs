@@ -3,6 +3,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Tools.Pack.Exceptions;
 using InfiniFrame.Tools.Pack.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
 
@@ -35,15 +37,24 @@ internal static class Program {
             .CreateLogger();
 
         try {
-            ParseResult parse = CommandLine.Parse(args);
+            var services = new ServiceCollection();
+            services.AddLogging(builder => builder.AddSerilog(dispose: true));
+            services.AddSingleton<ProcessRunner>();
+            services.AddSingleton<PublishService>();
+            services.AddSingleton<CommandLine>();
+            using ServiceProvider provider = services.BuildServiceProvider();
+
+            var commandLine = provider.GetRequiredService<CommandLine>();
+            ParseResult parse = commandLine.Parse(args);
 
             // ReSharper disable once InvertIf
             if (parse.ShowUsage) {
-                CommandLine.PrintUsage();
+                commandLine.PrintUsage();
                 return parse.ExitCode;
             }
 
-            return await PublishService.PublishAsync(parse.Options, cts.Token);
+            var publishService = provider.GetRequiredService<PublishService>();
+            return await publishService.PublishAsync(parse.Options, cts.Token);
 
         }
         catch (OperationCanceledException) {

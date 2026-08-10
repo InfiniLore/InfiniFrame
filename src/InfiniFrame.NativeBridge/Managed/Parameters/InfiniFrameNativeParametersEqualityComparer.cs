@@ -9,7 +9,9 @@ namespace InfiniFrame.NativeBridge.Parameters;
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
 ///     Compares two <see cref="InfiniFrameNativeParameters" /> instances for value equality,
-///     ignoring callback handler fields.
+///     ignoring callback handler fields. This comparer is intended for parameter-change
+///     detection where two instances with different callbacks but identical configuration
+///     values are considered equivalent.
 /// </summary>
 internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityComparer<InfiniFrameNativeParameters> {
     /// <summary>

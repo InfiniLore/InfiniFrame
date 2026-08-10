@@ -6,6 +6,7 @@ using InfiniFrame.Tools.Pack.Exceptions;
 using InfiniFrame.Tools.Pack.Resolvers;
 using InfiniFrame.Tools.Pack.Services;
 using InfiniTests.InfiniFrame.Tools.Pack.TestUtilities;
+using Microsoft.Extensions.Logging.Abstractions;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
@@ -25,6 +26,10 @@ public class PublishServiceTests {
     private static readonly Lock SharedFixtureLock = new();
     private static Task<SharedPublishFixture>? _sharedPublishFixtureTask;
     private TemporaryDirectory TemporaryDirectory { get; set; } = null!;
+
+    private readonly PublishService _publishService = new(
+        NullLogger<PublishService>.Instance,
+        new ProcessRunner(NullLogger<ProcessRunner>.Instance));
 
 
 #if DEBUG
@@ -63,7 +68,7 @@ public class PublishServiceTests {
 
         // Act & Assert
         await Assert.ThrowsAsync<FileNotFoundException>(async () => {
-            await PublishService.PublishAsync(options);
+            await _publishService.PublishAsync(options);
         });
     }
 
@@ -105,7 +110,7 @@ public class PublishServiceTests {
         try {
             exception = await Assert.ThrowsAsync<NativeDependencyNotFoundException>(async () => {
                 await ExecuteWithTimeout(
-                    PublishService.PublishAsync(options),
+                    _publishService.PublishAsync(options),
                     PublishTimeout,
                     "PublishAsync_ThrowsKnownFailure_WhenNativeDependencyIsMissingFromPublishOutput");
             });
@@ -315,8 +320,11 @@ public class PublishServiceTests {
             // dotnet/MSBuild child-process tree. Task.WhenAny alone reports a timeout while the
             // publish keeps running and can hold build-server/file locks for subsequent tests.
             using var publishTimeoutCts = new CancellationTokenSource(PublishTimeout);
+            var publishService = new PublishService(
+                NullLogger<PublishService>.Instance,
+                new ProcessRunner(NullLogger<ProcessRunner>.Instance));
             try {
-                publishExitCode = await PublishService.PublishAsync(options, publishTimeoutCts.Token);
+                publishExitCode = await publishService.PublishAsync(options, publishTimeoutCts.Token);
             }
             catch (OperationCanceledException) when (publishTimeoutCts.IsCancellationRequested) {
                 throw new TimeoutException(

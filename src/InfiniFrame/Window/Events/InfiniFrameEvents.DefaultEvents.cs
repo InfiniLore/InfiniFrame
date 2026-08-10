@@ -23,7 +23,7 @@ public partial class InfiniFrameEvents {
         if (window.Configuration is not InfiniFrameWindowConfiguration config) return;
 
         IInfiniFrameWindow[] childWindows;
-        lock (config.ChildWindowsInternal) {
+        lock (config.ChildWindowsLock) {
             if (config.ChildWindowsInternal.Count <= 0) return; // No child windows to close
 
             childWindows = config.ChildWindowsInternal.ToArray();

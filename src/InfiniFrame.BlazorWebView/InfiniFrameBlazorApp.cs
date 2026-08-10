@@ -42,6 +42,10 @@ public class InfiniFrameBlazorApp(
     }
 
     /// <inheritdoc cref="IInfiniFrameBlazorApp.Run"/>
+    /// <remarks>
+    ///     This method uses synchronous-over-async patterns for disposal. It should only be called
+    ///     from threads without a SynchronizationContext. Prefer <see cref="RunAsync"/> for async contexts.
+    /// </remarks>
     public void Run() {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
 
@@ -64,6 +68,14 @@ public class InfiniFrameBlazorApp(
         }
     }
 
+    /// <summary>
+    ///     Asynchronously disposes of the application and its service provider.
+    /// </summary>
+    /// <remarks>
+    ///     This method uses best-effort disposal: exceptions thrown during service provider
+    ///     disposal are caught and logged but do not propagate to the caller. This prevents
+    ///     resource cleanup failures from masking the original application shutdown.
+    /// </remarks>
     public async ValueTask DisposeAsync() {
         if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
 

@@ -16,7 +16,16 @@ namespace InfiniFrame;
 /// </summary>
 /// <param name="provider">The service provider used to resolve feature dependencies such as loggers and validators.</param>
 public class InfiniFrameWindowFeaturesFactory(IServiceProvider provider) {
-    private static ILogger<T> GetLogger<T>(IServiceProvider provider) => provider.GetRequiredService<ILogger<T>>();
+    private static ILogger<T> GetLogger<T>(IServiceProvider provider) {
+        try {
+            return provider.GetRequiredService<ILogger<T>>();
+        }
+        catch (InvalidOperationException ex) {
+            throw new InvalidOperationException(
+                $"Failed to resolve ILogger<{typeof(T).Name}> from the service provider. " +
+                "Ensure that logging services are registered (e.g., builder.Services.AddLogging()).", ex);
+        }
+    }
 
     /// <summary>
     ///     Creates a complete set of window features for the specified window using the original builder configuration.

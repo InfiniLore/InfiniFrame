@@ -3,6 +3,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Interop;
 using InfiniFrame.Security;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System.ComponentModel;
 using System.Diagnostics;
 
@@ -11,6 +13,8 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class OpenExternalTargetWebMessageHandler {
+    private static readonly ILogger Logger = NullLogger.Instance;
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -24,13 +28,13 @@ public static class OpenExternalTargetWebMessageHandler {
         if (string.IsNullOrWhiteSpace(payload)) return;
 
         if (!Uri.TryCreate(payload, UriKind.Absolute, out Uri? uri) || !uri.IsAbsoluteUri) {
-            // window.Logger.LogWarning("Rejected external URI due to parsing failure or non-absolute URI. Payload: {Payload}", payload);
+            Logger.LogWarning("Rejected external URI due to parsing failure or non-absolute URI. Payload: {Payload}", payload);
             return;
         }
 
         IInfiniFrameUriSecurityPolicy uriSecurityPolicy = InfiniFrameUriSecurityPolicyRegistry.GetForWindow(window);
         if (!uriSecurityPolicy.IsExternalSchemeAllowed(uri.Scheme)) {
-            // window.Logger.LogWarning("Rejected external URI due to disallowed scheme. Scheme: {Scheme}, Uri: {Uri}", uri.Scheme, uri);
+            Logger.LogWarning("Rejected external URI due to disallowed scheme. Scheme: {Scheme}, Uri: {Uri}", uri.Scheme, uri);
             return;
         }
 
@@ -42,14 +46,14 @@ public static class OpenExternalTargetWebMessageHandler {
             };
             Process.Start(psi);
         }
-        catch (Win32Exception) {
-            // window.Logger.LogError(ex, "Failed to open external URL: {Uri}", uri);
+        catch (Win32Exception ex) {
+            Logger.LogError(ex, "Failed to open external URL: {Uri}", uri);
         }
-        catch (InvalidOperationException) {
-            // window.Logger.LogError(ex, "Failed to open external URL: {Uri}", uri);
+        catch (InvalidOperationException ex) {
+            Logger.LogError(ex, "Failed to open external URL: {Uri}", uri);
         }
-        catch (PlatformNotSupportedException) {
-            // window.Logger.LogError(ex, "Failed to open external URL: {Uri}", uri);
+        catch (PlatformNotSupportedException ex) {
+            Logger.LogError(ex, "Failed to open external URL: {Uri}", uri);
         }
     }
 }

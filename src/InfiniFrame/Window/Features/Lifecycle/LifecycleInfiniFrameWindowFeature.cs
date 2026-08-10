@@ -74,7 +74,12 @@ public class LifecycleInfiniFrameWindowFeature(
         // returned. Deleting the native instance or unrooting reverse-P/Invoke delegates at
         // that point would race the remainder of WindowProc/WebView2 teardown. If a native
         // message loop is active, its finally block completes this deferred disposal.
-        if (window.LifecycleState < InfiniFrameWindowLifecycleState.TeardownComplete)
+        //
+        // If the lifecycle reached Disposed (e.g., via Initialize failure calling MarkDisposed)
+        // without going through TeardownComplete, we must still release native callback roots
+        // and GCHandle milestones to avoid leaking.
+        if (window.LifecycleState < InfiniFrameWindowLifecycleState.TeardownComplete
+            && window.LifecycleState != InfiniFrameWindowLifecycleState.Disposed)
             return;
 
         CleanupClosedHandleAndCallbacks(disposing);
