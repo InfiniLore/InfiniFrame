@@ -215,9 +215,11 @@ try {
     # -----------------------------------------------------------------------------------------------------------------
     # COPY OUTPUTS
     # -----------------------------------------------------------------------------------------------------------------
+    $artifactsDest = "$ArtifactsDir/$Platform/$Arch/$Configuration"
+
     Get-ChildItem $BuildDir -Recurse -Include *.dll, *.so, *.dylib -ErrorAction SilentlyContinue |
-        Where-Object { $_.Name -like "InfiniFrame.Native*" } |
-        Copy-Item -Destination "$ArtifactsDir/$Platform/$Arch/$Configuration" -Force
+        Where-Object { $_.Name -like "InfiniFrame.Native*" -or $_.Name -eq "WebView2Loader.dll" } |
+        Copy-Item -Destination $artifactsDest -Force
 
     Write-Host ""
     Write-Host "Native build complete."
