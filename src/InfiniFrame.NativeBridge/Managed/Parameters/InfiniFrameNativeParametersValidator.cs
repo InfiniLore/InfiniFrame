@@ -108,7 +108,11 @@ public sealed class InfiniFrameNativeParametersValidator
 
         string? probeFile = null;
         try {
-            Directory.CreateDirectory(path);
+            if (!Directory.Exists(path)) {
+                string? parentPath = Path.GetDirectoryName(path);
+                if (string.IsNullOrWhiteSpace(parentPath) || !Directory.Exists(parentPath))
+                    return false;
+            }
 
             probeFile = Path.Join(path, $".infiniframe-write-check-{Guid.NewGuid():N}.tmp");
 

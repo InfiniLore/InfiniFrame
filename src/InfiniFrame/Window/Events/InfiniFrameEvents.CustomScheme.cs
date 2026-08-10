@@ -83,7 +83,7 @@ public partial class InfiniFrameEvents {
         string normalizedContentType = string.IsNullOrWhiteSpace(contentType)
             ? "application/octet-stream"
             : contentType;
-        if (normalizedContentType.IndexOfAny(['\r', '\n', '\0']) >= 0)
+        if (normalizedContentType.IndexOfAny(['\r', '\n', '\0', '\t']) >= 0)
             throw new InvalidDataException("Custom scheme content type contains invalid control characters.");
 
         byte[] contentTypeBytes = Encoding.UTF8.GetBytes(normalizedContentType);

@@ -17,7 +17,7 @@ internal static class InteropEnvelopeProtocol {
     private static readonly JsonDocumentOptions JsonDocumentOptions = new() {
         AllowTrailingCommas = false,
         CommentHandling = JsonCommentHandling.Disallow,
-        MaxDepth = 64
+        MaxDepth = 16
     };
 
     internal static string CreateEnvelopeMessage(string id, string? data = null, string command = PostCommand, string? requestId = null) {
@@ -40,7 +40,7 @@ internal static class InteropEnvelopeProtocol {
         writer.WriteEndObject();
         writer.Flush();
 
-        return Encoding.UTF8.GetString(stream.ToArray());
+        return Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
     }
 
     internal static InteropEnvelopeParseResult ParseIncomingMessage(string message) {

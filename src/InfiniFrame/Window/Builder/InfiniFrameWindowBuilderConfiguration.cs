@@ -17,6 +17,8 @@ public class InfiniFrameWindowBuilderConfiguration : IInfiniFrameWindowBuilderCo
     /// <inheritdoc cref="IInfiniFrameWindowBuilderConfiguration.ChildWindows"/>
     public List<IInfiniFrameWindow> ChildWindows { get; } = [];
 
+    IReadOnlyList<IInfiniFrameWindow> IInfiniFrameWindowBuilderConfiguration.ChildWindows => ChildWindows;
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------

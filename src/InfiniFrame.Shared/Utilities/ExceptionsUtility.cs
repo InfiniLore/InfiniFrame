@@ -20,5 +20,8 @@ internal static class ExceptionsUtility {
             or OutOfMemoryException 
             or AccessViolationException 
             or StackOverflowException
+            or ThreadAbortException
+            or BadImageFormatException
+            or System.Runtime.InteropServices.SEHException
         );
 }

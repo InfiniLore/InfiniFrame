@@ -21,7 +21,7 @@ public static class InstanceArbitration {
     ///     Holds the primary instance mutex for the process lifetime.
     ///     The OS reclaims this mutex when the process terminates.
     /// </summary>
-    private static Mutex? _primaryMutex;
+    private static volatile Mutex? _primaryMutex;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods

@@ -22,5 +22,10 @@ internal sealed class DisposableCompositeFileProvider(IList<IFileProvider> provi
 
     public void Dispose() {
         physicalProvider.Dispose();
+        foreach (IFileProvider provider in providers) {
+            if (provider is IDisposable disposable) {
+                disposable.Dispose();
+            }
+        }
     }
 }

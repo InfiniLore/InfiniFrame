@@ -65,8 +65,14 @@ internal static class StaticAssetSchemeHandler {
         assetPath = assetPath.Replace('\\', '/');
         if (assetPath.Contains("..", StringComparison.Ordinal)
             || assetPath.Contains("%2e", StringComparison.OrdinalIgnoreCase)
+            || assetPath.Contains("%2E", StringComparison.Ordinal)
             || assetPath.Contains("%2f", StringComparison.OrdinalIgnoreCase)
-            || assetPath.Contains("%5c", StringComparison.OrdinalIgnoreCase))
+            || assetPath.Contains("%2F", StringComparison.Ordinal)
+            || assetPath.Contains("%5c", StringComparison.OrdinalIgnoreCase)
+            || assetPath.Contains("%5C", StringComparison.Ordinal)
+            || assetPath.Contains("%252e", StringComparison.OrdinalIgnoreCase)
+            || assetPath.Contains("%252f", StringComparison.OrdinalIgnoreCase)
+            || assetPath.Contains("%255c", StringComparison.OrdinalIgnoreCase))
             return false;
 
         return true;

@@ -8,7 +8,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public record InfiniFrameEventsStore : IInfiniFrameEventsStore {
+public class InfiniFrameEventsStore : IInfiniFrameEventsStore {
     /// <inheritdoc cref="IInfiniFrameEventsStore.WindowLocationChanged"/>
     public OrderedEvent<Point> WindowLocationChanged { get; } = new();
     /// <inheritdoc cref="IInfiniFrameEventsStore.WindowSizeChanged"/>

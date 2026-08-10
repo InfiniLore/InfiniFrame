@@ -88,5 +88,5 @@ public partial class InfiniFrameNative {
     /// <returns>A status code indicating success or failure.</returns>
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetDragDropEnabled", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial InfiniFrameNativeInteropStatus SetDragDropEnabled(IntPtr instance, [MarshalAs(UnmanagedType.U1)] bool enabled);
+    internal static partial InfiniFrameNativeInteropStatus SetDragDropEnabled(IntPtr instance, [MarshalAs(UnmanagedType.I1)] bool enabled);
 }

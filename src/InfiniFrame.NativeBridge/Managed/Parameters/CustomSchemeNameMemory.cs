@@ -20,7 +20,7 @@ internal static class CustomSchemeNameMemory {
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     /// <summary>
-    ///     Allocates a fixed-size array of native pointers (HGlobal-allocated ANSI strings) from a sequence of scheme names.
+    ///     Allocates a fixed-size array of native pointers (CoTaskMem-allocated UTF-8 strings) from a sequence of scheme names.
     /// </summary>
     /// <param name="names">The scheme name strings to allocate.</param>
     /// <returns>An array of native pointers sized <see cref="MaxCustomSchemeNames"/>.</returns>
@@ -35,7 +35,7 @@ internal static class CustomSchemeNameMemory {
                     throw new InvalidOperationException("Maximum number of custom schemes is 16.");
                 }
 
-                pointers[index] = Marshal.StringToHGlobalAnsi(name);
+                pointers[index] = Marshal.StringToCoTaskMemUTF8(name);
                 index++;
             }
 
@@ -57,7 +57,7 @@ internal static class CustomSchemeNameMemory {
         for (int i = 0; i < pointers.Length; i++) {
             if (pointers[i] == IntPtr.Zero) continue;
 
-            Marshal.FreeHGlobal(pointers[i]);
+            Marshal.FreeCoTaskMem(pointers[i]);
             pointers[i] = IntPtr.Zero;
         }
     }

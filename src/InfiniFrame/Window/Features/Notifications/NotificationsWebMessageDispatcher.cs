@@ -34,7 +34,8 @@ internal sealed class NotificationsWebMessageDispatcher : WindowFeatureWebMessag
 
             if (iconPath is not null || tag is not null || urgencyStr is not null) {
                 InfiniFrameNotificationUrgency urgency = urgencyStr is not null
-                    ? Enum.Parse<InfiniFrameNotificationUrgency>(urgencyStr, ignoreCase: true)
+                    && Enum.TryParse<InfiniFrameNotificationUrgency>(urgencyStr, ignoreCase: true, out InfiniFrameNotificationUrgency parsed)
+                    ? parsed
                     : InfiniFrameNotificationUrgency.Normal;
 
                 feature.ShowNotification(new InfiniFrameNotificationOptions {

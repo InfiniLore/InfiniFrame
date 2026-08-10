@@ -16,10 +16,10 @@ public partial class InfiniFrameEvents {
     ///     Invokes registered user-defined handler methods when the native window sends a message.
     /// </summary>
     public void OnWebMessageReceived(string message, string? origin = null) {
-        ArgumentNullException.ThrowIfNull(Sender);
+        IInfiniFrameWindow sender = Sender ?? throw new ArgumentNullException(nameof(Sender));
         ArgumentNullException.ThrowIfNull(message);
 
-        InfiniFrameWindowLifecycleState state = Sender.LifecycleState;
+        InfiniFrameWindowLifecycleState state = sender.LifecycleState;
         // Document scripts can post during parsing, before NavigationCompleted
         // advances the window from Creating to Ready. Native WebView message
         // delivery itself proves that the transport is live; only reject work
@@ -39,7 +39,7 @@ public partial class InfiniFrameEvents {
         switch (parseResult) {
             case { IsBlazor: true }:
                 EventsStore.WebMessageReceived.Invoke(
-                    Sender,
+                    sender,
                     new InfiniFrameWebMessageReceivedEvent(message, origin)
                 );
                 return;
@@ -50,7 +50,7 @@ public partial class InfiniFrameEvents {
                     parseResult.MessageId
                 );
                 EventsStore.WebMessageReceived.Invoke(
-                    Sender,
+                    sender,
                     new InfiniFrameWebMessageReceivedEvent(message, origin)
                 );
                 return;
@@ -69,7 +69,7 @@ public partial class InfiniFrameEvents {
         switch (parseResult.Command) {
             case InteropEnvelopeProtocol.PostCommand:
                 try {
-                    if (!EventsStore.WebMessagePostData.TryInvoke(messageId, Sender!, payload)) {
+                    if (!EventsStore.WebMessagePostData.TryInvoke(messageId, sender, payload)) {
                         Logger.LogWarning(
                             "Failed to handle post data request for message ID '{messageId}'",
                             messageId
@@ -88,13 +88,13 @@ public partial class InfiniFrameEvents {
 
             case InteropEnvelopeProtocol.GetCommand:
                 try {
-                    if (!EventsStore.WebMessageGetData.TryInvoke(messageId, Sender!, payload, out string? response)) {
-                        SendError(Sender, parseResult.RequestId,
+                    if (!EventsStore.WebMessageGetData.TryInvoke(messageId, sender, payload, out string? response)) {
+                        SendError(sender, parseResult.RequestId,
                             $"No getMessage handler is registered for message ID '{messageId}'.");
                         return;
                     }
 
-                    SendSuccess(Sender, parseResult.RequestId, response);
+                    SendSuccess(sender, parseResult.RequestId, response);
                 }
                 catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
                     Logger.LogError(
@@ -103,7 +103,7 @@ public partial class InfiniFrameEvents {
                         messageId
                     );
 
-                    SendError(Sender, parseResult.RequestId,
+                    SendError(sender, parseResult.RequestId,
                         $"Unhandled exception while processing '{messageId}'.");
                 }
 

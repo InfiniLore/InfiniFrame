@@ -157,12 +157,12 @@ internal static partial class RemoteDebuggingUtility {
             : sanitized;
     }
 
-    [GeneratedRegex(@"(?:^|\s)--remote-debugging-port=\S+", RegexOptions.Compiled)]
+    [GeneratedRegex(@"(?:^|\s)--remote-debugging-port=\S+")]
     private static partial Regex RemoteDebuggingPortSwitchRegex();
 
-    [GeneratedRegex(@"(?:^|\s)--remote-debugging-address=\S+", RegexOptions.Compiled)]
+    [GeneratedRegex(@"(?:^|\s)--remote-debugging-address=\S+")]
     private static partial Regex RemoteDebuggingAddressSwitchRegex();
 
-    [GeneratedRegex(@"\s+", RegexOptions.Compiled)]
+    [GeneratedRegex(@"\s+")]
     private static partial Regex WhitespaceRegex();
 }
