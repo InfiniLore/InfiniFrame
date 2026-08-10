@@ -18,6 +18,7 @@ import {
     parseIncomingMessage
 } from "./Interop/EnvelopeProtocol/InteropEnvelopeProtocol";
 import {blankTargetHandler, getTitleObserver, getTitleObserverTarget} from "./Utils";
+import {handleJavaScriptEvalRequest, handleJavaScriptEvalResponse} from "./Window/Features/JavaScriptInfiniFrameWindowFeature";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -74,6 +75,26 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
             }
             catch (error) {
                 console.warn("Could not process acknowledged host message.", error);
+            }
+        })
+
+        this.assignMessageReceivedHandler("__infiniframe:javascript:eval:response", payload => {
+            if (!payload) return;
+            try {
+                handleJavaScriptEvalResponse(JSON.parse(payload));
+            }
+            catch (error) {
+                console.warn("Could not process JavaScript eval response.", error);
+            }
+        })
+
+        this.assignMessageReceivedHandler("__infiniframe:javascript:eval", payload => {
+            if (!payload) return;
+            try {
+                handleJavaScriptEvalRequest(JSON.parse(payload));
+            }
+            catch (error) {
+                console.warn("Could not process JavaScript eval request.", error);
             }
         })
 

@@ -48,6 +48,15 @@ public class JavaScriptInfiniFrameWindowFeature : IJavaScriptInfiniFrameWindowFe
             : default;
     }
 
+    /// <inheritdoc cref="IJavaScriptInfiniFrameWindowFeature.SendEvalToBrowser" />
+    public void SendEvalToBrowser(string script, string? requestId = null) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(script);
+        if (window.IsClosedOrClosing()) return;
+        string evalRequestId = requestId ?? $"eval_{unchecked((ulong)Interlocked.Increment(ref _nextRequestId))}";
+        string envelope = CreateEvalRequestEnvelope(evalRequestId, script);
+        window.Features.WebMessaging.SendWebMessage(envelope);
+    }
+
     private async ValueTask<string?> ExecuteLocallyAsync(string script, CancellationToken ct) {
         string requestId = $"eval_{unchecked((ulong)Interlocked.Increment(ref _nextRequestId))}";
         string? diagnosticKey = (window as InfiniFrameWindow)?.BeginDiagnosticOperation("ExecuteJavaScript", unchecked((ulong)_nextRequestId));
@@ -102,13 +111,10 @@ public class JavaScriptInfiniFrameWindowFeature : IJavaScriptInfiniFrameWindowFe
             string? requestId = requestIdElement.GetString();
             if (requestId is null) return;
 
-            if (!_pendingEvals.TryRemove(requestId, out TaskCompletionSource<string?>? completion))
-                return;
-
+            string? error = null;
             if (root.TryGetProperty("error", out JsonElement errorElement)
                 && errorElement.ValueKind == JsonValueKind.String) {
-                completion.TrySetException(new JavaScriptEvaluationException(errorElement.GetString() ?? "JavaScript evaluation failed."));
-                return;
+                error = errorElement.GetString();
             }
 
             string? result = null;
@@ -117,7 +123,22 @@ public class JavaScriptInfiniFrameWindowFeature : IJavaScriptInfiniFrameWindowFe
                 result = resultElement.GetRawText();
             }
 
-            completion.TrySetResult(result);
+            if (_pendingEvals.TryRemove(requestId, out TaskCompletionSource<string?>? completion)) {
+                if (error is not null) {
+                    completion.TrySetException(new JavaScriptEvaluationException(error));
+                }
+                else {
+                    completion.TrySetResult(result);
+                }
+                return;
+            }
+
+            string responsePayload = CreateEvalResponsePayload(requestId, result, error);
+            string responseEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage(
+                JsHandlerNames.JavaScriptEvalResponse,
+                responsePayload
+            );
+            sender.Features.WebMessaging.SendWebMessage(responseEnvelope);
         }
         catch (JsonException exception) {
             logger.LogWarning(exception, "Failed to parse JavaScript evaluation result.");
@@ -136,6 +157,24 @@ public class JavaScriptInfiniFrameWindowFeature : IJavaScriptInfiniFrameWindowFe
             JsHandlerNames.JavaScriptEvalRequest,
             Encoding.UTF8.GetString(stream.ToArray())
         );
+    }
+
+    private static string CreateEvalResponsePayload(string requestId, string? result, string? error) {
+        using var stream = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(stream)) {
+            writer.WriteStartObject();
+            writer.WriteString("requestId", requestId);
+            if (result is not null) {
+                writer.WritePropertyName("result");
+                writer.WriteRawValue(result);
+            }
+            else {
+                writer.WriteNull("result");
+            }
+            if (error is not null) writer.WriteString("error", error);
+            writer.WriteEndObject();
+        }
+        return Encoding.UTF8.GetString(stream.ToArray());
     }
 }
 

@@ -20,7 +20,8 @@ internal sealed class JavaScriptWebMessageDispatcher : WindowFeatureWebMessageDi
         switch (command) {
             case "eval": {
                 string script = Required<string>(args, "script");
-                _ = feature.ExecuteJavaScriptAsync(script);
+                string? requestId = Arg<string?>(args, "requestId", null);
+                feature.SendEvalToBrowser(script, requestId);
                 return;
             }
             default: throw Unsupported(command);

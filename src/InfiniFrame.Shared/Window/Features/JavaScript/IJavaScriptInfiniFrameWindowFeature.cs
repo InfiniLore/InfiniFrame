@@ -25,4 +25,12 @@ public interface IJavaScriptInfiniFrameWindowFeature {
     /// <param name="ct">A cancellation token to cancel the operation.</param>
     /// <returns>The deserialized result, or <c>default</c> if the script returns <c>null</c>.</returns>
     ValueTask<T?> ExecuteJavaScriptAsync<T>(string script, CancellationToken ct = default);
+
+    /// <summary>
+    ///     Sends a JavaScript evaluation request to the browser without waiting for the result.
+    ///     The result will be sent back via a separate message.
+    /// </summary>
+    /// <param name="script">The JavaScript expression to evaluate.</param>
+    /// <param name="requestId">An optional request identifier for correlating the result.</param>
+    void SendEvalToBrowser(string script, string? requestId = null);
 }

@@ -43,4 +43,5 @@ public static class JsHandlerNames {
 
     internal const string JavaScriptEvalRequest = $"{InfiniFramePrefix}:javascript:eval";
     internal const string JavaScriptEvalResult = $"{InfiniFramePrefix}:javascript:eval:result";
+    internal const string JavaScriptEvalResponse = $"{InfiniFramePrefix}:javascript:eval:response";
 }
