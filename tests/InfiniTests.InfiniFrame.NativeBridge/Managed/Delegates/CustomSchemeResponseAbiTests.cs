@@ -77,7 +77,8 @@ public class CustomSchemeResponseAbiTests {
             Interlocked.Increment(ref releaseCount);
         };
         IntPtr releaseCallback = Marshal.GetFunctionPointerForDelegate(release);
-        IntPtr callback = Marshal.GetFunctionPointerForDelegate((CppWebResourceRequestedDelegate)Response);
+        CppWebResourceRequestedDelegate responseDelegate = Response;
+        IntPtr callback = Marshal.GetFunctionPointerForDelegate(responseDelegate);
 
         // Act
         for (int i = 0; i < requestCount; i++) {
@@ -88,7 +89,7 @@ public class CustomSchemeResponseAbiTests {
         }
 
         // Native code only sees the unmanaged thunks, so keep their delegate owners rooted through the last callback.
-        GC.KeepAlive((CppWebResourceRequestedDelegate)Response);
+        GC.KeepAlive(responseDelegate);
         GC.KeepAlive(release);
 
         // Assert
@@ -111,7 +112,8 @@ public class CustomSchemeResponseAbiTests {
             Interlocked.Increment(ref releaseCount);
         };
         IntPtr releaseCallback = Marshal.GetFunctionPointerForDelegate(release);
-        IntPtr callback = Marshal.GetFunctionPointerForDelegate((CppWebResourceRequestedDelegate)Response);
+        CppWebResourceRequestedDelegate responseDelegate = Response;
+        IntPtr callback = Marshal.GetFunctionPointerForDelegate(responseDelegate);
 
         Task[] requests = Enumerable.Range(0, requestCount)
             .Select(_ => Task.Run(action: () => {
@@ -126,7 +128,7 @@ public class CustomSchemeResponseAbiTests {
         // Act
         await Task.WhenAll(requests);
         // The worker closures capture the function pointer, not the delegate that owns its unmanaged thunk.
-        GC.KeepAlive((CppWebResourceRequestedDelegate)Response);
+        GC.KeepAlive(responseDelegate);
         GC.KeepAlive(release);
 
         // Assert
