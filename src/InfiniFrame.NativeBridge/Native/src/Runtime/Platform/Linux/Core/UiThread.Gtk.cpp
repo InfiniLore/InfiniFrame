@@ -27,6 +27,8 @@ namespace {
     bool initialized = false;
     std::thread::id ownerThreadId = {};
     GMainContext* ownerContext = nullptr;
+    std::thread gtkThread;
+    GMainLoop* mainLoop = nullptr;
 
     struct InvokeState {
         std::function<void()> callback;
@@ -72,7 +74,7 @@ namespace {
 namespace infiniframe::linux_gtk::ui_thread {
     void EnsureInitialized() {
         std::call_once(initializeOnce, [] {
-            std::thread worker([] {
+            gtkThread = std::thread([] {
                 infiniframe::linux_gtk::ConfigureGraphicsEnvironment();
                 XInitThreads();
                 gtk_init(nullptr, nullptr);
@@ -86,16 +88,29 @@ namespace infiniframe::linux_gtk::ui_thread {
                     initializeCompleted.notify_all();
                 }
 
-                auto* loop = g_main_loop_new(ownerContext, FALSE);
-                g_main_loop_run(loop);
-                g_main_loop_unref(loop);
+                mainLoop = g_main_loop_new(ownerContext, FALSE);
+                g_main_loop_run(mainLoop);
+                g_main_loop_unref(mainLoop);
+                mainLoop = nullptr;
             });
-
-            worker.detach();
 
             std::unique_lock lock(initializeMutex);
             initializeCompleted.wait(lock, [] { return initialized; });
         });
+    }
+
+    void Shutdown() {
+        if (!initialized) {
+            return;
+        }
+
+        if (mainLoop != nullptr && g_main_loop_is_running(mainLoop)) {
+            g_main_loop_quit(mainLoop);
+        }
+
+        if (gtkThread.joinable()) {
+            gtkThread.join();
+        }
     }
 
     bool IsCurrentThread() {
@@ -178,4 +193,9 @@ namespace infiniframe::linux_gtk::ui_thread {
             std::rethrow_exception(state->failure);
         }
     }
+}
+
+__attribute__((destructor(101)))
+static void InfiniFrame_UiThread_Shutdown() {
+    infiniframe::linux_gtk::ui_thread::Shutdown();
 }
