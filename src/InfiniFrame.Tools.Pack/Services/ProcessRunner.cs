@@ -130,6 +130,8 @@ internal sealed class ProcessRunner {
                 // best effort - process may have already exited or access may be denied
             }
 
+            process.WaitForExit(5000);
+
             throw new TimeoutException($"Timed out after {effectiveTimeout} while running '{fileName}'.");
         }
         catch (OperationCanceledException) {
@@ -139,6 +141,8 @@ internal sealed class ProcessRunner {
             catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception) {
                 // best effort - process may have already exited or access may be denied
             }
+
+            process.WaitForExit(5000);
 
             throw;
         }

@@ -39,6 +39,13 @@ public static class OpenExternalTargetWebMessageHandler {
         }
 
         try {
+            // SECURITY NOTE: UseShellExecute = true delegates the URI to the OS shell handler. The security
+            // of this call depends entirely on the OS shell correctly interpreting the scheme. The scheme
+            // is validated against AllowedExternalSchemes (typically http/https), but a malicious or buggy
+            // custom scheme handler registered on the OS could interpret the URI in unexpected ways. If
+            // http/https are in the allowed schemes, consider also validating that the host is not a
+            // loopback or private IP to prevent local SSRF. See IInfiniFrameUriSecurityPolicy for the
+            // trusted scheme list.
             var psi = new ProcessStartInfo {
                 FileName = uri.AbsoluteUri,
                 UseShellExecute = true,

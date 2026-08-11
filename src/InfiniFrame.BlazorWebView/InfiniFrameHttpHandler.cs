@@ -32,6 +32,13 @@ public class InfiniFrameHttpHandler : DelegatingHandler {
     /// <summary>
     ///     Sends an HTTP request through the handler pipeline, routing custom scheme requests through the WebView manager.
     /// </summary>
+    /// <remarks>
+    ///     When the request is handled by the WebView manager, the returned <see cref="HttpResponseMessage" />
+    ///     owns the underlying <see cref="Stream" />. The caller is responsible for disposing the response.
+    ///     If the caller fails to dispose it (e.g., due to an exception during component rendering), the
+    ///     stream will remain open until garbage collected. The Blazor framework typically handles disposal
+    ///     via its component lifecycle.
+    /// </remarks>
     /// <param name="request">The HTTP request message.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>The HTTP response message.</returns>

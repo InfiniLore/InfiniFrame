@@ -31,7 +31,7 @@ public sealed class InfiniFrameJsComponentConfiguration(
         addComponentTask.ContinueWith(
             continuationAction: task => {
                 logger.LogError(task.Exception, "Failed to add root component '{ComponentType}' for selector '{Selector}'.", typeComponent, selector);
-                _lastAddComponentException = task.Exception;
+                Interlocked.Exchange(ref _lastAddComponentException, task.Exception);
             },
             CancellationToken.None,
             TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,

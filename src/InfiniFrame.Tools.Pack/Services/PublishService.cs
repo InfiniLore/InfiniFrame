@@ -272,8 +272,12 @@ internal sealed class PublishService {
     private void SafeDeleteDirectory(string path) {
         string fullPath = Path.GetFullPath(path);
 
-        // Soft guardrail (not full validation)
         if (string.IsNullOrWhiteSpace(fullPath)) throw new InvalidOperationException("Cannot delete an empty path.");
+
+        string? root = Path.GetPathRoot(fullPath);
+        if (string.Equals(fullPath, root, StringComparison.OrdinalIgnoreCase)) {
+            throw new InvalidOperationException($"Refusing to delete root directory '{fullPath}'.");
+        }
 
         _logger.LogInformation("Cleaning previous output folder: {OutputDirectory}", fullPath);
 

@@ -49,6 +49,12 @@ public class InfiniFrameBlazorApp(
     public void Run() {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
 
+        if (SynchronizationContext.Current is not null) {
+            throw new InvalidOperationException(
+                "Run() must be called from a thread without a SynchronizationContext to avoid deadlock during disposal. " +
+                "Use RunAsync() instead.");
+        }
+
         var window = ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
 
         RegisterRootComponents();
@@ -99,7 +105,5 @@ public class InfiniFrameBlazorApp(
         catch (Exception e) when (ExceptionsUtility.IsNonFatalException(e)) {
             logger?.LogError(e, "Error disposing of InfiniFrameBlazorApp");
         }
-
-        GC.SuppressFinalize(this);
     }
 }

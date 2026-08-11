@@ -53,6 +53,12 @@ public class InfiniFrameWebApplication {
     ///     for async contexts.
     /// </remarks>
     public void Run() {
+        if (SynchronizationContext.Current is not null) {
+            throw new InvalidOperationException(
+                "Run() must be called from a thread without a SynchronizationContext to avoid deadlock during lifecycle operations. " +
+                "Use RunAsync() instead.");
+        }
+
         try {
             // Wait until the host is accepting requests before creating the window. On Windows,
             // WaitForClose owns the native message loop required by WebView2 initialization and

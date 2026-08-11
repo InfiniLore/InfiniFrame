@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Security;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniFrame.WebServer;
@@ -47,6 +48,18 @@ public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilde
         WebApplication webApp = WebApp.Build();
 
         webApp.UseDefaultFiles();
+
+        string? configuredUrls = WebApp.Configuration["ASPNETCORE_URLS"]
+            ?? WebApp.Configuration["urls"];
+        string? startUrl = configuredUrls?
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .FirstOrDefault();
+
+        if (startUrl is not null && Uri.TryCreate(startUrl, UriKind.Absolute, out Uri? baseUri)) {
+            InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(
+                WindowBuilder,
+                configure: policyBuilder => policyBuilder.AddTrustedOrigin(baseUri));
+        }
 
         return new InfiniFrameWebApplication {
             Logger = webApp.Services.GetService<ILogger<InfiniFrameWebApplication>>() ?? NullLogger<InfiniFrameWebApplication>.Instance,
