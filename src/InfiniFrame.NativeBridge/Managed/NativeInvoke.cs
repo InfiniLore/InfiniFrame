@@ -934,7 +934,7 @@ internal static partial class NativeInvoke {
         string sanitizedActualStatus = Sanitize(actualStatus.ToString());
 
         logger.LogCritical("Native interop call failed. Status: {FallbackStatus}. Fallback last error {FallbackLastError}. {FallbackMessage}", sanitizedActualStatus, fallbackLastError, sanitizedMessage);
-        throw new ApplicationException($"Native interop call failed with status {sanitizedActualStatus}. Fallback last error {fallbackLastError}. {sanitizedMessage}");
+        throw new InfiniFrameNativeInteropException($"Native interop call failed with status {sanitizedActualStatus}. Fallback last error {fallbackLastError}. {sanitizedMessage}");
     }
 
     private static string Sanitize(string message) {

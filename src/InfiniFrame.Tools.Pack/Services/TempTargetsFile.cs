@@ -86,18 +86,23 @@ internal sealed class TempTargetsFile : IDisposable {
         """;
 
     private static string BuildNativeEmbeddedResourceItems() => string.Join(Environment.NewLine,
-        InfiniFramePackNativeArtifactManifest.RidArtifacts.Select(artifact => $"""
-                <EmbeddedResource Include="$(InfiniFramePackNativeArtifactsDir)/{artifact.FileName}"
-                                  Condition="$([System.String]::Copy('$(InfiniFramePackRuntimeIdentifier)').StartsWith('{artifact.RidPrefix}')) and Exists('$(InfiniFramePackNativeArtifactsDir)/{artifact.FileName}')"
-                                  LogicalName="$(AssemblyName).native.$(InfiniFramePackRuntimeIdentifier).{artifact.FileName}" />
-            """.TrimEnd()));
+        InfiniFramePackNativeArtifactManifest.RidArtifacts.Select(artifact => {
+            string escapedFileName = System.Security.SecurityElement.Escape(artifact.FileName);
+            string escapedRidPrefix = System.Security.SecurityElement.Escape(artifact.RidPrefix);
+            return $"""
+                <EmbeddedResource Include="$(InfiniFramePackNativeArtifactsDir)/{escapedFileName}"
+                                  Condition="$([System.String]::Copy('$(InfiniFramePackRuntimeIdentifier)').StartsWith('{escapedRidPrefix}')) and Exists('$(InfiniFramePackNativeArtifactsDir)/{escapedFileName}')"
+                                  LogicalName="$(AssemblyName).native.$(InfiniFramePackRuntimeIdentifier).{escapedFileName}" />
+            """.TrimEnd();
+        }));
 
     private static string BuildResolvedFileRemovalCondition() => string.Join(
         $"{Environment.NewLine}                                             or ",
         InfiniFramePackNativeArtifactManifest.AllFileNames.Select(fileName =>
-            $"'%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)'=='{fileName}'")
+            $"'%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)'=='{System.Security.SecurityElement.Escape(fileName)}'")
     );
 
     private static string BuildDeleteItems() => string.Join(Environment.NewLine,
-        InfiniFramePackNativeArtifactManifest.AllFileNames.Select(fileName => $"        <Delete Files=\"$(PublishDir)/{fileName}\" />"));
+        InfiniFramePackNativeArtifactManifest.AllFileNames.Select(fileName =>
+            $"        <Delete Files=\"$(PublishDir)/{System.Security.SecurityElement.Escape(fileName)}\" />"));
 }

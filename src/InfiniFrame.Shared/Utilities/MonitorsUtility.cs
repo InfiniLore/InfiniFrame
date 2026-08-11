@@ -49,7 +49,7 @@ internal static class MonitorsUtility {
         monitor = default;
         if (monitors.IsDefaultOrEmpty) return false;
 
-        long windowArea = Math.Max(0, windowBounds.Width);
+        long windowArea = Math.Max(0, (long)windowBounds.Width);
         windowArea *= Math.Max(0, windowBounds.Height);
 
         int bestIndex = -1;
@@ -62,7 +62,7 @@ internal static class MonitorsUtility {
             Rectangle intersection = Rectangle.Intersect(m.MonitorArea, windowBounds);
             long overlap = 0;
             if (intersection.Width > 0 && intersection.Height > 0) {
-                overlap = (long)intersection.Width * intersection.Height;
+                overlap = (long)intersection.Width * (long)intersection.Height;
             }
 
             // fraction of the *window* that lies on this monitor

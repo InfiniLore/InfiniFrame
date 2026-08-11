@@ -63,7 +63,7 @@ public class WebMessagingInfiniFrameWindowFeature : IWebMessagingInfiniFrameWind
                 using NativeHandleLease lease = window.AcquireNativeHandle();
                 InfiniFrameNativeInteropStatus status = InfiniFrameNative.SendWebMessage(lease.Handle, message);
                 if (status != InfiniFrameNativeInteropStatus.Success)
-                    throw new ApplicationException(InfiniFrameNative.GetLastErrorMessage() ?? "Could not submit web message.");
+                    throw new InfiniFrameNativeInteropException(InfiniFrameNative.GetLastErrorMessage() ?? "Could not submit web message.");
             },
             cancellationToken: ct
         ).ConfigureAwait(false);

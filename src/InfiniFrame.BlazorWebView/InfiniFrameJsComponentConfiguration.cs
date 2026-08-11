@@ -18,6 +18,7 @@ public sealed class InfiniFrameJsComponentConfiguration(
     ILogger<InfiniFrameJsComponentConfiguration> logger
 ) : IInfiniFrameJsComponentConfiguration {
     public JSComponentConfigurationStore JSComponents { get; } = jsComponents;
+    private AggregateException? _lastAddComponentException;
 
     /// <inheritdoc cref="IInfiniFrameJsComponentConfiguration.Add"/>
     public void Add(Type typeComponent, string selector, IDictionary<string, object?>? parameters = null) {
@@ -28,10 +29,18 @@ public sealed class InfiniFrameJsComponentConfiguration(
         // Dispatch onto the renderer context and explicitly observe faults to avoid dropped exceptions.
         Task addComponentTask = manager.Dispatcher.InvokeAsync(() => manager.AddRootComponentAsync(typeComponent, selector, parameterView));
         addComponentTask.ContinueWith(
-            continuationAction: task => logger.LogError(task.Exception, "Failed to add root component '{ComponentType}' for selector '{Selector}'.", typeComponent, selector),
+            continuationAction: task => {
+                logger.LogError(task.Exception, "Failed to add root component '{ComponentType}' for selector '{Selector}'.", typeComponent, selector);
+                _lastAddComponentException = task.Exception;
+            },
             CancellationToken.None,
             TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
             TaskScheduler.Default
         );
     }
+
+    /// <summary>
+    ///     Gets the last exception thrown by <see cref="Add"/>, if any, or <c>null</c>.
+    /// </summary>
+    public AggregateException? LastAddComponentException => Volatile.Read(ref _lastAddComponentException);
 }

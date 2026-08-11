@@ -86,7 +86,7 @@ internal sealed class InfiniFileDialogOperation {
                     _ => InfiniFrameNativeInteropStatus.InvalidArgument
                 };
                 if (status != InfiniFrameNativeInteropStatus.Success)
-                    throw new ApplicationException(InfiniFrameNative.GetLastErrorMessage() ?? "Could not show native dialog.");
+                    throw new InfiniFrameNativeInteropException(InfiniFrameNative.GetLastErrorMessage() ?? "Could not show native dialog.");
             }).ConfigureAwait(false);
 
             if (dispatch != InfiniFrameDispatchResult.Completed) {
@@ -122,7 +122,7 @@ internal sealed class InfiniFileDialogOperation {
                 if (_lease is null) return;
                 InfiniFrameNativeInteropStatus status = InfiniFrameNative.CancelDialog(_lease.Handle, Id, out _);
                 if (status != InfiniFrameNativeInteropStatus.Success)
-                    throw new ApplicationException(InfiniFrameNative.GetLastErrorMessage() ?? "Could not cancel native dialog.");
+                    throw new InfiniFrameNativeInteropException(InfiniFrameNative.GetLastErrorMessage() ?? "Could not cancel native dialog.");
             }).ConfigureAwait(false);
             if (dispatched == InfiniFrameDispatchResult.Failed)
                 _logger.LogWarning("Native dialog cancellation for operation {OperationId} could not be dispatched.", Id);

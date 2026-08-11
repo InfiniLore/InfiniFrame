@@ -66,7 +66,7 @@ internal sealed class InfiniNavigationOperation {
                     ? InfiniFrameNative.BeginNavigateToString(_lease.Handle, Id, _value, CompletionCallback, context)
                     : InfiniFrameNative.BeginNavigateToUrl(_lease.Handle, Id, _value, CompletionCallback, context);
                 if (status != InfiniFrameNativeInteropStatus.Success)
-                    throw new ApplicationException(InfiniFrameNative.GetLastErrorMessage() ?? "Native navigation registration failed.");
+                    throw new InfiniFrameNativeInteropException(InfiniFrameNative.GetLastErrorMessage() ?? "Native navigation registration failed.");
             }, cancellationToken: _cancellationToken).ConfigureAwait(false);
 
             if (dispatch == InfiniFrameDispatchResult.Cancelled) {

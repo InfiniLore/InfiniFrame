@@ -79,7 +79,7 @@ public sealed class InfiniFrameNativeParametersValidator
             .WithMessage("Chromeless cannot be used with UseOsDefaultLocation or UseOsDefaultSize on Windows. Size and location must be specified.");
 
         RuleFor(p => p.TemporaryFilesPath)
-            .Must(CanAccessTemporaryFilesPath)
+            .Must(path => IsPathAccessible(path))
             .When(p => !string.IsNullOrWhiteSpace(p.TemporaryFilesPath))
             .WithMessage(p => $"TemporaryFilesPath '{p.TemporaryFilesPath}' is not writable.");
 
@@ -100,25 +100,17 @@ public sealed class InfiniFrameNativeParametersValidator
     // -----------------------------------------------------------------------------------------------------------------
     /// <summary>
     ///     Checks whether the given path is writable by creating and deleting a temporary probe file.
-    ///     If the directory does not exist, it will be created as a side effect of this check.
     /// </summary>
     /// <param name="path">The directory path to check.</param>
     /// <returns><c>true</c> if the path is writable; otherwise, <c>false</c>.</returns>
-    private static bool CanAccessTemporaryFilesPath(string? path) {
+    private static bool IsPathAccessible(string? path) {
         if (string.IsNullOrWhiteSpace(path)) return true;
 
         string? probeFile = null;
         try {
-            if (!Directory.Exists(path)) {
-                try {
-                    Directory.CreateDirectory(path);
-                }
-                catch {
-                    return false;
-                }
-            }
+            if (!Directory.Exists(path)) return false;
 
-            probeFile = Path.Join(path, $".infiniframe-write-check-{Guid.NewGuid():N}.tmp");
+            probeFile = System.IO.Path.Join(path, $".infiniframe-write-check-{Guid.NewGuid():N}.tmp");
 
             File.WriteAllText(probeFile, "ok");
             File.Delete(probeFile);
@@ -139,6 +131,25 @@ public sealed class InfiniFrameNativeParametersValidator
                 File.Delete(probeFile);
             }
         }
+    }
 
+    /// <summary>
+    ///     Ensures the temporary files path exists and is writable.
+    ///     Call this before validation when the path should be created automatically.
+    /// </summary>
+    /// <param name="path">The directory path to ensure.</param>
+    /// <returns><c>true</c> if the path was successfully created or already accessible; otherwise, <c>false</c>.</returns>
+    public static bool EnsureTemporaryFilesPath(string? path) {
+        if (string.IsNullOrWhiteSpace(path)) return true;
+
+        try {
+            if (!Directory.Exists(path)) {
+                Directory.CreateDirectory(path);
+            }
+            return IsPathAccessible(path);
+        }
+        catch {
+            return false;
+        }
     }
 }

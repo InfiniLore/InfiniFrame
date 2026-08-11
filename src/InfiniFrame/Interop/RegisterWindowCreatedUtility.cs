@@ -67,13 +67,14 @@ public static class RegisterWindowCreatedUtility {
             }
 
             ILogger? logger = window.ServiceProvider?.GetService<ILoggerFactory>()?.CreateLogger(typeof(RegisterWindowCreatedUtility));
-            _ = SendRegistrationsAndAckAsync(window, state, windowState, registrationMessages)
-                .ContinueWith(
-                    t => logger?.LogWarning(t.Exception, "Unhandled error while sending window-created registration messages."),
-                    CancellationToken.None,
-                    TaskContinuationOptions.OnlyOnFaulted,
-                    TaskScheduler.Default
-                );
+            _ = Task.Run(async () => {
+                try {
+                    await SendRegistrationsAndAckAsync(window, state, windowState, registrationMessages).ConfigureAwait(false);
+                }
+                catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
+                    logger?.LogWarning(ex, "Unhandled error while sending window-created registration messages.");
+                }
+            });
         });
     }
 

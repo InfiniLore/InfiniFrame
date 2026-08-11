@@ -111,7 +111,7 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
         return providers.Count switch {
             0 => new NullFileProvider(),
             1 => providers[0],
-            _ => new CompositeFileProvider(providers)
+            _ => new DisposableCompositeFileProvider(providers, physicalWwwrootProvider!)
         };
 
     }

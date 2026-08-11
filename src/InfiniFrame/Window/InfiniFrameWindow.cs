@@ -323,12 +323,16 @@ public sealed class InfiniFrameWindow(
             if (LifecycleState == InfiniFrameWindowLifecycleState.Disposed) return;
         }
 
-        if (!Features.Lifecycle.IsClosedOrClosing()) await Features.Lifecycle.CloseAsync().ConfigureAwait(false);
-        await Features.Lifecycle.WaitForTeardownAsync().ConfigureAwait(false);
-        Features.Lifecycle.CleanupNativeHandle();
+        try {
+            if (!Features.Lifecycle.IsClosedOrClosing()) await Features.Lifecycle.CloseAsync().ConfigureAwait(false);
+            await Features.Lifecycle.WaitForTeardownAsync().ConfigureAwait(false);
+        }
+        finally {
+            Features.Lifecycle.CleanupNativeHandle();
 
-        if (_ownsServiceProvider && ServiceProvider is IDisposable disposableProvider) {
-            disposableProvider.Dispose();
+            if (_ownsServiceProvider && ServiceProvider is IDisposable disposableProvider) {
+                disposableProvider.Dispose();
+            }
         }
     }
 }

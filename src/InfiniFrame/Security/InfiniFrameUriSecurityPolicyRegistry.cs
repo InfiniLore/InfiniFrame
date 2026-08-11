@@ -43,9 +43,11 @@ public static class InfiniFrameUriSecurityPolicyRegistry {
         ArgumentNullException.ThrowIfNull(configure);
 
         PolicyHolder holder = BuilderPolicies.GetValue(builder, createValueCallback: static _ => new PolicyHolder());
-        var policyBuilder = new InfiniFrameUriSecurityPolicyBuilder(holder.Policy);
-        configure(policyBuilder);
-        holder.Policy = policyBuilder.Build();
+        lock (holder) {
+            var policyBuilder = new InfiniFrameUriSecurityPolicyBuilder(holder.Policy);
+            configure(policyBuilder);
+            holder.Policy = policyBuilder.Build();
+        }
     }
 
     /// <summary>

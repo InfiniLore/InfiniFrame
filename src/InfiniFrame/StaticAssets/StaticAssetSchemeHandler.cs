@@ -63,13 +63,24 @@ internal static class StaticAssetSchemeHandler {
         if (assetPath.EndsWith('/')) assetPath += defaultDocument;
 
         assetPath = assetPath.Replace('\\', '/');
+
+        // Decode percent-encoded sequences iteratively to catch double/triple encoding.
+        string decoded = assetPath;
+        for (int i = 0; i < 3; i++) {
+            string prev = decoded;
+            decoded = Uri.UnescapeDataString(decoded);
+            if (string.Equals(decoded, prev, StringComparison.Ordinal))
+                break;
+        }
+
+        if (decoded.Contains("..", StringComparison.Ordinal))
+            return false;
+
+        // Block raw traversal sequences that bypass Uri.UnescapeDataString.
         if (assetPath.Contains("..", StringComparison.Ordinal)
             || assetPath.Contains("%2e", StringComparison.OrdinalIgnoreCase)
-            || assetPath.Contains("%2E", StringComparison.Ordinal)
             || assetPath.Contains("%2f", StringComparison.OrdinalIgnoreCase)
-            || assetPath.Contains("%2F", StringComparison.Ordinal)
             || assetPath.Contains("%5c", StringComparison.OrdinalIgnoreCase)
-            || assetPath.Contains("%5C", StringComparison.Ordinal)
             || assetPath.Contains("%252e", StringComparison.OrdinalIgnoreCase)
             || assetPath.Contains("%252f", StringComparison.OrdinalIgnoreCase)
             || assetPath.Contains("%255c", StringComparison.OrdinalIgnoreCase))
@@ -95,6 +106,11 @@ internal static class StaticAssetSchemeHandler {
             ".woff2" => "font/woff2",
             ".ttf" => "font/ttf",
             ".map" => "application/json; charset=utf-8",
+            ".wasm" => "application/wasm",
+            ".mp4" => "video/mp4",
+            ".webm" => "video/webm",
+            ".webp" => "image/webp",
+            ".avif" => "image/avif",
             _ => "application/octet-stream"
         };
     }

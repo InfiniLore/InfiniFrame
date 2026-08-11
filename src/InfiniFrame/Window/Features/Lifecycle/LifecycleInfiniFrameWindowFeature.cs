@@ -146,7 +146,7 @@ public class LifecycleInfiniFrameWindowFeature(
                     if (registerStatus != InfiniFrameNativeInteropStatus.Success) {
                         int lastError = Marshal.GetLastPInvokeError();
                         string nativeMessage = InfiniFrameNative.GetLastErrorMessage() ?? "No native error message provided.";
-                        throw new ApplicationException(
+                        throw new InfiniFrameNativeInteropException(
                             $"Native registration failed with status {registerStatus}. Error #{lastError}. {nativeMessage}");
                     }
                 }
@@ -163,7 +163,7 @@ public class LifecycleInfiniFrameWindowFeature(
                     int lastError = Marshal.GetLastPInvokeError();
                     string nativeMessage = InfiniFrameNative.GetLastErrorMessage() ?? "No native error message provided.";
 
-                    throw new ApplicationException(
+                    throw new InfiniFrameNativeInteropException(
                         $"Native constructor failed with status {status}. Error #{lastError}. {nativeMessage}"
                     );
                 }
@@ -182,7 +182,7 @@ public class LifecycleInfiniFrameWindowFeature(
                 int lastError = Marshal.GetLastPInvokeError();
 
                 logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
-                throw new ApplicationException($"Native code exception. Error #{lastError}", ex);
+                throw new InfiniFrameNativeInteropException($"Native code exception. Error #{lastError}", ex);
             }
 
             window.Events.OnWindowCreated();
@@ -250,7 +250,7 @@ public class LifecycleInfiniFrameWindowFeature(
 
                     int linuxLastError = Marshal.GetLastPInvokeError();
                     string linuxMessage = InfiniFrameNative.GetLastErrorMessage() ?? "No native error message provided.";
-                    throw new ApplicationException(
+                    throw new InfiniFrameNativeInteropException(
                         $"Native WaitForExit failed with status {status}. Error #{linuxLastError}. {linuxMessage}"
                     );
                 }
@@ -268,7 +268,7 @@ public class LifecycleInfiniFrameWindowFeature(
             int lastError = Marshal.GetLastPInvokeError();
 
             logger.LogError(ex, "Error #{LastErrorCode} while running message loop", lastError);
-            throw new ApplicationException(
+            throw new InfiniFrameNativeInteropException(
                 $"Native code exception. Error #{lastError}",
                 ex);
         }
@@ -402,7 +402,7 @@ public class LifecycleInfiniFrameWindowFeature(
             && teardownStatus == InfiniFrameNativeInteropStatus.Success)
             return;
 
-        throw new ApplicationException("Could not register native lifecycle milestone callbacks.");
+        throw new InfiniFrameNativeInteropException("Could not register native lifecycle milestone callbacks.");
     }
 
     private static void OnNativeReady(IntPtr context) {
