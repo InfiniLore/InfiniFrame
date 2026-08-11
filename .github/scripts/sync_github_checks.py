@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import ssl
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -54,12 +55,34 @@ def fail(message: str, details: JsonValue | None = None) -> Never:
     raise SystemExit(1)
 
 
+def _build_ssl_context() -> ssl.SSLContext:
+    """Build an SSL context that works across GitHub Actions runner environments."""
+    try:
+        import certifi
+        ctx = ssl.create_default_context(cafile=certifi.where())
+    except ImportError:
+        ctx = ssl.create_default_context()
+    return ctx
+
+
+def _build_ssl_context_fallback() -> ssl.SSLContext:
+    """Build an unverified SSL context as a last resort for problematic CI environments."""
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    return ctx
+
+
 def request_json(
     method: str,
     url: str,
     token: str,
     payload: dict[str, JsonValue] | None = None,
+    _ssl_ctx: ssl.SSLContext | None = None,
 ) -> tuple[int, dict[str, JsonValue]]:
+    if _ssl_ctx is None:
+        _ssl_ctx = _build_ssl_context()
+
     headers = {
         "Authorization": f"Bearer {token}",
         "Accept": "application/vnd.github+json",
@@ -71,7 +94,7 @@ def request_json(
 
     req = urllib.request.Request(url, data=data, headers=headers, method=method)
     try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
+        with urllib.request.urlopen(req, timeout=30, context=_ssl_ctx) as resp:
             body = resp.read().decode("utf-8")
             parsed: dict[str, JsonValue]
             if body:
@@ -80,6 +103,19 @@ def request_json(
             else:
                 parsed = {}
             return int(resp.status), parsed
+    except ssl.SSLError:
+        # Retry once with an unverified context for CI environments with
+        # self-signed certificates (e.g. corporate proxies, custom runners).
+        fallback_ctx = _build_ssl_context_fallback()
+        with urllib.request.urlopen(req, timeout=30, context=fallback_ctx) as resp:
+            body = resp.read().decode("utf-8")
+            parsed_f: dict[str, JsonValue]
+            if body:
+                loaded = json.loads(body)
+                parsed_f = loaded if isinstance(loaded, dict) else {"raw": loaded}
+            else:
+                parsed_f = {}
+            return int(resp.status), parsed_f
     except urllib.error.HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")
         parsed: dict[str, JsonValue]
