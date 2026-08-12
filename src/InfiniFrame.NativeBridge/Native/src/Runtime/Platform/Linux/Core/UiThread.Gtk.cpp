@@ -201,5 +201,8 @@ namespace infiniframe::linux_gtk::ui_thread {
 
 __attribute__((destructor(101)))
 static void InfiniFrame_UiThread_Shutdown() {
-    infiniframe::linux_gtk::ui_thread::Shutdown();
+    // During static destruction GLib/GDK objects are already half-torn-down. Attempting
+    // g_main_loop_quit() or thread join here triggers cascading assertion failures
+    // (gdk_seat_get_keyboard, g_dbus_connection_call_sync_internal) and SIGABRT.
+    // The OS reclaims all resources on process exit, so it is safe to do nothing here.
 }
