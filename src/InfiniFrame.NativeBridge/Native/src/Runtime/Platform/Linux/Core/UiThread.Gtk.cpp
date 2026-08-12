@@ -94,6 +94,8 @@ namespace infiniframe::linux_gtk::ui_thread {
                 mainLoop = nullptr;
             });
 
+            gtkThread.detach();
+
             std::unique_lock lock(initializeMutex);
             initializeCompleted.wait(lock, [] { return initialized; });
         });
@@ -106,14 +108,6 @@ namespace infiniframe::linux_gtk::ui_thread {
 
         if (mainLoop != nullptr && g_main_loop_is_running(mainLoop)) {
             g_main_loop_quit(mainLoop);
-        }
-    }
-
-    void ShutdownAndJoin() {
-        Shutdown();
-
-        if (gtkThread.joinable()) {
-            gtkThread.join();
         }
     }
 
