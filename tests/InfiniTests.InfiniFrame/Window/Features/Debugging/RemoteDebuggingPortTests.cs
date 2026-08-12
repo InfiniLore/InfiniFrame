@@ -100,9 +100,7 @@ public class RemoteDebuggingPortTests {
         // Act
 #pragma warning disable CA1416
         var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
-            Task.Run(function: () => {
-                return builder.Features.Debugging.SetRemoteDebuggingPort(value);
-            }, ct));
+            Task.Run(function: () => builder.Features.Debugging.SetRemoteDebuggingPort(value), ct));
 #pragma warning restore CA1416
 
         // Assert
