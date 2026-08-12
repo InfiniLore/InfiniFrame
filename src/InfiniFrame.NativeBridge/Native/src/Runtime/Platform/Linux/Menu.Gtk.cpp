@@ -31,7 +31,7 @@ namespace {
         impl->_menuActivateDataList.clear();
     }
 
-    void onMenuActivate(GtkMenuItem* /*menuItem*/, gpointer userData) {
+    void onMenuActivate(GtkMenuItem* /*menuItem*/, const gpointer userData) {
         auto* data = static_cast<MenuActivateData*>(userData);
         if (data == nullptr || data->window == nullptr) return;
 
@@ -205,7 +205,7 @@ void InfiniFrameWindow::SetMenuBarJson(const char* menuBarJson) {
     ApplyInitMenuBar(menuBarJson);
 }
 
-void InfiniFrameWindow::SetMenuItemEnabledById(const char* menuItemId, bool enabled) {
+void InfiniFrameWindow::SetMenuItemEnabledById(const char* menuItemId, const bool enabled) {
     auto* impl = static_cast<Impl*>(ImplBase());
 
     if (impl->_menuBar == nullptr)
@@ -217,7 +217,7 @@ void InfiniFrameWindow::SetMenuItemEnabledById(const char* menuItemId, bool enab
     }
 }
 
-void InfiniFrameWindow::SetMenuItemVisibleById(const char* menuItemId, bool visible) {
+void InfiniFrameWindow::SetMenuItemVisibleById(const char* menuItemId, const bool visible) {
     auto* impl = static_cast<Impl*>(ImplBase());
 
     if (impl->_menuBar == nullptr)

@@ -82,10 +82,7 @@ public sealed class InfiniFrameWindow(
     /// <inheritdoc cref="IInfiniFrameWindow.Events" />
     public IInfiniFrameEvents Events { get; } = events;
     /// <inheritdoc cref="IInfiniFrameWindow.Features" />
-    public IInfiniFrameWindowFeatures Features {
-        get => _features ?? throw new InvalidOperationException("Features have not been assigned. Call AssignFeatures before accessing this property.");
-        private set => _features = value;
-    }
+    public IInfiniFrameWindowFeatures Features => _features ?? throw new InvalidOperationException("Features have not been assigned. Call AssignFeatures before accessing this property.");
     private IInfiniFrameWindowFeatures? _features;
 
     /// <inheritdoc cref="IHasInfiniFrameEventsStore.EventsStore" />

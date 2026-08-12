@@ -4,7 +4,6 @@
 using InfiniFrame.Tools.Pack.Exceptions;
 using InfiniFrame.Tools.Pack.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
 

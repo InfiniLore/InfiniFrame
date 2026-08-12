@@ -128,7 +128,7 @@ void InfiniFrameWindow::Restore() {
     gtk_window_present(GTK_WINDOW(m_impl->_window));
 }
 
-static std::string escapeJsonString(std::string_view input) {
+static std::string escapeJsonString(const std::string_view input) {
     std::string result;
     result.reserve(input.size() + 2);
 
@@ -248,7 +248,7 @@ void InfiniFrameWindow::SetUserAgent(const char* userAgent) {
     webkit_web_view_reload(WEBKIT_WEB_VIEW(m_impl->_webview));
 }
 
-void InfiniFrameWindow::SetZoomEnabled(bool enabled) {
+void InfiniFrameWindow::SetZoomEnabled(const bool enabled) {
     m_impl->_zoomEnabled = enabled;
     if (m_impl->_webview == nullptr)
         return;
@@ -257,13 +257,13 @@ void InfiniFrameWindow::SetZoomEnabled(bool enabled) {
     SendWebMessage(envelope.c_str());
 }
 
-void InfiniFrameWindow::SetStatusBarEnabled(bool enabled) {
+void InfiniFrameWindow::SetStatusBarEnabled(const bool enabled) {
     // WebKitGTK has no native status bar concept — this is a WebView2-only feature.
     // The flag is stored for API consistency but has no visible effect on Linux.
     m_impl->_statusBarEnabled = enabled;
 }
 
-void InfiniFrameWindow::SetBrowserShortcutsEnabled(bool enabled) {
+void InfiniFrameWindow::SetBrowserShortcutsEnabled(const bool enabled) {
     m_impl->_browserShortcutsEnabled = enabled;
     if (m_impl->_webview == nullptr)
         return;
@@ -401,7 +401,7 @@ void InfiniFrameWindow::SetTransparentEnabled(const bool enabled) {
     }
 }
 
-void InfiniFrameWindow::SetBackgroundColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+void InfiniFrameWindow::SetBackgroundColor(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) {
     m_impl->_backgroundColorR = r;
     m_impl->_backgroundColorG = g;
     m_impl->_backgroundColorB = b;

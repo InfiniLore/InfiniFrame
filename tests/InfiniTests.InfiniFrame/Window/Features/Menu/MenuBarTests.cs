@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters;
-using System.Collections.Immutable;
 using System.Text.Json;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Menu;

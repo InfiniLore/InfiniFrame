@@ -198,7 +198,7 @@ void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled) {
     }
 }
 
-void InfiniFrameWindow::SetBackgroundColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+void InfiniFrameWindow::SetBackgroundColor(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) {
     m_impl->_backgroundColorR = r;
     m_impl->_backgroundColorG = g;
     m_impl->_backgroundColorB = b;

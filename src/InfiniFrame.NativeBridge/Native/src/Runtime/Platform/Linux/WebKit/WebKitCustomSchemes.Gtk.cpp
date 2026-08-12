@@ -13,7 +13,7 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 namespace gtk_webkit {
-    void FinishCustomSchemeError(WebKitURISchemeRequest* request, GIOErrorEnum code, const char* message) {
+    void FinishCustomSchemeError(WebKitURISchemeRequest* request, const GIOErrorEnum code, const char* message) {
         if (request == nullptr)
             return;
 

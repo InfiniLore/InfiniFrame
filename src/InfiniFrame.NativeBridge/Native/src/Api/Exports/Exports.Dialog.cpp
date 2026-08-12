@@ -11,23 +11,26 @@ EXPORTED InteropStatus InfiniFrameNative_ShowOpenFile(
     InfiniFrameWindow* inst,
     const char* title,
     const char* defaultPath,
-    const bool multiSelect,
+    const bool MultiSelect,
     const char** filters,
-    const int filterCount,
+    const int FilterCount,
     int* resultCount,
     const char*** values
 ) {
     ResetOut(resultCount, 0);
     ResetOut(values, static_cast<const char**>(nullptr));
     return RunWindowExportStatus(inst, [&](InfiniFrameWindow* window) {
-        if (!EnsureOutNotNull(resultCount, "resultCount"))
+        if (!EnsureOutNotNull(resultCount, "resultCount")) {
             return;
-        if (!EnsureOutNotNull(values, "values"))
+        }
+        if (!EnsureOutNotNull(values, "values")) {
             return;
-        if (filterCount < 0)
+        }
+        if (FilterCount < 0) {
             throw std::invalid_argument("Argument 'filterCount' must be >= 0.");
+        }
         *values = window->GetDialog()->ShowOpenFile(
-            NullToEmpty(title), NullToEmpty(defaultPath), multiSelect, filters, filterCount, resultCount
+            NullToEmpty(title), NullToEmpty(defaultPath), MultiSelect, filters, FilterCount, resultCount
         );
     });
 }
@@ -44,10 +47,12 @@ EXPORTED InteropStatus InfiniFrameNative_ShowOpenFolder(
     ResetOut(resultCount, 0);
     ResetOut(values, static_cast<const char**>(nullptr));
     return RunWindowExportStatus(inst, [&](InfiniFrameWindow* window) {
-        if (!EnsureOutNotNull(resultCount, "resultCount"))
+        if (!EnsureOutNotNull(resultCount, "resultCount")) {
             return;
-        if (!EnsureOutNotNull(values, "values"))
+        }
+        if (!EnsureOutNotNull(values, "values")) {
             return;
+        }
         *values =
             window->GetDialog()->ShowOpenFolder(NullToEmpty(title), NullToEmpty(defaultPath), multiSelect, resultCount);
     });
@@ -106,8 +111,8 @@ EXPORTED InteropStatus InfiniFrameNative_BeginShowOpenFile(
         if (operationId == 0 || completion == nullptr || filterCount < 0)
             throw std::invalid_argument("Invalid asynchronous open-file dialog arguments.");
         window->BeginShowOpenFile(
-            operationId, NullToEmpty(title), NullToEmpty(defaultPath), multiSelect,
-            filters, filterCount, completion, completionContext
+            operationId, NullToEmpty(title), NullToEmpty(defaultPath), multiSelect, filters, filterCount, completion,
+            completionContext
         );
     });
 }
@@ -125,8 +130,7 @@ EXPORTED InteropStatus InfiniFrameNative_BeginShowOpenFolder(
         if (operationId == 0 || completion == nullptr)
             throw std::invalid_argument("Invalid asynchronous open-folder dialog arguments.");
         window->BeginShowOpenFolder(
-            operationId, NullToEmpty(title), NullToEmpty(defaultPath), multiSelect,
-            completion, completionContext
+            operationId, NullToEmpty(title), NullToEmpty(defaultPath), multiSelect, completion, completionContext
         );
     });
 }
@@ -166,18 +170,17 @@ EXPORTED InteropStatus InfiniFrameNative_BeginShowMessage(
         if (operationId == 0 || completion == nullptr)
             throw std::invalid_argument("Invalid asynchronous message-dialog arguments.");
         window->BeginShowMessage(
-            operationId, NullToEmpty(title), NullToEmpty(text), buttons, icon,
-            completion, completionContext
+            operationId, NullToEmpty(title), NullToEmpty(text), buttons, icon, completion, completionContext
         );
     });
 }
 
-EXPORTED InteropStatus InfiniFrameNative_CancelDialog(
-    InfiniFrameWindow* instance, const uint64_t operationId, bool* cancelled
-) {
+EXPORTED InteropStatus
+InfiniFrameNative_CancelDialog(InfiniFrameWindow* instance, const uint64_t operationId, bool* cancelled) {
     ResetOut(cancelled, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
-        if (!EnsureOutNotNull(cancelled, "cancelled")) return;
+        if (!EnsureOutNotNull(cancelled, "cancelled"))
+            return;
         *cancelled = window->CancelDialog(operationId);
     });
 }

@@ -633,9 +633,9 @@ class InfiniFrameWindow {
 
     /**
          * @brief Enumerate all connected monitors by invoking a callback for each one
-         * @param callback Called once per monitor; receives a Monitor describing geometry and scale
+         * @param Callback Called once per monitor; receives a Monitor describing geometry and scale
          */
-    void GetAllMonitors(GetAllMonitorsCallback callback) const;
+    void GetAllMonitors(GetAllMonitorsCallback Callback) const;
 
     /**
          * @brief Set callback invoked when the user attempts to close the window

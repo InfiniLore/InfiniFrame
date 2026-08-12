@@ -44,7 +44,7 @@ namespace {
             }
         }
 
-        void reset(HMODULE handle) {
+        void reset(const HMODULE handle) {
             if (_handle != nullptr) {
                 FreeLibrary(_handle);
             }

@@ -183,8 +183,8 @@ void InfiniFrameWindow::Impl::ConnectWindowSignals(InfiniFrameWindow* window) {
         gtk_drag_dest_set(GTK_WIDGET(_window), GTK_DEST_DEFAULT_ALL, targets, 0, GDK_ACTION_COPY);
 
         g_signal_connect(G_OBJECT(_window), "drag-data-received",
-            G_CALLBACK(+[](GtkWidget* /*widget*/, GdkDragContext* context, gint x, gint y,
-                           GtkSelectionData* data, guint /*info*/, guint time, gpointer userData) {
+            G_CALLBACK(+[](GtkWidget* /*widget*/, GdkDragContext* context, const gint x, const gint y,
+                           GtkSelectionData* data, guint /*info*/, const guint time, const gpointer userData) {
                 auto* instance = static_cast<InfiniFrameWindow*>(userData);
 
                 gchar** uris = gtk_selection_data_get_uris(data);
@@ -211,7 +211,8 @@ void InfiniFrameWindow::Impl::ConnectWindowSignals(InfiniFrameWindow* window) {
                 }
                 g_free(uris);
                 gtk_drag_finish(context, TRUE, FALSE, time);
-            }), window);
+            }), window
+        );
     }
 }
 

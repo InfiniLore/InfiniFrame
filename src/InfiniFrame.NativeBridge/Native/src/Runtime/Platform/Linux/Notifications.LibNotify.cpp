@@ -18,7 +18,7 @@ void InfiniFrameWindow::ShowNotification(const char* title, const char* message)
 }
 
 void InfiniFrameWindow::ShowNotificationWithOptions(
-    const char* title, const char* body, const char* iconPath, int urgency, const char* tag
+    const char* title, const char* body, const char* iconPath, const int urgency, const char* tag
 ) {
     (void)iconPath;
     (void)urgency;
@@ -40,9 +40,10 @@ void InfiniFrameWindow::ShowNotificationWithOptions(
 }
 
 void InfiniFrameWindow::BeginShowNotification(
-    uint64_t operationId,
-    const char* title, const char* body, const char* iconPath, int urgency, const char* tag,
-    OperationCompletedCallback completion, void* completionContext
+    const uint64_t operationId,
+    const char* title, const char* body, const char* iconPath,
+    const int urgency, const char* tag,
+    const OperationCompletedCallback completion, void* completionContext
 ) {
     ShowNotificationWithOptions(title, body, iconPath, urgency, tag);
 
@@ -51,7 +52,7 @@ void InfiniFrameWindow::BeginShowNotification(
     }
 }
 
-void InfiniFrameWindow::CancelNotification(uint64_t operationId, bool* canceled) {
+void InfiniFrameWindow::CancelNotification(const uint64_t operationId, bool* canceled) {
     (void)operationId;
     if (canceled) *canceled = false;
 }

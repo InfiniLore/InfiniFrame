@@ -40,7 +40,7 @@ namespace {
         std::atomic<int> state = 0;
     };
 
-    gboolean InvokeOnOwnerContext(gpointer userData) {
+    gboolean InvokeOnOwnerContext(const gpointer userData) {
         auto* retainedState = static_cast<std::shared_ptr<InvokeState>*>(userData);
         std::shared_ptr<InvokeState> state = *retainedState;
         // Do not invoke a reverse P/Invoke after the waiting managed call has returned.
@@ -66,7 +66,7 @@ namespace {
         return G_SOURCE_REMOVE;
     }
 
-    void ReleaseInvokeState(gpointer userData) {
+    void ReleaseInvokeState(const gpointer userData) {
         delete static_cast<std::shared_ptr<InvokeState>*>(userData);
     }
 }
@@ -119,7 +119,7 @@ namespace infiniframe::linux_gtk::ui_thread {
     }
 
     namespace {
-        gboolean ExecuteAsync(gpointer userData) {
+        gboolean ExecuteAsync(const gpointer userData) {
             std::unique_ptr<std::function<void()>> callback(static_cast<std::function<void()>*>(userData));
             try {
                 (*callback)();

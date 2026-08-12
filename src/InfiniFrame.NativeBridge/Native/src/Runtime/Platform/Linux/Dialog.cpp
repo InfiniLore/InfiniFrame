@@ -351,11 +351,11 @@ namespace {
         delete state;
     }
 
-    void OnAsyncFileResponse(GtkDialog*, const gint response, gpointer userData) {
+    void OnAsyncFileResponse(GtkDialog*, const gint response, const gpointer userData) {
         CompleteAsyncFileDialog(static_cast<AsyncFileDialogState*>(userData), response, false);
     }
 
-    void OnAsyncFileDestroyed(GtkWidget*, gpointer userData) {
+    void OnAsyncFileDestroyed(GtkWidget*, const gpointer userData) {
         CompleteAsyncFileDialog(static_cast<AsyncFileDialogState*>(userData), GTK_RESPONSE_CANCEL, true);
     }
 
@@ -378,14 +378,14 @@ namespace {
         delete state;
     }
 
-    void OnAsyncMessageResponse(GtkDialog*, const gint response, gpointer userData) {
+    void OnAsyncMessageResponse(GtkDialog*, const gint response, const gpointer userData) {
         CompleteAsyncMessageDialog(
             static_cast<AsyncMessageDialogState*>(userData),
             static_cast<DialogResult>(response), false
         );
     }
 
-    void OnAsyncMessageDestroyed(GtkWidget*, gpointer userData) {
+    void OnAsyncMessageDestroyed(GtkWidget*, const gpointer userData) {
         CompleteAsyncMessageDialog(
             static_cast<AsyncMessageDialogState*>(userData), DialogResult::Cancel, true
         );

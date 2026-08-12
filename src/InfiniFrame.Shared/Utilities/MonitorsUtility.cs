@@ -62,7 +62,7 @@ internal static class MonitorsUtility {
             Rectangle intersection = Rectangle.Intersect(m.MonitorArea, windowBounds);
             long overlap = 0;
             if (intersection.Width > 0 && intersection.Height > 0) {
-                overlap = (long)intersection.Width * (long)intersection.Height;
+                overlap = intersection.Width * (long)intersection.Height;
             }
 
             // fraction of the *window* that lies on this monitor

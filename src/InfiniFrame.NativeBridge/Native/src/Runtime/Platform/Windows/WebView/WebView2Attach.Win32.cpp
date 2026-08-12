@@ -442,7 +442,7 @@ void InfiniFrameWindow::AttachWebView() {
                             HRESULT addScriptHr = m_impl->_webviewWindow->AddScriptToExecuteOnDocumentCreated(
                                 js_wide.c_str(),
                                 Callback<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>(
-                                    [nav, this](HRESULT errorCode, LPCWSTR id) -> HRESULT {
+                                    [nav, this](const HRESULT errorCode, LPCWSTR id) -> HRESULT {
                                         OutputDebugStringW(
                                             std::format(
                                                 L"[InfiniFrame] AddScriptToExecuteOnDocumentCreated callback: "

@@ -23,7 +23,7 @@ extern gboolean on_webview_decide_policy(
     WebKitPolicyDecisionType decision_type, gpointer user_data
 );
 
-void InfiniFrameWindow::Show(bool isAlreadyShown) {
+void InfiniFrameWindow::Show(const bool isAlreadyShown) {
     (void)isAlreadyShown;
 
     // Early out if the webview has already been created.

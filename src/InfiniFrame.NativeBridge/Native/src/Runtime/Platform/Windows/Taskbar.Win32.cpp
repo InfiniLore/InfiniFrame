@@ -10,7 +10,7 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 
-void InfiniFrameWindow::SetTaskbarProgress(int state, uint64_t current, uint64_t total) {
+void InfiniFrameWindow::SetTaskbarProgress(const int state, const uint64_t current, const uint64_t total) {
     HWND hWnd = getHwnd();
     if (!hWnd) return;
 
@@ -71,7 +71,7 @@ void InfiniFrameWindow::ClearTaskbarProgress() {
     pTaskbarList->Release();
 }
 
-void InfiniFrameWindow::SetTaskbarFlash(int mode, uint32_t count) {
+void InfiniFrameWindow::SetTaskbarFlash(const int mode, const uint32_t count) {
     HWND hWnd = getHwnd();
     if (!hWnd) return;
 

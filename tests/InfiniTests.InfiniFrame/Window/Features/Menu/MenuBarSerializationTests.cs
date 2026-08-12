@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using System.Collections.Immutable;
 using System.Text.Json;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Menu;

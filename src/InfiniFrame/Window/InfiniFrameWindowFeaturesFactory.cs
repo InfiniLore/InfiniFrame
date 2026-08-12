@@ -102,7 +102,7 @@ public class InfiniFrameWindowFeaturesFactory(IServiceProvider provider) {
             Menu: new MenuInfiniFrameWindowFeature(
                 window,
                 GetLogger<MenuInfiniFrameWindowFeature>(provider),
-                originalBuilder.Features.Menu?.MenuBar
+                originalBuilder.Features.Menu.MenuBar
             ),
             JavaScript: new JavaScriptInfiniFrameWindowFeature(
                 window,

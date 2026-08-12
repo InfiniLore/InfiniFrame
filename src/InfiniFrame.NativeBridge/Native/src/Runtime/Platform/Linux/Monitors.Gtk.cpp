@@ -5,8 +5,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-void InfiniFrameWindow::GetAllMonitors(const GetAllMonitorsCallback callback) const {
-    if (callback == nullptr) {
+void InfiniFrameWindow::GetAllMonitors(const GetAllMonitorsCallback Callback) const {
+    if (Callback == nullptr) {
         return;
     }
 
@@ -23,7 +23,7 @@ void InfiniFrameWindow::GetAllMonitors(const GetAllMonitorsCallback callback) co
         gdk_monitor_get_workarea(monitor, reinterpret_cast<GdkRectangle*>(&props.work));
         props.scale = gdk_monitor_get_scale_factor(monitor);
 
-        if (callback(&props) == 0) {
+        if (Callback(&props) == 0) {
             break;
         }
     }

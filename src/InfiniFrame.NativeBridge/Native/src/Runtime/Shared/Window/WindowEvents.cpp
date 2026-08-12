@@ -85,12 +85,12 @@ void InfiniFrameWindow::InvokeFocusOut() const noexcept {
         ImplBase()->_focusOutCallback();
 }
 
-void InfiniFrameWindow::InvokeMove(int x, int y) const noexcept {
+void InfiniFrameWindow::InvokeMove(const int x, const int y) const noexcept {
     if (ImplBase()->_movedCallback)
         ImplBase()->_movedCallback(x, y);
 }
 
-void InfiniFrameWindow::InvokeResize(int width, int height) const noexcept {
+void InfiniFrameWindow::InvokeResize(const int width, const int height) const noexcept {
     if (ImplBase()->_resizedCallback)
         ImplBase()->_resizedCallback(width, height);
 }

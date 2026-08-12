@@ -7,7 +7,7 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 namespace {
-    void on_webview_finalized(gpointer userData, GObject* object) {
+    void on_webview_finalized(const gpointer userData, GObject* object) {
         (void)object;
         if (userData != nullptr)
             static_cast<InfiniFrameWindow*>(userData)->NotifyWebViewFinalized();
