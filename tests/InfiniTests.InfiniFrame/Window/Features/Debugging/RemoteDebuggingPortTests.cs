@@ -86,6 +86,7 @@ public class RemoteDebuggingPortTests {
 
         // Assert
         await Assert.That(builder.Features.Debugging.RemoteDebuggingPort).IsEqualTo(value);
+        // ReSharper disable once RedundantCast
         await Assert.That(window.Features.Debugging.RemoteDebuggingPort).IsEqualTo((int?)value);
     }
 
