@@ -107,6 +107,10 @@ namespace infiniframe::linux_gtk::ui_thread {
         if (mainLoop != nullptr && g_main_loop_is_running(mainLoop)) {
             g_main_loop_quit(mainLoop);
         }
+    }
+
+    void ShutdownAndJoin() {
+        Shutdown();
 
         if (gtkThread.joinable()) {
             gtkThread.join();

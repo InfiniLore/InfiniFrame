@@ -86,7 +86,7 @@ public class RemoteDebuggingPortTests {
 
         // Assert
         await Assert.That(builder.Features.Debugging.RemoteDebuggingPort).IsEqualTo(value);
-        await Assert.That(window.Features.Debugging.RemoteDebuggingPort).IsEqualTo(value);
+        await Assert.That(window.Features.Debugging.RemoteDebuggingPort).IsEqualTo((int?)value);
     }
 
     [Test]
