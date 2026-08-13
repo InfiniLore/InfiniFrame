@@ -140,7 +140,7 @@ namespace infiniframe::linux_gtk::ui_thread {
 
     namespace {
         gboolean ExecuteAsync(const gpointer userData) {
-            std::unique_ptr<std::function<void()>> callback(static_cast<std::function<void()*>(userData));
+            std::unique_ptr<std::function<void()>> callback(static_cast<std::function<void()>*>(userData));
             try {
                 (*callback)();
             } catch (...) {
