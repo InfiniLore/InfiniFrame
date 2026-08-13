@@ -328,7 +328,7 @@ public sealed class InfiniFrameWindow(
             Features.Lifecycle.CleanupNativeHandle();
 
             if (_ownsServiceProvider && ServiceProvider is IDisposable disposableProvider) {
-                disposableProvider.Dispose();
+                using var _ = disposableProvider;
             }
         }
     }
