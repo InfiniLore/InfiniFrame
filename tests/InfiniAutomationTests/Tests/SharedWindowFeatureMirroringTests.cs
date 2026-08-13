@@ -97,7 +97,7 @@ public abstract class SharedWindowFeatureMirroringTests : InfiniFramePlaywrightT
         JsonElement actual = await ProbeFeatureAsync(page, "lifecycle-monitors");
 
         await Assert.That(actual.GetProperty("closedOrClosing").GetBoolean()).IsEqualTo(RuntimeContext.Window.Features.Lifecycle.IsClosedOrClosing());
-        await Assert.That(actual.GetProperty("dpi").GetDouble()).IsEqualTo(RuntimeContext.Window.Features.Monitors.GetMainMonitorScreenDpi());
+        await Assert.That((int)actual.GetProperty("dpi").GetDouble()).IsEqualTo(RuntimeContext.Window.Features.Monitors.GetMainMonitorScreenDpi());
     }
 
     [Test]

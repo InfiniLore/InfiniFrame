@@ -13,7 +13,7 @@ namespace InfiniTests.InfiniFrame.StaticAssets;
 public class StaticAssetSchemeHandlerTests {
     [Test]
     public async Task TryResolveUri_FragmentIsPreservedButExcludedFromLookup(CancellationToken ct = default) {
-        var provider = new RecordingFileProvider("index.html", "<html></html>"u8.ToArray());
+        var provider = new RecordingFileProvider("index.html", [.. "<html></html>"u8]);
 
         bool resolved = StaticAssetSchemeHandler.TryResolveUri(
             provider, "index.html#settings", "app://localhost/", "index.html", out Uri uri);

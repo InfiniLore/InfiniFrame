@@ -20,12 +20,12 @@ public interface IInfiniFrameWindowConfiguration {
     /// <summary>
     ///     Gets or sets the parent window of this window.
     /// </summary>
-    IInfiniFrameWindow? ParentWindow { get; internal set; }
+    IInfiniFrameWindow? ParentWindow { get; set; }
 
     /// <summary>
     ///     Gets the list of child windows associated with this window.
     /// </summary>
-    List<IInfiniFrameWindow> ChildWindows { get; }
+    IReadOnlyList<IInfiniFrameWindow> ChildWindows { get; }
 
     /// <summary>
     ///     Assigns the native parameters to this configuration.

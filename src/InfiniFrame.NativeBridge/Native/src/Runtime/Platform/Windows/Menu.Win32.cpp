@@ -19,7 +19,7 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 namespace {
-    void DestroyMenuRecursive(HMENU menu) {
+    void DestroyMenuRecursive(const HMENU menu) {
         if (menu == nullptr) return;
         int count = GetMenuItemCount(menu);
         for (int i = 0; i < count; i++) {
@@ -31,7 +31,7 @@ namespace {
     }
 
     void BuildMenuFromJson(
-        HMENU parentMenu,
+        const HMENU parentMenu,
         const simdjson::dom::array& items,
         std::unordered_map<std::string, UINT>& idToCommand,
         std::unordered_map<UINT, std::string>& commandToId,
@@ -178,7 +178,7 @@ void InfiniFrameWindow::SetMenuBarJson(const char* menuBarJson) {
     ApplyInitMenuBar(menuBarJson);
 }
 
-void InfiniFrameWindow::SetMenuItemEnabledById(const char* menuItemId, bool enabled) {
+void InfiniFrameWindow::SetMenuItemEnabledById(const char* menuItemId, const bool enabled) {
     HMENU parent = nullptr;
     UINT position = 0;
     UINT commandId = 0;
@@ -190,7 +190,7 @@ void InfiniFrameWindow::SetMenuItemEnabledById(const char* menuItemId, bool enab
     DrawMenuBar(m_impl->_hWnd);
 }
 
-void InfiniFrameWindow::SetMenuItemVisibleById(const char* menuItemId, bool visible) {
+void InfiniFrameWindow::SetMenuItemVisibleById(const char* menuItemId, const bool visible) {
     auto it = m_impl->_menuItemIdToCommandId.find(menuItemId);
     if (it == m_impl->_menuItemIdToCommandId.end())
         return;
@@ -217,7 +217,7 @@ void InfiniFrameWindow::ClickMenuItemById(const char* menuItemId) {
     SendWebMessage(message.c_str());
 }
 
-void InfiniFrameWindow::HandleMenuCommand(WPARAM wParam) {
+void InfiniFrameWindow::HandleMenuCommand(const WPARAM wParam) {
     UINT commandId = LOWORD(wParam);
 
     auto it = m_impl->_menuCommandIdToItemId.find(commandId);

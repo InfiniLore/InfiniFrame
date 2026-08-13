@@ -18,7 +18,7 @@
         "@vitest/coverage-v8": "^4.1.10",
         "concurrently": "^10.0.4",
         "jsdom": "^30.0.1",
-        "terser": "^5.49.2",
+        "terser": "^5.50.0",
         "typescript": "^7.0.2",
         "vite": "^8.2.1",
         "vitest": "^4.1.10"

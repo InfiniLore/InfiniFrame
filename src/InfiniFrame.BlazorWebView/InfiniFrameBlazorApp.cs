@@ -16,7 +16,7 @@ public class InfiniFrameBlazorApp(
     IDisposable? unhandledExceptionRegistration = null
 ) : IInfiniFrameBlazorApp {
 
-    private bool _disposed;
+    private int _disposed;
     public IServiceProvider ServiceProvider { get; } = provider;
     private IInfiniFrameRootComponentList RootComponents { get; } = rootComponents;
     private IInfiniFrameJsComponentConfiguration? RootComponentConfiguration { get; } = rootComponentConfiguration;
@@ -27,15 +27,11 @@ public class InfiniFrameBlazorApp(
     // -----------------------------------------------------------------------------------------------------------------
     /// <inheritdoc cref="IInfiniFrameBlazorApp.RunAsync"/>
     public async Task RunAsync(CancellationToken ct = default) {
-        ObjectDisposedException.ThrowIf(_disposed, this);
+        ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
 
         var window = ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
 
-        if (RootComponentConfiguration is not null) {
-            foreach ((Type, string) component in RootComponents) {
-                RootComponentConfiguration.Add(component.Item1, component.Item2);
-            }
-        }
+        RegisterRootComponents();
 
         try {
             await window.WaitForCloseAsync(ct).ConfigureAwait(false);
@@ -46,16 +42,22 @@ public class InfiniFrameBlazorApp(
     }
 
     /// <inheritdoc cref="IInfiniFrameBlazorApp.Run"/>
+    /// <remarks>
+    ///     This method uses synchronous-over-async patterns for disposal. It should only be called
+    ///     from threads without a SynchronizationContext. Prefer <see cref="RunAsync"/> for async contexts.
+    /// </remarks>
     public void Run() {
-        ObjectDisposedException.ThrowIf(_disposed, this);
+        ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
+
+        if (SynchronizationContext.Current is not null) {
+            throw new InvalidOperationException(
+                "Run() must be called from a thread without a SynchronizationContext to avoid deadlock during disposal. " +
+                "Use RunAsync() instead.");
+        }
 
         var window = ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
 
-        if (RootComponentConfiguration is not null) {
-            foreach ((Type, string) component in RootComponents) {
-                RootComponentConfiguration.Add(component.Item1, component.Item2);
-            }
-        }
+        RegisterRootComponents();
 
         try {
             window.WaitForClose();
@@ -65,10 +67,23 @@ public class InfiniFrameBlazorApp(
         }
     }
 
-    public async ValueTask DisposeAsync() {
-        if (_disposed) return;
+    private void RegisterRootComponents() {
+        if (RootComponentConfiguration is null) return;
+        foreach ((Type, string) component in RootComponents) {
+            RootComponentConfiguration.Add(component.Item1, component.Item2);
+        }
+    }
 
-        _disposed = true;
+    /// <summary>
+    ///     Asynchronously disposes of the application and its service provider.
+    /// </summary>
+    /// <remarks>
+    ///     This method uses best-effort disposal: exceptions thrown during service provider
+    ///     disposal are caught and logged but do not propagate to the caller. This prevents
+    ///     resource cleanup failures from masking the original application shutdown.
+    /// </remarks>
+    public async ValueTask DisposeAsync() {
+        if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
 
         ILogger<InfiniFrameBlazorApp>? logger = null;
 
@@ -90,7 +105,5 @@ public class InfiniFrameBlazorApp(
         catch (Exception e) when (ExceptionsUtility.IsNonFatalException(e)) {
             logger?.LogError(e, "Error disposing of InfiniFrameBlazorApp");
         }
-
-        GC.SuppressFinalize(this);
     }
 }

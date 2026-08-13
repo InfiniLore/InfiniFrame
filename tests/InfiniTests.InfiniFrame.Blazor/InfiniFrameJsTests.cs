@@ -28,8 +28,9 @@ public class InfiniFrameJsTests {
         await Assert.That(identifier).IsEqualTo("infiniframe.utils.setPointerCapture");
         await Assert.That(cancellationToken).IsEqualTo(ct);
         await Assert.That(jsArguments.Length).IsEqualTo(2);
-        await Assert.That(jsArguments[0]).IsEqualTo(element);
-        await Assert.That(jsArguments[1]).IsEqualTo(42L);
+        // ReSharper disable once RedundantCast
+        await Assert.That(jsArguments[0]).IsEqualTo(element as object);
+        await Assert.That((long)jsArguments[1]!).IsEqualTo(42L);
     }
 
     [Test]
@@ -48,8 +49,9 @@ public class InfiniFrameJsTests {
         await Assert.That(identifier).IsEqualTo("infiniframe.utils.releasePointerCapture");
         await Assert.That(cancellationToken).IsEqualTo(ct);
         await Assert.That(jsArguments.Length).IsEqualTo(2);
-        await Assert.That(jsArguments[0]).IsEqualTo(element);
-        await Assert.That(jsArguments[1]).IsEqualTo(7L);
+        // ReSharper disable once RedundantCast
+        await Assert.That(jsArguments[0]).IsEqualTo(element as object);
+        await Assert.That((long)jsArguments[1]!).IsEqualTo(7L);
     }
 
     [Test]

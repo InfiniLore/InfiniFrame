@@ -1,13 +1,31 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {describe, it, expect, vi} from "vitest";
+import {beforeEach, describe, it, expect, vi} from "vitest";
 import {InfiniFrame} from "./InfiniFrame";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 describe("InfiniFrame", () => {
+
+    beforeEach(() => {
+        const win = window as any;
+        if (!win.infiniframe?.messaging) {
+            win.infiniframe = {
+                messaging: {
+                    sendMessageToHost: vi.fn(),
+                    getMessageFromHostAsync: vi.fn(),
+                    assignMessageReceivedHandler: vi.fn(),
+                    unregisterMessageReceivedHandler: vi.fn()
+                },
+                utils: {
+                    setPointerCapture: vi.fn(),
+                    releasePointerCapture: vi.fn()
+                }
+            };
+        }
+    });
 
     it("initializes HostMessaging and Utils", () => {
         const instance = new InfiniFrame();

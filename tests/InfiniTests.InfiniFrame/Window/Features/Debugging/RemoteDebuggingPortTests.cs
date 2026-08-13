@@ -64,13 +64,14 @@ public class RemoteDebuggingPortTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [MethodDataSource(nameof(GetPorts))]
     [SkipOnMacOs("Remote TCP debugging endpoints are not supported by WKWebView")]
-    public async Task AtWindowStage_ThroughBuilderAssignment(int value, CancellationToken ct) {
+    public async Task AtWindowStage_ThroughBuilderAssignment(CancellationToken ct) {
         if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) {
             Skip.Test("This test is only run on Windows and Linux");
             return;
         }
+
+        int value = PortUtils.GetOpenPortValue();
 
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
@@ -85,7 +86,8 @@ public class RemoteDebuggingPortTests {
 
         // Assert
         await Assert.That(builder.Features.Debugging.RemoteDebuggingPort).IsEqualTo(value);
-        await Assert.That(window.Features.Debugging.RemoteDebuggingPort).IsEqualTo(value);
+        // ReSharper disable once RedundantCast
+        await Assert.That(window.Features.Debugging.RemoteDebuggingPort).IsEqualTo((int?)value);
     }
 
     [Test]
@@ -98,9 +100,7 @@ public class RemoteDebuggingPortTests {
         // Act
 #pragma warning disable CA1416
         var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
-            Task.Run(function: () => {
-                return builder.Features.Debugging.SetRemoteDebuggingPort(value);
-            }, ct));
+            Task.Run(function: () => builder.Features.Debugging.SetRemoteDebuggingPort(value), ct));
 #pragma warning restore CA1416
 
         // Assert

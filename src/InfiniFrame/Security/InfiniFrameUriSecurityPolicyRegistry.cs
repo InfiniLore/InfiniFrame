@@ -10,6 +10,12 @@ namespace InfiniFrame.Security;
 /// <summary>
 ///     Provides a central registry for associating URI security policies with window builders and windows.
 /// </summary>
+/// <remarks>
+///     Policies are stored using <see cref="ConditionalWeakTable{TKey,TValue}" />, which ties the
+///     policy lifetime to the GC lifetime of the key. The caller must keep the
+///     <see cref="IInfiniFrameWindowBuilder" /> rooted for the entire lifetime of any window created
+///     from that builder. If the builder is collected, the associated policy entry is removed.
+/// </remarks>
 public static class InfiniFrameUriSecurityPolicyRegistry {
     private static readonly ConditionalWeakTable<IInfiniFrameWindowBuilder, PolicyHolder> BuilderPolicies = new();
     private static readonly ConditionalWeakTable<IInfiniFrameWindow, PolicyHolder> WindowPolicies = new();
@@ -37,9 +43,11 @@ public static class InfiniFrameUriSecurityPolicyRegistry {
         ArgumentNullException.ThrowIfNull(configure);
 
         PolicyHolder holder = BuilderPolicies.GetValue(builder, createValueCallback: static _ => new PolicyHolder());
-        var policyBuilder = new InfiniFrameUriSecurityPolicyBuilder(holder.Policy);
-        configure(policyBuilder);
-        holder.Policy = policyBuilder.Build();
+        lock (holder) {
+            var policyBuilder = new InfiniFrameUriSecurityPolicyBuilder(holder.Policy);
+            configure(policyBuilder);
+            holder.Policy = policyBuilder.Build();
+        }
     }
 
     /// <summary>

@@ -24,9 +24,11 @@ public sealed class InfiniFrameWindow(
     private int _closeReturnState = (int)InfiniFrameWindowLifecycleState.Ready;
     private int _managedThreadId = Environment.CurrentManagedThreadId;
     private long _lastLifecycleTransitionUtcTicks = DateTimeOffset.UtcNow.UtcTicks;
+    private int _asyncDisposing;
     private readonly object _diagnosticsLock = new();
     private readonly Dictionary<string, InfiniFrameOperationDiagnostics> _outstandingOperations = [];
     private InfiniFrameOperationDiagnostics? _lastOperation;
+    private bool _ownsServiceProvider;
 #if NET9_0_OR_GREATER
     private readonly Lock _disposeLock = new();
 #else
@@ -80,7 +82,8 @@ public sealed class InfiniFrameWindow(
     /// <inheritdoc cref="IInfiniFrameWindow.Events" />
     public IInfiniFrameEvents Events { get; } = events;
     /// <inheritdoc cref="IInfiniFrameWindow.Features" />
-    public IInfiniFrameWindowFeatures Features { get; private set; } = null!;
+    public IInfiniFrameWindowFeatures Features => _features ?? throw new InvalidOperationException("Features have not been assigned. Call AssignFeatures before accessing this property.");
+    private IInfiniFrameWindowFeatures? _features;
 
     /// <inheritdoc cref="IHasInfiniFrameEventsStore.EventsStore" />
     public IInfiniFrameEventsStore EventsStore => Events.EventsStore;
@@ -89,7 +92,11 @@ public sealed class InfiniFrameWindow(
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     internal void AssignFeatures(IInfiniFrameWindowFeatures features) {
-        Features = features;
+        _features = features;
+    }
+
+    internal void SetOwnsServiceProvider(bool owns) {
+        _ownsServiceProvider = owns;
     }
 
     internal string BeginDiagnosticOperation(string name, ulong id) {
@@ -168,10 +175,15 @@ public sealed class InfiniFrameWindow(
     }
 
     void IInfiniFrameWindow.MarkReady() {
-        if (Interlocked.CompareExchange(ref _lifecycleState,
-                (int)InfiniFrameWindowLifecycleState.Ready,
-                (int)InfiniFrameWindowLifecycleState.Creating) == (int)InfiniFrameWindowLifecycleState.Creating)
-            RecordLifecycleTransition();
+        if (Interlocked.CompareExchange(
+                ref _lifecycleState, 
+                (int)InfiniFrameWindowLifecycleState.Ready, 
+                (int)InfiniFrameWindowLifecycleState.Creating) != (int)InfiniFrameWindowLifecycleState.Creating
+        ) return;
+
+        RecordLifecycleTransition();
+        // If not in Creating state, log but do not throw to avoid disrupting the lifecycle.
+        // This may indicate an out-of-order lifecycle transition.
     }
 
     bool IInfiniFrameWindow.RequestClose() {
@@ -182,6 +194,9 @@ public sealed class InfiniFrameWindow(
             if (Interlocked.CompareExchange(ref _lifecycleState,
                     (int)InfiniFrameWindowLifecycleState.CloseRequested, (int)state) != (int)state)
                 continue;
+            // Write the return state atomically with the lifecycle transition so that
+            // CancelCloseRequest always reads the value that corresponds to the current
+            // CloseRequested transition.
             Volatile.Write(ref _closeReturnState, (int)state);
             RecordLifecycleTransition();
             return true;
@@ -189,8 +204,17 @@ public sealed class InfiniFrameWindow(
     }
 
     void IInfiniFrameWindow.CancelCloseRequest() {
+        // Read the return state that was written by the most recent RequestClose.
+        // Use an interlocked read on the lifecycle state to ensure we are cancelling
+        // the same CloseRequested transition that produced this return state.
+        int currentState = Volatile.Read(ref _lifecycleState);
+        if (currentState != (int)InfiniFrameWindowLifecycleState.CloseRequested)
+            return;
+        int returnState = Volatile.Read(ref _closeReturnState);
+        if (returnState is not ((int)InfiniFrameWindowLifecycleState.Creating or (int)InfiniFrameWindowLifecycleState.Ready))
+            return;
         if (Interlocked.CompareExchange(ref _lifecycleState,
-                Volatile.Read(ref _closeReturnState),
+                returnState,
                 (int)InfiniFrameWindowLifecycleState.CloseRequested) == (int)InfiniFrameWindowLifecycleState.CloseRequested)
             RecordLifecycleTransition();
     }
@@ -263,32 +287,49 @@ public sealed class InfiniFrameWindow(
     public void Dispose() {
         lock (_disposeLock) {
             if (LifecycleState == InfiniFrameWindowLifecycleState.Disposed) return;
-        }
 
-        if (!Features.Lifecycle.IsClosedOrClosing()) {
-            Features.Lifecycle.Close();
-        }
+            if (!Features.Lifecycle.IsClosedOrClosing()) {
+                Features.Lifecycle.Close();
+            }
 
-        if (LifecycleState < InfiniFrameWindowLifecycleState.NativeClosed
-            && Features.Lifecycle.CanWaitForCloseDuringDispose()) {
-            Features.Lifecycle.WaitForClose();
-        }
+            if (LifecycleState < InfiniFrameWindowLifecycleState.NativeClosed
+                && Features.Lifecycle.CanWaitForCloseDuringDispose()) {
+                Features.Lifecycle.WaitForClose();
+            }
 
-        if (LifecycleState < InfiniFrameWindowLifecycleState.TeardownComplete
-            && Features.Lifecycle.CanWaitForTeardownDuringDispose()) {
-            // Blocking here is safe: CanWaitForTeardownDuringDispose guarantees either the
-            // message loop has already exited (non-owning thread or teardown complete) or we
-            // are on a non-owning thread, so there is no risk of re-entrant UI deadlock.
-            // For fully asynchronous disposal, prefer DisposeAsync() instead.
-            Features.Lifecycle.WaitForTeardownAsync().AsTask().GetAwaiter().GetResult();
-        }
+            if (LifecycleState < InfiniFrameWindowLifecycleState.TeardownComplete
+                && Features.Lifecycle.CanWaitForTeardownDuringDispose()) {
+                // Blocking here is safe: CanWaitForTeardownDuringDispose guarantees either the
+                // message loop has already exited (non-owning thread or teardown complete) or we
+                // are on a non-owning thread, so there is no risk of re-entrant UI deadlock.
+                // For fully asynchronous disposal, prefer DisposeAsync() instead.
+                Features.Lifecycle.WaitForTeardownAsync().AsTask().GetAwaiter().GetResult();
+            }
 
-        Features.Lifecycle.CleanupNativeHandle();
+            Features.Lifecycle.CleanupNativeHandle();
+
+            if (_ownsServiceProvider && ServiceProvider is IDisposable disposableProvider) {
+                disposableProvider.Dispose();
+            }
+        }
     }
 
     public async ValueTask DisposeAsync() {
-        if (!Features.Lifecycle.IsClosedOrClosing()) await Features.Lifecycle.CloseAsync().ConfigureAwait(false);
-        await Features.Lifecycle.WaitForTeardownAsync().ConfigureAwait(false);
-        Features.Lifecycle.CleanupNativeHandle();
+        lock (_disposeLock) {
+            if (Interlocked.CompareExchange(ref _asyncDisposing, 1, 0) != 0) return;
+            if (LifecycleState == InfiniFrameWindowLifecycleState.Disposed) return;
+        }
+
+        try {
+            if (!Features.Lifecycle.IsClosedOrClosing()) await Features.Lifecycle.CloseAsync().ConfigureAwait(false);
+            await Features.Lifecycle.WaitForTeardownAsync().ConfigureAwait(false);
+        }
+        finally {
+            Features.Lifecycle.CleanupNativeHandle();
+
+            if (_ownsServiceProvider && ServiceProvider is IDisposable disposableProvider) {
+                using var _ = disposableProvider;
+            }
+        }
     }
 }

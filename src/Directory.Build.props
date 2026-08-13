@@ -15,24 +15,20 @@
         
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-
+        <AllowUnsafeBlocks Condition="'$(AllowUnsafeBlocks)' == ''">false</AllowUnsafeBlocks>
         
-        <PublishTrimmed>true</PublishTrimmed>
-        <PublishAot>true</PublishAot>
-
+        <PublishTrimmed Condition="'$(IsPackable)' != 'true'">true</PublishTrimmed>
+        <PublishAot Condition="'$(IsPackable)' != 'true'">true</PublishAot>
         
         <DebugType>embedded</DebugType>
         <Deterministic>true</Deterministic>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
-
         
         <IsPackable>true</IsPackable>
         <IncludeBuildOutput>true</IncludeBuildOutput>
 
-        <GeneratePackageOnBuild Condition="'$(GeneratePackageOnBuild)' == '' and '$(CI)' == 'true'">true</GeneratePackageOnBuild>
-        <GeneratePackageOnBuild Condition="'$(GeneratePackageOnBuild)' == ''">true</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         
         <Version>0.54.0</Version>
         <Authors>InfiniFrame, TryPhotino</Authors>

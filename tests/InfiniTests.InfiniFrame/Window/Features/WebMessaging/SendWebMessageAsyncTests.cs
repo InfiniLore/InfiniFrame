@@ -84,9 +84,10 @@ public class SendWebMessageAsyncTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        ValueTask[] sends = Enumerable.Range(0, 64)
-            .Select(index => window.Features.WebMessaging.SendWebMessageAsync($"message-{index}", ct))
-            .ToArray();
+        ValueTask[] sends = [
+            .. Enumerable.Range(0, 64)
+                .Select(index => window.Features.WebMessaging.SendWebMessageAsync($"message-{index}", ct))
+        ];
 
         // Assert
         await Task.WhenAll(sends.Select(static send => send.AsTask()));

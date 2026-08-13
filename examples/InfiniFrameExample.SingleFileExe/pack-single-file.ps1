@@ -22,7 +22,7 @@ else {
     $packCommand = @("infiniframe-pack")
 }
 
-$args = @(
+$publishArgs = @(
     "publish",
     $projectPath,
     "--rid", $Rid,
@@ -32,4 +32,4 @@ $args = @(
 )
 
 $packPrefix = if ($packCommand.Length -gt 1) { $packCommand[1..($packCommand.Length - 1)] } else { @() }
-& $packCommand[0] ($packPrefix + $args)
+& $packCommand[0] ($packPrefix + $publishArgs)

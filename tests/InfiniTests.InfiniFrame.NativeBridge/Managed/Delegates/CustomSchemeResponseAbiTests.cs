@@ -77,9 +77,8 @@ public class CustomSchemeResponseAbiTests {
             Interlocked.Increment(ref releaseCount);
         };
         IntPtr releaseCallback = Marshal.GetFunctionPointerForDelegate(release);
-        CppWebResourceRequestedDelegate response = (_, ref value)
-            => CreateResponse(releaseCallback, ref value);
-        IntPtr callback = Marshal.GetFunctionPointerForDelegate(response);
+        CppWebResourceRequestedDelegate responseDelegate = Response;
+        IntPtr callback = Marshal.GetFunctionPointerForDelegate(responseDelegate);
 
         // Act
         for (int i = 0; i < requestCount; i++) {
@@ -90,11 +89,14 @@ public class CustomSchemeResponseAbiTests {
         }
 
         // Native code only sees the unmanaged thunks, so keep their delegate owners rooted through the last callback.
-        GC.KeepAlive(response);
+        GC.KeepAlive(responseDelegate);
         GC.KeepAlive(release);
 
         // Assert
         await Assert.That(Volatile.Read(ref releaseCount)).IsEqualTo(requestCount);
+        return;
+
+        int Response(string _, ref CustomSchemeResponse value) => CreateResponse(releaseCallback, ref value);
     }
 
     [Test]
@@ -110,9 +112,8 @@ public class CustomSchemeResponseAbiTests {
             Interlocked.Increment(ref releaseCount);
         };
         IntPtr releaseCallback = Marshal.GetFunctionPointerForDelegate(release);
-        CppWebResourceRequestedDelegate response = (_, ref value)
-            => CreateResponse(releaseCallback, ref value);
-        IntPtr callback = Marshal.GetFunctionPointerForDelegate(response);
+        CppWebResourceRequestedDelegate responseDelegate = Response;
+        IntPtr callback = Marshal.GetFunctionPointerForDelegate(responseDelegate);
 
         Task[] requests = Enumerable.Range(0, requestCount)
             .Select(_ => Task.Run(action: () => {
@@ -127,11 +128,14 @@ public class CustomSchemeResponseAbiTests {
         // Act
         await Task.WhenAll(requests);
         // The worker closures capture the function pointer, not the delegate that owns its unmanaged thunk.
-        GC.KeepAlive(response);
+        GC.KeepAlive(responseDelegate);
         GC.KeepAlive(release);
 
         // Assert
         await Assert.That(Volatile.Read(ref releaseCount)).IsEqualTo(requestCount);
+        return;
+
+        int Response(string _, ref CustomSchemeResponse value) => CreateResponse(releaseCallback, ref value);
     }
 
     // ReSharper disable once RedundantAssignment

@@ -1,9 +1,9 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.NativeBridge.Dialogs;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using InfiniFrame.NativeBridge.Dialogs;
 
 namespace InfiniFrame.NativeBridge;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -37,6 +37,10 @@ public partial class InfiniFrameNative {
     /// <returns>A status code indicating success or failure.</returns>
     internal static InfiniFrameNativeInteropStatus ShowOpenFile(IntPtr instance, string title, string defaultPath, bool multiSelect, string[] filters, int filtersCount, out string?[] values) {
         InfiniFrameNativeInteropStatus status = ShowOpenFilePtr(instance, title, defaultPath, multiSelect, filters, filtersCount, out int resultCount, out IntPtr ptrValues);
+        if (status != InfiniFrameNativeInteropStatus.Success) {
+            values = Array.Empty<string?>();
+            return status;
+        }
         values = PtrToNativeStringArray(ptrValues, resultCount);
         return status;
     }
@@ -58,6 +62,10 @@ public partial class InfiniFrameNative {
     /// <returns>A status code indicating success or failure.</returns>
     internal static InfiniFrameNativeInteropStatus ShowOpenFolder(IntPtr instance, string title, string defaultPath, bool multiSelect, out string?[] values) {
         InfiniFrameNativeInteropStatus status = ShowOpenFolderPtr(instance, title, defaultPath, multiSelect, out int resultCount, out IntPtr ptrValues);
+        if (status != InfiniFrameNativeInteropStatus.Success) {
+            values = Array.Empty<string?>();
+            return status;
+        }
         values = PtrToNativeStringArray(ptrValues, resultCount);
         return status;
     }
@@ -154,6 +162,11 @@ public partial class InfiniFrameNative {
     private static string?[] PtrToNativeStringArray(IntPtr valuesPtr, int count) {
         if (valuesPtr == IntPtr.Zero || count <= 0) {
             return Array.Empty<string?>();
+        }
+
+        const int maxCount = 10000;
+        if (count > maxCount) {
+            count = maxCount;
         }
 
         try {

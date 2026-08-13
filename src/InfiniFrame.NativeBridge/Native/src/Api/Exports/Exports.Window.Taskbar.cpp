@@ -7,10 +7,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
 EXPORTED InteropStatus InfiniFrameNative_SetTaskbarProgress(
-    InfiniFrameWindow* instance,
-    int state,
-    uint64_t current,
-    uint64_t total
+    InfiniFrameWindow* instance, const int state, const uint64_t current, const uint64_t total
 ) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         window->SetTaskbarProgress(state, current, total);
@@ -24,9 +21,7 @@ EXPORTED InteropStatus InfiniFrameNative_ClearTaskbarProgress(InfiniFrameWindow*
 }
 
 EXPORTED InteropStatus InfiniFrameNative_SetTaskbarFlash(
-    InfiniFrameWindow* instance,
-    int mode,
-    uint32_t count
+    InfiniFrameWindow* instance, const int mode, const uint32_t count
 ) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         window->SetTaskbarFlash(mode, count);

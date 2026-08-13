@@ -438,7 +438,7 @@ namespace {
             requested.store(true, std::memory_order_release);
             const DWORD id = threadId.load(std::memory_order_acquire);
             if (id == 0) return;
-            EnumThreadWindows(id, [](HWND hwnd, LPARAM value) -> BOOL {
+            EnumThreadWindows(id, [](const HWND hwnd, const LPARAM value) -> BOOL {
                 auto* state = reinterpret_cast<DialogThreadCancellation*>(value);
                 if (IsWindowVisible(hwnd) && GetWindow(hwnd, GW_OWNER) == state->owner)
                     PostMessageW(hwnd, WM_CLOSE, 0, 0);

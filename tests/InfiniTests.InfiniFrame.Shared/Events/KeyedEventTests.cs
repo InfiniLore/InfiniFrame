@@ -51,7 +51,7 @@ public class KeyedEventTests {
         var calls = new List<string>();
         evt.Add("key", handler: (_, _) => calls.Add("first"));
 
-        // Act — second add with same key replaces the first handler
+        // Act, second add with same key replaces the first handler
         evt.Add("key", handler: (_, _) => calls.Add("second"));
 
         // Assert count

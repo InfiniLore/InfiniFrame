@@ -65,7 +65,7 @@ internal sealed class InfiniNotificationOperation {
                     CompletionCallback, context
                 );
                 if (status != InfiniFrameNativeInteropStatus.Success)
-                    throw new ApplicationException(
+                    throw new InfiniFrameNativeInteropException(
                         InfiniFrameNative.GetLastErrorMessage() ?? "Could not show native notification."
                     );
             }).ConfigureAwait(false);
@@ -103,7 +103,7 @@ internal sealed class InfiniNotificationOperation {
                 if (_lease is null) return;
                 InfiniFrameNativeInteropStatus status = InfiniFrameNative.CancelNotification(_lease.Handle, Id, out _);
                 if (status != InfiniFrameNativeInteropStatus.Success)
-                    throw new ApplicationException(
+                    throw new InfiniFrameNativeInteropException(
                         InfiniFrameNative.GetLastErrorMessage() ?? "Could not cancel native notification."
                     );
             }).ConfigureAwait(false);
@@ -111,7 +111,7 @@ internal sealed class InfiniNotificationOperation {
         catch (ObjectDisposedException) {
             // Window teardown requests cancellation for every registered notification.
         }
-        catch (ApplicationException exception) {
+        catch (InfiniFrameNativeInteropException exception) {
             _logger.LogWarning(exception, "Native notification cancellation for {OperationId} failed.", Id);
         }
     }

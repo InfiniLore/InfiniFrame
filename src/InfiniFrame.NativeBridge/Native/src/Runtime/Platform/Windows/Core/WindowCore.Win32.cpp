@@ -70,7 +70,7 @@ void InfiniFrameWindow::Register(const HINSTANCE hInstance) {
 
     _hInstance.store(hInstance, std::memory_order_release);
 
-    WNDCLASSEX wcx;
+    WNDCLASSEX wcx{};
     wcx.cbSize = sizeof(WNDCLASSEX);
     wcx.style = CS_HREDRAW | CS_VREDRAW;
     wcx.lpfnWndProc = WindowProc;
@@ -84,7 +84,9 @@ void InfiniFrameWindow::Register(const HINSTANCE hInstance) {
     wcx.lpszClassName = CLASS_NAME;
     wcx.hIconSm = LoadIcon(hInstance, IDI_APPLICATION);
 
-    RegisterClassEx(&wcx);
+    if (RegisterClassEx(&wcx) == 0) {
+        throw std::runtime_error("RegisterClassEx failed for window class 'InfiniFrame'.");
+    }
 
     SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 }
@@ -200,7 +202,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     m_impl->_fileDroppedCallback = initParams->DragDropHandler;
     m_impl->_dragDropEnabled = initParams->DragDropEnabled;
 
-    for (int i = 0; i < 16; ++i) {
+    for (std::size_t i = 0; i < InfiniFrameInitParams::MaxCustomSchemeNames; ++i) {
         if (initParams->CustomSchemeNames[i] != nullptr)
             m_impl->_customSchemeNames.emplace_back(ToUTF16String(initParams->CustomSchemeNames[i]));
     }
@@ -266,6 +268,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         initParams->Chromeless || initParams->FullScreen ? WS_POPUP : WS_OVERLAPPEDWINDOW, normalizedLeft,
         normalizedTop, normalizedWidth, normalizedHeight, nullptr, nullptr, windowInstance, this
     );
+    if (m_impl->_hWnd == nullptr) {
+        throw std::runtime_error("CreateWindowEx failed to create the native window.");
+    }
     SetWindowTextW(m_impl->_hWnd, m_impl->_windowTitle.c_str());
 
     ApplyPendingOwnerWindow(m_impl.get(), L"ctor");

@@ -27,6 +27,10 @@ void InfiniFrameWindow::GetStatusBarEnabled(bool* enabled) const {
 }
 
 void InfiniFrameWindow::GetDevToolsEnabled(bool* enabled) const {
+    if (m_impl->_webview == nullptr) {
+        *enabled = m_impl->_devToolsEnabled;
+        return;
+    }
     WebKitSettings* settings = webkit_web_view_get_settings(WEBKIT_WEB_VIEW(m_impl->_webview));
     *enabled = webkit_settings_get_enable_developer_extras(settings);
 }
@@ -101,6 +105,10 @@ void InfiniFrameWindow::GetTopmost(bool* topmost) const {
 }
 
 void InfiniFrameWindow::GetZoom(int* zoom) const {
+    if (m_impl->_webview == nullptr) {
+        *zoom = m_impl->_zoom;
+        return;
+    }
     double rawValue = webkit_web_view_get_zoom_level(WEBKIT_WEB_VIEW(m_impl->_webview));
     rawValue = (rawValue * 100.0) + 0.5;
     *zoom = static_cast<int>(rawValue);
@@ -128,7 +136,7 @@ void InfiniFrameWindow::Restore() {
     gtk_window_present(GTK_WINDOW(m_impl->_window));
 }
 
-static std::string escapeJsonString(std::string_view input) {
+static std::string escapeJsonString(const std::string_view input) {
     std::string result;
     result.reserve(input.size() + 2);
 
@@ -220,12 +228,9 @@ void InfiniFrameWindow::SetContextMenuEnabled(const bool enabled) {
     m_impl->_contextMenuEnabled = enabled;
     if (m_impl->_webview == nullptr)
         return;
-    const char* js = enabled
-        ? "window.__infiniframe_contextMenuEnabled=true;"
-        : "window.__infiniframe_contextMenuEnabled=false;";
-    webkit_web_view_evaluate_javascript(
-        WEBKIT_WEB_VIEW(m_impl->_webview), js, -1, nullptr, nullptr, nullptr, nullptr, nullptr
-    );
+    std::string payload = "{\"enabled\":" + std::string(enabled ? "true" : "false") + "}";
+    std::string envelope = "{\"version\":1,\"messageId\":\"__infiniframe:browser:setContextMenuEnabled\",\"payload\":\"" + escapeJsonString(payload) + "\"}";
+    SendWebMessage(envelope.c_str());
 }
 
 void InfiniFrameWindow::SetMediaAutoplayEnabled(const bool enabled) {
@@ -251,38 +256,34 @@ void InfiniFrameWindow::SetUserAgent(const char* userAgent) {
     webkit_web_view_reload(WEBKIT_WEB_VIEW(m_impl->_webview));
 }
 
-void InfiniFrameWindow::SetZoomEnabled(bool enabled) {
+void InfiniFrameWindow::SetZoomEnabled(const bool enabled) {
     m_impl->_zoomEnabled = enabled;
     if (m_impl->_webview == nullptr)
         return;
-    const char* js = enabled
-        ? "window.__infiniframe_zoomEnabled=true;"
-        : "window.__infiniframe_zoomEnabled=false;";
-    webkit_web_view_evaluate_javascript(
-        WEBKIT_WEB_VIEW(m_impl->_webview), js, -1, nullptr, nullptr, nullptr, nullptr, nullptr
-    );
+    std::string payload = "{\"enabled\":" + std::string(enabled ? "true" : "false") + "}";
+    std::string envelope = "{\"version\":1,\"messageId\":\"__infiniframe:browser:setZoomEnabled\",\"payload\":\"" + escapeJsonString(payload) + "\"}";
+    SendWebMessage(envelope.c_str());
 }
 
-void InfiniFrameWindow::SetStatusBarEnabled(bool enabled) {
+void InfiniFrameWindow::SetStatusBarEnabled(const bool enabled) {
     // WebKitGTK has no native status bar concept — this is a WebView2-only feature.
     // The flag is stored for API consistency but has no visible effect on Linux.
     m_impl->_statusBarEnabled = enabled;
 }
 
-void InfiniFrameWindow::SetBrowserShortcutsEnabled(bool enabled) {
+void InfiniFrameWindow::SetBrowserShortcutsEnabled(const bool enabled) {
     m_impl->_browserShortcutsEnabled = enabled;
     if (m_impl->_webview == nullptr)
         return;
-    const char* js = enabled
-        ? "window.__infiniframe_browserShortcutsEnabled=true;"
-        : "window.__infiniframe_browserShortcutsEnabled=false;";
-    webkit_web_view_evaluate_javascript(
-        WEBKIT_WEB_VIEW(m_impl->_webview), js, -1, nullptr, nullptr, nullptr, nullptr, nullptr
-    );
+    std::string payload = "{\"enabled\":" + std::string(enabled ? "true" : "false") + "}";
+    std::string envelope = "{\"version\":1,\"messageId\":\"__infiniframe:browser:setBrowserShortcutsEnabled\",\"payload\":\"" + escapeJsonString(payload) + "\"}";
+    SendWebMessage(envelope.c_str());
 }
 
 void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled) {
     m_impl->_devToolsEnabled = enabled;
+    if (m_impl->_webview == nullptr)
+        return;
     WebKitSettings* settings = webkit_web_view_get_settings(WEBKIT_WEB_VIEW(m_impl->_webview));
     webkit_settings_set_enable_developer_extras(settings, m_impl->_devToolsEnabled || m_impl->_remoteDebuggingPort > 0);
 }
@@ -384,6 +385,8 @@ void InfiniFrameWindow::SetZoom(const int zoom) {
         return;
 
     m_impl->_zoom = zoom;
+    if (m_impl->_webview == nullptr)
+        return;
     double newZoom = zoom / 100.0;
     webkit_web_view_set_zoom_level(WEBKIT_WEB_VIEW(m_impl->_webview), newZoom);
 }
@@ -403,14 +406,16 @@ void InfiniFrameWindow::SetTransparentEnabled(const bool enabled) {
         gtk_widget_set_visual(GTK_WIDGET(m_impl->_window), rgba_visual);
         gtk_widget_set_app_paintable(GTK_WIDGET(m_impl->_window), true);
 
-        GdkRGBA color;
-        webkit_web_view_get_background_color(WEBKIT_WEB_VIEW(m_impl->_webview), &color);
-        color.alpha = enabled ? 0 : 1;
-        webkit_web_view_set_background_color(WEBKIT_WEB_VIEW(m_impl->_webview), &color);
+        if (m_impl->_webview != nullptr) {
+            GdkRGBA color;
+            webkit_web_view_get_background_color(WEBKIT_WEB_VIEW(m_impl->_webview), &color);
+            color.alpha = enabled ? 0 : 1;
+            webkit_web_view_set_background_color(WEBKIT_WEB_VIEW(m_impl->_webview), &color);
+        }
     }
 }
 
-void InfiniFrameWindow::SetBackgroundColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+void InfiniFrameWindow::SetBackgroundColor(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) {
     m_impl->_backgroundColorR = r;
     m_impl->_backgroundColorG = g;
     m_impl->_backgroundColorB = b;

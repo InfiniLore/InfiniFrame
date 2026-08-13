@@ -63,7 +63,7 @@ public class InfiniFrameDialogIconTests {
         int info = (int)InfiniFrameDialogIcon.Info;
         int warning = (int)InfiniFrameDialogIcon.Warning;
 
-        // Assert — ordinal order must match the C++ enum
+        // Assert, ordinal order must match the C++ enum
         await Assert.That(info).IsLessThan(warning);
     }
 

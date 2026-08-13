@@ -27,7 +27,7 @@ namespace gtk_webkit {
     struct GObjectGuard {
         gpointer value = nullptr;
 
-        explicit GObjectGuard(gpointer initialValue = nullptr) : value(initialValue) {}
+        explicit GObjectGuard(const gpointer initialValue = nullptr) : value(initialValue) {}
         ~GObjectGuard() {
             if (value != nullptr)
                 g_object_unref(value);

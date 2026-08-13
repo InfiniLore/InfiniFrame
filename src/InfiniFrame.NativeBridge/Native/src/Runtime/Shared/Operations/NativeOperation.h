@@ -31,10 +31,10 @@ struct NativeOperation final {
     std::atomic<int> state = Pending;
 
     NativeOperation(
-        uint64_t operationId,
-        ContextAction action,
+        const uint64_t operationId,
+        const ContextAction action,
         void* actionContext,
-        OperationCompletedCallback completed,
+        const OperationCompletedCallback completed,
         void* completedContext,
         InfiniFrameWindow* window
     ) : id(operationId), callback(action), callbackContext(actionContext), completion(completed),

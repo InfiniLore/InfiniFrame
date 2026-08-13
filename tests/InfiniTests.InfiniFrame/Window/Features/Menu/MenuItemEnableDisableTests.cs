@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using System.Collections.Immutable;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Menu;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -16,13 +15,13 @@ public class MenuItemEnableDisableTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
-                Items: ImmutableArray.Create(
+                Items: [
                     new InfiniFrameMenuItem("file", "File", InfiniFrameMenuItemType.Submenu,
-                        Children: ImmutableArray.Create(
+                        Children: [
                             new InfiniFrameMenuItem("save", "Save")
-                        )
+                        ]
                     )
-                )
+                ]
             ));
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -43,13 +42,13 @@ public class MenuItemEnableDisableTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
-                Items: ImmutableArray.Create(
+                Items: [
                     new InfiniFrameMenuItem("file", "File", InfiniFrameMenuItemType.Submenu,
-                        Children: ImmutableArray.Create(
+                        Children: [
                             new InfiniFrameMenuItem("save", "Save")
-                        )
+                        ]
                     )
-                )
+                ]
             ));
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -70,9 +69,9 @@ public class MenuItemEnableDisableTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
-                Items: ImmutableArray.Create(
+                Items: [
                     new InfiniFrameMenuItem("file", "File")
-                )
+                ]
             ));
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -89,9 +88,9 @@ public class MenuItemEnableDisableTests {
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
         var menuBar = new InfiniFrameMenuBar(
-            Items: ImmutableArray.Create(
+            Items: [
                 new InfiniFrameMenuItem("help", "Help")
-            )
+            ]
         );
 
         // Act
@@ -107,23 +106,23 @@ public class MenuItemEnableDisableTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
-                Items: ImmutableArray.Create(
+                Items: [
                     new InfiniFrameMenuItem("old", "Old")
-                )
+                ]
             ));
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
         var newMenuBar = new InfiniFrameMenuBar(
-            Items: ImmutableArray.Create(
+            Items: [
                 new InfiniFrameMenuItem("new", "New")
-            )
+            ]
         );
 
         // Act
         window.Features.Menu.SetMenuBar(newMenuBar);
 
         // Assert
-        await Assert.That(window.Features.Menu.MenuBar.Items).Count().IsEqualTo(1);
+        await Assert.That(window.Features.Menu.MenuBar.Items.Length).IsEqualTo(1);
         await Assert.That(window.Features.Menu.MenuBar.Items[0].Id).IsEqualTo("new");
     }
 
@@ -133,9 +132,9 @@ public class MenuItemEnableDisableTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
-                Items: ImmutableArray.Create(
+                Items: [
                     new InfiniFrameMenuItem("file", "File")
-                )
+                ]
             ));
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -144,7 +143,7 @@ public class MenuItemEnableDisableTests {
         window.Features.Menu.SetMenuBar(null!);
 
         // Assert
-        await Assert.That(window.Features.Menu.MenuBar.Items).IsEmpty();
+        await Assert.That(window.Features.Menu.MenuBar.Items.IsEmpty).IsTrue();
     }
 
     [Test]
@@ -153,9 +152,9 @@ public class MenuItemEnableDisableTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
-                Items: ImmutableArray.Create(
+                Items: [
                     new InfiniFrameMenuItem("file", "File")
-                )
+                ]
             ));
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -164,7 +163,7 @@ public class MenuItemEnableDisableTests {
         window.Features.Menu.SetMenuBar(new InfiniFrameMenuBar());
 
         // Assert
-        await Assert.That(window.Features.Menu.MenuBar.Items).IsEmpty();
+        await Assert.That(window.Features.Menu.MenuBar.Items.IsEmpty).IsTrue();
     }
 
     [Test]
@@ -173,9 +172,9 @@ public class MenuItemEnableDisableTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
-                Items: ImmutableArray.Create(
+                Items: [
                     new InfiniFrameMenuItem("file", "File")
-                )
+                ]
             ));
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -193,9 +192,9 @@ public class MenuItemEnableDisableTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
-                Items: ImmutableArray.Create(
+                Items: [
                     new InfiniFrameMenuItem("file", "File")
-                )
+                ]
             ));
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -213,17 +212,17 @@ public class MenuItemEnableDisableTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
-                Items: ImmutableArray.Create(
+                Items: [
                     new InfiniFrameMenuItem("level1", "Level 1", InfiniFrameMenuItemType.Submenu,
-                        Children: ImmutableArray.Create(
+                        Children: [
                             new InfiniFrameMenuItem("level2", "Level 2", InfiniFrameMenuItemType.Submenu,
-                                Children: ImmutableArray.Create(
+                                Children: [
                                     new InfiniFrameMenuItem("level3", "Level 3")
-                                )
+                                ]
                             )
-                        )
+                        ]
                     )
-                )
+                ]
             ));
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -242,17 +241,17 @@ public class MenuItemEnableDisableTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
-                Items: ImmutableArray.Create(
+                Items: [
                     new InfiniFrameMenuItem("level1", "Level 1", InfiniFrameMenuItemType.Submenu,
-                        Children: ImmutableArray.Create(
+                        Children: [
                             new InfiniFrameMenuItem("level2", "Level 2", InfiniFrameMenuItemType.Submenu,
-                                Children: ImmutableArray.Create(
+                                Children: [
                                     new InfiniFrameMenuItem("level3", "Level 3")
-                                )
+                                ]
                             )
-                        )
+                        ]
                     )
-                )
+                ]
             ));
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -271,9 +270,9 @@ public class MenuItemEnableDisableTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
-                Items: ImmutableArray.Create(
+                Items: [
                     new InfiniFrameMenuItem("test", "Test")
-                )
+                ]
             ));
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -292,9 +291,9 @@ public class MenuItemEnableDisableTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
-                Items: ImmutableArray.Create(
+                Items: [
                     new InfiniFrameMenuItem("test", "Test")
-                )
+                ]
             ));
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -314,9 +313,9 @@ public class MenuItemEnableDisableTests {
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
         var menuBar = new InfiniFrameMenuBar(
-            Items: ImmutableArray.Create(
+            Items: [
                 new InfiniFrameMenuItem("help", "Help")
-            )
+            ]
         );
 
         // Act
@@ -333,9 +332,9 @@ public class MenuItemEnableDisableTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
-                Items: ImmutableArray.Create(
+                Items: [
                     new InfiniFrameMenuItem("test", "Test")
-                )
+                ]
             ));
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -354,9 +353,9 @@ public class MenuItemEnableDisableTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
-                Items: ImmutableArray.Create(
+                Items: [
                     new InfiniFrameMenuItem("test", "Test")
-                )
+                ]
             ));
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -375,9 +374,9 @@ public class MenuItemEnableDisableTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {
             builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
-                Items: ImmutableArray.Create(
+                Items: [
                     new InfiniFrameMenuItem("test", "Test")
-                )
+                ]
             ));
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;

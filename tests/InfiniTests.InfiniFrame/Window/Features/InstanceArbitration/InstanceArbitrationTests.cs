@@ -46,7 +46,7 @@ public class InstanceArbitrationTests {
 
         // Assert - verify the method uses a consistent name (not a new GUID each time)
         // If the first call succeeded, the second must fail (same mutex name).
-        // If another TFM runner holds the mutex, both return false — still correct.
+        // If another TFM runner holds the mutex, both return false, still correct.
         await Assert.That(first || !second).IsTrue();
     }
 

@@ -220,8 +220,9 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
 
         if (_channel.Writer.TryWrite(message)) return;
 
-        LazyLogger.Value?.LogWarning(
-            "Discarded outbound WebView message because the bounded queue is unavailable or full. QueueCapacity: {QueueCapacity}, FullMode: {FullMode}",
+        LazyLogger.Value?.LogError(
+            "Discarded outbound WebView message because the bounded queue is unavailable or full. " +
+            "This may cause stale UI state. QueueCapacity: {QueueCapacity}, FullMode: {FullMode}",
             _messageQueueCapacity,
             _messageQueueFullMode);
     }

@@ -14,7 +14,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WebMessagingInfiniFrameWindowFeature : IWebMessagingInfiniFrameWindowFeature {
-    private static long _nextAcknowledgementId;
+    private long _nextAcknowledgementId;
     private readonly IInfiniFrameWindow window;
     private readonly ILogger<WebMessagingInfiniFrameWindowFeature> logger;
     private readonly ConcurrentDictionary<ulong, TaskCompletionSource> _acknowledgements = new();
@@ -63,7 +63,7 @@ public class WebMessagingInfiniFrameWindowFeature : IWebMessagingInfiniFrameWind
                 using NativeHandleLease lease = window.AcquireNativeHandle();
                 InfiniFrameNativeInteropStatus status = InfiniFrameNative.SendWebMessage(lease.Handle, message);
                 if (status != InfiniFrameNativeInteropStatus.Success)
-                    throw new ApplicationException(InfiniFrameNative.GetLastErrorMessage() ?? "Could not submit web message.");
+                    throw new InfiniFrameNativeInteropException(InfiniFrameNative.GetLastErrorMessage() ?? "Could not submit web message.");
             },
             cancellationToken: ct
         ).ConfigureAwait(false);

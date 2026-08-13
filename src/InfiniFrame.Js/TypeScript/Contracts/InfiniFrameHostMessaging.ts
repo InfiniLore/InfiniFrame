@@ -34,6 +34,9 @@ export const ReceiveFromHostMessageIds = {
     readyAck: `${infiniframe}:ready:ack`,
     getMessageResponse: `${infiniframe}:get:response`,
     webMessageAckRequest: `${infiniframe}:message:ack:request`,
+    setContextMenuEnabled: `${infiniframe}:browser:setContextMenuEnabled`,
+    setZoomEnabled: `${infiniframe}:browser:setZoomEnabled`,
+    setBrowserShortcutsEnabled: `${infiniframe}:browser:setBrowserShortcutsEnabled`,
 }
 
 export type SendToHostMessageId = typeof SendToHostMessageIds[keyof typeof SendToHostMessageIds];

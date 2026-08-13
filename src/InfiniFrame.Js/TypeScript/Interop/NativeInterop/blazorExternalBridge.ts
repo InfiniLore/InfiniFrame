@@ -11,10 +11,12 @@ export function initWindowExternalBridge(setup: InfiniFrameSetup): void {
     setup.windowExternalBridgeInitialized = true;
     
     const external = ensureWindowExternal();
-    window.__blazorCallbacks = window.__blazorCallbacks ?? [];
+    window.infiniframe = window.infiniframe ?? {} as Window["infiniframe"];
+    const callbacks: BlazorCallback[] = [];
+    (window.infiniframe as unknown as Record<string, unknown>).__blazorCallbacks = callbacks;
 
     external.receiveMessage = (callback: BlazorCallback): void => {
-        window.__blazorCallbacks!.push(callback);
+        callbacks.push(callback);
     };
 
     external.receiveCallback = external.receiveMessage;
@@ -34,7 +36,7 @@ export function initWindowExternalBridge(setup: InfiniFrameSetup): void {
         window.__blazorDispatchHooked = true;
 
         window.infiniframe?.host?.receiveCallback((message: string) => {
-            for (const callback of window.__blazorCallbacks ?? []) {
+            for (const callback of callbacks) {
                 try {
                     callback(message);
                 } catch {

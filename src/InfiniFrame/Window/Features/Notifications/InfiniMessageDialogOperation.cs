@@ -67,7 +67,7 @@ internal sealed class InfiniMessageDialogOperation {
                     _lease.Handle, Id, _title, _text, _buttons, _icon, CompletionCallback, context
                 );
                 if (status != InfiniFrameNativeInteropStatus.Success)
-                    throw new ApplicationException(
+                    throw new InfiniFrameNativeInteropException(
                         InfiniFrameNative.GetLastErrorMessage() ?? "Could not show native message dialog."
                     );
             }).ConfigureAwait(false);
@@ -105,7 +105,7 @@ internal sealed class InfiniMessageDialogOperation {
                 if (_lease is null) return;
                 InfiniFrameNativeInteropStatus status = InfiniFrameNative.CancelDialog(_lease.Handle, Id, out _);
                 if (status != InfiniFrameNativeInteropStatus.Success)
-                    throw new ApplicationException(
+                    throw new InfiniFrameNativeInteropException(
                         InfiniFrameNative.GetLastErrorMessage() ?? "Could not cancel native message dialog."
                     );
             }).ConfigureAwait(false);

@@ -24,7 +24,8 @@ public interface IInfiniFrameStaticAssets {
     string DefaultDocument { get; }
 
     /// <summary>
-    ///     Creates a deep copy of the static assets configuration.
+    ///     Creates a shallow copy of the static assets configuration.
+    ///     The returned instance shares the same <see cref="FileProvider"/> reference.
     /// </summary>
     /// <returns>A new <see cref="IInfiniFrameStaticAssets"/> instance with the same property values.</returns>
     IInfiniFrameStaticAssets DeepCopy();

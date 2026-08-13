@@ -27,10 +27,10 @@ static BOOL CALLBACK MonitorEnum(const HMONITOR monitor, HDC, LPRECT, const LPAR
     return callback(&props) ? TRUE : FALSE;
 }
 
-void InfiniFrameWindow::GetAllMonitors(GetAllMonitorsCallback callback) const {
-    if (callback) {
+void InfiniFrameWindow::GetAllMonitors(GetAllMonitorsCallback Callback) const {
+    if (Callback) {
         EnumDisplayMonitors(
-            nullptr, nullptr, MonitorEnum, reinterpret_cast<LPARAM>(callback)
+            nullptr, nullptr, MonitorEnum, reinterpret_cast<LPARAM>(Callback)
         );
     }
 }

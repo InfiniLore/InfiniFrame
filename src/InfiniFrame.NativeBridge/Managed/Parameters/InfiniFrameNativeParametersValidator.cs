@@ -1,8 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using FluentValidation;
 using System.Runtime.InteropServices;
+using FluentValidation;
 
 namespace InfiniFrame.NativeBridge.Parameters;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -100,6 +100,7 @@ public sealed class InfiniFrameNativeParametersValidator
     // -----------------------------------------------------------------------------------------------------------------
     /// <summary>
     ///     Checks whether the given path is writable by creating and deleting a temporary probe file.
+    ///     If the directory does not exist, it will be created as a side effect of this check.
     /// </summary>
     /// <param name="path">The directory path to check.</param>
     /// <returns><c>true</c> if the path is writable; otherwise, <c>false</c>.</returns>
@@ -108,7 +109,20 @@ public sealed class InfiniFrameNativeParametersValidator
 
         string? probeFile = null;
         try {
-            Directory.CreateDirectory(path);
+            if (!Directory.Exists(path)) {
+                try {
+                    Directory.CreateDirectory(path);
+                }
+                catch (Exception ex) when (
+                    ex is IOException
+                        or UnauthorizedAccessException
+                        or ArgumentException
+                        or NotSupportedException
+                        or PathTooLongException
+                ) {
+                    return false;
+                }
+            }
 
             probeFile = Path.Join(path, $".infiniframe-write-check-{Guid.NewGuid():N}.tmp");
 
@@ -131,6 +145,32 @@ public sealed class InfiniFrameNativeParametersValidator
                 File.Delete(probeFile);
             }
         }
+    }
 
+    /// <summary>
+    ///     Ensures the temporary files path exists and is writable.
+    ///     Call this before validation when the path should be created explicitly
+    ///     rather than as a side effect of validation.
+    /// </summary>
+    /// <param name="path">The directory path to ensure.</param>
+    /// <returns><c>true</c> if the path was successfully created or already accessible; otherwise, <c>false</c>.</returns>
+    public static bool EnsureTemporaryFilesPath(string? path) {
+        if (string.IsNullOrWhiteSpace(path)) return true;
+
+        try {
+            if (!Directory.Exists(path)) {
+                Directory.CreateDirectory(path);
+            }
+            return CanAccessTemporaryFilesPath(path);
+        }
+        catch (Exception ex) when (
+            ex is IOException
+                or UnauthorizedAccessException
+                or ArgumentException
+                or NotSupportedException
+                or PathTooLongException
+        ) {
+            return false;
+        }
     }
 }

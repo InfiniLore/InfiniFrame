@@ -25,14 +25,16 @@ describe("InfiniFrameWindow", () => {
     }
 
     function assignInfiniFrame(messaging: InfiniFrameHostMessaging) {
+        const windowApi = new InfiniFrameWindow();
         testWindow.infiniframe = {
             messaging,
-            window: new InfiniFrameWindow(),
+            window: windowApi,
             utils: {
                 setPointerCapture: vi.fn(),
                 releasePointerCapture: vi.fn()
             }
         };
+        return windowApi;
     }
 
     it("routes feature mutations through the generic feature endpoint", () => {

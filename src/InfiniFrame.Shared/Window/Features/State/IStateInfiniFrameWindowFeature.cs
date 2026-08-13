@@ -52,14 +52,16 @@ public interface IStateInfiniFrameWindowFeature {
     bool IsZoomEnabled { get; }
 
     /// <summary>
-    ///     Gets or sets the cached bounds of the window before entering full-screen mode.
+    ///     Gets the cached bounds of the window before entering full-screen mode.
+    ///     Intended for internal use by the window state feature implementation.
     /// </summary>
-    Rectangle CachedPreFullScreenBounds { get; set; }
+    Rectangle CachedPreFullScreenBounds { get; internal set; }
 
     /// <summary>
-    ///     Gets or sets the cached bounds of the window before being maximized.
+    ///     Gets the cached bounds of the window before being maximized.
+    ///     Intended for internal use by the window state feature implementation.
     /// </summary>
-    Rectangle CachedPreMaximizedBounds { get; set; }
+    Rectangle CachedPreMaximizedBounds { get; internal set; }
 
     /// <summary>
     ///     Sets whether the window is maximized.

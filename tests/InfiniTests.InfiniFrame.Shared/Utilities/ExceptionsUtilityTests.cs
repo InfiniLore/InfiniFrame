@@ -10,7 +10,7 @@ namespace InfiniTests.InfiniFrame.Shared.Utilities;
 public class ExceptionsUtilityTests {
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Non-fatal exceptions — should return true
+    // Non-fatal exceptions, should return true
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
     public async Task IsNonFatalException_InvalidOperationException_ReturnsTrue(CancellationToken ct = default) {
@@ -62,7 +62,7 @@ public class ExceptionsUtilityTests {
 
     [Test]
     public async Task IsNonFatalException_OperationCanceledException_ReturnsTrue(CancellationToken ct = default) {
-        // Arrange — OperationCanceledException is not in the fatal list
+        // Arrange, OperationCanceledException is not in the fatal list
         var exception = new OperationCanceledException();
 
         // Act
@@ -85,7 +85,7 @@ public class ExceptionsUtilityTests {
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Fatal exceptions — should return false
+    // Fatal exceptions, should return false
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
     public async Task IsNonFatalException_OutOfMemoryException_ReturnsFalse(CancellationToken ct = default) {

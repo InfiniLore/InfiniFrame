@@ -3,18 +3,25 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Tools.Pack.Exceptions;
 using InfiniFrame.Tools.Pack.Resolvers;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
 namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal static class PublishService {
+internal sealed class PublishService {
     private const string DotNet = "dotnet";
     private static readonly StringComparison PathComparison =
         OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-    private static readonly ILogger Logger = Log.ForContext(typeof(PublishService));
+
+    private readonly ILogger<PublishService> _logger;
+    private readonly ProcessRunner _processRunner;
+
+    public PublishService(ILogger<PublishService> logger, ProcessRunner processRunner) {
+        _logger = logger;
+        _processRunner = processRunner;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -30,7 +37,7 @@ internal static class PublishService {
     /// <exception cref="InvalidOperationException">
     ///     Thrown when native build fails or required artifacts are missing.
     /// </exception>
-    public static async Task<int> PublishAsync(PublishOptions options, CancellationToken cancellationToken = default) {
+    public async Task<int> PublishAsync(PublishOptions options, CancellationToken cancellationToken = default) {
         var totalPublishStopwatch = Stopwatch.StartNew();
         ValidateProcessTimeout(options.ProcessTimeout);
         string projectPath = Path.GetFullPath(options.ProjectPath);
@@ -75,14 +82,14 @@ internal static class PublishService {
             );
 
             var publishStopwatch = Stopwatch.StartNew();
-            int exitCode = await ProcessRunner.RunAsync(DotNet, publishArgs, timeout: options.ProcessTimeout, cancellationToken: cancellationToken);
+            int exitCode = await _processRunner.RunAsync(DotNet, publishArgs, timeout: options.ProcessTimeout, cancellationToken: cancellationToken);
             publishStopwatch.Stop();
-            Logger.Information("Final publish finished in {ElapsedSeconds}s.", Math.Round(publishStopwatch.Elapsed.TotalSeconds, 2));
+            _logger.LogInformation("Final publish finished in {ElapsedSeconds}s.", Math.Round(publishStopwatch.Elapsed.TotalSeconds, 2));
             if (exitCode != 0) return exitCode;
 
             string[] cleanupWarnings = PublishOutputCleaner.Cleanup(output);
             foreach (string warning in cleanupWarnings) {
-                Logger.Warning("{CleanupWarning}", warning);
+                _logger.LogWarning("{CleanupWarning}", warning);
             }
 
             string expectedMainOutput = ResolveExpectedMainOutputPath(output, assemblyName, rid);
@@ -95,7 +102,7 @@ internal static class PublishService {
         }
         finally {
             totalPublishStopwatch.Stop();
-            Logger.Information("Pack pipeline completed in {ElapsedSeconds}s.", Math.Round(totalPublishStopwatch.Elapsed.TotalSeconds, 2));
+            _logger.LogInformation("Pack pipeline completed in {ElapsedSeconds}s.", Math.Round(totalPublishStopwatch.Elapsed.TotalSeconds, 2));
 
             if (nativeArtifacts.DeleteWhenDone && Directory.Exists(nativeArtifacts.Directory)) {
                 Directory.Delete(nativeArtifacts.Directory, true);
@@ -103,24 +110,24 @@ internal static class PublishService {
         }
     }
 
-    private static string ResolveOutputPath(PublishOptions options, string projectDirectory, string framework, string rid) =>
+    private string ResolveOutputPath(PublishOptions options, string projectDirectory, string framework, string rid) =>
         string.IsNullOrWhiteSpace(options.Output)
             ? Path.Join(projectDirectory, "bin", options.Configuration, framework, rid, "publish")
             : Path.GetFullPath(options.Output!);
 
-    private static string ResolveExpectedMainOutputPath(string output, string assemblyName, string rid) {
+    private string ResolveExpectedMainOutputPath(string output, string assemblyName, string rid) {
         string extension = rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase) ? ".exe" : "";
         return Path.Join(output, $"{assemblyName}{extension}");
     }
 
-    private static void PrintPublishSummary(string projectPath, string framework, string rid, bool selfContained, string output, string nativeArtifacts) {
-        Logger.Information("Publishing single-file app");
-        Logger.Information("  Project: {ProjectPath}", projectPath);
-        Logger.Information("  Framework: {Framework}", framework);
-        Logger.Information("  RID: {Rid}", rid);
-        Logger.Information("  SelfContained: {SelfContained}", selfContained);
-        Logger.Information("  Output: {Output}", output);
-        Logger.Information("  NativeArtifacts: {NativeArtifacts}", nativeArtifacts);
+    private void PrintPublishSummary(string projectPath, string framework, string rid, bool selfContained, string output, string nativeArtifacts) {
+        _logger.LogInformation("Publishing single-file app");
+        _logger.LogInformation("  Project: {ProjectPath}", projectPath);
+        _logger.LogInformation("  Framework: {Framework}", framework);
+        _logger.LogInformation("  RID: {Rid}", rid);
+        _logger.LogInformation("  SelfContained: {SelfContained}", selfContained);
+        _logger.LogInformation("  Output: {Output}", output);
+        _logger.LogInformation("  NativeArtifacts: {NativeArtifacts}", nativeArtifacts);
     }
 
     internal static OutputShapeValidation ValidateOutputShape(string output, string expectedMainOutput) {
@@ -144,30 +151,30 @@ internal static class PublishService {
         return new OutputShapeValidation(foundMainOutput, unexpectedEntries);
     }
 
-    private static void PrintOutputSummary(string output, string expectedMainOutput, string[] unexpectedEntries) {
+    private void PrintOutputSummary(string output, string expectedMainOutput, string[] unexpectedEntries) {
         if (!File.Exists(expectedMainOutput)) {
-            Logger.Warning("Publish succeeded, but expected single-file output was not found.");
+            _logger.LogWarning("Publish succeeded, but expected single-file output was not found.");
         }
         else if (unexpectedEntries.Length != 0) {
-            Logger.Warning("Publish output contains unexpected entries.");
+            _logger.LogWarning("Publish output contains unexpected entries.");
         }
 
         string[] files = Directory.GetFiles(output, "*", SearchOption.TopDirectoryOnly);
-        Logger.Information("Completed");
-        Logger.Information("  Files in output: {FileCount}", files.Length);
+        _logger.LogInformation("Completed");
+        _logger.LogInformation("  Files in output: {FileCount}", files.Length);
         foreach (string file in files.Select(Path.GetFileName).Where(x => !string.IsNullOrWhiteSpace(x)).OrderBy(x => x)!) {
-            Logger.Information("  - {File}", file);
+            _logger.LogInformation("  - {File}", file);
         }
 
         if (unexpectedEntries.Length == 0) return;
 
-        Logger.Warning("  Unexpected entries:");
+        _logger.LogWarning("  Unexpected entries:");
         foreach (string unexpectedEntry in unexpectedEntries) {
-            Logger.Warning("  - {UnexpectedEntry}", unexpectedEntry);
+            _logger.LogWarning("  - {UnexpectedEntry}", unexpectedEntry);
         }
     }
 
-    private static async Task<ResolvedNativeArtifacts> ResolveNativeArtifactsAsync(
+    private async Task<ResolvedNativeArtifacts> ResolveNativeArtifactsAsync(
         PublishOptions options,
         string projectPath,
         string framework,
@@ -181,13 +188,13 @@ internal static class PublishService {
         try {
             List<string> preflightArgs = BuildPublishArguments(options, projectPath, framework, rid, preflightDirectory, noRestore: options.NoRestore, isPreflight: true);
             var preflightStopwatch = Stopwatch.StartNew();
-            ProcessRunner.ProcessRunResult preflightResult = await ProcessRunner.RunWithOutputAsync(
+            ProcessRunner.ProcessRunResult preflightResult = await _processRunner.RunWithOutputAsync(
                 DotNet,
                 preflightArgs,
                 timeout: options.ProcessTimeout,
                 cancellationToken: cancellationToken);
             preflightStopwatch.Stop();
-            Logger.Information("Preflight publish finished in {ElapsedSeconds}s.", Math.Round(preflightStopwatch.Elapsed.TotalSeconds, 2));
+            _logger.LogInformation("Preflight publish finished in {ElapsedSeconds}s.", Math.Round(preflightStopwatch.Elapsed.TotalSeconds, 2));
             int preflightExitCode = preflightResult.ExitCode;
 
             if (preflightExitCode != 0) {
@@ -222,7 +229,7 @@ internal static class PublishService {
         }
     }
 
-    private static string? TryResolveNativeArtifactsFromPublishLayout(string publishDirectory, string rid, string configuration) {
+    private string? TryResolveNativeArtifactsFromPublishLayout(string publishDirectory, string rid, string configuration) {
         string[] ridParts = rid.Split('-', StringSplitOptions.RemoveEmptyEntries);
         if (ridParts.Length != 2) return null;
 
@@ -243,14 +250,14 @@ internal static class PublishService {
         return Directory.Exists(candidateDirectory) ? candidateDirectory : null;
     }
 
-    private static string FormatPreflightOutputForException(ProcessRunner.ProcessRunResult preflightResult) {
+    private string FormatPreflightOutputForException(ProcessRunner.ProcessRunResult preflightResult) {
         string standardOutput = TruncateForException(preflightResult.StandardOutput);
         string standardError = TruncateForException(preflightResult.StandardError);
         return $"{Environment.NewLine}--- preflight stdout ---{Environment.NewLine}{standardOutput}" +
             $"{Environment.NewLine}--- preflight stderr ---{Environment.NewLine}{standardError}";
     }
 
-    private static string TruncateForException(string value, int maxLength = 4000) {
+    private string TruncateForException(string value, int maxLength = 4000) {
         if (string.IsNullOrWhiteSpace(value)) return "<empty>";
 
         string trimmed = value.Trim();
@@ -262,13 +269,17 @@ internal static class PublishService {
     // NOTE:
     // This method assumes that PublishPreflightValidator has already validated the path.
     // Do NOT call this method without running preflight validation first.
-    private static void SafeDeleteDirectory(string path) {
+    private void SafeDeleteDirectory(string path) {
         string fullPath = Path.GetFullPath(path);
 
-        // Soft guardrail (not full validation)
         if (string.IsNullOrWhiteSpace(fullPath)) throw new InvalidOperationException("Cannot delete an empty path.");
 
-        Logger.Information("Cleaning previous output folder: {OutputDirectory}", fullPath);
+        string? root = Path.GetPathRoot(fullPath);
+        if (string.Equals(fullPath, root, StringComparison.OrdinalIgnoreCase)) {
+            throw new InvalidOperationException($"Refusing to delete root directory '{fullPath}'.");
+        }
+
+        _logger.LogInformation("Cleaning previous output folder: {OutputDirectory}", fullPath);
 
         try {
             Directory.Delete(fullPath, true);
@@ -281,7 +292,7 @@ internal static class PublishService {
         }
     }
 
-    private static List<string> BuildPublishArguments(
+    private List<string> BuildPublishArguments(
         PublishOptions options,
         string projectPath,
         string framework,

@@ -54,6 +54,7 @@ internal sealed class InfiniNavigationOperation {
     }
 
     public async Task StartAsync() {
+
         try {
             await _window.WaitForReadyAsync(_cancellationToken).ConfigureAwait(false);
             _lease = _window.AcquireNativeHandle();
@@ -65,13 +66,14 @@ internal sealed class InfiniNavigationOperation {
                     ? InfiniFrameNative.BeginNavigateToString(_lease.Handle, Id, _value, CompletionCallback, context)
                     : InfiniFrameNative.BeginNavigateToUrl(_lease.Handle, Id, _value, CompletionCallback, context);
                 if (status != InfiniFrameNativeInteropStatus.Success)
-                    throw new ApplicationException(InfiniFrameNative.GetLastErrorMessage() ?? "Native navigation registration failed.");
+                    throw new InfiniFrameNativeInteropException(InfiniFrameNative.GetLastErrorMessage() ?? "Native navigation registration failed.");
             }, cancellationToken: _cancellationToken).ConfigureAwait(false);
 
             if (dispatch == InfiniFrameDispatchResult.Cancelled) {
                 FinishCancelled();
                 return;
             }
+
             if (dispatch != InfiniFrameDispatchResult.Completed) {
                 Finish(new NavigationResult(
                     Id,
@@ -86,12 +88,20 @@ internal sealed class InfiniNavigationOperation {
                 static state => ((InfiniNavigationOperation)state!).RequestCancellation(), this
             );
             _cancellationRegistration = registration;
+            
             // A backend is allowed to complete synchronously while BeginNavigate is returning.
             // In that race cleanup may have run before this registration was assigned.
-            if (Volatile.Read(ref _completed) != 0) {
-                registration.Dispose();
-                return;
+            try {
+                if (Volatile.Read(ref _completed) != 0) {
+                    await registration.DisposeAsync();
+                    return;
+                }
             }
+            catch {
+                await registration.DisposeAsync();
+                throw;
+            }
+
             if (_cancellationToken.IsCancellationRequested)
                 RequestCancellation();
         }

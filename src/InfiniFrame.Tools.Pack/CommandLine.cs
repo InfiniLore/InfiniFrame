@@ -2,15 +2,19 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Tools.Pack.Services;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Globalization;
 
 namespace InfiniFrame.Tools.Pack;
 // -----------------------------------------------------------------------------------------------------------------
 // Methods
 // -----------------------------------------------------------------------------------------------------------------
-internal static class CommandLine {
-    private static readonly ILogger Logger = Log.ForContext(typeof(CommandLine));
+internal sealed class CommandLine {
+    private readonly ILogger<CommandLine> _logger;
+
+    public CommandLine(ILogger<CommandLine> logger) {
+        _logger = logger;
+    }
 
     /// <summary>
     ///     Parses command-line arguments into a normalized <see cref="PublishOptions" /> model or a usage response.
@@ -23,7 +27,7 @@ internal static class CommandLine {
     /// <exception cref="FormatException">
     ///     Thrown when <c>--self-contained</c> receives a value that is not a valid boolean.
     /// </exception>
-    public static ParseResult Parse(string[] args) {
+    public ParseResult Parse(string[] args) {
         string? firstArg = args.FirstOrDefault();
         if (args.Length == 0 || firstArg is null || IsHelp(firstArg)) return ParseResult.Usage(ExitCodes.Success);
 
@@ -43,21 +47,21 @@ internal static class CommandLine {
     /// <summary>
     ///     Prints the CLI usage text for the pack tool.
     /// </summary>
-    public static void PrintUsage() {
-        Logger.Information("InfiniFrame.Pack");
-        Logger.Information("Usage:");
-        Logger.Information("  infiniframe-pack publish <project.csproj> [options]");
-        Logger.Information("");
-        Logger.Information("Options:");
-        Logger.Information("  --rid <RID|auto>             Runtime identifier. Default: auto");
-        Logger.Information("  --configuration <Config>      Build configuration. Default: Release");
-        Logger.Information("  --framework <TFM>             Target framework. Default: first TFM in project");
-        Logger.Information("  --self-contained <true|false> Self-contained publish. Default: true");
-        Logger.Information("  --output <path>               Publish output directory");
-        Logger.Information("  --no-restore                  Skip restore");
-        Logger.Information("  --verbose                     Verbose publish output");
-        Logger.Information("  --timeout <value>             Per-process timeout (e.g. 600, 90s, 5m, 00:10:00). Default: 10m, max: 30m");
-        Logger.Information("  --force-clean-output          Allow deleting non-default output directories");
+    public void PrintUsage() {
+        _logger.LogInformation("InfiniFrame.Pack");
+        _logger.LogInformation("Usage:");
+        _logger.LogInformation("  infiniframe-pack publish <project.csproj> [options]");
+        _logger.LogInformation("");
+        _logger.LogInformation("Options:");
+        _logger.LogInformation("  --rid <RID|auto>             Runtime identifier. Default: auto");
+        _logger.LogInformation("  --configuration <Config>      Build configuration. Default: Release");
+        _logger.LogInformation("  --framework <TFM>             Target framework. Default: first TFM in project");
+        _logger.LogInformation("  --self-contained <true|false> Self-contained publish. Default: true");
+        _logger.LogInformation("  --output <path>               Publish output directory");
+        _logger.LogInformation("  --no-restore                  Skip restore");
+        _logger.LogInformation("  --verbose                     Verbose publish output");
+        _logger.LogInformation("  --timeout <value>             Per-process timeout (e.g. 600, 90s, 5m, 00:10:00). Default: 10m, max: 30m");
+        _logger.LogInformation("  --force-clean-output          Allow deleting non-default output directories");
     }
 
     private static bool IsHelp(string value) => value is "-h" or "--help" or "help";

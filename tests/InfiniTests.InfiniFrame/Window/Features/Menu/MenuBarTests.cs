@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters;
-using System.Collections.Immutable;
 using System.Text.Json;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Menu;
@@ -17,15 +16,15 @@ public class MenuBarTests {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
         var menuBar = new InfiniFrameMenuBar(
-            Items: ImmutableArray.Create(
+            Items: [
                 new InfiniFrameMenuItem("file", "File", InfiniFrameMenuItemType.Submenu,
-                    Children: ImmutableArray.Create(
+                    Children: [
                         new InfiniFrameMenuItem("open", "Open"),
                         new InfiniFrameMenuItem("save", "Save")
-                    )
+                    ]
                 ),
                 new InfiniFrameMenuItem("edit", "Edit")
-            )
+            ]
         );
 
         // Act
@@ -42,9 +41,9 @@ public class MenuBarTests {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
         var menuBar = new InfiniFrameMenuBar(
-            Items: ImmutableArray.Create(
+            Items: [
                 new InfiniFrameMenuItem("help", "Help")
-            )
+            ]
         );
 
         // Act
@@ -66,7 +65,7 @@ public class MenuBarTests {
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
-        await Assert.That(builder.Features.Menu.MenuBar.Items).IsEmpty();
+        await Assert.That(builder.Features.Menu.MenuBar.Items.IsEmpty).IsTrue();
         await Assert.That(initParameters.MenuBarJson).IsNull();
     }
 
@@ -80,7 +79,7 @@ public class MenuBarTests {
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
-        await Assert.That(builder.Features.Menu.MenuBar.Items).IsEmpty();
+        await Assert.That(builder.Features.Menu.MenuBar.Items.IsEmpty).IsTrue();
         await Assert.That(initParameters.MenuBarJson).IsNull();
     }
 
@@ -89,13 +88,13 @@ public class MenuBarTests {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
         var menuBar = new InfiniFrameMenuBar(
-            Items: ImmutableArray.Create(
+            Items: [
                 new InfiniFrameMenuItem("file", "File", InfiniFrameMenuItemType.Submenu,
-                    Children: ImmutableArray.Create(
+                    Children: [
                         new InfiniFrameMenuItem("open", "Open", KeyboardShortcut: "Ctrl+O")
-                    )
+                    ]
                 )
-            )
+            ]
         );
 
         // Act
@@ -107,9 +106,9 @@ public class MenuBarTests {
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         var deserialized = JsonSerializer.Deserialize<InfiniFrameMenuBar>(initParameters.MenuBarJson!, options);
         await Assert.That(deserialized).IsNotNull();
-        await Assert.That(deserialized!.Items).Count().IsEqualTo(1);
+        await Assert.That(deserialized!.Items.Length).IsEqualTo(1);
         await Assert.That(deserialized.Items[0].Id).IsEqualTo("file");
-        await Assert.That(deserialized.Items[0].Children).Count().IsEqualTo(1);
+        await Assert.That(deserialized.Items[0].Children.Length).IsEqualTo(1);
         await Assert.That(deserialized.Items[0].Children[0].KeyboardShortcut).IsEqualTo("Ctrl+O");
     }
 
@@ -118,9 +117,9 @@ public class MenuBarTests {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
         builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
-            Items: ImmutableArray.Create(
+            Items: [
                 new InfiniFrameMenuItem("file", "File")
-            )
+            ]
         ));
 
         // Act
@@ -128,7 +127,7 @@ public class MenuBarTests {
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
-        await Assert.That(builder.Features.Menu.MenuBar.Items).IsEmpty();
+        await Assert.That(builder.Features.Menu.MenuBar.Items.IsEmpty).IsTrue();
         await Assert.That(initParameters.MenuBarJson).IsNull();
     }
 
@@ -137,21 +136,21 @@ public class MenuBarTests {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
         builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
-            Items: ImmutableArray.Create(
+            Items: [
                 new InfiniFrameMenuItem("old", "Old")
-            )
+            ]
         ));
 
         // Act
         builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
-            Items: ImmutableArray.Create(
+            Items: [
                 new InfiniFrameMenuItem("new", "New")
-            )
+            ]
         ));
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
-        await Assert.That(builder.Features.Menu.MenuBar.Items).Count().IsEqualTo(1);
+        await Assert.That(builder.Features.Menu.MenuBar.Items.Length).IsEqualTo(1);
         await Assert.That(builder.Features.Menu.MenuBar.Items[0].Id).IsEqualTo("new");
         await Assert.That(initParameters.MenuBarJson).IsNotNull();
     }
@@ -164,13 +163,13 @@ public class MenuBarTests {
         // Act
         IInfiniFrameWindowBuilder result = builder
             .SetMenuBar(new InfiniFrameMenuBar(
-                Items: ImmutableArray.Create(
+                Items: [
                     new InfiniFrameMenuItem("file", "File")
-                )
+                ]
             ));
 
         // Assert
         await Assert.That(result).IsSameReferenceAs(builder);
-        await Assert.That(builder.Features.Menu.MenuBar.Items).Count().IsEqualTo(1);
+        await Assert.That(builder.Features.Menu.MenuBar.Items.Length).IsEqualTo(1);
     }
 }

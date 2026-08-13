@@ -26,12 +26,15 @@ public class InfiniFrameBlazorAppConfiguration {
     /// <summary>
     ///     Gets or sets the maximum number of outbound messages waiting to be delivered to the native WebView.
     ///     A positive value is required. The default bounds memory while accommodating normal render bursts.
+    ///     Increase this value for applications with high-frequency rendering updates; decrease for memory-constrained scenarios.
     /// </summary>
     public int WebMessageQueueCapacity { get; set; } = 1_024;
 
     /// <summary>
     ///     Gets or sets how outbound messages are handled when <see cref="WebMessageQueueCapacity" /> is reached.
     ///     The default rejects the new message, which provides immediate backpressure to the non-awaitable Blazor API.
+    ///     Note: The current implementation always uses <c>TryWrite</c> (non-blocking), so this setting only controls
+    ///     diagnostic logging and is reserved for future use with blocking write paths.
     /// </summary>
-    public BoundedChannelFullMode WebMessageQueueFullMode { get; set; } = BoundedChannelFullMode.Wait;
+    public BoundedChannelFullMode WebMessageQueueFullMode { get; set; } = BoundedChannelFullMode.DropWrite;
 }

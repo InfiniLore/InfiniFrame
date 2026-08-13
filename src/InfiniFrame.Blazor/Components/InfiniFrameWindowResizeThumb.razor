@@ -51,7 +51,7 @@
             ResizeOrigin.Bottom => "bottom",
             ResizeOrigin.BottomLeft => "bottom-left",
             ResizeOrigin.Left => "left",
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new ArgumentOutOfRangeException(nameof(ResizeThumb), ResizeThumb, $"Unsupported resize origin: {ResizeThumb}")
         };
 
         switch (ResizeThumb) {
@@ -127,7 +127,7 @@
                 return;
             }
 
-            default: throw new ArgumentOutOfRangeException();
+            default: throw new ArgumentOutOfRangeException(nameof(ResizeThumb), ResizeThumb, $"Unsupported resize origin: {ResizeThumb}");
         }
     }
 }

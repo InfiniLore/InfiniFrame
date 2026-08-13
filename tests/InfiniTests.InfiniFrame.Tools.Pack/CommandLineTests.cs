@@ -3,19 +3,22 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Tools.Pack;
 using InfiniFrame.Tools.Pack.Services;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniTests.InfiniFrame.Tools.Pack;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class CommandLineTests {
+    private readonly CommandLine _commandLine = new(NullLogger<CommandLine>.Instance);
+
     [Test]
     public async Task Parse_ReturnsUsage_WhenArgsAreEmpty() {
         // Arrange
         string[] args = [];
 
         // Act
-        ParseResult result = CommandLine.Parse(args);
+        ParseResult result = _commandLine.Parse(args);
 
         // Assert
         await Assert.That(result.ShowUsage).IsTrue();
@@ -29,7 +32,7 @@ public class CommandLineTests {
         string[] args = ["--help"];
 
         // Act
-        ParseResult result = CommandLine.Parse(args);
+        ParseResult result = _commandLine.Parse(args);
 
         // Assert
         await Assert.That(result.ShowUsage).IsTrue();
@@ -44,7 +47,7 @@ public class CommandLineTests {
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() => {
-            CommandLine.Parse(args);
+            _commandLine.Parse(args);
             return Task.CompletedTask;
         }).WithMessage("Unknown command 'unknown'.");
     }
@@ -55,7 +58,7 @@ public class CommandLineTests {
         string[] args = ["publish"];
 
         // Act
-        ParseResult result = CommandLine.Parse(args);
+        ParseResult result = _commandLine.Parse(args);
 
         // Assert
         await Assert.That(result.ShowUsage).IsTrue();
@@ -69,7 +72,7 @@ public class CommandLineTests {
         string[] args = ["publish", "MyApp.csproj"];
 
         // Act
-        ParseResult result = CommandLine.Parse(args);
+        ParseResult result = _commandLine.Parse(args);
 
         // Assert
         await Assert.That(result.ShowUsage).IsFalse();
@@ -105,7 +108,7 @@ public class CommandLineTests {
         ];
 
         // Act
-        ParseResult result = CommandLine.Parse(args);
+        ParseResult result = _commandLine.Parse(args);
 
         // Assert
         await Assert.That(result.ShowUsage).IsFalse();
@@ -129,7 +132,7 @@ public class CommandLineTests {
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() => {
-            CommandLine.Parse(args);
+            _commandLine.Parse(args);
             return Task.CompletedTask;
         }).WithMessage("Unexpected argument 'extra'.");
     }
@@ -141,7 +144,7 @@ public class CommandLineTests {
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() => {
-            CommandLine.Parse(args);
+            _commandLine.Parse(args);
             return Task.CompletedTask;
         }).WithMessage("Unknown option '--not-real'.");
     }
@@ -153,7 +156,7 @@ public class CommandLineTests {
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() => {
-            CommandLine.Parse(args);
+            _commandLine.Parse(args);
             return Task.CompletedTask;
         }).WithMessage("Missing value for --rid.");
     }
@@ -165,7 +168,7 @@ public class CommandLineTests {
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() => {
-            CommandLine.Parse(args);
+            _commandLine.Parse(args);
             return Task.CompletedTask;
         }).WithMessage("Missing project path.");
     }
@@ -177,7 +180,7 @@ public class CommandLineTests {
 
         // Act & Assert
         await Assert.ThrowsAsync<FormatException>(() => {
-            CommandLine.Parse(args);
+            _commandLine.Parse(args);
             return Task.CompletedTask;
         });
     }
@@ -189,7 +192,7 @@ public class CommandLineTests {
 
         // Act & Assert
         await Assert.ThrowsAsync<FormatException>(() => {
-            CommandLine.Parse(args);
+            _commandLine.Parse(args);
             return Task.CompletedTask;
         }).WithMessage("Invalid timeout value '0'. Use a positive value like '600', '90s', '5m', or '00:10:00'.");
     }
@@ -201,7 +204,7 @@ public class CommandLineTests {
 
         // Act & Assert
         await Assert.ThrowsAsync<FormatException>(() => {
-            CommandLine.Parse(args);
+            _commandLine.Parse(args);
             return Task.CompletedTask;
         }).WithMessage("Timeout '00:31:00' exceeds the maximum supported value of '00:30:00'.");
     }
@@ -211,7 +214,7 @@ public class CommandLineTests {
         // Arrange
 
         // Act
-        CommandLine.PrintUsage();
+        _commandLine.PrintUsage();
         bool executed = true;
 
         // Assert

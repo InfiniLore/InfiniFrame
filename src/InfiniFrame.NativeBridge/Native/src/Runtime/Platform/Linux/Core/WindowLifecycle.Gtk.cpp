@@ -7,7 +7,7 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 namespace {
-    void on_webview_finalized(gpointer userData, GObject* object) {
+    void on_webview_finalized(const gpointer userData, GObject* object) {
         (void)object;
         if (userData != nullptr)
             static_cast<InfiniFrameWindow*>(userData)->NotifyWebViewFinalized();
@@ -51,13 +51,16 @@ void InfiniFrameWindow::Center() {
         return;
     }
 
-    GdkMonitor* monitor = gdk_display_get_primary_monitor(display);
+    GdkMonitor* monitor = gdk_display_get_monitor_at_window(display, GDK_WINDOW(gtk_widget_get_window(m_impl->_window)));
     if (monitor == nullptr) {
-        monitor = gdk_display_get_monitor(display, 0);
+        monitor = gdk_display_get_primary_monitor(display);
+        if (monitor == nullptr) {
+            monitor = gdk_display_get_monitor(display, 0);
+        }
         if (monitor == nullptr) {
             GtkWidget* dialog = gtk_message_dialog_new(
                 nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
-                "gdk_display_get_primary_monitor() returned NULL"
+                "No display monitor found for centering."
             );
             gtk_dialog_run(GTK_DIALOG(dialog));
             gtk_widget_destroy(dialog);

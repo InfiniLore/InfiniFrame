@@ -11,16 +11,16 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
-    /// <inheritdoc cref="IInfiniFrameWindowBuilder.Configuration"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilder.Configuration" />
     public IInfiniFrameWindowBuilderConfiguration Configuration { get; } = new InfiniFrameWindowBuilderConfiguration();
-    /// <inheritdoc cref="IInfiniFrameWindowBuilder.Features"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilder.Features" />
     public IInfiniFrameWindowBuilderFeatures Features { get; } = new InfiniFrameWindowBuilderFeatures();
-    /// <inheritdoc cref="IInfiniFrameWindowBuilder.Debugging"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilder.Debugging" />
     public IDebuggingInfiniFrameWindowBuilderFeature Debugging => Features.Debugging;
-    /// <inheritdoc cref="IHasInfiniFrameEventsStore.EventsStore"/>
+    /// <inheritdoc cref="IHasInfiniFrameEventsStore.EventsStore" />
     public IInfiniFrameEventsStore EventsStore { get; private init; } = new InfiniFrameEventsStore();
 
-    /// <inheritdoc cref="IInfiniFrameWindowBuilder.StaticAssets"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilder.StaticAssets" />
     public IInfiniFrameStaticAssets? StaticAssets { get; set; }
 
     private IServiceCollection Services { get; init; } = new ServiceCollection().AddInfiniFrame();
@@ -42,8 +42,9 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    /// <inheritdoc cref="IInfiniFrameWindowBuilder.Build"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilder.Build" />
     public IInfiniFrameWindow Build(IServiceProvider? provider = null) {
+        bool ownsServiceProvider = provider is null;
         IServiceProvider actualProvider = provider ?? Services.BuildServiceProvider();
         var featureFactory = actualProvider.GetRequiredService<InfiniFrameWindowFeaturesFactory>();
         var validator = actualProvider.GetRequiredService<IValidator<InfiniFrameNativeParameters>>();
@@ -52,13 +53,13 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
         // Instance arbitration check
         IInstanceArbitrationInfiniFrameWindowBuilderFeature arbitration = Features.InstanceArbitration;
-        if (arbitration.Mode != InstanceArbitrationMode.Disabled) {
-            if (!InstanceArbitration.TryAcquirePrimaryInstance(arbitration.MutexName)) {
-                throw new InstanceAlreadyRunningException();
-            }
+        if (arbitration.Mode != InstanceArbitrationMode.Disabled
+            && !InstanceArbitration.TryAcquirePrimaryInstance(arbitration.MutexName)) {
+            throw new InstanceAlreadyRunningException();
         }
 
         var window = actualProvider.GetRequiredService<InfiniFrameWindow>();
+        window.SetOwnsServiceProvider(ownsServiceProvider);
 
         window.AssignFeatures(featureFactory.Create(window, this));
 

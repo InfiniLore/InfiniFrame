@@ -3,6 +3,7 @@
         <RootNamespace>InfiniFrame</RootNamespace>
         <PackageId>InfiniLore.InfiniFrame.Shared</PackageId>
         <OutputType>Library</OutputType>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>

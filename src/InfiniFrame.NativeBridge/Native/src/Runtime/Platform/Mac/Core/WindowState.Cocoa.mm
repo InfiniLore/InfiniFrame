@@ -343,10 +343,21 @@ void InfiniFrameWindow::SetBrowserShortcutsEnabled(bool enabled)
     m_impl->_browserShortcutsEnabled = enabled;
     if (m_impl->_webview == nil)
         return;
-    NSString *js = enabled
-        ? @"window.__infiniframe_browserShortcutsEnabled=true;"
-        : @"window.__infiniframe_browserShortcutsEnabled=false;";
-    [m_impl->_webview evaluateJavaScript:js completionHandler:nil];
+    @autoreleasepool {
+        NSString *enabledStr = enabled ? @"true" : @"false";
+        NSString *payload = [NSString stringWithFormat:@"{\"enabled\":%@}", enabledStr];
+        NSString *escapedPayload = [
+            [[NSString alloc]
+                initWithData:[NSJSONSerialization dataWithJSONObject:@[payload] options:0 error:nil]
+                encoding:NSUTF8StringEncoding] autorelease];
+        // Strip surrounding quotes added by NSJSONSerialization array wrapping.
+        escapedPayload = [escapedPayload substringWithRange:NSMakeRange(1, [escapedPayload length] - 2)];
+        NSString *envelope = [NSString stringWithFormat:
+            @"{\"version\":1,\"messageId\":\"__infiniframe:browser:setBrowserShortcutsEnabled\",\"payload\":\"%@\"}",
+            escapedPayload];
+        std::string envelopeStr = [envelope UTF8String];
+        SendWebMessage(envelopeStr.c_str());
+    }
 }
 
 void InfiniFrameWindow::SetIconFile(const char* filename)

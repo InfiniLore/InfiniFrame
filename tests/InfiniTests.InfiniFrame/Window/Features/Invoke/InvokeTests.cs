@@ -15,14 +15,15 @@ public class InvokeTests {
         IInfiniFrameWindow window = windowUtility.Window;
         int callbacks = 0;
 
-        ValueTask<InfiniFrameDispatchResult>[] dispatches = Enumerable.Range(0, 32)
-            .Select(_ => window.DispatchAsync(callback: () => {
-                Interlocked.Increment(ref callbacks);
-                InfiniFrameDispatchResult nested = window.Features.Invoke.Invoke(() => Interlocked.Increment(ref callbacks));
-                if (nested != InfiniFrameDispatchResult.Completed)
-                    throw new InvalidOperationException($"Nested dispatch ended with {nested}.");
-            }, TimeSpan.FromSeconds(5), ct))
-            .ToArray();
+        ValueTask<InfiniFrameDispatchResult>[] dispatches = [
+            .. Enumerable.Range(0, 32)
+                .Select(_ => window.DispatchAsync(callback: () => {
+                    Interlocked.Increment(ref callbacks);
+                    InfiniFrameDispatchResult nested = window.Features.Invoke.Invoke(() => Interlocked.Increment(ref callbacks));
+                    if (nested != InfiniFrameDispatchResult.Completed)
+                        throw new InvalidOperationException($"Nested dispatch ended with {nested}.");
+                }, TimeSpan.FromSeconds(5), ct))
+        ];
 
         InfiniFrameDispatchResult[] results = await Task.WhenAll(dispatches.Select(static d => d.AsTask()));
 

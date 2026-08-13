@@ -4,6 +4,7 @@
 #include <X11/Xlib.h>
 #include <chrono>
 #include <condition_variable>
+#include <cstdlib>
 #include <exception>
 #include <functional>
 #include <libnotify/notify.h>
@@ -27,6 +28,8 @@ namespace {
     bool initialized = false;
     std::thread::id ownerThreadId = {};
     GMainContext* ownerContext = nullptr;
+    std::thread gtkThread;
+    GMainLoop* mainLoop = nullptr;
 
     struct InvokeState {
         std::function<void()> callback;
@@ -38,7 +41,7 @@ namespace {
         std::atomic<int> state = 0;
     };
 
-    gboolean InvokeOnOwnerContext(gpointer userData) {
+    gboolean InvokeOnOwnerContext(const gpointer userData) {
         auto* retainedState = static_cast<std::shared_ptr<InvokeState>*>(userData);
         std::shared_ptr<InvokeState> state = *retainedState;
         // Do not invoke a reverse P/Invoke after the waiting managed call has returned.
@@ -64,15 +67,33 @@ namespace {
         return G_SOURCE_REMOVE;
     }
 
-    void ReleaseInvokeState(gpointer userData) {
+    void ReleaseInvokeState(const gpointer userData) {
         delete static_cast<std::shared_ptr<InvokeState>*>(userData);
+    }
+
+    void AtexitShutdown() {
+        if (!initialized)
+            return;
+        if (!gtkThread.joinable())
+            return;
+
+        if (mainLoop != nullptr && g_main_loop_is_running(mainLoop)) {
+            g_main_loop_quit(mainLoop);
+        }
+
+        // Detach rather than join. During process exit GLib/GDK objects may already be
+        // half-torn-down and the thread could be stuck in a GLib call. Joining here risks
+        // deadlock or SIGABRT. The OS reclaims all thread resources on process exit.
+        gtkThread.detach();
     }
 }
 
 namespace infiniframe::linux_gtk::ui_thread {
     void EnsureInitialized() {
         std::call_once(initializeOnce, [] {
-            std::thread worker([] {
+            std::atexit(AtexitShutdown);
+
+            gtkThread = std::thread([] {
                 infiniframe::linux_gtk::ConfigureGraphicsEnvironment();
                 XInitThreads();
                 gtk_init(nullptr, nullptr);
@@ -86,16 +107,30 @@ namespace infiniframe::linux_gtk::ui_thread {
                     initializeCompleted.notify_all();
                 }
 
-                auto* loop = g_main_loop_new(ownerContext, FALSE);
-                g_main_loop_run(loop);
-                g_main_loop_unref(loop);
-            });
+                mainLoop = g_main_loop_new(ownerContext, FALSE);
+                g_main_loop_run(mainLoop);
+                g_main_loop_unref(mainLoop);
+                mainLoop = nullptr;
 
-            worker.detach();
+                notify_uninit();
+            });
 
             std::unique_lock lock(initializeMutex);
             initializeCompleted.wait(lock, [] { return initialized; });
         });
+    }
+
+    void Shutdown() {
+        if (!initialized)
+            return;
+
+        if (mainLoop != nullptr && g_main_loop_is_running(mainLoop)) {
+            g_main_loop_quit(mainLoop);
+        }
+
+        if (gtkThread.joinable()) {
+            gtkThread.join();
+        }
     }
 
     bool IsCurrentThread() {
@@ -104,7 +139,7 @@ namespace infiniframe::linux_gtk::ui_thread {
     }
 
     namespace {
-        gboolean ExecuteAsync(gpointer userData) {
+        gboolean ExecuteAsync(const gpointer userData) {
             std::unique_ptr<std::function<void()>> callback(static_cast<std::function<void()>*>(userData));
             try {
                 (*callback)();

@@ -96,7 +96,7 @@ public class NativeRectTests {
 
     [Test]
     public async Task X_WithNegativeValue_PreservesValue(CancellationToken ct = default) {
-        // Arrange — monitor to the left of the primary has a negative X origin
+        // Arrange, monitor to the left of the primary has a negative X origin
         const int expectedX = -1920;
 
         // Act
@@ -108,7 +108,7 @@ public class NativeRectTests {
 
     [Test]
     public async Task Y_WithNegativeValue_PreservesValue(CancellationToken ct = default) {
-        // Arrange — monitor above the primary has a negative Y origin
+        // Arrange, monitor above the primary has a negative Y origin
         const int expectedY = -1080;
 
         // Act
@@ -151,7 +151,7 @@ public class NativeRectTests {
         NativeRect copy = original;
         copy.X = 500;
 
-        // Assert — original is unchanged
+        // Assert, original is unchanged
         await Assert.That(original.X).IsEqualTo(0);
         await Assert.That(copy.X).IsEqualTo(500);
     }

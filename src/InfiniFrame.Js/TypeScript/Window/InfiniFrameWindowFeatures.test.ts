@@ -180,8 +180,9 @@ describe.each(contracts)("$feature window feature", ({feature, gets = [], posts 
             assignMessageReceivedHandler: vi.fn(),
             unregisterMessageReceivedHandler: vi.fn()
         } as unknown as InfiniFrameHostMessaging;
+        window.infiniframe = {messaging, window: {} as InfiniFrameWindow, utils: {setPointerCapture: vi.fn(), releasePointerCapture: vi.fn()}};
         windowApi = new InfiniFrameWindow();
-        window.infiniframe = {messaging, window: windowApi, utils: {setPointerCapture: vi.fn(), releasePointerCapture: vi.fn()}};
+        window.infiniframe.window = windowApi;
     });
 
     it.each(gets)("$method maps to $command", async ({method, command, parameters = [], args, result}) => {
@@ -222,8 +223,9 @@ describe("strongly typed feature behavior", () => {
             assignMessageReceivedHandler: vi.fn(),
             unregisterMessageReceivedHandler: vi.fn()
         } as unknown as InfiniFrameHostMessaging;
+        window.infiniframe = {messaging, window: {} as InfiniFrameWindow, utils: {setPointerCapture: vi.fn(), releasePointerCapture: vi.fn()}};
         windowApi = new InfiniFrameWindow();
-        window.infiniframe = {messaging, window: windowApi, utils: {setPointerCapture: vi.fn(), releasePointerCapture: vi.fn()}};
+        window.infiniframe.window = windowApi;
     });
 
     it("routes cached state bounds setters with typed Rectangle values", () => {

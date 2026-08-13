@@ -80,22 +80,24 @@ public class NativeLifetimeStressTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
-        using var stop = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        var stop = CancellationTokenSource.CreateLinkedTokenSource(ct);
         int completedCalls = 0;
 
-        Task[] callers = Enumerable.Range(0, ConcurrentFeatureCallerCount)
-            .Select(workerIndex => Task.Run(action: () => {
-                _ = workerIndex;
-                while (!stop.IsCancellationRequested) {
-                    try {
-                        _ = window.Features.State.IsFocused;
-                        Interlocked.Increment(ref completedCalls);
+        Task[] callers = [
+            .. Enumerable.Range(0, ConcurrentFeatureCallerCount)
+                .Select(workerIndex => Task.Run(action: () => {
+                    _ = workerIndex;
+                    while (stop is { IsCancellationRequested: false }) {
+                        try {
+                            _ = window.Features.State.IsFocused;
+                            Interlocked.Increment(ref completedCalls);
+                        }
+                        catch (ObjectDisposedException) {
+                            return;
+                        }
                     }
-                    catch (ObjectDisposedException) {
-                        return;
-                    }
-                }
-            }, stop.Token)).ToArray();
+                }, stop.Token))
+        ];
 
         // Act
         await Task.Delay(50, ct);
@@ -122,9 +124,11 @@ public class NativeLifetimeStressTests {
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
-        Task[] closeRequests = Enumerable.Range(0, 16)
-            .Select(_ => Task.Run(window.Close, ct))
-            .ToArray();
+        Task[] closeRequests = [
+            .. Enumerable.Range(0, 16)
+                // ReSharper disable once AccessToDisposedClosure
+                .Select(_ => Task.Run(window.Close, ct))
+        ];
 
         // Act
         await Task.WhenAll(closeRequests);

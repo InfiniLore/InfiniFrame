@@ -16,5 +16,12 @@ internal static class ExceptionsUtility {
     /// <param name="exception">The exception to evaluate.</param>
     /// <returns><c>true</c> if the exception is non-fatal; otherwise, <c>false</c>.</returns>
     public static bool IsNonFatalException(Exception exception)
-        => exception is not (ApplicationException or OutOfMemoryException or AccessViolationException);
+        => exception is not (ApplicationException 
+            or OutOfMemoryException 
+            or AccessViolationException 
+            or StackOverflowException
+            or ThreadAbortException
+            or BadImageFormatException
+            or System.Runtime.InteropServices.SEHException
+        );
 }

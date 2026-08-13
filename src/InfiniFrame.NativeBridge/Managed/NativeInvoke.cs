@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.NativeBridge.Handles;
-using Microsoft.Extensions.Logging;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using InfiniFrame.NativeBridge.Handles;
+using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame.NativeBridge;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -834,7 +834,7 @@ internal static partial class NativeInvoke {
                 logger.LogTrace("Executing callback on same thread");
                 result = callback(nativeHandle);
             }
-            catch (Exception ex) when (ex is not (ApplicationException or OutOfMemoryException or AccessViolationException)) {
+            catch (Exception ex) when (ex is not (ApplicationException or OutOfMemoryException or AccessViolationException or StackOverflowException or ThreadAbortException or OperationCanceledException)) {
                 callbackException = ex;
             }
             finally {
@@ -849,7 +849,7 @@ internal static partial class NativeInvoke {
                 try {
                     result = callback(nativeHandle);
                 }
-                catch (Exception ex) when (ex is not (ApplicationException or OutOfMemoryException or AccessViolationException)) {
+                catch (Exception ex) when (ex is not (ApplicationException or OutOfMemoryException or AccessViolationException or StackOverflowException or ThreadAbortException or OperationCanceledException)) {
                     callbackException = ex;
                 }
                 finally {
@@ -929,16 +929,12 @@ internal static partial class NativeInvoke {
 
 
         InfiniFrameNativeInteropStatus actualStatus = status;
-        if (foundMessage is not null) {
-            actualStatus = InfiniFrameNativeInteropStatus.OperationFailed;
-            logger.LogTrace("Overwriting original status of {InfiniFrameNativeInteropStatus} with {ActualStatus}", status, actualStatus);
-        }
 
         string sanitizedMessage = Sanitize(message);
         string sanitizedActualStatus = Sanitize(actualStatus.ToString());
 
-        logger.LogCritical("Native interop call failed with unknown status state. Fallback last error {FallbackLastError}. {FallbackMessage} {FallbackStatus}", fallbackLastError, sanitizedMessage, sanitizedActualStatus);
-        throw new ApplicationException($"Native interop call failed with unknown status state. Fallback last error {fallbackLastError}. {sanitizedMessage} {sanitizedActualStatus}");
+        logger.LogCritical("Native interop call failed. Status: {FallbackStatus}. Fallback last error {FallbackLastError}. {FallbackMessage}", sanitizedActualStatus, fallbackLastError, sanitizedMessage);
+        throw new InfiniFrameNativeInteropException($"Native interop call failed with status {sanitizedActualStatus}. Fallback last error {fallbackLastError}. {sanitizedMessage}");
     }
 
     private static string Sanitize(string message) {
@@ -1031,14 +1027,14 @@ internal static partial class NativeInvoke {
     /// </summary>
     internal delegate InfiniFrameNativeInteropStatus FuncWithArgs<in T1, in T2, in T3, in T4, in T5, in T6, in T7, in T8>(IntPtr handle, T1 arg, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8);
 
-    [GeneratedRegex(@"0x[0-9A-Fa-f]+", RegexOptions.Compiled)]
+    [GeneratedRegex(@"0x[0-9A-Fa-f]+")]
     private static partial Regex GeneratedMemoryAddressRegex();
-    [GeneratedRegex(@"[A-Za-z]:\\[^\s""']+", RegexOptions.Compiled)]
+    [GeneratedRegex(@"[A-Za-z]:\\[^\s""']+")]
     private static partial Regex GeneratedWindowsPathRegex();
-    [GeneratedRegex(@"(?<![A-Za-z0-9+.-]:)(?:/[^/\s""']+){2,}", RegexOptions.Compiled)]
+    [GeneratedRegex(@"(?<![A-Za-z0-9+.-]:)(?:/[^/\s""']+){2,}")]
     private static partial Regex GeneratedUnixPathRegex();
-    [GeneratedRegex(@"(?i)(?:^|[\\/])(users|home)[\\/][^\\/:\s""']+", RegexOptions.Compiled, "en-US")]
+    [GeneratedRegex(@"(?i)(?:^|[\\/])(users|home)[\\/][^\\/:\s""']+", RegexOptions.None, "en-US")]
     private static partial Regex GeneratedUserHomeRegex();
-    [GeneratedRegex(@"(?i)\b(token|api[_-]?key|secret|password|passwd|pwd|bearer)\b\s*[:=]\s*[^\s,;""']+", RegexOptions.Compiled, "en-US")]
+    [GeneratedRegex(@"(?i)\b(token|api[_-]?key|secret|password|passwd|pwd|bearer)\b\s*[:=]\s*[^\s,;""']+", RegexOptions.None, "en-US")]
     private static partial Regex GeneratedSecretPairRegex();
 }

@@ -17,6 +17,11 @@ public sealed class NativeWindowHandle : SafeHandleZeroOrMinusOneIsInvalid {
         SetHandle(handle);
     }
 
-    protected override bool ReleaseHandle()
-        => InfiniFrameNative.Destructor(handle) == InfiniFrameNativeInteropStatus.Success;
+    protected override bool ReleaseHandle() {
+        InfiniFrameNativeInteropStatus status = InfiniFrameNative.Destructor(handle);
+        if (status != InfiniFrameNativeInteropStatus.Success) {
+            System.Diagnostics.Debug.WriteLine($"[InfiniFrame] Native window destructor failed with status {status}. Handle: {handle}");
+        }
+        return status == InfiniFrameNativeInteropStatus.Success;
+    }
 }

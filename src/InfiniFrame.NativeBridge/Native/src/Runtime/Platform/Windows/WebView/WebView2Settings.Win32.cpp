@@ -181,9 +181,10 @@ void InfiniFrameWindow::SetBrowserShortcutsEnabled(const bool enabled) {
     m_impl->_browserShortcutsEnabled = enabled;
     if (!m_impl->_webviewWindow)
         return;
-    const auto flag = enabled ? L"true" : L"false";
-    const auto js = std::wstring(L"window.__infiniframe_browserShortcutsEnabled=") + flag + L";";
-    m_impl->_webviewWindow->ExecuteScript(js.c_str(), nullptr);
+    const char* flag = enabled ? "true" : "false";
+    std::string payload = std::string("{\"enabled\":") + flag + "}";
+    std::string envelope = "{\"version\":1,\"messageId\":\"__infiniframe:browser:setBrowserShortcutsEnabled\",\"payload\":\"" + payload + "\"}";
+    SendWebMessage(envelope.c_str());
 }
 
 void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled) {
@@ -197,7 +198,7 @@ void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled) {
     }
 }
 
-void InfiniFrameWindow::SetBackgroundColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+void InfiniFrameWindow::SetBackgroundColor(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) {
     m_impl->_backgroundColorR = r;
     m_impl->_backgroundColorG = g;
     m_impl->_backgroundColorB = b;

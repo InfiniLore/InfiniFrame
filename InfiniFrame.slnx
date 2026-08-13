@@ -68,7 +68,6 @@
     <File Path=".github/workflows/ci-testing.yml" />
     <File Path=".github/workflows/ci-update-native-vendor-deps.yml" />
     <File Path=".github/workflows/ci-release.yml" />
-    <File Path=".github/workflows/ci-testing-python.yml" />
     <File Path=".github/workflows/ci-todo.yml" />
     <File Path=".github/workflows/ci-codeql.yml" />
   </Folder>

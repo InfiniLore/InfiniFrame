@@ -143,10 +143,32 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
     }
 
     // synchronously runs the callback
-    /// <summary>Dispatches a synchronous message to the synchronization context, blocking until complete.</summary>
+    /// <summary>
+    ///     Dispatches a synchronous message to the synchronization context, blocking until complete.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This method blocks until all previously enqueued work items have completed. If one of those
+    ///         work items dispatches back to this same <see cref="SynchronizationContext" /> via
+    ///         <see cref="Post" />, and a third thread calls <see cref="Send" /> waiting on the same chain,
+    ///         a deadlock cycle can form.
+    ///     </para>
+    ///     <para>
+    ///         This is expected to be rare in practice — Blazor's renderer uses <see cref="Post" />, not
+    ///         <see cref="Send" />. However, if a component synchronously awaits a result that triggers
+    ///         re-entrant dispatch under heavy load, a deadlock is possible. Callers should prefer
+    ///         <see cref="InvokeAsync{TResult}" /> or <see cref="Post" /> where possible.
+    ///     </para>
+    /// </remarks>
     /// <param name="d">The callback to invoke.</param>
     /// <param name="state">The state object passed to the callback.</param>
     public override void Send(SendOrPostCallback d, object? state) {
+        if (Environment.CurrentManagedThreadId == LazyWindow.Value.ManagedThreadId) {
+            throw new InvalidOperationException(
+                "InfiniFrameSynchronizationContext.Send cannot be called from the native UI thread " +
+                "as it would cause a deadlock. Use Post or InvokeAsync instead.");
+        }
+
         Task antecedent;
         var completion = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -198,6 +220,12 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
 
     private static void ExecutionContextThunk(object? state) {
         if (state is not InfiniFrameSynchronizationWorkItem item) return;
+
+        if (item.Callback is null) {
+            throw new InvalidOperationException(
+                $"Synchronization work item has a null {nameof(SendOrPostCallback)}. " +
+                "This indicates a bug in the dispatch pipeline.");
+        }
 
         item.SynchronizationContext?.ExecuteSynchronously(null, item.Callback, item.StateObject);
     }

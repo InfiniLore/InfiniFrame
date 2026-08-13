@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using System.Collections.Immutable;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Menu;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -29,7 +28,7 @@ public class MenuItemTests {
         await Assert.That(item.IsEnabled).IsFalse();
         await Assert.That(item.IsVisible).IsFalse();
         await Assert.That(item.KeyboardShortcut).IsEqualTo("Ctrl+T");
-        await Assert.That(item.Children).IsEmpty();
+        await Assert.That(item.Children.IsEmpty).IsTrue();
     }
 
     [Test]
@@ -43,7 +42,7 @@ public class MenuItemTests {
         await Assert.That(item.Type).IsEqualTo(InfiniFrameMenuItemType.Normal);
         await Assert.That(item.Label).IsNull();
         await Assert.That(item.KeyboardShortcut).IsNull();
-        await Assert.That(item.Children).IsEmpty();
+        await Assert.That(item.Children.IsEmpty).IsTrue();
     }
 
     [Test]
@@ -67,12 +66,12 @@ public class MenuItemTests {
             "parent",
             "Parent",
             Type: InfiniFrameMenuItemType.Submenu,
-            Children: ImmutableArray.Create(child1, child2)
+            Children: [child1, child2]
         );
 
         // Assert
         await Assert.That(submenu.Type).IsEqualTo(InfiniFrameMenuItemType.Submenu);
-        await Assert.That(submenu.Children).Count().IsEqualTo(2);
+        await Assert.That(submenu.Children.Length).IsEqualTo(2);
         await Assert.That(submenu.Children[0].Id).IsEqualTo("child1");
         await Assert.That(submenu.Children[1].Id).IsEqualTo("child2");
     }
@@ -83,21 +82,21 @@ public class MenuItemTests {
         var menuBar = new InfiniFrameMenuBar();
 
         // Assert
-        await Assert.That(menuBar.Items).IsEmpty();
+        await Assert.That(menuBar.Items.IsEmpty).IsTrue();
     }
 
     [Test]
     public async Task MenuBar_WithItems(CancellationToken ct) {
         // Arrange & Act
         var menuBar = new InfiniFrameMenuBar(
-            Items: ImmutableArray.Create(
+            Items: [
                 new InfiniFrameMenuItem("file", "File"),
                 new InfiniFrameMenuItem("edit", "Edit")
-            )
+            ]
         );
 
         // Assert
-        await Assert.That(menuBar.Items).Count().IsEqualTo(2);
+        await Assert.That(menuBar.Items.Length).IsEqualTo(2);
         await Assert.That(menuBar.Items[0].Id).IsEqualTo("file");
         await Assert.That(menuBar.Items[1].Id).IsEqualTo("edit");
     }

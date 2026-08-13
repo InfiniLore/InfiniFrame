@@ -1,7 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Text;
 
@@ -12,23 +12,19 @@ namespace InfiniFrame.Tools.Pack.Services;
 /// <summary>
 /// Provides functionality for running and managing external processes asynchronously.
 /// </summary>
-internal static class ProcessRunner {
+internal sealed class ProcessRunner {
     /// <summary>
     /// Represents the default timeout duration for processes executed using the <c>ProcessRunner</c> class.
     /// This timeout is used to cancel the process if it exceeds the specified duration.
     /// By default, the timeout is set to 10 minutes.
     /// </summary>
     public static readonly TimeSpan DefaultProcessTimeout = TimeSpan.FromMinutes(10);
-    /// <summary>
-    /// Represents a logger instance used for capturing and logging process-related information
-    /// such as standard output, standard error, and other diagnostic messages.
-    /// </summary>
-    /// <remarks>
-    /// This logger instance is specifically scoped for the <c>ProcessRunner</c> class
-    /// and is intended to provide detailed logging of process execution activities,
-    /// including informational messages and error handling.
-    /// </remarks>
-    private static readonly ILogger Logger = Log.ForContext(typeof(ProcessRunner));
+
+    private readonly ILogger<ProcessRunner> _logger;
+
+    public ProcessRunner(ILogger<ProcessRunner> logger) {
+        _logger = logger;
+    }
 
     /// <summary>
     /// Asynchronously executes an external process using the specified parameters and returns the exit code upon completion.
@@ -41,7 +37,7 @@ internal static class ProcessRunner {
     /// <returns>The exit code of the process upon its completion.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the process fails to start or encounters an unexpected error during execution.</exception>
     /// <exception cref="TaskCanceledException">Thrown if the process is aborted due to exceeding the specified timeout or cancellation token.</exception>
-    public static async Task<int> RunAsync(
+    public async Task<int> RunAsync(
         string fileName,
         IReadOnlyList<string> arguments,
         string? workingDirectory = null,
@@ -64,7 +60,7 @@ internal static class ProcessRunner {
     /// <exception cref="InvalidOperationException">Thrown when the process fails to start.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when the specified timeout duration is zero or negative.</exception>
     /// <exception cref="OperationCanceledException">Thrown when the operation is canceled or the timeout elapses before the process completes.</exception>
-    public static async Task<ProcessRunResult> RunWithOutputAsync(
+    public async Task<ProcessRunResult> RunWithOutputAsync(
         string fileName,
         IReadOnlyList<string> arguments,
         string? workingDirectory = null,
@@ -104,7 +100,7 @@ internal static class ProcessRunner {
                 standardOutput.AppendLine(e.Data);
             }
 
-            Logger.Information("{ProcessOutput}", e.Data);
+            _logger.LogInformation("{ProcessOutput}", e.Data);
         };
 
         process.ErrorDataReceived += (_, e) => {
@@ -114,7 +110,7 @@ internal static class ProcessRunner {
                 standardError.AppendLine(e.Data);
             }
 
-            Logger.Error("{ProcessError}", e.Data);
+            _logger.LogError("{ProcessError}", e.Data);
         };
 
         if (!process.Start()) throw new InvalidOperationException($"Failed to start process: {fileName}");
@@ -130,9 +126,11 @@ internal static class ProcessRunner {
             try {
                 if (!process.HasExited) process.Kill(entireProcessTree: true);
             }
-            catch (InvalidOperationException) {
-                // best effort
+            catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception) {
+                // best effort - process may have already exited or access may be denied
             }
+
+            process.WaitForExit(5000);
 
             throw new TimeoutException($"Timed out after {effectiveTimeout} while running '{fileName}'.");
         }
@@ -140,9 +138,11 @@ internal static class ProcessRunner {
             try {
                 if (!process.HasExited) process.Kill(entireProcessTree: true);
             }
-            catch (InvalidOperationException) {
-                // best effort
+            catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception) {
+                // best effort - process may have already exited or access may be denied
             }
+
+            process.WaitForExit(5000);
 
             throw;
         }

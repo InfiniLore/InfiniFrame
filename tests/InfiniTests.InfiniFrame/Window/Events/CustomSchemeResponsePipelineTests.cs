@@ -115,7 +115,7 @@ public class CustomSchemeResponsePipelineTests {
         const int requestCount = 10_000;
         long before = GetActiveAllocationCount();
         InfiniFrameEvents events = CreateEvents((_, _) => (
-            new MemoryStream("stress-response"u8.ToArray()), "text/plain"));
+            new MemoryStream([.. "stress-response"u8]), "text/plain"));
 
         // Act
         for (int i = 0; i < requestCount; i++) {

@@ -17,7 +17,7 @@ namespace {
         return value != nullptr && value[0] != '\0' && g_strcmp0(value, "0") != 0;
     }
 
-    const char* webkit_load_event_to_string(WebKitLoadEvent event) {
+    const char* webkit_load_event_to_string(const WebKitLoadEvent event) {
         switch (event) {
             case WEBKIT_LOAD_STARTED:
                 return "started";
@@ -32,7 +32,7 @@ namespace {
         }
     }
 
-    const char* webkit_termination_reason_to_string(WebKitWebProcessTerminationReason reason) {
+    const char* webkit_termination_reason_to_string(const WebKitWebProcessTerminationReason reason) {
         switch (reason) {
             case WEBKIT_WEB_PROCESS_CRASHED:
                 return "crashed";
@@ -53,7 +53,7 @@ namespace {
     }
 } 
 
-void InfiniFrameWindow::OnConfigureEvent(int x, int y, int width, int height) {
+void InfiniFrameWindow::OnConfigureEvent(const int x, const int y, const int width, const int height) {
     if (m_impl->_lastLeft != x || m_impl->_lastTop != y) {
         InvokeMove(x, y);
         m_impl->_lastLeft = x;
@@ -67,7 +67,7 @@ void InfiniFrameWindow::OnConfigureEvent(int x, int y, int width, int height) {
     }
 }
 
-void InfiniFrameWindow::OnWindowStateEvent(GdkWindowState newState) {
+void InfiniFrameWindow::OnWindowStateEvent(const GdkWindowState newState) {
     // GTK emits window-state-event repeatedly for the same logical state (e.g. a focus or geometry change arrives
     // right after a maximize, each carrying the MAXIMIZED bit). Gate every callback on an actual state transition so
     // a single SetMaximized/SetMinimized/restore raises exactly one event, matching the Win32 WM_SIZE handling.
@@ -183,7 +183,7 @@ gboolean on_webview_context_menu(
     WebKitWebView* web_view,
     GtkWidget* default_menu,
     WebKitHitTestResult* hit_test_result,
-    gboolean triggered_with_keyboard,
+    const gboolean triggered_with_keyboard,
     const gpointer self
 ) {
     (void)web_view;
@@ -201,7 +201,7 @@ gboolean on_webview_context_menu(
     });
 }
 
-gboolean on_permission_request(WebKitWebView* web_view, WebKitPermissionRequest* request, gpointer user_data) {
+gboolean on_permission_request(WebKitWebView* web_view, WebKitPermissionRequest* request, const gpointer user_data) {
     (void)web_view;
     return infiniframe::linux_gtk::RunGtkCallbackNoThrow("permission-request", TRUE, [&] -> gboolean {
         if (request == nullptr)
@@ -222,7 +222,7 @@ gboolean on_permission_request(WebKitWebView* web_view, WebKitPermissionRequest*
     });
 }
 
-void on_webview_load_changed(WebKitWebView* web_view, WebKitLoadEvent load_event, gpointer user_data) {
+void on_webview_load_changed(WebKitWebView* web_view, const WebKitLoadEvent load_event, const gpointer user_data) {
     infiniframe::linux_gtk::RunGtkCallbackNoThrow("load-changed", [&] {
         if (web_view == nullptr || user_data == nullptr)
             return;
@@ -255,7 +255,9 @@ void on_webview_load_changed(WebKitWebView* web_view, WebKitLoadEvent load_event
 }
 
 gboolean on_webview_load_failed(
-    WebKitWebView* web_view, WebKitLoadEvent load_event, gchar* failing_uri, GError* error, gpointer user_data
+    WebKitWebView* web_view,
+    const WebKitLoadEvent load_event, gchar* failing_uri, GError* error,
+    const gpointer user_data
 ) {
     (void)web_view;
     return infiniframe::linux_gtk::RunGtkCallbackNoThrow("load-failed", FALSE, [&] -> gboolean {
@@ -290,7 +292,7 @@ gboolean on_webview_load_failed(
 }
 
 void on_webview_process_terminated(
-    WebKitWebView* web_view, WebKitWebProcessTerminationReason reason, gpointer user_data
+    WebKitWebView* web_view, const WebKitWebProcessTerminationReason reason, const gpointer user_data
 ) {
     (void)web_view;
     infiniframe::linux_gtk::RunGtkCallbackNoThrow("web-process-terminated", [&] {
@@ -316,7 +318,7 @@ void on_webview_process_terminated(
     });
 }
 
-void on_webview_size_allocate(GtkWidget* widget, GtkAllocation* allocation, gpointer user_data) {
+void on_webview_size_allocate(GtkWidget* widget, GtkAllocation* allocation, const gpointer user_data) {
     (void)widget;
     (void)user_data;
     infiniframe::linux_gtk::RunGtkCallbackNoThrow("size-allocate", [&] {
@@ -332,7 +334,8 @@ void on_webview_size_allocate(GtkWidget* widget, GtkAllocation* allocation, gpoi
 
 gboolean on_webview_decide_policy(
     WebKitWebView* web_view, WebKitPolicyDecision* decision,
-    WebKitPolicyDecisionType decision_type, gpointer user_data
+    const WebKitPolicyDecisionType decision_type,
+    const gpointer user_data
 ) {
     (void)web_view;
     return infiniframe::linux_gtk::RunGtkCallbackNoThrow("decide-policy", FALSE, [&] -> gboolean {

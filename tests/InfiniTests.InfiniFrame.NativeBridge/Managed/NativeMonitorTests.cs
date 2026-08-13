@@ -40,7 +40,7 @@ public class NativeMonitorTests {
         NativeMonitor monitor = default;
 
         // Assert
-        await Assert.That(monitor.Scale).IsEqualTo(0.0);
+        await Assert.That(monitor.Scale).IsEqualTo(0.0f);
     }
 
     [Test]
@@ -76,7 +76,7 @@ public class NativeMonitorTests {
     [Test]
     public async Task Scale_SetAndGet_PreservesValue(CancellationToken ct = default) {
         // Arrange
-        const double expectedScale = 1.25;
+        const float expectedScale = 1.25f;
 
         // Act
         NativeMonitor monitor = new() { Scale = expectedScale };
@@ -88,7 +88,7 @@ public class NativeMonitorTests {
     [Test]
     public async Task Scale_WithHighDpiValue_PreservesValue(CancellationToken ct = default) {
         // Arrange
-        const double expectedScale = 2.0;
+        const float expectedScale = 2.0f;
 
         // Act
         NativeMonitor monitor = new() { Scale = expectedScale };
@@ -99,7 +99,7 @@ public class NativeMonitorTests {
 
     [Test]
     public async Task Monitor_WithNegativeOrigin_PreservesCoordinates(CancellationToken ct = default) {
-        // Arrange — secondary monitor to the left of the primary
+        // Arrange, secondary monitor to the left of the primary
         NativeRect rect = new() { X = -1920, Y = 0, Width = 1920, Height = 1080 };
 
         // Act
@@ -118,23 +118,23 @@ public class NativeMonitorTests {
         NativeMonitor original = new() {
             Monitor = new NativeRect { X = 0, Y = 0, Width = 1920, Height = 1080 },
             Work = new NativeRect { X = 0, Y = 40, Width = 1920, Height = 1040 },
-            Scale = 1.0
+            Scale = 1.0f
         };
 
         // Act
         NativeMonitor copy = original;
-        copy.Scale = 2.0;
+        copy.Scale = 2.0f;
 
-        // Assert — original is unchanged
-        await Assert.That(original.Scale).IsEqualTo(1.0);
-        await Assert.That(copy.Scale).IsEqualTo(2.0);
+        // Assert, original is unchanged
+        await Assert.That(original.Scale).IsEqualTo(1.0f);
+        await Assert.That(copy.Scale).IsEqualTo(2.0f);
     }
 
     [Test]
     public async Task SequentialLayout_SizeMatchesExpected(CancellationToken ct = default) {
         // Arrange
-        // Two NativeRect fields (4 × int = 16 bytes each) + one double (8 bytes) = 40 bytes
-        const int expectedSize = 40;
+        // Two NativeRect fields (4 × int = 16 bytes each) + one float (4 bytes) = 36 bytes
+        const int expectedSize = 36;
 
         // Act
         int actualSize = Marshal.SizeOf<NativeMonitor>();
@@ -149,7 +149,7 @@ public class NativeMonitorTests {
         NativeMonitor monitor = new() {
             Monitor = new NativeRect { X = -3840, Y = -1080, Width = 3840, Height = 2160 },
             Work = new NativeRect { X = -3840, Y = -1040, Width = 3840, Height = 2120 },
-            Scale = 1.5
+            Scale = 1.5f
         };
 
         // Assert
@@ -161,12 +161,12 @@ public class NativeMonitorTests {
         await Assert.That(monitor.Work.Y).IsEqualTo(-1040);
         await Assert.That(monitor.Work.Width).IsEqualTo(3840);
         await Assert.That(monitor.Work.Height).IsEqualTo(2120);
-        await Assert.That(monitor.Scale).IsEqualTo(1.5);
+        await Assert.That(monitor.Scale).IsEqualTo(1.5f);
     }
 
     [Test]
     public async Task Monitor_WorkAreaSmallerThanMonitorArea_BothFieldsCoexist(CancellationToken ct = default) {
-        // Arrange — typical setup: taskbar consumes 40px at the bottom
+        // Arrange, typical setup: taskbar consumes 40px at the bottom
         NativeRect monitorRect = new() { X = 0, Y = 0, Width = 1920, Height = 1080 };
         NativeRect workRect = new() { X = 0, Y = 0, Width = 1920, Height = 1040 };
 

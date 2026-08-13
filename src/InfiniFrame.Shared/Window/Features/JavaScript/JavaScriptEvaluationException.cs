@@ -1,18 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame.Tools.Pack.Exceptions;
-
+namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal static class ExceptionsUtility {
-    public static bool IsNonFatalException(Exception exception)
-        => exception is not (ApplicationException
-            or OutOfMemoryException
-            or AccessViolationException
-            or StackOverflowException
-            or ThreadAbortException
-            or BadImageFormatException
-            or System.Runtime.InteropServices.SEHException);
-}
+/// <summary>
+///     Represents an error that occurred during JavaScript evaluation in the browser control.
+/// </summary>
+public sealed class JavaScriptEvaluationException(string message) : Exception(message);
