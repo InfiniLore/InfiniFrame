@@ -163,7 +163,13 @@ public sealed class InfiniFrameNativeParametersValidator
             }
             return CanAccessTemporaryFilesPath(path);
         }
-        catch {
+        catch (Exception ex) when (
+            ex is IOException
+                or UnauthorizedAccessException
+                or ArgumentException
+                or NotSupportedException
+                or PathTooLongException
+        ) {
             return false;
         }
     }
