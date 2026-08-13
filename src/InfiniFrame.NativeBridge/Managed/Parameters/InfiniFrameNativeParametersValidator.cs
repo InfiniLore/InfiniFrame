@@ -113,7 +113,13 @@ public sealed class InfiniFrameNativeParametersValidator
                 try {
                     Directory.CreateDirectory(path);
                 }
-                catch {
+                catch (Exception ex) when (
+                    ex is IOException
+                        or UnauthorizedAccessException
+                        or ArgumentException
+                        or NotSupportedException
+                        or PathTooLongException
+                ) {
                     return false;
                 }
             }
