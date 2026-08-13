@@ -29,6 +29,7 @@ namespace {
     GMainContext* ownerContext = nullptr;
     std::thread gtkThread;
     GMainLoop* mainLoop = nullptr;
+    bool gtkThreadFinished = false;
 
     struct InvokeState {
         std::function<void()> callback;
@@ -92,9 +93,14 @@ namespace infiniframe::linux_gtk::ui_thread {
                 g_main_loop_run(mainLoop);
                 g_main_loop_unref(mainLoop);
                 mainLoop = nullptr;
-            });
 
-            gtkThread.detach();
+                notify_uninit();
+
+                {
+                    std::lock_guard lock(initializeMutex);
+                    gtkThreadFinished = true;
+                }
+            });
 
             std::unique_lock lock(initializeMutex);
             initializeCompleted.wait(lock, [] { return initialized; });
@@ -108,6 +114,10 @@ namespace infiniframe::linux_gtk::ui_thread {
 
         if (mainLoop != nullptr && g_main_loop_is_running(mainLoop)) {
             g_main_loop_quit(mainLoop);
+        }
+
+        if (gtkThread.joinable()) {
+            gtkThread.join();
         }
     }
 
@@ -196,7 +206,20 @@ namespace infiniframe::linux_gtk::ui_thread {
 __attribute__((destructor(101)))
 static void InfiniFrame_UiThread_Shutdown() {
     // During static destruction GLib/GDK objects are already half-torn-down. Attempting
-    // g_main_loop_quit() or thread join here triggers cascading assertion failures
+    // g_main_loop_quit() or thread join here can trigger cascading assertion failures
     // (gdk_seat_get_keyboard, g_dbus_connection_call_sync_internal) and SIGABRT.
-    // The OS reclaims all resources on process exit, so it is safe to do nothing here.
+    //
+    // However, if the GTK thread was never explicitly shut down (e.g. the process exited
+    // without calling Shutdown()), we must attempt to stop it. The thread is sitting in
+    // g_main_loop_run() and will use GLib objects during teardown, so we need to quit the
+    // loop before GLib's own static destructors run.
+    //
+    // The guard ensures we only attempt this once and never block on a join if the thread
+    // is stuck in a GLib call that's already been torn down.
+    if (!initialized || gtkThreadFinished)
+        return;
+
+    if (mainLoop != nullptr && g_main_loop_is_running(mainLoop)) {
+        g_main_loop_quit(mainLoop);
+    }
 }

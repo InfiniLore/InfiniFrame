@@ -2,6 +2,9 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Api/Exports/Exports.h"
+#ifdef __linux__
+#include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
+#endif
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -63,4 +66,12 @@ EXPORTED InteropStatus InfiniFrameNative_SetTeardownCallback(
         window->SetTeardownCallback(callback, context);
     });
 }
+
+#ifdef __linux__
+EXPORTED InteropStatus InfiniFrameNative_Shutdown() {
+    return RunExportStatus([] {
+        infiniframe::linux_gtk::ui_thread::Shutdown();
+    });
+}
+#endif
 }
