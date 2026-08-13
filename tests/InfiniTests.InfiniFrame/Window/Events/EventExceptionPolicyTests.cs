@@ -2,8 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using NSubstitute;
-
 namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -13,7 +11,7 @@ public class EventExceptionPolicyTests {
     public async Task OrderedResultEvent_HandlerException_PropagatesAndStopsDispatch(CancellationToken ct = default) {
         // Arrange
         var eventSource = new OrderedResultEvent<string, int>();
-        var window = Substitute.For<IInfiniFrameWindow>();
+        var window = MockFactory.CreateWindowMock().Object;
         int invoked = 0;
         eventSource.Add((_, _) => throw new InvalidOperationException("expected"));
         eventSource.Add((_, _) => ++invoked);
@@ -28,7 +26,7 @@ public class EventExceptionPolicyTests {
     public async Task KeyedEvent_HandlerException_Propagates(CancellationToken ct = default) {
         // Arrange
         var eventSource = new KeyedEvent<string, string>();
-        var window = Substitute.For<IInfiniFrameWindow>();
+        var window = MockFactory.CreateWindowMock().Object;
         eventSource.Add("key", handler: (_, _) => throw new InvalidOperationException("expected"));
 
         // Act & Assert
@@ -40,7 +38,7 @@ public class EventExceptionPolicyTests {
     public async Task KeyedResultEvent_NullResult_IsAHandledRequest(CancellationToken ct = default) {
         // Arrange
         var eventSource = new KeyedResultEvent<string, string, string?>();
-        var window = Substitute.For<IInfiniFrameWindow>();
+        var window = MockFactory.CreateWindowMock().Object;
         eventSource.Add("key", handler: static (_, _) => null);
 
         // Act

@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
 
 namespace InfiniTests.InfiniFrame.WebServer;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -19,8 +18,11 @@ public class InfiniFrameWebApplicationRunAsyncTests {
     [Test]
     public async Task RunAsync_ShouldStartWebAppBeforeWaitingThenStopAndDisposeIt() {
         // Arrange
-        var mockWindow = Substitute.For<IInfiniFrameWindow>();
-        ILifecycleInfiniFrameWindowFeature lifecycle = mockWindow.Features.Lifecycle;
+        var mockWindow = MockFactory.CreateWindowMock();
+        var features = MockFactory.CreateFeaturesMock();
+        var lifecycle = MockFactory.CreateLifecycleMock();
+        mockWindow.Features.Returns(features.Object);
+        features.Lifecycle.Returns(lifecycle.Object);
 
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
         webAppBuilder.Services.Replace(ServiceDescriptor.Singleton<IServer, NoopServer>());
@@ -30,8 +32,8 @@ public class InfiniFrameWebApplicationRunAsyncTests {
         var appLifetime = webApp.Services.GetRequiredService<IHostApplicationLifetime>();
         var disposeProbe = webApp.Services.GetRequiredService<DisposeProbe>();
         bool webAppStartedBeforeWait = false;
-        lifecycle.WaitForCloseAsync(Arg.Any<CancellationToken>())
-            .Returns(_ => {
+        lifecycle.WaitForCloseAsync(Any<CancellationToken>())
+            .Returns(() => {
                 webAppStartedBeforeWait = appLifetime.ApplicationStarted.IsCancellationRequested;
                 return ValueTask.CompletedTask;
             });
@@ -39,15 +41,15 @@ public class InfiniFrameWebApplicationRunAsyncTests {
         var app = new InfiniFrameWebApplication {
             Logger = NullLogger<InfiniFrameWebApplication>.Instance,
             WebApp = webApp,
-            LazyWindow = new Lazy<IInfiniFrameWindow>(() => mockWindow)
+            LazyWindow = new Lazy<IInfiniFrameWindow>(() => mockWindow.Object)
         };
 
         // Act
         await app.RunAsync();
 
         // Assert
-        await lifecycle.Received(1).WaitForCloseAsync(Arg.Any<CancellationToken>());
-        lifecycle.DidNotReceive().WaitForClose();
+        lifecycle.WaitForCloseAsync(Any<CancellationToken>()).WasCalled(Times.Once);
+        lifecycle.WaitForClose().WasNeverCalled();
         await Assert.That(webAppStartedBeforeWait).IsTrue();
         await Assert.That(appLifetime.ApplicationStopping.IsCancellationRequested).IsTrue();
         await Assert.That(disposeProbe.IsDisposed).IsTrue();
@@ -58,9 +60,13 @@ public class InfiniFrameWebApplicationRunAsyncTests {
 
     [Test]
     public async Task RunAsync_WhenWaitFails_StillStopsAndDisposesWebApp() {
-        var mockWindow = Substitute.For<IInfiniFrameWindow>();
-        mockWindow.Features.Lifecycle.WaitForCloseAsync(Arg.Any<CancellationToken>())
-            .Returns(ValueTask.FromException(new InvalidOperationException("wait failed")));
+        var mockWindow = MockFactory.CreateWindowMock();
+        var features = MockFactory.CreateFeaturesMock();
+        var lifecycle = MockFactory.CreateLifecycleMock();
+        mockWindow.Features.Returns(features.Object);
+        features.Lifecycle.Returns(lifecycle.Object);
+        lifecycle.WaitForCloseAsync(Any<CancellationToken>())
+            .Returns(() => ValueTask.FromException(new InvalidOperationException("wait failed")));
         WebApplicationBuilder builder = WebApplication.CreateBuilder();
         builder.Services.Replace(ServiceDescriptor.Singleton<IServer, NoopServer>());
         WebApplication webApp = builder.Build();
@@ -68,7 +74,7 @@ public class InfiniFrameWebApplicationRunAsyncTests {
         var app = new InfiniFrameWebApplication {
             Logger = NullLogger<InfiniFrameWebApplication>.Instance,
             WebApp = webApp,
-            LazyWindow = new Lazy<IInfiniFrameWindow>(() => mockWindow)
+            LazyWindow = new Lazy<IInfiniFrameWindow>(() => mockWindow.Object)
         };
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => app.RunAsync());

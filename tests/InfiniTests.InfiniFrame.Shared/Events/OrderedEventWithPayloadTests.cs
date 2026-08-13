@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using NSubstitute;
 using System.Collections.Immutable;
 
 namespace InfiniTests.InfiniFrame.Shared.Events;
@@ -56,7 +55,7 @@ public class OrderedEventWithPayloadTests {
     public async Task Invoke_SingleHandler_PassesWindowAndPayloadToHandler(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent<string>();
-        var window = Substitute.For<IInfiniFrameWindow>();
+        var window = MockFactory.CreateWindowMock().Object;
         IInfiniFrameWindow? receivedWindow = null;
         string? receivedPayload = null;
 
@@ -77,7 +76,7 @@ public class OrderedEventWithPayloadTests {
     public async Task Invoke_MultipleHandlers_AllReceivePayloadInOrder(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent<int>();
-        var window = Substitute.For<IInfiniFrameWindow>();
+        var window = MockFactory.CreateWindowMock().Object;
         var calls = new List<int>();
 
         orderedEvent.Add((_, v) => calls.Add(v));
@@ -94,7 +93,7 @@ public class OrderedEventWithPayloadTests {
     public async Task Invoke_AfterRemove_DoesNotCallRemovedHandler(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent<int>();
-        var window = Substitute.For<IInfiniFrameWindow>();
+        var window = MockFactory.CreateWindowMock().Object;
         var calls = new List<int>();
         Action<IInfiniFrameWindow, int> removed = (_, _) => calls.Add(99);
         orderedEvent.Add(removed);
@@ -112,7 +111,7 @@ public class OrderedEventWithPayloadTests {
     public async Task Invoke_HandlerThrowsException_PropagatesException(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent<int>();
-        var window = Substitute.For<IInfiniFrameWindow>();
+        var window = MockFactory.CreateWindowMock().Object;
         orderedEvent.Add((_, _) => throw new InvalidOperationException("boom"));
 
         // Act & Assert
@@ -135,34 +134,34 @@ public class OrderedEventWithPayloadTests {
     public async Task AddWithServiceResolving_WindowHasNullServiceProvider_ThrowsInvalidOperationException(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent<int>();
-        var window = Substitute.For<IInfiniFrameWindow>();
+        var window = MockFactory.CreateWindowMock();
         window.ServiceProvider.Returns((IServiceProvider?)null);
 
         orderedEvent.AddWithServiceResolving<IDisposable>((_, _, _) => { });
 
         // Act & Assert
-        await Assert.That(() => orderedEvent.Invoke(window, 0)).Throws<InvalidOperationException>();
+        await Assert.That(() => orderedEvent.Invoke(window.Object, 0)).Throws<InvalidOperationException>();
     }
 
     [Test]
     public async Task AddWithServiceResolving_WithProvider_ResolvesServiceAndCallsHandler(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent<int>();
-        var window = Substitute.For<IInfiniFrameWindow>();
-        var provider = Substitute.For<IServiceProvider>();
+        var window = MockFactory.CreateWindowMock();
+        var provider = MockFactory.CreateServiceProviderMock();
 
-        var fakeDisposable = Substitute.For<IDisposable>();
-        provider.GetService(typeof(IDisposable)).Returns(fakeDisposable);
-        window.ServiceProvider.Returns(provider);
+        var fakeDisposable = MockFactory.CreateDisposableMock();
+        provider.GetService(typeof(IDisposable)).Returns(fakeDisposable.Object);
+        window.ServiceProvider.Returns(provider.Object);
 
         IDisposable? resolvedService = null;
         orderedEvent.AddWithServiceResolving<IDisposable>((_, _, svc) => resolvedService = svc);
 
         // Act
-        orderedEvent.Invoke(window, 42);
+        orderedEvent.Invoke(window.Object, 42);
 
         // Assert
-        await Assert.That(resolvedService).IsEqualTo(fakeDisposable);
+        await Assert.That(resolvedService).IsEqualTo(fakeDisposable.Object);
     }
 
     // -----------------------------------------------------------------------------------------------------------------

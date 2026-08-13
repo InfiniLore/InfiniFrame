@@ -1,7 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <NoWarn>$(NoWarn);CS0105</NoWarn>
+    </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="TUnit"/>
+        <PackageReference Include="TUnit.Mocks"/>
     </ItemGroup>
 
     <ItemGroup>

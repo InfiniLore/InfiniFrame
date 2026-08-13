@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using NSubstitute;
 
 namespace InfiniTests.InfiniFrame.Shared.Events;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -48,7 +47,7 @@ public class KeyedResultEventTests {
     public async Task Add_SameKeyTwice_OverwritesPreviousHandlerAndCountRemainsOne(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedResultEvent<string, int, string>();
-        var window = Substitute.For<IInfiniFrameWindow>();
+        var window = MockFactory.CreateWindowMock().Object;
         evt.Add("key", handler: (_, _) => "first");
 
         // Act
@@ -136,7 +135,7 @@ public class KeyedResultEventTests {
     public async Task TryInvoke_MissingKey_ReturnsFalseAndResultIsDefault(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedResultEvent<string, int, string>();
-        var window = Substitute.For<IInfiniFrameWindow>();
+        var window = MockFactory.CreateWindowMock().Object;
 
         // Act
         bool success = evt.TryInvoke("absent", window, 0, out string? result);
@@ -150,7 +149,7 @@ public class KeyedResultEventTests {
     public async Task TryInvoke_ExistingKey_ReturnsTrueAndResult(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedResultEvent<string, int, string>();
-        var window = Substitute.For<IInfiniFrameWindow>();
+        var window = MockFactory.CreateWindowMock().Object;
         evt.Add("key", handler: (_, v) => $"value={v}");
 
         // Act
@@ -165,7 +164,7 @@ public class KeyedResultEventTests {
     public async Task TryInvoke_PassesCorrectWindowAndPayloadToHandler(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedResultEvent<string, string, string>();
-        var window = Substitute.For<IInfiniFrameWindow>();
+        var window = MockFactory.CreateWindowMock().Object;
         IInfiniFrameWindow? receivedWindow = null;
         string? receivedPayload = null;
         evt.Add("key", handler: (w, p) => {
@@ -186,7 +185,7 @@ public class KeyedResultEventTests {
     public async Task TryInvoke_HandlerReturnsNull_ReturnsTrueWithNullResult(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedResultEvent<string, int, string>();
-        var window = Substitute.For<IInfiniFrameWindow>();
+        var window = MockFactory.CreateWindowMock().Object;
         evt.Add("key", handler: (_, _) => null!);
 
         // Act
@@ -201,7 +200,7 @@ public class KeyedResultEventTests {
     public async Task TryInvoke_HandlerThrowsRegularException_PropagatesException(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedResultEvent<string, int, string>();
-        var window = Substitute.For<IInfiniFrameWindow>();
+        var window = MockFactory.CreateWindowMock().Object;
         evt.Add("key", handler: (_, _) => throw new InvalidOperationException("boom"));
 
         // Act & Assert
@@ -212,7 +211,7 @@ public class KeyedResultEventTests {
     public async Task TryInvoke_HandlerThrowsOperationCanceledException_PropagatesException(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedResultEvent<string, int, string>();
-        var window = Substitute.For<IInfiniFrameWindow>();
+        var window = MockFactory.CreateWindowMock().Object;
         evt.Add("key", handler: (_, _) => throw new OperationCanceledException());
 
         // Act & Assert
@@ -223,7 +222,7 @@ public class KeyedResultEventTests {
     public async Task TryInvoke_AfterRemove_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedResultEvent<string, int, string>();
-        var window = Substitute.For<IInfiniFrameWindow>();
+        var window = MockFactory.CreateWindowMock().Object;
         evt.Add("key", handler: (_, _) => "r");
         evt.Remove("key");
 

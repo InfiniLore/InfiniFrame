@@ -4,7 +4,6 @@
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
 using Microsoft.Extensions.DependencyInjection;
-using NSubstitute;
 
 namespace InfiniTests.InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -14,10 +13,13 @@ public class InfiniFrameBlazorAppRunSyncTests {
     [Test]
     public async Task Run_ShouldWaitSynchronouslyAndDisposeServices() {
         // Arrange
-        var window = Substitute.For<IInfiniFrameWindow>();
-        ILifecycleInfiniFrameWindowFeature lifecycle = window.Features.Lifecycle;
+        var windowMock = MockFactory.CreateWindowMock();
+        var featuresMock = MockFactory.CreateFeaturesMock();
+        var lifecycleMock = MockFactory.CreateLifecycleMock();
+        windowMock.Features.Returns(featuresMock.Object);
+        featuresMock.Lifecycle.Returns(lifecycleMock.Object);
         ServiceProvider services = new ServiceCollection()
-            .AddSingleton(window)
+            .AddSingleton<IInfiniFrameWindow>(windowMock.Object)
             .AddSingleton<DisposeProbe>()
             .BuildServiceProvider();
         var disposeProbe = services.GetRequiredService<DisposeProbe>();
@@ -27,8 +29,8 @@ public class InfiniFrameBlazorAppRunSyncTests {
         app.Run();
 
         // Assert
-        lifecycle.Received(1).WaitForClose();
-        await lifecycle.DidNotReceive().WaitForCloseAsync(Arg.Any<CancellationToken>());
+        lifecycleMock.WaitForClose().WasCalled(Times.Once);
+        lifecycleMock.WaitForCloseAsync(Any<CancellationToken>()).WasNeverCalled();
         await Assert.That(disposeProbe.IsDisposed).IsTrue();
     }
 

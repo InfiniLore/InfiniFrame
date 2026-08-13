@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using NSubstitute;
 using System.Reflection;
 
 namespace InfiniTests.InfiniFrame.BlazorWebView;
@@ -371,16 +370,16 @@ public class InfiniFrameBlazorAppBuilderTests {
     [NotInParallelInfiniTests]
     public async Task Build_ExposesDebuggingThroughWindowFeatures(CancellationToken ct = default) {
         // Arrange
-        var debuggingFeature = Substitute.For<IDebuggingInfiniFrameWindowFeature>();
-        var features = Substitute.For<IInfiniFrameWindowFeatures>();
-        var window = Substitute.For<IInfiniFrameWindow>();
-        features.Debugging.Returns(debuggingFeature);
-        window.Features.Returns(features);
-        window.Debugging.Returns(debuggingFeature);
+        var debuggingFeature = MockFactory.CreateDebuggingMock();
+        var features = MockFactory.CreateFeaturesMock();
+        var window = MockFactory.CreateWindowMock();
+        features.Debugging.Returns(debuggingFeature.Object);
+        window.Features.Returns(features.Object);
+        window.Debugging.Returns(debuggingFeature.Object);
 
         var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
         appBuilder.Services.RemoveAll<IInfiniFrameWindow>();
-        appBuilder.Services.AddSingleton(window);
+        appBuilder.Services.AddSingleton(window.Object);
 
         // Act
         InfiniFrameBlazorApp app = appBuilder.Build();

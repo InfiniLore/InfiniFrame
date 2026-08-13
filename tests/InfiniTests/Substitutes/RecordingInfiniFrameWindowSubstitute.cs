@@ -4,7 +4,6 @@
 using InfiniFrame;
 using InfiniFrame.Interop;
 using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
 
 namespace InfiniTests.Substitutes;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -18,41 +17,54 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
     // ReSharper disable once ChangeFieldTypeToSystemThreadingLock
     private readonly object _sentWebMessagesLock = new();
 #endif
+    private readonly Mock<IInfiniFrameWindow> _windowMock;
+    private readonly Mock<IInfiniFrameWindowFeatures> _featuresMock;
+    private readonly Mock<IWebMessagingInfiniFrameWindowFeature> _webMessagingMock;
+    private readonly Mock<ILifecycleInfiniFrameWindowFeature> _lifecycleMock;
+    private readonly Mock<IStateInfiniFrameWindowFeature> _stateMock;
+    private readonly Mock<IDecorationsInfiniFrameWindowFeature> _decorationsMock;
+
     public IInfiniFrameWindow Window { get; }
+    public Mock<IInfiniFrameWindowFeatures> Features => _featuresMock;
+    public Mock<IWebMessagingInfiniFrameWindowFeature> WebMessaging => _webMessagingMock;
+    public Mock<ILifecycleInfiniFrameWindowFeature> Lifecycle => _lifecycleMock;
+    public Mock<IStateInfiniFrameWindowFeature> State => _stateMock;
+    public Mock<IDecorationsInfiniFrameWindowFeature> Decorations => _decorationsMock;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
     public RecordingInfiniFrameWindowSubstitute() {
-        Window = Substitute.For<IInfiniFrameWindow>();
-        Window.LifecycleState.Returns(InfiniFrameWindowLifecycleState.Running);
-        Window.ManagedThreadId.Returns(Environment.CurrentManagedThreadId);
-        Window.Features.WebMessaging.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(ValueTask.CompletedTask)
-            .AndDoes(callInfo => {
-                lock (_sentWebMessagesLock) {
-                    _sentWebMessages.Add(callInfo.Arg<string>()!);
-                }
-            });
-        Window.Features.WebMessaging.When(webMessaging => webMessaging.SendWebMessage(Arg.Any<string>()))
-            .Do(callInfo => {
-                lock (_sentWebMessagesLock) {
-                    _sentWebMessages.Add(callInfo.Arg<string>()!);
-                }
-            });
+        _windowMock = MockFactory.CreateWindowMock();
+        Window = _windowMock.Object;
+        _featuresMock = MockFactory.CreateFeaturesMock();
+        _webMessagingMock = MockFactory.CreateWebMessagingMock();
+        _lifecycleMock = MockFactory.CreateLifecycleMock();
+        _stateMock = MockFactory.CreateStateMock();
+        _decorationsMock = MockFactory.CreateDecorationsMock();
 
-        // Default wiring for simple tests that don't need explicit builder binding.
+        _windowMock.LifecycleState.Returns(InfiniFrameWindowLifecycleState.Running);
+        _windowMock.ManagedThreadId.Returns(Environment.CurrentManagedThreadId);
+
+        _webMessagingMock.SendWebMessageAsync(Any<string>(), Any<CancellationToken>())
+            .Returns(() => ValueTask.CompletedTask);
+        _featuresMock.WebMessaging.Returns(_webMessagingMock.Object);
+        _featuresMock.Lifecycle.Returns(_lifecycleMock.Object);
+        _featuresMock.State.Returns(_stateMock.Object);
+        _featuresMock.Decorations.Returns(_decorationsMock.Object);
+        _windowMock.Features.Returns(_featuresMock.Object);
+
         var eventsStore = new InfiniFrameEventsStore();
-        Window.Events.Returns(new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance));
-        Window.EventsStore.Returns(eventsStore);
+        _windowMock.Events.Returns(new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance));
+        _windowMock.EventsStore.Returns(eventsStore);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public RecordingInfiniFrameWindowSubstitute BindToBuilder(IInfiniFrameWindowBuilder builder) {
-        Window.Events.Returns(new InfiniFrameEvents(builder.EventsStore, NullLogger<InfiniFrameEvents>.Instance));
-        Window.EventsStore.Returns(builder.EventsStore);
+        _windowMock.Events.Returns(new InfiniFrameEvents(builder.EventsStore, NullLogger<InfiniFrameEvents>.Instance));
+        _windowMock.EventsStore.Returns(builder.EventsStore);
         return this;
     }
 

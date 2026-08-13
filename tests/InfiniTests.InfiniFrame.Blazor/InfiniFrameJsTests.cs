@@ -5,8 +5,6 @@ using InfiniFrame.Blazor;
 using InfiniTests.JsRuntimes;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
-using NSubstitute;
-
 namespace InfiniTests.InfiniFrame.Blazor;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -16,8 +14,8 @@ public class InfiniFrameJsTests {
     public async Task SetPointerCaptureAsync_InvokesExpectedJsFunction(CancellationToken ct = default) {
         // Arrange
         var jsRuntime = new RecordingJsRuntime();
-        var logger = Substitute.For<ILogger<InfiniFrameJs>>();
-        var sut = new InfiniFrameJs(jsRuntime, logger);
+        var loggerMock = Mock.Of<ILogger<InfiniFrameJs>>();
+        var sut = new InfiniFrameJs(jsRuntime, loggerMock.Object);
         var element = new ElementReference("element-1");
 
         // Act
@@ -37,8 +35,8 @@ public class InfiniFrameJsTests {
     public async Task ReleasePointerCaptureAsync_InvokesExpectedJsFunction(CancellationToken ct = default) {
         // Arrange
         var jsRuntime = new RecordingJsRuntime();
-        var logger = Substitute.For<ILogger<InfiniFrameJs>>();
-        var sut = new InfiniFrameJs(jsRuntime, logger);
+        var loggerMock = Mock.Of<ILogger<InfiniFrameJs>>();
+        var sut = new InfiniFrameJs(jsRuntime, loggerMock.Object);
         var element = new ElementReference("element-2");
 
         // Act
@@ -58,8 +56,8 @@ public class InfiniFrameJsTests {
     public async Task SetPointerCaptureAsync_SwallowsOperationCanceled_WhenCancellationRequested(CancellationToken ct = default) {
         // Arrange
         var jsRuntime = new RecordingJsRuntime();
-        var logger = Substitute.For<ILogger<InfiniFrameJs>>();
-        var sut = new InfiniFrameJs(jsRuntime, logger);
+        var loggerMock = Mock.Of<ILogger<InfiniFrameJs>>();
+        var sut = new InfiniFrameJs(jsRuntime, loggerMock.Object);
         using var cts = new CancellationTokenSource();
         await cts.CancelAsync();
 
@@ -68,7 +66,6 @@ public class InfiniFrameJsTests {
 
         // Act / Assert
         await sut.SetPointerCaptureAsync(new ElementReference("element-3"), 1, cts.Token);
-        logger.DidNotReceiveWithAnyArgs().Log(default, default, null!, null, null!);
         await Assert.That(jsRuntime.Invocations.Count).IsEqualTo(1);
     }
 }

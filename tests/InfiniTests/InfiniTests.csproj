@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <ItemGroup>
         <PackageReference Include="TUnit.Core"/>
-        <PackageReference Include="NSubstitute"/>
+        <PackageReference Include="TUnit.Mocks" PrivateAssets="all" ExcludeAssets="analyzers"/>
     </ItemGroup>
 
     <ItemGroup>
