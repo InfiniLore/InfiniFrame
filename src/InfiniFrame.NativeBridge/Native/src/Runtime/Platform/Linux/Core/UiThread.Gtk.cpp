@@ -4,6 +4,7 @@
 #include <X11/Xlib.h>
 #include <chrono>
 #include <condition_variable>
+#include <cstdlib>
 #include <exception>
 #include <functional>
 #include <libnotify/notify.h>
@@ -24,13 +25,11 @@ namespace {
     std::once_flag initializeOnce;
     std::mutex initializeMutex;
     std::condition_variable initializeCompleted;
-    std::atomic<bool> initialized{false};
+    bool initialized = false;
     std::thread::id ownerThreadId = {};
     GMainContext* ownerContext = nullptr;
     std::thread gtkThread;
     GMainLoop* mainLoop = nullptr;
-    std::atomic<bool> gtkThreadFinished{false};
-    bool gtkThreadShutdownTaken = false;
 
     struct InvokeState {
         std::function<void()> callback;
@@ -71,11 +70,29 @@ namespace {
     void ReleaseInvokeState(const gpointer userData) {
         delete static_cast<std::shared_ptr<InvokeState>*>(userData);
     }
+
+    void AtexitShutdown() {
+        if (!initialized)
+            return;
+        if (!gtkThread.joinable())
+            return;
+
+        if (mainLoop != nullptr && g_main_loop_is_running(mainLoop)) {
+            g_main_loop_quit(mainLoop);
+        }
+
+        // Detach rather than join. During process exit GLib/GDK objects may already be
+        // half-torn-down and the thread could be stuck in a GLib call. Joining here risks
+        // deadlock or SIGABRT. The OS reclaims all thread resources on process exit.
+        gtkThread.detach();
+    }
 }
 
 namespace infiniframe::linux_gtk::ui_thread {
     void EnsureInitialized() {
         std::call_once(initializeOnce, [] {
+            std::atexit(AtexitShutdown);
+
             gtkThread = std::thread([] {
                 infiniframe::linux_gtk::ConfigureGraphicsEnvironment();
                 XInitThreads();
@@ -86,7 +103,7 @@ namespace infiniframe::linux_gtk::ui_thread {
                     std::lock_guard lock(initializeMutex);
                     ownerThreadId = std::this_thread::get_id();
                     ownerContext = g_main_context_default();
-                    initialized.store(true, std::memory_order_release);
+                    initialized = true;
                     initializeCompleted.notify_all();
                 }
 
@@ -96,26 +113,16 @@ namespace infiniframe::linux_gtk::ui_thread {
                 mainLoop = nullptr;
 
                 notify_uninit();
-
-                gtkThreadFinished.store(true, std::memory_order_release);
             });
 
             std::unique_lock lock(initializeMutex);
-            initializeCompleted.wait(lock, [] { return initialized.load(std::memory_order_acquire); });
+            initializeCompleted.wait(lock, [] { return initialized; });
         });
     }
 
     void Shutdown() {
-        if (!initialized.load(std::memory_order_acquire)) {
+        if (!initialized)
             return;
-        }
-
-        {
-            std::lock_guard lock(initializeMutex);
-            if (gtkThreadShutdownTaken)
-                return;
-            gtkThreadShutdownTaken = true;
-        }
 
         if (mainLoop != nullptr && g_main_loop_is_running(mainLoop)) {
             g_main_loop_quit(mainLoop);
@@ -124,8 +131,6 @@ namespace infiniframe::linux_gtk::ui_thread {
         if (gtkThread.joinable()) {
             gtkThread.join();
         }
-
-        gtkThreadFinished.store(true, std::memory_order_release);
     }
 
     bool IsCurrentThread() {
@@ -135,7 +140,7 @@ namespace infiniframe::linux_gtk::ui_thread {
 
     namespace {
         gboolean ExecuteAsync(const gpointer userData) {
-            std::unique_ptr<std::function<void()>> callback(static_cast<std::function<void()>*>(userData));
+            std::unique_ptr<std::function<void()>> callback(static_cast<std::function<void()*>(userData));
             try {
                 (*callback)();
             } catch (...) {
@@ -208,31 +213,4 @@ namespace infiniframe::linux_gtk::ui_thread {
             std::rethrow_exception(state->failure);
         }
     }
-}
-
-__attribute__((destructor(101)))
-static void InfiniFrame_UiThread_Shutdown() {
-    if (!initialized.load(std::memory_order_acquire))
-        return;
-
-    {
-        std::lock_guard lock(initializeMutex);
-        if (gtkThreadShutdownTaken)
-            return;
-        gtkThreadShutdownTaken = true;
-    }
-
-    if (gtkThreadFinished.load(std::memory_order_acquire) || !gtkThread.joinable())
-        return;
-
-    // Quit the main loop so the GTK thread exits g_main_loop_run().
-    if (mainLoop != nullptr && g_main_loop_is_running(mainLoop)) {
-        g_main_loop_quit(mainLoop);
-    }
-
-    // Detach the thread rather than joining. During static destruction, GLib/GDK objects
-    // may already be half-torn-down and the thread could be stuck in a GLib call.
-    // Joining here risks deadlock or SIGABRT from cascading assertion failures.
-    // The OS reclaims thread resources on process exit.
-    gtkThread.detach();
 }
