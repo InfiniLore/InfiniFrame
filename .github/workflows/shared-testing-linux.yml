@@ -20,6 +20,10 @@ on:
                 type: boolean
                 required: false
                 default: false
+            enable_coverage:
+                type: boolean
+                required: false
+                default: false
 
 jobs:
     linux:
@@ -246,17 +250,25 @@ jobs:
                       local project
                       for project in "${test_projects[@]}"; do
                         echo "--- ${project} (${framework}) ---"
-                        dotnet test "$project" \
-                          --configuration Release \
-                          --no-build \
-                          --no-restore \
-                          --framework "$framework" \
-                          -p:NativeArch=${{ matrix.arch }} \
-                          -p:InfiniFrameSkipNativeBuild=true \
-                          -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
-                          -- \
-                          --no-ansi \
-                          --maximum-parallel-tests 1 || exit_code=$?
+                        local test_args=(
+                          "$project"
+                          --configuration Release
+                          --no-build
+                          --no-restore
+                          --framework "$framework"
+                          -p:NativeArch=${{ matrix.arch }}
+                          -p:InfiniFrameSkipNativeBuild=true
+                          -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
+                          --
+                          --no-ansi
+                          --maximum-parallel-tests 1
+                        )
+
+                        if [ "${{ inputs.enable_coverage }}" = "true" ] && [ "$framework" = "net10.0" ]; then
+                          test_args+=(--coverage --coverage-output-format cobertura --results-directory TestResults)
+                        fi
+
+                        dotnet test "${test_args[@]}" || exit_code=$?
                       done
 
                       if [ "$framework" = "net10.0" ]; then
@@ -326,6 +338,15 @@ jobs:
                         artifacts/native-crash/**
                         core*
                     if-no-files-found: ignore
+
+            -   name: Upload C# Coverage
+                if: ${{ inputs.enable_coverage == true && success() }}
+                uses: actions/upload-artifact@v7
+                with:
+                    name: cs-coverage-linux-${{ matrix.arch }}-${{ matrix.display_server }}
+                    path: TestResults/**/*.cobertura.xml
+                    if-no-files-found: warn
+                    retention-days: 1
 
             -   name: Pack Tool E2E
                 uses: ./.github/actions/packtool-e2e

@@ -20,6 +20,10 @@ on:
                 type: boolean
                 required: false
                 default: false
+            enable_coverage:
+                type: boolean
+                required: false
+                default: false
 
 jobs:
     windows:
@@ -192,6 +196,14 @@ jobs:
                         "/p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}"
                       )
 
+                      if ("${{ inputs.enable_coverage }}" -eq "true" -and $framework -eq "net10.0") {
+                        $testArgs += @(
+                          "--coverage",
+                          "--coverage-output-format", "cobertura",
+                          "--results-directory", "TestResults"
+                        )
+                      }
+
                       if ("${{ matrix.arch }}" -eq "arm64") {
                         $frameworkDiagRoot = Join-Path $env:GITHUB_WORKSPACE "artifacts\testdiag\$framework"
                         New-Item -ItemType Directory -Force -Path $frameworkDiagRoot | Out-Null
@@ -207,6 +219,15 @@ jobs:
                     }
 
                     exit $exitCode
+
+            -   name: Upload C# Coverage
+                if: ${{ inputs.enable_coverage == true && success() }}
+                uses: actions/upload-artifact@v7
+                with:
+                    name: cs-coverage-windows-${{ matrix.arch }}
+                    path: TestResults/**/*.cobertura.xml
+                    if-no-files-found: warn
+                    retention-days: 1
 
             -   name: Collect ARM64 Windows Event Logs
                 if: always() && matrix.arch == 'arm64'

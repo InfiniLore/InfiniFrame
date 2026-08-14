@@ -1,0 +1,95 @@
+#file: noinspection UndefinedAction,UndefinedParamsPresent
+name: "Shared: Coverage Badges"
+
+on:
+    workflow_call:
+        inputs:
+            badge_branch:
+                description: 'Branch to push badge updates to'
+                type: string
+                required: false
+                default: 'coverage/badges'
+
+permissions:
+    contents: write
+
+jobs:
+    coverage:
+        name: Generate Coverage Badges
+        runs-on: windows-latest
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v7
+
+            # TypeScript Coverage
+            -   name: Download TS Coverage Artifact
+                uses: actions/download-artifact@v4
+                with:
+                    name: ts-coverage
+                    path: ts-coverage
+
+            -   name: Extract TS Coverage
+                id: ts
+                shell: pwsh
+                run: |
+                    $lcov = Get-Content "ts-coverage/lcov.info" -Raw
+                    if ($lcov -match "LF:(\d+)") { $lines = [int]$Matches[1] } else { $lines = 0 }
+                    if ($lcov -match "LH:(\d+)") { $hit   = [int]$Matches[1] } else { $hit   = 0 }
+                    $pct = if ($lines -gt 0) { [math]::Round(($hit / $lines) * 100, 1) } else { 0 }
+                    "pct=$pct" >> $env:GITHUB_OUTPUT
+                    Write-Host "TS coverage: $pct% ($hit / $lines lines)"
+
+            # C# Coverage 
+            -   name: Download C# Coverage Artifacts
+                uses: actions/download-artifact@v4
+                with:
+                    pattern: cs-coverage-*
+                    path: cs-coverage
+                    merge-multiple: true
+
+            -   name: Aggregate C# Coverage
+                id: cs
+                shell: pwsh
+                run: |
+                    $totalLines = 0
+                    $totalCovered = 0
+                    Get-ChildItem "cs-coverage" -Recurse -Filter "*.cobertura.xml" -ErrorAction SilentlyContinue | ForEach-Object {
+                        $content = Get-Content $_.FullName -Raw
+                        [regex]::Matches($content, 'lines-valid="(\d+)"') | ForEach-Object {
+                            $totalLines += [int]$_.Groups[1].Value
+                        }
+                        [regex]::Matches($content, 'lines-covered="(\d+)"') | ForEach-Object {
+                            $totalCovered += [int]$_.Groups[1].Value
+                        }
+                    }
+                    $pct = if ($totalLines -gt 0) { [math]::Round(($totalCovered / $totalLines) * 100, 1) } else { 0 }
+                    "pct=$pct" >> $env:GITHUB_OUTPUT
+                    Write-Host "C# coverage: $pct% ($totalCovered / $totalLines lines)"
+
+            # Badge JSON 
+            -   name: Write Badge JSON
+                shell: pwsh
+                run: |
+                    $ts = "${{ steps.ts.outputs.pct }}%"
+                    $cs = "${{ steps.cs.outputs.pct }}%"
+                    $tsColor = if ([double]"${{ steps.ts.outputs.pct }}" -ge 90) { "brightgreen" }
+                               elseif ([double]"${{ steps.ts.outputs.pct }}" -ge 75) { "yellow" }
+                               else { "red" }
+                    $csColor = if ([double]"${{ steps.cs.outputs.pct }}" -ge 90) { "brightgreen" }
+                               elseif ([double]"${{ steps.cs.outputs.pct }}" -ge 75) { "yellow" }
+                               else { "red" }
+
+                    @{schemaVersion=1; label="coverage"; message=$ts; color=$tsColor} |
+                        ConvertTo-Json -Compress | Set-Content "badges/ts-coverage.json"
+                    @{schemaVersion=1; label="coverage"; message=$cs; color=$csColor} |
+                        ConvertTo-Json -Compress | Set-Content "badges/cs-coverage.json"
+
+                    Write-Host "Badges: TS=$ts ($tsColor), C#=$cs ($csColor)"
+
+            -   name: Commit Badge Updates
+                run: |
+                    git config user.name "github-actions[bot]"
+                    git config user.email "github-actions[bot]@users.noreply.github.com"
+                    git add badges/
+                    git diff --staged --quiet || git commit -m "ci: update coverage badges"
+                    git push origin HEAD:${{ inputs.badge_branch }} || echo "No changes to push"

@@ -20,6 +20,10 @@ on:
                 type: boolean
                 required: false
                 default: false
+            enable_coverage:
+                type: boolean
+                required: false
+                default: false
 
 jobs:
     macos:
@@ -126,20 +130,28 @@ jobs:
                         framework_exit_code=0
                         echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Starting $framework"
 
-                        dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
-                          --configuration Release \
-                          --no-build \
-                          --no-restore \
-                          --framework "$framework" \
-                          -p:NativeArch=${{ matrix.arch }} \
-                          -p:InfiniFrameSkipNativeBuild=true \
-                          -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
-                          --results-directory "artifacts/testresults/$framework" \
-                          --diagnostic \
-                          --diagnostic-output-directory "artifacts/testdiag/$framework" \
-                          --diagnostic-file-prefix "mtp-$framework" \
-                          --diagnostic-verbosity Warning \
-                          --no-ansi || framework_exit_code=$?
+                        test_args=(
+                          --solution InfiniFrame.GitHubActions.Testing.slnf
+                          --configuration Release
+                          --no-build
+                          --no-restore
+                          --framework "$framework"
+                          -p:NativeArch=${{ matrix.arch }}
+                          -p:InfiniFrameSkipNativeBuild=true
+                          -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
+                          --results-directory "artifacts/testresults/$framework"
+                          --diagnostic
+                          --diagnostic-output-directory "artifacts/testdiag/$framework"
+                          --diagnostic-file-prefix "mtp-$framework"
+                          --diagnostic-verbosity Warning
+                          --no-ansi
+                        )
+
+                        if [ "${{ inputs.enable_coverage }}" = "true" ] && [ "$framework" = "net10.0" ]; then
+                          test_args+=(--coverage --coverage-output-format cobertura --results-directory TestResults)
+                        fi
+
+                        dotnet test "${test_args[@]}" || framework_exit_code=$?
 
                         echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Finished $framework with exit code $framework_exit_code"
 
@@ -170,6 +182,15 @@ jobs:
                         artifacts/testdiag/**
                         artifacts/testresults/**
                         TestResults/**
+
+            -   name: Upload C# Coverage
+                if: ${{ inputs.enable_coverage == true && success() }}
+                uses: actions/upload-artifact@v7
+                with:
+                    name: cs-coverage-macos-${{ matrix.arch }}
+                    path: TestResults/**/*.cobertura.xml
+                    if-no-files-found: warn
+                    retention-days: 1
 
             -   name: Pack Tool E2E
                 uses: ./.github/actions/packtool-e2e

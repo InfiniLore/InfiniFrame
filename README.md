@@ -11,6 +11,8 @@ Supports **Windows** (WebView2), **Linux** (WebKit2GTK), and **macOS** (WKWebVie
 > original Photino authors
 
 [![CI: Platform Tests](https://github.com/InfiniLore/InfiniFrame/actions/workflows/ci-testing.yml/badge.svg)](https://github.com/InfiniLore/InfiniFrame/actions/workflows/ci-testing.yml)
+![TypeScript Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/InfiniLore/InfiniFrame/refs/heads/coverage/badges/ts-coverage.json)
+![C# Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/InfiniLore/InfiniFrame/refs/heads/coverage/badges/cs-coverage.json)
 
 ## Packages
 

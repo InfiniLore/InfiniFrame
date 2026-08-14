@@ -13,6 +13,10 @@
     <File Path="InfiniFrame.GitHubActions.Release.slnf" />
     <File Path="InfiniFrame.GitHubActions.slnf" />
   </Folder>
+  <Folder Name="/.dev-tools/badges/">
+    <File Path="badges/cs-coverage.json" />
+    <File Path="badges/ts-coverage.json" />
+  </Folder>
   <Folder Name="/.dev-tools/devcontainer/">
     <File Path=".devcontainer/devcontainer.json" />
     <File Path=".devcontainer/docker-compose.yml" />
@@ -73,6 +77,7 @@
   </Folder>
   <Folder Name="/.dev-tools/github/actions/" />
   <Folder Name="/.dev-tools/github/workflows/shared/">
+    <File Path=".github/workflows/shared-coverage.yml" />
     <File Path=".github/workflows/shared-release-build.yml" />
     <File Path=".github/workflows/shared-release-bump-version.yml" />
     <File Path=".github/workflows/shared-release-publish-docs.yml" />

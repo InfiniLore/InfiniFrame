@@ -13,6 +13,11 @@ on:
                 description: 'Commit SHA used for status/check updates'
                 type: string
                 required: true
+            enable_coverage:
+                description: 'Enable code coverage collection'
+                type: boolean
+                required: false
+                default: false
 
 permissions:
     contents: read
@@ -50,7 +55,21 @@ jobs:
             -   name: Run unit tests
                 shell: bash
                 working-directory: src/InfiniFrame.Js
-                run: npm run test
+                run: |
+                    if [ "${{ inputs.enable_coverage }}" = "true" ]; then
+                      npm run test:coverage
+                    else
+                      npm run test
+                    fi
+
+            -   name: Upload TS Coverage
+                if: ${{ inputs.enable_coverage == true && success() }}
+                uses: actions/upload-artifact@v7
+                with:
+                    name: ts-coverage
+                    path: src/InfiniFrame.Js/coverage/lcov.info
+                    if-no-files-found: warn
+                    retention-days: 1
 
             -   name: Complete Js Check
                 if: always()
