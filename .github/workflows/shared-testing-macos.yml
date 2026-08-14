@@ -140,15 +140,12 @@ jobs:
                           -p:InfiniFrameSkipNativeBuild=true
                           -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
                           --results-directory "artifacts/testresults/$framework"
-                          --diagnostic
                           --diagnostic-output-directory "artifacts/testdiag/$framework"
-                          --diagnostic-file-prefix "mtp-$framework"
-                          --diagnostic-verbosity Warning
                           --no-ansi
                         )
 
                         if [ "${{ inputs.enable_coverage }}" = "true" ] && [ "$framework" = "net10.0" ]; then
-                          test_args+=(--coverage --coverage-output-format cobertura --results-directory TestResults)
+                          test_args+=(--coverage --coverage-output-format cobertura)
                         fi
 
                         dotnet test "${test_args[@]}" || framework_exit_code=$?
@@ -188,7 +185,7 @@ jobs:
                 uses: actions/upload-artifact@v7
                 with:
                     name: cs-coverage-macos-${{ matrix.arch }}
-                    path: TestResults/**/*.cobertura.xml
+                    path: artifacts/testresults/net10.0/**/*.cobertura.xml
                     if-no-files-found: warn
                     retention-days: 1
 
