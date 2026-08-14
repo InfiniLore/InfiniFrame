@@ -63,7 +63,7 @@ public class InfiniFrameHttpHandlerTests {
         // Arrange
         var managerMock = MockFactory.CreateWebViewManagerMock();
         managerMock.HandleWebRequest(Any<global::InfiniFrame.IInfiniFrameWindow?>(), Any<string?>()).Returns(((Stream?)null, (string?)null));
-        var handler = new InfiniFrameHttpHandler(managerMock.Object, new HttpClientHandler());
+        var handler = new InfiniFrameHttpHandler(managerMock.Object, new ThrowingHttpHandler());
         var httpClient = new HttpClient(handler);
         var request = new HttpRequestMessage(HttpMethod.Get, "https://example.com/test");
 
@@ -71,6 +71,12 @@ public class InfiniFrameHttpHandlerTests {
         await Assert.ThrowsAsync<HttpRequestException>(async () => {
             await httpClient.SendAsync(request, CancellationToken.None);
         });
+    }
+
+    private sealed class ThrowingHttpHandler : HttpMessageHandler {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) {
+            throw new HttpRequestException("inner handler rejected");
+        }
     }
 
     [Test]
