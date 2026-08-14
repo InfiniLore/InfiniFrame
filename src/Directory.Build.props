@@ -30,7 +30,7 @@
 
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         
-        <Version>0.54.0</Version>
+        <Version>0.60.0</Version>
         <Authors>InfiniFrame, TryPhotino</Authors>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
