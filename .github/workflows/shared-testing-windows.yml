@@ -208,8 +208,6 @@ jobs:
                         $frameworkDiagRoot = Join-Path $env:GITHUB_WORKSPACE "artifacts\testdiag\$framework"
                         New-Item -ItemType Directory -Force -Path $frameworkDiagRoot | Out-Null
                         $testArgs += @(
-                          "--diagnostic",
-                          "--diagnostic-synchronous-write",
                           "--diagnostic-output-directory", $frameworkDiagRoot
                         )
                       }
