@@ -16,10 +16,6 @@
     </PropertyGroup>
 
     <ItemGroup Condition="'$(MSBuildProjectName)' != 'InfiniTests'">
-        <Using Include="TUnit.Mocks" />
-        <Using Include="TUnit.Mocks.Arguments" />
-        <Using Include="TUnit.Mocks.Generated" />
-        <Using Include="static TUnit.Mocks.Arguments.Arg" />
     </ItemGroup>
 
     <ItemGroup>

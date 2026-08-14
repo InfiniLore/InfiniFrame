@@ -28,8 +28,13 @@ public static class MockFactory
     public static Mock<InfiniFrame.IInfiniFrameEvents> CreateEventsMock() => Mock.Of<InfiniFrame.IInfiniFrameEvents>();
     public static Mock<InfiniFrame.IInfiniFrameEventsStore> CreateEventsStoreMock() => Mock.Of<InfiniFrame.IInfiniFrameEventsStore>();
     public static Mock<InfiniFrame.IDragDropInfiniFrameWindowFeature> CreateDragDropMock() => Mock.Of<InfiniFrame.IDragDropInfiniFrameWindowFeature>();
+    public static Mock<InfiniFrame.ITaskbarInfiniFrameWindowFeature> CreateTaskbarMock() => Mock.Of<InfiniFrame.ITaskbarInfiniFrameWindowFeature>();
+    public static Mock<InfiniFrame.IMenuInfiniFrameWindowFeature> CreateMenuMock() => Mock.Of<InfiniFrame.IMenuInfiniFrameWindowFeature>();
+    public static Mock<InfiniFrame.IJavaScriptInfiniFrameWindowFeature> CreateJavaScriptMock() => Mock.Of<InfiniFrame.IJavaScriptInfiniFrameWindowFeature>();
+    public static Mock<InfiniFrame.IInfiniFrameWindowConfiguration> CreateWindowConfigurationMock() => Mock.Of<InfiniFrame.IInfiniFrameWindowConfiguration>();
     public static Mock<Microsoft.Extensions.Logging.ILogger<T>> CreateLoggerMock<T>() => Mock.Of<Microsoft.Extensions.Logging.ILogger<T>>();
     public static Mock<Microsoft.AspNetCore.Components.Dispatcher> CreateDispatcherMock() => Mock.Of<Microsoft.AspNetCore.Components.Dispatcher>();
+    public static Mock<InfiniFrame.BlazorWebView.IInfiniFrameWebViewManager> CreateWebViewManagerMock() => Mock.Of<InfiniFrame.BlazorWebView.IInfiniFrameWebViewManager>();
     public static Mock<InfiniFrame.NativeBridge.Delegates.CppReleaseCustomSchemeResponseDelegate> CreateReleaseDelegateMock() => Mock.Of<InfiniFrame.NativeBridge.Delegates.CppReleaseCustomSchemeResponseDelegate>();
     public static Mock<System.IServiceProvider> CreateServiceProviderMock() => Mock.Of<System.IServiceProvider>();
     public static Mock<System.IDisposable> CreateDisposableMock() => Mock.Of<System.IDisposable>();
