@@ -14,14 +14,14 @@ public class InfiniFrameWindowConfigurationTests {
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    public async Task StartupParameters_Default_ShouldBeNull(CancellationToken ct = default) {
+    public async Task StartupParameters_Default_ShouldBeDefaultStruct(CancellationToken ct = default) {
         // Arrange
 
         // Act
         var config = new InfiniFrameWindowConfiguration();
 
         // Assert
-        await Assert.That(config.StartupParameters).IsNull();
+        await Assert.That(config.StartupParameters).IsEqualTo(default(InfiniFrameNativeParameters));
     }
 
     [Test]
@@ -45,7 +45,7 @@ public class InfiniFrameWindowConfigurationTests {
         config.AssignNativeParameters(parameters);
 
         // Assert
-        await Assert.That(config.StartupParameters).IsSameReferenceAs(parameters);
+        await Assert.That(config.StartupParameters).IsEqualTo(parameters);
     }
 
     [Test]

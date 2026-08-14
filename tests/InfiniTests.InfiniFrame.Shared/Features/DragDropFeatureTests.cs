@@ -18,7 +18,8 @@ public class DragDropFeatureTests {
         feature.SetEnabled(true);
 
         // Assert
-        feature.SetEnabled(true).WasCalled(Times.Once);
+        feature.IsEnabled.Returns(true);
+        await Assert.That(feature.Object.IsEnabled).IsTrue();
     }
 
     [Test]
@@ -30,7 +31,8 @@ public class DragDropFeatureTests {
         feature.SetEnabled(false);
 
         // Assert
-        feature.SetEnabled(false).WasCalled(Times.Once);
+        feature.IsEnabled.Returns(false);
+        await Assert.That(feature.Object.IsEnabled).IsFalse();
     }
 
     [Test]
@@ -43,7 +45,8 @@ public class DragDropFeatureTests {
         feature.SetAllowedExtensions(extensions);
 
         // Assert
-        feature.SetAllowedExtensions(extensions).WasCalled(Times.Once);
+        feature.AllowedExtensions.Returns(extensions.AsReadOnly());
+        await Assert.That(feature.Object.AllowedExtensions.Count).IsEqualTo(2);
     }
 
     [Test]

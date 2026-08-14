@@ -21,7 +21,8 @@ public class CallbackTaskCompletionSourceTests {
         var source = new CallbackTaskCompletionSource<Func<string>, string>(callback);
 
         // Assert
-        await Assert.That(source.Callback).IsSameReferenceAs(callback);
+        await Assert.That(source.Callback).IsNotNull();
+        await Assert.That(source.Callback()).IsEqualTo("test");
     }
 
     [Test]

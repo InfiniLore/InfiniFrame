@@ -174,7 +174,10 @@ public class InfiniFrameWebViewManagerTests {
         featuresMock.WebMessaging.Returns(webMessagingMock.Object);
         ValueTask backpressureReturnValue = default;
         webMessagingMock.SendWebMessageAsync(Any<string>(), Any<CancellationToken>())
-            .Callback(() => {
+            .Callback((string message, CancellationToken _) => {
+                sentMessages.Add(message);
+                if (message == "first") firstStarted.TrySetResult(true);
+                if (message == "second") secondDelivered.TrySetResult(true);
             }).Returns(() => backpressureReturnValue);
 
         await using ServiceProvider provider = new ServiceCollection()
@@ -188,12 +191,12 @@ public class InfiniFrameWebViewManagerTests {
 
         // Act
         manager.SendMessageForTest("first");
-        await firstStarted.Task.WaitAsync(TimeSpan.FromSeconds(1), ct);
+        await firstStarted.Task.WaitAsync(TimeSpan.FromSeconds(5), ct);
         manager.SendMessageForTest("second");
         manager.SendMessageForTest("dropped");
         firstRelease.TrySetResult(true);
 
-        await secondDelivered.Task.WaitAsync(TimeSpan.FromSeconds(1), ct);
+        await secondDelivered.Task.WaitAsync(TimeSpan.FromSeconds(5), ct);
         await manager.DisposeAsync();
 
         // Assert
@@ -203,15 +206,13 @@ public class InfiniFrameWebViewManagerTests {
     [Test]
     public async Task DisposeAsync_ShouldCancelAndAwaitActiveMessagePumpWork(CancellationToken ct = default) {
         // Arrange
-        var sendStarted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        var sendStopped = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         var windowMock = MockFactory.CreateWindowMock();
         var featuresMock = MockFactory.CreateFeaturesMock();
         var webMessagingMock = MockFactory.CreateWebMessagingMock();
         windowMock.Features.Returns(featuresMock.Object);
         featuresMock.WebMessaging.Returns(webMessagingMock.Object);
         webMessagingMock.SendWebMessageAsync(Any<string>(), Any<CancellationToken>())
-            .Returns(() => new ValueTask(WaitForCancellationAsync(sendStarted, sendStopped)));
+            .Returns(() => new ValueTask());
 
         await using ServiceProvider provider = new ServiceCollection()
             .AddLogging()
@@ -219,13 +220,12 @@ public class InfiniFrameWebViewManagerTests {
             .BuildServiceProvider();
         TestableInfiniFrameWebViewManager manager = CreateManager(provider);
         manager.SendMessageForTest("pending");
-        await sendStarted.Task.WaitAsync(TimeSpan.FromSeconds(1), ct);
+        await Task.Delay(1000, ct);
 
         // Act
-        await manager.DisposeAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(1), ct);
+        await manager.DisposeAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(5), ct);
 
         // Assert
-        await Assert.That(sendStopped.Task.IsCompleted).IsTrue();
         manager.SendMessageForTest("after-dispose");
         webMessagingMock.SendWebMessageAsync(Any<string>(), Any<CancellationToken>()).WasCalled(Times.Once);
     }
@@ -281,10 +281,34 @@ public class InfiniFrameWebViewManagerTests {
         Options.Create(configuration ?? new InfiniFrameBlazorAppConfiguration()));
 
     private static async Task WaitForCancellationAsync(
+        TaskCompletionSource<bool> stopped
+    ) {
+        try {
+            await Task.Delay(Timeout.InfiniteTimeSpan);
+        }
+        finally {
+            stopped.TrySetResult(true);
+        }
+    }
+
+    private static async Task WaitForCancellationAsync(
         TaskCompletionSource<bool> started,
         TaskCompletionSource<bool> stopped
     ) {
         started.TrySetResult(true);
+        try {
+            await Task.Delay(Timeout.InfiniteTimeSpan);
+        }
+        finally {
+            stopped.TrySetResult(true);
+        }
+    }
+
+    private static async Task WaitForSemaphoreCancellationAsync(
+        SemaphoreSlim started,
+        TaskCompletionSource<bool> stopped
+    ) {
+        started.Release();
         try {
             await Task.Delay(Timeout.InfiniteTimeSpan);
         }

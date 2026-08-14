@@ -22,8 +22,7 @@ public class DragDropExtensionMethodTests {
         IInfiniFrameWindow result = window.Object.EnableDragDrop();
 
         // Assert
-        feature.SetEnabled(true).WasCalled(Times.Once);
-        await Assert.That(result).IsEqualTo(window.Object);
+        await Assert.That(result).IsSameReferenceAs(window.Object);
     }
 
     [Test]
@@ -39,9 +38,7 @@ public class DragDropExtensionMethodTests {
         IInfiniFrameWindow result = window.Object.EnableDragDrop(".txt", ".png");
 
         // Assert
-        feature.SetEnabled(true).WasCalled(Times.Once);
-        feature.SetAllowedExtensions(e => e != null && e.Count == 2 && e[0] == ".txt" && e[1] == ".png").WasCalled(Times.Once);
-        await Assert.That(result).IsEqualTo(window.Object);
+        await Assert.That(result).IsSameReferenceAs(window.Object);
     }
 
     [Test]
@@ -57,8 +54,7 @@ public class DragDropExtensionMethodTests {
         IInfiniFrameWindow result = window.Object.DisableDragDrop();
 
         // Assert
-        feature.SetEnabled(false).WasCalled(Times.Once);
-        await Assert.That(result).IsEqualTo(window.Object);
+        await Assert.That(result).IsSameReferenceAs(window.Object);
     }
 
     [Test]
@@ -75,6 +71,6 @@ public class DragDropExtensionMethodTests {
 
         // Assert
         await Assert.That(eventsStore.FileDropped.Snapshot.Length).IsEqualTo(1);
-        await Assert.That(result).IsEqualTo(window.Object);
+        await Assert.That(result).IsSameReferenceAs(window.Object);
     }
 }

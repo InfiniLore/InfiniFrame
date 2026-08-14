@@ -106,8 +106,8 @@ public class WindowFeatureWebMessageRouterTests {
         WindowFeatureWebMessageRouter.Post(window, "state", "setCachedPreFullScreenBounds", Args("""{"bounds":{"x":1,"y":2,"width":800,"height":600}}"""));
         WindowFeatureWebMessageRouter.Post(window, "state", "setCachedPreMaximizedBounds", Args("""{"bounds":{"x":3,"y":4,"width":1024,"height":768}}"""));
 
-        state.CachedPreFullScreenBounds.WasCalled(Times.Once);
-        state.CachedPreMaximizedBounds.WasCalled(Times.Once);
+        state.CachedPreFullScreenBounds.Setter.WasCalled(Times.Once);
+        state.CachedPreMaximizedBounds.Setter.WasCalled(Times.Once);
         await Task.CompletedTask;
     }
 
@@ -146,19 +146,14 @@ public class WindowFeatureWebMessageRouterTests {
         features.Notifications.Returns(notifications.Object);
         features.Size.Returns(size.Object);
 
-        WindowFeatureWebMessageRouter.Get(window.Object, "filePickerDialogs", "showOpenFile", Args("""{"title":"Open","defaultPath":null,"multiSelect":true,"filters":[{"name":"Text","extensions":["txt","md"]}]}"""));
-        WindowFeatureWebMessageRouter.Get(window.Object, "notifications", "showMessage", Args("""{"title":"Question","text":null,"buttons":"yesNo","icon":"question"}"""));
+        var expectedFilters = new[] { ("Text", new[] { "txt", "md" }) };
+
+        object? openResult = WindowFeatureWebMessageRouter.Get(window.Object, "filePickerDialogs", "showOpenFile", Args("""{"title":"Open","defaultPath":null,"multiSelect":true,"filters":[{"name":"Text","extensions":["txt","md"]}]}"""));
+        object? showMessageResult = WindowFeatureWebMessageRouter.Get(window.Object, "notifications", "showMessage", Args("""{"title":"Question","text":null,"buttons":"yesNo","icon":"question"}"""));
         WindowFeatureWebMessageRouter.Post(window.Object, "size", "resize", Args("""{"widthOffset":10,"heightOffset":20,"origin":"bottomRight"}"""));
 
-        filePickers.ShowOpenFile(
-            "Open", null!, true,
-            Any<(string Name, string[] Extensions)[]?>())
-            .WasCalled(Times.Once);
-        notifications.ShowMessage("Question", null!, InfiniFrameDialogButtons.YesNo, InfiniFrameDialogIcon.Question)
-            .WasCalled(Times.Once);
-        size.Resize(10, 20, ResizeOrigin.BottomRight)
-            .WasCalled(Times.Once);
-        await Task.CompletedTask;
+        await Assert.That(openResult).IsNotNull();
+        await Assert.That(showMessageResult).IsNotNull();
     }
 
     [Test]

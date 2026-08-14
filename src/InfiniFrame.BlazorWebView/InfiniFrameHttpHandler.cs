@@ -22,6 +22,7 @@ public class InfiniFrameHttpHandler : DelegatingHandler {
     /// <param name="manager">The WebView manager used to handle custom scheme requests.</param>
     /// <param name="innerHandler">The inner handler for unhandled HTTP requests. Defaults to <see cref="HttpClientHandler" />.</param>
     public InfiniFrameHttpHandler(IInfiniFrameWebViewManager manager, HttpMessageHandler? innerHandler = null) {
+        ArgumentNullException.ThrowIfNull(manager);
         _manager = manager;
 
         //the last (inner) handler in the pipeline should be a "real" handler.

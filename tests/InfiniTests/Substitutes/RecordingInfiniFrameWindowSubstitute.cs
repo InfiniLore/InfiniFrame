@@ -47,7 +47,18 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
         _windowMock.ManagedThreadId.Returns(Environment.CurrentManagedThreadId);
 
         _webMessagingMock.SendWebMessageAsync(Any<string>(), Any<CancellationToken>())
+            .Callback((string message, CancellationToken _) => {
+                lock (_sentWebMessagesLock) {
+                    _sentWebMessages.Add(message);
+                }
+            })
             .Returns(() => ValueTask.CompletedTask);
+        _webMessagingMock.SendWebMessage(Any<string>())
+            .Callback((string message) => {
+                lock (_sentWebMessagesLock) {
+                    _sentWebMessages.Add(message);
+                }
+            });
         _featuresMock.WebMessaging.Returns(_webMessagingMock.Object);
         _featuresMock.Lifecycle.Returns(_lifecycleMock.Object);
         _featuresMock.State.Returns(_stateMock.Object);
