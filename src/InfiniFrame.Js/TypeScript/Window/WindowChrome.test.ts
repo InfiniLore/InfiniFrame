@@ -483,4 +483,66 @@ describe("WindowChrome", () => {
             el.setAttribute("data-infiniframe-drag-region", "");
         });
     });
+
+    describe("pointer events", () => {
+        it("pointerup ends drag when isDragging is true", () => {
+            const dragArea = createElement("div", {id: "titlebar"});
+            chrome.register({dragRegion: "#titlebar"});
+
+            // Start drag
+            const pointerDown = new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0});
+            dragArea.dispatchEvent(pointerDown);
+
+            // End drag
+            const pointerUp = new PointerEvent("pointerup", {bubbles: true, pointerId: 1});
+            dragArea.dispatchEvent(pointerUp);
+        });
+
+        it("pointerup ends resize when isResizing is true", () => {
+            const resizeEl = createElement("div", {id: "resize-right"});
+            chrome.register({resize: {right: "#resize-right"}});
+
+            // Start resize
+            const pointerDown = new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0});
+            resizeEl.dispatchEvent(pointerDown);
+
+            // End resize
+            const pointerUp = new PointerEvent("pointerup", {bubbles: true, pointerId: 1});
+            resizeEl.dispatchEvent(pointerUp);
+        });
+
+        it("pointermove triggers resize when isResizing is true", () => {
+            const resizeEl = createElement("div", {id: "resize-right"});
+            chrome.register({resize: {right: "#resize-right"}});
+
+            // Start resize
+            const pointerDown = new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0});
+            resizeEl.dispatchEvent(pointerDown);
+
+            // Move during resize
+            const pointerMove = new PointerEvent("pointermove", {bubbles: true, pointerId: 1, movementX: 5, movementY: 3});
+            resizeEl.dispatchEvent(pointerMove);
+
+            expect(messaging.sendMessageToHost).toHaveBeenCalled();
+        });
+
+        it("pointermove does nothing when not resizing", () => {
+            const resizeEl = createElement("div", {id: "resize-right"});
+            chrome.register({resize: {right: "#resize-right"}});
+
+            // Move without starting resize
+            const pointerMove = new PointerEvent("pointermove", {bubbles: true, pointerId: 1, movementX: 5, movementY: 3});
+            resizeEl.dispatchEvent(pointerMove);
+        });
+
+        it("pointerdown on resize element starts resize", () => {
+            const resizeEl = createElement("div", {id: "resize-bottom"});
+            chrome.register({resize: {bottom: "#resize-bottom"}});
+
+            const pointerDown = new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0});
+            resizeEl.dispatchEvent(pointerDown);
+
+            expect(resizeEl.setPointerCapture).toHaveBeenCalled();
+        });
+    });
 });

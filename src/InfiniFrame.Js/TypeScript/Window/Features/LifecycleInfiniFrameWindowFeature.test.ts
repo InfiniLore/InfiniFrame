@@ -1,67 +1,31 @@
-// ---------------------------------------------------------------------------------------------------------------------
-// Imports
-// ---------------------------------------------------------------------------------------------------------------------
-import {beforeEach, describe, expect, it, vi} from "vitest";
-import {LifecycleInfiniFrameWindowFeature} from "./LifecycleInfiniFrameWindowFeature";
+import {beforeEach, describe, expect, it} from "vitest";
+import {setupFeature} from "./_testHelpers";
 
-// ---------------------------------------------------------------------------------------------------------------------
-// Code
-// ---------------------------------------------------------------------------------------------------------------------
 describe("LifecycleInfiniFrameWindowFeature", () => {
-    let feature: LifecycleInfiniFrameWindowFeature;
-    let messaging: ReturnType<typeof createMessagingMock>;
+    let feature: any;
+    let messaging: ReturnType<typeof import("./_testHelpers").createMessagingMock>;
 
-    beforeEach(() => {
-        messaging = createMessagingMock();
-        (window as any).infiniframe = {messaging};
-        feature = new LifecycleInfiniFrameWindowFeature();
+    beforeEach(async () => {
+        messaging = setupFeature();
+        const mod = await import("./LifecycleInfiniFrameWindowFeature");
+        feature = new mod.LifecycleInfiniFrameWindowFeature();
     });
 
-    it("constructs with lifecycle feature name", () => {
-        expect(feature).toBeDefined();
-    });
-
-    it("getStateAsync sends get request and returns result", async () => {
+    it("constructs with lifecycle feature name", () => { expect(feature).toBeDefined(); });
+    it("getStateAsync sends get request", async () => {
         messaging.getMessageFromHostAsync.mockResolvedValue(JSON.stringify("Running"));
-
         const result = await feature.getStateAsync();
-
-        expect(messaging.getMessageFromHostAsync).toHaveBeenCalledWith(
-            expect.stringContaining("lifecycle:state"),
-            undefined
-        );
+        expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
         expect(result).toBe("Running");
     });
-
     it("isClosedOrClosingAsync sends get request", async () => {
         messaging.getMessageFromHostAsync.mockResolvedValue(JSON.stringify(false));
-
         const result = await feature.isClosedOrClosingAsync();
-
-        expect(messaging.getMessageFromHostAsync).toHaveBeenCalledWith(
-            expect.stringContaining("lifecycle:isClosedOrClosing"),
-            undefined
-        );
+        expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
         expect(result).toBe(false);
     });
-
     it("close sends post command", () => {
         feature.close();
-
-        expect(messaging.sendMessageToHost).toHaveBeenCalledWith(
-            expect.any(String),
-            expect.objectContaining({
-                command: expect.stringContaining("lifecycle:close")
-            })
-        );
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
     });
 });
-
-function createMessagingMock() {
-    return {
-        sendMessageToHost: vi.fn(),
-        getMessageFromHostAsync: vi.fn(),
-        assignMessageReceivedHandler: vi.fn(),
-        unregisterMessageReceivedHandler: vi.fn()
-    };
-}

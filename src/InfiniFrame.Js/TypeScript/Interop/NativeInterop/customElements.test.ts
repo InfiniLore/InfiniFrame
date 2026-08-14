@@ -23,6 +23,7 @@ describe("customElements", () => {
         delete window.registerBlazorCustomElement;
         vi.useRealTimers();
         vi.restoreAllMocks();
+        vi.resetModules();
     });
 
     it("registers Blazor custom elements and converts attributes to parameters", async () => {
@@ -343,6 +344,66 @@ describe("customElements", () => {
 
         expect(register).not.toHaveBeenCalled();
         vi.useRealTimers();
+    });
+
+    it("autoRegister handles errors in registerBlazorCustomElement gracefully", () => {
+        vi.useFakeTimers();
+        const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+        const register = vi.fn(() => { throw new Error("registration failed"); });
+        const attachWebRendererInterop = vi.fn();
+        window.registerBlazorCustomElement = register;
+        window.Blazor = {_internal: {attachWebRendererInterop}};
+
+        initBlazorCustomElementsPatch(setup);
+
+        window.Blazor._internal!.attachWebRendererInterop!(
+            {}, {},
+            {"failing-element": [{name: "Value"}]},
+            {}
+        );
+
+        vi.runAllTimers();
+
+        expect(consoleError).toHaveBeenCalled();
+        consoleError.mockRestore();
+        vi.useRealTimers();
+    });
+
+    it("registerBlazorCustomElement skips non-EventCallback params", () => {
+        window.Blazor = {rootComponents: {add: vi.fn()}};
+        window.customElements = {define: vi.fn(), get: vi.fn(() => undefined)} as any;
+
+        initCustomElements(setup);
+        window.registerBlazorCustomElement!("test-element", [
+            {name: "Title", type: "string"},
+            {name: "OnClick", type: "EventCallback"},
+            {name: "Count", type: "int"}
+        ]);
+
+        expect(window.customElements.define).toHaveBeenCalled();
+    });
+
+    it("registerBlazorCustomElement skips undefined name params", () => {
+        window.Blazor = {rootComponents: {add: vi.fn()}};
+        window.customElements = {define: vi.fn(), get: vi.fn(() => undefined)} as any;
+
+        initCustomElements(setup);
+        window.registerBlazorCustomElement!("test-element", [
+            {name: undefined as any, type: "string"},
+            {name: "Valid", type: "string"}
+        ]);
+
+        expect(window.customElements.define).toHaveBeenCalled();
+    });
+
+    it("registerBlazorCustomElement skips already-defined elements", () => {
+        window.Blazor = {rootComponents: {add: vi.fn()}};
+        window.customElements = {define: vi.fn(), get: vi.fn(() => ({}))} as any;
+
+        initCustomElements(setup);
+        window.registerBlazorCustomElement!("existing-element", [{name: "Value", type: "string"}]);
+
+        expect(window.customElements.define).not.toHaveBeenCalled();
     });
 });
 

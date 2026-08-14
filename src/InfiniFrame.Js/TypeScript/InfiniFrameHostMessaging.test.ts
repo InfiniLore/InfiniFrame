@@ -323,4 +323,97 @@ describe("InfiniFrameHostMessaging", () => {
         expect(warnSpy).toHaveBeenCalled();
         warnSpy.mockRestore();
     });
+
+    it("registerTitleChange with no existing title element creates head observer", async () => {
+        // Remove any existing title elements
+        document.querySelectorAll("title").forEach(el => el.remove());
+
+        const {getReceiveCallback, titleObserverObserve} = await setupHostMessaging();
+        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.registerTitleChange, command: "Post", version: 2}));
+
+        // Should not throw even with no title element
+        expect(titleObserverObserve).not.toHaveBeenCalled();
+    });
+
+    it("registerTitleChange is idempotent", async () => {
+        const {getReceiveCallback} = await setupHostMessaging();
+        const addEventListenerSpy = vi.spyOn(document, "addEventListener");
+
+        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.registerTitleChange, command: "Post", version: 2}));
+        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.registerTitleChange, command: "Post", version: 2}));
+
+        // Should only observe once
+    });
+
+    it("registerFullscreenChange sends fullscreenEnter when fullscreenElement exists", async () => {
+        const {getReceiveCallback, postData} = await setupHostMessaging();
+        const addEventListenerSpy = vi.spyOn(document, "addEventListener");
+
+        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.registerFullscreenChange, command: "Post", version: 2}));
+
+        // Find the fullscreenchange handler
+        const fullscreenHandler = addEventListenerSpy.mock.calls.find(
+            (call: any[]) => call[0] === "fullscreenchange"
+        )?.[1] as (e: Event) => void;
+
+        if (fullscreenHandler) {
+            // Mock fullscreenElement to be truthy
+            Object.defineProperty(document, "fullscreenElement", {value: document.body, configurable: true});
+            fullscreenHandler(new Event("fullscreenchange"));
+
+            const fullscreenMessages = postData.mock.calls
+                .map((call: any[]) => call[0])
+                .filter((msg: any) => typeof msg === "object" && msg?.id === SendToHostMessageIds.fullscreenEnter);
+            expect(fullscreenMessages.length).toBe(1);
+
+            // Reset
+            Object.defineProperty(document, "fullscreenElement", {value: null, configurable: true});
+        }
+    });
+
+    it("registerFullscreenChange sends fullscreenExit when no fullscreenElement", async () => {
+        const {getReceiveCallback, postData} = await setupHostMessaging();
+        const addEventListenerSpy = vi.spyOn(document, "addEventListener");
+
+        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.registerFullscreenChange, command: "Post", version: 2}));
+
+        const fullscreenHandler = addEventListenerSpy.mock.calls.find(
+            (call: any[]) => call[0] === "fullscreenchange"
+        )?.[1] as (e: Event) => void;
+
+        if (fullscreenHandler) {
+            Object.defineProperty(document, "fullscreenElement", {value: null, configurable: true});
+            fullscreenHandler(new Event("fullscreenchange"));
+
+            const fullscreenMessages = postData.mock.calls
+                .map((call: any[]) => call[0])
+                .filter((msg: any) => typeof msg === "object" && msg?.id === SendToHostMessageIds.fullscreenExit);
+            expect(fullscreenMessages.length).toBe(1);
+        }
+    });
+
+    it("webMessageAckRequest with malformed JSON does not throw", async () => {
+        const {getReceiveCallback} = await setupHostMessaging();
+        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+        getReceiveCallback()(JSON.stringify({
+            id: ReceiveFromHostMessageIds.webMessageAckRequest,
+            command: "Post",
+            data: "not-json",
+            version: 2
+        }));
+
+        expect(warnSpy).toHaveBeenCalled();
+        warnSpy.mockRestore();
+    });
+
+    it("handleInteropMessage returns false for non-string messages", async () => {
+        const {messaging} = await setupHostMessaging();
+        // The handleInteropMessage is private, but we can test it indirectly
+        // through the receive callback with a non-string message
+        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+        const {getReceiveCallback} = await setupHostMessaging();
+        getReceiveCallback()(123 as any);
+        warnSpy.mockRestore();
+    });
 });

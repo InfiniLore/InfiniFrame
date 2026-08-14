@@ -49,6 +49,13 @@ describe("InfiniFrame", () => {
         expect(instance.window.features.decorations).toBeDefined();
     });
 
+    it("preserves existing window when features are already set", () => {
+        const existingWindow = {features: {decorations: {}}};
+        const instance = new InfiniFrame({window: existingWindow as any});
+
+        expect(instance.window).toBe(existingWindow);
+    });
+
     it("does not define a legacy window.__infiniframe host", async () => {
         const setSpy = vi.spyOn(Object, "defineProperty");
 
