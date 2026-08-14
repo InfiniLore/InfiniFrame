@@ -142,6 +142,10 @@ jobs:
                           --results-directory "artifacts/testresults/$framework"
                           --diagnostic-output-directory "artifacts/testdiag/$framework"
                           --no-ansi
+                          --
+                          --diagnostic
+                          --diagnostic-file-prefix "mtp-$framework"
+                          --diagnostic-verbosity Warning
                         )
 
                         if [ "${{ inputs.enable_coverage }}" = "true" ] && [ "$framework" = "net10.0" ]; then
