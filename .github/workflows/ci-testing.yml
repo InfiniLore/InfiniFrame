@@ -17,7 +17,7 @@ on:
                 description: 'PR number to test. Leave empty to test the current branch commit.'
                 required: false
                 type: string
-            with_coverage:
+            enable_coverage:
                 description: 'Enable code coverage'
                 type: boolean
                 default: false
@@ -70,13 +70,13 @@ jobs:
             run_trim_aot: ${{ github.event_name == 'push' || inputs.run_trim_aot }}
 
             enable_test_exports: true
-            enable_coverage: ${{ github.event_name == 'push' || inputs.with_coverage }}
+            enable_coverage: ${{ github.event_name == 'push' || inputs.enable_coverage }}
         secrets: inherit
 
     coverage:
         name: Coverage Badges
         needs: [run]
-        if: ${{ inputs.with_coverage }}
+        if: ${{ github.event_name == 'push' || inputs.enable_coverage }}
         uses: ./.github/workflows/shared-coverage.yml
         permissions:
             contents: write
