@@ -63,8 +63,11 @@ internal static class MacOsTestingPlatformEntryPoint {
         // .NET 10's runtime teardown sequence calls abort() on macOS during GC finalization,
         // producing exit code 134 (SIGABRT) even when all tests pass.  Environment.Exit
         // runs finalizers (so native handles are released) but skips the runtime shutdown
-        // path that triggers the abort.
-        Environment.Exit(exitCode);
+        // path that triggers the abort.  Unfortunately, even Environment.Exit does not
+        // fully prevent the abort on net10.0, so we fall through to the POSIX _exit()
+        // which unconditionally terminates the process without invoking the managed
+        // finalizer thread or the CLR shutdown sequence.
+        PosixExit(exitCode);
 
         // Unreachable, but required by the compiler.
         return exitCode;
@@ -79,6 +82,9 @@ internal static class MacOsTestingPlatformEntryPoint {
 
         return mode;
     }
+
+    [DllImport("/usr/lib/libc.dylib", EntryPoint = "_exit")]
+    private static extern void PosixExit(int status);
 
     private static async Task<int> RunTestingPlatformAsync(string[] args) {
         ITestApplicationBuilder builder = await TestApplication.CreateBuilderAsync(args);
