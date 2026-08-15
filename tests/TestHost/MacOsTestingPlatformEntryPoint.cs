@@ -49,11 +49,16 @@ internal static class MacOsTestingPlatformEntryPoint {
         // The native handler checks this flag and calls _exit(code) directly instead of
         // re-raising SIGABRT with SIG_DFL, which would produce a non-zero exit even
         // though every test passed.
+        //
+        // Best-effort: the native library may not yet contain this export when running
+        // against a pre-built binary from a prior CI run.
         int exitCode;
         try { exitCode = testTask.Result; }
         catch (AggregateException) { exitCode = 1; }
 
-        MacOsNative.SetManagedExitCode(exitCode);
+        try { MacOsNative.SetManagedExitCode(exitCode); }
+        catch (EntryPointNotFoundException) { /* native binary predates this export */ }
+        catch (DllNotFoundException) { /* native binary not loaded */ }
 
         // Drain pending main-queue blocks (deferred destruction, etc.) that were dispatched
         // after the test host stopped the run loop. Without this, dispatch_async(delete this)
