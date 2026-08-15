@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Collections;
 using InfiniFrame.BlazorWebView;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -23,7 +24,7 @@ public class InfiniFrameRootComponentListTests {
         list.Add<TestComponent>("#app");
 
         // Assert
-        var items = list.ToList();
+        List<(Type, string)> items = list.ToList();
         await Assert.That(items.Count).IsEqualTo(1);
         await Assert.That(items[0].Item1).IsEqualTo(typeof(TestComponent));
         await Assert.That(items[0].Item2).IsEqualTo("#app");
@@ -38,7 +39,7 @@ public class InfiniFrameRootComponentListTests {
         list.Add(typeof(TestComponent), "#root");
 
         // Assert
-        var items = list.ToList();
+        List<(Type, string)> items = list.ToList();
         await Assert.That(items.Count).IsEqualTo(1);
         await Assert.That(items[0].Item1).IsEqualTo(typeof(TestComponent));
         await Assert.That(items[0].Item2).IsEqualTo("#root");
@@ -69,7 +70,7 @@ public class InfiniFrameRootComponentListTests {
         list.Add<OtherComponent>("#second");
 
         // Assert
-        var items = list.ToList();
+        List<(Type, string)> items = list.ToList();
         await Assert.That(items.Count).IsEqualTo(2);
         await Assert.That(items[0].Item2).IsEqualTo("#first");
         await Assert.That(items[1].Item2).IsEqualTo("#second");
@@ -93,7 +94,7 @@ public class InfiniFrameRootComponentListTests {
         list.Add<TestComponent>("#app");
 
         // Act
-        var enumerator = ((System.Collections.IEnumerable)list).GetEnumerator();
+        IEnumerator enumerator = ((System.Collections.IEnumerable)list).GetEnumerator();
         bool moved = enumerator.MoveNext();
 
         // Assert

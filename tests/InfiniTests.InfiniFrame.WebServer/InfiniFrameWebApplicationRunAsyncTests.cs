@@ -18,9 +18,9 @@ public class InfiniFrameWebApplicationRunAsyncTests {
     [Test]
     public async Task RunAsync_ShouldStartWebAppBeforeWaitingThenStopAndDisposeIt() {
         // Arrange
-        var mockWindow = MockFactory.CreateWindowMock();
-        var features = MockFactory.CreateFeaturesMock();
-        var lifecycle = MockFactory.CreateLifecycleMock();
+        Mock<IInfiniFrameWindow> mockWindow = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        Mock<ILifecycleInfiniFrameWindowFeature> lifecycle = MockFactory.CreateLifecycleMock();
         mockWindow.Features.Returns(features.Object);
         features.Lifecycle.Returns(lifecycle.Object);
 
@@ -60,9 +60,9 @@ public class InfiniFrameWebApplicationRunAsyncTests {
 
     [Test]
     public async Task RunAsync_WhenWaitFails_StillStopsAndDisposesWebApp() {
-        var mockWindow = MockFactory.CreateWindowMock();
-        var features = MockFactory.CreateFeaturesMock();
-        var lifecycle = MockFactory.CreateLifecycleMock();
+        Mock<IInfiniFrameWindow> mockWindow = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        Mock<ILifecycleInfiniFrameWindowFeature> lifecycle = MockFactory.CreateLifecycleMock();
         mockWindow.Features.Returns(features.Object);
         features.Lifecycle.Returns(lifecycle.Object);
         lifecycle.WaitForCloseAsync(Any<CancellationToken>())

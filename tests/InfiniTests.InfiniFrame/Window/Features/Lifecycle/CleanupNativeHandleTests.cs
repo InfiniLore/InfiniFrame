@@ -17,13 +17,13 @@ public class CleanupNativeHandleTests {
     [Test]
     public async Task CleanupNativeHandle_ReleasesEventNativeCallbackRoot(CancellationToken ct = default) {
         var events = new InfiniFrameEvents(new InfiniFrameEventsStore(), NullLogger<InfiniFrameEvents>.Instance);
-        var window = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
         var windowId = Guid.NewGuid();
         window.Id.Returns(windowId);
         window.Events.Returns(events);
         window.LifecycleState.Returns(InfiniFrameWindowLifecycleState.TeardownComplete);
 
-        var validator = MockFactory.CreateValidatorMock();
+        Mock<IValidator<InfiniFrameNativeParameters>> validator = MockFactory.CreateValidatorMock();
         var lifecycle = new LifecycleInfiniFrameWindowFeature(
             window.Object,
             NullLogger<LifecycleInfiniFrameWindowFeature>.Instance,

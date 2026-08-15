@@ -14,7 +14,7 @@ public class InfiniFrameJsTests {
     public async Task SetPointerCaptureAsync_InvokesExpectedJsFunction(CancellationToken ct = default) {
         // Arrange
         var jsRuntime = new RecordingJsRuntime();
-        var loggerMock = Mock.Of<ILogger<InfiniFrameJs>>();
+        Mock<ILogger<InfiniFrameJs>> loggerMock = Mock.Of<ILogger<InfiniFrameJs>>();
         var sut = new InfiniFrameJs(jsRuntime, loggerMock.Object);
         var element = new ElementReference("element-1");
 
@@ -35,7 +35,7 @@ public class InfiniFrameJsTests {
     public async Task ReleasePointerCaptureAsync_InvokesExpectedJsFunction(CancellationToken ct = default) {
         // Arrange
         var jsRuntime = new RecordingJsRuntime();
-        var loggerMock = Mock.Of<ILogger<InfiniFrameJs>>();
+        Mock<ILogger<InfiniFrameJs>> loggerMock = Mock.Of<ILogger<InfiniFrameJs>>();
         var sut = new InfiniFrameJs(jsRuntime, loggerMock.Object);
         var element = new ElementReference("element-2");
 
@@ -56,7 +56,7 @@ public class InfiniFrameJsTests {
     public async Task SetPointerCaptureAsync_SwallowsOperationCanceled_WhenCancellationRequested(CancellationToken ct = default) {
         // Arrange
         var jsRuntime = new RecordingJsRuntime();
-        var loggerMock = Mock.Of<ILogger<InfiniFrameJs>>();
+        Mock<ILogger<InfiniFrameJs>> loggerMock = Mock.Of<ILogger<InfiniFrameJs>>();
         var sut = new InfiniFrameJs(jsRuntime, loggerMock.Object);
         using var cts = new CancellationTokenSource();
         await cts.CancelAsync();

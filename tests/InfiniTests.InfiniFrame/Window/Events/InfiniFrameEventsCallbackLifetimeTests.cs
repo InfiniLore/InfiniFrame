@@ -16,7 +16,7 @@ public class InfiniFrameEventsCallbackLifetimeTests {
     public async Task AssignToWindow_AddsNativeCallbackRoot_ReleaseRemovesIt(CancellationToken ct = default) {
         // Arrange
         var events = new InfiniFrameEvents(new InfiniFrameEventsStore(), NullLogger<InfiniFrameEvents>.Instance);
-        var window = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
         var windowId = Guid.NewGuid();
         window.Id.Returns(windowId);
 
@@ -39,8 +39,8 @@ public class InfiniFrameEventsCallbackLifetimeTests {
     public async Task AssignToWindow_WhenReassigned_MovesNativeCallbackRootToNewWindow(CancellationToken ct = default) {
         // Arrange
         var events = new InfiniFrameEvents(new InfiniFrameEventsStore(), NullLogger<InfiniFrameEvents>.Instance);
-        var firstWindow = MockFactory.CreateWindowMock();
-        var secondWindow = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindow> firstWindow = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindow> secondWindow = MockFactory.CreateWindowMock();
         var firstId = Guid.NewGuid();
         var secondId = Guid.NewGuid();
         firstWindow.Id.Returns(firstId);

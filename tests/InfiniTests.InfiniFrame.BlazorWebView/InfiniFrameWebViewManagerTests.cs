@@ -73,9 +73,9 @@ public class InfiniFrameWebViewManagerTests {
     [Test]
     public async Task SendMessage_AfterDispose_ShouldReturnPromptly(CancellationToken ct = default) {
         // Arrange
-        var windowMock = MockFactory.CreateWindowMock();
-        var featuresMock = MockFactory.CreateFeaturesMock();
-        var webMessagingMock = MockFactory.CreateWebMessagingMock();
+        Mock<IInfiniFrameWindow> windowMock = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> featuresMock = MockFactory.CreateFeaturesMock();
+        Mock<IWebMessagingInfiniFrameWindowFeature> webMessagingMock = MockFactory.CreateWebMessagingMock();
         windowMock.Features.Returns(featuresMock.Object);
         featuresMock.WebMessaging.Returns(webMessagingMock.Object);
         webMessagingMock.SendWebMessageAsync(Any<string>(), Any<CancellationToken>())
@@ -86,7 +86,7 @@ public class InfiniFrameWebViewManagerTests {
             .AddSingleton<IInfiniFrameWindow>(windowMock.Object)
             .BuildServiceProvider();
 
-        var dispatcher = MockFactory.CreateDispatcherMock().Object;
+        Dispatcher dispatcher = MockFactory.CreateDispatcherMock().Object;
         var manager = new TestableInfiniFrameWebViewManager(
             InfiniFrameWindowBuilder.Create(),
             provider,
@@ -113,9 +113,9 @@ public class InfiniFrameWebViewManagerTests {
         var firstRelease = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         int invocation = 0;
-        var windowMock = MockFactory.CreateWindowMock();
-        var featuresMock = MockFactory.CreateFeaturesMock();
-        var webMessagingMock = MockFactory.CreateWebMessagingMock();
+        Mock<IInfiniFrameWindow> windowMock = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> featuresMock = MockFactory.CreateFeaturesMock();
+        Mock<IWebMessagingInfiniFrameWindowFeature> webMessagingMock = MockFactory.CreateWebMessagingMock();
         windowMock.Features.Returns(featuresMock.Object);
         featuresMock.WebMessaging.Returns(webMessagingMock.Object);
         ValueTask returnValue = default;
@@ -167,9 +167,9 @@ public class InfiniFrameWebViewManagerTests {
         var firstRelease = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         var secondDelivered = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         var sentMessages = new List<string>();
-        var windowMock = MockFactory.CreateWindowMock();
-        var featuresMock = MockFactory.CreateFeaturesMock();
-        var webMessagingMock = MockFactory.CreateWebMessagingMock();
+        Mock<IInfiniFrameWindow> windowMock = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> featuresMock = MockFactory.CreateFeaturesMock();
+        Mock<IWebMessagingInfiniFrameWindowFeature> webMessagingMock = MockFactory.CreateWebMessagingMock();
         windowMock.Features.Returns(featuresMock.Object);
         featuresMock.WebMessaging.Returns(webMessagingMock.Object);
         ValueTask backpressureReturnValue = default;
@@ -206,9 +206,9 @@ public class InfiniFrameWebViewManagerTests {
     [Test]
     public async Task DisposeAsync_ShouldCancelAndAwaitActiveMessagePumpWork(CancellationToken ct = default) {
         // Arrange
-        var windowMock = MockFactory.CreateWindowMock();
-        var featuresMock = MockFactory.CreateFeaturesMock();
-        var webMessagingMock = MockFactory.CreateWebMessagingMock();
+        Mock<IInfiniFrameWindow> windowMock = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> featuresMock = MockFactory.CreateFeaturesMock();
+        Mock<IWebMessagingInfiniFrameWindowFeature> webMessagingMock = MockFactory.CreateWebMessagingMock();
         windowMock.Features.Returns(featuresMock.Object);
         featuresMock.WebMessaging.Returns(webMessagingMock.Object);
         webMessagingMock.SendWebMessageAsync(Any<string>(), Any<CancellationToken>())
@@ -233,9 +233,9 @@ public class InfiniFrameWebViewManagerTests {
     [Test]
     public async Task SendMessage_ConcurrentWithDispose_ShouldNotSendAfterDispose(CancellationToken ct = default) {
         // Arrange
-        var windowMock = MockFactory.CreateWindowMock();
-        var featuresMock = MockFactory.CreateFeaturesMock();
-        var webMessagingMock = MockFactory.CreateWebMessagingMock();
+        Mock<IInfiniFrameWindow> windowMock = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> featuresMock = MockFactory.CreateFeaturesMock();
+        Mock<IWebMessagingInfiniFrameWindowFeature> webMessagingMock = MockFactory.CreateWebMessagingMock();
         windowMock.Features.Returns(featuresMock.Object);
         featuresMock.WebMessaging.Returns(webMessagingMock.Object);
         int sendCount = 0;

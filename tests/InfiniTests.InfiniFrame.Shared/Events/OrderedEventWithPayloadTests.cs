@@ -55,7 +55,7 @@ public class OrderedEventWithPayloadTests {
     public async Task Invoke_SingleHandler_PassesWindowAndPayloadToHandler(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent<string>();
-        var window = MockFactory.CreateWindowMock().Object;
+        IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
         IInfiniFrameWindow? receivedWindow = null;
         string? receivedPayload = null;
 
@@ -76,7 +76,7 @@ public class OrderedEventWithPayloadTests {
     public async Task Invoke_MultipleHandlers_AllReceivePayloadInOrder(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent<int>();
-        var window = MockFactory.CreateWindowMock().Object;
+        IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
         var calls = new List<int>();
 
         orderedEvent.Add((_, v) => calls.Add(v));
@@ -93,7 +93,7 @@ public class OrderedEventWithPayloadTests {
     public async Task Invoke_AfterRemove_DoesNotCallRemovedHandler(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent<int>();
-        var window = MockFactory.CreateWindowMock().Object;
+        IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
         var calls = new List<int>();
         Action<IInfiniFrameWindow, int> removed = (_, _) => calls.Add(99);
         orderedEvent.Add(removed);
@@ -111,7 +111,7 @@ public class OrderedEventWithPayloadTests {
     public async Task Invoke_HandlerThrowsException_PropagatesException(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent<int>();
-        var window = MockFactory.CreateWindowMock().Object;
+        IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
         orderedEvent.Add((_, _) => throw new InvalidOperationException("boom"));
 
         // Act & Assert
@@ -134,7 +134,7 @@ public class OrderedEventWithPayloadTests {
     public async Task AddWithServiceResolving_WindowHasNullServiceProvider_ThrowsInvalidOperationException(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent<int>();
-        var window = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
         window.ServiceProvider.Returns((IServiceProvider?)null);
 
         orderedEvent.AddWithServiceResolving<IDisposable>((_, _, _) => { });
@@ -147,10 +147,10 @@ public class OrderedEventWithPayloadTests {
     public async Task AddWithServiceResolving_WithProvider_ResolvesServiceAndCallsHandler(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent<int>();
-        var window = MockFactory.CreateWindowMock();
-        var provider = MockFactory.CreateServiceProviderMock();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
+        Mock<IServiceProvider> provider = MockFactory.CreateServiceProviderMock();
 
-        var fakeDisposable = MockFactory.CreateDisposableMock();
+        Mock<IDisposable> fakeDisposable = MockFactory.CreateDisposableMock();
         provider.GetService(typeof(IDisposable)).Returns(fakeDisposable.Object);
         window.ServiceProvider.Returns(provider.Object);
 

@@ -13,9 +13,9 @@ public class InfiniFrameBlazorAppRunSyncTests {
     [Test]
     public async Task Run_ShouldWaitSynchronouslyAndDisposeServices() {
         // Arrange
-        var windowMock = MockFactory.CreateWindowMock();
-        var featuresMock = MockFactory.CreateFeaturesMock();
-        var lifecycleMock = MockFactory.CreateLifecycleMock();
+        Mock<IInfiniFrameWindow> windowMock = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> featuresMock = MockFactory.CreateFeaturesMock();
+        Mock<ILifecycleInfiniFrameWindowFeature> lifecycleMock = MockFactory.CreateLifecycleMock();
         windowMock.Features.Returns(featuresMock.Object);
         featuresMock.Lifecycle.Returns(lifecycleMock.Object);
         ServiceProvider services = new ServiceCollection()

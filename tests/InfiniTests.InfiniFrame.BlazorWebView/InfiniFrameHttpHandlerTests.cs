@@ -29,7 +29,7 @@ public class InfiniFrameHttpHandlerTests {
     [Test]
     public async Task Constructor_WithManager_ShouldNotThrow(CancellationToken ct = default) {
         // Arrange
-        var managerMock = MockFactory.CreateWebViewManagerMock();
+        Mock<IInfiniFrameWebViewManager> managerMock = MockFactory.CreateWebViewManagerMock();
         var innerHandler = new HttpClientHandler();
 
         // Act
@@ -42,7 +42,7 @@ public class InfiniFrameHttpHandlerTests {
     [Test]
     public async Task SendAsync_WithHandledRequest_ShouldReturnStreamResponse(CancellationToken ct = default) {
         // Arrange
-        var managerMock = MockFactory.CreateWebViewManagerMock();
+        Mock<IInfiniFrameWebViewManager> managerMock = MockFactory.CreateWebViewManagerMock();
         var stream = new MemoryStream(new byte[] { 1, 2, 3 });
         managerMock.HandleWebRequest(Any<global::InfiniFrame.IInfiniFrameWindow?>(), Any<string?>()).Returns((stream, "text/plain"));
         var handler = new InfiniFrameHttpHandler(managerMock.Object, new HttpClientHandler());
@@ -61,7 +61,7 @@ public class InfiniFrameHttpHandlerTests {
     [Test]
     public async Task SendAsync_WithUnhandledRequest_ShouldFallThroughToInnerHandler(CancellationToken ct = default) {
         // Arrange
-        var managerMock = MockFactory.CreateWebViewManagerMock();
+        Mock<IInfiniFrameWebViewManager> managerMock = MockFactory.CreateWebViewManagerMock();
         managerMock.HandleWebRequest(Any<global::InfiniFrame.IInfiniFrameWindow?>(), Any<string?>()).Returns(((Stream?)null, (string?)null));
         var handler = new InfiniFrameHttpHandler(managerMock.Object, new ThrowingHttpHandler());
         var httpClient = new HttpClient(handler);
@@ -82,7 +82,7 @@ public class InfiniFrameHttpHandlerTests {
     [Test]
     public async Task SendAsync_WithCancellationRequested_ShouldThrow(CancellationToken ct = default) {
         // Arrange
-        var managerMock = MockFactory.CreateWebViewManagerMock();
+        Mock<IInfiniFrameWebViewManager> managerMock = MockFactory.CreateWebViewManagerMock();
         var stream = new MemoryStream(new byte[] { 1, 2, 3 });
         managerMock.HandleWebRequest(Any<global::InfiniFrame.IInfiniFrameWindow?>(), Any<string?>()).Returns((stream, "text/plain"));
         var handler = new InfiniFrameHttpHandler(managerMock.Object, new HttpClientHandler());

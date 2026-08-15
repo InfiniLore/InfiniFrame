@@ -49,6 +49,7 @@ internal static class MacOsTestingPlatformEntryPoint {
         // immediately, bypassing the CLR shutdown sequence entirely and reporting a
         // clean exit to the CI.
         PosixExit(0);
+        return 0;
     }
 
     private static IntPtr ResolveDefaultRunLoopMode() {

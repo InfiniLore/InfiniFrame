@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame;
 using InfiniFrame.StaticAssets;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
@@ -25,7 +26,7 @@ public class InfiniFrameStaticAssetsTests {
         };
 
         // Act
-        var copy = assets.DeepCopy();
+        IInfiniFrameStaticAssets copy = assets.DeepCopy();
 
         // Assert
         await Assert.That(copy).IsNotSameReferenceAs(assets);

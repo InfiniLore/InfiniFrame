@@ -15,23 +15,23 @@ public class InfiniFrameWindowFeaturesTests {
     [Test]
     public async Task Record_ShouldStoreAllFeatures(CancellationToken ct = default) {
         // Arrange
-        var debugging = MockFactory.CreateDebuggingMock();
-        var lifecycle = MockFactory.CreateLifecycleMock();
-        var invoke = MockFactory.CreateInvokeMock();
-        var webMessaging = MockFactory.CreateWebMessagingMock();
-        var notifications = MockFactory.CreateNotificationsMock();
-        var filePickerDialogs = MockFactory.CreateFilePickerDialogsMock();
-        var monitors = MockFactory.CreateMonitorsMock();
-        var pageNavigation = MockFactory.CreatePageNavigationMock();
-        var position = MockFactory.CreatePositionMock();
-        var size = MockFactory.CreateSizeMock();
-        var decorations = MockFactory.CreateDecorationsMock();
-        var state = MockFactory.CreateStateMock();
-        var browser = MockFactory.CreateBrowserMock();
-        var dragDrop = MockFactory.CreateDragDropMock();
-        var taskbar = MockFactory.CreateTaskbarMock();
-        var menu = MockFactory.CreateMenuMock();
-        var javaScript = MockFactory.CreateJavaScriptMock();
+        Mock<IDebuggingInfiniFrameWindowFeature> debugging = MockFactory.CreateDebuggingMock();
+        Mock<ILifecycleInfiniFrameWindowFeature> lifecycle = MockFactory.CreateLifecycleMock();
+        Mock<IInvokeInfiniFrameWindowFeature> invoke = MockFactory.CreateInvokeMock();
+        Mock<IWebMessagingInfiniFrameWindowFeature> webMessaging = MockFactory.CreateWebMessagingMock();
+        Mock<INotificationsInfiniFrameWindowFeature> notifications = MockFactory.CreateNotificationsMock();
+        Mock<IFilePickerDialogsInfiniFrameWindowFeature> filePickerDialogs = MockFactory.CreateFilePickerDialogsMock();
+        Mock<IMonitorsInfiniFrameWindowFeature> monitors = MockFactory.CreateMonitorsMock();
+        Mock<IPageNavigationInfiniFrameWindowFeature> pageNavigation = MockFactory.CreatePageNavigationMock();
+        Mock<IPositionInfiniFrameWindowFeature> position = MockFactory.CreatePositionMock();
+        Mock<ISizeInfiniFrameWindowFeature> size = MockFactory.CreateSizeMock();
+        Mock<IDecorationsInfiniFrameWindowFeature> decorations = MockFactory.CreateDecorationsMock();
+        Mock<IStateInfiniFrameWindowFeature> state = MockFactory.CreateStateMock();
+        Mock<IBrowserInfiniFrameWindowFeature> browser = MockFactory.CreateBrowserMock();
+        Mock<IDragDropInfiniFrameWindowFeature> dragDrop = MockFactory.CreateDragDropMock();
+        Mock<ITaskbarInfiniFrameWindowFeature> taskbar = MockFactory.CreateTaskbarMock();
+        Mock<IMenuInfiniFrameWindowFeature> menu = MockFactory.CreateMenuMock();
+        Mock<IJavaScriptInfiniFrameWindowFeature> javaScript = MockFactory.CreateJavaScriptMock();
 
         // Act
         var features = new InfiniFrameWindowFeatures(
@@ -77,23 +77,23 @@ public class InfiniFrameWindowFeaturesTests {
     [Test]
     public async Task Record_Equality_SameValues_ShouldBeEqual(CancellationToken ct = default) {
         // Arrange
-        var debugging = MockFactory.CreateDebuggingMock();
-        var lifecycle = MockFactory.CreateLifecycleMock();
-        var invoke = MockFactory.CreateInvokeMock();
-        var webMessaging = MockFactory.CreateWebMessagingMock();
-        var notifications = MockFactory.CreateNotificationsMock();
-        var filePickerDialogs = MockFactory.CreateFilePickerDialogsMock();
-        var monitors = MockFactory.CreateMonitorsMock();
-        var pageNavigation = MockFactory.CreatePageNavigationMock();
-        var position = MockFactory.CreatePositionMock();
-        var size = MockFactory.CreateSizeMock();
-        var decorations = MockFactory.CreateDecorationsMock();
-        var state = MockFactory.CreateStateMock();
-        var browser = MockFactory.CreateBrowserMock();
-        var dragDrop = MockFactory.CreateDragDropMock();
-        var taskbar = MockFactory.CreateTaskbarMock();
-        var menu = MockFactory.CreateMenuMock();
-        var javaScript = MockFactory.CreateJavaScriptMock();
+        Mock<IDebuggingInfiniFrameWindowFeature> debugging = MockFactory.CreateDebuggingMock();
+        Mock<ILifecycleInfiniFrameWindowFeature> lifecycle = MockFactory.CreateLifecycleMock();
+        Mock<IInvokeInfiniFrameWindowFeature> invoke = MockFactory.CreateInvokeMock();
+        Mock<IWebMessagingInfiniFrameWindowFeature> webMessaging = MockFactory.CreateWebMessagingMock();
+        Mock<INotificationsInfiniFrameWindowFeature> notifications = MockFactory.CreateNotificationsMock();
+        Mock<IFilePickerDialogsInfiniFrameWindowFeature> filePickerDialogs = MockFactory.CreateFilePickerDialogsMock();
+        Mock<IMonitorsInfiniFrameWindowFeature> monitors = MockFactory.CreateMonitorsMock();
+        Mock<IPageNavigationInfiniFrameWindowFeature> pageNavigation = MockFactory.CreatePageNavigationMock();
+        Mock<IPositionInfiniFrameWindowFeature> position = MockFactory.CreatePositionMock();
+        Mock<ISizeInfiniFrameWindowFeature> size = MockFactory.CreateSizeMock();
+        Mock<IDecorationsInfiniFrameWindowFeature> decorations = MockFactory.CreateDecorationsMock();
+        Mock<IStateInfiniFrameWindowFeature> state = MockFactory.CreateStateMock();
+        Mock<IBrowserInfiniFrameWindowFeature> browser = MockFactory.CreateBrowserMock();
+        Mock<IDragDropInfiniFrameWindowFeature> dragDrop = MockFactory.CreateDragDropMock();
+        Mock<ITaskbarInfiniFrameWindowFeature> taskbar = MockFactory.CreateTaskbarMock();
+        Mock<IMenuInfiniFrameWindowFeature> menu = MockFactory.CreateMenuMock();
+        Mock<IJavaScriptInfiniFrameWindowFeature> javaScript = MockFactory.CreateJavaScriptMock();
 
         // Act
         var features1 = new InfiniFrameWindowFeatures(
