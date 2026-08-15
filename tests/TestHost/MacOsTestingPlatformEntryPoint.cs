@@ -43,6 +43,21 @@ internal static class MacOsTestingPlatformEntryPoint {
             }
         }
 
+        // Drain pending main-queue blocks (deferred destruction, etc.) that were dispatched
+        // after the test host stopped the run loop. Without this, dispatch_async(delete this)
+        // in ScheduleDeferredDestruction never executes on net10.0, leaving the native instance
+        // alive long enough for the GC finalizer to trigger a dispatch_sync deadlock that the
+        // runtime converts to SIGABRT (exit code 134).
+        for (int i = 0; i < 10; i++) {
+            IntPtr pool = MacOsNative.PushAutoreleasePool();
+            try {
+                _ = MacOsNative.RunLoopInMode(defaultMode, 0.1, false);
+            }
+            finally {
+                MacOsNative.PopAutoreleasePool(pool);
+            }
+        }
+
         return await testTask;
     }
 
