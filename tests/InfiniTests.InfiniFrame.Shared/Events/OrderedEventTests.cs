@@ -92,7 +92,7 @@ public class OrderedEventTests {
     public async Task Invoke_NoHandlers_DoesNotThrow(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        var window = MockFactory.CreateWindowMock().Object;
+        IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
 
         // Act & Assert
         await Assert.That(() => orderedEvent.Invoke(window)).ThrowsNothing();
@@ -102,7 +102,7 @@ public class OrderedEventTests {
     public async Task Invoke_SingleHandler_PassesWindowToHandler(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        var window = MockFactory.CreateWindowMock().Object;
+        IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
         IInfiniFrameWindow? received = null;
         orderedEvent.Add(w => received = w);
 
@@ -117,7 +117,7 @@ public class OrderedEventTests {
     public async Task Invoke_MultipleHandlers_InvokesInRegistrationOrder(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        var window = MockFactory.CreateWindowMock().Object;
+        IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
         var calls = new List<int>();
 
         orderedEvent.Add(_ => calls.Add(1));
@@ -135,7 +135,7 @@ public class OrderedEventTests {
     public async Task Invoke_AfterRemove_DoesNotCallRemovedHandler(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        var window = MockFactory.CreateWindowMock().Object;
+        IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
         var calls = new List<int>();
         Action<IInfiniFrameWindow> first = _ => calls.Add(1);
         Action<IInfiniFrameWindow> second = _ => calls.Add(2);
@@ -155,7 +155,7 @@ public class OrderedEventTests {
     public async Task Invoke_HandlerThrowsException_PropagatesException(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        var window = MockFactory.CreateWindowMock().Object;
+        IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
         orderedEvent.Add(_ => throw new InvalidOperationException("boom"));
 
         // Act & Assert, OrderedEvent.Invoke does not swallow exceptions

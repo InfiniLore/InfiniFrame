@@ -13,9 +13,9 @@ public sealed class InfiniFrameSynchronizationContextTests {
     [Test]
     public async Task InvokeAsync_WindowAlreadyClosed_ExecutesCallbackInline(CancellationToken ct = default) {
         // Arrange
-        var windowMock = MockFactory.CreateWindowMock();
-        var featuresMock = MockFactory.CreateFeaturesMock();
-        var invokeMock = MockFactory.CreateInvokeMock();
+        Mock<IInfiniFrameWindow> windowMock = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> featuresMock = MockFactory.CreateFeaturesMock();
+        Mock<IInvokeInfiniFrameWindowFeature> invokeMock = MockFactory.CreateInvokeMock();
         windowMock.Features.Returns(featuresMock.Object);
         featuresMock.Invoke.Returns(invokeMock.Object);
         invokeMock.Invoke(Any<Action>()).Returns(InfiniFrameDispatchResult.WindowClosed);

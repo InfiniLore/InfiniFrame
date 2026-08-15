@@ -15,7 +15,7 @@ public class FileDroppedEventTests {
     public async Task FileDropped_EventFires_WhenHandlerRegistered(CancellationToken ct = default) {
         // Arrange
         var eventsStore = new InfiniFrameEventsStore();
-        var window = MockFactory.CreateWindowMock().Object;
+        IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
         FileDroppedEventArgs? receivedArgs = null;
 
         eventsStore.FileDropped.Add((_, args) => receivedArgs = args);
@@ -37,7 +37,7 @@ public class FileDroppedEventTests {
     public async Task FileDropped_MultipleHandlers_AllInvoked(CancellationToken ct = default) {
         // Arrange
         var eventsStore = new InfiniFrameEventsStore();
-        var window = MockFactory.CreateWindowMock().Object;
+        IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
         int handlerCount = 0;
 
         eventsStore.FileDropped.Add((_, _) => handlerCount++);
@@ -56,7 +56,7 @@ public class FileDroppedEventTests {
     public async Task FileDropped_HandlerReceivesCorrectWindow(CancellationToken ct = default) {
         // Arrange
         var eventsStore = new InfiniFrameEventsStore();
-        var window = MockFactory.CreateWindowMock().Object;
+        IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
         IInfiniFrameWindow? receivedWindow = null;
 
         eventsStore.FileDropped.Add((w, _) => receivedWindow = w);

@@ -370,9 +370,9 @@ public class InfiniFrameBlazorAppBuilderTests {
     [NotInParallelInfiniTests]
     public async Task Build_ExposesDebuggingThroughWindowFeatures(CancellationToken ct = default) {
         // Arrange
-        var debuggingFeature = MockFactory.CreateDebuggingMock();
-        var features = MockFactory.CreateFeaturesMock();
-        var window = MockFactory.CreateWindowMock();
+        Mock<IDebuggingInfiniFrameWindowFeature> debuggingFeature = MockFactory.CreateDebuggingMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
         features.Debugging.Returns(debuggingFeature.Object);
         window.Features.Returns(features.Object);
         window.Debugging.Returns(debuggingFeature.Object);

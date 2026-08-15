@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Collections;
 using InfiniFrame.BlazorWebView.FileProviders.Static;
 using Microsoft.Extensions.FileProviders;
 
@@ -65,7 +66,7 @@ public class ManifestDirectoryContentsTests {
 
         // Act
         var contents = new ManifestDirectoryContents(entries);
-        var enumerator = contents.GetEnumerator();
+        IEnumerator<IFileInfo> enumerator = contents.GetEnumerator();
 
         // Assert
         await Assert.That(enumerator.MoveNext()).IsFalse();
@@ -80,7 +81,7 @@ public class ManifestDirectoryContentsTests {
 
         // Act
         var contents = new ManifestDirectoryContents(entries);
-        var result = contents.ToList();
+        List<IFileInfo> result = contents.ToList();
 
         // Assert
         await Assert.That(result.Count).IsEqualTo(2);
@@ -96,9 +97,9 @@ public class ManifestDirectoryContentsTests {
         var contents = new ManifestDirectoryContents(entries);
 
         // Act
-        var enumerator = ((System.Collections.IEnumerable)contents).GetEnumerator();
+        IEnumerator enumerator = ((System.Collections.IEnumerable)contents).GetEnumerator();
         bool moved = enumerator.MoveNext();
-        var current = enumerator.Current;
+        object? current = enumerator.Current;
 
         // Assert
         await Assert.That(moved).IsTrue();

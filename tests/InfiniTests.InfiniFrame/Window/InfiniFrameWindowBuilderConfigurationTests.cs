@@ -52,7 +52,7 @@ public class InfiniFrameWindowBuilderConfigurationTests {
     public async Task ParentWindow_Settable(CancellationToken ct = default) {
         // Arrange
         var config = new InfiniFrameWindowBuilderConfiguration();
-        var mock = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindow> mock = MockFactory.CreateWindowMock();
 
         // Act
         config.ParentWindow = mock.Object;
@@ -65,7 +65,7 @@ public class InfiniFrameWindowBuilderConfigurationTests {
     public async Task ChildWindows_Addable(CancellationToken ct = default) {
         // Arrange
         var config = new InfiniFrameWindowBuilderConfiguration();
-        var mock = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindow> mock = MockFactory.CreateWindowMock();
 
         // Act
         config.ChildWindows.Add(mock.Object);

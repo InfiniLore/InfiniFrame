@@ -18,9 +18,9 @@ public class InfiniFrameWebApplicationRunSyncTests {
     [Test]
     public async Task Run_ShouldStartWebAppBeforeWaitingThenStopAndDisposeIt() {
         // Arrange
-        var mockWindow = MockFactory.CreateWindowMock();
-        var features = MockFactory.CreateFeaturesMock();
-        var lifecycle = MockFactory.CreateLifecycleMock();
+        Mock<IInfiniFrameWindow> mockWindow = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        Mock<ILifecycleInfiniFrameWindowFeature> lifecycle = MockFactory.CreateLifecycleMock();
         mockWindow.Features.Returns(features.Object);
         features.Lifecycle.Returns(lifecycle.Object);
 
@@ -56,9 +56,9 @@ public class InfiniFrameWebApplicationRunSyncTests {
 
     [Test]
     public async Task Run_WhenWaitFails_StillStopsAndDisposesWebApp() {
-        var mockWindow = MockFactory.CreateWindowMock();
-        var features = MockFactory.CreateFeaturesMock();
-        var lifecycle = MockFactory.CreateLifecycleMock();
+        Mock<IInfiniFrameWindow> mockWindow = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        Mock<ILifecycleInfiniFrameWindowFeature> lifecycle = MockFactory.CreateLifecycleMock();
         mockWindow.Features.Returns(features.Object);
         features.Lifecycle.Returns(lifecycle.Object);
         lifecycle.WaitForClose().Callback(() => throw new InvalidOperationException("wait failed"));

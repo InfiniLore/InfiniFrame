@@ -122,8 +122,8 @@ public class WindowFeatureDispatcherCommandTests {
     }
 
     private static (IInfiniFrameWindow Window, object Feature) CreateWindow(string featureName) {
-        var window = MockFactory.CreateWindowMock();
-        var features = MockFactory.CreateFeaturesMock();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
         window.Features.Returns(features.Object);
         object feature = featureName switch {
             "browser" => Assign(MockFactory.CreateBrowserMock(), assign: value => features.Browser.Returns(value)),

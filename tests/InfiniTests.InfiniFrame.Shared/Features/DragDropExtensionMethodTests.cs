@@ -12,9 +12,9 @@ public class DragDropExtensionMethodTests {
     [Test]
     public async Task EnableDragDrop_CallsSetEnabled(CancellationToken ct = default) {
         // Arrange
-        var window = MockFactory.CreateWindowMock();
-        var features = MockFactory.CreateFeaturesMock();
-        var feature = MockFactory.CreateDragDropMock();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        Mock<IDragDropInfiniFrameWindowFeature> feature = MockFactory.CreateDragDropMock();
         window.Features.Returns(features.Object);
         features.DragDrop.Returns(feature.Object);
 
@@ -28,9 +28,9 @@ public class DragDropExtensionMethodTests {
     [Test]
     public async Task EnableDragDrop_WithExtensions_SetsEnabledAndExtensions(CancellationToken ct = default) {
         // Arrange
-        var window = MockFactory.CreateWindowMock();
-        var features = MockFactory.CreateFeaturesMock();
-        var feature = MockFactory.CreateDragDropMock();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        Mock<IDragDropInfiniFrameWindowFeature> feature = MockFactory.CreateDragDropMock();
         window.Features.Returns(features.Object);
         features.DragDrop.Returns(feature.Object);
 
@@ -44,9 +44,9 @@ public class DragDropExtensionMethodTests {
     [Test]
     public async Task DisableDragDrop_CallsSetEnabledFalse(CancellationToken ct = default) {
         // Arrange
-        var window = MockFactory.CreateWindowMock();
-        var features = MockFactory.CreateFeaturesMock();
-        var feature = MockFactory.CreateDragDropMock();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        Mock<IDragDropInfiniFrameWindowFeature> feature = MockFactory.CreateDragDropMock();
         window.Features.Returns(features.Object);
         features.DragDrop.Returns(feature.Object);
 
@@ -60,8 +60,8 @@ public class DragDropExtensionMethodTests {
     [Test]
     public async Task OnFileDropped_RegistersHandlerOnEventsStore(CancellationToken ct = default) {
         // Arrange
-        var window = MockFactory.CreateWindowMock();
-        var events = MockFactory.CreateEventsMock();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameEvents> events = MockFactory.CreateEventsMock();
         var eventsStore = new InfiniFrameEventsStore();
         window.Events.Returns(events.Object);
         events.EventsStore.Returns(eventsStore);

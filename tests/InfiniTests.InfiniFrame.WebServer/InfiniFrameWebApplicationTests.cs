@@ -17,7 +17,7 @@ public class InfiniFrameWebApplicationTests {
     private const int DefaultGetMessageHandlerCount = 1;
 
     private static (Mock<IInfiniFrameWindow> Mock, IInfiniFrameWindow Object) CreateMockWindow() {
-        var mockWindow = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindow> mockWindow = MockFactory.CreateWindowMock();
         var eventsStore = new InfiniFrameEventsStore();
         mockWindow.Events.Returns(new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance));
         mockWindow.EventsStore.Returns(eventsStore);
@@ -58,7 +58,7 @@ public class InfiniFrameWebApplicationTests {
     [Test]
     public async Task UseAutoServerClose_WhenWindowNotCreated_ShouldRegisterWithBuilder() {
         // Arrange
-        var mockWindowBuilder = MockFactory.CreateWindowBuilderMock();
+        Mock<IInfiniFrameWindowBuilder> mockWindowBuilder = MockFactory.CreateWindowBuilderMock();
         var mockBuilderEventsStore = new InfiniFrameEventsStore();
         mockWindowBuilder.EventsStore.Returns(mockBuilderEventsStore);
 
@@ -85,7 +85,7 @@ public class InfiniFrameWebApplicationTests {
     [Test]
     public async Task UseAutoServerClose_WhenWindowCreated_ShouldRegisterWithWindow() {
         // Arrange
-        var (_, mockWindow) = CreateMockWindow();
+        (_, IInfiniFrameWindow mockWindow) = CreateMockWindow();
         IInfiniFrameEvents mockEvents = mockWindow.Events;
 
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
@@ -112,7 +112,7 @@ public class InfiniFrameWebApplicationTests {
     [Test]
     public async Task UseAutoServerClose_ClosingHandler_ShouldReturnFalse() {
         // Arrange
-        var (_, mockWindow) = CreateMockWindow();
+        (_, IInfiniFrameWindow mockWindow) = CreateMockWindow();
         IInfiniFrameEvents mockEvents = mockWindow.Events;
 
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
@@ -140,7 +140,7 @@ public class InfiniFrameWebApplicationTests {
     [Test]
     public async Task UseAutoServerClose_ClosingHandler_ShouldInitiateStopAsync() {
         // Arrange
-        var (_, mockWindow) = CreateMockWindow();
+        (_, IInfiniFrameWindow mockWindow) = CreateMockWindow();
         IInfiniFrameEvents mockEvents = mockWindow.Events;
 
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
@@ -180,7 +180,7 @@ public class InfiniFrameWebApplicationTests {
     [Test]
     public async Task Window_Property_ShouldReturnLazyValue() {
         // Arrange
-        var (_, mockWindow) = CreateMockWindow();
+        (_, IInfiniFrameWindow mockWindow) = CreateMockWindow();
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
         WebApplication webApp = webAppBuilder.Build();
 

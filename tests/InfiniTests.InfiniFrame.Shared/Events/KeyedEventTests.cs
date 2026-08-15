@@ -135,7 +135,7 @@ public class KeyedEventTests {
     public async Task TryInvoke_MissingKey_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        var window = MockFactory.CreateWindowMock().Object;
+        IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
 
         // Act
         bool result = evt.TryInvoke("absent", window, 0);
@@ -148,7 +148,7 @@ public class KeyedEventTests {
     public async Task TryInvoke_ExistingKey_InvokesHandlerAndReturnsTrue(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        var window = MockFactory.CreateWindowMock().Object;
+        IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
         var calls = new List<int>();
         evt.Add("key", handler: (_, v) => calls.Add(v));
 
@@ -164,7 +164,7 @@ public class KeyedEventTests {
     public async Task TryInvoke_PassesCorrectWindowToHandler(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        var window = MockFactory.CreateWindowMock().Object;
+        IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
         IInfiniFrameWindow? received = null;
         evt.Add("key", handler: (w, _) => received = w);
 
@@ -179,7 +179,7 @@ public class KeyedEventTests {
     public async Task TryInvoke_HandlerThrowsRegularException_PropagatesException(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        var window = MockFactory.CreateWindowMock().Object;
+        IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
         evt.Add("key", handler: (_, _) => throw new InvalidOperationException("boom"));
 
         // Act & Assert
@@ -190,7 +190,7 @@ public class KeyedEventTests {
     public async Task TryInvoke_HandlerThrowsOperationCanceledException_PropagatesException(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        var window = MockFactory.CreateWindowMock().Object;
+        IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
         evt.Add("key", handler: (_, _) => throw new OperationCanceledException());
 
         // Act & Assert
@@ -201,7 +201,7 @@ public class KeyedEventTests {
     public async Task TryInvoke_AfterRemove_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        var window = MockFactory.CreateWindowMock().Object;
+        IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
         evt.Add("key", handler: (_, _) => { });
         evt.Remove("key");
 

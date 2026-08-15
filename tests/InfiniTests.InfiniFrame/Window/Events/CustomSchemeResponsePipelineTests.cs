@@ -116,7 +116,7 @@ public class CustomSchemeResponsePipelineTests {
         var store = new InfiniFrameEventsStore();
         store.CustomScheme.Add("app", handler);
         var events = new InfiniFrameEvents(store, NullLogger<InfiniFrameEvents>.Instance);
-        var window = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
         window.Id.Returns(Guid.NewGuid());
         events.AssignToWindow(window.Object);
         return events;

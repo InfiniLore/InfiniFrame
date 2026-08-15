@@ -41,11 +41,11 @@ public class WindowFeatureWebMessageRouterTests {
 
     [Test]
     public async Task GeometryAndMonitorResults_UseExactContractShapes() {
-        var window = MockFactory.CreateWindowMock();
-        var features = MockFactory.CreateFeaturesMock();
-        var position = MockFactory.CreatePositionMock();
-        var size = MockFactory.CreateSizeMock();
-        var monitors = MockFactory.CreateMonitorsMock();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        Mock<IPositionInfiniFrameWindowFeature> position = MockFactory.CreatePositionMock();
+        Mock<ISizeInfiniFrameWindowFeature> size = MockFactory.CreateSizeMock();
+        Mock<IMonitorsInfiniFrameWindowFeature> monitors = MockFactory.CreateMonitorsMock();
         window.Features.Returns(features.Object);
         features.Position.Returns(position.Object);
         features.Size.Returns(size.Object);
@@ -66,10 +66,10 @@ public class WindowFeatureWebMessageRouterTests {
 
     [Test]
     public async Task LifecycleAndDebuggingResults_UseCamelCaseEnumsDtosAndNulls() {
-        var window = MockFactory.CreateWindowMock();
-        var features = MockFactory.CreateFeaturesMock();
-        var lifecycle = MockFactory.CreateLifecycleMock();
-        var debugging = MockFactory.CreateDebuggingMock();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        Mock<ILifecycleInfiniFrameWindowFeature> lifecycle = MockFactory.CreateLifecycleMock();
+        Mock<IDebuggingInfiniFrameWindowFeature> debugging = MockFactory.CreateDebuggingMock();
         window.Features.Returns(features.Object);
         features.Lifecycle.Returns(lifecycle.Object);
         features.Debugging.Returns(debugging.Object);
@@ -113,9 +113,9 @@ public class WindowFeatureWebMessageRouterTests {
 
     [Test]
     public async Task OptionalArguments_UseManagedDefaultsWhenMissingOrNull() {
-        var windowMock = MockFactory.CreateWindowMock();
-        var features = MockFactory.CreateFeaturesMock();
-        var state = MockFactory.CreateStateMock();
+        Mock<IInfiniFrameWindow> windowMock = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        Mock<IStateInfiniFrameWindowFeature> state = MockFactory.CreateStateMock();
         windowMock.Features.Returns(features.Object);
         features.State.Returns(state.Object);
         IInfiniFrameWindow window = windowMock.Object;
@@ -136,11 +136,11 @@ public class WindowFeatureWebMessageRouterTests {
 
     [Test]
     public async Task ComplexArguments_ConvertFiltersAndEnumsExactly() {
-        var window = MockFactory.CreateWindowMock();
-        var features = MockFactory.CreateFeaturesMock();
-        var filePickers = MockFactory.CreateFilePickerDialogsMock();
-        var notifications = MockFactory.CreateNotificationsMock();
-        var size = MockFactory.CreateSizeMock();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        Mock<IFilePickerDialogsInfiniFrameWindowFeature> filePickers = MockFactory.CreateFilePickerDialogsMock();
+        Mock<INotificationsInfiniFrameWindowFeature> notifications = MockFactory.CreateNotificationsMock();
+        Mock<ISizeInfiniFrameWindowFeature> size = MockFactory.CreateSizeMock();
         window.Features.Returns(features.Object);
         features.FilePickerDialogs.Returns(filePickers.Object);
         features.Notifications.Returns(notifications.Object);
@@ -158,9 +158,9 @@ public class WindowFeatureWebMessageRouterTests {
 
     [Test]
     public async Task InvalidEnum_HasDeterministicArgumentError() {
-        var window = MockFactory.CreateWindowMock();
-        var features = MockFactory.CreateFeaturesMock();
-        var size = MockFactory.CreateSizeMock();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        Mock<ISizeInfiniFrameWindowFeature> size = MockFactory.CreateSizeMock();
         features.Size.Returns(size.Object);
         window.Features.Returns(features.Object);
 
@@ -188,9 +188,9 @@ public class WindowFeatureWebMessageRouterTests {
 
     [Test]
     public async Task RoutingPolicy_FeatureIsCaseInsensitiveButCommandAndArgumentsAreCaseSensitive() {
-        var windowMock = MockFactory.CreateWindowMock();
-        var features = MockFactory.CreateFeaturesMock();
-        var state = MockFactory.CreateStateMock();
+        Mock<IInfiniFrameWindow> windowMock = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        Mock<IStateInfiniFrameWindowFeature> state = MockFactory.CreateStateMock();
         windowMock.Features.Returns(features.Object);
         features.State.Returns(state.Object);
         IInfiniFrameWindow window = windowMock.Object;
@@ -209,7 +209,7 @@ public class WindowFeatureWebMessageRouterTests {
 
     [Test]
     public async Task UnsupportedFeature_HasDeterministicError() {
-        var window = MockFactory.CreateWindowMock().Object;
+        IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
 
         var exception = Assert.Throws<InvalidOperationException>(() =>
             WindowFeatureWebMessageRouter.Get(window, "unknown", "anything", null));
@@ -218,9 +218,9 @@ public class WindowFeatureWebMessageRouterTests {
     }
 
     private static (IInfiniFrameWindow Window, Mock<IStateInfiniFrameWindowFeature> State) CreateStateWindow() {
-        var window = MockFactory.CreateWindowMock();
-        var features = MockFactory.CreateFeaturesMock();
-        var state = MockFactory.CreateStateMock();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        Mock<IStateInfiniFrameWindowFeature> state = MockFactory.CreateStateMock();
         window.Features.Returns(features.Object);
         features.State.Returns(state.Object);
         return (window.Object, state);

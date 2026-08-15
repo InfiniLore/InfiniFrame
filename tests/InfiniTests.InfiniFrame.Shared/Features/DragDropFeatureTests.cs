@@ -12,7 +12,7 @@ public class DragDropFeatureTests {
     [Test]
     public async Task EnableDragDrop_SetsEnabledTrue(CancellationToken ct = default) {
         // Arrange
-        var feature = MockFactory.CreateDragDropMock();
+        Mock<IDragDropInfiniFrameWindowFeature> feature = MockFactory.CreateDragDropMock();
 
         // Act
         feature.SetEnabled(true);
@@ -25,7 +25,7 @@ public class DragDropFeatureTests {
     [Test]
     public async Task DisableDragDrop_SetsEnabledFalse(CancellationToken ct = default) {
         // Arrange
-        var feature = MockFactory.CreateDragDropMock();
+        Mock<IDragDropInfiniFrameWindowFeature> feature = MockFactory.CreateDragDropMock();
 
         // Act
         feature.SetEnabled(false);
@@ -38,7 +38,7 @@ public class DragDropFeatureTests {
     [Test]
     public async Task SetAllowedExtensions_StoresExtensions(CancellationToken ct = default) {
         // Arrange
-        var feature = MockFactory.CreateDragDropMock();
+        Mock<IDragDropInfiniFrameWindowFeature> feature = MockFactory.CreateDragDropMock();
         string[] extensions = new[] { ".txt", ".png" };
 
         // Act
@@ -52,7 +52,7 @@ public class DragDropFeatureTests {
     [Test]
     public async Task IsEnabled_ReturnsCurrentState(CancellationToken ct = default) {
         // Arrange
-        var feature = MockFactory.CreateDragDropMock();
+        Mock<IDragDropInfiniFrameWindowFeature> feature = MockFactory.CreateDragDropMock();
         feature.IsEnabled.Returns(true);
 
         // Act & Assert
@@ -62,7 +62,7 @@ public class DragDropFeatureTests {
     [Test]
     public async Task AllowedExtensions_ReturnsConfiguredExtensions(CancellationToken ct = default) {
         // Arrange
-        var feature = MockFactory.CreateDragDropMock();
+        Mock<IDragDropInfiniFrameWindowFeature> feature = MockFactory.CreateDragDropMock();
         var extensions = new List<string> { ".txt", ".pdf" };
         feature.AllowedExtensions.Returns(extensions.AsReadOnly());
 
