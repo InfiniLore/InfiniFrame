@@ -43,42 +43,7 @@ internal static class MacOsTestingPlatformEntryPoint {
             }
         }
 
-        // Notify the native SIGABRT handler that tests have completed and what the exit
-        // code should be.  On .NET 10, the GC finalizer thread can deliver SIGABRT (via
-        // runtime abort()) after we exit the while-loop but before we reach _exit().
-        // The native handler checks this flag and calls _exit(code) directly instead of
-        // re-raising SIGABRT with SIG_DFL, which would produce a non-zero exit even
-        // though every test passed.
-        //
-        // Best-effort: the native library may not yet contain this export when running
-        // against a pre-built binary from a prior CI run.
-        int exitCode;
-        try { exitCode = testTask.Result; }
-        catch (AggregateException) { exitCode = 1; }
-
-        try { MacOsNative.SetManagedExitCode(exitCode); }
-        catch (EntryPointNotFoundException) { /* native binary predates this export */ }
-        catch (DllNotFoundException) { /* native binary not loaded */ }
-
-        // Drain pending main-queue blocks (deferred destruction, etc.) that were dispatched
-        // after the test host stopped the run loop. Without this, dispatch_async(delete this)
-        // in ScheduleDeferredDestruction never executes on net10.0, leaving the native instance
-        // alive long enough for the GC finalizer to trigger a dispatch_sync deadlock that the
-        // runtime converts to SIGABRT (exit code 134).
-        for (int i = 0; i < 10; i++) {
-            IntPtr pool = MacOsNative.PushAutoreleasePool();
-            try {
-                _ = MacOsNative.RunLoopInMode(defaultMode, 0.1, false);
-            }
-            finally {
-                MacOsNative.PopAutoreleasePool(pool);
-            }
-        }
-
-        PosixExit(exitCode);
-
-        // Unreachable, but required by the compiler.
-        return exitCode;
+        return await testTask;
     }
 
     private static IntPtr ResolveDefaultRunLoopMode() {
@@ -90,9 +55,6 @@ internal static class MacOsTestingPlatformEntryPoint {
 
         return mode;
     }
-
-    [DllImport("/usr/lib/libc.dylib", EntryPoint = "_exit")]
-    private static extern void PosixExit(int status);
 
     private static async Task<int> RunTestingPlatformAsync(string[] args) {
         ITestApplicationBuilder builder = await TestApplication.CreateBuilderAsync(args);
