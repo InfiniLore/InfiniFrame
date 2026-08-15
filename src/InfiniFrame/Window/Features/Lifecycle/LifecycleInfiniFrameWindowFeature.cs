@@ -70,17 +70,18 @@ public class LifecycleInfiniFrameWindowFeature(
     private void Dispose(bool disposing) {
         if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
 
-        // MarkAsClosed is invoked from the native closed callback, before WaitForExit has
-        // returned. Deleting the native instance or unrooting reverse-P/Invoke delegates at
-        // that point would race the remainder of WindowProc/WebView2 teardown. If a native
-        // message loop is active, its finally block completes this deferred disposal.
-        //
-        // If the lifecycle reached Disposed (e.g., via Initialize failure calling MarkDisposed)
-        // without going through TeardownComplete, we must still release native callback roots
-        // and GCHandle milestones to avoid leaking.
         if (window.LifecycleState < InfiniFrameWindowLifecycleState.TeardownComplete
-            && window.LifecycleState != InfiniFrameWindowLifecycleState.Disposed)
+            && window.LifecycleState != InfiniFrameWindowLifecycleState.Disposed) {
+            // The normal teardown path hasn't completed yet. Still release callback roots
+            // and milestones to avoid leaks, and release the native handle so .NET 10's
+            // runtime doesn't abort during shutdown over unreleased SafeHandles.
+            ReleaseNativeCallbackRootOnce();
+            ReleaseMilestoneRootOnce();
+            try { window.ReleaseNativeHandle(); } catch { /* best-effort during teardown race */ }
+            try { window.MarkNativeHandleReleased(); } catch { }
+            try { window.MarkDisposed(); } catch { }
             return;
+        }
 
         CleanupClosedHandleAndCallbacks(disposing);
     }
