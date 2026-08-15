@@ -43,7 +43,19 @@ internal static class MacOsTestingPlatformEntryPoint {
             }
         }
 
-        return await testTask;
+        int exitCode;
+        try { exitCode = testTask.Result; }
+        catch (AggregateException) { exitCode = 1; }
+
+        // .NET 10's runtime teardown calls abort() during GC finalization on macOS,
+        // producing exit code 134 (SIGABRT) even when all tests pass.  Calling POSIX
+        // _exit() terminates the process immediately, bypassing the CLR shutdown
+        // sequence entirely.  The test results have already been reported by MTP at
+        // this point, so skipping managed finalization is safe.
+        PosixExit(exitCode);
+
+        // Unreachable, but required by the compiler.
+        return exitCode;
     }
 
     private static IntPtr ResolveDefaultRunLoopMode() {
@@ -55,6 +67,9 @@ internal static class MacOsTestingPlatformEntryPoint {
 
         return mode;
     }
+
+    [DllImport("/usr/lib/libc.dylib", EntryPoint = "_exit")]
+    private static extern void PosixExit(int status);
 
     private static async Task<int> RunTestingPlatformAsync(string[] args) {
         ITestApplicationBuilder builder = await TestApplication.CreateBuilderAsync(args);
