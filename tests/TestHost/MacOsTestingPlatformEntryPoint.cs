@@ -43,6 +43,18 @@ internal static class MacOsTestingPlatformEntryPoint {
             }
         }
 
+        // Notify the native SIGABRT handler that tests have completed and what the exit
+        // code should be.  On .NET 10, the GC finalizer thread can deliver SIGABRT (via
+        // runtime abort()) after we exit the while-loop but before we reach _exit().
+        // The native handler checks this flag and calls _exit(code) directly instead of
+        // re-raising SIGABRT with SIG_DFL, which would produce a non-zero exit even
+        // though every test passed.
+        int exitCode;
+        try { exitCode = testTask.Result; }
+        catch (AggregateException) { exitCode = 1; }
+
+        MacOsNative.SetManagedExitCode(exitCode);
+
         // Drain pending main-queue blocks (deferred destruction, etc.) that were dispatched
         // after the test host stopped the run loop. Without this, dispatch_async(delete this)
         // in ScheduleDeferredDestruction never executes on net10.0, leaving the native instance
@@ -58,15 +70,6 @@ internal static class MacOsTestingPlatformEntryPoint {
             }
         }
 
-        int exitCode = await testTask;
-
-        // .NET 10's runtime teardown sequence calls abort() on macOS during GC finalization,
-        // producing exit code 134 (SIGABRT) even when all tests pass.  Environment.Exit
-        // runs finalizers (so native handles are released) but skips the runtime shutdown
-        // path that triggers the abort.  Unfortunately, even Environment.Exit does not
-        // fully prevent the abort on net10.0, so we fall through to the POSIX _exit()
-        // which unconditionally terminates the process without invoking the managed
-        // finalizer thread or the CLR shutdown sequence.
         PosixExit(exitCode);
 
         // Unreachable, but required by the compiler.

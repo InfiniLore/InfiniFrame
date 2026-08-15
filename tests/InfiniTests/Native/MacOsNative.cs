@@ -33,4 +33,9 @@ public static partial class MacOsNative {
 
     [LibraryImport(LibSystem, EntryPoint = "pthread_main_np")]
     public static partial int IsMainThread();
+
+    private const string NativeBridge = "InfiniFrame.Native";
+
+    [LibraryImport(NativeBridge, EntryPoint = "InfiniFrameNative_SetManagedExitCode")]
+    public static partial void SetManagedExitCode(int code);
 }

@@ -21,6 +21,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 namespace {
     std::atomic<bool> diagnosticsEnabled = false;
+    std::atomic<int> managedExitCode{-1};
     thread_local unsigned int nativeCallbackDepth = 0;
     std::atomic<unsigned int> activeNativeCallbacks = 0;
     std::mutex nativeCallbackMutex;
@@ -37,6 +38,16 @@ namespace {
             std::free(symbols);
         }
         std::fflush(stderr);
+
+        // If the managed host has already determined the final exit code, bypass the
+        // default signal disposition and terminate the process directly.  On .NET 10,
+        // the GC finalizer thread can deliver SIGABRT (via runtime abort()) after the
+        // managed host has finished all tests but before it reaches _exit().  The
+        // default SIG_DFL handler would kill the process with a non-zero code even
+        // though every test passed, so we exit with the managed host's code instead.
+        const int code = managedExitCode.load(std::memory_order_acquire);
+        if (code >= 0)
+            _exit(code);
 
         signal(signalNumber, SIG_DFL);
         raise(signalNumber);
@@ -119,4 +130,8 @@ void infiniframe::macos::LogLifecycle(const char* event, const void* instance) n
         queue == nullptr || queue[0] == '\0' ? "(none)" : queue
     );
     std::fflush(stderr);
+}
+
+extern "C" void InfiniFrameNative_SetManagedExitCode(int code) noexcept {
+    managedExitCode.store(code, std::memory_order_release);
 }
