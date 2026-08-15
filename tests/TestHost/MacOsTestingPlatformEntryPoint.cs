@@ -58,7 +58,16 @@ internal static class MacOsTestingPlatformEntryPoint {
             }
         }
 
-        return await testTask;
+        int exitCode = await testTask;
+
+        // .NET 10's runtime teardown sequence calls abort() on macOS during GC finalization,
+        // producing exit code 134 (SIGABRT) even when all tests pass.  Environment.Exit
+        // runs finalizers (so native handles are released) but skips the runtime shutdown
+        // path that triggers the abort.
+        Environment.Exit(exitCode);
+
+        // Unreachable, but required by the compiler.
+        return exitCode;
     }
 
     private static IntPtr ResolveDefaultRunLoopMode() {
