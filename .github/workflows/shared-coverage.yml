@@ -5,10 +5,10 @@ on:
     workflow_call:
         inputs:
             badge_branch:
-                description: 'Branch to push badge updates to'
+                description: 'Branch to push badge updates to (defaults to current branch)'
                 type: string
                 required: false
-                default: 'coverage/badges'
+                default: ''
 
 permissions:
     contents: write
@@ -92,4 +92,4 @@ jobs:
                     git config user.email "github-actions[bot]@users.noreply.github.com"
                     git add badges/
                     git diff --staged --quiet || git commit -m "ci: update coverage badges"
-                    git push origin HEAD:${{ inputs.badge_branch }} || echo "No changes to push"
+                    git push origin HEAD:${{ inputs.badge_branch || github.ref_name }} || echo "No changes to push"
