@@ -13,15 +13,22 @@ namespace InfiniFrame.BlazorWebView.FileProviders.Static;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, StaticWebAssetNode root) : IFileProvider {
+internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, string[] contentRoots, StaticWebAssetNode root) : IFileProvider {
     private const RegexOptions PatternRegexOptions = RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase;
     private readonly ConcurrentDictionary<string, Regex> _patternRegexCache = new(StringComparer.Ordinal);
 
     private IFileProvider[] ContentRootProviders { get; } = contentRoots
-        .Select(static rootPath => {
+        .Select(rootPath => {
             string normalizedRoot = rootPath;
             if (!Path.IsPathRooted(normalizedRoot)) {
                 normalizedRoot = Path.GetFullPath(normalizedRoot);
+            }
+
+            if (!Directory.Exists(normalizedRoot) && Path.IsPathRooted(rootPath)) {
+                string? fallback = TryResolveRelativeContentRoot(baseDirectory, rootPath);
+                if (fallback is not null) {
+                    normalizedRoot = fallback;
+                }
             }
 
             return Directory.Exists(normalizedRoot)
@@ -148,7 +155,7 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, 
                     : Path.GetFullPath(Path.Join(baseDirectory, contentRoot)))
                 .ToArray();
 
-            return new StaticWebAssetsRuntimeFileProvider(contentRoots, bestCandidate.Manifest.Root!);
+            return new StaticWebAssetsRuntimeFileProvider(baseDirectory, contentRoots, bestCandidate.Manifest.Root!);
         }
         catch (ArgumentException) {
             return null;
@@ -321,5 +328,31 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, 
             .TrimStart('~')
             .TrimStart('/', '\\')
             .Replace('\\', '/');
+    }
+
+    private static string? TryResolveRelativeContentRoot(string baseDirectory, string originalPath) {
+        string fileName = Path.GetFileName(originalPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        if (string.IsNullOrWhiteSpace(fileName)) return null;
+
+        string searchPattern = fileName;
+        string directory = baseDirectory;
+        while (directory is not null) {
+            string candidate = Path.Combine(directory, searchPattern);
+            if (Directory.Exists(candidate)) return candidate;
+
+            string[] children = [];
+            try {
+                children = Directory.GetDirectories(directory, searchPattern, SearchOption.TopDirectoryOnly);
+            }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
+
+            if (children.Length > 0) return children[0];
+
+            directory = Path.GetDirectoryName(directory) ?? string.Empty;
+            if (string.IsNullOrEmpty(directory)) break;
+        }
+
+        return null;
     }
 }
