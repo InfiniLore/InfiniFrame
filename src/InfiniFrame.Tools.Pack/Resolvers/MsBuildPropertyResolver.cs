@@ -1,7 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Diagnostics;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniFrame.Tools.Pack.Resolvers;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -14,51 +14,17 @@ internal static class MsBuildPropertyResolver {
         TimeSpan? timeout = null,
         CancellationToken cancellationToken = default
     ) {
-        TimeSpan effectiveTimeout = timeout ?? TimeSpan.FromMinutes(2);
-        if (effectiveTimeout <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(timeout), "Timeout must be greater than zero.");
+        var runner = new Services.ProcessRunner(NullLogger<Services.ProcessRunner>.Instance);
 
-        var startInfo = new ProcessStartInfo("dotnet") {
-            UseShellExecute = false,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            CreateNoWindow = true
-        };
+        Services.ProcessRunner.ProcessRunResult result = await runner.RunWithOutputAsync(
+            "dotnet",
+            ["msbuild", projectPath, "-nologo", "-v:q", $"-getProperty:{propertyName}"],
+            timeout: timeout,
+            cancellationToken: cancellationToken
+        );
 
-        startInfo.ArgumentList.Add("msbuild");
-        startInfo.ArgumentList.Add(projectPath);
-        startInfo.ArgumentList.Add("-nologo");
-        startInfo.ArgumentList.Add("-v:q");
-        startInfo.ArgumentList.Add($"-getProperty:{propertyName}");
+        if (result.ExitCode != 0 || string.IsNullOrWhiteSpace(result.StandardOutput)) return null;
 
-        using var process = new Process();
-        process.StartInfo = startInfo;
-
-        if (!process.Start()) return null;
-
-        Task<string> stdOutTask = process.StandardOutput.ReadToEndAsync(cancellationToken);
-        Task<string> stdErrTask = process.StandardError.ReadToEndAsync(cancellationToken);
-        using var timeoutCts = new CancellationTokenSource(effectiveTimeout);
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
-        try {
-            await process.WaitForExitAsync(linkedCts.Token);
-        }
-        catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested) {
-            try {
-                if (!process.HasExited) process.Kill(entireProcessTree: true);
-            }
-            catch (InvalidOperationException) {
-                // best effort
-            }
-
-            throw new TimeoutException(
-                $"Timed out after {effectiveTimeout} while evaluating MSBuild property '{propertyName}' for '{projectPath}'.");
-        }
-
-        string stdOut = (await stdOutTask).Trim();
-        _ = await stdErrTask;
-
-        if (process.ExitCode != 0 || string.IsNullOrWhiteSpace(stdOut)) return null;
-
-        return stdOut;
+        return result.StandardOutput.Trim();
     }
 }

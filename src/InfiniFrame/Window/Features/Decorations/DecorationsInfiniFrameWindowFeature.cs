@@ -88,11 +88,11 @@ public class DecorationsInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IDecorationsInfiniFrameWindowFeature.SetBackgroundColor" />
     public void SetBackgroundColor(string? color) {
-        if (color is not null && color != "transparent" && !IsValidBackgroundColor(color)) {
+        if (color is not null && color != "transparent" && !ColorUtility.IsValidBackgroundColor(color)) {
             throw new ArgumentException("Background color must be a valid hex color string (e.g. #RRGGBB or #AARRGGBB), null, or 'transparent'.", nameof(color));
         }
 
-        ParseBackgroundColor(color, out byte r, out byte g, out byte b, out byte a);
+        ColorUtility.ParseBackgroundColor(color, out byte r, out byte g, out byte b, out byte a);
 
         logger.LogDebug("Invoking InfiniFrameNative.SetBackgroundColor({r}, {g}, {b}, {a})", r, g, b, a);
         NativeInvoke.InvokeSyncWithoutValidation(
@@ -159,47 +159,5 @@ public class DecorationsInfiniFrameWindowFeature(
     public void SetLimitLinuxWindowTitleLength(bool enabled = true) {
         LimitLinuxWindowTitleLength = enabled;
     }
-
-    internal static bool IsValidBackgroundColor(string? color) {
-        if (color is null or "transparent")
-            return true;
-        if (color.StartsWith('#')) {
-            string hex = color[1..];
-            return hex.Length is 6 or 8 && hex.All(c => IsHexDigit(c));
-        }
-        return false;
-    }
-
-    internal static void ParseBackgroundColor(string? color, out byte r, out byte g, out byte b, out byte a) {
-        if (color is null or "transparent") {
-            r = g = b = a = 0;
-            return;
-        }
-
-        string hex = color.StartsWith('#') ? color[1..] : color;
-
-        if (hex.Length == 8) {
-            a = (byte)(HexDigit(hex[0]) << 4 | HexDigit(hex[1]));
-            r = (byte)(HexDigit(hex[2]) << 4 | HexDigit(hex[3]));
-            g = (byte)(HexDigit(hex[4]) << 4 | HexDigit(hex[5]));
-            b = (byte)(HexDigit(hex[6]) << 4 | HexDigit(hex[7]));
-        } else {
-            r = (byte)(HexDigit(hex[0]) << 4 | HexDigit(hex[1]));
-            g = (byte)(HexDigit(hex[2]) << 4 | HexDigit(hex[3]));
-            b = (byte)(HexDigit(hex[4]) << 4 | HexDigit(hex[5]));
-            a = 255;
-        }
-    }
-
-    private static bool IsHexDigit(char c) =>
-        c is >= '0' and <= '9' or >= 'A' and <= 'F' or >= 'a' and <= 'f';
-
-    private static int HexDigit(char c) =>
-        c switch {
-            >= '0' and <= '9' => c - '0',
-            >= 'A' and <= 'F' => c - 'A' + 10,
-            >= 'a' and <= 'f' => c - 'a' + 10,
-            _ => -1
-        };
 
 }

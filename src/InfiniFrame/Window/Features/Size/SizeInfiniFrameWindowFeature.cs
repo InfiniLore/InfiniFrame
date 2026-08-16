@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
+using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Drawing;
@@ -242,85 +243,16 @@ public class SizeInfiniFrameWindowFeature(
             InfiniFrameNative.GetPosition
         );
 
-        int x = originalX;
-        int y = originalY;
-        switch (origin) {
-            case ResizeOrigin.TopLeft: {
-                    x += widthOffset;
-                    y += heightOffset;
-                    width -= widthOffset;
-                    height -= heightOffset;
-                    break;
-                }
+        (int x, int y, width, height) = SizeCalculations.ComputeResize(
+            originalX, originalY, width, height,
+            widthOffset, heightOffset, origin
+        );
 
-            case ResizeOrigin.Top: {
-                    y += heightOffset;
-                    height -= heightOffset;
-                    break;
-                }
-
-            case ResizeOrigin.TopRight: {
-                    y += heightOffset;
-                    width += widthOffset;
-                    height -= heightOffset;
-                    break;
-                }
-
-            case ResizeOrigin.Right: {
-                    width += widthOffset;
-                    break;
-                }
-
-            case ResizeOrigin.BottomRight: {
-                    width += widthOffset;
-                    height += heightOffset;
-                    break;
-                }
-
-            case ResizeOrigin.Bottom: {
-                    height += heightOffset;
-                    break;
-                }
-
-            case ResizeOrigin.BottomLeft: {
-                    x += widthOffset;
-                    width -= widthOffset;
-                    height += heightOffset;
-                    break;
-                }
-
-            case ResizeOrigin.Left: {
-                    x += widthOffset;
-                    width -= widthOffset;
-                    break;
-                }
-
-            default: throw new ArgumentOutOfRangeException(nameof(origin), origin, null);
-        }
-
-        // Clamping between min and max size
-        Size max = MaxSize;
-        Size min = MinSize;
-
-        if (width >= max.Width) {
-            width = max.Width;
-            x = originalX;
-        }
-
-        if (height >= max.Height) {
-            height = max.Height;
-            y = originalY;
-        }
-
-        if (width <= min.Width) {
-            width = min.Width;
-            x = originalX;
-        }
-
-        if (height <= min.Height) {
-            height = min.Height;
-            y = originalY;
-        }
+        (x, y, width, height) = SizeCalculations.ClampResize(
+            x, y, width, height,
+            originalX, originalY,
+            MinSize, MaxSize
+        );
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,

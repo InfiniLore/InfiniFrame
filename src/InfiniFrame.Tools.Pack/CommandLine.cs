@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Tools.Pack.Services;
 using Microsoft.Extensions.Logging;
-using System.Globalization;
 
 namespace InfiniFrame.Tools.Pack;
 // -----------------------------------------------------------------------------------------------------------------
@@ -111,7 +110,7 @@ internal sealed class CommandLine {
                     index++;
                     break;
                 case "--timeout":
-                    options.ProcessTimeout = ParseTimeout(ReadValue(args, ref index, token));
+                    options.ProcessTimeout = TimeoutParser.Parse(ReadValue(args, ref index, token));
                     break;
                 case "--force-clean-output":
                     options.ForceCleanOutput = true;
@@ -123,7 +122,7 @@ internal sealed class CommandLine {
         }
 
         if (string.IsNullOrWhiteSpace(options.ProjectPath)) throw new InvalidOperationException("Missing project path.");
-        ValidateProcessTimeout(options.ProcessTimeout);
+        TimeoutParser.Validate(options.ProcessTimeout);
         return options;
     }
 
@@ -134,49 +133,5 @@ internal sealed class CommandLine {
         string value = args[index];
         index++;
         return value;
-    }
-
-    private static TimeSpan ParseTimeout(string value) {
-        if (string.IsNullOrWhiteSpace(value)) throw new FormatException("Timeout value cannot be empty.");
-
-        if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int seconds) && seconds > 0) {
-            return TimeSpan.FromSeconds(seconds);
-        }
-
-        if (TryParseUnitTimeout(value, out TimeSpan unitTimeout)) return unitTimeout;
-        if (TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out TimeSpan timeSpan) && timeSpan > TimeSpan.Zero) return timeSpan;
-
-        throw new FormatException($"Invalid timeout value '{value}'. Use a positive value like '600', '90s', '5m', or '00:10:00'.");
-    }
-
-    private static bool TryParseUnitTimeout(string value, out TimeSpan timeout) {
-        timeout = default;
-        if (value.Length < 2) return false;
-
-        char unit = char.ToLowerInvariant(value[^1]);
-        string numberPart = value[..^1];
-        if (!double.TryParse(numberPart, NumberStyles.Float, CultureInfo.InvariantCulture, out double quantity) || quantity <= 0) {
-            return false;
-        }
-
-        timeout = unit switch {
-            's' => TimeSpan.FromSeconds(quantity),
-            'm' => TimeSpan.FromMinutes(quantity),
-            'h' => TimeSpan.FromHours(quantity),
-            _ => default
-        };
-
-        return timeout > TimeSpan.Zero;
-    }
-
-    private static void ValidateProcessTimeout(TimeSpan timeout) {
-        if (timeout <= TimeSpan.Zero) {
-            throw new FormatException($"Timeout must be greater than zero. Received '{timeout}'.");
-        }
-
-        if (timeout > PublishOptions.MaxProcessTimeout) {
-            throw new FormatException(
-                $"Timeout '{timeout}' exceeds the maximum supported value of '{PublishOptions.MaxProcessTimeout}'.");
-        }
     }
 }

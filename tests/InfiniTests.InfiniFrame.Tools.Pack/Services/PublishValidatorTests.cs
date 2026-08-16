@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Tools.Pack.Services;
@@ -188,7 +188,7 @@ public class PublishValidatorTests {
     [Test]
     public async Task ValidateRidConsistency_Throws_WhenRidIsEmpty() {
         await Assert.ThrowsAsync<InvalidOperationException>(() => {
-            PublishValidator.ValidateRidConsistency(string.Empty);
+            PublishValidationHelpers.ValidateRidConsistency(string.Empty);
             return Task.CompletedTask;
         })
             .WithMessage("Runtime identifier (RID) cannot be empty.");
@@ -197,7 +197,7 @@ public class PublishValidatorTests {
     [Test]
     public async Task ValidateRidConsistency_Throws_WhenRidFormatIsInvalid() {
         await Assert.ThrowsAsync<InvalidOperationException>(() => {
-            PublishValidator.ValidateRidConsistency("linuxx64");
+            PublishValidationHelpers.ValidateRidConsistency("linuxx64");
             return Task.CompletedTask;
         })
             .WithMessage("Invalid RID format: 'linuxx64'. Expected format like 'win-x64', 'linux-arm64'.");
@@ -206,7 +206,7 @@ public class PublishValidatorTests {
     [Test]
     public async Task ValidateRidConsistency_Throws_WhenRidIsUnsupported() {
         await Assert.ThrowsAsync<InvalidOperationException>(() => {
-            PublishValidator.ValidateRidConsistency("browser-wasm");
+            PublishValidationHelpers.ValidateRidConsistency("browser-wasm");
             return Task.CompletedTask;
         })
             .WithMessage("Unsupported or unknown RID: 'browser-wasm'.");
@@ -214,7 +214,7 @@ public class PublishValidatorTests {
 
     [Test]
     public async Task ValidateRidConsistency_ReturnsTrue_ForSupportedRid() {
-        bool output = PublishValidator.ValidateRidConsistency("linux-x64");
+        bool output = PublishValidationHelpers.ValidateRidConsistency("linux-x64");
         await Assert.That(output).IsTrue();
     }
 
@@ -223,7 +223,7 @@ public class PublishValidatorTests {
         string projectDirectory = Path.Join(TemporaryDirectory.Path, "app");
         string outputPath = Path.Join(projectDirectory, "bin", "Release", "net10.0", "win-x64", "publish");
 
-        bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, false);
+        bool output = PublishValidationHelpers.ValidateOutputPath(projectDirectory, outputPath, false);
         await Assert.That(output).IsTrue();
     }
 
@@ -234,7 +234,7 @@ public class PublishValidatorTests {
         Directory.CreateDirectory(outputPath);
 
         InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(() => {
-            PublishValidator.ValidateOutputPath(projectDirectory, outputPath, false);
+            PublishValidationHelpers.ValidateOutputPath(projectDirectory, outputPath, false);
             return Task.CompletedTask;
         }) ?? throw new InvalidOperationException("Expected exception was not thrown.");
 
@@ -247,7 +247,7 @@ public class PublishValidatorTests {
         string outputPath = Path.Join(TemporaryDirectory.Path, "publish-output");
         Directory.CreateDirectory(outputPath);
 
-        bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, true);
+        bool output = PublishValidationHelpers.ValidateOutputPath(projectDirectory, outputPath, true);
         await Assert.That(output).IsTrue();
     }
 
@@ -256,7 +256,7 @@ public class PublishValidatorTests {
         string projectDirectory = Path.Join(TemporaryDirectory.Path, "app");
         string outputPath = Path.Join(TemporaryDirectory.Path, "publish-output");
 
-        bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, false);
+        bool output = PublishValidationHelpers.ValidateOutputPath(projectDirectory, outputPath, false);
         await Assert.That(output).IsTrue();
     }
 
@@ -267,13 +267,13 @@ public class PublishValidatorTests {
         Directory.CreateDirectory(outputPath);
 
         if (OperatingSystem.IsWindows()) {
-            bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, false);
+            bool output = PublishValidationHelpers.ValidateOutputPath(projectDirectory, outputPath, false);
             await Assert.That(output).IsTrue();
             return;
         }
 
         InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(() => {
-            PublishValidator.ValidateOutputPath(projectDirectory, outputPath, false);
+            PublishValidationHelpers.ValidateOutputPath(projectDirectory, outputPath, false);
             return Task.CompletedTask;
         }) ?? throw new InvalidOperationException("Expected exception was not thrown.");
 

@@ -77,7 +77,7 @@ public class DecorationsInfiniFrameWindowBuilderFeature : IDecorationsInfiniFram
             : null;
         parameters.WindowsAppUserModelId = WindowsAppUserModelId;
 
-        DecorationsInfiniFrameWindowFeature.ParseBackgroundColor(
+        ColorUtility.ParseBackgroundColor(
             BackgroundColor, out byte r, out byte g, out byte b, out byte a);
         parameters.BackgroundColorR = r;
         parameters.BackgroundColorG = g;

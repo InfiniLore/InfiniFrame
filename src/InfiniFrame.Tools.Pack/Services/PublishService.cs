@@ -230,23 +230,10 @@ internal sealed class PublishService {
     }
 
     private string? TryResolveNativeArtifactsFromPublishLayout(string publishDirectory, string rid, string configuration) {
-        string[] ridParts = rid.Split('-', StringSplitOptions.RemoveEmptyEntries);
-        if (ridParts.Length != 2) return null;
+        var parsed = PublishValidationHelpers.ParseRid(rid);
+        if (parsed is null) return null;
 
-        string platform = ridParts[0].ToLowerInvariant() switch {
-            "win" => "windows",
-            "linux" => "linux",
-            "osx" => "osx",
-            _ => string.Empty
-        };
-        string architecture = ridParts[1].ToLowerInvariant() switch {
-            "x64" => "x64",
-            "arm64" => "arm64",
-            _ => string.Empty
-        };
-        if (string.IsNullOrWhiteSpace(platform) || string.IsNullOrWhiteSpace(architecture)) return null;
-
-        string candidateDirectory = Path.Join(publishDirectory, "artifacts", "native", platform, architecture, configuration);
+        string candidateDirectory = Path.Join(publishDirectory, "artifacts", "native", parsed.Value.Platform, parsed.Value.Architecture, configuration);
         return Directory.Exists(candidateDirectory) ? candidateDirectory : null;
     }
 
@@ -275,7 +262,7 @@ internal sealed class PublishService {
         if (string.IsNullOrWhiteSpace(fullPath)) throw new InvalidOperationException("Cannot delete an empty path.");
 
         string? root = Path.GetPathRoot(fullPath);
-        if (string.Equals(fullPath, root, StringComparison.OrdinalIgnoreCase)) {
+        if (PublishValidationHelpers.IsUnderDirectory(fullPath, root!)) {
             throw new InvalidOperationException($"Refusing to delete root directory '{fullPath}'.");
         }
 
@@ -348,14 +335,7 @@ internal sealed class PublishService {
     }
 
     private static void ValidateProcessTimeout(TimeSpan timeout) {
-        if (timeout <= TimeSpan.Zero) {
-            throw new InvalidOperationException($"Process timeout must be greater than zero. Received '{timeout}'.");
-        }
-
-        if (timeout > PublishOptions.MaxProcessTimeout) {
-            throw new InvalidOperationException(
-                $"Process timeout '{timeout}' exceeds the maximum supported value of '{PublishOptions.MaxProcessTimeout}'.");
-        }
+        TimeoutParser.Validate(timeout);
     }
 
     internal readonly record struct OutputShapeValidation(bool FoundMainOutput, string[] UnexpectedEntries);

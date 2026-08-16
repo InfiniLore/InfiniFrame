@@ -281,26 +281,6 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         }
     }
 
-    private static string GetFallbackContentType(string localPath) {
-        string extension = Path.GetExtension(localPath);
-
-        if (string.IsNullOrWhiteSpace(extension)) return "application/octet-stream";
-
-        return extension.ToLowerInvariant() switch {
-            ".html" or ".htm" => "text/html; charset=utf-8",
-            ".js" or ".mjs" => "text/javascript; charset=utf-8",
-            ".css" => "text/css; charset=utf-8",
-            ".json" => "application/json; charset=utf-8",
-            ".wasm" => "application/wasm",
-            ".svg" => "image/svg+xml",
-            ".png" => "image/png",
-            ".jpg" or ".jpeg" => "image/jpeg",
-            ".gif" => "image/gif",
-            ".ico" => "image/x-icon",
-            ".woff" => "font/woff",
-            ".woff2" => "font/woff2",
-            ".ttf" => "font/ttf",
-            _ => "application/octet-stream"
-        };
-    }
+    private static string GetFallbackContentType(string localPath)
+        => InfiniFrame.Utilities.AssetPathResolver.GetContentType(localPath);
 }

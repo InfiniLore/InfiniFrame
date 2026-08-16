@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
+using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -112,27 +113,7 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
         string menuItemId,
         Func<InfiniFrameMenuItem, InfiniFrameMenuItem> updater
     ) {
-        ImmutableArray<InfiniFrameMenuItem> updatedItems = UpdateItemsRecursive(menuBar.Items, menuItemId, updater);
+        ImmutableArray<InfiniFrameMenuItem> updatedItems = MenuItemTreeHelper.UpdateItem(menuBar.Items, menuItemId, updater);
         return menuBar with { Items = updatedItems };
-    }
-
-    private static ImmutableArray<InfiniFrameMenuItem> UpdateItemsRecursive(
-        ImmutableArray<InfiniFrameMenuItem> items,
-        string menuItemId,
-        Func<InfiniFrameMenuItem, InfiniFrameMenuItem> updater
-    ) {
-        ImmutableArray<InfiniFrameMenuItem>.Builder builder = items.ToBuilder();
-
-        for (int i = 0; i < builder.Count; i++) {
-            if (builder[i].Id == menuItemId) {
-                builder[i] = updater(builder[i]);
-            } else if (!builder[i].Children.IsDefaultOrEmpty) {
-                builder[i] = builder[i] with {
-                    Children = UpdateItemsRecursive(builder[i].Children, menuItemId, updater)
-                };
-            }
-        }
-
-        return builder.ToImmutable();
     }
 }
