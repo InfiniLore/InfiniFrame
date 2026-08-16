@@ -78,5 +78,8 @@ jobs:
         needs: [run]
         if: ${{ github.event_name == 'push' || inputs.enable_coverage }}
         uses: ./.github/workflows/shared-coverage.yml
+        with:
+            pr_number: ${{ inputs.pr_number }}
         permissions:
             contents: write
+            pull-requests: write

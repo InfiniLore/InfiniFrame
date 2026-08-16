@@ -11,20 +11,29 @@ public class ExitCodesTests {
 
     [Test]
     public async Task Success_IsZero(CancellationToken ct = default) {
-        // Arrange & Act & Assert
-        await Assert.That(ExitCodes.Success).IsEqualTo(0);
+        // Arrange
+        int value = ExitCodes.Success;
+
+        // Act & Assert
+        await Assert.That(value).IsEqualTo(0);
     }
 
     [Test]
     public async Task GenericFailure_IsNonZero(CancellationToken ct = default) {
-        // Arrange & Act & Assert
-        await Assert.That(ExitCodes.GenericFailure).IsNotEqualTo(0);
+        // Arrange
+        int value = ExitCodes.GenericFailure;
+
+        // Act & Assert
+        await Assert.That(value).IsNotEqualTo(0);
     }
 
     [Test]
     public async Task NativeDependencyMissing_IsNonZero(CancellationToken ct = default) {
-        // Arrange & Act & Assert
-        await Assert.That(ExitCodes.NativeDependencyMissing).IsNotEqualTo(0);
+        // Arrange
+        int value = ExitCodes.NativeDependencyMissing;
+
+        // Act & Assert
+        await Assert.That(value).IsNotEqualTo(0);
     }
 
     [Test]

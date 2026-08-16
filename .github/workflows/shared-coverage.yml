@@ -9,9 +9,15 @@ on:
                 type: string
                 required: false
                 default: ''
+            pr_number:
+                description: 'PR number to post a coverage comment on (optional)'
+                type: string
+                required: false
+                default: ''
 
 permissions:
     contents: write
+    pull-requests: write
 
 jobs:
     coverage:
@@ -92,6 +98,65 @@ jobs:
                         ConvertTo-Json -Compress | Set-Content "badges/cs-coverage.json"
 
                     Write-Host "Badges: TS=$ts ($tsColor), C#=$cs ($csColor)"
+
+            # PR Comment
+            -   name: Post Coverage Comment on PR
+                if: ${{ inputs.pr_number != '' && inputs.pr_number != '0' }}
+                env:
+                    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                shell: pwsh
+                run: |
+                    $prNumber = "${{ inputs.pr_number }}"
+                    $newTs = [double]"${{ steps.ts.outputs.pct }}"
+                    $newCs = [double]"${{ steps.cs.outputs.pct }}"
+
+                    # Read previous badge values from the checked-out repo
+                    $oldTs = 0.0
+                    $oldCs = 0.0
+                    if (Test-Path "badges/ts-coverage.json") {
+                        $old = Get-Content "badges/ts-coverage.json" -Raw | ConvertFrom-Json
+                        $oldTs = [double]($old.message -replace '%','')
+                    }
+                    if (Test-Path "badges/cs-coverage.json") {
+                        $old = Get-Content "badges/cs-coverage.json" -Raw | ConvertFrom-Json
+                        $oldCs = [double]($old.message -replace '%','')
+                    }
+
+                    # Determine styling: green if improved, red if regressed, gray if unchanged
+                    function Get-Trend([double]$old, [double]$new) {
+                        if ($new -gt $old) { return @{ icon = "📈"; color = "green"; label = "improved" } }
+                        if ($new -lt $old) { return @{ icon = "📉"; color = "red"; label = "regressed" } }
+                        return @{ icon = "➡️"; color = "gray"; label = "unchanged" }
+                    }
+
+                    $tsTrend = Get-Trend $oldTs $newTs
+                    $csTrend = Get-Trend $oldCs $newCs
+
+                    $tsDelta = $newTs - $oldTs
+                    $csDelta = $newCs - $oldCs
+                    $tsDeltaStr = if ($tsDelta -gt 0) { "+$tsDelta" } else { "$tsDelta" }
+                    $csDeltaStr = if ($csDelta -gt 0) { "+$csDelta" } else { "$csDelta" }
+
+                    $body = "## 📊 Code Coverage Report`n`n"
+                    $body += "| Language | Coverage | Delta | Trend |`n"
+                    $body += "|----------|----------|-------|-------|`n"
+                    $body += "| TypeScript | **${newTs}%** | ${tsDeltaStr}% | $($tsTrend.icon) $($tsTrend.label) |`n"
+                    $body += "| C# | **${newCs}%** | ${csDeltaStr}% | $($csTrend.icon) $($csTrend.label) |"
+
+                    # Find existing coverage comment to update (avoid spam)
+                    $existingComment = $null
+                    $comments = gh api "repos/${{ github.repository }}/issues/${prNumber}/comments" --paginate 2>$null | ConvertFrom-Json
+                    if ($comments) {
+                        $existingComment = $comments | Where-Object { $_.body -match "## 📊 Code Coverage Report" } | Select-Object -First 1
+                    }
+
+                    if ($existingComment) {
+                        gh api "repos/${{ github.repository }}/issues/comments/$($existingComment.id)" -X PATCH -f body="$body" 2>$null
+                        Write-Host "Updated existing coverage comment #$($existingComment.id) on PR #$prNumber"
+                    } else {
+                        gh api "repos/${{ github.repository }}/issues/${prNumber}/comments" -X POST -f body="$body" 2>$null
+                        Write-Host "Posted new coverage comment on PR #$prNumber"
+                    }
 
             -   name: Commit Badge Updates
                 run: |
