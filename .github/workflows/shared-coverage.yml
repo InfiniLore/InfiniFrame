@@ -33,11 +33,17 @@ jobs:
                 shell: pwsh
                 run: |
                     $lcov = Get-Content "ts-coverage/lcov.info" -Raw
-                    if ($lcov -match "LF:(\d+)") { $lines = [int]$Matches[1] } else { $lines = 0 }
-                    if ($lcov -match "LH:(\d+)") { $hit   = [int]$Matches[1] } else { $hit   = 0 }
-                    $pct = if ($lines -gt 0) { [math]::Round(($hit / $lines) * 100, 1) } else { 0 }
+                    $totalLines = 0
+                    $totalHit = 0
+                    [regex]::Matches($lcov, 'LF:(\d+)') | ForEach-Object {
+                        $totalLines += [int]$_.Groups[1].Value
+                    }
+                    [regex]::Matches($lcov, 'LH:(\d+)') | ForEach-Object {
+                        $totalHit += [int]$_.Groups[1].Value
+                    }
+                    $pct = if ($totalLines -gt 0) { [math]::Round(($totalHit / $totalLines) * 100, 1) } else { 0 }
                     "pct=$pct" >> $env:GITHUB_OUTPUT
-                    Write-Host "TS coverage: $pct% ($hit / $lines lines)"
+                    Write-Host "TS coverage: $pct% ($totalHit / $totalLines lines)"
 
             # C# Coverage 
             -   name: Download C# Coverage Artifacts
@@ -55,11 +61,12 @@ jobs:
                     $totalCovered = 0
                     Get-ChildItem "cs-coverage" -Recurse -Filter "*.cobertura.xml" -ErrorAction SilentlyContinue | ForEach-Object {
                         $content = Get-Content $_.FullName -Raw
-                        [regex]::Matches($content, 'lines-valid="(\d+)"') | ForEach-Object {
-                            $totalLines += [int]$_.Groups[1].Value
+                        # Match only the root <coverage> element to avoid double-counting <package> subtotals
+                        if ($content -match '<coverage[^>]*lines-valid="(\d+)"') {
+                            $totalLines += [int]$Matches[1]
                         }
-                        [regex]::Matches($content, 'lines-covered="(\d+)"') | ForEach-Object {
-                            $totalCovered += [int]$_.Groups[1].Value
+                        if ($content -match '<coverage[^>]*lines-covered="(\d+)"') {
+                            $totalCovered += [int]$Matches[1]
                         }
                     }
                     $pct = if ($totalLines -gt 0) { [math]::Round(($totalCovered / $totalLines) * 100, 1) } else { 0 }

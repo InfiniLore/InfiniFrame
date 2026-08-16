@@ -7,6 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Shared"/>
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
         
         <PackageReference Include="JetBrains.Annotations"/>

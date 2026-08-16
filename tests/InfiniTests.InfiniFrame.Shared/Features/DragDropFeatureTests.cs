@@ -15,11 +15,10 @@ public class DragDropFeatureTests {
         Mock<IDragDropInfiniFrameWindowFeature> feature = MockFactory.CreateDragDropMock();
 
         // Act
-        feature.SetEnabled(true);
+        feature.Object.SetEnabled(true);
 
         // Assert
-        feature.IsEnabled.Returns(true);
-        await Assert.That(feature.Object.IsEnabled).IsTrue();
+        feature.SetEnabled(true).WasCalled(Times.Once);
     }
 
     [Test]
@@ -28,11 +27,10 @@ public class DragDropFeatureTests {
         Mock<IDragDropInfiniFrameWindowFeature> feature = MockFactory.CreateDragDropMock();
 
         // Act
-        feature.SetEnabled(false);
+        feature.Object.SetEnabled(false);
 
         // Assert
-        feature.IsEnabled.Returns(false);
-        await Assert.That(feature.Object.IsEnabled).IsFalse();
+        feature.SetEnabled(false).WasCalled(Times.Once);
     }
 
     [Test]
@@ -42,11 +40,10 @@ public class DragDropFeatureTests {
         string[] extensions = new[] { ".txt", ".png" };
 
         // Act
-        feature.SetAllowedExtensions(extensions);
+        feature.Object.SetAllowedExtensions(extensions);
 
         // Assert
-        feature.AllowedExtensions.Returns(extensions.AsReadOnly());
-        await Assert.That(feature.Object.AllowedExtensions.Count).IsEqualTo(2);
+        feature.SetAllowedExtensions(extensions).WasCalled(Times.Once);
     }
 
     [Test]
