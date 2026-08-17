@@ -71,17 +71,16 @@
         <!-- Clean up staging directory -->
         <RemoveDir Directories="$(_InfiniFrameSingleFileStageDir)" />
 
-        <!-- Clean up sidecar files from final publish output -->
+        <!-- Clean up sidecar files immediately after inner publish -->
         <PropertyGroup>
-            <_InfiniFrameSingleFilePublishDir>$([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '$(OutputPath)', '$(_InfiniFrameSingleFileRid)', 'publish'))</_InfiniFrameSingleFilePublishDir>
+            <_InfiniFramePackPublishDir>$([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '$(OutputPath)', 'publish'))</_InfiniFramePackPublishDir>
         </PropertyGroup>
-        <Message Importance="high" Text="[InfiniFrame.SingleFile] Cleaning up $(_InfiniFrameSingleFilePublishDir)" />
         <ItemGroup>
-            <ClearSidecarFile Include="$(_InfiniFrameSingleFilePublishDir)\*.staticwebassets.endpoints.json" />
-            <ClearSidecarFile Include="$(_InfiniFrameSingleFilePublishDir)\web.config" />
+            <_InfiniFramePackSidecarFile Include="$(_InfiniFramePackPublishDir)\*.staticwebassets.endpoints.json" />
+            <_InfiniFramePackSidecarFile Include="$(_InfiniFramePackPublishDir)\web.config" />
         </ItemGroup>
-        <RemoveDir Directories="$(_InfiniFrameSingleFilePublishDir)\wwwroot" Condition="Exists('$(_InfiniFrameSingleFilePublishDir)\wwwroot')" />
-        <Delete Files="@(ClearSidecarFile)" />
+        <Delete Files="@(_InfiniFramePackSidecarFile)" />
+        <RemoveDir Directories="$(_InfiniFramePackPublishDir)\wwwroot" Condition="Exists('$(_InfiniFramePackPublishDir)\wwwroot')" />
 
         <Message Importance="high" Text="[InfiniFrame.SingleFile] Pack completed successfully." />
     </Target>
@@ -169,15 +168,31 @@
     </Target>
 
     <!-- ==================================================================
-         Remove native files that leaked into the publish directory.
+         Remove sidecar files and native files from the publish directory.
+         Runs after ALL publish targets to avoid race conditions.
          ================================================================== -->
     <Target Name="InfiniFramePackCleanupPublishArtifacts"
-            AfterTargets="Publish"
-            Condition="'$(_InfiniFramePackActive)' == 'true'">
-        <Delete Files="$(PublishDir)\InfiniFrame.Native.dll" Condition="Exists('$(PublishDir)\InfiniFrame.Native.dll')" />
-        <Delete Files="$(PublishDir)\WebView2Loader.dll" Condition="Exists('$(PublishDir)\WebView2Loader.dll')" />
-        <Delete Files="$(PublishDir)\InfiniFrame.Native.so" Condition="Exists('$(PublishDir)\InfiniFrame.Native.so')" />
-        <Delete Files="$(PublishDir)\InfiniFrame.Native.dylib" Condition="Exists('$(PublishDir)\InfiniFrame.Native.dylib')" />
+            AfterTargets="PublishBuildAll"
+            Condition="'$(_InfiniFramePackActive)' == 'true' or '$(InfiniFrameSingleFileAuto)' == 'true'">
+
+        <!-- Compute the publish directory -->
+        <PropertyGroup>
+            <_InfiniFramePackPublishDir>$([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '$(OutputPath)', 'publish'))</_InfiniFramePackPublishDir>
+        </PropertyGroup>
+
+        <!-- Remove sidecar files -->
+        <ItemGroup>
+            <_InfiniFramePackSidecarFile Include="$(_InfiniFramePackPublishDir)\*.staticwebassets.endpoints.json" />
+            <_InfiniFramePackSidecarFile Include="$(_InfiniFramePackPublishDir)\web.config" />
+        </ItemGroup>
+        <Delete Files="@(_InfiniFramePackSidecarFile)" />
+        <RemoveDir Directories="$(_InfiniFramePackPublishDir)\wwwroot" Condition="Exists('$(_InfiniFramePackPublishDir)\wwwroot')" />
+
+        <!-- Remove native files -->
+        <Delete Files="$(_InfiniFramePackPublishDir)\InfiniFrame.Native.dll" Condition="Exists('$(_InfiniFramePackPublishDir)\InfiniFrame.Native.dll')" />
+        <Delete Files="$(_InfiniFramePackPublishDir)\WebView2Loader.dll" Condition="Exists('$(_InfiniFramePackPublishDir)\WebView2Loader.dll')" />
+        <Delete Files="$(_InfiniFramePackPublishDir)\InfiniFrame.Native.so" Condition="Exists('$(_InfiniFramePackPublishDir)\InfiniFrame.Native.so')" />
+        <Delete Files="$(_InfiniFramePackPublishDir)\InfiniFrame.Native.dylib" Condition="Exists('$(_InfiniFramePackPublishDir)\InfiniFrame.Native.dylib')" />
     </Target>
 
 </Project>

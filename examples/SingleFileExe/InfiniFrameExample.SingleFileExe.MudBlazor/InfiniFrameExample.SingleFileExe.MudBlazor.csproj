@@ -8,6 +8,9 @@
         <IsPackable>false</IsPackable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <ApplicationIcon>../../../assets/favicon.ico</ApplicationIcon>
+        <PublishIISAssets>false</PublishIISAssets>
+        <InfiniFrameSingleFileAuto>true</InfiniFrameSingleFileAuto>
+        <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
     </PropertyGroup>
 
     <ItemGroup>
@@ -17,17 +20,18 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Update="wwwroot/**">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="MudBlazor" />
         <PackageReference Include="Serilog"/>
         <PackageReference Include="Serilog.AspNetCore"/>
         <PackageReference Include="Serilog.Sinks.Async"/>
         <PackageReference Include="Serilog.Sinks.Console"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="../../../assets/favicon.ico">
+            <Link>wwwroot/favicon.ico</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>
@@ -42,9 +46,4 @@
     <Import Project="../../../InfiniFrame.NativeCopy.targets" />
     <Import Project="../../../src/InfiniFrame.SingleFile/InfiniFrame.SingleFile.targets"
             Condition="Exists('../../../src/InfiniFrame.SingleFile/InfiniFrame.SingleFile.targets')" />
-
-    <PropertyGroup>
-        <InfiniFrameSingleFileAuto>true</InfiniFrameSingleFileAuto>
-        <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
-    </PropertyGroup>
 </Project>

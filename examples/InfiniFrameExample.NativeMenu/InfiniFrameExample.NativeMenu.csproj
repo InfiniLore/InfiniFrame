@@ -28,4 +28,12 @@
     </ItemGroup>
 
     <Import Project="../../InfiniFrame.NativeCopy.targets" />
+
+    <ItemGroup>
+        <None Include="bin/$(Configuration)/$(TargetFramework)/**/publish/$(AssemblyName).exe;
+                       bin/$(Configuration)/$(TargetFramework)/**/publish/$(AssemblyName)"
+              Visible="true">
+            <Link>builds/$(Configuration)/$(TargetFramework)/%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </None>
+    </ItemGroup>
 </Project>

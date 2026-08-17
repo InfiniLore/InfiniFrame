@@ -8,6 +8,7 @@
         <IsPackable>false</IsPackable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <ApplicationIcon>../../../assets/favicon.ico</ApplicationIcon>
+        <PublishIISAssets>false</PublishIISAssets>
     </PropertyGroup>
 
     <ItemGroup>
@@ -19,6 +20,14 @@
             <Link>wwwroot/favicon.ico</Link>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="bin/$(Configuration)/$(TargetFramework)/**/publish/$(AssemblyName).exe;
+                       bin/$(Configuration)/$(TargetFramework)/**/publish/$(AssemblyName)"
+              Visible="true">
+            <Link>builds/$(Configuration)/$(TargetFramework)/%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </None>
     </ItemGroup>
 
     <Import Project="../../../InfiniFrame.NativeCopy.targets" />
