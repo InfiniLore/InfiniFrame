@@ -31,6 +31,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
 
         Show(false);
 
+        // Attach the menu bar to the widget tree after Show() has created the webview.
+        AttachMenuBar();
+
         m_impl->ConnectWebViewSignals(this);
 
         if (initParams->Transparent)

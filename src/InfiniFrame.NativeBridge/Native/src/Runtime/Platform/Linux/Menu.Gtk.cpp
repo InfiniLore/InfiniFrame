@@ -82,6 +82,9 @@ namespace {
 
             GtkWidget* menuItem = gtk_menu_item_new_with_label(label.c_str());
 
+            // Store the item ID as GObject data for later lookup in FindMenuItemWidget.
+            g_object_set_data_full(G_OBJECT(menuItem), "infiniframe-item-id", strdup(id.c_str()), g_free);
+
             if (type == 2) {
                 GtkWidget* subMenu = gtk_menu_new();
                 gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuItem), subMenu);
@@ -105,28 +108,20 @@ namespace {
         }
     }
 
-    GtkWidget* FindMenuItemWidget(GtkWidget* menuBar, const std::unordered_map<std::string, guint>& idToCommand, const char* menuItemId) {
-        auto it = idToCommand.find(menuItemId);
-        if (it == idToCommand.end())
-            return nullptr;
-
-        guint targetId = it->second;
-
+    GtkWidget* FindMenuItemWidget(GtkWidget* menuBar, const char* menuItemId) {
         GList* topItems = gtk_container_get_children(GTK_CONTAINER(menuBar));
         for (GList* t = topItems; t != nullptr; t = t->next) {
             GtkWidget* topItem = GTK_WIDGET(t->data);
-            GtkWidget* topChild = gtk_bin_get_child(GTK_BIN(topItem));
-            if (topChild == nullptr) continue;
 
-            GtkWidget* subMenu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(topChild));
+            GtkWidget* subMenu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(topItem));
             if (subMenu == nullptr) continue;
 
             GList* subItems = gtk_container_get_children(GTK_CONTAINER(subMenu));
             for (GList* s = subItems; s != nullptr; s = s->next) {
                 GtkWidget* subItem = GTK_WIDGET(s->data);
 
-                auto subIt = idToCommand.find(menuItemId);
-                if (subIt != idToCommand.end() && subIt->second == targetId) {
+                const char* itemId = static_cast<const char*>(g_object_get_data(G_OBJECT(subItem), "infiniframe-item-id"));
+                if (itemId != nullptr && strcmp(itemId, menuItemId) == 0) {
                     g_list_free(subItems);
                     g_list_free(topItems);
                     return subItem;
@@ -137,9 +132,8 @@ namespace {
                     GList* nestedItems = gtk_container_get_children(GTK_CONTAINER(nestedMenu));
                     for (GList* n = nestedItems; n != nullptr; n = n->next) {
                         GtkWidget* nestedItem = GTK_WIDGET(n->data);
-
-                        auto nestedIt = idToCommand.find(menuItemId);
-                        if (nestedIt != idToCommand.end() && nestedIt->second == targetId) {
+                        const char* nestedId = static_cast<const char*>(g_object_get_data(G_OBJECT(nestedItem), "infiniframe-item-id"));
+                        if (nestedId != nullptr && strcmp(nestedId, menuItemId) == 0) {
                             g_list_free(nestedItems);
                             g_list_free(subItems);
                             g_list_free(topItems);
@@ -194,15 +188,60 @@ void InfiniFrameWindow::ApplyInitMenuBar(const char* menuBarJson) {
         impl->_menuBar = menuBar;
         impl->_menuBarJson = menuBarJson;
 
-        GtkWidget* box = GTK_WIDGET(gtk_bin_get_child(GTK_BIN(impl->_window)));
-        gtk_box_pack_start(GTK_BOX(box), menuBar, FALSE, FALSE, 0);
-        gtk_widget_show_all(impl->_window);
+        // The menu bar is stored and will be attached when Show() is called.
+        // If Show() has already been called, we need to restructure the widget tree.
+        // For now, the menu bar is applied during Show() via AttachMenuBar().
     } catch (const simdjson::simdjson_error&) {
     }
 }
 
+void InfiniFrameWindow::AttachMenuBar() {
+    auto* impl = static_cast<Impl*>(ImplBase());
+
+    if (impl->_menuBar == nullptr)
+        return;
+
+    // If the window has no children yet, add the menu bar directly.
+    // If the window already has a child (the webview), we need to wrap
+    // everything in a GtkBox and restructure.
+    GList* children = gtk_container_get_children(GTK_CONTAINER(impl->_window));
+    guint childCount = g_list_length(children);
+    g_list_free(children);
+
+    if (childCount == 0) {
+        // Window is empty — add menu bar directly.
+        gtk_container_add(GTK_CONTAINER(impl->_window), impl->_menuBar);
+    } else {
+        // Window already has children (e.g., the webview).
+        // Create a GtkBox, reparent existing children, then add menu bar.
+        GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+        gtk_container_add(GTK_CONTAINER(impl->_window), box);
+
+        // Move existing children into the box.
+        children = gtk_container_get_children(GTK_CONTAINER(impl->_window));
+        for (GList* l = children; l != nullptr; l = l->next) {
+            GtkWidget* child = GTK_WIDGET(l->data);
+            if (child == box) continue; // Skip the box we just added.
+            gtk_container_remove(GTK_CONTAINER(impl->_window), child);
+            gtk_box_pack_start(GTK_BOX(box), child, TRUE, TRUE, 0);
+        }
+        g_list_free(children);
+
+        // Add menu bar at the top of the box.
+        gtk_box_pack_start(GTK_BOX(box), impl->_menuBar, FALSE, FALSE, 0);
+    }
+
+    gtk_widget_show_all(impl->_window);
+}
+
 void InfiniFrameWindow::SetMenuBarJson(const char* menuBarJson) {
     ApplyInitMenuBar(menuBarJson);
+
+    // If the window is already shown, restructure the widget tree.
+    auto* impl = static_cast<Impl*>(ImplBase());
+    if (impl->_webview != nullptr) {
+        AttachMenuBar();
+    }
 }
 
 void InfiniFrameWindow::SetMenuItemEnabledById(const char* menuItemId, const bool enabled) {
@@ -211,7 +250,7 @@ void InfiniFrameWindow::SetMenuItemEnabledById(const char* menuItemId, const boo
     if (impl->_menuBar == nullptr)
         return;
 
-    GtkWidget* widget = FindMenuItemWidget(impl->_menuBar, impl->_menuItemIdToCommandId, menuItemId);
+    GtkWidget* widget = FindMenuItemWidget(impl->_menuBar, menuItemId);
     if (widget != nullptr) {
         gtk_widget_set_sensitive(widget, enabled ? TRUE : FALSE);
     }
@@ -223,7 +262,7 @@ void InfiniFrameWindow::SetMenuItemVisibleById(const char* menuItemId, const boo
     if (impl->_menuBar == nullptr)
         return;
 
-    GtkWidget* widget = FindMenuItemWidget(impl->_menuBar, impl->_menuItemIdToCommandId, menuItemId);
+    GtkWidget* widget = FindMenuItemWidget(impl->_menuBar, menuItemId);
     if (widget != nullptr) {
         if (visible) {
             gtk_widget_show(widget);

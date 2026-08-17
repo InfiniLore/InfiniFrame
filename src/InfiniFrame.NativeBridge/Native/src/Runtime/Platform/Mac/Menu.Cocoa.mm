@@ -160,6 +160,10 @@ void InfiniFrameWindow::SetMenuBarJson(const char* menuBarJson) {
     ApplyInitMenuBar(menuBarJson);
 }
 
+void InfiniFrameWindow::AttachMenuBar() {
+    // No-op on macOS: ApplyInitMenuBar handles attachment directly.
+}
+
 void InfiniFrameWindow::SetMenuItemEnabledById(const char* menuItemId, bool enabled) {
     auto it = m_impl->_menuItemIdToTag.find(menuItemId);
     if (it == m_impl->_menuItemIdToTag.end())
