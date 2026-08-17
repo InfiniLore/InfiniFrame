@@ -1,0 +1,96 @@
+<Project>
+    <!--
+        InfiniFrame.Pack.targets
+
+        Static MSBuild targets for packaging InfiniFrame applications as single-file executables
+        with embedded native runtime libraries and web assets.
+
+        Usage (single invocation, no CLI tool needed):
+            dotnet publish -p:PublishSingleFile=true -p:InfiniFramePackEnabled=true -r win-x64 -c Release
+
+        The CLI tool (infiniframe-pack) is a convenience wrapper that sets these properties automatically.
+    -->
+
+    <!-- ==================================================================
+         Gate: Only activate when InfiniFramePackEnabled is explicitly set.
+         ================================================================== -->
+    <PropertyGroup Condition="'$(InfiniFramePackEnabled)' != 'true'">
+        <_InfiniFramePackActive>false</_InfiniFramePackActive>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(InfiniFramePackEnabled)' == 'true'">
+        <_InfiniFramePackActive>true</_InfiniFramePackActive>
+    </PropertyGroup>
+
+    <!-- ==================================================================
+         Define InfiniFramePack C# preprocessor symbol.
+         This enables #if InfiniFramePack code in InfiniFrameSingleFile.cs
+         and any other files that need pack-specific behavior.
+         ================================================================== -->
+    <PropertyGroup Condition="'$(_InfiniFramePackActive)' == 'true'">
+        <DefineConstants>$(DefineConstants);InfiniFramePack</DefineConstants>
+    </PropertyGroup>
+
+    <!-- ==================================================================
+         Embed wwwroot assets as embedded resources.
+         This runs at project load time (static ItemGroup) and works for
+         any project that has a wwwroot directory.
+         ================================================================== -->
+    <ItemGroup Condition="'$(_InfiniFramePackActive)' == 'true' and Exists('$(MSBuildProjectDirectory)/wwwroot')">
+        <_InfiniFramePackWwwroot Include="wwwroot/**/*" />
+        <_InfiniFramePackWwwroot Remove="@(EmbeddedResource)" />
+        <EmbeddedResource Include="@(_InfiniFramePackWwwroot)"
+                          LogicalName="$(AssemblyName).wwwroot.%(RecursiveDir)%(Filename)%(Extension)" />
+        <Content Remove="wwwroot/**/*" />
+        <None Remove="wwwroot/**/*" />
+    </ItemGroup>
+
+    <!-- ==================================================================
+         Discover and embed native runtime artifacts from ResolvedFileToPublish.
+         This target runs AFTER ComputeFilesToPublish populates the item group,
+         so we can scan for native files and convert them to embedded resources.
+         This eliminates the need for a preflight publish.
+         ================================================================== -->
+    <Target Name="InfiniFramePackEmbedNativeArtifacts"
+            AfterTargets="ComputeFilesToPublish"
+            BeforeTargets="GenerateSingleFileBundle"
+            Condition="'$(_InfiniFramePackActive)' == 'true'">
+
+        <!-- Discover native files from the resolved publish list -->
+        <ItemGroup>
+            <_InfiniFramePackNativeCandidate Include="@(ResolvedFileToPublish)"
+                Condition="%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension) == 'InfiniFrame.Native.dll'
+                           or %(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension) == 'WebView2Loader.dll'
+                           or %(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension) == 'InfiniFrame.Native.so'
+                           or %(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension) == 'InfiniFrame.Native.dylib'" />
+        </ItemGroup>
+
+        <!-- Convert discovered native files to embedded resources -->
+        <ItemGroup Condition="@(_InfiniFramePackNativeCandidate) != ''">
+            <EmbeddedResource Include="@(_InfiniFramePackNativeCandidate)"
+                              LogicalName="$(AssemblyName).native.$(RuntimeIdentifier).%(Filename)%(Extension)" />
+        </ItemGroup>
+
+        <!-- Remove native files from ResolvedFileToPublish so they are not
+             copied to output or bundled into the single-file package.
+             They are now embedded in the assembly as manifest resources. -->
+        <ItemGroup Condition="@(_InfiniFramePackNativeCandidate) != ''">
+            <ResolvedFileToPublish Remove="@(_InfiniFramePackNativeCandidate)" />
+        </ItemGroup>
+    </Target>
+
+    <!-- ==================================================================
+         Remove native files that leaked into the publish directory.
+         This handles edge cases where native files are copied after
+         the embed target runs (e.g., by other targets or SDK logic).
+         ================================================================== -->
+    <Target Name="InfiniFramePackCleanupPublishArtifacts"
+            AfterTargets="Publish"
+            Condition="'$(_InfiniFramePackActive)' == 'true'">
+        <Delete Files="$(PublishDir)/InfiniFrame.Native.dll" Condition="Exists('$(PublishDir)/InfiniFrame.Native.dll')" />
+        <Delete Files="$(PublishDir)/WebView2Loader.dll" Condition="Exists('$(PublishDir)/WebView2Loader.dll')" />
+        <Delete Files="$(PublishDir)/InfiniFrame.Native.so" Condition="Exists('$(PublishDir)/InfiniFrame.Native.so')" />
+        <Delete Files="$(PublishDir)/InfiniFrame.Native.dylib" Condition="Exists('$(PublishDir)/InfiniFrame.Native.dylib')" />
+    </Target>
+
+</Project>
