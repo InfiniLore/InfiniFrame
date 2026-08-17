@@ -7,25 +7,25 @@
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <UseAppHost>true</UseAppHost>
-        <ApplicationIcon>../../assets/favicon.ico</ApplicationIcon>
+        <ApplicationIcon>../../../assets/favicon.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../../src/InfiniFrame/InfiniFrame.csproj" />
+        <ProjectReference Include="../../../src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="wwwroot/**/*.*"
-                          LogicalName="$(AssemblyName).wwwroot.%(RecursiveDir)%(Filename)%(Extension)" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Content Include="../../assets/favicon.ico">
+        <Content Include="../../../assets/favicon.ico">
             <Link>wwwroot/favicon.ico</Link>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
 
-    <Import Project="../../InfiniFrame.NativeCopy.targets" />
+    <ItemGroup>
+        <Content Update="wwwroot/**">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <Import Project="../../../InfiniFrame.NativeCopy.targets" />
 </Project>

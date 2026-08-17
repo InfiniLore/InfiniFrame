@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InfiniFrame + Vue</title>
+    <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+    <div id="app">
+        <h1>{{ title }}</h1>
+        <p class="subtitle">Single-file executable with embedded Vue app</p>
+        <div class="card">
+            <button @click="count++">
+                Count: {{ count }}
+            </button>
+        </div>
+        <p class="info">
+            This Vue app runs from an embedded resource inside a single .exe file.
+        </p>
+    </div>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

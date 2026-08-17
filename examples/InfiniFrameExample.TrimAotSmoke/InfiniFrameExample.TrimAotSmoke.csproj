@@ -1,14 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <OutputType>Exe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <LangVersion>14.0</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
-
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <PublishAot>true</PublishAot>
         <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
         <UseAppHost>true</UseAppHost>
+        <ApplicationIcon>../../assets/favicon.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
@@ -19,4 +21,13 @@
         <EmbeddedResource Include="wwwroot/**/*.*"
                           LogicalName="$(AssemblyName).wwwroot.%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="../../assets/favicon.ico">
+            <Link>wwwroot/favicon.ico</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <Import Project="../../InfiniFrame.NativeCopy.targets" />
 </Project>

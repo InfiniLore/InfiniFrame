@@ -1,15 +1,19 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <OutputType>Exe</OutputType>
+        <LangVersion>14.0</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <ApplicationIcon>../../../assets/favicon.ico</ApplicationIcon>
     </PropertyGroup>
-    
+
     <ItemGroup>
-        <ProjectReference Include="../../src/InfiniFrame.Blazor/InfiniFrame.Blazor.csproj" />
-        <ProjectReference Include="../../src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj" />
-        <ProjectReference Include="..\..\src\InfiniFrame.BlazorWebView\InfiniFrame.BlazorWebView.csproj" />
+        <ProjectReference Include="../../../src/InfiniFrame.Blazor/InfiniFrame.Blazor.csproj" />
+        <ProjectReference Include="../../../src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj" />
+        <ProjectReference Include="../../../src/InfiniFrame.BlazorWebView/InfiniFrame.BlazorWebView.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -25,6 +29,7 @@
         <PackageReference Include="Serilog.Sinks.Async"/>
         <PackageReference Include="Serilog.Sinks.Console"/>
     </ItemGroup>
+
     <ItemGroup>
         <None Include="bin/$(Configuration)/$(TargetFramework)/**/publish/$(AssemblyName).exe;
                        bin/$(Configuration)/$(TargetFramework)/**/publish/$(AssemblyName)"
@@ -34,4 +39,12 @@
         <None Include="wwwroot\index.html" />
     </ItemGroup>
 
+    <Import Project="../../../InfiniFrame.NativeCopy.targets" />
+    <Import Project="../../../src/InfiniFrame.SingleFile/InfiniFrame.SingleFile.targets"
+            Condition="Exists('../../../src/InfiniFrame.SingleFile/InfiniFrame.SingleFile.targets')" />
+
+    <PropertyGroup>
+        <InfiniFrameSingleFileAuto>true</InfiniFrameSingleFileAuto>
+        <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
+    </PropertyGroup>
 </Project>

@@ -1,28 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
     <PropertyGroup>
-        <FrontendDirectory>$(MSBuildProjectDirectory)/Source/InfiniFrame.Vue</FrontendDirectory>
+        <TargetFramework>net10.0</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <LangVersion>14.0</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <ApplicationIcon>../../../assets/favicon.ico</ApplicationIcon>
+        <FrontendDirectory>$(MSBuildProjectDirectory)/Source/InfiniFrame.React</FrontendDirectory>
         <FrontendLockFile>$(FrontendDirectory)/package-lock.json</FrontendLockFile>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../../src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj" />
-        <ProjectReference Include="../../src/InfiniFrame/InfiniFrame.csproj" />
+        <ProjectReference Include="../../../src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj" />
+        <ProjectReference Include="../../../src/InfiniFrame/InfiniFrame.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <Content Update="wwwroot/**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Source/" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="wwwroot\assets\index-BCm1kFHf.js" />
-      <_ContentIncludedByDefault Remove="wwwroot\assets\index-D-FX-CIJ.css" />
     </ItemGroup>
 
     <Target Name="BuildFrontend" BeforeTargets="Build">
@@ -34,7 +32,8 @@
               Command="npm install --include=dev"
               WorkingDirectory="$(FrontendDirectory)" />
         <Message Text="Building frontend with npm..." Importance="high" />
-        <Exec Command="npm run vue.build" WorkingDirectory="$(FrontendDirectory)" />
+        <Exec Command="npm run react.build" WorkingDirectory="$(FrontendDirectory)" />
     </Target>
 
+    <Import Project="../../../InfiniFrame.NativeCopy.targets" />
 </Project>
