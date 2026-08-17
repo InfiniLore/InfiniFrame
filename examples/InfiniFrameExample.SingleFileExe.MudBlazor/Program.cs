@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
 using InfiniFrame.SingleFile;
@@ -7,11 +9,13 @@ using MudBlazor.Services;
 using Serilog;
 
 namespace InfiniFrameExample.SingleFileExe.MudBlazor;
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 public static class Program {
     [STAThread]
     private static void Main(string[] args) {
-        InfiniFrameSingleFile.InitializeBootstrap();
+        InfiniFrameSingleFile.Initialize();
         
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
@@ -40,7 +44,7 @@ public static class Program {
                 .SetIconFile("wwwroot/favicon.ico")
                 .RegisterOpenExternalTargetWebMessageHandler();
             
-            InfiniFrameSingleFile.AttachRequiredFunctionsForStaticWwwroot(appBuilder.WindowBuilder);
+            InfiniFrameSingleFile.AttachWithBlazor(appBuilder.WindowBuilder);
 
             Log.Information("Building InfiniFrame application...");
             InfiniFrameBlazorApp application = appBuilder.Build();

@@ -12,14 +12,14 @@ namespace InfiniFrameExample.SingleFileExe;
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
-        InfiniFrameSingleFile.InitializeBootstrap();
+        InfiniFrameSingleFile.Initialize();
 
         IInfiniFrameWindowBuilder builder = InfiniFrameWindowBuilder.Create()
             .SetTitle("InfiniFrame Embedded wwwroot")
             .SetSize(new Size(960, 640))
             .CenteredOnMainMonitor();
         
-        InfiniFrameSingleFile.AttachRequiredFunctionsForStaticWwwroot(builder);
+        InfiniFrameSingleFile.AttachWithStaticWwwroot(builder);
             
         IInfiniFrameWindow window = builder.Build();
 

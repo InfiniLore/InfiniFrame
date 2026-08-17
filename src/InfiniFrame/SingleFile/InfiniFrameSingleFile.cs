@@ -7,13 +7,13 @@ namespace InfiniFrame.SingleFile;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class InfiniFrameSingleFile {
-    public static void InitializeBootstrap() {
+    public static void Initialize() {
         #if InfiniFramePack
         InfiniFrameSingleFileBootstrap.Initialize();
         #endif
     }
     
-    public static void AttachRequiredFunctionsForStaticWwwroot(IInfiniFrameWindowBuilder builder) {
+    public static void AttachWithStaticWwwroot(IInfiniFrameWindowBuilder builder) {
         #if InfiniFramePack
         builder.UseEmbeddedWwwrootAssets(
             scheme: "app",
@@ -24,7 +24,7 @@ public static class InfiniFrameSingleFile {
         #endif
     }
     
-    public static void AttachRequiredFunctionsForBlazor(IInfiniFrameWindowBuilder builder) {
+    public static void AttachWithBlazor(IInfiniFrameWindowBuilder builder) {
         #if InfiniFramePack
         builder.UseEmbeddedWwwrootAssets(
             scheme: "app",
