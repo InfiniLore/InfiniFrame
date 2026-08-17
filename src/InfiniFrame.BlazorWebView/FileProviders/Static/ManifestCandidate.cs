@@ -7,5 +7,6 @@ namespace InfiniFrame.BlazorWebView.FileProviders.Static;
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed record ManifestCandidate(
     string ManifestPath,
-    int BaseScore
+    int BaseScore,
+    Stream? ResourceStream = null
 );

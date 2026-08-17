@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Reflection;
 using InfiniFrame.BlazorWebView.FileProviders.Static;
 using InfiniFrame.Security;
 using InfiniFrame.StaticAssets;
@@ -96,9 +97,14 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
         if (fileProvider is not null) return fileProvider;
 
         string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+        // Check if we're in single-file pack mode (embedded "publish.*" resources)
+        PackModeFileProvider? packModeProvider = PackModeFileProvider.TryCreate(baseDirectory);
+        if (packModeProvider is not null) return packModeProvider;
+
         var providers = new List<IFileProvider>();
 
-        IFileProvider? staticWebAssetsProvider = StaticWebAssetsRuntimeFileProvider.TryCreate(baseDirectory);
+        IFileProvider? staticWebAssetsProvider = StaticWebAssetsRuntimeFileProvider.TryCreate(baseDirectory, Assembly.GetEntryAssembly());
         if (staticWebAssetsProvider is not null) providers.Add(staticWebAssetsProvider);
 
         string defaultWwwrootPath = Path.Join(baseDirectory, "wwwroot");

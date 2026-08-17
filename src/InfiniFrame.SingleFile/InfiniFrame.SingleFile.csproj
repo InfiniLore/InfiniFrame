@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <!--suppress MsbuildTargetFrameworkTagInspection -->
+        <TargetFrameworks>net10.0</TargetFrameworks>
+        <OutputType>Exe</OutputType>
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>infiniframe-singlefile</ToolCommandName>
+        <PackageId>InfiniLore.InfiniFrame.SingleFile</PackageId>
+        <Description>Single-file packaging tool for InfiniFrame applications. Embeds all static web assets, native libraries, and framework files into a single executable.</Description>
+        <PackageTags>infiniframe;dotnet-tool;publish;single-file;blazor</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="System.CommandLine"/>
+    </ItemGroup>
+
+    <!-- Copy .targets to output so it's found at runtime (dotnet run) -->
+    <ItemGroup>
+        <None Include="InfiniFrame.SingleFile.targets" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <!-- Ship the .targets file with the NuGet package so consumers can use dotnet publish -t:InfiniFrameSingleFile -->
+    <ItemGroup>
+        <None Include="InfiniFrame.SingleFile.targets" Pack="true" PackagePath="build/InfiniLore.InfiniFrame.SingleFile.targets" />
+        <None Include="InfiniFrame.SingleFile.targets" Pack="true" PackagePath="buildTransitive/InfiniLore.InfiniFrame.SingleFile.targets" />
+    </ItemGroup>
+</Project>

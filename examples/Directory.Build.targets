@@ -1,4 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Project>
     <Import Project="$(MSBuildThisFileDirectory)../InfiniFrame.NativeCopy.targets" />
+    <Import Project="$(MSBuildThisFileDirectory)../src/InfiniFrame.SingleFile/InfiniFrame.SingleFile.targets"
+            Condition="Exists('$(MSBuildThisFileDirectory)../src/InfiniFrame.SingleFile/InfiniFrame.SingleFile.targets')" />
+
+    <!-- Auto-run single-file packaging after every publish -->
+    <PropertyGroup>
+        <InfiniFrameSingleFileAuto>true</InfiniFrameSingleFileAuto>
+        <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
+    </PropertyGroup>
 </Project>

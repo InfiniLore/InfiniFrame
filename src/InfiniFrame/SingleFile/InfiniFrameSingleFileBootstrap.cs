@@ -51,8 +51,16 @@ internal static class InfiniFrameSingleFileBootstrap {
 
             bool initialized = false;
             try {
+                string[] requiredFiles = GetNativeFileNamesForCurrentPlatform();
+                bool hasResources = requiredFiles.Any(fileName => {
+                    string resourceName = $"{entryAssembly.GetName().Name}.native.{rid}.{fileName}";
+                    return entryAssembly.GetManifestResourceStream(resourceName) is not null;
+                });
+
+                if (!hasResources) return;
+
                 Directory.CreateDirectory(_nativeDir);
-                ExtractEmbeddedNative(entryAssembly, rid, GetNativeFileNamesForCurrentPlatform());
+                ExtractEmbeddedNative(entryAssembly, rid, requiredFiles);
                 NativeLibrary.SetDllImportResolver(typeof(InfiniFrameNative).Assembly, ResolveNativeLibrary);
 
                 AppDomain.CurrentDomain.ProcessExit += (_, _) => TryCleanupNativeDirectory();
@@ -107,15 +115,10 @@ internal static class InfiniFrameSingleFileBootstrap {
     }
 
     private static void ExtractEmbeddedNative(Assembly assembly, string rid, IReadOnlyCollection<string> fileNames) {
-        var missingResources = new List<string>();
-
         foreach (string fileName in fileNames) {
             string resourceName = $"{assembly.GetName().Name}.native.{rid}.{fileName}";
             using Stream? resourceStream = assembly.GetManifestResourceStream(resourceName);
-            if (resourceStream is null) {
-                missingResources.Add(resourceName);
-                continue;
-            }
+            if (resourceStream is null) continue;
 
             string destinationPath = Path.Join(_nativeDir!, fileName);
 
@@ -124,13 +127,6 @@ internal static class InfiniFrameSingleFileBootstrap {
 
             using var destination = new FileStream(destinationPath, FileMode.CreateNew, FileAccess.Write, FileShare.Read);
             resourceStream.CopyTo(destination);
-        }
-
-        if (missingResources.Count > 0) {
-            throw new InvalidOperationException(
-                $"InfiniFrame bootstrap failed. Missing embedded native resources for RID '{rid}': " +
-                string.Join(", ", missingResources)
-            );
         }
     }
 

@@ -13,7 +13,7 @@ namespace InfiniFrame.BlazorWebView.FileProviders.Static;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, string[] contentRoots, StaticWebAssetNode root) : IFileProvider {
+internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, string[] contentRoots, StaticWebAssetNode root, Assembly? embeddedAssembly = null) : IFileProvider {
     private const RegexOptions PatternRegexOptions = RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase;
     private readonly ConcurrentDictionary<string, Regex> _patternRegexCache = new(StringComparer.Ordinal);
 
@@ -31,9 +31,9 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, s
                 }
             }
 
-            return Directory.Exists(normalizedRoot)
-                ? (IFileProvider)new PhysicalFileProvider(normalizedRoot)
-                : new NullFileProvider();
+            if (Directory.Exists(normalizedRoot)) return (IFileProvider)new PhysicalFileProvider(normalizedRoot);
+            if (embeddedAssembly is not null) return (IFileProvider)new EmbeddedFileProvider(embeddedAssembly, "publish");
+            return new NullFileProvider();
         })
         .ToArray();
 
@@ -122,15 +122,17 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, s
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    public static IFileProvider? TryCreate(string baseDirectory) {
+    public static IFileProvider? TryCreate(string baseDirectory, Assembly? embeddedAssembly = null) {
         if (string.IsNullOrWhiteSpace(baseDirectory)) return null;
 
-        ManifestCandidate[] candidates = GetManifestCandidates(baseDirectory).ToArray();
+        ManifestCandidate[] candidates = GetManifestCandidates(baseDirectory)
+            .Concat(GetManifestCandidatesFromResources(embeddedAssembly))
+            .ToArray();
         if (candidates.Length == 0) return null;
 
         ScoredManifestCandidate? bestCandidate = null;
         foreach (ManifestCandidate candidate in candidates) {
-            if (!TryLoadManifest(candidate.ManifestPath, out StaticWebAssetManifest? manifest)) continue;
+            if (!TryLoadManifest(candidate.ManifestPath, candidate.ResourceStream, out StaticWebAssetManifest? manifest)) continue;
             if (manifest?.ContentRoots is null || manifest.ContentRoots.Length == 0 || manifest.Root is null) continue;
 
             int score = candidate.BaseScore;
@@ -155,7 +157,7 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, s
                     : Path.GetFullPath(Path.Join(baseDirectory, contentRoot)))
                 .ToArray();
 
-            return new StaticWebAssetsRuntimeFileProvider(baseDirectory, contentRoots, bestCandidate.Manifest.Root!);
+            return new StaticWebAssetsRuntimeFileProvider(baseDirectory, contentRoots, bestCandidate.Manifest.Root!, embeddedAssembly);
         }
         catch (ArgumentException) {
             return null;
@@ -205,15 +207,77 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, s
         }
     }
 
-    private static bool TryLoadManifest(string manifestPath, out StaticWebAssetManifest? manifest) {
+    private static bool TryLoadManifest(string manifestPath, Stream? resourceStream, out StaticWebAssetManifest? manifest) {
         manifest = null;
         try {
-            string json = File.ReadAllText(manifestPath);
+            string json;
+            if (resourceStream is not null) {
+                using var reader = new StreamReader(resourceStream);
+                json = reader.ReadToEnd();
+            }
+            else {
+                json = File.ReadAllText(manifestPath);
+            }
+
             manifest = JsonSerializer.Deserialize(json, StaticWebAssetsManifestJsonContext.Default.StaticWebAssetManifest);
             return manifest is not null;
         }
         catch {
             return false;
+        }
+    }
+
+    private static IEnumerable<ManifestCandidate> GetManifestCandidatesFromResources(Assembly? embeddedAssembly) {
+        if (embeddedAssembly is null) yield break;
+
+        string? entryAssemblyName = Assembly.GetEntryAssembly()?.GetName().Name;
+        string friendlyName = Path.GetFileNameWithoutExtension(AppDomain.CurrentDomain.FriendlyName);
+        string? processName = Environment.ProcessPath is { Length: > 0 }
+            ? Path.GetFileNameWithoutExtension(Environment.ProcessPath)
+            : null;
+
+        string[] resourceNames;
+        try {
+            resourceNames = embeddedAssembly.GetManifestResourceNames();
+        }
+        catch {
+            yield break;
+        }
+
+        foreach (string resourceName in resourceNames) {
+            if (!resourceName.EndsWith(".staticwebassets.runtime.json", StringComparison.OrdinalIgnoreCase)) continue;
+
+            // Match disk behavior: strip ".staticwebassets.runtime.json" suffix to get the manifest name
+            string manifestName = resourceName[..^".staticwebassets.runtime.json".Length];
+
+            int baseScore = 0;
+
+            if (!string.IsNullOrWhiteSpace(entryAssemblyName)
+                && string.Equals(manifestName, entryAssemblyName, StringComparison.OrdinalIgnoreCase)) {
+                baseScore += 1000;
+            }
+
+            if (!string.IsNullOrWhiteSpace(friendlyName)
+                && string.Equals(manifestName, friendlyName, StringComparison.OrdinalIgnoreCase)) {
+                baseScore += 500;
+            }
+
+            if (!string.IsNullOrWhiteSpace(processName)
+                && string.Equals(manifestName, processName, StringComparison.OrdinalIgnoreCase)) {
+                baseScore += 250;
+            }
+
+            Stream? stream = null;
+            try {
+                stream = embeddedAssembly.GetManifestResourceStream(resourceName);
+            }
+            catch {
+                // Skip resources that can't be opened
+            }
+
+            if (stream is not null) {
+                yield return new ManifestCandidate(resourceName, baseScore, stream);
+            }
         }
     }
 
