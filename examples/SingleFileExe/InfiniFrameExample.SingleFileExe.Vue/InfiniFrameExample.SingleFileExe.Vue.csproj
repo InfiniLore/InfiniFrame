@@ -21,10 +21,10 @@
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
-
+ 
     <ItemGroup>
-        <None Include="bin/$(Configuration)/$(TargetFramework)/**/publish/$(AssemblyName).exe;
-                       bin/$(Configuration)/$(TargetFramework)/**/publish/$(AssemblyName)"
+        <None Include="bin/Release/$(TargetFramework)/**/publish/$(AssemblyName).exe;
+                       bin/Release/$(TargetFramework)/**/publish/$(AssemblyName)"
               Visible="true">
             <Link>builds/$(Configuration)/$(TargetFramework)/%(RecursiveDir)%(Filename)%(Extension)</Link>
         </None>
