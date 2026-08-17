@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using System.Drawing;
+using InfiniFrame.SingleFile;
 
 namespace InfiniFrameExample.SingleFileExe;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -11,19 +12,16 @@ namespace InfiniFrameExample.SingleFileExe;
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
-        InfiniFrameSingleFileBootstrap.Initialize();
+        InfiniFrameSingleFile.InitializeBootstrap();
 
-        IInfiniFrameWindow window = InfiniFrameWindowBuilder.Create()
+        IInfiniFrameWindowBuilder builder = InfiniFrameWindowBuilder.Create()
             .SetTitle("InfiniFrame Embedded wwwroot")
             .SetSize(new Size(960, 640))
-            .CenteredOnMainMonitor()
-            .UseEmbeddedWwwrootAssets(
-                scheme: "app",
-                includePhysicalFallback: true,
-                physicalWwwrootPath: Path.Join(AppContext.BaseDirectory, "wwwroot"),
-                setStartUrl: true
-            )
-            .Build();
+            .CenteredOnMainMonitor();
+        
+        InfiniFrameSingleFile.AttachRequiredFunctionsForStaticWwwroot(builder);
+            
+        IInfiniFrameWindow window = builder.Build();
 
         window.WaitForClose();
     }

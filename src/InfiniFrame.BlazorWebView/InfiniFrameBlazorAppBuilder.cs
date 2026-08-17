@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
+using System.Reflection;
 
 namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -98,9 +99,6 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
         string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         var providers = new List<IFileProvider>();
 
-        IFileProvider? staticWebAssetsProvider = StaticWebAssetsRuntimeFileProvider.TryCreate(baseDirectory);
-        if (staticWebAssetsProvider is not null) providers.Add(staticWebAssetsProvider);
-
         string defaultWwwrootPath = Path.Join(baseDirectory, "wwwroot");
         bool hasPhysicalWwwroot = Directory.Exists(defaultWwwrootPath);
         PhysicalFileProvider? physicalWwwrootProvider = hasPhysicalWwwroot
@@ -108,12 +106,44 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
             : null;
         if (physicalWwwrootProvider is not null) providers.Add(physicalWwwrootProvider);
 
-        return providers.Count switch {
-            0 => new NullFileProvider(),
-            1 => providers[0],
-            _ => new DisposableCompositeFileProvider(providers, physicalWwwrootProvider!)
-        };
+        IFileProvider? staticWebAssetsProvider = StaticWebAssetsRuntimeFileProvider.TryCreate(baseDirectory);
+        if (staticWebAssetsProvider is not null) providers.Add(staticWebAssetsProvider);
 
+        // Diagnostic: dump extraction directory info
+        try {
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"BaseDirectory: {baseDirectory}");
+            sb.AppendLine($"wwwroot exists: {hasPhysicalWwwroot}");
+            if (hasPhysicalWwwroot) {
+                sb.AppendLine("wwwroot contents:");
+                foreach (string f in Directory.GetFiles(defaultWwwrootPath, "*", SearchOption.AllDirectories))
+                    sb.AppendLine($"  {f}");
+            }
+            sb.AppendLine($"BaseDirectory contents:");
+            foreach (string e in Directory.GetFileSystemEntries(baseDirectory))
+                sb.AppendLine($"  {e}");
+            sb.AppendLine($"Embedded resources in assembly:");
+            Assembly asm = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+            foreach (string name in asm.GetManifestResourceNames())
+                sb.AppendLine($"  {name}");
+            File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "infiniframe-fileprovider-diag.txt"), sb.ToString());
+        } catch (Exception ex) {
+            try { File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "infiniframe-fileprovider-diag.txt"), ex.ToString()); } catch { }
+            try { File.WriteAllText("C:\\temp\\infiniframe-diag.txt", ex.ToString()); } catch { }
+        }
+
+        Assembly entryAssembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+        string? assemblyName = entryAssembly.GetName().Name;
+        if (!string.IsNullOrWhiteSpace(assemblyName)) {
+            var embeddedProvider = new EmbeddedFileProvider(entryAssembly, $"{assemblyName}.wwwroot");
+            providers.Add(embeddedProvider);
+        }
+
+        if (providers.Count == 0) return new NullFileProvider();
+        if (providers.Count == 1) return providers[0];
+        return physicalWwwrootProvider is not null
+            ? new DisposableCompositeFileProvider(providers, physicalWwwrootProvider)
+            : new CompositeFileProvider(providers);
     }
 
     public InfiniFrameBlazorAppBuilder WithInfiniFrameWindowBuilder(Action<IInfiniFrameWindowBuilder> windowBuilder) {

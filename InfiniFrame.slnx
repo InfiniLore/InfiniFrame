@@ -108,6 +108,7 @@
     <File Path="examples/Directory.Build.props" />
     <Project Path="examples/InfiniFrameExample.BlazorWebView/InfiniFrameExample.BlazorWebView.csproj" />
     <Project Path="examples/InfiniFrameExample.NativeMenu/InfiniFrameExample.NativeMenu.csproj" />
+    <Project Path="examples/InfiniFrameExample.SingleFileExe.MudBlazor/InfiniFrameExample.SingleFileExe.MudBlazor.csproj" />
     <Project Path="examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj" />
     <Project Path="examples/InfiniFrameExample.TrimAotSmoke/InfiniFrameExample.TrimAotSmoke.csproj" />
     <Project Path="examples/InfiniFrameExample.WebApp.Blazor/InfiniFrameExample.WebApp.Blazor.csproj" />

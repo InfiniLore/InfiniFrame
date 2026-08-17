@@ -1,0 +1,49 @@
+﻿@page "/counter"
+@using global::MudBlazor
+@inject IInfiniFrameWindow Window
+@inject ILogger<Counter> Logger
+
+<PageTitle>Counter</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+    <MudText Typo="Typo.h4" GutterBottom="true">Counter</MudText>
+
+    <MudText Typo="Typo.h2" Class="mb-4 font-bold">
+        @_currentCount
+    </MudText>
+
+    <MudStack Row="true" Spacing="2">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="IncrementCount">
+            Click me
+        </MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="ResetCount">
+            Reset
+        </MudButton>
+    </MudStack>
+
+    @if (_lastAction is not null)
+    {
+        <MudAlert Severity="Severity.Info" Class="mt-4" Variant="Variant.Filled">
+            @_lastAction
+        </MudAlert>
+    }
+</MudContainer>
+
+@code {
+    private int _currentCount;
+    private string? _lastAction;
+
+    private void IncrementCount()
+    {
+        _currentCount++;
+        Window.Features.Position.CenterOnCurrentMonitor();
+        Logger.LogWarning("Count: {Count}, Zoom enabled: {Zoom}", _currentCount, Window.Features.State.IsZoomEnabled);
+        _lastAction = $"Clicked {_currentCount} time(s). Window centered on monitor.";
+    }
+
+    private void ResetCount()
+    {
+        _currentCount = 0;
+        _lastAction = "Counter reset.";
+    }
+}

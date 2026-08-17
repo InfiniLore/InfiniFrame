@@ -79,7 +79,6 @@ internal sealed class TempTargetsFile : IDisposable {
 
           <Target Name="InfiniFramePackCleanupPublishArtifacts" AfterTargets="Publish"
                   Condition="'$(MSBuildProjectFullPath)' == '$(InfiniFramePackRootProject)'">
-            <RemoveDir Directories="$(PublishDir)/wwwroot" />
         {BuildDeleteItems()}
           </Target>
         </Project>

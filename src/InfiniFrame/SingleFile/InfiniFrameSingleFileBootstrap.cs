@@ -18,7 +18,7 @@ namespace InfiniFrame;
 ///     Call <see cref="Initialize" /> once at application startup (before creating a window) when using packaged
 ///     single-file/native outputs that embed <c>InfiniFrame.Native</c> and platform loader dependencies.
 /// </remarks>
-public static class InfiniFrameSingleFileBootstrap {
+internal static class InfiniFrameSingleFileBootstrap {
     private const string WebView2LoaderLibraryName = ArtifactManifest.WindowsLoaderLibraryName;
 
 #if NET9_0_OR_GREATER
