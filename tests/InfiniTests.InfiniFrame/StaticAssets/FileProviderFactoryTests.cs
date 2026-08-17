@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Reflection;
 using InfiniFrame.StaticAssets;
 using Microsoft.Extensions.FileProviders;
 
@@ -13,7 +14,7 @@ public class FileProviderFactoryTests {
     [Test]
     public async Task CreateWwwrootProvider_WithAssembly_ReturnsCompositeProvider(CancellationToken ct = default) {
         // Arrange
-        var assembly = typeof(FileProviderFactory).Assembly;
+        Assembly assembly = typeof(FileProviderFactory).Assembly;
 
         // Act
         IFileProvider provider = FileProviderFactory.CreateWwwrootProvider(
@@ -29,7 +30,7 @@ public class FileProviderFactoryTests {
     [Test]
     public async Task CreateWwwrootProvider_WithoutPhysicalFallback_ReturnsCompositeProvider(CancellationToken ct = default) {
         // Arrange
-        var assembly = typeof(FileProviderFactory).Assembly;
+        Assembly assembly = typeof(FileProviderFactory).Assembly;
 
         // Act
         IFileProvider provider = FileProviderFactory.CreateWwwrootProvider(
@@ -56,7 +57,7 @@ public class FileProviderFactoryTests {
     [Test]
     public async Task CreateWwwrootProvider_NonExistentPhysicalPath_ReturnsCompositeProvider(CancellationToken ct = default) {
         // Arrange
-        var assembly = typeof(FileProviderFactory).Assembly;
+        Assembly assembly = typeof(FileProviderFactory).Assembly;
         string nonExistentPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString(), "wwwroot");
 
         // Act

@@ -20,7 +20,7 @@ public class InfiniFrameBlazorAppRunAsyncTests {
         featuresMock.Lifecycle.Returns(lifecycleMock.Object);
         lifecycleMock.WaitForCloseAsync(ct).Returns(() => ValueTask.CompletedTask);
         ServiceProvider services = new ServiceCollection()
-            .AddSingleton<IInfiniFrameWindow>(windowMock.Object)
+            .AddSingleton(windowMock.Object)
             .AddSingleton<DisposeProbe>()
             .BuildServiceProvider();
         var disposeProbe = services.GetRequiredService<DisposeProbe>();

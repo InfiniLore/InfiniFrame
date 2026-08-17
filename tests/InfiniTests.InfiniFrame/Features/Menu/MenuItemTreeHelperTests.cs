@@ -20,7 +20,7 @@ public class MenuItemTreeHelperTests {
         );
 
         // Act
-        var result = MenuItemTreeHelper.UpdateItem(items, "edit", item => item with { Label = "Modified" });
+        ImmutableArray<InfiniFrameMenuItem> result = MenuItemTreeHelper.UpdateItem(items, "edit", item => item with { Label = "Modified" });
 
         // Assert
         await Assert.That(result[0].Label).IsEqualTo("File");
@@ -35,7 +35,7 @@ public class MenuItemTreeHelperTests {
         );
 
         // Act
-        var result = MenuItemTreeHelper.UpdateItem(items, "nonexistent", item => item with { Label = "Changed" });
+        ImmutableArray<InfiniFrameMenuItem> result = MenuItemTreeHelper.UpdateItem(items, "nonexistent", item => item with { Label = "Changed" });
 
         // Assert
         await Assert.That(result[0].Label).IsEqualTo("File");
@@ -57,7 +57,7 @@ public class MenuItemTreeHelperTests {
         );
 
         // Act
-        var result = MenuItemTreeHelper.UpdateItem(items, "item-b", item => item with { Label = "Modified B" });
+        ImmutableArray<InfiniFrameMenuItem> result = MenuItemTreeHelper.UpdateItem(items, "item-b", item => item with { Label = "Modified B" });
 
         // Assert
         await Assert.That(result[0].Children[1].Label).IsEqualTo("Modified B");
@@ -70,7 +70,7 @@ public class MenuItemTreeHelperTests {
         var items = ImmutableArray<InfiniFrameMenuItem>.Empty;
 
         // Act
-        var result = MenuItemTreeHelper.UpdateItem(items, "any", item => item with { Label = "Changed" });
+        ImmutableArray<InfiniFrameMenuItem> result = MenuItemTreeHelper.UpdateItem(items, "any", item => item with { Label = "Changed" });
 
         // Assert
         await Assert.That(result).IsEmpty();
@@ -84,7 +84,7 @@ public class MenuItemTreeHelperTests {
         );
 
         // Act
-        var result = MenuItemTreeHelper.UpdateItem(items, "a", item => item with { Label = "Changed" });
+        ImmutableArray<InfiniFrameMenuItem> result = MenuItemTreeHelper.UpdateItem(items, "a", item => item with { Label = "Changed" });
 
         // Assert
         await Assert.That(items[0].Label).IsEqualTo("Original");

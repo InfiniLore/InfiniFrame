@@ -100,7 +100,7 @@ public class PositionCalculationsTests {
         var workArea = new Rectangle(0, 0, 1920, 1080);
 
         // Act
-        (int left, int top) = PositionCalculations.ClampToMonitorArea(100, 100, 2000, 600, workArea);
+        (int left, int _) = PositionCalculations.ClampToMonitorArea(100, 100, 2000, 600, workArea);
 
         // Assert, clamped so right edge = 1920 => left = 1920 - 2000 = -80, but >= 0 so left = 0
         await Assert.That(left).IsEqualTo(0);
@@ -112,7 +112,7 @@ public class PositionCalculationsTests {
         var workArea = new Rectangle(0, 0, 1920, 1080);
 
         // Act
-        (int left, int top) = PositionCalculations.ClampToMonitorArea(100, 100, 800, 1200, workArea);
+        (int _, int top) = PositionCalculations.ClampToMonitorArea(100, 100, 800, 1200, workArea);
 
         // Assert, clamped so bottom edge = 1080 => top = 1080 - 1200 = -120, but >= 0 so top = 0
         await Assert.That(top).IsEqualTo(0);
@@ -163,7 +163,7 @@ public class PositionCalculationsTests {
         var workArea = new Rectangle(0, 0, 1920, 1080);
 
         // Act
-        (int left, int top) = PositionCalculations.ClampToMonitorArea(1120, 100, 800, 600, workArea);
+        (int left, int _) = PositionCalculations.ClampToMonitorArea(1120, 100, 800, 600, workArea);
 
         // Assert
         await Assert.That(left).IsEqualTo(1120);
@@ -175,7 +175,7 @@ public class PositionCalculationsTests {
         var workArea = new Rectangle(0, 0, 1920, 1080);
 
         // Act
-        (int left, int top) = PositionCalculations.ClampToMonitorArea(100, 480, 800, 600, workArea);
+        (int _, int top) = PositionCalculations.ClampToMonitorArea(100, 480, 800, 600, workArea);
 
         // Assert
         await Assert.That(top).IsEqualTo(480);

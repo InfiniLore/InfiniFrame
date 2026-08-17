@@ -1,11 +1,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Drawing;
 using InfiniFrame;
 using InfiniFrame.Utilities;
 
-namespace InfiniTests.InfiniFrame.Features.SizeCalc;
+namespace InfiniTests.InfiniFrame.Features.Size;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -69,10 +68,10 @@ public class SizeCalculationsTests {
     [Test]
     public async Task ClampResize_WidthExceedsMax_ClampsWidthAndResetsX(CancellationToken ct = default) {
         // Arrange & Act
-        (int x, int y, int w, int h) = SizeCalculations.ClampResize(
+        (int x, int _, int w, int _) = SizeCalculations.ClampResize(
             x: 50, y: 50, width: 2000, height: 600,
             originalX: 100, originalY: 100,
-            minSize: new Size(100, 100), maxSize: new Size(1920, 1080)
+            minSize: new System.Drawing.Size(100, 100), maxSize: new System.Drawing.Size(1920, 1080)
         );
 
         // Assert
@@ -83,10 +82,10 @@ public class SizeCalculationsTests {
     [Test]
     public async Task ClampResize_HeightExceedsMax_ClampsHeightAndResetsY(CancellationToken ct = default) {
         // Arrange & Act
-        (int x, int y, int w, int h) = SizeCalculations.ClampResize(
+        (int _, int y, int _, int h) = SizeCalculations.ClampResize(
             x: 50, y: 50, width: 800, height: 5000,
             originalX: 100, originalY: 100,
-            minSize: new Size(100, 100), maxSize: new Size(1920, 1080)
+            minSize: new System.Drawing.Size(100, 100), maxSize: new System.Drawing.Size(1920, 1080)
         );
 
         // Assert
@@ -97,10 +96,10 @@ public class SizeCalculationsTests {
     [Test]
     public async Task ClampResize_WidthBelowMin_ClampsWidthAndResetsX(CancellationToken ct = default) {
         // Arrange & Act
-        (int x, int y, int w, int h) = SizeCalculations.ClampResize(
+        (int x, int _, int w, int _) = SizeCalculations.ClampResize(
             x: 50, y: 50, width: 10, height: 600,
             originalX: 100, originalY: 100,
-            minSize: new Size(200, 200), maxSize: new Size(1920, 1080)
+            minSize: new System.Drawing.Size(200, 200), maxSize: new System.Drawing.Size(1920, 1080)
         );
 
         // Assert
@@ -111,10 +110,10 @@ public class SizeCalculationsTests {
     [Test]
     public async Task ClampResize_HeightBelowMin_ClampsHeightAndResetsY(CancellationToken ct = default) {
         // Arrange & Act
-        (int x, int y, int w, int h) = SizeCalculations.ClampResize(
+        (int _, int y, int _, int h) = SizeCalculations.ClampResize(
             x: 50, y: 50, width: 800, height: 10,
             originalX: 100, originalY: 100,
-            minSize: new Size(200, 200), maxSize: new Size(1920, 1080)
+            minSize: new System.Drawing.Size(200, 200), maxSize: new System.Drawing.Size(1920, 1080)
         );
 
         // Assert
@@ -128,7 +127,7 @@ public class SizeCalculationsTests {
         (int x, int y, int w, int h) = SizeCalculations.ClampResize(
             x: 50, y: 50, width: 800, height: 600,
             originalX: 100, originalY: 100,
-            minSize: new Size(100, 100), maxSize: new Size(1920, 1080)
+            minSize: new System.Drawing.Size(100, 100), maxSize: new System.Drawing.Size(1920, 1080)
         );
 
         // Assert
@@ -144,7 +143,7 @@ public class SizeCalculationsTests {
         (int x, int y, int w, int h) = SizeCalculations.ClampResize(
             x: 0, y: 0, width: 200, height: 200,
             originalX: 100, originalY: 100,
-            minSize: new Size(200, 200), maxSize: new Size(1920, 1080)
+            minSize: new System.Drawing.Size(200, 200), maxSize: new System.Drawing.Size(1920, 1080)
         );
 
         // Assert
@@ -160,7 +159,7 @@ public class SizeCalculationsTests {
         (int x, int y, int w, int h) = SizeCalculations.ClampResize(
             x: 0, y: 0, width: 1920, height: 1080,
             originalX: 100, originalY: 100,
-            minSize: new Size(100, 100), maxSize: new Size(1920, 1080)
+            minSize: new System.Drawing.Size(100, 100), maxSize: new System.Drawing.Size(1920, 1080)
         );
 
         // Assert
@@ -183,7 +182,7 @@ public class SizeCalculationsTests {
         // Act
         (x, y, w, h) = SizeCalculations.ClampResize(
             x, y, w, h, 100, 100,
-            new Size(100, 100), new Size(1920, 1080)
+            new System.Drawing.Size(100, 100), new System.Drawing.Size(1920, 1080)
         );
 
         // Assert
@@ -204,7 +203,7 @@ public class SizeCalculationsTests {
         // Act
         (x, y, w, h) = SizeCalculations.ClampResize(
             x, y, w, h, 100, 100,
-            new Size(100, 100), new Size(1920, 1080)
+            new System.Drawing.Size(100, 100), new System.Drawing.Size(1920, 1080)
         );
 
         // Assert, clamped to min (since w/h went negative), position reset to original

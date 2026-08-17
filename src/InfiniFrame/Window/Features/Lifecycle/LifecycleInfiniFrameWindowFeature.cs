@@ -77,9 +77,21 @@ public class LifecycleInfiniFrameWindowFeature(
             // runtime doesn't abort during shutdown over unreleased SafeHandles.
             ReleaseNativeCallbackRootOnce();
             ReleaseMilestoneRootOnce();
-            try { window.ReleaseNativeHandle(); } catch { /* best-effort during teardown race */ }
-            try { window.MarkNativeHandleReleased(); } catch { }
-            try { window.MarkDisposed(); } catch { }
+            try { window.ReleaseNativeHandle(); }
+            catch {
+                // ignored
+            }
+
+            try { window.MarkNativeHandleReleased(); }
+            catch {
+                // ignored
+            }
+
+            try { window.MarkDisposed(); }
+            catch {
+                // ignored
+            }
+
             return;
         }
 
@@ -95,6 +107,7 @@ public class LifecycleInfiniFrameWindowFeature(
 
     private void CleanupClosedHandleAndCallbacks(bool disposing) {
         if (Interlocked.Exchange(ref _cleanupCompleted, 1) != 0) return;
+
         try {
             window.ReleaseNativeHandle();
             window.MarkNativeHandleReleased();
@@ -151,10 +164,10 @@ public class LifecycleInfiniFrameWindowFeature(
                             $"Native registration failed with status {registerStatus}. Error #{lastError}. {nativeMessage}");
                     }
                 }
-                else if (OperatingSystem.IsLinux()) { }// No specific implementation for Linux
+                else if (OperatingSystem.IsLinux()) {}// No specific implementation for Linux
                 else throw new PlatformNotSupportedException();
 
-                using NativeHandleLease? parentLease = window.Configuration.ParentWindow is { } parent
+                using NativeHandleLease? parentLease = window.Configuration.ParentWindow is {} parent
                     ? parent.AcquireNativeHandle()
                     : null;
                 startupParameters.NativeParent = parentLease?.Handle ?? IntPtr.Zero;
@@ -343,6 +356,7 @@ public class LifecycleInfiniFrameWindowFeature(
         lock (_closeAttemptLock) {
             attempt = _closeAttempt?.Task ?? _closed.Task;
         }
+
         await attempt.WaitAsync(ct).ConfigureAwait(false);
     }
 
@@ -373,6 +387,7 @@ public class LifecycleInfiniFrameWindowFeature(
         lock (_closeAttemptLock) {
             attempt = _closeAttempt;
         }
+
         attempt?.TrySetException(new InfiniFrameCloseRejectedException());
         Volatile.Write(ref _closeRequestDispatched, 0);
     }
@@ -408,11 +423,13 @@ public class LifecycleInfiniFrameWindowFeature(
 
     private static void OnNativeReady(IntPtr context) {
         if (!TryGetLifecycle(context, out LifecycleInfiniFrameWindowFeature? lifecycle)) return;
+
         lifecycle.CompleteReady();
     }
 
     private static void OnNativeTeardown(IntPtr context) {
         if (!TryGetLifecycle(context, out LifecycleInfiniFrameWindowFeature? lifecycle)) return;
+
         // Complete outside the reverse P/Invoke so async disposal cannot release the
         // native instance while its teardown callback is still returning.
         ThreadPool.QueueUserWorkItem(static state => ((LifecycleInfiniFrameWindowFeature)state!).CompleteTeardown(), lifecycle);
@@ -432,15 +449,18 @@ public class LifecycleInfiniFrameWindowFeature(
 
     private void ReleaseMilestoneRootOnce() {
         if (Interlocked.Exchange(ref _milestoneRootReleased, 1) != 0) return;
+
         if (_milestoneRoot.IsAllocated) _milestoneRoot.Free();
     }
 
     private static bool TryGetLifecycle(
         IntPtr context,
-        [NotNullWhen(true)] out LifecycleInfiniFrameWindowFeature? lifecycle
+        [NotNullWhen(true)]
+        out LifecycleInfiniFrameWindowFeature? lifecycle
     ) {
         lifecycle = null;
         if (context == IntPtr.Zero) return false;
+
         try {
             lifecycle = GCHandle.FromIntPtr(context).Target as LifecycleInfiniFrameWindowFeature;
             return lifecycle is not null;

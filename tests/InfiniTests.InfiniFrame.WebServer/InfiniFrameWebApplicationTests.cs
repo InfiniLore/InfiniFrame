@@ -63,7 +63,7 @@ public class InfiniFrameWebApplicationTests {
         mockWindowBuilder.EventsStore.Returns(mockBuilderEventsStore);
 
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
-        webAppBuilder.Services.AddSingleton<IInfiniFrameWindowBuilder>(mockWindowBuilder.Object);
+        webAppBuilder.Services.AddSingleton(mockWindowBuilder.Object);
 
         WebApplication webApp = webAppBuilder.Build();
         var lazyWindow = new Lazy<IInfiniFrameWindow>(() => CreateMockWindow().Object);

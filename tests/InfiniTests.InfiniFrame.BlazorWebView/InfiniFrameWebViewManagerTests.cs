@@ -83,7 +83,7 @@ public class InfiniFrameWebViewManagerTests {
 
         await using ServiceProvider provider = new ServiceCollection()
             .AddLogging()
-            .AddSingleton<IInfiniFrameWindow>(windowMock.Object)
+            .AddSingleton(windowMock.Object)
             .BuildServiceProvider();
 
         Dispatcher dispatcher = MockFactory.CreateDispatcherMock().Object;
@@ -133,7 +133,7 @@ public class InfiniFrameWebViewManagerTests {
 
         await using ServiceProvider provider = new ServiceCollection()
             .AddLogging()
-            .AddSingleton<IInfiniFrameWindow>(windowMock.Object)
+            .AddSingleton(windowMock.Object)
             .BuildServiceProvider();
 
         var manager = new TestableInfiniFrameWebViewManager(
@@ -174,7 +174,7 @@ public class InfiniFrameWebViewManagerTests {
         featuresMock.WebMessaging.Returns(webMessagingMock.Object);
         ValueTask backpressureReturnValue = default;
         webMessagingMock.SendWebMessageAsync(Any<string>(), Any<CancellationToken>())
-            .Callback((string message, CancellationToken _) => {
+            .Callback((message, _) => {
                 sentMessages.Add(message);
                 if (message == "first") firstStarted.TrySetResult(true);
                 if (message == "second") secondDelivered.TrySetResult(true);
@@ -182,7 +182,7 @@ public class InfiniFrameWebViewManagerTests {
 
         await using ServiceProvider provider = new ServiceCollection()
             .AddLogging()
-            .AddSingleton<IInfiniFrameWindow>(windowMock.Object)
+            .AddSingleton(windowMock.Object)
             .BuildServiceProvider();
         TestableInfiniFrameWebViewManager manager = CreateManager(provider, new InfiniFrameBlazorAppConfiguration {
             WebMessageQueueCapacity = 1,
@@ -216,7 +216,7 @@ public class InfiniFrameWebViewManagerTests {
 
         await using ServiceProvider provider = new ServiceCollection()
             .AddLogging()
-            .AddSingleton<IInfiniFrameWindow>(windowMock.Object)
+            .AddSingleton(windowMock.Object)
             .BuildServiceProvider();
         TestableInfiniFrameWebViewManager manager = CreateManager(provider);
         manager.SendMessageForTest("pending");
@@ -245,7 +245,7 @@ public class InfiniFrameWebViewManagerTests {
 
         await using ServiceProvider provider = new ServiceCollection()
             .AddLogging()
-            .AddSingleton<IInfiniFrameWindow>(windowMock.Object)
+            .AddSingleton(windowMock.Object)
             .BuildServiceProvider();
         TestableInfiniFrameWebViewManager manager = CreateManager(provider, new InfiniFrameBlazorAppConfiguration { WebMessageQueueCapacity = 8 });
 
@@ -279,43 +279,6 @@ public class InfiniFrameWebViewManagerTests {
         new NullFileProvider(),
         new JSComponentConfigurationStore(),
         Options.Create(configuration ?? new InfiniFrameBlazorAppConfiguration()));
-
-    private static async Task WaitForCancellationAsync(
-        TaskCompletionSource<bool> stopped
-    ) {
-        try {
-            await Task.Delay(Timeout.InfiniteTimeSpan);
-        }
-        finally {
-            stopped.TrySetResult(true);
-        }
-    }
-
-    private static async Task WaitForCancellationAsync(
-        TaskCompletionSource<bool> started,
-        TaskCompletionSource<bool> stopped
-    ) {
-        started.TrySetResult(true);
-        try {
-            await Task.Delay(Timeout.InfiniteTimeSpan);
-        }
-        finally {
-            stopped.TrySetResult(true);
-        }
-    }
-
-    private static async Task WaitForSemaphoreCancellationAsync(
-        SemaphoreSlim started,
-        TaskCompletionSource<bool> stopped
-    ) {
-        started.Release();
-        try {
-            await Task.Delay(Timeout.InfiniteTimeSpan);
-        }
-        finally {
-            stopped.TrySetResult(true);
-        }
-    }
 
     private sealed class TestableInfiniFrameWebViewManager(
         IInfiniFrameWindowBuilder builder,

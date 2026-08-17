@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Text.Json;
 using InfiniFrame;
@@ -9,6 +10,7 @@ namespace InfiniTests.InfiniFrame.WebMessaging;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+[SuppressMessage("ReSharper", "AccessToDisposedClosure")]
 public class WindowFeatureDrawingJsonConverterTests {
 
     private static JsonSerializerOptions CreateOptions() {
@@ -147,7 +149,7 @@ public class WindowFeatureDrawingJsonConverterTests {
     [Test]
     public async Task RequiredInt_NonObjectValue_ThrowsJsonException(CancellationToken ct = default) {
         // Arrange
-        string json = """42""";
+        const string json = "42";
         using JsonDocument doc = JsonDocument.Parse(json);
 
         // Act & Assert
@@ -158,7 +160,7 @@ public class WindowFeatureDrawingJsonConverterTests {
     [Test]
     public async Task RequiredInt_MissingProperty_ThrowsJsonException(CancellationToken ct = default) {
         // Arrange
-        string json = """{"y": 10}""";
+        const string json = """{"y": 10}""";
         using JsonDocument doc = JsonDocument.Parse(json);
 
         // Act & Assert
@@ -169,7 +171,7 @@ public class WindowFeatureDrawingJsonConverterTests {
     [Test]
     public async Task RequiredInt_NonIntegerValue_ThrowsJsonException(CancellationToken ct = default) {
         // Arrange
-        string json = """{"x": "hello"}""";
+        const string json = """{"x": "hello"}""";
         using JsonDocument doc = JsonDocument.Parse(json);
 
         // Act & Assert

@@ -7,7 +7,7 @@ namespace InfiniFrame.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
 ///     Pure logic for resolving asset paths from URLs and determining MIME types.
-///     Extracted from <see cref="StaticAssetSchemeHandler"/> for testability.
+///     Extracted from <see cref="InfiniFrame.StaticAssets.StaticAssetSchemeHandler"/> for testability.
 /// </summary>
 public static class AssetPathResolver {
 

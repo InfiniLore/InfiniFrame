@@ -1,8 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using TUnit.Mocks;
-
 namespace InfiniTests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -36,7 +34,7 @@ public static class MockFactory
     public static Mock<Microsoft.AspNetCore.Components.Dispatcher> CreateDispatcherMock() => Mock.Of<Microsoft.AspNetCore.Components.Dispatcher>();
     public static Mock<InfiniFrame.BlazorWebView.IInfiniFrameWebViewManager> CreateWebViewManagerMock() => Mock.Of<InfiniFrame.BlazorWebView.IInfiniFrameWebViewManager>();
     public static Mock<InfiniFrame.NativeBridge.Delegates.CppReleaseCustomSchemeResponseDelegate> CreateReleaseDelegateMock() => Mock.Of<InfiniFrame.NativeBridge.Delegates.CppReleaseCustomSchemeResponseDelegate>();
-    public static Mock<System.IServiceProvider> CreateServiceProviderMock() => Mock.Of<System.IServiceProvider>();
-    public static Mock<System.IDisposable> CreateDisposableMock() => Mock.Of<System.IDisposable>();
+    public static Mock<IServiceProvider> CreateServiceProviderMock() => Mock.Of<IServiceProvider>();
+    public static Mock<IDisposable> CreateDisposableMock() => Mock.Of<IDisposable>();
     public static Mock<FluentValidation.IValidator<InfiniFrame.NativeBridge.Parameters.InfiniFrameNativeParameters>> CreateValidatorMock() => Mock.Of<FluentValidation.IValidator<InfiniFrame.NativeBridge.Parameters.InfiniFrameNativeParameters>>();
 }

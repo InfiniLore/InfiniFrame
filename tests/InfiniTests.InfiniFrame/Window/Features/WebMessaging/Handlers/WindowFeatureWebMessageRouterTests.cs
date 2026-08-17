@@ -4,7 +4,6 @@
 using System.Diagnostics.CodeAnalysis;
 using InfiniFrame;
 using InfiniFrame.Debugging;
-using InfiniFrame.NativeBridge.Dialogs;
 using System.Drawing;
 using System.Text.Json;
 
@@ -100,8 +99,6 @@ public class WindowFeatureWebMessageRouterTests {
     [Test]
     public async Task StatePost_SetsBothCachedBoundsFromRectangleArguments() {
         (IInfiniFrameWindow window, Mock<IStateInfiniFrameWindowFeature> state) = CreateStateWindow();
-        var fullScreenBounds = new Rectangle(1, 2, 800, 600);
-        var maximizedBounds = new Rectangle(3, 4, 1024, 768);
 
         WindowFeatureWebMessageRouter.Post(window, "state", "setCachedPreFullScreenBounds", Args("""{"bounds":{"x":1,"y":2,"width":800,"height":600}}"""));
         WindowFeatureWebMessageRouter.Post(window, "state", "setCachedPreMaximizedBounds", Args("""{"bounds":{"x":3,"y":4,"width":1024,"height":768}}"""));
@@ -146,10 +143,8 @@ public class WindowFeatureWebMessageRouterTests {
         features.Notifications.Returns(notifications.Object);
         features.Size.Returns(size.Object);
 
-        var expectedFilters = new[] { ("Text", new[] { "txt", "md" }) };
-
-        object? openResult = WindowFeatureWebMessageRouter.Get(window.Object, "filePickerDialogs", "showOpenFile", Args("""{"title":"Open","defaultPath":null,"multiSelect":true,"filters":[{"name":"Text","extensions":["txt","md"]}]}"""));
-        object? showMessageResult = WindowFeatureWebMessageRouter.Get(window.Object, "notifications", "showMessage", Args("""{"title":"Question","text":null,"buttons":"yesNo","icon":"question"}"""));
+        object openResult = WindowFeatureWebMessageRouter.Get(window.Object, "filePickerDialogs", "showOpenFile", Args("""{"title":"Open","defaultPath":null,"multiSelect":true,"filters":[{"name":"Text","extensions":["txt","md"]}]}"""));
+        object showMessageResult = WindowFeatureWebMessageRouter.Get(window.Object, "notifications", "showMessage", Args("""{"title":"Question","text":null,"buttons":"yesNo","icon":"question"}"""));
         WindowFeatureWebMessageRouter.Post(window.Object, "size", "resize", Args("""{"widthOffset":10,"heightOffset":20,"origin":"bottomRight"}"""));
 
         await Assert.That(openResult).IsNotNull();

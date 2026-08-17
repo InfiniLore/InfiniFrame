@@ -282,5 +282,5 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     }
 
     private static string GetFallbackContentType(string localPath)
-        => InfiniFrame.Utilities.AssetPathResolver.GetContentType(localPath);
+        => AssetPathResolver.GetContentType(localPath);
 }

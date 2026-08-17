@@ -45,7 +45,7 @@ public class InfiniFrameWindowBuilderConfigurationTests {
         config.ApplyToNativeParameters(ref parameters);
 
         // Assert
-        await Assert.That(parameters.Equals(parameters)).IsTrue();
+        await Assert.That(parameters).IsEquivalentTo(parameters);
     }
 
     [Test]

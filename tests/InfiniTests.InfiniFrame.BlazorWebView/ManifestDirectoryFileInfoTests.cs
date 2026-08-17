@@ -50,6 +50,7 @@ public class ManifestDirectoryContentsTests {
     [Test]
     public async Task Exists_ShouldAlwaysReturnTrue(CancellationToken ct = default) {
         // Arrange
+        // ReSharper disable once CollectionNeverUpdated.Local
         var entries = new List<IFileInfo>();
 
         // Act
@@ -62,11 +63,13 @@ public class ManifestDirectoryContentsTests {
     [Test]
     public async Task GetEnumerator_WithEmptyEntries_ShouldReturnEmptyEnumerator(CancellationToken ct = default) {
         // Arrange
+        // ReSharper disable once CollectionNeverUpdated.Local
         var entries = new List<IFileInfo>();
 
         // Act
         var contents = new ManifestDirectoryContents(entries);
         IEnumerator<IFileInfo> enumerator = contents.GetEnumerator();
+        using IDisposable enumerator1 = enumerator;
 
         // Assert
         await Assert.That(enumerator.MoveNext()).IsFalse();
@@ -97,7 +100,8 @@ public class ManifestDirectoryContentsTests {
         var contents = new ManifestDirectoryContents(entries);
 
         // Act
-        IEnumerator enumerator = ((System.Collections.IEnumerable)contents).GetEnumerator();
+        IEnumerator enumerator = ((IEnumerable)contents).GetEnumerator();
+        using var enumerator1 = enumerator as IDisposable;
         bool moved = enumerator.MoveNext();
         object? current = enumerator.Current;
 

@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
 using InfiniFrame.Debugging;
 using InfiniFrame.Utilities;
 
@@ -13,7 +12,7 @@ public class EndpointStatusResolverTests {
 
     [Test]
     public async Task Resolve_PlatformNotSupported_ReturnsNotSupported(CancellationToken ct = default) {
-        var result = EndpointStatusResolver.Resolve(
+        InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
             isPlatformSupported: false,
             remoteDebuggingPort: 9222,
             isWindowClosed: false,
@@ -26,7 +25,7 @@ public class EndpointStatusResolverTests {
 
     [Test]
     public async Task Resolve_PortNull_ReturnsDisabled(CancellationToken ct = default) {
-        var result = EndpointStatusResolver.Resolve(
+        InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
             isPlatformSupported: true,
             remoteDebuggingPort: null,
             isWindowClosed: false,
@@ -39,7 +38,7 @@ public class EndpointStatusResolverTests {
 
     [Test]
     public async Task Resolve_WindowClosed_ReturnsUnavailable(CancellationToken ct = default) {
-        var result = EndpointStatusResolver.Resolve(
+        InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
             isPlatformSupported: true,
             remoteDebuggingPort: 9222,
             isWindowClosed: true,
@@ -52,7 +51,7 @@ public class EndpointStatusResolverTests {
 
     [Test]
     public async Task Resolve_NoEndpoint_ReturnsUnavailable(CancellationToken ct = default) {
-        var result = EndpointStatusResolver.Resolve(
+        InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
             isPlatformSupported: true,
             remoteDebuggingPort: 9222,
             isWindowClosed: false,
@@ -65,7 +64,7 @@ public class EndpointStatusResolverTests {
 
     [Test]
     public async Task Resolve_ProbeSucceeded_ReturnsReachable(CancellationToken ct = default) {
-        var result = EndpointStatusResolver.Resolve(
+        InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
             isPlatformSupported: true,
             remoteDebuggingPort: 9222,
             isWindowClosed: false,
@@ -78,7 +77,7 @@ public class EndpointStatusResolverTests {
 
     [Test]
     public async Task Resolve_ProbeFailed_EmptyReason_ReturnsConfigured(CancellationToken ct = default) {
-        var result = EndpointStatusResolver.Resolve(
+        InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
             isPlatformSupported: true,
             remoteDebuggingPort: 9222,
             isWindowClosed: false,
@@ -91,7 +90,7 @@ public class EndpointStatusResolverTests {
 
     [Test]
     public async Task Resolve_ProbeFailed_WithReason_ReturnsUnreachable(CancellationToken ct = default) {
-        var result = EndpointStatusResolver.Resolve(
+        InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
             isPlatformSupported: true,
             remoteDebuggingPort: 9222,
             isWindowClosed: false,

@@ -1,12 +1,14 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
 using InfiniFrame.BlazorWebView;
 
 namespace InfiniTests.InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+[SuppressMessage("ReSharper", "ShortLivedHttpClient")]
 public class InfiniFrameHttpHandlerTests {
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -18,7 +20,7 @@ public class InfiniFrameHttpHandlerTests {
 
         // Act
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => Task.Run(() => {
-            new InfiniFrameHttpHandler(null!);
+            _ = new InfiniFrameHttpHandler(null!);
         }));
 
         // Assert
@@ -62,7 +64,7 @@ public class InfiniFrameHttpHandlerTests {
     public async Task SendAsync_WithUnhandledRequest_ShouldFallThroughToInnerHandler(CancellationToken ct = default) {
         // Arrange
         Mock<IInfiniFrameWebViewManager> managerMock = MockFactory.CreateWebViewManagerMock();
-        managerMock.HandleWebRequest(Any<global::InfiniFrame.IInfiniFrameWindow?>(), Any<string?>()).Returns(((Stream?)null, (string?)null));
+        managerMock.HandleWebRequest(Any<global::InfiniFrame.IInfiniFrameWindow?>(), Any<string?>()).Returns((null, null));
         var handler = new InfiniFrameHttpHandler(managerMock.Object, new ThrowingHttpHandler());
         var httpClient = new HttpClient(handler);
         var request = new HttpRequestMessage(HttpMethod.Get, "https://example.com/test");
@@ -89,7 +91,7 @@ public class InfiniFrameHttpHandlerTests {
         var httpClient = new HttpClient(handler);
         var request = new HttpRequestMessage(HttpMethod.Get, "app://localhost/test");
         var cts = new CancellationTokenSource();
-        cts.Cancel();
+        await cts.CancelAsync();
 
         // Act & Assert
         await Assert.ThrowsAsync<OperationCanceledException>(async () => {

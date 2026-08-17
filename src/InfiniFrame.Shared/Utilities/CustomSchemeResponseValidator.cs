@@ -7,7 +7,10 @@ namespace InfiniFrame.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
 ///     Pure validation logic for custom scheme responses.
-///     Extracted from <see cref="InfiniFrameEvents.CustomScheme"/> for testability.
+///     Extracted from <see>
+///         <cref>InfiniFrameEvents.CustomScheme</cref>
+///     </see>
+///     for testability.
 /// </summary>
 public static class CustomSchemeResponseValidator {
 

@@ -18,7 +18,7 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, s
     private readonly ConcurrentDictionary<string, Regex> _patternRegexCache = new(StringComparer.Ordinal);
 
     private IFileProvider[] ContentRootProviders { get; } = contentRoots
-        .Select(rootPath => {
+        .Select(IFileProvider (rootPath) => {
             string normalizedRoot = rootPath;
             if (!Path.IsPathRooted(normalizedRoot)) {
                 normalizedRoot = Path.GetFullPath(normalizedRoot);
@@ -31,8 +31,8 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, s
                 }
             }
 
-            if (Directory.Exists(normalizedRoot)) return (IFileProvider)new PhysicalFileProvider(normalizedRoot);
-            if (embeddedAssembly is not null) return (IFileProvider)new EmbeddedFileProvider(embeddedAssembly, "publish");
+            if (Directory.Exists(normalizedRoot)) return new PhysicalFileProvider(normalizedRoot);
+            if (embeddedAssembly is not null) return new EmbeddedFileProvider(embeddedAssembly, "publish");
             return new NullFileProvider();
         })
         .ToArray();
@@ -399,8 +399,8 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, s
         if (string.IsNullOrWhiteSpace(fileName)) return null;
 
         string searchPattern = fileName;
-        string directory = baseDirectory;
-        while (directory is not null) {
+        string? directory = baseDirectory;
+        while (!string.IsNullOrEmpty(directory)) {
             string candidate = Path.Combine(directory, searchPattern);
             if (Directory.Exists(candidate)) return candidate;
 
@@ -413,8 +413,7 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, s
 
             if (children.Length > 0) return children[0];
 
-            directory = Path.GetDirectoryName(directory) ?? string.Empty;
-            if (string.IsNullOrEmpty(directory)) break;
+            directory = Path.GetDirectoryName(directory);
         }
 
         return null;

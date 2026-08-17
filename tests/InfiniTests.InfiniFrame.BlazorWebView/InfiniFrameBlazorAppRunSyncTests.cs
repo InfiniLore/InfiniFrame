@@ -19,7 +19,7 @@ public class InfiniFrameBlazorAppRunSyncTests {
         windowMock.Features.Returns(featuresMock.Object);
         featuresMock.Lifecycle.Returns(lifecycleMock.Object);
         ServiceProvider services = new ServiceCollection()
-            .AddSingleton<IInfiniFrameWindow>(windowMock.Object)
+            .AddSingleton(windowMock.Object)
             .AddSingleton<DisposeProbe>()
             .BuildServiceProvider();
         var disposeProbe = services.GetRequiredService<DisposeProbe>();

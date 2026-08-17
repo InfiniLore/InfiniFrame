@@ -268,7 +268,7 @@ jobs:
             -   name: Pack Tool E2E
                 uses: ./.github/actions/packtool-e2e
                 with:
-                    project: examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
+                    project: examples/SingleFileExe/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
                     rid: ${{ matrix.rid }}
                     output: artifacts/pack-e2e/InfiniFrameExample.SingleFileExe
                     main-output-name: InfiniFrameExample.SingleFileExe.exe

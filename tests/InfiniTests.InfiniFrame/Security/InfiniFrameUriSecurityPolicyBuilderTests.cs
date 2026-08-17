@@ -201,7 +201,7 @@ public class InfiniFrameUriSecurityPolicyBuilderTests {
         // Act
         InfiniFrameUriSecurityPolicy policy = builder
             .SetAllowedNavigationSchemes([Uri.UriSchemeHttps])
-            .SetTrustAllOrigins(true)
+            .SetTrustAllOrigins()
             .Build();
 
         // Assert
@@ -236,7 +236,7 @@ public class InfiniFrameUriSecurityPolicyBuilderTests {
             .SetAllowedNavigationSchemes([Uri.UriSchemeHttps])
             .SetAllowedExternalSchemes([Uri.UriSchemeMailto])
             .AddTrustedOrigin(new Uri("https://trusted.example/"))
-            .SetTrustAllOrigins(true)
+            .SetTrustAllOrigins()
             .Build();
 
         // Assert

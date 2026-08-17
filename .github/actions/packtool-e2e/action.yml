@@ -1,15 +1,11 @@
-name: Run InfiniFrame Pack Tool E2E
-description: Sets up pack tool, runs publish, and validates packed output.
+name: Run InfiniFrame SingleFile E2E
+description: Builds, publishes as single-file, and validates packed output.
 
 inputs:
     tool-project:
-        description: Path to InfiniFrame.Tools.Pack.csproj
+        description: Path to InfiniFrame.SingleFile.csproj
         required: false
-        default: src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj
-    package-output:
-        description: Directory where tool package artifacts are emitted
-        required: false
-        default: artifacts/dotnet-tools
+        default: src/InfiniFrame.SingleFile/InfiniFrame.SingleFile.csproj
     project:
         description: Path to target app csproj
         required: true
@@ -20,14 +16,6 @@ inputs:
         description: Build configuration
         required: false
         default: Release
-    framework:
-        description: Target framework
-        required: false
-        default: net10.0
-    self-contained:
-        description: Self-contained mode
-        required: false
-        default: "true"
     output:
         description: Output directory for packed publish
         required: true
@@ -41,48 +29,35 @@ inputs:
 runs:
     using: composite
     steps:
-        -   name: Build tool project
-            shell: bash
-            run: |
-                dotnet build "${{ inputs['tool-project'] }}" -c Release --no-restore
-
-        -   name: Pack tool project
-            shell: bash
-            run: |
-                dotnet pack "${{ inputs['tool-project'] }}" -c Release --no-build --no-restore -o "${{ inputs['package-output'] }}"
-
-        -   name: Install or update global tool
-            shell: bash
-            run: |
-                if dotnet tool list --global | grep -q "InfiniLore.InfiniFrame.Tools.Pack"; then
-                  dotnet tool update --global InfiniLore.InfiniFrame.Tools.Pack --add-source "${{ inputs['package-output'] }}" --ignore-failed-sources
-                else
-                  dotnet tool install --global InfiniLore.InfiniFrame.Tools.Pack --add-source "${{ inputs['package-output'] }}" --ignore-failed-sources
-                fi
-
-        -   name: Add global tools path
-            shell: bash
-            run: |
-                echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
-                if [ -n "${USERPROFILE:-}" ]; then
-                  echo "$USERPROFILE/.dotnet/tools" >> "$GITHUB_PATH"
-                fi
-
-        -   name: Verify tool command
-            shell: bash
-            run: |
-                infiniframe-pack --help
-
-        -   name: Run pack publish
+        -   name: Publish single-file via MSBuild target
             shell: bash
             run: |
                 set -euo pipefail
-                infiniframe-pack publish "${{ inputs.project }}" \
-                  --rid "${{ inputs.rid }}" \
-                  --configuration "${{ inputs.configuration }}" \
-                  --framework "${{ inputs.framework }}" \
-                  --self-contained "${{ inputs['self-contained'] }}" \
-                  --output "${{ inputs.output }}"
+                dotnet publish "${{ inputs.project }}" \
+                  -t:InfiniFrameSingleFile \
+                  -r "${{ inputs.rid }}" \
+                  -c "${{ inputs.configuration }}" \
+                  -p:InfiniFrameSingleFileActive=true \
+                  -p:InfiniFrameSingleFileRid="${{ inputs.rid }}" \
+                  -p:InfiniFrameSingleFileSelfContained=true
+
+        -   name: Locate publish output
+            shell: bash
+            run: |
+                set -euo pipefail
+                project_dir="$(dirname "${{ inputs.project }}")"
+                output_dir="${{ inputs.output }}"
+                mkdir -p "$output_dir"
+                
+                # Find the publish directory
+                publish_dir=$(find "$project_dir/bin" -type d -name "publish" -path "*${{ inputs.rid }}*" | head -1)
+                if [ -z "$publish_dir" ]; then
+                  echo "Could not find publish directory under $project_dir/bin"
+                  exit 1
+                fi
+                
+                cp -r "$publish_dir"/* "$output_dir/"
+                echo "Copied publish output to $output_dir"
 
         -   name: Validate output shape
             shell: bash
@@ -95,6 +70,8 @@ runs:
                 
                 if [ ! -f "$main_output" ]; then
                   echo "Expected single-file output is missing: $main_output"
+                  echo "Contents of output directory:"
+                  ls -la "$output_dir/"
                   exit 1
                 fi
                 

@@ -4,7 +4,6 @@
 using System.Collections;
 using InfiniFrame.BlazorWebView;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 
 namespace InfiniTests.InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -94,7 +93,8 @@ public class InfiniFrameRootComponentListTests {
         list.Add<TestComponent>("#app");
 
         // Act
-        IEnumerator enumerator = ((System.Collections.IEnumerable)list).GetEnumerator();
+        IEnumerator enumerator = ((IEnumerable)list).GetEnumerator();
+        using var enumerator1 = enumerator as IDisposable;
         bool moved = enumerator.MoveNext();
 
         // Assert

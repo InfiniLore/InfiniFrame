@@ -241,7 +241,6 @@ jobs:
                       tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj
                     )
                     net10_test_projects=(
-                      tests/InfiniTests.InfiniFrame.Tools.Pack/InfiniTests.InfiniFrame.Tools.Pack.csproj
                     )
 
                     run_test() {
@@ -351,7 +350,7 @@ jobs:
             -   name: Pack Tool E2E
                 uses: ./.github/actions/packtool-e2e
                 with:
-                    project: examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
+                    project: examples/SingleFileExe/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
                     rid: ${{ matrix.rid }}
                     output: artifacts/pack-e2e/InfiniFrameExample.SingleFileExe
                     main-output-name: InfiniFrameExample.SingleFileExe

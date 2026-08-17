@@ -21,7 +21,7 @@ public sealed class InfiniFrameSynchronizationContextTests {
         invokeMock.Invoke(Any<Action>()).Returns(InfiniFrameDispatchResult.WindowClosed);
 
         await using ServiceProvider provider = new ServiceCollection()
-            .AddSingleton<IInfiniFrameWindow>(windowMock.Object)
+            .AddSingleton(windowMock.Object)
             .BuildServiceProvider();
         var context = new InfiniFrameSynchronizationContext(provider);
         bool invoked = false;

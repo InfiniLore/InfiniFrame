@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.BlazorWebView;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 
@@ -15,8 +14,8 @@ public class InfiniFrameJsComponentConfigurationTests {
     [Test]
     public async Task Constructor_CanBeInstantiated(CancellationToken ct = default) {
         // Arrange
-        var manager = MockFactory.CreateWebViewManagerMock();
-        var logger = MockFactory.CreateLoggerMock<InfiniFrameJsComponentConfiguration>();
+        Mock<IInfiniFrameWebViewManager> manager = MockFactory.CreateWebViewManagerMock();
+        Mock<ILogger<InfiniFrameJsComponentConfiguration>> logger = MockFactory.CreateLoggerMock<InfiniFrameJsComponentConfiguration>();
         var store = new JSComponentConfigurationStore();
 
         // Act
@@ -30,8 +29,8 @@ public class InfiniFrameJsComponentConfigurationTests {
     [Test]
     public async Task LastAddComponentException_InitiallyNull(CancellationToken ct = default) {
         // Arrange
-        var manager = MockFactory.CreateWebViewManagerMock();
-        var logger = MockFactory.CreateLoggerMock<InfiniFrameJsComponentConfiguration>();
+        Mock<IInfiniFrameWebViewManager> manager = MockFactory.CreateWebViewManagerMock();
+        Mock<ILogger<InfiniFrameJsComponentConfiguration>> logger = MockFactory.CreateLoggerMock<InfiniFrameJsComponentConfiguration>();
         var store = new JSComponentConfigurationStore();
         var config = new InfiniFrameJsComponentConfiguration(manager.Object, store, logger.Object);
 

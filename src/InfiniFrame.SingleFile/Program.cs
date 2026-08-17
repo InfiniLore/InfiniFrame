@@ -55,7 +55,7 @@ var rootCommand = new RootCommand("InfiniFrame SingleFile - Package InfiniFrame 
 };
 
 rootCommand.SetAction(async (parseResult, cancellationToken) => {
-    var project = parseResult.GetValue(projectArg);
+    FileInfo? project = parseResult.GetValue(projectArg);
     rid = parseResult.GetValue(ridOption)!;
     framework = parseResult.GetValue(frameworkOption);
     configuration = parseResult.GetValue(configOption)!;
@@ -101,7 +101,8 @@ rootCommand.SetAction(async (parseResult, cancellationToken) => {
 
     foreach (string arg in args) psi.ArgumentList.Add(arg);
 
-    using var process = new Process { StartInfo = psi };
+    using var process = new Process();
+    process.StartInfo = psi;
     process.OutputDataReceived += (_, e) => { if (e.Data is not null) Console.WriteLine(e.Data); };
     process.ErrorDataReceived += (_, e) => { if (e.Data is not null) Console.Error.WriteLine(e.Data); };
 
@@ -118,7 +119,7 @@ rootCommand.SetAction(async (parseResult, cancellationToken) => {
     return process.ExitCode;
 });
 
-var result = await rootCommand.Parse(args).InvokeAsync();
+int result = await rootCommand.Parse(args).InvokeAsync();
 return result;
 
 static string DetectRid() {
