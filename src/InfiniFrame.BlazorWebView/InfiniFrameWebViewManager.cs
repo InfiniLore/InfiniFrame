@@ -108,31 +108,6 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             return default;
         }
 
-        // Diagnostic: write to file
-        try {
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            string wwwrootPath = Path.Combine(baseDir, "wwwroot");
-            var diag = new System.Text.StringBuilder();
-            diag.AppendLine($"BaseDirectory: {baseDir}");
-            diag.AppendLine($"wwwroot exists: {Directory.Exists(wwwrootPath)}");
-            if (Directory.Exists(wwwrootPath)) {
-                diag.AppendLine("Contents of wwwroot:");
-                foreach (string dir in Directory.GetDirectories(wwwrootPath, "*", SearchOption.AllDirectories)) {
-                    diag.AppendLine($"  DIR: {dir}");
-                }
-                foreach (string file in Directory.GetFiles(wwwrootPath, "*", SearchOption.AllDirectories)) {
-                    diag.AppendLine($"  FILE: {file}");
-                }
-            } else {
-                diag.AppendLine("wwwroot does NOT exist!");
-                diag.AppendLine("Contents of BaseDirectory:");
-                foreach (string entry in Directory.GetFileSystemEntries(baseDir)) {
-                    diag.AppendLine($"  {entry}");
-                }
-            }
-            File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "infiniframe-diag.txt"), diag.ToString());
-        } catch { /* diagnostic only */ }
-
         if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? requestUri)) {
             LazyLogger.Value?.LogWarning(
                 "Rejected web request because URL parsing failed. Url: {Url}",
