@@ -201,36 +201,24 @@ void InfiniFrameWindow::AttachMenuBar() {
     if (impl->_menuBar == nullptr)
         return;
 
-    // If the window has no children yet, add the menu bar directly.
-    // If the window already has a child (the webview), we need to wrap
-    // everything in a GtkBox and restructure.
-    GList* children = gtk_container_get_children(GTK_CONTAINER(impl->_window));
-    guint childCount = g_list_length(children);
-    g_list_free(children);
+    // GtkWindow is a GtkBin — it can only hold ONE child.
+    // Strategy: remove the existing child (webview), create a GtkBox,
+    // pack menu bar + webview into it, then add the box to the window.
+    GtkWidget* existingChild = gtk_bin_get_child(GTK_BIN(impl->_window));
 
-    if (childCount == 0) {
-        // Window is empty — add menu bar directly.
-        gtk_container_add(GTK_CONTAINER(impl->_window), impl->_menuBar);
-    } else {
-        // Window already has children (e.g., the webview).
-        // Create a GtkBox, reparent existing children, then add menu bar.
-        GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-        gtk_container_add(GTK_CONTAINER(impl->_window), box);
+    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 
-        // Move existing children into the box.
-        children = gtk_container_get_children(GTK_CONTAINER(impl->_window));
-        for (GList* l = children; l != nullptr; l = l->next) {
-            GtkWidget* child = GTK_WIDGET(l->data);
-            if (child == box) continue; // Skip the box we just added.
-            gtk_container_remove(GTK_CONTAINER(impl->_window), child);
-            gtk_box_pack_start(GTK_BOX(box), child, TRUE, TRUE, 0);
-        }
-        g_list_free(children);
+    // Add menu bar at the top.
+    gtk_box_pack_start(GTK_BOX(box), impl->_menuBar, FALSE, FALSE, 0);
 
-        // Add menu bar at the top of the box.
-        gtk_box_pack_start(GTK_BOX(box), impl->_menuBar, FALSE, FALSE, 0);
+    // Reparent the existing child (webview) into the box.
+    if (existingChild != nullptr) {
+        gtk_container_remove(GTK_CONTAINER(impl->_window), existingChild);
+        gtk_box_pack_start(GTK_BOX(box), existingChild, TRUE, TRUE, 0);
     }
 
+    // Add the box to the window.
+    gtk_container_add(GTK_CONTAINER(impl->_window), box);
     gtk_widget_show_all(impl->_window);
 }
 
