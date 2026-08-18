@@ -9,7 +9,6 @@ namespace InfiniFrame.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
 ///     Pure logic for recursively updating immutable menu item trees.
-///     Extracted from <see cref="MenuInfiniFrameWindowFeature"/> for testability.
 /// </summary>
 public static class MenuItemTreeHelper {
 

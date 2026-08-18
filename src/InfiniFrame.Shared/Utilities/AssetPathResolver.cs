@@ -5,9 +5,9 @@ namespace InfiniFrame.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+// ReSharper disable once InvalidXmlDocComment
 /// <summary>
 ///     Pure logic for resolving asset paths from URLs and determining MIME types.
-///     Extracted from <see cref="InfiniFrame.StaticAssets.StaticAssetSchemeHandler"/> for testability.
 /// </summary>
 public static class AssetPathResolver {
 
@@ -43,17 +43,22 @@ public static class AssetPathResolver {
                 break;
         }
 
+        // Block traversal in the decoded form.
         if (decoded.Contains("..", StringComparison.Ordinal))
             return false;
 
-        // Block raw traversal sequences that bypass Uri.UnescapeDataString.
-        if (assetPath.Contains("..", StringComparison.Ordinal)
-            || assetPath.Contains("%2e", StringComparison.OrdinalIgnoreCase)
-            || assetPath.Contains("%2f", StringComparison.OrdinalIgnoreCase)
-            || assetPath.Contains("%5c", StringComparison.OrdinalIgnoreCase)
-            || assetPath.Contains("%252e", StringComparison.OrdinalIgnoreCase)
-            || assetPath.Contains("%252f", StringComparison.OrdinalIgnoreCase)
-            || assetPath.Contains("%255c", StringComparison.OrdinalIgnoreCase))
+        // Block traversal in the raw form (before decoding).
+        if (assetPath.Contains("..", StringComparison.Ordinal))
+            return false;
+
+        // Block percent-encoded traversal sequences.
+        string lowerPath = assetPath.ToLowerInvariant();
+        if (lowerPath.Contains("%2e") || lowerPath.Contains("%2f") || lowerPath.Contains("%5c")
+            || lowerPath.Contains("%252e") || lowerPath.Contains("%252f") || lowerPath.Contains("%255c"))
+            return false;
+
+        // Block Unicode dot-like characters that could bypass the ".." check.
+        if (decoded.Contains('\u00B7') || decoded.Contains('\u2024') || decoded.Contains('\u2219'))
             return false;
 
         return true;

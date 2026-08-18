@@ -9,7 +9,6 @@ namespace InfiniFrame.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
 ///     Pure logic for determining the remote debugging endpoint status.
-///     Extracted from <see cref="DebuggingInfiniFrameWindowFeature"/> for testability.
 /// </summary>
 public static class EndpointStatusResolver {
 

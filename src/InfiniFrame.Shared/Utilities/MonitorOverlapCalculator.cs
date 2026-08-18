@@ -10,7 +10,6 @@ namespace InfiniFrame.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
 ///     Pure geometry logic for monitor overlap and nearest-monitor computation.
-///     Extracted from <see cref="MonitorsUtility"/> for testability.
 /// </summary>
 public static class MonitorOverlapCalculator {
 

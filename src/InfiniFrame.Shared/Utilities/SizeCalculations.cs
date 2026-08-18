@@ -9,7 +9,6 @@ namespace InfiniFrame.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
 ///     Pure calculation logic for window resize operations.
-///     Extracted from <see cref="SizeInfiniFrameWindowFeature"/> for testability.
 /// </summary>
 internal static class SizeCalculations {
 

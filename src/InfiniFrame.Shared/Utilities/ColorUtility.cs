@@ -7,7 +7,6 @@ namespace InfiniFrame.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
 ///     Pure utility methods for parsing and validating hex color strings.
-///     Extracted from <see cref="DecorationsInfiniFrameWindowFeature"/> for testability.
 /// </summary>
 public static class ColorUtility {
 
@@ -17,13 +16,11 @@ public static class ColorUtility {
     /// <param name="color">The color string to validate (e.g. "#RRGGBB", "#AARRGGBB", null, or "transparent").</param>
     /// <returns><c>true</c> if the color is valid; otherwise <c>false</c>.</returns>
     public static bool IsValidBackgroundColor(string? color) {
-        if (color is null or "transparent")
-            return true;
-        if (color.StartsWith('#')) {
-            string hex = color[1..];
-            return hex.Length is 6 or 8 && hex.All(IsHexDigit);
-        }
-        return false;
+        if (color is null or "transparent") return true;
+        if (!color.StartsWith('#')) return false;
+
+        string hex = color[1..];
+        return hex.Length is 6 or 8 && hex.All(IsHexDigit);
     }
 
     /// <summary>

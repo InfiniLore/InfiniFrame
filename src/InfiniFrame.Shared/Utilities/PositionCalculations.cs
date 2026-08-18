@@ -9,7 +9,6 @@ namespace InfiniFrame.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
 ///     Pure calculation logic for window position operations.
-///     Extracted from <see cref="PositionInfiniFrameWindowFeature"/> for testability.
 /// </summary>
 internal static class PositionCalculations {
 
