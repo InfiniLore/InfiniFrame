@@ -157,5 +157,4 @@
   <Folder Name="/tests/testHosts/">
     <File Path="tests/TestHost/MacOsTestingPlatformEntryPoint.cs" />
   </Folder>
-  <Folder Name="/tests/tools/" />
 </Solution>

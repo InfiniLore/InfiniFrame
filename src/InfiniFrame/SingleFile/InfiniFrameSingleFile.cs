@@ -29,8 +29,8 @@ public static class InfiniFrameSingleFile {
     public static void AttachWithBlazor(IInfiniFrameWindowBuilder builder) {
         // In pack mode, the file provider is handled by PackModeFileProvider
         // (detected in InfiniFrameBlazorAppBuilder.ConfigureFileProvider).
-        // We must NOT register a scheme handler here — it would overwrite the
-        // Blazor WebViewManager handler that was already registered by Build().
+        // We must NOT register a scheme handler here; it would overwrite the
+        // Blazor WebViewManager handler already registered by Build().
     }
 
     private static bool IsPackDeployment() {

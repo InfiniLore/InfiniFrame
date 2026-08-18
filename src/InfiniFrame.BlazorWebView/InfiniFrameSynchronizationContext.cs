@@ -154,7 +154,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
     ///         a deadlock cycle can form.
     ///     </para>
     ///     <para>
-    ///         This is expected to be rare in practice — Blazor's renderer uses <see cref="Post" />, not
+    ///         This is expected to be rare in practice, Blazor's renderer uses <see cref="Post" />, not
     ///         <see cref="Send" />. However, if a component synchronously awaits a result that triggers
     ///         re-entrant dispatch under heavy load, a deadlock is possible. Callers should prefer
     ///         <see cref="InvokeAsync{TResult}" /> or <see cref="Post" /> where possible.
