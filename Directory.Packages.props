@@ -28,10 +28,9 @@
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.11" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.11" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.11" />
+    <PackageVersion Include="Microsoft.Playwright" Version="1.62.0" />
     <PackageVersion Include="Microsoft.Web.WebView2" Version="1.0.4129.50" />
     <PackageVersion Include="Microsoft.Windows.ImplementationLibrary" Version="1.0.260126.7" />
-    <PackageVersion Include="Microsoft.Playwright" Version="1.62.0" />
-    <PackageVersion Include="TUnit.Mocks" Version="1.65.0" />
     <PackageVersion Include="MudBlazor" Version="9.8.0" />
     <PackageVersion Include="Serilog" Version="4.4.0" />
     <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
@@ -39,10 +38,11 @@
     <PackageVersion Include="Serilog.Sinks.Async" Version="2.1.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageVersion Include="System.CommandLine" Version="2.0.11" />
+    <PackageVersion Include="TUnit" Version="1.65.31" />
+    <PackageVersion Include="TUnit.Assertions" Version="1.65.31" />
+    <PackageVersion Include="TUnit.Core" Version="1.65.31" />
+    <PackageVersion Include="TUnit.Mocks" Version="1.65.31" />
+    <PackageVersion Include="TUnit.Playwright" Version="1.65.31" />
     <PackageVersion Include="bUnit" Version="2.9.0" />
-    <PackageVersion Include="TUnit" Version="1.65.0" />
-    <PackageVersion Include="TUnit.Assertions" Version="1.65.0" />
-    <PackageVersion Include="TUnit.Core" Version="1.65.0" />
-    <PackageVersion Include="TUnit.Playwright" Version="1.65.0" />
   </ItemGroup>
 </Project>
