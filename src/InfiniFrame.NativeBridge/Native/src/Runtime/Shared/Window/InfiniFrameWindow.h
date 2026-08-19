@@ -828,7 +828,6 @@ class InfiniFrameWindow {
 
     // ── Native menu bar ──────────────────────────────────────────────────
     void ApplyInitMenuBar(const char* menuBarJson);
-    void AttachMenuBar();
     void SetMenuBarJson(const char* menuBarJson);
     void SetMenuItemEnabledById(const char* menuItemId, bool enabled);
     void SetMenuItemVisibleById(const char* menuItemId, bool visible);
@@ -885,7 +884,6 @@ class InfiniFrameWindow {
 
     // ── Native menu bar ──────────────────────────────────────────────────
     void ApplyInitMenuBar(const char* menuBarJson);
-    void AttachMenuBar();
     void SetMenuBarJson(const char* menuBarJson);
     void SetMenuItemEnabledById(const char* menuItemId, bool enabled);
     void SetMenuItemVisibleById(const char* menuItemId, bool visible);
@@ -908,7 +906,6 @@ class InfiniFrameWindow {
 
     // ── Native menu bar ──────────────────────────────────────────────────
     void ApplyInitMenuBar(const char* menuBarJson);
-    void AttachMenuBar();
     void SetMenuBarJson(const char* menuBarJson);
     void SetMenuItemEnabledById(const char* menuItemId, bool enabled);
     void SetMenuItemVisibleById(const char* menuItemId, bool visible);
