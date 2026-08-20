@@ -92,10 +92,19 @@ jobs:
                                elseif ([double]"${{ steps.cs.outputs.pct }}" -ge 75) { "yellow" }
                                else { "red" }
 
-                    @{schemaVersion=1; label="coverage"; message=$ts; color=$tsColor} |
-                        ConvertTo-Json -Compress | Set-Content "badges/ts-coverage.json"
-                    @{schemaVersion=1; label="coverage"; message=$cs; color=$csColor} |
-                        ConvertTo-Json -Compress | Set-Content "badges/cs-coverage.json"
+                    [ordered]@{
+                        schemaVersion = 1
+                        label         = "coverage"
+                        message       = $ts
+                        color         = $tsColor
+                    } | ConvertTo-Json | Set-Content "badges/ts-coverage.json"
+                      
+                    [ordered]@{
+                        schemaVersion = 1
+                        label         = "coverage"
+                        message       = $cs
+                        color         = $csColor
+                    } | ConvertTo-Json | Set-Content "badges/cs-coverage.json"
 
                     Write-Host "Badges: TS=$ts ($tsColor), C#=$cs ($csColor)"
 
