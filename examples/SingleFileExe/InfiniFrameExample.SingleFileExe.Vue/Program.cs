@@ -1,9 +1,14 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using System.Drawing;
 using InfiniFrame.SingleFile;
 
 namespace InfiniFrameExample.SingleFileExe.Vue;
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
@@ -14,7 +19,7 @@ public static class Program {
             .SetSize(new Size(960, 640))
             .CenteredOnMainMonitor();
 
-        InfiniFrameSingleFile.AttachWithStaticWwwroot(builder);
+        builder.AddSingleFileRequirements();
 
         IInfiniFrameWindow window = builder.Build();
         window.WaitForClose();

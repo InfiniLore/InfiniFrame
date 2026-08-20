@@ -23,8 +23,4 @@
         <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="SingleFile\" />
-    </ItemGroup>
-
 </Project>

@@ -19,7 +19,7 @@ public static class Program {
             .SetSize(new Size(960, 640))
             .CenteredOnMainMonitor();
         
-        InfiniFrameSingleFile.AttachWithStaticWwwroot(builder);
+        builder.AddSingleFileRequirements();
             
         IInfiniFrameWindow window = builder.Build();
 

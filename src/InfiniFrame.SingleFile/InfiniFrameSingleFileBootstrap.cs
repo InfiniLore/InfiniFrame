@@ -1,9 +1,9 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.NativeBridge;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using InfiniFrame.NativeBridge;
 
 // ReSharper disable once CheckNamespace
 namespace InfiniFrame;
@@ -21,11 +21,11 @@ namespace InfiniFrame;
 internal static class InfiniFrameSingleFileBootstrap {
     private const string WebView2LoaderLibraryName = ArtifactManifest.WindowsLoaderLibraryName;
 
-#if NET9_0_OR_GREATER
+    #if NET9_0_OR_GREATER
     private static readonly Lock InitLock = new();
-#else
+    #else
     private static readonly object InitLock = new();
-#endif
+    #endif
     private static int _initialized;
     private static string? _nativeDir;
 
@@ -37,7 +37,7 @@ internal static class InfiniFrameSingleFileBootstrap {
     ///     Extracts embedded native runtime binaries to a temporary runtime-identifier-specific folder and registers a
     ///     <see cref="NativeLibrary" /> resolver for InfiniFrame native loading.
     /// </summary>
-    public static void Initialize() {
+    internal static void Initialize() {
         lock (InitLock) {
             if (_initialized != 0) return;
 

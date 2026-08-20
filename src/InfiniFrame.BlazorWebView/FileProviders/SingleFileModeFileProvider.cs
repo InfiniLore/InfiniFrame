@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
@@ -13,13 +14,13 @@ namespace InfiniFrame.BlazorWebView.FileProviders;
 ///     A file provider for single-file packed deployments that serves static web assets from
 ///     embedded resources and falls back to a physical wwwroot directory.
 /// </summary>
-internal sealed class PackModeFileProvider : IFileProvider {
+internal sealed class SingleFileModeFileProvider : IFileProvider {
     private readonly CompositeFileProvider _composite;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    internal PackModeFileProvider(Assembly entryAssembly, string baseDirectory) {
+    internal SingleFileModeFileProvider(Assembly entryAssembly, string baseDirectory) {
         var providers = new List<IFileProvider> {
             // Embedded resources with "publish." prefix (StaticWebAsset items from NuGet packages)
             new EmbeddedFileProvider(entryAssembly, "publish")
@@ -32,7 +33,7 @@ internal sealed class PackModeFileProvider : IFileProvider {
         }
 
         // Physical wwwroot directory fallback (framework assets like _framework/blazor.webview.js).
-        // In single-file self-extracting mode, BaseDirectory points to the temp extraction dir,
+        // In single-file self-extracting mode, BaseDirectory points to the temp extraction dir
         // but the real wwwroot is alongside the exe. Check both locations.
         string? exeDir = Path.GetDirectoryName(Environment.ProcessPath);
         string[] searchPaths = exeDir is not null && exeDir != baseDirectory
@@ -59,23 +60,26 @@ internal sealed class PackModeFileProvider : IFileProvider {
     public IChangeToken Watch(string filter) => NullChangeToken.Singleton;
 
     /// <summary>
-    ///     Creates a <see cref="PackModeFileProvider"/> if the entry assembly contains embedded
+    ///     Creates a <see cref="SingleFileModeFileProvider"/> if the entry assembly contains embedded
     ///     resources with the "publish." prefix, indicating a packed deployment.
     /// </summary>
-    public static PackModeFileProvider? TryCreate(string baseDirectory) {
+    public static bool TryCreate(string baseDirectory,[NotNullWhen(true)] out IFileProvider? fileProvider) {
+        fileProvider = null;
         var entryAssembly = Assembly.GetEntryAssembly();
-        if (entryAssembly is null) return null;
+        if (entryAssembly is null) return false;
 
         string[] resourceNames;
         try {
             resourceNames = entryAssembly.GetManifestResourceNames();
         }
         catch {
-            return null;
+            return false;
         }
 
         bool hasPublishResources = resourceNames.Any(r => r.StartsWith("publish.", StringComparison.Ordinal));
-        return !hasPublishResources ? null : new PackModeFileProvider(entryAssembly, baseDirectory);
+        if (!hasPublishResources) return false;
 
+        fileProvider = new SingleFileModeFileProvider(entryAssembly, baseDirectory);
+        return true;
     }
 }

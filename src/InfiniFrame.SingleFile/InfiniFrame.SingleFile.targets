@@ -30,13 +30,34 @@
     </PropertyGroup>
 
     <!-- ==================================================================
+         Generate a module initializer that sets InfiniFramePackMode.IsActive
+         so the library can detect pack mode at compile-time instead of reflection.
+         ================================================================== -->
+    <Target Name="InfiniFramePackGenerateConfig"
+            BeforeTargets="CoreCompile"
+            Condition="'$(_InfiniFramePackActive)' == 'true'">
+        <PropertyGroup>
+            <_InfiniFramePackConfigDir>$(IntermediateOutputPath)InfiniFrame.SingleFile</_InfiniFramePackConfigDir>
+            <_InfiniFramePackConfigFile>$(_InfiniFramePackConfigDir)\InfiniFramePackModeInitializer.g.cs</_InfiniFramePackConfigFile>
+        </PropertyGroup>
+        <MakeDir Directories="$(_InfiniFramePackConfigDir)"/>
+        <WriteLinesToFile
+            File="$(_InfiniFramePackConfigFile)"
+            Lines="using System.Runtime.CompilerServices;&#xA;&#xA;internal static class InfiniFramePackModeInitializer {&#xA;    [ModuleInitializer]&#xA;    internal static void Initialize() {&#xA;        InfiniFrame.SingleFile.InfiniFramePackMode.IsActive = true;&#xA;    }&#xA;}"
+            Overwrite="true"/>
+        <ItemGroup>
+            <Compile Include="$(_InfiniFramePackConfigFile)"/>
+        </ItemGroup>
+    </Target>
+
+    <!-- ==================================================================
          Auto-run InfiniFrameSingleFile after Publish.
          Set <InfiniFrameSingleFileAuto>true</InfiniFrameSingleFileAuto> to enable.
          ================================================================== -->
     <Target Name="InfiniFrameSingleFileAuto"
             AfterTargets="Publish"
             DependsOnTargets="InfiniFrameSingleFile"
-            Condition="'$(InfiniFrameSingleFileAuto)' == 'true' and '$(InfiniFrameSingleFileActive)' != 'true'" />
+            Condition="'$(InfiniFrameSingleFileAuto)' == 'true' and '$(InfiniFrameSingleFileActive)' != 'true'"/>
 
     <!-- ==================================================================
          InfiniFrameSingleFile: Two-pass publish for truly single-file output.
@@ -56,33 +77,33 @@
             <_InfiniFrameSingleFileStageDir>$(MSBuildProjectDirectory)\obj\InfiniFrame.SingleFile\stage</_InfiniFrameSingleFileStageDir>
         </PropertyGroup>
 
-        <Error Condition="'$(_InfiniFrameSingleFileRid)' == '' or '$(_InfiniFrameSingleFileRid)' == 'auto'" Text="RuntimeIdentifier is required. Pass -r or set RuntimeIdentifier in your project." />
+        <Error Condition="'$(_InfiniFrameSingleFileRid)' == '' or '$(_InfiniFrameSingleFileRid)' == 'auto'" Text="RuntimeIdentifier is required. Pass -r or set RuntimeIdentifier in your project."/>
 
         <!-- Pass 1: Generate all content (wwwroot, _framework, _content, etc.) -->
-        <Message Importance="high" Text="[InfiniFrame.SingleFile] Pass 1/2: Generating content for $(_InfiniFrameSingleFileRid)..." />
+        <Message Importance="high" Text="[InfiniFrame.SingleFile] Pass 1/2: Generating content for $(_InfiniFrameSingleFileRid)..."/>
         <Exec Command="dotnet publish &quot;$(MSBuildProjectFullPath)&quot; -r $(_InfiniFrameSingleFileRid) -c $(_InfiniFrameSingleFileConfig) -p:InfiniFramePackEnabled=true -p:InfiniFrameSingleFileAuto=false -p:SelfContained=$(_InfiniFrameSingleFileSelfContained) -p:PublishSingleFile=false -p:DebugType=none -p:DebugSymbols=false -v:minimal -o $(_InfiniFrameSingleFileStageDir)"
-              ConsoleToMSBuild="true" />
+              ConsoleToMSBuild="true"/>
 
         <!-- Pass 2: Publish with single-file, embedding all wwwroot content -->
-        <Message Importance="high" Text="[InfiniFrame.SingleFile] Pass 2/2: Building single-file executable..." />
+        <Message Importance="high" Text="[InfiniFrame.SingleFile] Pass 2/2: Building single-file executable..."/>
         <Exec Command="dotnet publish &quot;$(MSBuildProjectFullPath)&quot; -r $(_InfiniFrameSingleFileRid) -c $(_InfiniFrameSingleFileConfig) -p:InfiniFramePackEnabled=true -p:InfiniFrameSingleFileAuto=false -p:InfiniFramePackEmbedDir=$(_InfiniFrameSingleFileStageDir)\wwwroot -p:SelfContained=$(_InfiniFrameSingleFileSelfContained) -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -p:IncludeAllContentForSelfExtract=true -p:DebugType=none -p:DebugSymbols=false -v:minimal"
-              ConsoleToMSBuild="true" />
+              ConsoleToMSBuild="true"/>
 
         <!-- Clean up staging directory -->
-        <RemoveDir Directories="$(_InfiniFrameSingleFileStageDir)" />
+        <RemoveDir Directories="$(_InfiniFrameSingleFileStageDir)"/>
 
         <!-- Clean up sidecar files immediately after inner publish -->
         <PropertyGroup>
             <_InfiniFramePackPublishDir>$([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '$(OutputPath)', 'publish'))</_InfiniFramePackPublishDir>
         </PropertyGroup>
         <ItemGroup>
-            <_InfiniFramePackSidecarFile Include="$(_InfiniFramePackPublishDir)\*.staticwebassets.endpoints.json" />
-            <_InfiniFramePackSidecarFile Include="$(_InfiniFramePackPublishDir)\web.config" />
+            <_InfiniFramePackSidecarFile Include="$(_InfiniFramePackPublishDir)\*.staticwebassets.endpoints.json"/>
+            <_InfiniFramePackSidecarFile Include="$(_InfiniFramePackPublishDir)\web.config"/>
         </ItemGroup>
-        <Delete Files="@(_InfiniFramePackSidecarFile)" />
-        <RemoveDir Directories="$(_InfiniFramePackPublishDir)\wwwroot" Condition="Exists('$(_InfiniFramePackPublishDir)\wwwroot')" />
+        <Delete Files="@(_InfiniFramePackSidecarFile)"/>
+        <RemoveDir Directories="$(_InfiniFramePackPublishDir)\wwwroot" Condition="Exists('$(_InfiniFramePackPublishDir)\wwwroot')"/>
 
-        <Message Importance="high" Text="[InfiniFrame.SingleFile] Pack completed successfully." />
+        <Message Importance="high" Text="[InfiniFrame.SingleFile] Pack completed successfully."/>
     </Target>
 
     <!-- ==================================================================
@@ -96,20 +117,20 @@
 
         <!-- Two-pass mode: embed everything from InfiniFramePackEmbedDir -->
         <ItemGroup Condition="'$(InfiniFramePackEmbedDir)' != '' and Exists('$(InfiniFramePackEmbedDir)')">
-            <_InfiniFramePackAllWwwrootFiles Include="$(InfiniFramePackEmbedDir)\**\*" />
+            <_InfiniFramePackAllWwwrootFiles Include="$(InfiniFramePackEmbedDir)\**\*"/>
         </ItemGroup>
 
         <ItemGroup Condition="@(_InfiniFramePackAllWwwrootFiles) != ''">
             <EmbeddedResource Include="@(_InfiniFramePackAllWwwrootFiles)"
-                              LogicalName="publish.$([System.String]::Copy('%(_InfiniFramePackAllWwwrootFiles.RecursiveDir)%(_InfiniFramePackAllWwwrootFiles.Filename)%(_InfiniFramePackAllWwwrootFiles.Extension)').Replace('\', '.'))" />
-            <Content Remove="@(_InfiniFramePackAllWwwrootFiles)" />
-            <None Remove="@(_InfiniFramePackAllWwwrootFiles)" />
+                              LogicalName="publish.$([System.String]::Copy('%(_InfiniFramePackAllWwwrootFiles.RecursiveDir)%(_InfiniFramePackAllWwwrootFiles.Filename)%(_InfiniFramePackAllWwwrootFiles.Extension)').Replace('\', '.'))"/>
+            <Content Remove="@(_InfiniFramePackAllWwwrootFiles)"/>
+            <None Remove="@(_InfiniFramePackAllWwwrootFiles)"/>
         </ItemGroup>
 
         <!-- Single-pass mode: embed StaticWebAsset items (NuGet packages) -->
         <ItemGroup Condition="'$(InfiniFramePackEmbedDir)' == '' and @(StaticWebAsset) != ''">
             <_InfiniFramePackSwaCandidate Include="@(StaticWebAsset)"
-                                          Condition="'%(StaticWebAsset.BasePath)' != '' and '%(StaticWebAsset.RelativePath)' != ''" />
+                                          Condition="'%(StaticWebAsset.BasePath)' != '' and '%(StaticWebAsset.RelativePath)' != ''"/>
         </ItemGroup>
 
         <ItemGroup Condition="@(_InfiniFramePackSwaCandidate) != ''">
@@ -120,22 +141,22 @@
 
         <ItemGroup Condition="@(_InfiniFramePackSwaWithDots) != ''">
             <EmbeddedResource Include="@(_InfiniFramePackSwaWithDots)"
-                              LogicalName="publish.%(_InfiniFramePackSwaWithDots.SubPath)" />
-            <Content Remove="@(_InfiniFramePackSwaWithDots)" />
-            <None Remove="@(_InfiniFramePackSwaWithDots)" />
+                              LogicalName="publish.%(_InfiniFramePackSwaWithDots.SubPath)"/>
+            <Content Remove="@(_InfiniFramePackSwaWithDots)"/>
+            <None Remove="@(_InfiniFramePackSwaWithDots)"/>
         </ItemGroup>
 
         <!-- Single-pass mode: embed project wwwroot files -->
         <ItemGroup Condition="'$(InfiniFramePackEmbedDir)' == '' and Exists('$(MSBuildProjectDirectory)/wwwroot')">
             <_InfiniFramePackWwwrootFiles Include="$(MSBuildProjectDirectory)/wwwroot/**/*"
-                                          Exclude="@(EmbeddedResource)" />
+                                          Exclude="@(EmbeddedResource)"/>
         </ItemGroup>
 
         <ItemGroup Condition="@(_InfiniFramePackWwwrootFiles) != ''">
             <EmbeddedResource Include="@(_InfiniFramePackWwwrootFiles)"
-                              LogicalName="$(AssemblyName).wwwroot.%(_InfiniFramePackWwwrootFiles.RecursiveDir)%(_InfiniFramePackWwwrootFiles.Filename)%(_InfiniFramePackWwwrootFiles.Extension)" />
-            <Content Remove="@(_InfiniFramePackWwwrootFiles)" />
-            <None Remove="@(_InfiniFramePackWwwrootFiles)" />
+                              LogicalName="$(AssemblyName).wwwroot.%(_InfiniFramePackWwwrootFiles.RecursiveDir)%(_InfiniFramePackWwwrootFiles.Filename)%(_InfiniFramePackWwwrootFiles.Extension)"/>
+            <Content Remove="@(_InfiniFramePackWwwrootFiles)"/>
+            <None Remove="@(_InfiniFramePackWwwrootFiles)"/>
         </ItemGroup>
     </Target>
 
@@ -148,22 +169,22 @@
 
         <ItemGroup>
             <_InfiniFramePackNativeCandidate Include="@(ResolvedFileToPublish)"
-                Condition="'%(Filename)%(Extension)' == 'InfiniFrame.Native.dll'" />
+                                             Condition="'%(Filename)%(Extension)' == 'InfiniFrame.Native.dll'"/>
             <_InfiniFramePackNativeCandidate Include="@(ResolvedFileToPublish)"
-                Condition="'%(Filename)%(Extension)' == 'WebView2Loader.dll'" />
+                                             Condition="'%(Filename)%(Extension)' == 'WebView2Loader.dll'"/>
             <_InfiniFramePackNativeCandidate Include="@(ResolvedFileToPublish)"
-                Condition="'%(Filename)%(Extension)' == 'InfiniFrame.Native.so'" />
+                                             Condition="'%(Filename)%(Extension)' == 'InfiniFrame.Native.so'"/>
             <_InfiniFramePackNativeCandidate Include="@(ResolvedFileToPublish)"
-                Condition="'%(Filename)%(Extension)' == 'InfiniFrame.Native.dylib'" />
+                                             Condition="'%(Filename)%(Extension)' == 'InfiniFrame.Native.dylib'"/>
         </ItemGroup>
 
         <ItemGroup Condition="@(_InfiniFramePackNativeCandidate) != ''">
             <EmbeddedResource Include="@(_InfiniFramePackNativeCandidate)"
-                              LogicalName="$(AssemblyName).native.$(RuntimeIdentifier).%(_InfiniFramePackNativeCandidate.Filename)%(_InfiniFramePackNativeCandidate.Extension)" />
+                              LogicalName="$(AssemblyName).native.$(RuntimeIdentifier).%(_InfiniFramePackNativeCandidate.Filename)%(_InfiniFramePackNativeCandidate.Extension)"/>
         </ItemGroup>
 
         <ItemGroup Condition="@(_InfiniFramePackNativeCandidate) != ''">
-            <ResolvedFileToPublish Remove="@(_InfiniFramePackNativeCandidate)" />
+            <ResolvedFileToPublish Remove="@(_InfiniFramePackNativeCandidate)"/>
         </ItemGroup>
     </Target>
 
@@ -182,17 +203,17 @@
 
         <!-- Remove sidecar files -->
         <ItemGroup>
-            <_InfiniFramePackSidecarFile Include="$(_InfiniFramePackPublishDir)\*.staticwebassets.endpoints.json" />
-            <_InfiniFramePackSidecarFile Include="$(_InfiniFramePackPublishDir)\web.config" />
+            <_InfiniFramePackSidecarFile Include="$(_InfiniFramePackPublishDir)\*.staticwebassets.endpoints.json"/>
+            <_InfiniFramePackSidecarFile Include="$(_InfiniFramePackPublishDir)\web.config"/>
         </ItemGroup>
-        <Delete Files="@(_InfiniFramePackSidecarFile)" />
-        <RemoveDir Directories="$(_InfiniFramePackPublishDir)\wwwroot" Condition="Exists('$(_InfiniFramePackPublishDir)\wwwroot')" />
+        <Delete Files="@(_InfiniFramePackSidecarFile)"/>
+        <RemoveDir Directories="$(_InfiniFramePackPublishDir)\wwwroot" Condition="Exists('$(_InfiniFramePackPublishDir)\wwwroot')"/>
 
         <!-- Remove native files -->
-        <Delete Files="$(_InfiniFramePackPublishDir)\InfiniFrame.Native.dll" Condition="Exists('$(_InfiniFramePackPublishDir)\InfiniFrame.Native.dll')" />
-        <Delete Files="$(_InfiniFramePackPublishDir)\WebView2Loader.dll" Condition="Exists('$(_InfiniFramePackPublishDir)\WebView2Loader.dll')" />
-        <Delete Files="$(_InfiniFramePackPublishDir)\InfiniFrame.Native.so" Condition="Exists('$(_InfiniFramePackPublishDir)\InfiniFrame.Native.so')" />
-        <Delete Files="$(_InfiniFramePackPublishDir)\InfiniFrame.Native.dylib" Condition="Exists('$(_InfiniFramePackPublishDir)\InfiniFrame.Native.dylib')" />
+        <Delete Files="$(_InfiniFramePackPublishDir)\InfiniFrame.Native.dll" Condition="Exists('$(_InfiniFramePackPublishDir)\InfiniFrame.Native.dll')"/>
+        <Delete Files="$(_InfiniFramePackPublishDir)\WebView2Loader.dll" Condition="Exists('$(_InfiniFramePackPublishDir)\WebView2Loader.dll')"/>
+        <Delete Files="$(_InfiniFramePackPublishDir)\InfiniFrame.Native.so" Condition="Exists('$(_InfiniFramePackPublishDir)\InfiniFrame.Native.so')"/>
+        <Delete Files="$(_InfiniFramePackPublishDir)\InfiniFrame.Native.dylib" Condition="Exists('$(_InfiniFramePackPublishDir)\InfiniFrame.Native.dylib')"/>
     </Target>
 
 </Project>

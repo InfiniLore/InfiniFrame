@@ -44,7 +44,7 @@ public static class Program {
                 .SetIconFile("wwwroot/favicon.ico")
                 .RegisterOpenExternalTargetWebMessageHandler();
             
-            InfiniFrameSingleFile.AttachWithBlazor(appBuilder.WindowBuilder);
+            InfiniFrameSingleFile.AddSingleFileRequirements(appBuilder);
 
             Log.Information("Building InfiniFrame application...");
             InfiniFrameBlazorApp application = appBuilder.Build();

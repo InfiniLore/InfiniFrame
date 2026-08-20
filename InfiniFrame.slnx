@@ -105,6 +105,7 @@
     <Project Path="docs/InfiniFrame.Docs.proj" Type="845b7716-6f03-4d02-8e86-79f95485b5d8" />
   </Folder>
   <Folder Name="/examples/">
+    <File Path="examples/README.md" />
     <Project Path="examples/InfiniFrameExample.BlazorWebView/InfiniFrameExample.BlazorWebView.csproj" />
     <Project Path="examples/InfiniFrameExample.NativeMenu/InfiniFrameExample.NativeMenu.csproj" />
     <Project Path="examples/InfiniFrameExample.TrimAotSmoke/InfiniFrameExample.TrimAotSmoke.csproj" />

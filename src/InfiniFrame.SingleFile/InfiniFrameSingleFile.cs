@@ -1,41 +1,41 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Reflection;
+using InfiniFrame.BlazorWebView;
+using InfiniFrame.BlazorWebView.FileProviders;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 
 namespace InfiniFrame.SingleFile;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class InfiniFrameSingleFile {
     public static void Initialize() {
-        if (IsPackDeployment()) {
-            InfiniFrameSingleFileBootstrap.Initialize();
-        }
-    }
-    
-    public static void AttachWithStaticWwwroot(IInfiniFrameWindowBuilder builder) {
-        if (IsPackDeployment()) {
-            builder.UseEmbeddedWwwrootAssets(
-                scheme: "app",
-                includePhysicalFallback: true,
-                physicalWwwrootPath: Path.Join(AppContext.BaseDirectory, "wwwroot"),
-                setStartUrl: true
-            );
-        }
-    }
-    
-    public static void AttachWithBlazor(IInfiniFrameWindowBuilder builder) {
-        // In pack mode, the file provider is handled by PackModeFileProvider
-        // (detected in InfiniFrameBlazorAppBuilder.ConfigureFileProvider).
-        // We must NOT register a scheme handler here; it would overwrite the
-        // Blazor WebViewManager handler already registered by Build().
+        if (!InfiniFramePackMode.IsActive) return;
+
+        InfiniFrameSingleFileBootstrap.Initialize();
     }
 
-    private static bool IsPackDeployment() {
-        Assembly entryAssembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
-        string[] resourceNames = entryAssembly.GetManifestResourceNames();
-        return resourceNames.Any(r => r.StartsWith("publish.", StringComparison.Ordinal) || r.Contains(".native.") || r.Contains(".wwwroot."));
+    public static void AddSingleFileRequirements(this IInfiniFrameWindowBuilder builder) {
+        if (!InfiniFramePackMode.IsActive) return;
+
+        string physicalWwwrootPath = Path.Join(AppContext.BaseDirectory, "wwwroot");
+
+        builder.UseEmbeddedWwwrootAssets(
+            scheme: "app",
+            includePhysicalFallback: true,
+            physicalWwwrootPath: physicalWwwrootPath,
+            setStartUrl: true
+        );
+    }
+
+    public static void AddSingleFileRequirements(this IInfiniFrameBlazorAppBuilder builder) {
+        if (!InfiniFramePackMode.IsActive) return;
+
+        string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+        if (!SingleFileModeFileProvider.TryCreate(baseDirectory, out IFileProvider? fileProvider)) return;
+
+        builder.Services.AddSingleton(fileProvider);
     }
 }

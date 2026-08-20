@@ -13,6 +13,7 @@
 
     <ItemGroup>
         <ProjectReference Include="../../../src/InfiniFrame/InfiniFrame.csproj" />
+        <ProjectReference Include="../../../src/InfiniFrame.SingleFile/InfiniFrame.SingleFile.csproj" />
     </ItemGroup>
 
     <ItemGroup>

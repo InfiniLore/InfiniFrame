@@ -98,10 +98,6 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
 
         string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
-        // Check if we're in single-file pack mode (embedded "publish.*" resources)
-        var packModeProvider = PackModeFileProvider.TryCreate(baseDirectory);
-        if (packModeProvider is not null) return packModeProvider;
-
         var providers = new List<IFileProvider>();
 
         IFileProvider? staticWebAssetsProvider = StaticWebAssetsRuntimeFileProvider.TryCreate(baseDirectory, Assembly.GetEntryAssembly());

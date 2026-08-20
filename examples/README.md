@@ -4,13 +4,13 @@ Runnable examples demonstrating different InfiniFrame integration patterns
 
 ## Overview
 
-| Example | Integration | Demonstrates |
-|---------|-------------|--------------|
-| [BlazorWebView](InfiniFrameExample.BlazorWebView/) | `BlazorWebView` | Basic Blazor app in a native window |
+| Example                                                                                | Integration     | Demonstrates                                                  |
+|----------------------------------------------------------------------------------------|-----------------|---------------------------------------------------------------|
+| [BlazorWebView](InfiniFrameExample.BlazorWebView/)                                     | `BlazorWebView` | Basic Blazor app in a native window                           |
 | [BlazorWebView.MultiWindowSample](InfiniFrameExample.BlazorWebView.MultiWindowSample/) | `BlazorWebView` | Multiple independent windows with different Blazor components |
-| [WebApp.Blazor](InfiniFrameExample.WebApp.Blazor/) | `WebServer` | Blazor Server hosted via ASP.NET Core |
-| [WebApp.React](InfiniFrameExample.WebApp.React/) | `WebServer` | React frontend with custom scheme handler and web messaging |
-| [WebApp.Vue](InfiniFrameExample.WebApp.Vue/) | `WebServer` | Vue.js frontend with all built-in JS message handlers |
+| [WebApp.Blazor](InfiniFrameExample.WebApp.Blazor/)                                     | `WebServer`     | Blazor Server hosted via ASP.NET Core                         |
+| [WebApp.React](InfiniFrameExample.WebApp.React/)                                       | `WebServer`     | React frontend with custom scheme handler and web messaging   |
+| [WebApp.Vue](InfiniFrameExample.WebApp.Vue/)                                           | `WebServer`     | Vue.js frontend with all built-in JS message handlers         |
 
 ## Running an Example
 
