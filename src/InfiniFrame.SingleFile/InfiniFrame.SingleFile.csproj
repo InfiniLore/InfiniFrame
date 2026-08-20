@@ -24,4 +24,7 @@
         <None Include="InfiniFrame.SingleFile.targets" Pack="true" PackagePath="build/InfiniLore.InfiniFrame.SingleFile.targets" />
         <None Include="InfiniFrame.SingleFile.targets" Pack="true" PackagePath="buildTransitive/InfiniLore.InfiniFrame.SingleFile.targets" />
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\InfiniFrame\InfiniFrame.csproj" />
+    </ItemGroup>
 </Project>
