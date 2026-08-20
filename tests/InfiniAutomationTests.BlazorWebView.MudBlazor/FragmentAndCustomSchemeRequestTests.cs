@@ -28,7 +28,7 @@ public sealed class FragmentAndCustomSchemeRequestTests : InfiniFramePlaywrightT
             new PageWaitForFunctionOptions { Timeout = 20_000 });
         await page.WaitForSelectorAsync("#settings", new PageWaitForSelectorOptions { Timeout = 20_000 });
 
-        JsonElement pageState = await EvaluateWhenPageReadyAsync<JsonElement>(
+        var pageState = await EvaluateWhenPageReadyAsync<JsonElement>(
             page,
             // lang=javascript
             """
@@ -46,7 +46,7 @@ public sealed class FragmentAndCustomSchemeRequestTests : InfiniFramePlaywrightT
         await Assert.That(pageState.GetProperty("hasSettings").GetBoolean()).IsTrue();
         await WaitForInfiniFrameReadyAsync(page);
 
-        JsonElement fetchResult = await EvaluateWhenPageReadyAsync<JsonElement>(
+        var fetchResult = await EvaluateWhenPageReadyAsync<JsonElement>(
             page,
             // lang=javascript
             """
@@ -71,7 +71,7 @@ public sealed class FragmentAndCustomSchemeRequestTests : InfiniFramePlaywrightT
         await Assert.That(fetchResult.GetProperty("body").GetString())
             .IsEqualTo("{\"message\":\"InfiniFrame fragment fetch payload\"}");
 
-        JsonElement xhrResult = await EvaluateWhenPageReadyAsync<JsonElement>(
+        var xhrResult = await EvaluateWhenPageReadyAsync<JsonElement>(
             page,
             // lang=javascript
             """

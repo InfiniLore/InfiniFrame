@@ -60,7 +60,7 @@ public static class WindowManagementWebMessageHandler {
                     using JsonDocument doc = JsonDocument.Parse(payload);
                     int widthOffset = doc.RootElement.GetProperty("widthOffset").GetInt32();
                     int heightOffset = doc.RootElement.GetProperty("heightOffset").GetInt32();
-                    ResizeOrigin origin = Enum.Parse<ResizeOrigin>(doc.RootElement.GetProperty("origin").GetString()!);
+                    var origin = Enum.Parse<ResizeOrigin>(doc.RootElement.GetProperty("origin").GetString()!);
                     window.Features.Size.Resize(widthOffset, heightOffset, origin);
                 } catch (JsonException) { /* Best effort resize */ }
                 catch (ArgumentException) { /* Best effort resize */ }

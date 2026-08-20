@@ -1,18 +1,18 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using JetBrains.Annotations;
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 
-namespace InfiniFrame.BlazorWebView.FileProviders.Static;
+namespace InfiniFrame.BlazorWebView.FileProviders;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [UsedImplicitly]
-internal sealed class StaticWebAsset {
-    [JsonPropertyName("ContentRootIndex")]
-    public int ContentRootIndex { get; set; }
+internal sealed class StaticWebAssetManifest {
+    [JsonPropertyName("ContentRoots")]
+    public string[]? ContentRoots { get; set; }
 
-    [JsonPropertyName("SubPath")]
-    public string SubPath { get; set; } = string.Empty;
+    [JsonPropertyName("Root")]
+    public StaticWebAssetNode? Root { get; set; }
 }

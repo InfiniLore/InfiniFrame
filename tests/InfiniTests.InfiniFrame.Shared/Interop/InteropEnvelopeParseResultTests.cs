@@ -12,7 +12,7 @@ public class InteropEnvelopeParseResultTests {
     [Test]
     public async Task CreateSuccess_SetsSuccessState(CancellationToken ct = default) {
         // Arrange & Act
-        InteropEnvelopeParseResult result = InteropEnvelopeParseResult.CreateSuccess(
+        var result = InteropEnvelopeParseResult.CreateSuccess(
             "msg-1", "data", "Post", "req-1"
         );
 
@@ -31,7 +31,7 @@ public class InteropEnvelopeParseResultTests {
     [Test]
     public async Task CreateSuccess_NullOptionalFields(CancellationToken ct = default) {
         // Arrange & Act
-        InteropEnvelopeParseResult result = InteropEnvelopeParseResult.CreateSuccess("msg-1", null);
+        var result = InteropEnvelopeParseResult.CreateSuccess("msg-1", null);
 
         // Assert
         await Assert.That(result.IsSuccess).IsTrue();
@@ -43,7 +43,7 @@ public class InteropEnvelopeParseResultTests {
     [Test]
     public async Task CreateFailure_SetsFailureState(CancellationToken ct = default) {
         // Arrange & Act
-        InteropEnvelopeParseResult result = InteropEnvelopeParseResult.CreateFailure("something went wrong");
+        var result = InteropEnvelopeParseResult.CreateFailure("something went wrong");
 
         // Assert
         await Assert.That(result.IsSuccess).IsFalse();

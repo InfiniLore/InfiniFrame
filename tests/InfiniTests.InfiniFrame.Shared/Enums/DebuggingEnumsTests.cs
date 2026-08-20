@@ -12,7 +12,7 @@ public class DebuggingEnumsTests {
     [Test]
     public async Task InfiniFrameDebugEventKind_AllValuesDistinct(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameDebugEventKind[] values = (InfiniFrameDebugEventKind[])Enum.GetValues(typeof(InfiniFrameDebugEventKind));
+        var values = (InfiniFrameDebugEventKind[])Enum.GetValues(typeof(InfiniFrameDebugEventKind));
 
         // Act
         int distinctCount = values.Select(v => (int)v).Distinct().Count();
@@ -24,7 +24,7 @@ public class DebuggingEnumsTests {
     [Test]
     public async Task InfiniFrameDebugEndpointStatus_AllValuesDistinct(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameDebugEndpointStatus[] values = (InfiniFrameDebugEndpointStatus[])Enum.GetValues(typeof(InfiniFrameDebugEndpointStatus));
+        var values = (InfiniFrameDebugEndpointStatus[])Enum.GetValues(typeof(InfiniFrameDebugEndpointStatus));
 
         // Act
         int distinctCount = values.Select(v => (int)v).Distinct().Count();

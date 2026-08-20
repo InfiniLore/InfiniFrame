@@ -26,7 +26,7 @@ public partial class InfiniFrameNative {
     ) {
         var marshaller = new InfiniFrameNativeParametersMarshaller.ManagedToUnmanagedIn();
         marshaller.FromManaged(parameters);
-        InfiniFrameNativeParametersMarshaller.Unmanaged unmanaged = marshaller.ToUnmanaged();
+        var unmanaged = marshaller.ToUnmanaged();
         IntPtr unmanagedPtr = IntPtr.Zero;
 
         try {

@@ -12,7 +12,7 @@ public class InfiniFrameWindowLifecycleStateTests {
     [Test]
     public async Task AllValues_AreDistinct(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameWindowLifecycleState[] values = (InfiniFrameWindowLifecycleState[])Enum.GetValues(typeof(InfiniFrameWindowLifecycleState));
+        var values = (InfiniFrameWindowLifecycleState[])Enum.GetValues(typeof(InfiniFrameWindowLifecycleState));
 
         // Act
         int distinctCount = values.Select(v => (int)v).Distinct().Count();

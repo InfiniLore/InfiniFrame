@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Reflection;
-using InfiniFrame.BlazorWebView.FileProviders.Static;
+using InfiniFrame.BlazorWebView.FileProviders;
 using InfiniFrame.Security;
 using InfiniFrame.StaticAssets;
 using Microsoft.AspNetCore.Components;
@@ -99,7 +99,7 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
         string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
         // Check if we're in single-file pack mode (embedded "publish.*" resources)
-        PackModeFileProvider? packModeProvider = PackModeFileProvider.TryCreate(baseDirectory);
+        var packModeProvider = PackModeFileProvider.TryCreate(baseDirectory);
         if (packModeProvider is not null) return packModeProvider;
 
         var providers = new List<IFileProvider>();

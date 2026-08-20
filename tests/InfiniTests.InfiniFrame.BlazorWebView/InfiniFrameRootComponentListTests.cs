@@ -32,10 +32,9 @@ public class InfiniFrameRootComponentListTests {
     [Test]
     public async Task Add_NonGeneric_WithValidComponentType_ShouldAddToList(CancellationToken ct = default) {
         // Arrange
-        var list = new InfiniFrameRootComponentList();
-
-        // Act
-        list.Add(typeof(TestComponent), "#root");
+        var list = new InfiniFrameRootComponentList {
+            // Act
+            { typeof(TestComponent), "#root" } };
 
         // Assert
         List<(Type, string)> items = list.ToList();

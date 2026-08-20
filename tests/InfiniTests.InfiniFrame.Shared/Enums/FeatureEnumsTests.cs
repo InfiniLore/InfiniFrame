@@ -12,7 +12,7 @@ public class FeatureEnumsTests {
     [Test]
     public async Task NavigationStatus_AllValuesDistinct(CancellationToken ct = default) {
         // Arrange
-        NavigationStatus[] values = (NavigationStatus[])Enum.GetValues(typeof(NavigationStatus));
+        var values = (NavigationStatus[])Enum.GetValues(typeof(NavigationStatus));
 
         // Act
         int distinctCount = values.Select(v => (int)v).Distinct().Count();
@@ -24,7 +24,7 @@ public class FeatureEnumsTests {
     [Test]
     public async Task InfiniFrameDispatchResult_AllValuesDistinct(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameDispatchResult[] values = (InfiniFrameDispatchResult[])Enum.GetValues(typeof(InfiniFrameDispatchResult));
+        var values = (InfiniFrameDispatchResult[])Enum.GetValues(typeof(InfiniFrameDispatchResult));
 
         // Act
         int distinctCount = values.Select(v => (int)v).Distinct().Count();
@@ -36,7 +36,7 @@ public class FeatureEnumsTests {
     [Test]
     public async Task InfiniFrameMenuItemType_AllValuesDistinct(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameMenuItemType[] values = (InfiniFrameMenuItemType[])Enum.GetValues(typeof(InfiniFrameMenuItemType));
+        var values = (InfiniFrameMenuItemType[])Enum.GetValues(typeof(InfiniFrameMenuItemType));
 
         // Act
         int distinctCount = values.Select(v => (int)v).Distinct().Count();
@@ -48,7 +48,7 @@ public class FeatureEnumsTests {
     [Test]
     public async Task TaskbarProgressState_AllValuesDistinct(CancellationToken ct = default) {
         // Arrange
-        TaskbarProgressState[] values = (TaskbarProgressState[])Enum.GetValues(typeof(TaskbarProgressState));
+        var values = (TaskbarProgressState[])Enum.GetValues(typeof(TaskbarProgressState));
 
         // Act
         int distinctCount = values.Select(v => (int)v).Distinct().Count();
@@ -60,7 +60,7 @@ public class FeatureEnumsTests {
     [Test]
     public async Task TaskbarFlashMode_AllValuesDistinct(CancellationToken ct = default) {
         // Arrange
-        TaskbarFlashMode[] values = (TaskbarFlashMode[])Enum.GetValues(typeof(TaskbarFlashMode));
+        var values = (TaskbarFlashMode[])Enum.GetValues(typeof(TaskbarFlashMode));
 
         // Act
         int distinctCount = values.Select(v => (int)v).Distinct().Count();
@@ -72,7 +72,7 @@ public class FeatureEnumsTests {
     [Test]
     public async Task InfiniFrameNotificationUrgency_AllValuesDistinct(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameNotificationUrgency[] values = (InfiniFrameNotificationUrgency[])Enum.GetValues(typeof(InfiniFrameNotificationUrgency));
+        var values = (InfiniFrameNotificationUrgency[])Enum.GetValues(typeof(InfiniFrameNotificationUrgency));
 
         // Act
         int distinctCount = values.Select(v => (int)v).Distinct().Count();
@@ -84,7 +84,7 @@ public class FeatureEnumsTests {
     [Test]
     public async Task InfiniFrameNotificationResult_AllValuesDistinct(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameNotificationResult[] values = (InfiniFrameNotificationResult[])Enum.GetValues(typeof(InfiniFrameNotificationResult));
+        var values = (InfiniFrameNotificationResult[])Enum.GetValues(typeof(InfiniFrameNotificationResult));
 
         // Act
         int distinctCount = values.Select(v => (int)v).Distinct().Count();

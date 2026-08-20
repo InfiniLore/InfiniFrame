@@ -1,18 +1,12 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using JetBrains.Annotations;
-using System.Text.Json.Serialization;
-
-namespace InfiniFrame.BlazorWebView.FileProviders.Static;
+namespace InfiniFrame.BlazorWebView.FileProviders;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[UsedImplicitly]
-internal sealed class StaticWebAssetPattern {
-    [JsonPropertyName("ContentRootIndex")]
-    public int ContentRootIndex { get; set; }
-
-    [JsonPropertyName("Pattern")]
-    public string Pattern { get; set; } = string.Empty;
-}
+internal sealed record ManifestCandidate(
+    string ManifestPath,
+    int BaseScore,
+    Stream? ResourceStream = null
+);

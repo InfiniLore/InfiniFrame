@@ -1,18 +1,17 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Collections;
 using Microsoft.Extensions.FileProviders;
 
-namespace InfiniFrame.BlazorWebView.FileProviders.Static;
+namespace InfiniFrame.BlazorWebView.FileProviders;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal sealed class ManifestDirectoryFileInfo(string name) : IFileInfo {
+internal sealed class ManifestDirectoryContents(IReadOnlyList<IFileInfo> entries) : IDirectoryContents {
     public bool Exists => true;
-    public long Length => -1;
-    public string PhysicalPath => string.Empty;
-    public string Name => name;
-    public DateTimeOffset LastModified => DateTimeOffset.MinValue;
-    public bool IsDirectory => true;
-    public Stream CreateReadStream() => throw new InvalidOperationException("Cannot create stream for a directory.");
+
+    public IEnumerator<IFileInfo> GetEnumerator() => entries.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

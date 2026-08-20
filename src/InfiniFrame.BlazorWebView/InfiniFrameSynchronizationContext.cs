@@ -4,7 +4,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.BlazorWebView.Utilities;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 

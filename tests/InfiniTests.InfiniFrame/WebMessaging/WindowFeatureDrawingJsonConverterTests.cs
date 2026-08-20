@@ -32,7 +32,7 @@ public class WindowFeatureDrawingJsonConverterTests {
 
         // Act
         string json = JsonSerializer.Serialize(point, options);
-        Point deserialized = JsonSerializer.Deserialize<Point>(json, options);
+        var deserialized = JsonSerializer.Deserialize<Point>(json, options);
 
         // Assert
         await Assert.That(deserialized.X).IsEqualTo(100);
@@ -83,7 +83,7 @@ public class WindowFeatureDrawingJsonConverterTests {
 
         // Act
         string json = JsonSerializer.Serialize(size, options);
-        Size deserialized = JsonSerializer.Deserialize<Size>(json, options);
+        var deserialized = JsonSerializer.Deserialize<Size>(json, options);
 
         // Assert
         await Assert.That(deserialized.Width).IsEqualTo(800);
@@ -123,7 +123,7 @@ public class WindowFeatureDrawingJsonConverterTests {
 
         // Act
         string json = JsonSerializer.Serialize(rect, options);
-        Rectangle deserialized = JsonSerializer.Deserialize<Rectangle>(json, options);
+        var deserialized = JsonSerializer.Deserialize<Rectangle>(json, options);
 
         // Assert
         await Assert.That(deserialized.X).IsEqualTo(10);

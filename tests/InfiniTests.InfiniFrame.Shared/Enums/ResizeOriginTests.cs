@@ -12,7 +12,7 @@ public class ResizeOriginTests {
     [Test]
     public async Task AllValues_AreDistinct(CancellationToken ct = default) {
         // Arrange
-        ResizeOrigin[] values = (ResizeOrigin[])Enum.GetValues(typeof(ResizeOrigin));
+        var values = (ResizeOrigin[])Enum.GetValues(typeof(ResizeOrigin));
 
         // Act
         int distinctCount = values.Distinct().Count();
@@ -35,7 +35,7 @@ public class ResizeOriginTests {
         string name = value.ToString();
 
         // Act
-        ResizeOrigin parsed = Enum.Parse<ResizeOrigin>(name);
+        var parsed = Enum.Parse<ResizeOrigin>(name);
 
         // Assert
         await Assert.That(parsed).IsEqualTo(value);

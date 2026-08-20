@@ -1,12 +1,12 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Text.Json.Serialization;
-
-namespace InfiniFrame.BlazorWebView.FileProviders.Static;
+namespace InfiniFrame.BlazorWebView.FileProviders;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true)]
-[JsonSerializable(typeof(StaticWebAssetManifest))]
-internal sealed partial class StaticWebAssetsManifestJsonContext : JsonSerializerContext;
+internal sealed record ScoredManifestCandidate(
+    StaticWebAssetManifest Manifest,
+    int Score,
+    string ManifestPath
+);

@@ -1,12 +1,12 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame.BlazorWebView.FileProviders.Static;
+using System.Text.Json.Serialization;
+
+namespace InfiniFrame.BlazorWebView.FileProviders;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal sealed record NodeTraversalState(
-    StaticWebAssetNode Node,
-    int ConsumedSegments,
-    string PathPrefix
-);
+[JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true)]
+[JsonSerializable(typeof(StaticWebAssetManifest))]
+internal sealed partial class StaticWebAssetsManifestJsonContext : JsonSerializerContext;

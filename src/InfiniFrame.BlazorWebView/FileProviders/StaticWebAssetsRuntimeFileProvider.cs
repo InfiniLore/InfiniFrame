@@ -1,15 +1,15 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Primitives;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Primitives;
 
-namespace InfiniFrame.BlazorWebView.FileProviders.Static;
+namespace InfiniFrame.BlazorWebView.FileProviders;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -33,6 +33,7 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, s
 
             if (Directory.Exists(normalizedRoot)) return new PhysicalFileProvider(normalizedRoot);
             if (embeddedAssembly is not null) return new EmbeddedFileProvider(embeddedAssembly, "publish");
+
             return new NullFileProvider();
         })
         .ToArray();
@@ -359,17 +360,17 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, s
             char c = pattern[i];
             switch (c) {
                 case '*': {
-                        bool isDoubleStar = i + 1 < pattern.Length && pattern[i + 1] == '*';
-                        if (isDoubleStar) {
-                            regex.Append(".*");
-                            i++;
-                        }
-                        else {
-                            regex.Append("[^/]*");
-                        }
-
-                        break;
+                    bool isDoubleStar = i + 1 < pattern.Length && pattern[i + 1] == '*';
+                    if (isDoubleStar) {
+                        regex.Append(".*");
+                        i++;
                     }
+                    else {
+                        regex.Append("[^/]*");
+                    }
+
+                    break;
+                }
 
                 case '?':
                     regex.Append("[^/]");
@@ -408,8 +409,8 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, s
             try {
                 children = Directory.GetDirectories(directory, searchPattern, SearchOption.TopDirectoryOnly);
             }
-            catch (IOException) { }
-            catch (UnauthorizedAccessException) { }
+            catch (IOException) {}
+            catch (UnauthorizedAccessException) {}
 
             if (children.Length > 0) return children[0];
 

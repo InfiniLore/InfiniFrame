@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Collections;
-using InfiniFrame.BlazorWebView.FileProviders.Static;
+using InfiniFrame.BlazorWebView.FileProviders;
 using Microsoft.Extensions.FileProviders;
 
 namespace InfiniTests.InfiniFrame.BlazorWebView;

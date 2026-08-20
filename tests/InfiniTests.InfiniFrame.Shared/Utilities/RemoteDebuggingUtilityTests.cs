@@ -46,7 +46,7 @@ public class RemoteDebuggingUtilityTests {
     [Test]
     public async Task NormalizePort_InvalidPort_ExceptionContainsParameterName(CancellationToken ct = default) {
         // Arrange & Act
-        ArgumentOutOfRangeException? ex = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
+        var ex = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
             () => Task.Run(() => RemoteDebuggingUtility.NormalizePort(-1, "myPort"))
         );
 

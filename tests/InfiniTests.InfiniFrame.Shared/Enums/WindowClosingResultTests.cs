@@ -12,7 +12,7 @@ public class WindowClosingResultTests {
     [Test]
     public async Task AllValues_AreDistinct(CancellationToken ct = default) {
         // Arrange
-        WindowClosingResult[] values = (WindowClosingResult[])Enum.GetValues(typeof(WindowClosingResult));
+        var values = (WindowClosingResult[])Enum.GetValues(typeof(WindowClosingResult));
 
         // Act
         int distinctCount = values.Select(v => (int)v).Distinct().Count();
