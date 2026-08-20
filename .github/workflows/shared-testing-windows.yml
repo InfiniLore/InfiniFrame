@@ -265,8 +265,8 @@ jobs:
                         artifacts/windows-event-log.txt
                         TestResults
 
-            -   name: Pack Tool E2E
-                uses: ./.github/actions/packtool-e2e
+            -   name: SingleFile E2E
+                uses: ./.github/actions/singlefile-e2e
                 with:
                     project: examples/SingleFileExe/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
                     rid: ${{ matrix.rid }}

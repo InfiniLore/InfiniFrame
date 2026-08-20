@@ -193,8 +193,8 @@ jobs:
                     if-no-files-found: warn
                     retention-days: 1
 
-            -   name: Pack Tool E2E
-                uses: ./.github/actions/packtool-e2e
+            -   name: SingleFile E2E
+                uses: ./.github/actions/singlefile-e2e
                 with:
                     project: examples/SingleFileExe/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
                     rid: ${{ matrix.rid }}
