@@ -1,0 +1,141 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Debugging;
+using InfiniFrame.Utilities;
+
+namespace InfiniTests.InfiniFrame.Shared.Utilities;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public class EndpointStatusResolverTests {
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Resolve
+    // -----------------------------------------------------------------------------------------------------------------
+    [Test]
+    public async Task Resolve_PlatformNotSupported_ReturnsNotSupported(CancellationToken ct = default) {
+        // Arrange
+
+        // Act
+        InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
+            isPlatformSupported: false, remoteDebuggingPort: 9222,
+            isWindowClosed: false, hasEndpoint: true,
+            probeSucceeded: true, probeReason: null);
+
+        // Assert
+        await Assert.That(result).IsEqualTo(InfiniFrameDebugEndpointStatus.NotSupported);
+    }
+
+    [Test]
+    public async Task Resolve_PortNull_ReturnsDisabled(CancellationToken ct = default) {
+        // Arrange
+
+        // Act
+        InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
+            isPlatformSupported: true, remoteDebuggingPort: null,
+            isWindowClosed: false, hasEndpoint: true,
+            probeSucceeded: true, probeReason: null);
+
+        // Assert
+        await Assert.That(result).IsEqualTo(InfiniFrameDebugEndpointStatus.Disabled);
+    }
+
+    [Test]
+    public async Task Resolve_WindowClosed_ReturnsUnavailable(CancellationToken ct = default) {
+        // Arrange
+
+        // Act
+        InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
+            isPlatformSupported: true, remoteDebuggingPort: 9222,
+            isWindowClosed: true, hasEndpoint: true,
+            probeSucceeded: true, probeReason: null);
+
+        // Assert
+        await Assert.That(result).IsEqualTo(InfiniFrameDebugEndpointStatus.Unavailable);
+    }
+
+    [Test]
+    public async Task Resolve_NoEndpoint_ReturnsUnavailable(CancellationToken ct = default) {
+        // Arrange
+
+        // Act
+        InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
+            isPlatformSupported: true, remoteDebuggingPort: 9222,
+            isWindowClosed: false, hasEndpoint: false,
+            probeSucceeded: true, probeReason: null);
+
+        // Assert
+        await Assert.That(result).IsEqualTo(InfiniFrameDebugEndpointStatus.Unavailable);
+    }
+
+    [Test]
+    public async Task Resolve_ProbeSucceeded_ReturnsReachable(CancellationToken ct = default) {
+        // Arrange
+
+        // Act
+        InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
+            isPlatformSupported: true, remoteDebuggingPort: 9222,
+            isWindowClosed: false, hasEndpoint: true,
+            probeSucceeded: true, probeReason: null);
+
+        // Assert
+        await Assert.That(result).IsEqualTo(InfiniFrameDebugEndpointStatus.Reachable);
+    }
+
+    [Test]
+    public async Task Resolve_ProbeNotSucceeded_NoReason_ReturnsConfigured(CancellationToken ct = default) {
+        // Arrange
+
+        // Act
+        InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
+            isPlatformSupported: true, remoteDebuggingPort: 9222,
+            isWindowClosed: false, hasEndpoint: true,
+            probeSucceeded: false, probeReason: null);
+
+        // Assert
+        await Assert.That(result).IsEqualTo(InfiniFrameDebugEndpointStatus.Configured);
+    }
+
+    [Test]
+    public async Task Resolve_ProbeNotSucceeded_EmptyReason_ReturnsConfigured(CancellationToken ct = default) {
+        // Arrange
+
+        // Act
+        InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
+            isPlatformSupported: true, remoteDebuggingPort: 9222,
+            isWindowClosed: false, hasEndpoint: true,
+            probeSucceeded: false, probeReason: "  ");
+
+        // Assert
+        await Assert.That(result).IsEqualTo(InfiniFrameDebugEndpointStatus.Configured);
+    }
+
+    [Test]
+    public async Task Resolve_ProbeNotSucceeded_WithReason_ReturnsUnreachable(CancellationToken ct = default) {
+        // Arrange
+
+        // Act
+        InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
+            isPlatformSupported: true, remoteDebuggingPort: 9222,
+            isWindowClosed: false, hasEndpoint: true,
+            probeSucceeded: false, probeReason: "Connection refused");
+
+        // Assert
+        await Assert.That(result).IsEqualTo(InfiniFrameDebugEndpointStatus.Unreachable);
+    }
+
+    [Test]
+    public async Task Resolve_PortZero_ReturnsUnavailable(CancellationToken ct = default) {
+        // Arrange
+
+        // Act
+        InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
+            isPlatformSupported: true, remoteDebuggingPort: 0,
+            isWindowClosed: false, hasEndpoint: false,
+            probeSucceeded: false, probeReason: null);
+
+        // Assert
+        await Assert.That(result).IsEqualTo(InfiniFrameDebugEndpointStatus.Unavailable);
+    }
+}
