@@ -41,10 +41,7 @@
             <_InfiniFramePackConfigFile>$(_InfiniFramePackConfigDir)\InfiniFramePackModeInitializer.g.cs</_InfiniFramePackConfigFile>
         </PropertyGroup>
         <MakeDir Directories="$(_InfiniFramePackConfigDir)"/>
-        <WriteLinesToFile
-            File="$(_InfiniFramePackConfigFile)"
-            Lines="using System.Runtime.CompilerServices;&#xA;&#xA;internal static class InfiniFramePackModeInitializer {&#xA;    [ModuleInitializer]&#xA;    internal static void Initialize() {&#xA;        InfiniFrame.SingleFile.InfiniFramePackMode.IsActive = true;&#xA;    }&#xA;}"
-            Overwrite="true"/>
+        <Exec Command="pwsh -NoProfile -Command &quot;Set-Content -Path '$(_InfiniFramePackConfigFile)' -Value @('using System.Runtime.CompilerServices;', '', 'internal static class InfiniFramePackModeInitializer {', '    [ModuleInitializer]', '    internal static void Initialize() {', '        InfiniFrame.SingleFile.InfiniFramePackMode.IsActive = true;', '    }', '}') -Encoding UTF8&quot;" />
         <ItemGroup>
             <Compile Include="$(_InfiniFramePackConfigFile)"/>
         </ItemGroup>
