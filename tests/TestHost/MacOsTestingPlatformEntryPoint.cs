@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniTests.Native;
+using InfiniTests;
 using Microsoft.Testing.Platform.Builder;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -56,10 +56,9 @@ internal static class MacOsTestingPlatformEntryPoint {
         IntPtr library = NativeLibrary.Load(CoreFoundation);
         IntPtr symbol = NativeLibrary.GetExport(library, "kCFRunLoopDefaultMode");
         IntPtr mode = Marshal.ReadIntPtr(symbol);
-        if (mode == IntPtr.Zero)
-            throw new InvalidOperationException("CoreFoundation returned a null default run-loop mode.");
-
-        return mode;
+        return mode != IntPtr.Zero 
+            ? mode
+            : throw new InvalidOperationException("CoreFoundation returned a null default run-loop mode.");
     }
 
     [DllImport("/usr/lib/libc.dylib", EntryPoint = "_exit")]
