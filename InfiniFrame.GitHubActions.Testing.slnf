@@ -18,8 +18,8 @@
             "tests\\InfiniTests.InfiniFrame.Js\\InfiniTests.InfiniFrame.Js.csproj",
             "tests\\InfiniTests.InfiniFrame.NativeBridge\\InfiniTests.InfiniFrame.NativeBridge.csproj",
             "tests\\InfiniTests.InfiniFrame.Shared\\InfiniTests.InfiniFrame.Shared.csproj",
-            "tests\\InfiniTests.InfiniFrame.WebServer\\InfiniTests.InfiniFrame.WebServer.csproj",
-            
+            "tests\\InfiniTests.InfiniFrame.SingleFile\\InfiniTests.InfiniFrame.SingleFile.csproj",
+            "tests\\InfiniTests.InfiniFrame.WebServer\\InfiniTests.InfiniFrame.WebServer.csproj"
         ]
     }
 }

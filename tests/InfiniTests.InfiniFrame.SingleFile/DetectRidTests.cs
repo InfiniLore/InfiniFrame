@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace InfiniTests.InfiniFrame.SingleFile;
@@ -45,7 +44,7 @@ public class DetectRidTests {
     [Test]
     public async Task DetectRid_FormatContainsDash(CancellationToken ct = default) {
         string os = OperatingSystem.IsWindows() ? "win" : "linux";
-        string arch = "x64";
+        const string arch = "x64";
         string rid = $"{os}-{arch}";
 
         await Assert.That(rid).Contains("-");

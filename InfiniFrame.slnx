@@ -143,6 +143,7 @@
     <Project Path="tests/InfiniTests.InfiniFrame.Js/InfiniTests.InfiniFrame.Js.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame.NativeBridge/InfiniTests.InfiniFrame.NativeBridge.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame.Shared/InfiniTests.InfiniFrame.Shared.csproj" />
+    <Project Path="tests/InfiniTests.InfiniFrame.SingleFile/InfiniTests.InfiniFrame.SingleFile.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame.WebServer/InfiniTests.InfiniFrame.WebServer.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj" />
     <Project Path="tests/InfiniTests/InfiniTests.csproj" />

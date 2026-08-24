@@ -231,61 +231,30 @@ jobs:
                     sudo sysctl -w "kernel.core_pattern=${GITHUB_WORKSPACE}/artifacts/native-crash/core.%e.%p.%t"
 
                     exit_code=0
-                    test_projects=(
-                      tests/InfiniTests.InfiniFrame.Js/InfiniTests.InfiniFrame.Js.csproj
-                      tests/InfiniTests.InfiniFrame.Blazor/InfiniTests.InfiniFrame.Blazor.csproj
-                      tests/InfiniTests.InfiniFrame.WebServer/InfiniTests.InfiniFrame.WebServer.csproj
-                      tests/InfiniTests.InfiniFrame.Shared/InfiniTests.InfiniFrame.Shared.csproj
-                      tests/InfiniTests.InfiniFrame.NativeBridge/InfiniTests.InfiniFrame.NativeBridge.csproj
-                      tests/InfiniTests.InfiniFrame.BlazorWebView/InfiniTests.InfiniFrame.BlazorWebView.csproj
-                      tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj
-                    )
-                    net10_test_projects=(
-                    )
 
                     run_test() {
                       local framework="$1"
                       echo "=== Running ${framework} ==="
-                      local project
-                      for project in "${test_projects[@]}"; do
-                        echo "--- ${project} (${framework}) ---"
-                        local test_args=(
-                          "$project"
-                          --configuration Release
-                          --no-build
-                          --no-restore
-                          --framework "$framework"
-                          -p:NativeArch=${{ matrix.arch }}
-                          -p:InfiniFrameSkipNativeBuild=true
-                          -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
-                          --
-                          --no-ansi
-                          --maximum-parallel-tests 1
-                        )
+                      local test_args=(
+                        test
+                        --solution InfiniFrame.GitHubActions.Testing.slnf
+                        --configuration Release
+                        --no-build
+                        --no-restore
+                        --framework "$framework"
+                        -p:NativeArch=${{ matrix.arch }}
+                        -p:InfiniFrameSkipNativeBuild=true
+                        -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
+                        --
+                        --no-ansi
+                        --maximum-parallel-tests 1
+                      )
 
-                        if [ "${{ inputs.enable_coverage }}" = "true" ] && [ "$framework" = "net10.0" ]; then
-                          test_args+=(--coverage --coverage-output-format cobertura --results-directory TestResults)
-                        fi
-
-                        dotnet test "${test_args[@]}" || exit_code=$?
-                      done
-
-                      if [ "$framework" = "net10.0" ]; then
-                        for project in "${net10_test_projects[@]}"; do
-                          echo "--- ${project} (${framework}) ---"
-                          dotnet test "$project" \
-                            --configuration Release \
-                            --no-build \
-                            --no-restore \
-                            --framework "$framework" \
-                            -p:NativeArch=${{ matrix.arch }} \
-                            -p:InfiniFrameSkipNativeBuild=true \
-                            -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
-                            -- \
-                            --no-ansi \
-                            --maximum-parallel-tests 1 || exit_code=$?
-                        done
+                      if [ "${{ inputs.enable_coverage }}" = "true" ] && [ "$framework" = "net10.0" ]; then
+                        test_args+=(--coverage --coverage-output-format cobertura --results-directory TestResults)
                       fi
+
+                      dotnet "${test_args[@]}" || exit_code=$?
                     }
 
                     run_test net8.0

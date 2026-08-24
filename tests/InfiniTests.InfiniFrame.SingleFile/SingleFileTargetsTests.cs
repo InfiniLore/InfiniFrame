@@ -27,7 +27,7 @@ public class SingleFileTargetsTests {
 
     [Test]
     public async Task TargetsFile_ContainsRequiredTargets(CancellationToken ct = default) {
-        string content = await File.ReadAllTextAsync(GetTargetsPath());
+        string content = await File.ReadAllTextAsync(GetTargetsPath(), ct);
 
         await Assert.That(content).Contains("InfiniFrameSingleFile");
         await Assert.That(content).Contains("InfiniFramePackEmbedStaticWebAssets");
@@ -37,7 +37,7 @@ public class SingleFileTargetsTests {
 
     [Test]
     public async Task TargetsFile_HasTwoPassLogic(CancellationToken ct = default) {
-        string content = await File.ReadAllTextAsync(GetTargetsPath());
+        string content = await File.ReadAllTextAsync(GetTargetsPath(), ct);
 
         await Assert.That(content).Contains("Pass 1/2");
         await Assert.That(content).Contains("Pass 2/2");
@@ -45,7 +45,7 @@ public class SingleFileTargetsTests {
 
     [Test]
     public async Task TargetsFile_HasAutoPackTrigger(CancellationToken ct = default) {
-        string content = await File.ReadAllTextAsync(GetTargetsPath());
+        string content = await File.ReadAllTextAsync(GetTargetsPath(), ct);
 
         await Assert.That(content).Contains("InfiniFrameSingleFileAuto");
         await Assert.That(content).Contains("AfterTargets=\"Publish\"");
@@ -53,7 +53,7 @@ public class SingleFileTargetsTests {
 
     [Test]
     public async Task TargetsFile_EmbedsNativeFiles(CancellationToken ct = default) {
-        string content = await File.ReadAllTextAsync(GetTargetsPath());
+        string content = await File.ReadAllTextAsync(GetTargetsPath(), ct);
 
         await Assert.That(content).Contains("InfiniFrame.Native.dll");
         await Assert.That(content).Contains("WebView2Loader.dll");
@@ -63,7 +63,7 @@ public class SingleFileTargetsTests {
 
     [Test]
     public async Task TargetsFile_CleansUpSidecarFiles(CancellationToken ct = default) {
-        string content = await File.ReadAllTextAsync(GetTargetsPath());
+        string content = await File.ReadAllTextAsync(GetTargetsPath(), ct);
 
         await Assert.That(content).Contains("staticwebassets.endpoints.json");
         await Assert.That(content).Contains("web.config");
@@ -72,7 +72,7 @@ public class SingleFileTargetsTests {
 
     [Test]
     public async Task TargetsFile_DefinesInfiniFramePackSymbol(CancellationToken ct = default) {
-        string content = await File.ReadAllTextAsync(GetTargetsPath());
+        string content = await File.ReadAllTextAsync(GetTargetsPath(), ct);
 
         await Assert.That(content).Contains("DefineConstants");
         await Assert.That(content).Contains("InfiniFramePack");
