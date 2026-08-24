@@ -57,8 +57,6 @@
         <InternalsVisibleTo Include="InfiniTests.InfiniFrame.SingleFile"/>
         <InternalsVisibleTo Include="InfiniTests.InfiniFrame.WebServer"/>
 
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Tools.Pack"/>
-
         <InternalsVisibleTo Include="InfiniAutomationTests"/>
         <InternalsVisibleTo Include="InfiniAutomationTests.BlazorWebView.MudBlazor"/>
         <InternalsVisibleTo Include="InfiniAutomationTests.WebApp.React"/>

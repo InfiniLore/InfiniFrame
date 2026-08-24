@@ -25,6 +25,7 @@ of [Photino.Net](https://github.com/tryphotino/photino.NET), [Photino.Net.Server
 | Full Blazor app integration inside a native window   | [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.BlazorWebView?label=InfiniLore.InfiniFrame.BlazorWebView)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.BlazorWebView) |
 | ASP.NET Core web app running inside a native window  | [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.WebServer?label=InfiniLore.InfiniFrame.WebServer)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.WebServer)             |
 | JavaScript and Blazor interop utilities              | [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.Js?label=InfiniLore.InfiniFrame.Js)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.Js)                                  |
+| Single-file executable packaging                    | [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.SingleFile?label=InfiniLore.InfiniFrame.SingleFile)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.SingleFile)       |
 
 ## Quick Start
 
@@ -127,29 +128,15 @@ they are independent integration paths
 
 ## Single-File Executable Packing
 
-Use the custom .NET tool `InfiniFrame-Pack` to package your app into a single executable with embedded native
+Use the `InfiniLore.InfiniFrame.SingleFile` package to publish your app as a single executable with embedded native
 dependencies. See [`/docs`](docs/articles/guides/pack-tool.md) for full usage details and options
 
-Install the tool first before running packaging commands (including the `InfiniFrameExample.SingleFileExe` post-build
-pack target):
-
-```powershell
-.\src\InfiniFrame.Tools.Pack\install-or-update-pack-tool.ps1
+```bash
+dotnet add package InfiniLore.InfiniFrame.SingleFile
 ```
 
 ```bash
-bash ./src/InfiniFrame.Tools.Pack/install-or-update-pack-tool.sh
-```
-
-Manual alternative:
-
-```powershell
-dotnet pack src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj -c Release
-dotnet tool install --global --add-source .\src\InfiniFrame.Tools.Pack\bin\Release InfiniLore.InfiniFrame.Tools.Pack
-```
-
-```powershell
-dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid win-x64
+dotnet publish src/MyApp/MyApp.csproj -t:InfiniFrameSingleFile -r win-x64 -c Release
 ```
 
 ## Documentation
