@@ -65,19 +65,45 @@ jobs:
                 run: |
                     $totalLines = 0
                     $totalCovered = 0
+                    $testPackages = @('InfiniTests', 'InfiniAutomationTests')
+                    $pkgData = [ordered]@{}
                     Get-ChildItem "cs-coverage" -Recurse -Filter "*.cobertura.xml" -ErrorAction SilentlyContinue | ForEach-Object {
-                        $content = Get-Content $_.FullName -Raw
-                        # Match only the root <coverage> element to avoid double-counting <package> subtotals
-                        if ($content -match '<coverage[^>]*lines-valid="(\d+)"') {
-                            $totalLines += [int]$Matches[1]
-                        }
-                        if ($content -match '<coverage[^>]*lines-covered="(\d+)"') {
-                            $totalCovered += [int]$Matches[1]
+                        [xml]$xml = Get-Content $_.FullName -Raw
+                        if ($xml.coverage.packages.package) {
+                            foreach ($pkg in $xml.coverage.packages.package) {
+                                $pkgName = $pkg.name
+                                $isTest = $false
+                                foreach ($tp in $testPackages) {
+                                    if ($pkgName -like "$tp*") { $isTest = $true; break }
+                                }
+                                if (-not $isTest) {
+                                    $pkgLines = 0
+                                    $pkgCovered = 0
+                                    foreach ($cls in $pkg.classes.class) {
+                                        foreach ($m in $cls.methods.method) {
+                                            foreach ($l in $m.lines.line) {
+                                                $pkgLines++
+                                                if ([int]$l.hits -gt 0) { $pkgCovered++ }
+                                            }
+                                        }
+                                    }
+                                    $totalLines += $pkgLines
+                                    $totalCovered += $pkgCovered
+                                    if (-not $pkgData.ContainsKey($pkgName)) {
+                                        $pkgData[$pkgName] = @{ lines = 0; covered = 0 }
+                                    }
+                                    $pkgData[$pkgName].lines += $pkgLines
+                                    $pkgData[$pkgName].covered += $pkgCovered
+                                }
+                            }
                         }
                     }
                     $pct = if ($totalLines -gt 0) { [math]::Round(($totalCovered / $totalLines) * 100, 1) } else { 0 }
                     "pct=$pct" >> $env:GITHUB_OUTPUT
                     Write-Host "C# coverage: $pct% ($totalCovered / $totalLines lines)"
+
+                    # Write per-package breakdown for the comment
+                    $pkgData | ConvertTo-Json -Depth 3 | Set-Content "cs-coverage-breakdown.json"
 
             # PR Comment (must run BEFORE writing badge files so delta reads old values)
             -   name: Post Coverage Comment on PR
@@ -87,6 +113,13 @@ jobs:
                 shell: pwsh
                 run: |
                     $prNumber = "${{ inputs.pr_number }}"
+
+                    # Verify this is an actual pull request, not just an issue or branch
+                    $pr = gh pr view $prNumber --repo "${{ github.repository }}" --json number 2>$null
+                    if (-not $?) {
+                        Write-Host "Skipping comment: #$prNumber is not a pull request"
+                        return
+                    }
                     $newTs = [double]"${{ steps.ts.outputs.pct }}"
                     $newCs = [double]"${{ steps.cs.outputs.pct }}"
 
@@ -123,20 +156,35 @@ jobs:
                     $body += "| TypeScript | **${newTs}%** | ${tsDeltaStr}% | $($tsTrend.icon) $($tsTrend.label) |`n"
                     $body += "| C# | **${newCs}%** | ${csDeltaStr}% | $($csTrend.icon) $($csTrend.label) |"
 
-                    # Find existing coverage comment to update (avoid spam)
-                    $existingComment = $null
-                    $comments = gh api "repos/${{ github.repository }}/issues/${prNumber}/comments?per_page=100" | ConvertFrom-Json
-                    if ($comments) {
-                        $existingComment = $comments | Where-Object { $_.body -match "## 📊 Code Coverage Report" } | Select-Object -First 1
+                    # Add per-project C# breakdown
+                    if (Test-Path "cs-coverage-breakdown.json") {
+                        $breakdown = Get-Content "cs-coverage-breakdown.json" -Raw | ConvertFrom-Json
+                        if ($breakdown.PSObject.Properties.Count -gt 0) {
+                            $body += "`n`n### C# Project Breakdown`n`n"
+                            $body += "| Project | Coverage | Lines | Covered |`n"
+                            $body += "|---------|----------|-------|---------|`n"
+                            $breakdown.PSObject.Properties | Sort-Object { $_.Value.covered / [math]::Max($_.Value.lines, 1) } -Descending | ForEach-Object {
+                                $name = $_.Name
+                                $lines = [int]$_.Value.lines
+                                $covered = [int]$_.Value.covered
+                                $pct = if ($lines -gt 0) { [math]::Round(($covered / $lines) * 100, 1) } else { 0 }
+                                $body += "| $name | $pct% | $lines | $covered |`n"
+                            }
+                        }
                     }
 
-                    if ($existingComment) {
-                        gh api "repos/${{ github.repository }}/issues/comments/$($existingComment.id)" -X PATCH -f body="$body"
-                        Write-Host "Updated existing coverage comment #$($existingComment.id) on PR #$prNumber"
-                    } else {
-                        gh api "repos/${{ github.repository }}/issues/${prNumber}/comments" -X POST -f body="$body"
-                        Write-Host "Posted new coverage comment on PR #$prNumber"
+                    # Delete previous coverage comment if it exists
+                    $comments = gh api "repos/${{ github.repository }}/issues/${prNumber}/comments?per_page=100" | ConvertFrom-Json
+                    if ($comments) {
+                        $existing = $comments | Where-Object { $_.body -match "## 📊 Code Coverage Report" } | Select-Object -First 1
+                        if ($existing) {
+                            gh api "repos/${{ github.repository }}/issues/comments/$($existing.id)" -X DELETE
+                            Write-Host "Deleted previous coverage comment #$($existing.id)"
+                        }
                     }
+
+                    gh api "repos/${{ github.repository }}/issues/${prNumber}/comments" -X POST -f body="$body"
+                    Write-Host "Posted new coverage comment on PR #$prNumber"
 
             # Badge JSON (AFTER comment so old values are read first)
             -   name: Write Badge JSON
