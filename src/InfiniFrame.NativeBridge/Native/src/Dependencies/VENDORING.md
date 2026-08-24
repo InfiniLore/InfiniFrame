@@ -16,5 +16,5 @@ Run:
 python .github/scripts/update_native_vendor_deps.py
 ```
 
-The dependency manifest is at `native-vendor-deps.json` in the repository root.
-A scheduled GitHub Action also runs weekly and opens a PR when updates are available.
+The dependency manifest is at `native-vendor-deps.json` in the repository root. A scheduled GitHub Action also runs
+weekly and opens a PR when updates are available.

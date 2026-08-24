@@ -14,7 +14,9 @@ namespace gtk_webkit {
     struct GFreeGuard {
         const char* value = nullptr;
 
-        explicit GFreeGuard(const char* initialValue = nullptr) : value(initialValue) {}
+        explicit GFreeGuard(const char* initialValue = nullptr) :
+            value(initialValue) {}
+
         ~GFreeGuard() {
             if (value != nullptr)
                 g_free(const_cast<char*>(value));
@@ -27,7 +29,9 @@ namespace gtk_webkit {
     struct GObjectGuard {
         gpointer value = nullptr;
 
-        explicit GObjectGuard(const gpointer initialValue = nullptr) : value(initialValue) {}
+        explicit GObjectGuard(const gpointer initialValue = nullptr) :
+            value(initialValue) {}
+
         ~GObjectGuard() {
             if (value != nullptr)
                 g_object_unref(value);
@@ -38,32 +42,35 @@ namespace gtk_webkit {
     };
 
     void HandleWebMessage(
-        WebKitUserContentManager* contentManager, WebKitJavascriptResult* jsResult, const gpointer userData
-    ) {
-        infiniframe::linux_gtk::RunGtkCallbackNoThrow("script-message-received", [&] {
-            (void)contentManager;
-            if (jsResult == nullptr)
-                return;
+        WebKitUserContentManager* contentManager,
+        WebKitJavascriptResult* jsResult,
+        const gpointer userData
+        ) {
+        infiniframe::linux_gtk::RunGtkCallbackNoThrow(
+            "script-message-received", [&] {
+                (void)contentManager;
+                if (jsResult == nullptr)
+                    return;
 
-            JSCValue* jsValue = webkit_javascript_result_get_js_value(jsResult);
-            if (jsValue == nullptr || !jsc_value_is_string(jsValue))
-                return;
+                JSCValue* jsValue = webkit_javascript_result_get_js_value(jsResult);
+                if (jsValue == nullptr || !jsc_value_is_string(jsValue))
+                    return;
 
-            GFreeGuard strValue(jsc_value_to_string(jsValue));
-            GFreeGuard originValue;
+                GFreeGuard strValue(jsc_value_to_string(jsValue));
+                GFreeGuard originValue;
 
-            JSCContext* context = jsc_value_get_context(jsValue);
-            if (context != nullptr) {
-                GObjectGuard locationValue(jsc_context_evaluate(context, "window.location.href", -1));
-                if (locationValue.value != nullptr && jsc_value_is_string(JSC_VALUE(locationValue.value))) {
-                    originValue.value = jsc_value_to_string(JSC_VALUE(locationValue.value));
+                JSCContext* context = jsc_value_get_context(jsValue);
+                if (context != nullptr) {
+                    GObjectGuard locationValue(jsc_context_evaluate(context, "window.location.href", -1));
+                    if (locationValue.value != nullptr && jsc_value_is_string(JSC_VALUE(locationValue.value))) {
+                        originValue.value = jsc_value_to_string(JSC_VALUE(locationValue.value));
+                    }
                 }
-            }
 
-            auto callback = reinterpret_cast<WebMessageReceivedCallback>(userData);
-            if (callback != nullptr) {
-                callback(strValue.value, originValue.value);
-            }
-        });
+                auto callback = reinterpret_cast<WebMessageReceivedCallback>(userData);
+                if (callback != nullptr) {
+                    callback(strValue.value, originValue.value);
+                }
+            });
     }
-} 
+}

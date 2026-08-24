@@ -12,4 +12,3 @@ enum class DialogIcon {
     Error,
     Question,
 };
-

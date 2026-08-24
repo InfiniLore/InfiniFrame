@@ -23,7 +23,6 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 namespace infiniframe::exports {
-
     template <typename T> void ResetOut(T* outValue, const T fallback = {}) noexcept {
         if (outValue != nullptr) {
             *outValue = fallback;
@@ -36,8 +35,10 @@ namespace infiniframe::exports {
     }
 
     template <typename T> bool EnsureNotNull(
-        T* value, const char* argumentName, const InteropStatus status = InteropStatus::InvalidArgument
-    ) noexcept {
+        T* value,
+        const char* argumentName,
+        const InteropStatus status = InteropStatus::InvalidArgument
+        ) noexcept {
         if (value != nullptr) {
             return true;
         }
@@ -49,4 +50,4 @@ namespace infiniframe::exports {
     template <typename T> bool EnsureOutNotNull(T* value, const char* argumentName) noexcept {
         return exports::EnsureNotNull(value, argumentName, InteropStatus::OutParameterSetToInvalidNull);
     }
-} 
+}

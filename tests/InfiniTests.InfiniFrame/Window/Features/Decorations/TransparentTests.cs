@@ -67,11 +67,14 @@ public class TransparentTests {
     [Arguments(true)]
     [Arguments(false)]
     public async Task AtWindowStage_DirectAssignment(bool value, CancellationToken ct) {
+        // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
+        // Act
         window.Features.Decorations.SetTransparent(value);
 
+        // Assert
         await Assert.That(window.Features.Decorations.IsTransparent).IsEqualTo(value);
     }
 }

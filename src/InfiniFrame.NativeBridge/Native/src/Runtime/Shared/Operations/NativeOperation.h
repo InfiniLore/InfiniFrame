@@ -37,7 +37,8 @@ struct NativeOperation final {
         const OperationCompletedCallback completed,
         void* completedContext,
         InfiniFrameWindow* window
-    ) : id(operationId), callback(action), callbackContext(actionContext), completion(completed),
+        ) :
+        id(operationId), callback(action), callbackContext(actionContext), completion(completed),
         completionContext(completedContext), owner(window) {}
 
     void Execute() noexcept;

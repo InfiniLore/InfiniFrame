@@ -42,7 +42,7 @@ namespace gtk_webkit {
             if (!infiniframe::IsValidBufferedCustomSchemeResponse(managedResponse)) {
                 FinishCustomSchemeError(
                     request, G_IO_ERROR_FAILED, "Custom scheme handler returned an invalid response."
-                );
+                    );
                 return;
             }
 
@@ -74,7 +74,7 @@ namespace gtk_webkit {
             FinishCustomSchemeError(request, G_IO_ERROR_FAILED, "Custom scheme handler failed.");
         }
     }
-} 
+}
 
 void InfiniFrameWindow::Impl::AddCustomSchemeHandlers() {
     if (_customSchemeCallback == nullptr || _webContext == nullptr)
@@ -91,6 +91,6 @@ void InfiniFrameWindow::Impl::AddCustomSchemeHandlers() {
             _webContext, value.c_str(),
             reinterpret_cast<WebKitURISchemeRequestCallback>(gtk_webkit::HandleCustomSchemeRequest),
             reinterpret_cast<void*>(_customSchemeCallback), nullptr
-        );
+            );
     }
 }

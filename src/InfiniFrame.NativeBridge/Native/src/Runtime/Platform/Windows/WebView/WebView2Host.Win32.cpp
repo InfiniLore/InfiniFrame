@@ -10,7 +10,7 @@ void InfiniFrameWindow::CloseWebView() {
     TraceTeardown(
         L"CloseWebView begin instance=%p hwnd=%p controller=%p webview=%p env=%p", this, m_impl->_hWnd,
         m_impl->_webviewController.get(), m_impl->_webviewWindow.get(), m_impl->_webviewEnvironment.get()
-    );
+        );
 
     // Explicitly revoke all event subscriptions before tearing down the WebView.
     // This ensures callbacks cannot fire during or after teardown.

@@ -20,7 +20,7 @@ void InfiniFrameWindow::Invoke(ACTION callback) {
 
     auto* waitInfo = new InvokeWaitInfo();
     if (!PostMessage(
-            impl->_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(callback), reinterpret_cast<LPARAM>(waitInfo)
+        impl->_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(callback), reinterpret_cast<LPARAM>(waitInfo)
         )) {
         delete waitInfo;
         return;
@@ -28,7 +28,10 @@ void InfiniFrameWindow::Invoke(ACTION callback) {
 
     std::unique_lock<std::mutex> uLock(waitInfo->mutex);
     const bool completed =
-        waitInfo->completionNotifier.wait_for(uLock, std::chrono::seconds(15), [&] { return waitInfo->isCompleted; });
+        waitInfo->completionNotifier.wait_for(
+            uLock, std::chrono::seconds(15), [&] {
+                return waitInfo->isCompleted;
+            });
 
     if (!completed) {
         bool deleteWaitInfo = false;

@@ -51,7 +51,7 @@ namespace {
             _handle = handle;
         }
 
-        auto get() const -> HMODULE {
+        HMODULE get() const {
             return _handle;
         }
 
@@ -68,7 +68,7 @@ static void EnableDarkModeForApp() noexcept {
     }
 }
 
-[[nodiscard]] static auto GetBuildNumber() noexcept -> DWORD {
+[[nodiscard]] static DWORD GetBuildNumber() noexcept {
     auto rtlGetNtVersionNumbers = reinterpret_cast<RtlGetNtVersionNumbers_f>(
         GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "RtlGetNtVersionNumbers")
     );
@@ -85,7 +85,7 @@ static void EnableDarkModeForApp() noexcept {
     return build;
 }
 
-[[nodiscard]] static auto IsHighContrast() noexcept -> bool {
+[[nodiscard]] static bool IsHighContrast() noexcept {
     HIGHCONTRASTW highContrast;
     highContrast.cbSize = sizeof(highContrast);
     if (SystemParametersInfoW(SPI_GETHIGHCONTRAST, sizeof(highContrast), &highContrast, FALSE) == TRUE) {
@@ -140,7 +140,7 @@ void InitDarkModeSupport() noexcept {
     std::call_once(flagInitDarkModeSupport, InitDarkModeSupportOnce);
 }
 
-auto IsDarkModeEnabled() noexcept -> bool {
+bool IsDarkModeEnabled() noexcept {
     if (shouldAppsUseDarkMode == nullptr) {
         return false;
     }
@@ -170,13 +170,14 @@ void RefreshNonClientArea(const HWND hwnd) noexcept {
     }
 }
 
-auto IsColorSchemeChange(const LPARAM lParam) noexcept -> bool {
+bool IsColorSchemeChange(const LPARAM lParam) noexcept {
     bool returnValue = false;
     if (lParam > 0) {
         bool isImmersiveColorSet = false;
         __try {
             isImmersiveColorSet =
-                CompareStringOrdinal(reinterpret_cast<LPCWCH>(lParam), -1, L"ImmersiveColorSet", -1, TRUE) == CSTR_EQUAL;
+                CompareStringOrdinal(
+                    reinterpret_cast<LPCWCH>(lParam), -1, L"ImmersiveColorSet", -1, TRUE) == CSTR_EQUAL;
         } __except (EXCEPTION_EXECUTE_HANDLER) {
             isImmersiveColorSet = false;
         }

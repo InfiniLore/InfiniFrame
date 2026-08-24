@@ -18,11 +18,13 @@ public class NativeLifetimeStressTests {
     [NotInParallelInfiniTests]
     [DefaultInfiniTestsTimeout(20_000)]
     public Task RepeatedCloseAndRecreate_ReusesMacWebKitHost(CancellationToken ct) {
+        // Arrange
         // macOS keeps the complete AppKit/WebKit host alive across logical sessions.  Besides
         // catching the original display-link crash, this asserts that Close/WaitForClose expose
         // a completed logical session before the next compatible lease is constructed.
         const int iterations = 12;
 
+        // Act
         for (int i = 0; i < iterations; i++) {
             ct.ThrowIfCancellationRequested();
 
@@ -32,6 +34,7 @@ public class NativeLifetimeStressTests {
             window.WaitForClose();
         }
 
+        // Assert
         if (InfiniFrameNativeTesting.MacPooledHostCount() == 0)
             throw new InvalidOperationException("Repeated compatible macOS sessions did not leave a reusable host in the pool.");
 
@@ -43,7 +46,10 @@ public class NativeLifetimeStressTests {
     [NotInParallelInfiniTests]
     [DefaultInfiniTestsTimeout(30_000)]
     public Task Pool_RemainsBounded_WhenMoreCompatibleSessionsClose(CancellationToken ct) {
+        // Arrange
         const int hostPoolLimit = 8;
+
+        // Act
         for (int i = 0; i < hostPoolLimit + 4; ++i) {
             int i1 = i;
             using var windowUtility = InfiniFrameTestWindow.Create(builder: builder =>
@@ -52,6 +58,7 @@ public class NativeLifetimeStressTests {
             windowUtility.Window.WaitForClose();
         }
 
+        // Assert
         return InfiniFrameNativeTesting.MacPooledHostCount() > hostPoolLimit
             ? throw new InvalidOperationException("The macOS host pool exceeded its configured bound.")
             : Task.CompletedTask;
@@ -61,15 +68,21 @@ public class NativeLifetimeStressTests {
     [OnlyRunOnMacOs]
     [NotInParallelInfiniTests]
     public Task IncompatibleConstructionSettings_DoNotReuseHost(CancellationToken ct) {
+        // Arrange
         IntPtr titled;
         using (var first = InfiniFrameTestWindow.Create(ct)) {
             titled = first.Window.WindowHandle;
+
+            // Act
             first.Window.Close();
             first.Window.WaitForClose();
         }
 
+        // Act (continued)
         using var borderless = InfiniFrameTestWindow.Create(builder: builder =>
             builder.Features.Decorations.SetChromeless(true), ct);
+
+        // Assert
         if (borderless.Window.WindowHandle == titled)
             throw new InvalidOperationException("A chromeless session reused an incompatible titled macOS host.");
 

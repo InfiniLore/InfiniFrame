@@ -21,13 +21,13 @@ bool EnsureDirectoryWritable(const std::wstring& directoryPath) {
         L"{}\\{}.tmp", directoryPath,
         std::format(
             L".infiniframe-wv2-write-check-{}-{}-{}", GetCurrentProcessId(), GetCurrentThreadId(), GetTickCount64()
-        )
-    );
+            )
+        );
 
     HANDLE probeHandle = CreateFileW(
         probePath.c_str(), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr,
         CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY, nullptr
-    );
+        );
 
     if (probeHandle == INVALID_HANDLE_VALUE)
         return false;

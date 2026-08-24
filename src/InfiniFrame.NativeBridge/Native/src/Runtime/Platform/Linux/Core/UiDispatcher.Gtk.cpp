@@ -12,9 +12,15 @@ void InfiniFrameWindow::Invoke(const ACTION callback) {
         return;
     }
 
-    infiniframe::linux_gtk::ui_thread::InvokeSync([callback] { callback(); });
+    infiniframe::linux_gtk::ui_thread::InvokeSync(
+        [callback] {
+            callback();
+        });
 }
 
 bool InfiniFrameWindow::ScheduleOperation(const std::shared_ptr<NativeOperation>& operation) {
-    return infiniframe::linux_gtk::ui_thread::InvokeAsync([operation] { operation->Execute(); });
+    return infiniframe::linux_gtk::ui_thread::InvokeAsync(
+        [operation] {
+            operation->Execute();
+        });
 }

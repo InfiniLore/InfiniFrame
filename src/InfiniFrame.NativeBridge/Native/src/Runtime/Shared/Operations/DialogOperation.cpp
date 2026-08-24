@@ -12,7 +12,7 @@ void DialogOperation::SetCancelAction(std::function<void()> action) {
         _cancelAction = std::move(action);
         const bool invoke = !terminal.load(std::memory_order_acquire)
             && finalResult.load(std::memory_order_acquire)
-                != static_cast<int32_t>(NativeOperationResult::Completed);
+            != static_cast<int32_t>(NativeOperationResult::Completed);
         if (invoke)
             invokeAction = _cancelAction;
     }
@@ -26,12 +26,13 @@ bool DialogOperation::CompleteFile(const int32_t result, const int32_t valueCoun
         return false;
     const int32_t requested = finalResult.load(std::memory_order_acquire);
     const int32_t effective = requested == static_cast<int32_t>(NativeOperationResult::Completed)
-        ? result : requested;
+        ? result
+        : requested;
     finalResult.store(effective, std::memory_order_release);
     fileCompletion(
         completionContext, id, effective,
         effective == 0 ? valueCount : 0, effective == 0 ? values : nullptr
-    );
+        );
     return true;
 }
 
@@ -41,13 +42,15 @@ bool DialogOperation::CompleteMessage(const DialogResult value) noexcept {
         return false;
     const int32_t requested = finalResult.load(std::memory_order_acquire);
     const int32_t effective = requested == static_cast<int32_t>(NativeOperationResult::Completed)
-        ? static_cast<int32_t>(NativeOperationResult::Completed) : requested;
+        ? static_cast<int32_t>(NativeOperationResult::Completed)
+        : requested;
     finalResult.store(effective, std::memory_order_release);
     messageCompletion(
         completionContext, id, effective,
         effective == static_cast<int32_t>(NativeOperationResult::Completed)
-            ? static_cast<int32_t>(value) : static_cast<int32_t>(DialogResult::Cancel), nullptr
-    );
+        ? static_cast<int32_t>(value)
+        : static_cast<int32_t>(DialogResult::Cancel), nullptr
+        );
     return true;
 }
 
@@ -56,7 +59,7 @@ bool DialogOperation::Cancel(const NativeOperationResult result) noexcept {
         return false;
     int32_t expected = static_cast<int32_t>(NativeOperationResult::Completed);
     if (!finalResult.compare_exchange_strong(
-            expected, static_cast<int32_t>(result), std::memory_order_acq_rel))
+        expected, static_cast<int32_t>(result), std::memory_order_acq_rel))
         return false;
 
     std::function<void()> cancel;
@@ -71,8 +74,11 @@ bool DialogOperation::Cancel(const NativeOperationResult result) noexcept {
 }
 
 std::shared_ptr<DialogOperation> InfiniFrameWindow::RegisterFileDialogOperation(
-    const uint64_t id, const char* name, const FileDialogCompletedCallback completion, void* context
-) {
+    const uint64_t id,
+    const char* name,
+    const FileDialogCompletedCallback completion,
+    void* context
+    ) {
     auto operation = std::make_shared<DialogOperation>(id, name, completion, context);
     std::lock_guard lock(ImplBase()->_dialogOperationMutex);
     for (auto it = ImplBase()->_dialogOperations.begin(); it != ImplBase()->_dialogOperations.end();) {
@@ -87,8 +93,10 @@ std::shared_ptr<DialogOperation> InfiniFrameWindow::RegisterFileDialogOperation(
 }
 
 std::shared_ptr<DialogOperation> InfiniFrameWindow::RegisterMessageDialogOperation(
-    const uint64_t id, const OperationCompletedCallback completion, void* context
-) {
+    const uint64_t id,
+    const OperationCompletedCallback completion,
+    void* context
+    ) {
     auto operation = std::make_shared<DialogOperation>(id, "ShowMessage", completion, context);
     std::lock_guard lock(ImplBase()->_dialogOperationMutex);
     if (!ImplBase()->_dialogOperations.emplace(id, operation).second)

@@ -2,8 +2,8 @@
 # dependencies and consumers do not inherit first-party build policy.
 
 option(INFINIFRAME_ENABLE_UNITY_BUILD
-       "Enable CMake unity builds for faster clean builds (not recommended for day-to-day incremental work)"
-       OFF)
+        "Enable CMake unity builds for faster clean builds (not recommended for day-to-day incremental work)"
+        OFF)
 
 set(INFINIFRAME_COMPILER_CACHE "AUTO" CACHE STRING
         "Compiler cache launcher: AUTO, OFF, or an executable path")

@@ -118,7 +118,7 @@ void InfiniFrameWindow::InvokeDebugEvent(
     const int statusCode,
     const int64_t timestampUnixMillisecondsUtc,
     const char* platformPayload
-) const noexcept {
+    ) const noexcept {
     if (ImplBase()->_debugEventCallback)
         ImplBase()->_debugEventCallback(
             kind,
@@ -128,10 +128,14 @@ void InfiniFrameWindow::InvokeDebugEvent(
             statusCode,
             timestampUnixMillisecondsUtc,
             platformPayload
-        );
+            );
 }
 
-void InfiniFrameWindow::InvokeFileDropped(const char** paths, const int count, const int x, const int y) const noexcept {
+void InfiniFrameWindow::InvokeFileDropped(
+    const char** paths,
+    const int count,
+    const int x,
+    const int y) const noexcept {
     if (ImplBase()->_fileDroppedCallback)
         ImplBase()->_fileDroppedCallback(paths, count, x, y);
 }

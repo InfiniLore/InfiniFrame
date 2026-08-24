@@ -23,7 +23,8 @@ inline char* AllocateUtf8FromWide(const std::wstring& wstr) {
         copy[0] = '\0';
         return copy;
     }
-    const int utf8Count = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), static_cast<int>(wstr.size()), nullptr, 0, nullptr, nullptr);
+    const int utf8Count = WideCharToMultiByte(
+        CP_UTF8, 0, wstr.c_str(), static_cast<int>(wstr.size()), nullptr, 0, nullptr, nullptr);
     if (utf8Count <= 0)
         return nullptr;
     auto* copy = new char[utf8Count + 1];

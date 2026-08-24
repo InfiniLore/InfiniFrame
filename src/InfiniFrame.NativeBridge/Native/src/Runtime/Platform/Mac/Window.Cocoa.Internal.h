@@ -16,10 +16,14 @@
 #include "Runtime/Shared/Window/InfiniFrameWindow.h"
 #include "Runtime/Shared/Window/InfiniFrameWindowImpl.h"
 
-@class UiDelegate;
-@class NavigationDelegate;
-@class WindowDelegate;
-@class UrlSchemeHandler;
+@
+class UiDelegate;
+@
+class NavigationDelegate;
+@
+class WindowDelegate;
+@
+class UrlSchemeHandler;
 
 // A pooled host owns every AppKit/WebKit object whose destruction can race WebKit's display
 // link.  It is deliberately separate from an InfiniFrameWindow logical session.

@@ -10,4 +10,3 @@ struct NavigationOperation final {
     OperationCompletedCallback completion;
     void* completionContext;
 };
-

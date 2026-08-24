@@ -25,7 +25,7 @@ using OperationCompletedCallback = void (*)(
     int32_t result,
     int32_t nativeCode,
     const char* failureUtf8
-);
+    );
 
 /** File dialog completion. Values are borrowed for the callback duration. */
 using FileDialogCompletedCallback = void (*)(
@@ -34,7 +34,7 @@ using FileDialogCompletedCallback = void (*)(
     int32_t result,
     int32_t valueCount,
     const char** values
-);
+    );
 
 /**
  * @brief Called when the WebView receives a message posted from JavaScript via window.chrome.webview.postMessage
@@ -61,7 +61,7 @@ using DebugEventCallback = void (*)(
     int statusCode,
     int64_t timestampUnixMillisecondsUtc,
     const char* platformPayload
-);
+    );
 
 /** Version 1 custom-scheme response body kinds. Kind 2 is reserved for a future pull-based stream ABI. */
 enum class CustomSchemeBodyKind : uint32_t {

@@ -31,7 +31,10 @@ bool InfiniFrameWindow::IsDestroyed() const {
 
 void InfiniFrameWindow::WaitUntilDestroyed() {
     std::unique_lock lock(m_impl->_lifecycleMutex);
-    m_impl->_lifecycleClosed.wait(lock, [&] { return m_impl->_destroyed; });
+    m_impl->_lifecycleClosed.wait(
+        lock, [&] {
+            return m_impl->_destroyed;
+        });
 }
 
 void InfiniFrameWindow::Center() {
@@ -45,13 +48,14 @@ void InfiniFrameWindow::Center() {
         GtkWidget* dialog = gtk_message_dialog_new(
             nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
             "gdk_display_get_default() returned NULL"
-        );
+            );
         gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy(dialog);
         return;
     }
 
-    GdkMonitor* monitor = gdk_display_get_monitor_at_window(display, GDK_WINDOW(gtk_widget_get_window(m_impl->_window)));
+    GdkMonitor* monitor = gdk_display_get_monitor_at_window(
+        display, GDK_WINDOW(gtk_widget_get_window(m_impl->_window)));
     if (monitor == nullptr) {
         monitor = gdk_display_get_primary_monitor(display);
         if (monitor == nullptr) {
@@ -61,7 +65,7 @@ void InfiniFrameWindow::Center() {
             GtkWidget* dialog = gtk_message_dialog_new(
                 nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
                 "No display monitor found for centering."
-            );
+                );
             gtk_dialog_run(GTK_DIALOG(dialog));
             gtk_widget_destroy(dialog);
             return;
@@ -135,6 +139,9 @@ void InfiniFrameWindow::ScheduleTeardownCompletion() {
     CompleteOperationsForClose();
     CompleteNavigationForClose();
     CompleteDialogsForClose();
-    if (!infiniframe::linux_gtk::ui_thread::InvokeIdle([this] { SignalTeardown(); }))
+    if (!infiniframe::linux_gtk::ui_thread::InvokeIdle(
+        [this] {
+            SignalTeardown();
+        }))
         SignalTeardown();
 }
