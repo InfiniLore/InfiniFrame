@@ -69,7 +69,11 @@ public sealed class FragmentAndCustomSchemeRequestTests : InfiniFramePlaywrightT
         await Assert.That(fetchResult.GetProperty("status").GetInt32()).IsEqualTo(200);
         await Assert.That(fetchResult.GetProperty("contentType").GetString()).StartsWith("application/json");
         await Assert.That(fetchResult.GetProperty("body").GetString())
-            .IsEqualTo("{\"message\":\"InfiniFrame fragment fetch payload\"}");
+            .IsEqualTo("""
+            {
+                "message": "InfiniFrame fragment fetch payload"
+            }
+            """);
 
         var xhrResult = await EvaluateWhenPageReadyAsync<JsonElement>(
             page,
@@ -93,7 +97,11 @@ public sealed class FragmentAndCustomSchemeRequestTests : InfiniFramePlaywrightT
         await Assert.That(xhrResult.GetProperty("status").GetInt32()).IsEqualTo(200);
         await Assert.That(xhrResult.GetProperty("contentType").GetString()).StartsWith("application/json");
         await Assert.That(xhrResult.GetProperty("body").GetString())
-            .IsEqualTo("{\"message\":\"InfiniFrame fragment fetch payload\"}");
+            .IsEqualTo("""
+            {
+                "message": "InfiniFrame fragment fetch payload"
+            }
+            """);
 
         string messageTitle = await EvaluateWhenPageReadyAsync<string>(
             page,

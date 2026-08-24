@@ -49,7 +49,12 @@ public sealed class CustomSchemeCorsHeaderTests : InfiniFramePlaywrightTestBase 
         // visible to JavaScript. The native handler builds them; browser controls visibility.
         // Verify the response body is delivered successfully instead.
         await Assert.That(fetchResult.GetProperty("body").GetString())
-            .IsEqualTo("{\"message\":\"CORS test payload\",\"value\":42}");
+            .IsEqualTo("""
+            {
+                "message": "CORS test payload",
+                "value": 42
+            }
+            """);
     }
 
     [Test]
@@ -86,7 +91,12 @@ public sealed class CustomSchemeCorsHeaderTests : InfiniFramePlaywrightTestBase 
         // visible to JavaScript. The native handler builds them; browser controls visibility.
         // Verify the response body is delivered successfully instead.
         await Assert.That(xhrResult.GetProperty("body").GetString())
-            .IsEqualTo("{\"message\":\"CORS test payload\",\"value\":42}");
+            .IsEqualTo("""
+            {
+                "message": "CORS test payload",
+                "value": 42
+            }
+            """);
     }
 
     [Test]
