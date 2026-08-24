@@ -31,7 +31,7 @@ public class JavaScriptEvaluationExceptionTests {
     [Test]
     public async Task CanBeCaughtAsException(CancellationToken ct = default) {
         // Arrange & Act
-        Exception? caught = null;
+        Exception? caught;
         try {
             throw new JavaScriptEvaluationException("eval failed");
         }
