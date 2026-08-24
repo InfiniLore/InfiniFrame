@@ -5,6 +5,7 @@ using InfiniFrame.Blazor;
 using InfiniTests.JsRuntimes;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 namespace InfiniTests.InfiniFrame.Blazor;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -66,6 +67,83 @@ public class InfiniFrameJsTests {
 
         // Act / Assert
         await sut.SetPointerCaptureAsync(new ElementReference("element-3"), 1, cts.Token);
+        await Assert.That(jsRuntime.Invocations.Count).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task ReleasePointerCaptureAsync_SwallowsOperationCanceled_WhenCancellationRequested(CancellationToken ct = default) {
+        // Arrange
+        var jsRuntime = new RecordingJsRuntime();
+        Mock<ILogger<InfiniFrameJs>> loggerMock = Mock.Of<ILogger<InfiniFrameJs>>();
+        var sut = new InfiniFrameJs(jsRuntime, loggerMock.Object);
+        using var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+
+        // ReSharper disable once AccessToDisposedClosure
+        jsRuntime.ExceptionFactory = _ => new OperationCanceledException(cts.Token);
+
+        // Act / Assert
+        await sut.ReleasePointerCaptureAsync(new ElementReference("element-4"), 1, cts.Token);
+        await Assert.That(jsRuntime.Invocations.Count).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task SetPointerCaptureAsync_SwallowsJSException(CancellationToken ct = default) {
+        // Arrange
+        var jsRuntime = new RecordingJsRuntime();
+        Mock<ILogger<InfiniFrameJs>> loggerMock = Mock.Of<ILogger<InfiniFrameJs>>();
+        var sut = new InfiniFrameJs(jsRuntime, loggerMock.Object);
+        jsRuntime.ExceptionFactory = _ => new JSException("test error");
+
+        // Act
+        await sut.SetPointerCaptureAsync(new ElementReference("element-5"), 1, ct);
+
+        // Assert
+        await Assert.That(jsRuntime.Invocations.Count).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task SetPointerCaptureAsync_SwallowsInvalidOperationException(CancellationToken ct = default) {
+        // Arrange
+        var jsRuntime = new RecordingJsRuntime();
+        Mock<ILogger<InfiniFrameJs>> loggerMock = Mock.Of<ILogger<InfiniFrameJs>>();
+        var sut = new InfiniFrameJs(jsRuntime, loggerMock.Object);
+        jsRuntime.ExceptionFactory = _ => new InvalidOperationException("test error");
+
+        // Act
+        await sut.SetPointerCaptureAsync(new ElementReference("element-6"), 1, ct);
+
+        // Assert
+        await Assert.That(jsRuntime.Invocations.Count).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task ReleasePointerCaptureAsync_SwallowsJSException(CancellationToken ct = default) {
+        // Arrange
+        var jsRuntime = new RecordingJsRuntime();
+        Mock<ILogger<InfiniFrameJs>> loggerMock = Mock.Of<ILogger<InfiniFrameJs>>();
+        var sut = new InfiniFrameJs(jsRuntime, loggerMock.Object);
+        jsRuntime.ExceptionFactory = _ => new JSException("test error");
+
+        // Act
+        await sut.ReleasePointerCaptureAsync(new ElementReference("element-7"), 1, ct);
+
+        // Assert
+        await Assert.That(jsRuntime.Invocations.Count).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task ReleasePointerCaptureAsync_SwallowsInvalidOperationException(CancellationToken ct = default) {
+        // Arrange
+        var jsRuntime = new RecordingJsRuntime();
+        Mock<ILogger<InfiniFrameJs>> loggerMock = Mock.Of<ILogger<InfiniFrameJs>>();
+        var sut = new InfiniFrameJs(jsRuntime, loggerMock.Object);
+        jsRuntime.ExceptionFactory = _ => new InvalidOperationException("test error");
+
+        // Act
+        await sut.ReleasePointerCaptureAsync(new ElementReference("element-8"), 1, ct);
+
+        // Assert
         await Assert.That(jsRuntime.Invocations.Count).IsEqualTo(1);
     }
 }
