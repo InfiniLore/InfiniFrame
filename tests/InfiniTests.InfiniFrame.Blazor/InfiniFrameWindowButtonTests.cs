@@ -18,7 +18,7 @@ public class InfiniFrameWindowButtonTests : BunitContext {
     public async Task HasCorrectDataAttribute(WindowAction action, string expectedAttribute, CancellationToken ct = default) {
         // Arrange
         IRenderedComponent<InfiniFrameWindowButton> cut = Render<InfiniFrameWindowButton>(parameters =>
-            parameters.Add(p => p.WindowAction, action)
+            parameters.Add(parameterSelector: p => p.WindowAction, action)
         );
 
         // Act
@@ -32,7 +32,7 @@ public class InfiniFrameWindowButtonTests : BunitContext {
     public async Task RendersWindowButtonClass(CancellationToken ct = default) {
         // Arrange
         IRenderedComponent<InfiniFrameWindowButton> cut = Render<InfiniFrameWindowButton>(parameters =>
-            parameters.Add(p => p.WindowAction, WindowAction.Minimize)
+            parameters.Add(parameterSelector: p => p.WindowAction, WindowAction.Minimize)
         );
 
         // Act
@@ -46,7 +46,7 @@ public class InfiniFrameWindowButtonTests : BunitContext {
     public async Task RendersActionSpecificClass(CancellationToken ct = default) {
         // Arrange
         IRenderedComponent<InfiniFrameWindowButton> cut = Render<InfiniFrameWindowButton>(parameters =>
-            parameters.Add(p => p.WindowAction, WindowAction.Close)
+            parameters.Add(parameterSelector: p => p.WindowAction, WindowAction.Close)
         );
 
         // Act
@@ -60,14 +60,18 @@ public class InfiniFrameWindowButtonTests : BunitContext {
     public async Task RendersPlatformSpecificClass(CancellationToken ct = default) {
         // Arrange
         IRenderedComponent<InfiniFrameWindowButton> cut = Render<InfiniFrameWindowButton>(parameters =>
-            parameters.Add(p => p.WindowAction, WindowAction.Maximize)
+            parameters.Add(parameterSelector: p => p.WindowAction, WindowAction.Maximize)
         );
 
         // Act
         IElement div = cut.Find("div");
-        string expectedPlatform = OperatingSystem.IsWindows() ? "windows"
-            : OperatingSystem.IsMacOS() ? "macos"
-            : OperatingSystem.IsLinux() ? "linux" : "unknown";
+        string expectedPlatform = OperatingSystem.IsWindows()
+            ? "windows"
+            : OperatingSystem.IsMacOS()
+                ? "macos"
+                : OperatingSystem.IsLinux()
+                    ? "linux"
+                    : "unknown";
 
         // Assert
         await Assert.That(div.ClassList.Contains($"window-button-{expectedPlatform}")).IsTrue();
@@ -77,8 +81,8 @@ public class InfiniFrameWindowButtonTests : BunitContext {
     public async Task PassesClassParameter(CancellationToken ct = default) {
         // Arrange
         IRenderedComponent<InfiniFrameWindowButton> cut = Render<InfiniFrameWindowButton>(parameters =>
-            parameters.Add(p => p.WindowAction, WindowAction.Minimize)
-                      .Add(p => p.Class, "my-button")
+            parameters.Add(parameterSelector: p => p.WindowAction, WindowAction.Minimize)
+                .Add(parameterSelector: p => p.Class, "my-button")
         );
 
         // Act
@@ -92,7 +96,7 @@ public class InfiniFrameWindowButtonTests : BunitContext {
     public async Task RendersIconSpan(CancellationToken ct = default) {
         // Arrange
         IRenderedComponent<InfiniFrameWindowButton> cut = Render<InfiniFrameWindowButton>(parameters =>
-            parameters.Add(p => p.WindowAction, WindowAction.Close)
+            parameters.Add(parameterSelector: p => p.WindowAction, WindowAction.Close)
         );
 
         // Act
@@ -106,7 +110,7 @@ public class InfiniFrameWindowButtonTests : BunitContext {
     public async Task RendersStyleTag(CancellationToken ct = default) {
         // Arrange
         IRenderedComponent<InfiniFrameWindowButton> cut = Render<InfiniFrameWindowButton>(parameters =>
-            parameters.Add(p => p.WindowAction, WindowAction.Minimize)
+            parameters.Add(parameterSelector: p => p.WindowAction, WindowAction.Minimize)
         );
 
         // Act

@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Text.Json;
 using InfiniFrame.BlazorWebView.FileProviders;
-using StaticWebAssetsManifestJsonContext = InfiniFrame.BlazorWebView.FileProviders.StaticWebAssetsManifestJsonContext;
+using StaticWebAssetsManifestJsonContext=InfiniFrame.BlazorWebView.FileProviders.StaticWebAssetsManifestJsonContext;
 
 namespace InfiniTests.InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------

@@ -67,7 +67,7 @@ public class DragDropExtensionMethodTests {
         events.EventsStore.Returns(eventsStore);
 
         // Act
-        IInfiniFrameWindow result = window.Object.OnFileDropped((_, _) => { });
+        IInfiniFrameWindow result = window.Object.OnFileDropped((_, _) => {});
 
         // Assert
         await Assert.That(eventsStore.FileDropped.Snapshot.Length).IsEqualTo(1);

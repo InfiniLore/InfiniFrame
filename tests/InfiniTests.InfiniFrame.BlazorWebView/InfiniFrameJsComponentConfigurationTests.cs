@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.BlazorWebView;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 
@@ -61,7 +60,7 @@ public class InfiniFrameJsComponentConfigurationTests {
         var config = new InfiniFrameJsComponentConfiguration(managerMock.Object, jsComponents, loggerMock.Object);
 
         // Act
-        var exception = config.LastAddComponentException;
+        AggregateException? exception = config.LastAddComponentException;
 
         // Assert
         await Assert.That(exception).IsNull();

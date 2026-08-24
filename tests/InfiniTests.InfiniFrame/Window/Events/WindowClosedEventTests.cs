@@ -13,10 +13,11 @@ public class WindowClosedEventTests {
     [NotInParallelInfiniTests]
     public async Task OnMacOs_PooledHost_DoesNotInvokePriorSessionClosedCallback(CancellationToken ct = default) {
         int firstClosed = 0;
-        using (var first = InfiniFrameTestWindow.Create(builder => builder.RegisterWindowClosedHandler(_ => firstClosed++), ct)) {
+        using (var first = InfiniFrameTestWindow.Create(builder: builder => builder.RegisterWindowClosedHandler(_ => firstClosed++), ct)) {
             first.Window.Close();
             first.Window.WaitForClose();
         }
+
         using var second = InfiniFrameTestWindow.Create(ct);
         second.Window.Close();
         second.Window.WaitForClose();

@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Reflection;
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
 using InfiniFrame.NativeBridge.Parameters;
@@ -9,7 +10,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using System.Reflection;
 
 namespace InfiniTests.InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -391,7 +391,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     private sealed class TestJsComponent : IComponent {
-        public void Attach(RenderHandle renderHandle) { }
+        public void Attach(RenderHandle renderHandle) {}
 
         public Task SetParametersAsync(ParameterView parameters) => Task.CompletedTask;
     }

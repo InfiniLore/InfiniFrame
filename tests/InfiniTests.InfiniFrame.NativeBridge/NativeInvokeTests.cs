@@ -1,11 +1,11 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Reflection;
+using System.Runtime.InteropServices;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
 using Microsoft.Extensions.Logging.Abstractions;
-using System.Reflection;
-using System.Runtime.InteropServices;
 
 namespace InfiniTests.InfiniFrame.NativeBridge;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -147,7 +147,7 @@ public class NativeInvokeTests {
                 NullLogger.Instance,
                 owner,
                 Environment.CurrentManagedThreadId,
-                callback: (Action)null!);
+                (Action)null!);
             return Task.CompletedTask;
         });
     }
@@ -158,9 +158,9 @@ public class NativeInvokeTests {
         await Assert.ThrowsAsync<ArgumentNullException>(() => {
             NativeInvoke.InvokeSyncWithValidation(
                 NullLogger.Instance,
-                windowHandleOwner: null!,
+                null!,
                 Environment.CurrentManagedThreadId,
-                callback: () => { });
+                callback: () => {});
             return Task.CompletedTask;
         });
     }
@@ -176,7 +176,7 @@ public class NativeInvokeTests {
                 NullLogger.Instance,
                 owner,
                 Environment.CurrentManagedThreadId,
-                callback: (Action)null!);
+                (Action)null!);
             return Task.CompletedTask;
         });
     }
@@ -187,9 +187,9 @@ public class NativeInvokeTests {
         await Assert.ThrowsAsync<ArgumentNullException>(() => {
             NativeInvoke.InvokeSyncWithoutValidation(
                 NullLogger.Instance,
-                windowHandleOwner: null!,
+                null!,
                 Environment.CurrentManagedThreadId,
-                callback: () => { });
+                callback: () => {});
             return Task.CompletedTask;
         });
     }
@@ -226,7 +226,7 @@ public class NativeInvokeTests {
             NullLogger.Instance,
             owner,
             Environment.CurrentManagedThreadId,
-            callback: (IntPtr handle) => {
+            callback: handle => {
                 received = handle;
                 return InfiniFrameNativeInteropStatus.Success;
             });
@@ -250,13 +250,13 @@ public class NativeInvokeTests {
             NullLogger.Instance,
             owner,
             Environment.CurrentManagedThreadId,
-            callback: (IntPtr _, int intArg, string strArg) => {
+            callback: (_, intArg, strArg) => {
                 receivedInt = intArg;
                 receivedString = strArg;
                 return InfiniFrameNativeInteropStatus.Success;
             },
-            arg1: argValue,
-            arg2: argString);
+            argValue,
+            argString);
 
         // Assert
         await Assert.That(receivedInt).IsEqualTo(argValue);
@@ -291,11 +291,11 @@ public class NativeInvokeTests {
             NullLogger.Instance,
             owner,
             Environment.CurrentManagedThreadId,
-            callback: (IntPtr _, int arg) => {
+            callback: (_, arg) => {
                 receivedArg = arg;
                 return InfiniFrameNativeInteropStatus.Success;
             },
-            arg: 99);
+            99);
 
         // Assert
         await Assert.That(receivedArg).IsEqualTo(99);
@@ -343,7 +343,7 @@ public class NativeInvokeTests {
                 NullLogger.Instance,
                 owner,
                 Environment.CurrentManagedThreadId,
-                callback: (IntPtr _) => throw new InvalidOperationException(errorMessage));
+                callback: _ => throw new InvalidOperationException(errorMessage));
         }
         catch (InvalidOperationException ex) {
             caught = ex;
@@ -391,7 +391,7 @@ public class NativeInvokeTests {
             NullLogger.Instance,
             owner,
             Environment.CurrentManagedThreadId,
-            access: access,
+            access,
             callback: () => executed = true);
 
         // Assert
@@ -412,8 +412,8 @@ public class NativeInvokeTests {
             NullLogger.Instance,
             owner,
             Environment.CurrentManagedThreadId,
-            access: access,
-            callback: (IntPtr _) => {
+            access,
+            callback: _ => {
                 executed = true;
                 return InfiniFrameNativeInteropStatus.Success;
             });

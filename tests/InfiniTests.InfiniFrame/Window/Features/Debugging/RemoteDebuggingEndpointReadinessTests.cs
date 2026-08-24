@@ -1,9 +1,9 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
 using System.Net;
 using System.Net.Sockets;
+using InfiniFrame;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Debugging;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -51,9 +51,7 @@ public class RemoteDebuggingEndpointReadinessTests {
         await Assert.That(becameUnavailable).IsTrue();
     }
 
-    private static int GetAvailableLoopbackPort() {
-        return PortUtils.GetOpenPortValue();
-    }
+    private static int GetAvailableLoopbackPort() => PortUtils.GetOpenPortValue();
 
     private static async Task<bool> WaitUntilPortIsReachable(int port, TimeSpan timeout, CancellationToken ct) {
         DateTime timeoutAt = DateTime.UtcNow.Add(timeout);

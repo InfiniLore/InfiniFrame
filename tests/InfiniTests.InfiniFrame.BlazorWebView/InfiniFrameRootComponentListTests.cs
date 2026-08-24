@@ -34,7 +34,8 @@ public class InfiniFrameRootComponentListTests {
         // Arrange
         var list = new InfiniFrameRootComponentList {
             // Act
-            { typeof(TestComponent), "#root" } };
+            { typeof(TestComponent), "#root" }
+        };
 
         // Assert
         List<(Type, string)> items = list.ToList();
@@ -101,12 +102,12 @@ public class InfiniFrameRootComponentListTests {
     }
 
     private sealed class TestComponent : IComponent {
-        public void Attach(RenderHandle renderHandle) { }
+        public void Attach(RenderHandle renderHandle) {}
         public Task SetParametersAsync(ParameterView parameters) => Task.CompletedTask;
     }
 
     private sealed class OtherComponent : IComponent {
-        public void Attach(RenderHandle renderHandle) { }
+        public void Attach(RenderHandle renderHandle) {}
         public Task SetParametersAsync(ParameterView parameters) => Task.CompletedTask;
     }
 }

@@ -270,7 +270,10 @@ public class InfiniFrameEventsStoreTests {
         var source = new InfiniFrameEventsStore();
         var target = new InfiniFrameEventsStore();
         bool handlerCalled = false;
-        source.Closing.Add((_, _) => { handlerCalled = true; return WindowClosingResult.Close; });
+        source.Closing.Add((_, _) => {
+            handlerCalled = true;
+            return WindowClosingResult.Close;
+        });
 
         // Act
         source.CopyTo(target);
@@ -287,7 +290,10 @@ public class InfiniFrameEventsStoreTests {
         var source = new InfiniFrameEventsStore();
         var target = new InfiniFrameEventsStore();
         bool handlerCalled = false;
-        source.NavigationStarting.Add((_, _) => { handlerCalled = true; return NavigationStartingResult.Allow; });
+        source.NavigationStarting.Add((_, _) => {
+            handlerCalled = true;
+            return NavigationStartingResult.Allow;
+        });
 
         // Act
         source.CopyTo(target);
@@ -305,7 +311,7 @@ public class InfiniFrameEventsStoreTests {
         var source = new InfiniFrameEventsStore();
         var target = new InfiniFrameEventsStore();
         string? receivedValue = null;
-        source.WebMessagePostData.Add("test-key", (_, v) => receivedValue = v);
+        source.WebMessagePostData.Add("test-key", handler: (_, v) => receivedValue = v);
 
         // Act
         source.CopyTo(target);

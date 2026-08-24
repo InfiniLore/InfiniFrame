@@ -15,12 +15,12 @@ public class MenuItemTreeHelperTests {
     public async Task UpdateItem_UpdatesMatchingItem(CancellationToken ct = default) {
         // Arrange
         var items = ImmutableArray.Create(
-            new InfiniFrameMenuItem(Id: "file", Label: "File"),
-            new InfiniFrameMenuItem(Id: "edit", Label: "Edit")
+            new InfiniFrameMenuItem("file", "File"),
+            new InfiniFrameMenuItem("edit", "Edit")
         );
 
         // Act
-        ImmutableArray<InfiniFrameMenuItem> result = MenuItemTreeHelper.UpdateItem(items, "edit", item => item with { Label = "Modified" });
+        ImmutableArray<InfiniFrameMenuItem> result = MenuItemTreeHelper.UpdateItem(items, "edit", updater: item => item with { Label = "Modified" });
 
         // Assert
         await Assert.That(result[0].Label).IsEqualTo("File");
@@ -31,11 +31,11 @@ public class MenuItemTreeHelperTests {
     public async Task UpdateItem_MissingId_ReturnsUnchanged(CancellationToken ct = default) {
         // Arrange
         var items = ImmutableArray.Create(
-            new InfiniFrameMenuItem(Id: "file", Label: "File")
+            new InfiniFrameMenuItem("file", "File")
         );
 
         // Act
-        ImmutableArray<InfiniFrameMenuItem> result = MenuItemTreeHelper.UpdateItem(items, "nonexistent", item => item with { Label = "Changed" });
+        ImmutableArray<InfiniFrameMenuItem> result = MenuItemTreeHelper.UpdateItem(items, "nonexistent", updater: item => item with { Label = "Changed" });
 
         // Assert
         await Assert.That(result[0].Label).IsEqualTo("File");
@@ -46,18 +46,18 @@ public class MenuItemTreeHelperTests {
         // Arrange
         var items = ImmutableArray.Create(
             new InfiniFrameMenuItem(
-                Id: "menu",
-                Label: "Menu",
-                Type: InfiniFrameMenuItemType.Submenu,
+                "menu",
+                "Menu",
+                InfiniFrameMenuItemType.Submenu,
                 Children: ImmutableArray.Create(
-                    new InfiniFrameMenuItem(Id: "item-a", Label: "A"),
-                    new InfiniFrameMenuItem(Id: "item-b", Label: "B")
+                    new InfiniFrameMenuItem("item-a", "A"),
+                    new InfiniFrameMenuItem("item-b", "B")
                 )
             )
         );
 
         // Act
-        ImmutableArray<InfiniFrameMenuItem> result = MenuItemTreeHelper.UpdateItem(items, "item-b", item => item with { Label = "Modified B" });
+        ImmutableArray<InfiniFrameMenuItem> result = MenuItemTreeHelper.UpdateItem(items, "item-b", updater: item => item with { Label = "Modified B" });
 
         // Assert
         await Assert.That(result[0].Children[1].Label).IsEqualTo("Modified B");
@@ -70,7 +70,7 @@ public class MenuItemTreeHelperTests {
         var items = ImmutableArray<InfiniFrameMenuItem>.Empty;
 
         // Act
-        ImmutableArray<InfiniFrameMenuItem> result = MenuItemTreeHelper.UpdateItem(items, "any", item => item with { Label = "Changed" });
+        ImmutableArray<InfiniFrameMenuItem> result = MenuItemTreeHelper.UpdateItem(items, "any", updater: item => item with { Label = "Changed" });
 
         // Assert
         await Assert.That(result).IsEmpty();
@@ -80,11 +80,11 @@ public class MenuItemTreeHelperTests {
     public async Task UpdateItem_DoesNotMutateOriginal(CancellationToken ct = default) {
         // Arrange
         var items = ImmutableArray.Create(
-            new InfiniFrameMenuItem(Id: "a", Label: "Original")
+            new InfiniFrameMenuItem("a", "Original")
         );
 
         // Act
-        ImmutableArray<InfiniFrameMenuItem> result = MenuItemTreeHelper.UpdateItem(items, "a", item => item with { Label = "Changed" });
+        ImmutableArray<InfiniFrameMenuItem> result = MenuItemTreeHelper.UpdateItem(items, "a", updater: item => item with { Label = "Changed" });
 
         // Assert
         await Assert.That(items[0].Label).IsEqualTo("Original");

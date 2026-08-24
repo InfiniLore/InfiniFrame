@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Collections;
 using InfiniFrame;
 using InfiniFrame.StaticAssets;
 using Microsoft.Extensions.FileProviders;
@@ -62,6 +63,6 @@ public class InfiniFrameStaticAssetsTests {
     private sealed class TestDirectoryContents : IDirectoryContents {
         public bool Exists => false;
         public IEnumerator<IFileInfo> GetEnumerator() => Enumerable.Empty<IFileInfo>().GetEnumerator();
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

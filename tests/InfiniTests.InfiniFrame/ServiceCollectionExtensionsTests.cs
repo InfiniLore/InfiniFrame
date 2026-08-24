@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using FluentValidation;
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +25,7 @@ public class ServiceCollectionExtensionsTests {
         // Assert
         await Assert.That(provider.GetService<IInfiniFrameEventsStore>()).IsNotNull();
         await Assert.That(provider.GetService<IInfiniFrameWindowConfiguration>()).IsNotNull();
-        await Assert.That(provider.GetService<FluentValidation.IValidator<InfiniFrameNativeParameters>>()).IsNotNull();
+        await Assert.That(provider.GetService<IValidator<InfiniFrameNativeParameters>>()).IsNotNull();
         await Assert.That(provider.GetService<InfiniFrameWindowFeaturesFactory>()).IsNotNull();
     }
 

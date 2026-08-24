@@ -2,6 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using InfiniFrame;
 using InfiniFrame.BlazorWebView;
 
 namespace InfiniTests.InfiniFrame.BlazorWebView;
@@ -46,7 +48,7 @@ public class InfiniFrameHttpHandlerTests {
         // Arrange
         Mock<IInfiniFrameWebViewManager> managerMock = MockFactory.CreateWebViewManagerMock();
         var stream = new MemoryStream(new byte[] { 1, 2, 3 });
-        managerMock.HandleWebRequest(Any<global::InfiniFrame.IInfiniFrameWindow?>(), Any<string?>()).Returns((stream, "text/plain"));
+        managerMock.HandleWebRequest(Any<IInfiniFrameWindow?>(), Any<string?>()).Returns((stream, "text/plain"));
         var handler = new InfiniFrameHttpHandler(managerMock.Object, new HttpClientHandler());
         var httpClient = new HttpClient(handler);
         var request = new HttpRequestMessage(HttpMethod.Get, "app://localhost/test");
@@ -55,7 +57,7 @@ public class InfiniFrameHttpHandlerTests {
         HttpResponseMessage response = await httpClient.SendAsync(request, CancellationToken.None);
 
         // Assert
-        await Assert.That(response.StatusCode).IsEqualTo(System.Net.HttpStatusCode.OK);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(response.Content).IsNotNull();
         await Assert.That(response.Content.Headers.ContentType!.MediaType).IsEqualTo("text/plain");
     }
@@ -64,7 +66,7 @@ public class InfiniFrameHttpHandlerTests {
     public async Task SendAsync_WithUnhandledRequest_ShouldFallThroughToInnerHandler(CancellationToken ct = default) {
         // Arrange
         Mock<IInfiniFrameWebViewManager> managerMock = MockFactory.CreateWebViewManagerMock();
-        managerMock.HandleWebRequest(Any<global::InfiniFrame.IInfiniFrameWindow?>(), Any<string?>()).Returns((null, null));
+        managerMock.HandleWebRequest(Any<IInfiniFrameWindow?>(), Any<string?>()).Returns((null, null));
         var handler = new InfiniFrameHttpHandler(managerMock.Object, new ThrowingHttpHandler());
         var httpClient = new HttpClient(handler);
         var request = new HttpRequestMessage(HttpMethod.Get, "https://example.com/test");
@@ -75,18 +77,12 @@ public class InfiniFrameHttpHandlerTests {
         });
     }
 
-    private sealed class ThrowingHttpHandler : HttpMessageHandler {
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) {
-            throw new HttpRequestException("inner handler rejected");
-        }
-    }
-
     [Test]
     public async Task SendAsync_WithCancellationRequested_ShouldThrow(CancellationToken ct = default) {
         // Arrange
         Mock<IInfiniFrameWebViewManager> managerMock = MockFactory.CreateWebViewManagerMock();
         var stream = new MemoryStream(new byte[] { 1, 2, 3 });
-        managerMock.HandleWebRequest(Any<global::InfiniFrame.IInfiniFrameWindow?>(), Any<string?>()).Returns((stream, "text/plain"));
+        managerMock.HandleWebRequest(Any<IInfiniFrameWindow?>(), Any<string?>()).Returns((stream, "text/plain"));
         var handler = new InfiniFrameHttpHandler(managerMock.Object, new HttpClientHandler());
         var httpClient = new HttpClient(handler);
         var request = new HttpRequestMessage(HttpMethod.Get, "app://localhost/test");
@@ -97,5 +93,9 @@ public class InfiniFrameHttpHandlerTests {
         await Assert.ThrowsAsync<OperationCanceledException>(async () => {
             await httpClient.SendAsync(request, cts.Token);
         });
+    }
+
+    private sealed class ThrowingHttpHandler : HttpMessageHandler {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) => throw new HttpRequestException("inner handler rejected");
     }
 }

@@ -1,8 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
 using System.Reflection;
+using InfiniFrame;
 
 namespace InfiniTests.InfiniFrame.Window.Features.WebMessaging;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -170,13 +170,13 @@ public class WindowFeatureParityTests {
                 .Concat(featureType.GetMethods(BindingFlags.Instance | BindingFlags.Public).Where(method => !method.IsSpecialName))
                 .GroupBy(member => member.Name)
                 .ToDictionary(
-                keySelector: group => group.Key,
-                elementSelector: group => group.Count(), StringComparer.Ordinal);
+                    keySelector: group => group.Key,
+                    elementSelector: group => group.Count(), StringComparer.Ordinal);
             Dictionary<string, int> audited = expected.Included
                 .Concat(expected.Excluded.Keys.Select(name => new KeyValuePair<string, int>(name, 1)))
                 .ToDictionary(
-                keySelector: pair => pair.Key,
-                elementSelector: pair => pair.Value, StringComparer.Ordinal);
+                    keySelector: pair => pair.Key,
+                    elementSelector: pair => pair.Value, StringComparer.Ordinal);
 
             await Assert.That(actual).IsEquivalentTo(audited);
             await Assert.That(expected.Excluded.Values.All(reason => !string.IsNullOrWhiteSpace(reason))).IsTrue();
@@ -185,14 +185,14 @@ public class WindowFeatureParityTests {
 
     private static FeatureMembers Included(params string[] names)
         => new(names.ToDictionary(
-            keySelector: name => name,
-            elementSelector: _ => 1, StringComparer.Ordinal), new Dictionary<string, string>()
+                keySelector: name => name,
+                elementSelector: _ => 1, StringComparer.Ordinal), new Dictionary<string, string>()
         );
 
     private static FeatureMembers IncludedWithCounts(params (string Name, int Count)[] members)
         => new(members.ToDictionary(
-            keySelector: member => member.Name,
-            elementSelector: member => member.Count, StringComparer.Ordinal), new Dictionary<string, string>()
+                keySelector: member => member.Name,
+                elementSelector: member => member.Count, StringComparer.Ordinal), new Dictionary<string, string>()
         );
 
     private static FeatureMembers Excluded(params (string Name, string Reason)[] members)
@@ -204,10 +204,10 @@ public class WindowFeatureParityTests {
     private static FeatureMembers IncludedAndExcluded(string[] included, params (string Name, string Reason)[] excluded)
         => new(
             included.ToDictionary(
-            keySelector: name => name,
-            elementSelector: _ => 1, StringComparer.Ordinal),
+                keySelector: name => name,
+                elementSelector: _ => 1, StringComparer.Ordinal),
             excluded.ToDictionary(
-            keySelector: member => member.Name,
-            elementSelector: member => member.Reason, StringComparer.Ordinal)
+                keySelector: member => member.Name,
+                elementSelector: member => member.Reason, StringComparer.Ordinal)
         );
 }

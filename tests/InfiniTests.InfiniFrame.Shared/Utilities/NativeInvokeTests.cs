@@ -1,10 +1,10 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Runtime.InteropServices;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
 using Microsoft.Extensions.Logging.Abstractions;
-using System.Runtime.InteropServices;
 
 namespace InfiniTests.InfiniFrame.Shared.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ public class NativeInvokeTests {
             NullLogger.Instance,
             owner,
             Environment.CurrentManagedThreadId,
-            callback: Callback);
+            Callback);
 
         // Assert
         await Assert.That(result).IsEqualTo("out-value");
@@ -53,7 +53,7 @@ public class NativeInvokeTests {
             NullLogger.Instance,
             owner,
             Environment.CurrentManagedThreadId,
-            callback: FuncWithOut);
+            FuncWithOut);
 
         // Assert
         await Assert.That(received).IsEqualTo(expectedHandle);

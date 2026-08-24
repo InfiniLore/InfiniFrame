@@ -1,11 +1,11 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Runtime.InteropServices;
 using InfiniFrame;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Delegates;
 using Microsoft.Extensions.Logging.Abstractions;
-using System.Runtime.InteropServices;
 
 namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -204,6 +204,7 @@ public class CustomSchemeResponseCorsPipelineTests {
 
     private static void Release(ref CustomSchemeResponse response) {
         if (response.OwnerContext == IntPtr.Zero) return;
+
         var release = Marshal.GetDelegateForFunctionPointer<CppReleaseCustomSchemeResponseDelegate>(response.Release);
         release(response.OwnerContext);
         response = default;

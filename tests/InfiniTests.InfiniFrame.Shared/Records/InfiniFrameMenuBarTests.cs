@@ -22,7 +22,7 @@ public class InfiniFrameMenuBarTests {
     [Test]
     public async Task Constructor_WithItems_SetsItems(CancellationToken ct = default) {
         // Arrange
-        var item = new InfiniFrameMenuItem(Id: "menu-1", Label: "Menu 1");
+        var item = new InfiniFrameMenuItem("menu-1", "Menu 1");
 
         // Act
         var menuBar = new InfiniFrameMenuBar(ImmutableArray.Create(item));

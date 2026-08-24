@@ -36,7 +36,7 @@ public class InfiniFrameUriSecurityPolicyRegistryTests {
     public async Task ConfigureForBuilder_NullBuilder_ThrowsArgumentNullException(CancellationToken ct = default) {
         // Arrange & Act & Assert
         await Assert.That(
-            () => InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(null!, _ => { })
+            () => InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(null!, configure: _ => {})
         ).Throws<ArgumentNullException>();
     }
 
@@ -134,9 +134,9 @@ public class InfiniFrameUriSecurityPolicyRegistryTests {
         var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
-        InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(builder, b => b
+        InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(builder, configure: b => b
             .SetAllowedNavigationSchemes([Uri.UriSchemeHttps]));
-        InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(builder, b => b
+        InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(builder, configure: b => b
             .AllowNavigationScheme(Uri.UriSchemeFtp));
         IInfiniFrameUriSecurityPolicy policy = InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(builder);
 

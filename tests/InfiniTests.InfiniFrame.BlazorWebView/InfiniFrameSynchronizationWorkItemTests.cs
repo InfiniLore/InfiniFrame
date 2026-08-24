@@ -12,7 +12,7 @@ public class InfiniFrameSynchronizationWorkItemTests {
     [Test]
     public async Task InternalFields_CanBeSet(CancellationToken ct = default) {
         // Arrange
-        SendOrPostCallback callback = _ => { };
+        SendOrPostCallback callback = _ => {};
         object state = "test-state";
 
         // Act

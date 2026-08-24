@@ -1,10 +1,10 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
-using InfiniFrame.Utilities;
 using System.Collections.Immutable;
 using System.Drawing;
+using InfiniFrame;
+using InfiniFrame.Utilities;
 
 namespace InfiniTests.InfiniFrame.Shared.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------

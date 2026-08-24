@@ -1,12 +1,12 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Collections.Concurrent;
+using System.Reflection;
 using FluentValidation;
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters;
 using Microsoft.Extensions.Logging.Abstractions;
-using System.Collections.Concurrent;
-using System.Reflection;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 // ---------------------------------------------------------------------------------------------------------------------

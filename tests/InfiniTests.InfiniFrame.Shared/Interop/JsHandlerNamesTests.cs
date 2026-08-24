@@ -39,7 +39,7 @@ public class JsHandlerNamesTests {
     public async Task AllConstants_StartWithInfiniFramePrefix(string input, CancellationToken ct = default) {
         // Arrange
         const string expected = "__infiniframe";
-        
+
         // Act
 
         // Assert

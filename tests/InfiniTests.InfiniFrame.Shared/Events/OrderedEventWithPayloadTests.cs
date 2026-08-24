@@ -1,8 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
 using System.Collections.Immutable;
+using InfiniFrame;
 
 namespace InfiniTests.InfiniFrame.Shared.Events;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ public class OrderedEventWithPayloadTests {
     public async Task Remove_RegisteredHandler_ReducesSnapshotCount(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent<int>();
-        Action<IInfiniFrameWindow, int> handler = (_, _) => { };
+        Action<IInfiniFrameWindow, int> handler = (_, _) => {};
         orderedEvent.Add(handler);
 
         // Act
@@ -137,7 +137,7 @@ public class OrderedEventWithPayloadTests {
         Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
         window.ServiceProvider.Returns((IServiceProvider?)null);
 
-        orderedEvent.AddWithServiceResolving<IDisposable>((_, _, _) => { });
+        orderedEvent.AddWithServiceResolving<IDisposable>((_, _, _) => {});
 
         // Act & Assert
         await Assert.That(() => orderedEvent.Invoke(window.Object, 0)).Throws<InvalidOperationException>();
@@ -171,11 +171,11 @@ public class OrderedEventWithPayloadTests {
     public async Task Snapshot_IsImmutable_SubsequentAddDoesNotAffectCapturedSnapshot(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent<int>();
-        orderedEvent.Add((_, _) => { });
+        orderedEvent.Add((_, _) => {});
 
         // Act
         ImmutableArray<Action<IInfiniFrameWindow, int>> snapshot = orderedEvent.Snapshot;
-        orderedEvent.Add((_, _) => { });
+        orderedEvent.Add((_, _) => {});
 
         // Assert
         await Assert.That(snapshot.Length).IsEqualTo(1);

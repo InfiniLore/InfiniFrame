@@ -458,11 +458,10 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     // Helpers
     // -----------------------------------------------------------------------------------------------------------------
     private sealed class TestFileProvider(string expectedPath, byte[] content) : IFileProvider {
-        public IFileInfo GetFileInfo(string subpath) {
-            return string.Equals(subpath, expectedPath, StringComparison.Ordinal)
+        public IFileInfo GetFileInfo(string subpath) =>
+            string.Equals(subpath, expectedPath, StringComparison.Ordinal)
                 ? new MemoryFileInfo(expectedPath, content)
                 : new NotFoundFileInfo(subpath);
-        }
 
         public IDirectoryContents GetDirectoryContents(string subpath) => NotFoundDirectoryContents.Singleton;
         public IChangeToken Watch(string filter) => NullChangeToken.Singleton;
@@ -472,6 +471,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
         public IFileInfo GetFileInfo(string subpath) {
             if (subpath == "subdir/" || subpath == "subdir")
                 return new TestDirFileInfo("subdir");
+
             return new NotFoundFileInfo(subpath);
         }
 
@@ -496,6 +496,6 @@ public class StaticAssetSchemeHandlerAdditionalTests {
         public string Name => name;
         public DateTimeOffset LastModified => DateTimeOffset.UnixEpoch;
         public bool IsDirectory => false;
-        public Stream CreateReadStream() => new MemoryStream(content, writable: false);
+        public Stream CreateReadStream() => new MemoryStream(content, false);
     }
 }

@@ -188,7 +188,7 @@ public class SizeCalculationsTests {
 
         // Act & Assert
         await Assert.That(() => SizeCalculations.ComputeResize(
-            100, 100, 800, 600, 0, 0, (ResizeOrigin)99))
+                100, 100, 800, 600, 0, 0, (ResizeOrigin)99))
             .Throws<ArgumentOutOfRangeException>();
     }
 

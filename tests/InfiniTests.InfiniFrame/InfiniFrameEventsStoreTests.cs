@@ -41,10 +41,10 @@ public class InfiniFrameEventsStoreTests {
         // Arrange
         var source = new InfiniFrameEventsStore();
         var target = new InfiniFrameEventsStore();
-        source.WindowFocusIn.Add(_ => { });
-        source.WindowMinimized.Add(_ => { });
-        source.WindowClosed.Add(_ => { });
-        source.FileDropped.Add((_, _) => { });
+        source.WindowFocusIn.Add(_ => {});
+        source.WindowMinimized.Add(_ => {});
+        source.WindowClosed.Add(_ => {});
+        source.FileDropped.Add((_, _) => {});
 
         // Act
         source.CopyTo(target);
@@ -65,8 +65,8 @@ public class InfiniFrameEventsStoreTests {
         // Arrange
         var source = new InfiniFrameEventsStore();
         var target = new InfiniFrameEventsStore();
-        source.WebMessagePostData.Add("msg1", (_, _) => { });
-        source.WebMessageGetData.Add("msg2", (_, _) => "response");
+        source.WebMessagePostData.Add("msg1", handler: (_, _) => {});
+        source.WebMessageGetData.Add("msg2", handler: (_, _) => "response");
 
         // Act
         source.CopyTo(target);
@@ -83,7 +83,7 @@ public class InfiniFrameEventsStoreTests {
         // Arrange
         var source = new InfiniFrameEventsStore();
         var target = new InfiniFrameEventsStore();
-        source.CustomScheme.Add("app", (_, _) => (null, null));
+        source.CustomScheme.Add("app", handler: (_, _) => (null, null));
 
         // Act
         source.CopyTo(target);
@@ -128,7 +128,7 @@ public class InfiniFrameEventsStoreTests {
         // Arrange
         var source = new InfiniFrameEventsStore();
         var target = new InfiniFrameEventsStore();
-        source.WindowLocationChanged.Add((_, _) => { });
+        source.WindowLocationChanged.Add((_, _) => {});
 
         // Act
         source.CopyTo(target);
@@ -143,7 +143,7 @@ public class InfiniFrameEventsStoreTests {
         // Arrange
         var source = new InfiniFrameEventsStore();
         var target = new InfiniFrameEventsStore();
-        source.WindowSizeChanged.Add((_, _) => { });
+        source.WindowSizeChanged.Add((_, _) => {});
 
         // Act
         source.CopyTo(target);
@@ -158,7 +158,7 @@ public class InfiniFrameEventsStoreTests {
         // Arrange
         var source = new InfiniFrameEventsStore();
         var target = new InfiniFrameEventsStore();
-        source.WindowCreating.Add(_ => { });
+        source.WindowCreating.Add(_ => {});
 
         // Act
         source.CopyTo(target);
@@ -173,7 +173,7 @@ public class InfiniFrameEventsStoreTests {
         // Arrange
         var source = new InfiniFrameEventsStore();
         var target = new InfiniFrameEventsStore();
-        source.WindowCreated.Add(_ => { });
+        source.WindowCreated.Add(_ => {});
 
         // Act
         source.CopyTo(target);
@@ -188,7 +188,7 @@ public class InfiniFrameEventsStoreTests {
         // Arrange
         var source = new InfiniFrameEventsStore();
         var target = new InfiniFrameEventsStore();
-        source.WindowClosingRequested.Add(_ => { });
+        source.WindowClosingRequested.Add(_ => {});
 
         // Act
         source.CopyTo(target);

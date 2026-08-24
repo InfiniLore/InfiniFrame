@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Drawing;
+using System.Text.Json;
 using InfiniFrame;
 using InfiniTests;
 using Microsoft.Playwright;
-using System.Drawing;
-using System.Text.Json;
 
 namespace InfiniAutomationTests.Tests;
 // ---------------------------------------------------------------------------------------------------------------------

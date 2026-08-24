@@ -17,7 +17,7 @@ public class InfiniFrameOperationDiagnosticsTests {
         // Act
         var diag = new InfiniFrameOperationDiagnostics {
             Name = "TestOp",
-            Id = (ulong)42,
+            Id = 42,
             StartedUtc = started,
             FinalState = "Completed"
         };
@@ -34,7 +34,7 @@ public class InfiniFrameOperationDiagnosticsTests {
         // Arrange & Act
         var diag = new InfiniFrameOperationDiagnostics {
             Name = "Op",
-            Id = (ulong)1,
+            Id = 1,
             StartedUtc = DateTimeOffset.UtcNow,
             FinalState = "Running"
         };
@@ -54,7 +54,7 @@ public class InfiniFrameOperationDiagnosticsTests {
         // Act
         var diag = new InfiniFrameOperationDiagnostics {
             Name = "Navigate",
-            Id = (ulong)100,
+            Id = 100,
             StartedUtc = started,
             CompletedUtc = completed,
             FinalState = "Failed",
@@ -72,8 +72,8 @@ public class InfiniFrameOperationDiagnosticsTests {
     public async Task Equality_SameValues_ReturnsTrue(CancellationToken ct = default) {
         // Arrange
         DateTimeOffset time = DateTimeOffset.UtcNow;
-        var d1 = new InfiniFrameOperationDiagnostics { Name = "X", Id = (ulong)1, StartedUtc = time, FinalState = "Done" };
-        var d2 = new InfiniFrameOperationDiagnostics { Name = "X", Id = (ulong)1, StartedUtc = time, FinalState = "Done" };
+        var d1 = new InfiniFrameOperationDiagnostics { Name = "X", Id = 1, StartedUtc = time, FinalState = "Done" };
+        var d2 = new InfiniFrameOperationDiagnostics { Name = "X", Id = 1, StartedUtc = time, FinalState = "Done" };
 
         // Act & Assert
         await Assert.That(d1).IsEqualTo(d2);

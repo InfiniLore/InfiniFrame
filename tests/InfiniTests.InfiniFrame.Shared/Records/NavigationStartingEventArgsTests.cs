@@ -13,10 +13,10 @@ public class NavigationStartingEventArgsTests {
     public async Task Constructor_SetsAllProperties(CancellationToken ct = default) {
         // Arrange & Act
         var args = new NavigationStartingEventArgs(
-            Url: "https://example.com",
-            IsUserInitiated: true,
-            IsRedirect: false,
-            IsMainFrame: true
+            "https://example.com",
+            true,
+            false,
+            true
         );
 
         // Assert

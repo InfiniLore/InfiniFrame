@@ -29,12 +29,12 @@ public class InfiniFrameMenuItemTests {
     public async Task ParameterizedConstructor_SetsValues(CancellationToken ct = default) {
         // Arrange & Act
         var item = new InfiniFrameMenuItem(
-            Id: "menu-file",
-            Label: "File",
-            Type: InfiniFrameMenuItemType.Submenu,
-            IsEnabled: true,
-            IsVisible: true,
-            KeyboardShortcut: "Ctrl+F"
+            "menu-file",
+            "File",
+            InfiniFrameMenuItemType.Submenu,
+            true,
+            true,
+            "Ctrl+F"
         );
 
         // Assert
@@ -50,8 +50,8 @@ public class InfiniFrameMenuItemTests {
     public async Task Children_DefaultValue_IsEmptyArray(CancellationToken ct = default) {
         // Arrange
         var item = new InfiniFrameMenuItem(
-            Id: "test",
-            Label: "Test"
+            "test",
+            "Test"
         );
 
         // Act & Assert
@@ -61,13 +61,13 @@ public class InfiniFrameMenuItemTests {
     [Test]
     public async Task Children_CanBeSetToNonEmptyArray(CancellationToken ct = default) {
         // Arrange
-        var child = new InfiniFrameMenuItem(Id: "child-1", Label: "Child 1");
+        var child = new InfiniFrameMenuItem("child-1", "Child 1");
 
         // Act
         var item = new InfiniFrameMenuItem(
-            Id: "parent",
-            Label: "Parent",
-            Type: InfiniFrameMenuItemType.Submenu,
+            "parent",
+            "Parent",
+            InfiniFrameMenuItemType.Submenu,
             Children: ImmutableArray.Create(child)
         );
 
@@ -79,8 +79,8 @@ public class InfiniFrameMenuItemTests {
     [Test]
     public async Task Equality_SameValues_ReturnsTrue(CancellationToken ct = default) {
         // Arrange
-        var item1 = new InfiniFrameMenuItem(Id: "test", Label: "Test");
-        var item2 = new InfiniFrameMenuItem(Id: "test", Label: "Test");
+        var item1 = new InfiniFrameMenuItem("test", "Test");
+        var item2 = new InfiniFrameMenuItem("test", "Test");
 
         // Act & Assert
         await Assert.That(item1).IsEqualTo(item2);
@@ -89,7 +89,7 @@ public class InfiniFrameMenuItemTests {
     [Test]
     public async Task WithExpression_CreatesNewInstance(CancellationToken ct = default) {
         // Arrange
-        var original = new InfiniFrameMenuItem(Id: "test", Label: "Test");
+        var original = new InfiniFrameMenuItem("test", "Test");
 
         // Act
         InfiniFrameMenuItem modified = original with { Label = "Modified" };

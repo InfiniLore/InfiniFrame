@@ -29,7 +29,7 @@ public sealed class InfiniFrameSynchronizationContextTests {
     [Test]
     public async Task InvokeAsync_WindowAlreadyClosed_ExecutesCallbackInline(CancellationToken ct = default) {
         // Arrange
-        var (context, invokeMock) = CreateContextWithWindowClosedMock();
+        (InfiniFrameSynchronizationContext context, Mock<IInvokeInfiniFrameWindowFeature> invokeMock) = CreateContextWithWindowClosedMock();
         bool invoked = false;
 
         // Act
@@ -43,7 +43,7 @@ public sealed class InfiniFrameSynchronizationContextTests {
     [Test]
     public async Task InvokeAsync_WindowAlreadyClosed_FuncTResult_ReturnsValue(CancellationToken ct = default) {
         // Arrange
-        var (context, _) = CreateContextWithWindowClosedMock();
+        (InfiniFrameSynchronizationContext context, _) = CreateContextWithWindowClosedMock();
 
         // Act
         int result = await context.InvokeAsync(() => 42).WaitAsync(ct);
@@ -55,7 +55,7 @@ public sealed class InfiniFrameSynchronizationContextTests {
     [Test]
     public async Task CreateCopy_ReturnsNewInstance(CancellationToken ct = default) {
         // Arrange
-        var (context, _) = CreateContextWithWindowClosedMock();
+        (InfiniFrameSynchronizationContext context, _) = CreateContextWithWindowClosedMock();
 
         // Act
         SynchronizationContext copy = context.CreateCopy();
@@ -68,7 +68,7 @@ public sealed class InfiniFrameSynchronizationContextTests {
     [Test]
     public async Task CreateCopy_ReturnsInfiniFrameSynchronizationContext(CancellationToken ct = default) {
         // Arrange
-        var (context, _) = CreateContextWithWindowClosedMock();
+        (InfiniFrameSynchronizationContext context, _) = CreateContextWithWindowClosedMock();
 
         // Act
         SynchronizationContext copy = context.CreateCopy();
@@ -81,7 +81,7 @@ public sealed class InfiniFrameSynchronizationContextTests {
     [Test]
     public async Task InvokeAsync_WindowAlreadyClosed_FuncTask_ExecutesCallback(CancellationToken ct = default) {
         // Arrange
-        var (context, _) = CreateContextWithWindowClosedMock();
+        (InfiniFrameSynchronizationContext context, _) = CreateContextWithWindowClosedMock();
         bool invoked = false;
 
         // Act
@@ -97,7 +97,7 @@ public sealed class InfiniFrameSynchronizationContextTests {
     [Test]
     public async Task InvokeAsync_WindowAlreadyClosed_FuncTaskTResult_ReturnsValue(CancellationToken ct = default) {
         // Arrange
-        var (context, _) = CreateContextWithWindowClosedMock();
+        (InfiniFrameSynchronizationContext context, _) = CreateContextWithWindowClosedMock();
 
         // Act
         int result = await context.InvokeAsync(async () => {
@@ -112,7 +112,7 @@ public sealed class InfiniFrameSynchronizationContextTests {
     [Test]
     public async Task InvokeAsync_WindowAlreadyClosed_FuncTResult_Exception_Propagates(CancellationToken ct = default) {
         // Arrange
-        var (context, _) = CreateContextWithWindowClosedMock();
+        (InfiniFrameSynchronizationContext context, _) = CreateContextWithWindowClosedMock();
 
         // Act & Assert
         InvalidOperationException? caught = null;
@@ -123,6 +123,7 @@ public sealed class InfiniFrameSynchronizationContextTests {
         catch (InvalidOperationException ex) {
             caught = ex;
         }
+
         await Assert.That(caught).IsNotNull();
     }
 }

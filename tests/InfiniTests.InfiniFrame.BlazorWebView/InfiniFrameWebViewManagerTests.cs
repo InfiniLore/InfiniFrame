@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Threading.Channels;
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
 using Microsoft.AspNetCore.Components;
@@ -9,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
-using System.Threading.Channels;
 
 namespace InfiniTests.InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -125,7 +125,8 @@ public class InfiniFrameWebViewManagerTests {
                 if (current == 1) {
                     firstStarted.TrySetResult(true);
                     returnValue = new ValueTask(firstRelease.Task);
-                } else {
+                }
+                else {
                     secondStarted.TrySetResult(true);
                     returnValue = ValueTask.CompletedTask;
                 }
@@ -240,7 +241,7 @@ public class InfiniFrameWebViewManagerTests {
         featuresMock.WebMessaging.Returns(webMessagingMock.Object);
         int sendCount = 0;
         webMessagingMock.SendWebMessageAsync(Any<string>(), Any<CancellationToken>())
-            .Callback(() => { Interlocked.Increment(ref sendCount); })
+            .Callback(() => {Interlocked.Increment(ref sendCount);})
             .Returns(() => ValueTask.CompletedTask);
 
         await using ServiceProvider provider = new ServiceCollection()
@@ -312,6 +313,6 @@ public class InfiniFrameWebViewManagerTests {
         public string Name => name;
         public DateTimeOffset LastModified => DateTimeOffset.UnixEpoch;
         public bool IsDirectory => false;
-        public Stream CreateReadStream() => new MemoryStream(content, writable: false);
+        public Stream CreateReadStream() => new MemoryStream(content, false);
     }
 }

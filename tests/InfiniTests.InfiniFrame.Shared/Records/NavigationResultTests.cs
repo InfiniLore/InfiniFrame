@@ -29,7 +29,7 @@ public class NavigationResultTests {
     [Arguments("Connection timeout")]
     public async Task Constructor_WithFailureReason_SetsReason(string failureReason, CancellationToken ct = default) {
         // Arrange & Act
-        var result = new NavigationResult((ulong)5, NavigationStatus.Failed, null, 404, failureReason);
+        var result = new NavigationResult(5, NavigationStatus.Failed, null, 404, failureReason);
 
         // Assert
         await Assert.That(result.FailureReason).IsEqualTo(failureReason);
@@ -42,7 +42,7 @@ public class NavigationResultTests {
     [Arguments(int.MaxValue)]
     public async Task Constructor_WithNativeErrorCode_SetsErrorCode(int errorCode, CancellationToken ct = default) {
         // Arrange & Act
-        var result = new NavigationResult((ulong)5, NavigationStatus.Failed, null, errorCode, "error");
+        var result = new NavigationResult(5, NavigationStatus.Failed, null, errorCode, "error");
 
         // Assert
         await Assert.That(result.NativeErrorCode).IsEqualTo(errorCode);
@@ -51,7 +51,7 @@ public class NavigationResultTests {
     [Test]
     public async Task Constructor_WithDefaults_OptionalPropertiesAreNull(CancellationToken ct = default) {
         // Arrange & Act
-        var result = new NavigationResult((ulong)42, NavigationStatus.Failed);
+        var result = new NavigationResult(42, NavigationStatus.Failed);
 
         // Assert
         await Assert.That(result.Uri).IsNull();
@@ -62,8 +62,8 @@ public class NavigationResultTests {
     public async Task Equality_SameValues_ReturnsTrue(CancellationToken ct = default) {
         // Arrange
         var uri = new Uri("https://example.com");
-        var r1 = new NavigationResult((ulong)1, NavigationStatus.Succeeded, uri);
-        var r2 = new NavigationResult((ulong)1, NavigationStatus.Succeeded, uri);
+        var r1 = new NavigationResult(1, NavigationStatus.Succeeded, uri);
+        var r2 = new NavigationResult(1, NavigationStatus.Succeeded, uri);
 
         // Assert
         await Assert.That(r1).IsEqualTo(r2);
@@ -72,8 +72,8 @@ public class NavigationResultTests {
     [Test]
     public async Task Equality_DifferentValues_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
-        var r1 = new NavigationResult((ulong)1, NavigationStatus.Succeeded);
-        var r2 = new NavigationResult((ulong)2, NavigationStatus.Succeeded);
+        var r1 = new NavigationResult(1, NavigationStatus.Succeeded);
+        var r2 = new NavigationResult(2, NavigationStatus.Succeeded);
 
         // Assert
         await Assert.That(r1).IsNotEqualTo(r2);
@@ -82,7 +82,7 @@ public class NavigationResultTests {
     [Test]
     public async Task WithExpression_CreatesNewInstance(CancellationToken ct = default) {
         // Arrange
-        var original = new NavigationResult((ulong)1, NavigationStatus.Succeeded, new Uri("https://example.com"));
+        var original = new NavigationResult(1, NavigationStatus.Succeeded, new Uri("https://example.com"));
 
         // Act
         NavigationResult modified = original with { Status = NavigationStatus.Failed };

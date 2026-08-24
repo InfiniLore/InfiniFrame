@@ -67,10 +67,12 @@ public class NativeLifetimeStressTests {
             first.Window.Close();
             first.Window.WaitForClose();
         }
+
         using var borderless = InfiniFrameTestWindow.Create(builder: builder =>
             builder.Features.Decorations.SetChromeless(true), ct);
         if (borderless.Window.WindowHandle == titled)
             throw new InvalidOperationException("A chromeless session reused an incompatible titled macOS host.");
+
         return Task.CompletedTask;
     }
 
@@ -108,7 +110,7 @@ public class NativeLifetimeStressTests {
         try {
             await Task.WhenAll(callers);
         }
-        catch (OperationCanceledException) when (stop.IsCancellationRequested) { }
+        catch (OperationCanceledException) when (stop.IsCancellationRequested) {}
 
         // Assert
         await Assert.That(completedCalls).IsGreaterThanOrEqualTo(0);

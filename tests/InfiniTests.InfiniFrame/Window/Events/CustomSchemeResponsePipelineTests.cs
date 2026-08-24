@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Reflection;
+using System.Runtime.InteropServices;
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Delegates;
 using Microsoft.Extensions.Logging.Abstractions;
-using System.Reflection;
-using System.Runtime.InteropServices;
 
 namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -104,6 +104,7 @@ public class CustomSchemeResponsePipelineTests {
             var response = new CustomSchemeResponse();
             int handled = events.OnCustomScheme($"app://stress/{i}", ref response);
             if (handled != 1) throw new InvalidOperationException($"Request {i} was not handled.");
+
             Release(ref response);
         }
 
@@ -124,6 +125,7 @@ public class CustomSchemeResponsePipelineTests {
 
     private static void Release(ref CustomSchemeResponse response) {
         if (response.OwnerContext == IntPtr.Zero) return;
+
         var release = Marshal.GetDelegateForFunctionPointer<CppReleaseCustomSchemeResponseDelegate>(response.Release);
         release(response.OwnerContext);
         response = default;
@@ -139,7 +141,7 @@ public class CustomSchemeResponsePipelineTests {
         public override bool CanWrite => false;
         public override long Length => length;
         public override long Position { get; set; }
-        public override void Flush() { }
+        public override void Flush() {}
         public override int Read(byte[] buffer, int offset, int count) => 0;
         public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
         public override void SetLength(long value) => throw new NotSupportedException();

@@ -13,8 +13,8 @@ public class InfiniFrameWebMessageReceivedEventTests {
     public async Task Record_CanBeConstructed(CancellationToken ct = default) {
         // Arrange & Act
         var evt = new InfiniFrameWebMessageReceivedEvent(
-            Message: "hello",
-            Origin: "https://example.com"
+            "hello",
+            "https://example.com"
         );
 
         // Assert

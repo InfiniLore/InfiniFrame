@@ -31,7 +31,7 @@ public class AppDomainUnhandledExceptionSourceTests {
     public async Task Register_ValidHandler_ShouldReturnDisposable(CancellationToken ct = default) {
         // Arrange
         var source = new AppDomainUnhandledExceptionSource();
-        UnhandledExceptionEventHandler handler = (_, _) => { };
+        UnhandledExceptionEventHandler handler = (_, _) => {};
 
         // Act
         IDisposable subscription = source.Register(handler);
@@ -60,7 +60,7 @@ public class AppDomainUnhandledExceptionSourceTests {
     public async Task Register_MultipleDisposes_ShouldNotThrow(CancellationToken ct = default) {
         // Arrange
         var source = new AppDomainUnhandledExceptionSource();
-        UnhandledExceptionEventHandler handler = (_, _) => { };
+        UnhandledExceptionEventHandler handler = (_, _) => {};
         IDisposable subscription = source.Register(handler);
 
         // Act

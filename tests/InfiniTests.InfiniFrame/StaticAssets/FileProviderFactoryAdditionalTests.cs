@@ -20,15 +20,16 @@ public class FileProviderFactoryAdditionalTests {
         try {
             // Act
             IFileProvider provider = FileProviderFactory.CreateWwwrootProvider(
-                assembly: assembly,
-                physicalWwwrootPath: tempDir,
-                includePhysicalFallback: true
+                assembly,
+                tempDir,
+                true
             );
 
             // Assert - should return a composite provider (DisposableCompositeFileProvider or CompositeFileProvider)
             await Assert.That(provider).IsNotNull();
-        } finally {
-            Directory.Delete(tempDir, recursive: true);
+        }
+        finally {
+            Directory.Delete(tempDir, true);
         }
     }
 
@@ -41,15 +42,16 @@ public class FileProviderFactoryAdditionalTests {
         try {
             // Act
             IFileProvider provider = FileProviderFactory.CreateWwwrootProvider(
-                assembly: assembly,
-                physicalWwwrootPath: tempDir,
-                includePhysicalFallback: false
+                assembly,
+                tempDir,
+                false
             );
 
             // Assert
             await Assert.That(provider).IsTypeOf<CompositeFileProvider>();
-        } finally {
-            Directory.Delete(tempDir, recursive: true);
+        }
+        finally {
+            Directory.Delete(tempDir, true);
         }
     }
 
@@ -60,7 +62,7 @@ public class FileProviderFactoryAdditionalTests {
 
         // Act
         IFileProvider provider = FileProviderFactory.CreateWwwrootProvider(
-            assembly: assembly,
+            assembly,
             includePhysicalFallback: false
         );
 

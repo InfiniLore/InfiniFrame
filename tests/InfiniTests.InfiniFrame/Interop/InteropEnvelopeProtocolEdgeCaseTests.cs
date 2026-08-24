@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Text.Json;
 using InfiniFrame.Interop;
 
 namespace InfiniTests.InfiniFrame.Interop;
@@ -205,7 +206,7 @@ public class InteropEnvelopeProtocolEdgeCaseTests {
     public async Task ParseJsonEncodedString_UnwrapsAndParses(CancellationToken ct = default) {
         // Arrange, a JSON-encoded string containing a valid envelope
         string innerEnvelope = """{"id":"test","command":"Post","version":2,"data":"hello"}""";
-        string encoded = System.Text.Json.JsonSerializer.Serialize(innerEnvelope);
+        string encoded = JsonSerializer.Serialize(innerEnvelope);
 
         // Act
         InteropEnvelopeParseResult result = InteropEnvelopeProtocol.ParseIncomingMessage(encoded);

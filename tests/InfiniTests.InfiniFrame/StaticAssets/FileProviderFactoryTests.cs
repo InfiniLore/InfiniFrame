@@ -18,7 +18,7 @@ public class FileProviderFactoryTests {
 
         // Act
         IFileProvider provider = FileProviderFactory.CreateWwwrootProvider(
-            assembly: assembly,
+            assembly,
             includePhysicalFallback: false
         );
 
@@ -34,7 +34,7 @@ public class FileProviderFactoryTests {
 
         // Act
         IFileProvider provider = FileProviderFactory.CreateWwwrootProvider(
-            assembly: assembly,
+            assembly,
             includePhysicalFallback: false
         );
 
@@ -46,7 +46,7 @@ public class FileProviderFactoryTests {
     public async Task CreateWwwrootProvider_NullAssembly_UsesDefaultAssembly(CancellationToken ct = default) {
         // Arrange & Act
         IFileProvider provider = FileProviderFactory.CreateWwwrootProvider(
-            assembly: null,
+            null,
             includePhysicalFallback: false
         );
 
@@ -62,9 +62,9 @@ public class FileProviderFactoryTests {
 
         // Act
         IFileProvider provider = FileProviderFactory.CreateWwwrootProvider(
-            assembly: assembly,
-            physicalWwwrootPath: nonExistentPath,
-            includePhysicalFallback: true
+            assembly,
+            nonExistentPath,
+            true
         );
 
         // Assert

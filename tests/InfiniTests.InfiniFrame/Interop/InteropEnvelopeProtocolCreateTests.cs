@@ -39,7 +39,7 @@ public class InteropEnvelopeProtocolCreateTests {
     [Test]
     public async Task CreateEnvelopeMessage_NullData_WritesNull(CancellationToken ct = default) {
         // Arrange & Act
-        string message = InteropEnvelopeProtocol.CreateEnvelopeMessage("test-id", data: null);
+        string message = InteropEnvelopeProtocol.CreateEnvelopeMessage("test-id", null);
 
         // Assert
         await Assert.That(message).Contains("\"data\":null");
@@ -48,7 +48,7 @@ public class InteropEnvelopeProtocolCreateTests {
     [Test]
     public async Task CreateEnvelopeMessage_WithData_WritesString(CancellationToken ct = default) {
         // Arrange & Act
-        string message = InteropEnvelopeProtocol.CreateEnvelopeMessage("test-id", data: "hello world");
+        string message = InteropEnvelopeProtocol.CreateEnvelopeMessage("test-id", "hello world");
 
         // Assert
         await Assert.That(message).Contains("\"data\":\"hello world\"");

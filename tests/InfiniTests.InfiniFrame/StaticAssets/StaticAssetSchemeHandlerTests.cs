@@ -13,11 +13,14 @@ namespace InfiniTests.InfiniFrame.StaticAssets;
 public class StaticAssetSchemeHandlerTests {
     [Test]
     public async Task TryResolveUri_FragmentIsPreservedButExcludedFromLookup(CancellationToken ct = default) {
+        // Arrange
         var provider = new RecordingFileProvider("index.html", [.. "<html></html>"u8]);
 
+        // Act
         bool resolved = StaticAssetSchemeHandler.TryResolveUri(
             provider, "index.html#settings", "app://localhost/", "index.html", out Uri uri);
 
+        // Assert
         await Assert.That(resolved).IsTrue();
         await Assert.That(provider.LastSubpath).IsEqualTo("index.html");
         await Assert.That(uri.AbsoluteUri).IsEqualTo("app://localhost/index.html#settings");
@@ -25,11 +28,15 @@ public class StaticAssetSchemeHandlerTests {
 
     [Test]
     public async Task Handler_QueryAndFragmentAreExcludedOnlyFromResourceLookup(CancellationToken ct = default) {
+        // Arrange
         byte[] expected = [.. "fragment-safe"u8];
         var provider = new RecordingFileProvider("assets/data.txt", expected);
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
+        // Act
         (Stream? data, string? contentType) = handler(null!, "app://localhost/assets/data.txt?version=7#section");
+
+        // Assert
         await using (data) {
             using var buffer = new MemoryStream();
             await data!.CopyToAsync(buffer, ct);

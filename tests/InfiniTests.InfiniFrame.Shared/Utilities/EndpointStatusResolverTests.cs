@@ -19,9 +19,9 @@ public class EndpointStatusResolverTests {
 
         // Act
         InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
-            isPlatformSupported: false, remoteDebuggingPort: 9222,
-            isWindowClosed: false, hasEndpoint: true,
-            probeSucceeded: true, probeReason: null);
+            false, 9222,
+            false, true,
+            true, null);
 
         // Assert
         await Assert.That(result).IsEqualTo(InfiniFrameDebugEndpointStatus.NotSupported);
@@ -33,9 +33,9 @@ public class EndpointStatusResolverTests {
 
         // Act
         InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
-            isPlatformSupported: true, remoteDebuggingPort: null,
-            isWindowClosed: false, hasEndpoint: true,
-            probeSucceeded: true, probeReason: null);
+            true, null,
+            false, true,
+            true, null);
 
         // Assert
         await Assert.That(result).IsEqualTo(InfiniFrameDebugEndpointStatus.Disabled);
@@ -47,9 +47,9 @@ public class EndpointStatusResolverTests {
 
         // Act
         InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
-            isPlatformSupported: true, remoteDebuggingPort: 9222,
-            isWindowClosed: true, hasEndpoint: true,
-            probeSucceeded: true, probeReason: null);
+            true, 9222,
+            true, true,
+            true, null);
 
         // Assert
         await Assert.That(result).IsEqualTo(InfiniFrameDebugEndpointStatus.Unavailable);
@@ -61,9 +61,9 @@ public class EndpointStatusResolverTests {
 
         // Act
         InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
-            isPlatformSupported: true, remoteDebuggingPort: 9222,
-            isWindowClosed: false, hasEndpoint: false,
-            probeSucceeded: true, probeReason: null);
+            true, 9222,
+            false, false,
+            true, null);
 
         // Assert
         await Assert.That(result).IsEqualTo(InfiniFrameDebugEndpointStatus.Unavailable);
@@ -75,9 +75,9 @@ public class EndpointStatusResolverTests {
 
         // Act
         InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
-            isPlatformSupported: true, remoteDebuggingPort: 9222,
-            isWindowClosed: false, hasEndpoint: true,
-            probeSucceeded: true, probeReason: null);
+            true, 9222,
+            false, true,
+            true, null);
 
         // Assert
         await Assert.That(result).IsEqualTo(InfiniFrameDebugEndpointStatus.Reachable);
@@ -89,9 +89,9 @@ public class EndpointStatusResolverTests {
 
         // Act
         InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
-            isPlatformSupported: true, remoteDebuggingPort: 9222,
-            isWindowClosed: false, hasEndpoint: true,
-            probeSucceeded: false, probeReason: null);
+            true, 9222,
+            false, true,
+            false, null);
 
         // Assert
         await Assert.That(result).IsEqualTo(InfiniFrameDebugEndpointStatus.Configured);
@@ -103,9 +103,9 @@ public class EndpointStatusResolverTests {
 
         // Act
         InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
-            isPlatformSupported: true, remoteDebuggingPort: 9222,
-            isWindowClosed: false, hasEndpoint: true,
-            probeSucceeded: false, probeReason: "  ");
+            true, 9222,
+            false, true,
+            false, "  ");
 
         // Assert
         await Assert.That(result).IsEqualTo(InfiniFrameDebugEndpointStatus.Configured);
@@ -117,9 +117,9 @@ public class EndpointStatusResolverTests {
 
         // Act
         InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
-            isPlatformSupported: true, remoteDebuggingPort: 9222,
-            isWindowClosed: false, hasEndpoint: true,
-            probeSucceeded: false, probeReason: "Connection refused");
+            true, 9222,
+            false, true,
+            false, "Connection refused");
 
         // Assert
         await Assert.That(result).IsEqualTo(InfiniFrameDebugEndpointStatus.Unreachable);
@@ -131,9 +131,9 @@ public class EndpointStatusResolverTests {
 
         // Act
         InfiniFrameDebugEndpointStatus result = EndpointStatusResolver.Resolve(
-            isPlatformSupported: true, remoteDebuggingPort: 0,
-            isWindowClosed: false, hasEndpoint: false,
-            probeSucceeded: false, probeReason: null);
+            true, 0,
+            false, false,
+            false, null);
 
         // Assert
         await Assert.That(result).IsEqualTo(InfiniFrameDebugEndpointStatus.Unavailable);

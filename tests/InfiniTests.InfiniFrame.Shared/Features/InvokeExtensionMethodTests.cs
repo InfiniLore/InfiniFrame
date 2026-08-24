@@ -19,7 +19,7 @@ public class InvokeExtensionMethodTests {
         features.Invoke.Returns(invoke.Object);
 
         // Act
-        IInfiniFrameWindow result = window.Object.Invoke(() => { });
+        IInfiniFrameWindow result = window.Object.Invoke(() => {});
 
         // Assert
         await Assert.That(result).IsSameReferenceAs(window.Object);

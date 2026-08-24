@@ -1,8 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
 using System.Diagnostics.CodeAnalysis;
+using InfiniFrame;
 
 namespace InfiniTests.InfiniFrame.Window.Features.FilePickerDialogs;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ public class FilePickerDialogsWhenClosedAsyncTests {
         using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(ct);
 
         Task<string?[]> operation = window.ShowOpenFileAsync(
-            title: "InfiniFrame cancellation test", ct: cancellation.Token
+            "InfiniFrame cancellation test", ct: cancellation.Token
         );
         await WaitForOutstandingOperation(window, "OpenFile", ct);
         cancellation.Cancel();
@@ -85,14 +85,18 @@ public class FilePickerDialogsWhenClosedAsyncTests {
     }
 
     private static async Task WaitForOutstandingOperation(
-        IInfiniFrameWindow window, string name, CancellationToken ct
+        IInfiniFrameWindow window,
+        string name,
+        CancellationToken ct
     ) {
         DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
         while (DateTime.UtcNow < timeoutAt) {
             if (window.GetDebugDiagnostics().OutstandingOperations.Any(operation => operation.Name == name))
                 return;
+
             await Task.Delay(25, ct);
         }
+
         throw new TimeoutException($"The {name} operation was not registered.");
     }
 
@@ -101,8 +105,10 @@ public class FilePickerDialogsWhenClosedAsyncTests {
         while (DateTime.UtcNow < timeoutAt) {
             if (window.GetDebugDiagnostics().OutstandingOperations.Count == 0)
                 return;
+
             await Task.Delay(25, ct);
         }
+
         throw new TimeoutException("The canceled native dialog did not complete.");
     }
 }

@@ -53,7 +53,7 @@ public class ColorUtilityTests {
     public async Task ParseBackgroundColor_ParsesCorrectly(string? input, byte r, byte g, byte b, byte a, CancellationToken ct = default) {
         // Arrange & Act
         ColorUtility.ParseBackgroundColor(
-            input, 
+            input,
             out byte rOutput,
             out byte gOutput,
             out byte bOutput,

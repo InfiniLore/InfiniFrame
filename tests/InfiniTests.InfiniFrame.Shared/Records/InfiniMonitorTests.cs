@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Drawing;
 using InfiniFrame;
 using InfiniFrame.NativeBridge;
 
@@ -13,8 +14,8 @@ public class InfiniMonitorTests {
     [Test]
     public async Task Constructor_WithRectangles_SetsProperties(CancellationToken ct = default) {
         // Arrange
-        var monitorArea = new System.Drawing.Rectangle(0, 0, 1920, 1080);
-        var workArea = new System.Drawing.Rectangle(0, 0, 1920, 1040);
+        var monitorArea = new Rectangle(0, 0, 1920, 1080);
+        var workArea = new Rectangle(0, 0, 1920, 1040);
 
         // Act
         var monitor = new InfiniMonitor(monitorArea, workArea, 1.5);
@@ -47,8 +48,8 @@ public class InfiniMonitorTests {
     [Test]
     public async Task Equality_SameValues_ReturnsTrue(CancellationToken ct = default) {
         // Arrange
-        var area = new System.Drawing.Rectangle(0, 0, 1920, 1080);
-        var work = new System.Drawing.Rectangle(0, 0, 1920, 1040);
+        var area = new Rectangle(0, 0, 1920, 1080);
+        var work = new Rectangle(0, 0, 1920, 1040);
         var m1 = new InfiniMonitor(area, work, 1.0);
         var m2 = new InfiniMonitor(area, work, 1.0);
 
@@ -59,8 +60,8 @@ public class InfiniMonitorTests {
     [Test]
     public async Task Equality_DifferentScale_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
-        var area = new System.Drawing.Rectangle(0, 0, 1920, 1080);
-        var work = new System.Drawing.Rectangle(0, 0, 1920, 1040);
+        var area = new Rectangle(0, 0, 1920, 1080);
+        var work = new Rectangle(0, 0, 1920, 1040);
         var m1 = new InfiniMonitor(area, work, 1.0);
         var m2 = new InfiniMonitor(area, work, 2.0);
 
@@ -71,7 +72,7 @@ public class InfiniMonitorTests {
     [Test]
     public async Task Scale_One_IsDefault(CancellationToken ct = default) {
         // Arrange
-        var area = new System.Drawing.Rectangle(0, 0, 1920, 1080);
+        var area = new Rectangle(0, 0, 1920, 1080);
 
         // Act
         var monitor = new InfiniMonitor(area, area, 1.0);
