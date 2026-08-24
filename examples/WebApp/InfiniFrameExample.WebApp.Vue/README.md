@@ -48,6 +48,6 @@ builder.Window
 
 ## Related documentation
 
-- [Web Server Guide](../../docs/Guides/WebServer.md)
-- [JavaScript Interop Guide](../../docs/Guides/JsInterop.md)
-- [Builder API — Platform-Specific](../../docs/Reference/BuilderApi.md#platform-specific)
+- [Web Server Guide](../../docs/docs/guides/web-server.md)
+- [JavaScript Interop Guide](../../docs/docs/guides/javascript-interop.md)
+- [API Reference](../../docs/docs/api.md)

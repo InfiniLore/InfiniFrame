@@ -45,5 +45,5 @@ app.Run();
 
 ## Related documentation
 
-- [Web Server Guide](../../docs/Guides/WebServer.md)
-- [JavaScript Interop Guide](../../docs/Guides/JsInterop.md)
+- [Web Server Guide](../../docs/docs/guides/web-server.md)
+- [JavaScript Interop Guide](../../docs/docs/guides/javascript-interop.md)

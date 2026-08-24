@@ -40,6 +40,6 @@ builder.Window
 
 ## Related documentation
 
-- [Web Server Guide](../../docs/Guides/WebServer.md)
-- [Core Window Guide — Custom URL Schemes](../../docs/Guides/CoreWindow.md#custom-url-schemes)
-- [JavaScript Interop Guide](../../docs/Guides/JsInterop.md)
+- [Web Server Guide](../../docs/docs/guides/web-server.md)
+- [Core Window Guide — Custom URL Schemes](../../docs/docs/guides/core-window.md#custom-url-schemes)
+- [JavaScript Interop Guide](../../docs/docs/guides/javascript-interop.md)

@@ -129,7 +129,7 @@ they are independent integration paths
 ## Single-File Executable Packing
 
 Use the `InfiniLore.InfiniFrame.SingleFile` package to publish your app as a single executable with embedded native
-dependencies. See [`/docs`](docs/articles/guides/pack-tool.md) for full usage details and options
+dependencies. See [`/docs`](docs/docs/guides/pack-tool.md) for full usage details and options
 
 ```bash
 dotnet add package InfiniLore.InfiniFrame.SingleFile

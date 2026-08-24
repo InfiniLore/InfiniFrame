@@ -35,9 +35,9 @@ dotnet run --project examples/InfiniFrameExample.BlazorWebView
 
 Each example maps to a documentation guide:
 
-- BlazorWebView → [Blazor WebView Guide](../docs/Guides/Blazor.md)
-- NativeMenu → [Core Window Guide](../docs/Guides/CoreWindow.md) (native menus)
-- SingleFileExe → [Pack Tool Guide](../docs/Guides/PackTool.md) (single-file publishing)
-- WebApp, WebApp.Blazor, WebApp.React, WebApp.Vue → [Web Server Guide](../docs/Guides/WebServer.md)
-- WebApp.React → [Core Window Guide](../docs/Guides/CoreWindow.md) (custom schemes, messaging)
-- WebApp.Vue → [JavaScript Interop Guide](../docs/Guides/JsInterop.md) (built-in message handlers)
+- BlazorWebView → [Blazor WebView Guide](../docs/docs/guides/blazor-webview.md)
+- NativeMenu → [Core Window Guide](../docs/docs/guides/core-window.md) (native menus)
+- SingleFileExe → [Pack Tool Guide](../docs/docs/guides/pack-tool.md) (single-file publishing)
+- WebApp, WebApp.Blazor, WebApp.React, WebApp.Vue → [Web Server Guide](../docs/docs/guides/web-server.md)
+- WebApp.React → [Core Window Guide](../docs/docs/guides/core-window.md) (custom schemes, messaging)
+- WebApp.Vue → [JavaScript Interop Guide](../docs/docs/guides/javascript-interop.md) (built-in message handlers)
