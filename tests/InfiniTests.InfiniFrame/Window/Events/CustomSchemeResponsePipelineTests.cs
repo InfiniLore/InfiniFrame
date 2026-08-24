@@ -15,12 +15,15 @@ namespace InfiniTests.InfiniFrame.Window.Events;
 public class CustomSchemeResponsePipelineTests {
     [Test]
     public async Task Callback_ProducesVersionedOwnedUtf8Response(CancellationToken ct = default) {
+        // Arrange
         byte[] expected = [0, 1, 2, 255];
         InfiniFrameEvents events = CreateEvents((_, _) => (new MemoryStream(expected), "application/test"));
         var response = new CustomSchemeResponse();
 
+        // Act
         int handled = events.OnCustomScheme("app://asset", ref response);
         try {
+            // Assert
             await Assert.That(handled).IsEqualTo(1);
             await Assert.That(response.StructSize).IsEqualTo((uint)Marshal.SizeOf<CustomSchemeResponse>());
             await Assert.That(response.AbiVersion).IsEqualTo(CustomSchemeResponse.CurrentAbiVersion);
@@ -39,11 +42,14 @@ public class CustomSchemeResponsePipelineTests {
 
     [Test]
     public async Task Callback_EmptyBodyStillHasOneExplicitOwner(CancellationToken ct = default) {
+        // Arrange
         InfiniFrameEvents events = CreateEvents((_, _) => (new MemoryStream(), null));
         var response = new CustomSchemeResponse();
 
+        // Act
         int handled = events.OnCustomScheme("app://empty", ref response);
         try {
+            // Assert
             await Assert.That(handled).IsEqualTo(1);
             await Assert.That(response.ContentLength).IsEqualTo(0UL);
             await Assert.That(response.Body).IsEqualTo(IntPtr.Zero);
@@ -57,13 +63,16 @@ public class CustomSchemeResponsePipelineTests {
 
     [Test]
     public async Task Callback_RejectsOversizedSeekableStreamWithoutAllocating(CancellationToken ct = default) {
+        // Arrange
         long before = GetActiveAllocationCount();
         InfiniFrameEvents events = CreateEvents((_, _) => (new DeclaredLengthStream(
             checked((long)CustomSchemeResponse.MaxBufferedBodyBytes + 1)), "application/octet-stream"));
         var response = new CustomSchemeResponse();
 
+        // Act
         int handled = events.OnCustomScheme("app://too-large", ref response);
 
+        // Assert
         await Assert.That(handled).IsEqualTo(0);
         await Assert.That(response.OwnerContext).IsEqualTo(IntPtr.Zero);
         await Assert.That(GetActiveAllocationCount()).IsEqualTo(before);
@@ -71,12 +80,15 @@ public class CustomSchemeResponsePipelineTests {
 
     [Test]
     public async Task Callback_RejectsHeaderInjectionAndDoesNotLeak(CancellationToken ct = default) {
+        // Arrange
         long before = GetActiveAllocationCount();
         InfiniFrameEvents events = CreateEvents((_, _) => (new MemoryStream([1]), "text/plain\r\nInjected: yes"));
         var response = new CustomSchemeResponse();
 
+        // Act
         int handled = events.OnCustomScheme("app://invalid", ref response);
 
+        // Assert
         await Assert.That(handled).IsEqualTo(0);
         await Assert.That(response.OwnerContext).IsEqualTo(IntPtr.Zero);
         await Assert.That(GetActiveAllocationCount()).IsEqualTo(before);
@@ -84,22 +96,27 @@ public class CustomSchemeResponsePipelineTests {
 
     [Test]
     public async Task Callback_HandlerExceptionNeverCrossesAbiBoundary(CancellationToken ct = default) {
+        // Arrange
         InfiniFrameEvents events = CreateEvents((_, _) => throw new InvalidOperationException("boom"));
         var response = new CustomSchemeResponse();
 
+        // Act
         int handled = events.OnCustomScheme("app://throws", ref response);
 
+        // Assert
         await Assert.That(handled).IsEqualTo(0);
         await Assert.That(response).IsEqualTo(default);
     }
 
     [Test]
     public async Task Callback_RepeatedRequestsReleaseEveryAllocation(CancellationToken ct = default) {
+        // Arrange
         const int requestCount = 10_000;
         long before = GetActiveAllocationCount();
         InfiniFrameEvents events = CreateEvents((_, _) => (
             new MemoryStream([.. "stress-response"u8]), "text/plain"));
 
+        // Act
         for (int i = 0; i < requestCount; i++) {
             var response = new CustomSchemeResponse();
             int handled = events.OnCustomScheme($"app://stress/{i}", ref response);
@@ -108,6 +125,7 @@ public class CustomSchemeResponsePipelineTests {
             Release(ref response);
         }
 
+        // Assert
         await Assert.That(GetActiveAllocationCount()).IsEqualTo(before);
     }
 

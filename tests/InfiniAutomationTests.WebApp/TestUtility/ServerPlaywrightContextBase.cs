@@ -1,4 +1,7 @@
-﻿using InfiniAutomationTests.TestUtility;
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using InfiniAutomationTests.TestUtility;
 using InfiniFrame;
 using InfiniTests;
 using Microsoft.AspNetCore.Builder;
@@ -6,7 +9,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Playwright;
 
 namespace InfiniAutomationTests.WebApp.TestUtility;
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 public abstract class ServerPlaywrightContextBase(string documentTitle) : PlaywrightContextBase(documentTitle) {
     private int _playwrightDevtoolsPort;
     private int _serverPort;
