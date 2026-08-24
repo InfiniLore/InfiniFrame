@@ -57,7 +57,8 @@ describe("NativeInteropBridge", () => {
 
         it("ignores empty string payload", () => {
             const existingPostData = vi.fn();
-            const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+            const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {
+            });
             window.infiniframe = {host: {postData: existingPostData, receiveCallback: vi.fn()}} as any;
 
             installNativeInteropBridge(setup);
@@ -89,7 +90,8 @@ describe("NativeInteropBridge", () => {
         });
 
         it("warns when no platform transport available", () => {
-            const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+            const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {
+            });
             window.infiniframe = {host: {receiveCallback: vi.fn()}} as any;
 
             installNativeInteropBridge(setup);
@@ -152,7 +154,8 @@ describe("NativeInteropBridge", () => {
 
         it("ignores envelope with empty id", () => {
             const existingPostData = vi.fn();
-            const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+            const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {
+            });
             window.infiniframe = {host: {postData: existingPostData, receiveCallback: vi.fn()}} as any;
 
             installNativeInteropBridge(setup);
@@ -164,7 +167,8 @@ describe("NativeInteropBridge", () => {
 
         it("ignores null/non-object envelope", () => {
             const existingPostData = vi.fn();
-            const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+            const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {
+            });
             window.infiniframe = {host: {postData: existingPostData, receiveCallback: vi.fn()}} as any;
 
             installNativeInteropBridge(setup);
@@ -228,7 +232,13 @@ describe("NativeInteropBridge", () => {
 
         it("delegates to existing getDataAsync when available (sync result)", async () => {
             const existingGetData = vi.fn(() => "sync-result");
-            window.infiniframe = {host: {postData: vi.fn(), receiveCallback: vi.fn(), getDataAsync: existingGetData}} as any;
+            window.infiniframe = {
+                host: {
+                    postData: vi.fn(),
+                    receiveCallback: vi.fn(),
+                    getDataAsync: existingGetData
+                }
+            } as any;
 
             installNativeInteropBridge(setup);
             const result = await window.infiniframe.host!.getDataAsync("test-message");
@@ -238,7 +248,13 @@ describe("NativeInteropBridge", () => {
 
         it("delegates to existing getDataAsync when available (promise result)", async () => {
             const existingGetData = vi.fn(() => Promise.resolve("async-result"));
-            window.infiniframe = {host: {postData: vi.fn(), receiveCallback: vi.fn(), getDataAsync: existingGetData}} as any;
+            window.infiniframe = {
+                host: {
+                    postData: vi.fn(),
+                    receiveCallback: vi.fn(),
+                    getDataAsync: existingGetData
+                }
+            } as any;
 
             installNativeInteropBridge(setup);
             const result = await window.infiniframe.host!.getDataAsync("test-message");
@@ -247,7 +263,9 @@ describe("NativeInteropBridge", () => {
         });
 
         it("falls back when existing getDataAsync throws", async () => {
-            const existingGetData = vi.fn(() => { throw new Error("bridge failed"); });
+            const existingGetData = vi.fn(() => {
+                throw new Error("bridge failed");
+            });
             const chromePost = vi.fn();
             window.chrome = {webview: {postMessage: chromePost, addEventListener: vi.fn()}} as any;
             window.infiniframe = {host: {receiveCallback: vi.fn(), getDataAsync: existingGetData}} as any;
@@ -327,7 +345,9 @@ describe("NativeInteropBridge", () => {
 
         it("resolves when response matches requestId", async () => {
             let receiveCallbackFn: ((msg: string) => void) | null = null;
-            const receiveCallback = vi.fn((cb: (msg: string) => void) => { receiveCallbackFn = cb; });
+            const receiveCallback = vi.fn((cb: (msg: string) => void) => {
+                receiveCallbackFn = cb;
+            });
             const postData = vi.fn();
             window.infiniframe = {host: {postData, receiveCallback}} as any;
 
@@ -352,7 +372,9 @@ describe("NativeInteropBridge", () => {
 
         it("rejects when response indicates failure", async () => {
             let receiveCallbackFn: ((msg: string) => void) | null = null;
-            const receiveCallback = vi.fn((cb: (msg: string) => void) => { receiveCallbackFn = cb; });
+            const receiveCallback = vi.fn((cb: (msg: string) => void) => {
+                receiveCallbackFn = cb;
+            });
             const postData = vi.fn();
             window.infiniframe = {host: {postData, receiveCallback}} as any;
 
@@ -376,7 +398,9 @@ describe("NativeInteropBridge", () => {
 
         it("ignores response with wrong requestId", async () => {
             let receiveCallbackFn: ((msg: string) => void) | null = null;
-            const receiveCallback = vi.fn((cb: (msg: string) => void) => { receiveCallbackFn = cb; });
+            const receiveCallback = vi.fn((cb: (msg: string) => void) => {
+                receiveCallbackFn = cb;
+            });
             const postData = vi.fn();
             window.infiniframe = {host: {postData, receiveCallback}} as any;
 
@@ -400,7 +424,9 @@ describe("NativeInteropBridge", () => {
 
         it("ignores response with invalid JSON payload", async () => {
             let receiveCallbackFn: ((msg: string) => void) | null = null;
-            const receiveCallback = vi.fn((cb: (msg: string) => void) => { receiveCallbackFn = cb; });
+            const receiveCallback = vi.fn((cb: (msg: string) => void) => {
+                receiveCallbackFn = cb;
+            });
             const postData = vi.fn();
             window.infiniframe = {host: {postData, receiveCallback}} as any;
 
@@ -424,7 +450,9 @@ describe("NativeInteropBridge", () => {
 
         it("ignores response with missing data field", async () => {
             let receiveCallbackFn: ((msg: string) => void) | null = null;
-            const receiveCallback = vi.fn((cb: (msg: string) => void) => { receiveCallbackFn = cb; });
+            const receiveCallback = vi.fn((cb: (msg: string) => void) => {
+                receiveCallbackFn = cb;
+            });
             const postData = vi.fn();
             window.infiniframe = {host: {postData, receiveCallback}} as any;
 
@@ -449,7 +477,9 @@ describe("NativeInteropBridge", () => {
 
         it("rejects when payload has wrong shape", async () => {
             let receiveCallbackFn: ((msg: string) => void) | null = null;
-            const receiveCallback = vi.fn((cb: (msg: string) => void) => { receiveCallbackFn = cb; });
+            const receiveCallback = vi.fn((cb: (msg: string) => void) => {
+                receiveCallbackFn = cb;
+            });
             const postData = vi.fn();
             window.infiniframe = {host: {postData, receiveCallback}} as any;
 

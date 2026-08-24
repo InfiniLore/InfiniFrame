@@ -18,7 +18,7 @@ const BLAZOR_MODULES_URLS = new Set([
 export function initBlazorModulesFetchPatch(setup: InfiniFrameSetup): void {
     if (setup.blazorModulesFetchPatchInitialized) return;
     setup.blazorModulesFetchPatchInitialized = true;
-    
+
     const originalFetch = window.fetch;
 
     window.fetch = function (input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
@@ -27,8 +27,8 @@ export function initBlazorModulesFetchPatch(setup: InfiniFrameSetup): void {
                 typeof input === "string"
                     ? input
                     : input instanceof URL
-                    ? input.href
-                    : (input as Request).url ?? "";
+                        ? input.href
+                        : (input as Request).url ?? "";
 
             if (requestUrl) {
                 const absoluteUrl = new URL(requestUrl, window.location.href).href;
@@ -38,7 +38,7 @@ export function initBlazorModulesFetchPatch(setup: InfiniFrameSetup): void {
                         new Response("[]", {
                             status: 200,
                             statusText: "OK",
-                            headers: { "Content-Type": "application/json" },
+                            headers: {"Content-Type": "application/json"},
                         })
                     );
                 }

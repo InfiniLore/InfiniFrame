@@ -1,15 +1,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
+import type {InteropEnvelopeCommand, InteropEnvelopeV1, InteropParseError, ParsedInteropMessage} from "../../Contracts";
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {
-    SendToHostMessageIds
-} from "../../Contracts";
-import type {
-    InteropEnvelopeCommand,
-    InteropEnvelopeV1,
-    ParsedInteropMessage,
-    InteropParseError
-} from "../../Contracts";
+import {SendToHostMessageIds} from "../../Contracts";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

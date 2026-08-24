@@ -9,13 +9,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView" />
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebView"/>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame/InfiniFrame.csproj"/>
-        <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame.Blazor/InfiniFrame.Blazor.csproj" />
-        <ProjectReference Include="../InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame.Blazor/InfiniFrame.Blazor.csproj"/>
+        <ProjectReference Include="../InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
     </ItemGroup>
 
 </Project>

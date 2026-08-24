@@ -41,11 +41,32 @@ describe("SizeInfiniFrameWindowFeature", () => {
         await feature.isResizableAsync();
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });
-    it("setSize posts command", () => { feature.setSize(800, 600); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("setHeight posts command", () => { feature.setHeight(600); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("setWidth posts command", () => { feature.setWidth(800); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("setMaxSize posts command", () => { feature.setMaxSize(1920, 1080); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("setMinSize posts command", () => { feature.setMinSize(200, 150); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("setResizable posts command", () => { feature.setResizable(true); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("resize posts command", () => { feature.resize(10, 20); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
+    it("setSize posts command", () => {
+        feature.setSize(800, 600);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("setHeight posts command", () => {
+        feature.setHeight(600);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("setWidth posts command", () => {
+        feature.setWidth(800);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("setMaxSize posts command", () => {
+        feature.setMaxSize(1920, 1080);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("setMinSize posts command", () => {
+        feature.setMinSize(200, 150);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("setResizable posts command", () => {
+        feature.setResizable(true);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("resize posts command", () => {
+        feature.resize(10, 20);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
 });

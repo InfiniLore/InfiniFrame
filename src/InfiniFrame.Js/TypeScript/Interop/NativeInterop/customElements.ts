@@ -5,7 +5,8 @@ import type {
     BlazorComponent,
     BlazorCustomElementAttributeInfo,
     BlazorCustomElementInitMap,
-    BlazorCustomElementParameterDefinition, InfiniFrameSetup,
+    BlazorCustomElementParameterDefinition,
+    InfiniFrameSetup,
     PendingBlazorCustomElementRegistration
 } from "../../Contracts";
 
@@ -47,7 +48,7 @@ function scheduleAutoRegisterMissingInitializerCustomElements(
 ): void {
     if (!defs) return;
 
-    pendingAutoCustomElementRegistrations.push({ defs, initMap });
+    pendingAutoCustomElementRegistrations.push({defs, initMap});
 
     if (autoCustomElementRegistrationScheduled) return;
     autoCustomElementRegistrationScheduled = true;
@@ -125,7 +126,7 @@ function patchAttachWebRendererInteropIfAvailable(): boolean {
 export function initBlazorCustomElementsPatch(setup: InfiniFrameSetup): void {
     if (setup.blazorCustomElementsPatchInitialized) return;
     setup.blazorCustomElementsPatchInitialized = true;
-    
+
     if (!patchAttachWebRendererInteropIfAvailable()) {
         const descriptor = Object.getOwnPropertyDescriptor(window, "Blazor");
 
@@ -152,7 +153,7 @@ export function initBlazorCustomElementsPatch(setup: InfiniFrameSetup): void {
 export function initCustomElements(setup: InfiniFrameSetup): void {
     if (setup.customElementsInitialized) return;
     setup.customElementsInitialized = true;
-    
+
     window.registerBlazorCustomElement = function (
         identifier: string,
         parameterDefinitions: BlazorCustomElementParameterDefinition[]
@@ -170,7 +171,7 @@ export function initCustomElements(setup: InfiniFrameSetup): void {
             if (type === "eventcallback") continue;
 
             const attr = toKebabCase(def.name);
-            map[attr] = { name: def.name, type };
+            map[attr] = {name: def.name, type};
         }
 
         const observed = Object.keys(map);
@@ -201,7 +202,8 @@ export function initCustomElements(setup: InfiniFrameSetup): void {
                 this._isDisconnected = true;
                 const c = this._component;
                 this._component = null;
-                if (c?.dispose) Promise.resolve(c.dispose()).catch(() => {});
+                if (c?.dispose) Promise.resolve(c.dispose()).catch(() => {
+                });
             }
 
             attributeChangedCallback(

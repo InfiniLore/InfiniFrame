@@ -11,7 +11,9 @@ describe("LifecycleInfiniFrameWindowFeature", () => {
         feature = new mod.LifecycleInfiniFrameWindowFeature();
     });
 
-    it("constructs with lifecycle feature name", () => { expect(feature).toBeDefined(); });
+    it("constructs with lifecycle feature name", () => {
+        expect(feature).toBeDefined();
+    });
     it("getStateAsync sends get request", async () => {
         messaging.getMessageFromHostAsync.mockResolvedValue(JSON.stringify("Running"));
         const result = await feature.getStateAsync();

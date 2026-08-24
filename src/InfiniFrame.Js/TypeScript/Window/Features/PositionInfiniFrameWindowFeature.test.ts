@@ -26,12 +26,36 @@ describe("PositionInfiniFrameWindowFeature", () => {
         await feature.getLeftAsync();
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });
-    it("setLocation posts command", () => { feature.setLocation(100, 200); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("setLeft posts command", () => { feature.setLeft(100); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("setTop posts command", () => { feature.setTop(200); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("offset posts command", () => { feature.offset(10, 20); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("center posts command", () => { feature.center(); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("centerOnCurrentMonitor posts command", () => { feature.centerOnCurrentMonitor(); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("centerOnMonitor posts command", () => { feature.centerOnMonitor(0); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("moveWithinCurrentMonitorArea posts command", () => { feature.moveWithinCurrentMonitorArea(); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
+    it("setLocation posts command", () => {
+        feature.setLocation(100, 200);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("setLeft posts command", () => {
+        feature.setLeft(100);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("setTop posts command", () => {
+        feature.setTop(200);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("offset posts command", () => {
+        feature.offset(10, 20);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("center posts command", () => {
+        feature.center();
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("centerOnCurrentMonitor posts command", () => {
+        feature.centerOnCurrentMonitor();
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("centerOnMonitor posts command", () => {
+        feature.centerOnMonitor(0);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("moveWithinCurrentMonitorArea posts command", () => {
+        feature.moveWithinCurrentMonitorArea();
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
 });

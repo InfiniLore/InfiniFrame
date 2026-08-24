@@ -98,7 +98,11 @@ describe("InfiniFrameHostMessaging", () => {
     it("registers open-external click handler only once", async () => {
         const {getReceiveCallback, blankTargetHandler} = await setupHostMessaging();
         const addEventListenerSpy = vi.spyOn(document, "addEventListener");
-        const registerMessage = JSON.stringify({id: ReceiveFromHostMessageIds.registerOpenExternal, command: "Post", version: 2});
+        const registerMessage = JSON.stringify({
+            id: ReceiveFromHostMessageIds.registerOpenExternal,
+            command: "Post",
+            version: 2
+        });
 
         getReceiveCallback()(registerMessage);
         getReceiveCallback()(registerMessage);
@@ -111,7 +115,11 @@ describe("InfiniFrameHostMessaging", () => {
     it("registers fullscreen change handler only once", async () => {
         const {getReceiveCallback} = await setupHostMessaging();
         const addEventListenerSpy = vi.spyOn(document, "addEventListener");
-        const registerMessage = JSON.stringify({id: ReceiveFromHostMessageIds.registerFullscreenChange, command: "Post", version: 2});
+        const registerMessage = JSON.stringify({
+            id: ReceiveFromHostMessageIds.registerFullscreenChange,
+            command: "Post",
+            version: 2
+        });
 
         getReceiveCallback()(registerMessage);
         getReceiveCallback()(registerMessage);
@@ -126,7 +134,11 @@ describe("InfiniFrameHostMessaging", () => {
         document.head.appendChild(title);
 
         const {getReceiveCallback, titleObserverObserve} = await setupHostMessaging();
-        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.registerTitleChange, command: "Post", version: 2}));
+        getReceiveCallback()(JSON.stringify({
+            id: ReceiveFromHostMessageIds.registerTitleChange,
+            command: "Post",
+            version: 2
+        }));
 
         expect(titleObserverObserve).toHaveBeenCalledWith(title, {childList: true});
     });
@@ -134,7 +146,11 @@ describe("InfiniFrameHostMessaging", () => {
     it("overrides window.close after registerWindowClose and routes to host", async () => {
         const {getReceiveCallback, postData} = await setupHostMessaging();
         const originalClose = window.close;
-        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.registerWindowClose, command: "Post", version: 2}));
+        getReceiveCallback()(JSON.stringify({
+            id: ReceiveFromHostMessageIds.registerWindowClose,
+            command: "Post",
+            version: 2
+        }));
 
         window.close();
 
@@ -217,7 +233,10 @@ describe("InfiniFrameHostMessaging", () => {
         getReceiveCallback()(JSON.stringify({
             id: ReceiveFromHostMessageIds.webMessageAckRequest,
             command: "Post",
-            data: JSON.stringify({OperationId: "op-1", Message: JSON.stringify({id: "custom:event", command: "Post", data: "hello", version: 2})}),
+            data: JSON.stringify({
+                OperationId: "op-1",
+                Message: JSON.stringify({id: "custom:event", command: "Post", data: "hello", version: 2})
+            }),
             version: 2
         }));
 
@@ -329,7 +348,11 @@ describe("InfiniFrameHostMessaging", () => {
         document.querySelectorAll("title").forEach(el => el.remove());
 
         const {getReceiveCallback, titleObserverObserve} = await setupHostMessaging();
-        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.registerTitleChange, command: "Post", version: 2}));
+        getReceiveCallback()(JSON.stringify({
+            id: ReceiveFromHostMessageIds.registerTitleChange,
+            command: "Post",
+            version: 2
+        }));
 
         // Should not throw even with no title element
         expect(titleObserverObserve).not.toHaveBeenCalled();
@@ -339,8 +362,16 @@ describe("InfiniFrameHostMessaging", () => {
         const {getReceiveCallback} = await setupHostMessaging();
         const addEventListenerSpy = vi.spyOn(document, "addEventListener");
 
-        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.registerTitleChange, command: "Post", version: 2}));
-        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.registerTitleChange, command: "Post", version: 2}));
+        getReceiveCallback()(JSON.stringify({
+            id: ReceiveFromHostMessageIds.registerTitleChange,
+            command: "Post",
+            version: 2
+        }));
+        getReceiveCallback()(JSON.stringify({
+            id: ReceiveFromHostMessageIds.registerTitleChange,
+            command: "Post",
+            version: 2
+        }));
 
         // Should only observe once
     });
@@ -349,7 +380,11 @@ describe("InfiniFrameHostMessaging", () => {
         const {getReceiveCallback, postData} = await setupHostMessaging();
         const addEventListenerSpy = vi.spyOn(document, "addEventListener");
 
-        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.registerFullscreenChange, command: "Post", version: 2}));
+        getReceiveCallback()(JSON.stringify({
+            id: ReceiveFromHostMessageIds.registerFullscreenChange,
+            command: "Post",
+            version: 2
+        }));
 
         // Find the fullscreenchange handler
         const fullscreenHandler = addEventListenerSpy.mock.calls.find(
@@ -375,7 +410,11 @@ describe("InfiniFrameHostMessaging", () => {
         const {getReceiveCallback, postData} = await setupHostMessaging();
         const addEventListenerSpy = vi.spyOn(document, "addEventListener");
 
-        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.registerFullscreenChange, command: "Post", version: 2}));
+        getReceiveCallback()(JSON.stringify({
+            id: ReceiveFromHostMessageIds.registerFullscreenChange,
+            command: "Post",
+            version: 2
+        }));
 
         const fullscreenHandler = addEventListenerSpy.mock.calls.find(
             (call: any[]) => call[0] === "fullscreenchange"

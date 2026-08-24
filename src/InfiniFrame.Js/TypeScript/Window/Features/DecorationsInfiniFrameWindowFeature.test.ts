@@ -41,9 +41,24 @@ describe("DecorationsInfiniFrameWindowFeature", () => {
         await feature.getLimitLinuxWindowTitleLengthAsync();
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });
-    it("setTransparent posts command", () => { feature.setTransparent(true); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("setBackgroundColor posts command", () => { feature.setBackgroundColor("#000000"); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("setTitle posts command", () => { feature.setTitle("New Title"); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("setIconFile posts command", () => { feature.setIconFile("/new-icon.png"); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("setLimitLinuxWindowTitleLength posts command", () => { feature.setLimitLinuxWindowTitleLength(false); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
+    it("setTransparent posts command", () => {
+        feature.setTransparent(true);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("setBackgroundColor posts command", () => {
+        feature.setBackgroundColor("#000000");
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("setTitle posts command", () => {
+        feature.setTitle("New Title");
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("setIconFile posts command", () => {
+        feature.setIconFile("/new-icon.png");
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("setLimitLinuxWindowTitleLength posts command", () => {
+        feature.setLimitLinuxWindowTitleLength(false);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
 });

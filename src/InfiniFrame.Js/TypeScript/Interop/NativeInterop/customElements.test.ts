@@ -252,7 +252,9 @@ describe("customElements", () => {
 
     it("connectedCallback disposes if disconnected before promise resolves", async () => {
         let resolveAdd: (value: any) => void;
-        const addPromise = new Promise(resolve => { resolveAdd = resolve; });
+        const addPromise = new Promise(resolve => {
+            resolveAdd = resolve;
+        });
         const dispose = vi.fn(() => Promise.resolve());
         const add = vi.fn(() => addPromise);
         const identifier = `infiniframe-test-disconnect-${++elementCounter}`;
@@ -348,8 +350,11 @@ describe("customElements", () => {
 
     it("autoRegister handles errors in registerBlazorCustomElement gracefully", () => {
         vi.useFakeTimers();
-        const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
-        const register = vi.fn(() => { throw new Error("registration failed"); });
+        const consoleError = vi.spyOn(console, "error").mockImplementation(() => {
+        });
+        const register = vi.fn(() => {
+            throw new Error("registration failed");
+        });
         const attachWebRendererInterop = vi.fn();
         window.registerBlazorCustomElement = register;
         window.Blazor = {_internal: {attachWebRendererInterop}};

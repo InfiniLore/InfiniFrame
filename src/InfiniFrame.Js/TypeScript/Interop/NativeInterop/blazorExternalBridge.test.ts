@@ -109,7 +109,8 @@ describe("blazorExternalBridge", () => {
     });
 
     it("warns when host bridge postData is not available", () => {
-        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {
+        });
         window.infiniframe = {
             host: {
                 postData: undefined as any,
@@ -130,7 +131,8 @@ describe("blazorExternalBridge", () => {
     });
 
     it("warns when host bridge is not available", () => {
-        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {
+        });
         window.infiniframe = {
             host: undefined as any,
             messaging: undefined!,
@@ -163,7 +165,9 @@ describe("blazorExternalBridge", () => {
 
         initWindowExternalBridge(setup);
 
-        const throwingCallback = vi.fn(() => { throw new Error("callback error"); });
+        const throwingCallback = vi.fn(() => {
+            throw new Error("callback error");
+        });
         const normalCallback = vi.fn();
         const external = window.external as InfiniFrameExternal;
         external.receiveMessage!(throwingCallback);

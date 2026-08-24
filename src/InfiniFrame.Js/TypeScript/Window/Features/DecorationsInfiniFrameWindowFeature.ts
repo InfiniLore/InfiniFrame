@@ -7,7 +7,9 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export class DecorationsInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
-    constructor(){super("decorations");}
+    constructor() {
+        super("decorations");
+    }
 
     isChromelessAsync() {
         return this.get<boolean>("isChromeless");

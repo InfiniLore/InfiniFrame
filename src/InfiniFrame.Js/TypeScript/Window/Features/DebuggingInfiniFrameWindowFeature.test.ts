@@ -8,7 +8,12 @@ describe("DebuggingInfiniFrameWindowFeature", () => {
     beforeEach(async () => {
         vi.resetModules();
         messaging = setupFeature();
-        vi.doMock("../InfiniFrameHostMessaging", () => ({default: class { constructor() {} }}));
+        vi.doMock("../InfiniFrameHostMessaging", () => ({
+            default: class {
+                constructor() {
+                }
+            }
+        }));
         const mod = await import("./DebuggingInfiniFrameWindowFeature");
         feature = new mod.DebuggingInfiniFrameWindowFeature();
         (window as any).infiniframe.messaging = messaging;
@@ -59,5 +64,8 @@ describe("DebuggingInfiniFrameWindowFeature", () => {
         await feature.tryProbeEndpointAsync("http://localhost:9222");
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });
-    it("enableDevTools posts command", () => { feature.enableDevTools(false); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
+    it("enableDevTools posts command", () => {
+        feature.enableDevTools(false);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
 });

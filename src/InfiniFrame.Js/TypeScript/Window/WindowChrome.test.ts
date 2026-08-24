@@ -120,7 +120,12 @@ describe("WindowChrome", () => {
             expect(resizeRight.setPointerCapture).toHaveBeenCalledWith(1);
 
             vi.clearAllMocks();
-            const pointerMove = new PointerEvent("pointermove", {bubbles: true, pointerId: 1, movementX: 5, movementY: 3});
+            const pointerMove = new PointerEvent("pointermove", {
+                bubbles: true,
+                pointerId: 1,
+                movementX: 5,
+                movementY: 3
+            });
             resizeRight.dispatchEvent(pointerMove);
 
             expect(messaging.sendMessageToHost).toHaveBeenCalledWith(
@@ -184,7 +189,12 @@ describe("WindowChrome", () => {
                 el.dispatchEvent(pointerDown);
 
                 vi.clearAllMocks();
-                const pointerMove = new PointerEvent("pointermove", {bubbles: true, pointerId: 1, movementX: 10, movementY: 5});
+                const pointerMove = new PointerEvent("pointermove", {
+                    bubbles: true,
+                    pointerId: 1,
+                    movementX: 10,
+                    movementY: 5
+                });
                 el.dispatchEvent(pointerMove);
 
                 expect(messaging.sendMessageToHost).toHaveBeenCalledWith(
@@ -197,7 +207,8 @@ describe("WindowChrome", () => {
         });
 
         it("warns on unknown data-infiniframe-resize value", () => {
-            const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+            const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {
+            });
             createElement("div", {"data-infiniframe-resize": "unknown"});
             chrome.register({});
 
@@ -382,7 +393,8 @@ describe("WindowChrome", () => {
         });
 
         it("handles invalid selectors gracefully", () => {
-            const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {});
+            const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {
+            });
 
             chrome.register({
                 dragRegion: "///invalid///",
@@ -422,7 +434,8 @@ describe("WindowChrome", () => {
 
     describe("messaging not ready", () => {
         it("warns when messaging bridge is not available", () => {
-            const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {});
+            const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {
+            });
             (window.infiniframe as any).messaging = null;
 
             const dragArea = createElement("div", {id: "titlebar"});
@@ -457,11 +470,19 @@ describe("WindowChrome", () => {
             resizeEl.dispatchEvent(new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0}));
 
             vi.clearAllMocks();
-            resizeEl.dispatchEvent(new PointerEvent("pointermove", {bubbles: true, pointerId: 1, movementX: 15, movementY: -8}));
+            resizeEl.dispatchEvent(new PointerEvent("pointermove", {
+                bubbles: true,
+                pointerId: 1,
+                movementX: 15,
+                movementY: -8
+            }));
 
             expect(messaging.sendMessageToHost).toHaveBeenCalledWith(
                 SendToHostMessageIds.windowFeatureRequest,
-                {command: "__infiniframe:window:features:windowChrome:resize", args: {widthOffset: 15, heightOffset: -8, origin: "bottom"}}
+                {
+                    command: "__infiniframe:window:features:windowChrome:resize",
+                    args: {widthOffset: 15, heightOffset: -8, origin: "bottom"}
+                }
             );
         });
     });
@@ -520,7 +541,12 @@ describe("WindowChrome", () => {
             resizeEl.dispatchEvent(pointerDown);
 
             // Move during resize
-            const pointerMove = new PointerEvent("pointermove", {bubbles: true, pointerId: 1, movementX: 5, movementY: 3});
+            const pointerMove = new PointerEvent("pointermove", {
+                bubbles: true,
+                pointerId: 1,
+                movementX: 5,
+                movementY: 3
+            });
             resizeEl.dispatchEvent(pointerMove);
 
             expect(messaging.sendMessageToHost).toHaveBeenCalled();
@@ -531,7 +557,12 @@ describe("WindowChrome", () => {
             chrome.register({resize: {right: "#resize-right"}});
 
             // Move without starting resize
-            const pointerMove = new PointerEvent("pointermove", {bubbles: true, pointerId: 1, movementX: 5, movementY: 3});
+            const pointerMove = new PointerEvent("pointermove", {
+                bubbles: true,
+                pointerId: 1,
+                movementX: 5,
+                movementY: 3
+            });
             resizeEl.dispatchEvent(pointerMove);
         });
 
