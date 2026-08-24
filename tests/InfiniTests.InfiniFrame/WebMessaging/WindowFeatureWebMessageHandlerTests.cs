@@ -18,7 +18,7 @@ public class WindowFeatureWebMessageHandlerTests {
         // Arrange
 
         // Act
-        bool parsed = WindowFeatureWebMessageHandler.TryParseRequest(null, out var request);
+        bool parsed = WindowFeatureWebMessageHandler.TryParseRequest(null, out WindowFeatureWebMessageRequest request);
 
         // Assert
         await Assert.That(parsed).IsFalse();
@@ -29,7 +29,7 @@ public class WindowFeatureWebMessageHandlerTests {
         // Arrange
 
         // Act
-        bool parsed = WindowFeatureWebMessageHandler.TryParseRequest("", out var request);
+        bool parsed = WindowFeatureWebMessageHandler.TryParseRequest("", out WindowFeatureWebMessageRequest request);
 
         // Assert
         await Assert.That(parsed).IsFalse();
@@ -40,7 +40,7 @@ public class WindowFeatureWebMessageHandlerTests {
         // Arrange
 
         // Act
-        bool parsed = WindowFeatureWebMessageHandler.TryParseRequest("   ", out var request);
+        bool parsed = WindowFeatureWebMessageHandler.TryParseRequest("   ", out WindowFeatureWebMessageRequest request);
 
         // Assert
         await Assert.That(parsed).IsFalse();
@@ -51,7 +51,7 @@ public class WindowFeatureWebMessageHandlerTests {
         // Arrange
 
         // Act
-        bool parsed = WindowFeatureWebMessageHandler.TryParseRequest("not json", out var request);
+        bool parsed = WindowFeatureWebMessageHandler.TryParseRequest("not json", out WindowFeatureWebMessageRequest request);
 
         // Assert
         await Assert.That(parsed).IsFalse();
@@ -62,7 +62,7 @@ public class WindowFeatureWebMessageHandlerTests {
         // Arrange
 
         // Act
-        bool parsed = WindowFeatureWebMessageHandler.TryParseRequest("{}", out var request);
+        bool parsed = WindowFeatureWebMessageHandler.TryParseRequest("{}", out WindowFeatureWebMessageRequest request);
 
         // Assert
         await Assert.That(parsed).IsFalse();
@@ -74,7 +74,7 @@ public class WindowFeatureWebMessageHandlerTests {
 
         // Act
         bool parsed = WindowFeatureWebMessageHandler.TryParseRequest(
-            """{"args": {}}""", out var request);
+            """{"args": {}}""", out WindowFeatureWebMessageRequest request);
 
         // Assert
         await Assert.That(parsed).IsFalse();
@@ -86,7 +86,7 @@ public class WindowFeatureWebMessageHandlerTests {
 
         // Act
         bool parsed = WindowFeatureWebMessageHandler.TryParseRequest(
-            """{"command": 123}""", out var request);
+            """{"command": 123}""", out WindowFeatureWebMessageRequest request);
 
         // Assert
         await Assert.That(parsed).IsFalse();
@@ -98,7 +98,7 @@ public class WindowFeatureWebMessageHandlerTests {
 
         // Act
         bool parsed = WindowFeatureWebMessageHandler.TryParseRequest(
-            """{"command": "invalid-format"}""", out var request);
+            """{"command": "invalid-format"}""", out WindowFeatureWebMessageRequest request);
 
         // Assert
         await Assert.That(parsed).IsFalse();
@@ -110,7 +110,7 @@ public class WindowFeatureWebMessageHandlerTests {
 
         // Act
         bool parsed = WindowFeatureWebMessageHandler.TryParseRequest(
-            """{"command": "__wrong:window:features:size:get"}""", out var request);
+            """{"command": "__wrong:window:features:size:get"}""", out WindowFeatureWebMessageRequest request);
 
         // Assert
         await Assert.That(parsed).IsFalse();
@@ -122,7 +122,7 @@ public class WindowFeatureWebMessageHandlerTests {
 
         // Act
         bool parsed = WindowFeatureWebMessageHandler.TryParseRequest(
-            """{"command": "__infiniframe:window:features"}""", out var request);
+            """{"command": "__infiniframe:window:features"}""", out WindowFeatureWebMessageRequest request);
 
         // Assert
         await Assert.That(parsed).IsFalse();
@@ -134,7 +134,7 @@ public class WindowFeatureWebMessageHandlerTests {
 
         // Act
         bool parsed = WindowFeatureWebMessageHandler.TryParseRequest(
-            """{"command": "__infiniframe:window:features::get"}""", out var request);
+            """{"command": "__infiniframe:window:features::get"}""", out WindowFeatureWebMessageRequest request);
 
         // Assert
         await Assert.That(parsed).IsFalse();
@@ -146,7 +146,7 @@ public class WindowFeatureWebMessageHandlerTests {
 
         // Act
         bool parsed = WindowFeatureWebMessageHandler.TryParseRequest(
-            """{"command": "__infiniframe:window:features:size:"}""", out var request);
+            """{"command": "__infiniframe:window:features:size:"}""", out WindowFeatureWebMessageRequest request);
 
         // Assert
         await Assert.That(parsed).IsFalse();
@@ -158,7 +158,7 @@ public class WindowFeatureWebMessageHandlerTests {
 
         // Act
         bool parsed = WindowFeatureWebMessageHandler.TryParseRequest(
-            """{"command": "__infiniframe:window:features:size:get"}""", out var request);
+            """{"command": "__infiniframe:window:features:size:get"}""", out WindowFeatureWebMessageRequest request);
 
         // Assert
         await Assert.That(parsed).IsTrue();
@@ -173,7 +173,7 @@ public class WindowFeatureWebMessageHandlerTests {
 
         // Act
         bool parsed = WindowFeatureWebMessageHandler.TryParseRequest(
-            """{"command": "__infiniframe:window:features:lifecycle:close"}""", out var request);
+            """{"command": "__infiniframe:window:features:lifecycle:close"}""", out WindowFeatureWebMessageRequest request);
 
         // Assert
         await Assert.That(parsed).IsTrue();
@@ -187,7 +187,7 @@ public class WindowFeatureWebMessageHandlerTests {
 
         // Act
         bool parsed = WindowFeatureWebMessageHandler.TryParseRequest(
-            """{"command": "__infiniframe:window:features:size:set", "args": {"width": 800}}""", out var request);
+            """{"command": "__infiniframe:window:features:size:set", "args": {"width": 800}}""", out WindowFeatureWebMessageRequest request);
 
         // Assert
         await Assert.That(parsed).IsTrue();
@@ -202,7 +202,7 @@ public class WindowFeatureWebMessageHandlerTests {
 
         // Act
         bool parsed = WindowFeatureWebMessageHandler.TryParseRequest(
-            """{"command": "__infiniframe:window:features:browser:get"}""", out var request);
+            """{"command": "__infiniframe:window:features:browser:get"}""", out WindowFeatureWebMessageRequest request);
 
         // Assert
         await Assert.That(parsed).IsTrue();
@@ -216,7 +216,7 @@ public class WindowFeatureWebMessageHandlerTests {
         // Act
         // The prefix "__infiniframe:window:features" is matched exactly as string literals
         bool parsed = WindowFeatureWebMessageHandler.TryParseRequest(
-            """{"command": "__INFINIFRAME:WINDOW:FEATURES:size:get"}""", out var request);
+            """{"command": "__INFINIFRAME:WINDOW:FEATURES:size:get"}""", out WindowFeatureWebMessageRequest request);
 
         // Assert
         await Assert.That(parsed).IsFalse();
@@ -228,7 +228,7 @@ public class WindowFeatureWebMessageHandlerTests {
 
         // Act
         bool parsed = WindowFeatureWebMessageHandler.TryParseRequest(
-            """{"command": []}""", out var request);
+            """{"command": []}""", out WindowFeatureWebMessageRequest request);
 
         // Assert
         await Assert.That(parsed).IsFalse();

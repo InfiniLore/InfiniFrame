@@ -4,7 +4,7 @@
     <label class="data-probe-field"
       ><span>{{ dataLabel || "Output data" }}</span
       ><input :id="dataInputId" :value="data" :readOnly="true" /></label
-    ><button :id="buttonId" @click="async (event) => onReadRequested()">
+    ><button :id="buttonId" @click="async (_) => onReadRequested()">
       {{ buttonText }}
     </button>
   </section>

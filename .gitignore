@@ -360,9 +360,10 @@ healthchecksdb
 /src/InfiniFrame.NativeBridge/Native/src/Embedded/InfiniFrameJs/InfiniFrameJs.h
 
 # wwwroot folders from js web based projects
-/examples/InfiniAutomationTests.WebApp.Angular/wwwroot/
-/examples/InfiniFrameExample.WebApp.React/wwwroot/
-/examples/InfiniFrameExample.WebApp.Vue/wwwroot/
+/examples/WebApp/InfiniFrameExample.WebApp.Angular/wwwroot/
+/examples/WebApp/InfiniFrameExample.WebApp.React/wwwroot/
+/examples/WebApp/InfiniFrameExample.WebApp.Vue/wwwroot/
+
 /tests/InfiniAutomationTests.WebApp.Angular/wwwroot/
 /tests/InfiniAutomationTests.WebApp.React/wwwroot/
 /tests/InfiniAutomationTests.WebApp.Vue/wwwroot/

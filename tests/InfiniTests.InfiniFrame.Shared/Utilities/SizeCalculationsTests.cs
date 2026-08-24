@@ -19,7 +19,7 @@ public class SizeCalculationsTests {
         // Arrange
 
         // Act
-        var result = SizeCalculations.ComputeResize(
+        (int X, int Y, int Width, int Height) result = SizeCalculations.ComputeResize(
             100, 100, 800, 600,
             -50, -30, ResizeOrigin.TopLeft);
 
@@ -35,7 +35,7 @@ public class SizeCalculationsTests {
         // Arrange
 
         // Act
-        var result = SizeCalculations.ComputeResize(
+        (int X, int Y, int Width, int Height) result = SizeCalculations.ComputeResize(
             100, 100, 800, 600,
             0, 0, ResizeOrigin.TopLeft);
 
@@ -54,7 +54,7 @@ public class SizeCalculationsTests {
         // Arrange
 
         // Act
-        var result = SizeCalculations.ComputeResize(
+        (int X, int Y, int Width, int Height) result = SizeCalculations.ComputeResize(
             100, 100, 800, 600,
             0, 30, ResizeOrigin.Top);
 
@@ -73,7 +73,7 @@ public class SizeCalculationsTests {
         // Arrange
 
         // Act
-        var result = SizeCalculations.ComputeResize(
+        (int X, int Y, int Width, int Height) result = SizeCalculations.ComputeResize(
             100, 100, 800, 600,
             50, -30, ResizeOrigin.TopRight);
 
@@ -92,7 +92,7 @@ public class SizeCalculationsTests {
         // Arrange
 
         // Act
-        var result = SizeCalculations.ComputeResize(
+        (int X, int Y, int Width, int Height) result = SizeCalculations.ComputeResize(
             100, 100, 800, 600,
             100, 0, ResizeOrigin.Right);
 
@@ -111,7 +111,7 @@ public class SizeCalculationsTests {
         // Arrange
 
         // Act
-        var result = SizeCalculations.ComputeResize(
+        (int X, int Y, int Width, int Height) result = SizeCalculations.ComputeResize(
             100, 100, 800, 600,
             100, 50, ResizeOrigin.BottomRight);
 
@@ -130,7 +130,7 @@ public class SizeCalculationsTests {
         // Arrange
 
         // Act
-        var result = SizeCalculations.ComputeResize(
+        (int X, int Y, int Width, int Height) result = SizeCalculations.ComputeResize(
             100, 100, 800, 600,
             0, 100, ResizeOrigin.Bottom);
 
@@ -149,7 +149,7 @@ public class SizeCalculationsTests {
         // Arrange
 
         // Act
-        var result = SizeCalculations.ComputeResize(
+        (int X, int Y, int Width, int Height) result = SizeCalculations.ComputeResize(
             100, 100, 800, 600,
             -50, 50, ResizeOrigin.BottomLeft);
 
@@ -168,7 +168,7 @@ public class SizeCalculationsTests {
         // Arrange
 
         // Act
-        var result = SizeCalculations.ComputeResize(
+        (int X, int Y, int Width, int Height) result = SizeCalculations.ComputeResize(
             100, 100, 800, 600,
             -50, 0, ResizeOrigin.Left);
 
@@ -200,7 +200,7 @@ public class SizeCalculationsTests {
         // Arrange
 
         // Act
-        var result = SizeCalculations.ClampResize(
+        (int X, int Y, int Width, int Height) result = SizeCalculations.ClampResize(
             100, 100, 800, 600,
             100, 100,
             new Size(200, 150), new Size(1600, 1200));
@@ -217,7 +217,7 @@ public class SizeCalculationsTests {
         // Arrange
 
         // Act
-        var result = SizeCalculations.ClampResize(
+        (int X, int Y, int Width, int Height) result = SizeCalculations.ClampResize(
             100, 100, 2000, 600,
             100, 100,
             new Size(200, 150), new Size(1600, 1200));
@@ -232,7 +232,7 @@ public class SizeCalculationsTests {
         // Arrange
 
         // Act
-        var result = SizeCalculations.ClampResize(
+        (int X, int Y, int Width, int Height) result = SizeCalculations.ClampResize(
             100, 100, 800, 2000,
             100, 100,
             new Size(200, 150), new Size(1600, 1200));
@@ -247,7 +247,7 @@ public class SizeCalculationsTests {
         // Arrange
 
         // Act
-        var result = SizeCalculations.ClampResize(
+        (int X, int Y, int Width, int Height) result = SizeCalculations.ClampResize(
             100, 100, 100, 600,
             200, 200,
             new Size(200, 150), new Size(1600, 1200));
@@ -262,7 +262,7 @@ public class SizeCalculationsTests {
         // Arrange
 
         // Act
-        var result = SizeCalculations.ClampResize(
+        (int X, int Y, int Width, int Height) result = SizeCalculations.ClampResize(
             100, 100, 800, 50,
             200, 200,
             new Size(200, 150), new Size(1600, 1200));
@@ -277,7 +277,7 @@ public class SizeCalculationsTests {
         // Arrange
 
         // Act
-        var result = SizeCalculations.ClampResize(
+        (int X, int Y, int Width, int Height) result = SizeCalculations.ClampResize(
             100, 100, 200, 150,
             100, 100,
             new Size(200, 150), new Size(1600, 1200));
@@ -292,7 +292,7 @@ public class SizeCalculationsTests {
         // Arrange
 
         // Act
-        var result = SizeCalculations.ClampResize(
+        (int X, int Y, int Width, int Height) result = SizeCalculations.ClampResize(
             100, 100, 1600, 1200,
             100, 100,
             new Size(200, 150), new Size(1600, 1200));
