@@ -23,36 +23,50 @@ public class InfiniFrameNotificationOptionsTests {
     }
 
     [Test]
-    public async Task IconPath_DefaultIsNull(CancellationToken ct = default) {
+    [Arguments("")]
+    [Arguments("   ")]
+    public async Task Constructor_EmptyTitle_Body_SetsValues(string value, CancellationToken ct = default) {
+        // Arrange & Act
+        var options = new InfiniFrameNotificationOptions {
+            Title = value,
+            Body = value
+        };
+
+        // Assert
+        await Assert.That(options.Title).IsEqualTo(value);
+        await Assert.That(options.Body).IsEqualTo(value);
+    }
+
+    [Test]
+    [Arguments(InfiniFrameNotificationUrgency.Low)]
+    [Arguments(InfiniFrameNotificationUrgency.Normal)]
+    [Arguments(InfiniFrameNotificationUrgency.High)]
+    [Arguments(InfiniFrameNotificationUrgency.Critical)]
+    public async Task Urgency_CanBeSet(InfiniFrameNotificationUrgency urgency, CancellationToken ct = default) {
         // Arrange & Act
         var options = new InfiniFrameNotificationOptions {
             Title = "Title",
-            Body = "Body"
+            Body = "Body",
+            Urgency = urgency
         };
+
+        // Assert
+        await Assert.That(options.Urgency).IsEqualTo(urgency);
+    }
+
+    [Test]
+    public async Task IconPath_DefaultIsNull(CancellationToken ct = default) {
+        // Arrange & Act
+        var options = new InfiniFrameNotificationOptions { Title = "Title", Body = "Body" };
 
         // Assert
         await Assert.That(options.IconPath).IsNull();
     }
 
     [Test]
-    public async Task Urgency_DefaultIsNormal(CancellationToken ct = default) {
-        // Arrange & Act
-        var options = new InfiniFrameNotificationOptions {
-            Title = "Title",
-            Body = "Body"
-        };
-
-        // Assert
-        await Assert.That(options.Urgency).IsEqualTo(InfiniFrameNotificationUrgency.Normal);
-    }
-
-    [Test]
     public async Task Actions_DefaultIsEmptyList(CancellationToken ct = default) {
         // Arrange & Act
-        var options = new InfiniFrameNotificationOptions {
-            Title = "Title",
-            Body = "Body"
-        };
+        var options = new InfiniFrameNotificationOptions { Title = "Title", Body = "Body" };
 
         // Assert
         await Assert.That(options.Actions).IsEmpty();
@@ -61,10 +75,7 @@ public class InfiniFrameNotificationOptionsTests {
     [Test]
     public async Task Tag_DefaultIsNull(CancellationToken ct = default) {
         // Arrange & Act
-        var options = new InfiniFrameNotificationOptions {
-            Title = "Title",
-            Body = "Body"
-        };
+        var options = new InfiniFrameNotificationOptions { Title = "Title", Body = "Body" };
 
         // Assert
         await Assert.That(options.Tag).IsNull();
@@ -93,5 +104,22 @@ public class InfiniFrameNotificationOptionsTests {
         await Assert.That(options.Urgency).IsEqualTo(InfiniFrameNotificationUrgency.High);
         await Assert.That(options.Actions.Count).IsEqualTo(2);
         await Assert.That(options.Tag).IsEqualTo("my_tag");
+    }
+
+    [Test]
+    [Arguments(null, "body")]
+    [Arguments("title", null)]
+    public async Task OptionalProperties_CanBeNull(string? title, string? body, CancellationToken ct = default) {
+        // Arrange & Act
+        var options = new InfiniFrameNotificationOptions {
+            Title = title ?? "default",
+            Body = body ?? "default",
+            IconPath = null,
+            Tag = null
+        };
+
+        // Assert
+        await Assert.That(options.IconPath).IsNull();
+        await Assert.That(options.Tag).IsNull();
     }
 }

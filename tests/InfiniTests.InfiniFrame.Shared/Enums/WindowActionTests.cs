@@ -10,27 +10,23 @@ namespace InfiniTests.InfiniFrame.Shared.Enums;
 public class WindowActionTests {
 
     [Test]
-    public async Task Minimize_IsFirstValue(CancellationToken ct = default) {
-        var value = WindowAction.Minimize;
-        await Assert.That(value).IsEqualTo(WindowAction.Minimize);
-    }
-
-    [Test]
-    public async Task Maximize_IsSecondValue(CancellationToken ct = default) {
-        var value = WindowAction.Maximize;
-        await Assert.That(value).IsEqualTo(WindowAction.Maximize);
-    }
-
-    [Test]
-    public async Task Close_IsThirdValue(CancellationToken ct = default) {
-        var value = WindowAction.Close;
-        await Assert.That(value).IsEqualTo(WindowAction.Close);
+    [Arguments(WindowAction.Minimize)]
+    [Arguments(WindowAction.Maximize)]
+    [Arguments(WindowAction.Close)]
+    public async Task Value_CanBeAssigned(WindowAction value, CancellationToken ct = default) {
+        // Arrange & Act & Assert
+        await Assert.That(value).IsEqualTo(value);
     }
 
     [Test]
     public async Task AllValues_CanBeIterated(CancellationToken ct = default) {
+        // Arrange
         WindowAction[] values = Enum.GetValues<WindowAction>();
+
+        // Act
         int count = values.Length;
+
+        // Assert
         await Assert.That(count).IsEqualTo(3);
     }
 }

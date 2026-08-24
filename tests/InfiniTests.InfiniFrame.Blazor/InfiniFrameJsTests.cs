@@ -11,8 +11,12 @@ namespace InfiniTests.InfiniFrame.Blazor;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameJsTests {
+
     [Test]
-    public async Task SetPointerCaptureAsync_InvokesExpectedJsFunction(CancellationToken ct = default) {
+    [Arguments(42L)]
+    [Arguments(0L)]
+    [Arguments(long.MaxValue)]
+    public async Task SetPointerCaptureAsync_InvokesExpectedJsFunction(long pointerId, CancellationToken ct = default) {
         // Arrange
         var jsRuntime = new RecordingJsRuntime();
         Mock<ILogger<InfiniFrameJs>> loggerMock = Mock.Of<ILogger<InfiniFrameJs>>();
@@ -20,20 +24,22 @@ public class InfiniFrameJsTests {
         var element = new ElementReference("element-1");
 
         // Act
-        await sut.SetPointerCaptureAsync(element, 42, ct);
+        await sut.SetPointerCaptureAsync(element, pointerId, ct);
 
         // Assert
         (string identifier, object?[] jsArguments, CancellationToken cancellationToken) = jsRuntime.Invocations.Single();
         await Assert.That(identifier).IsEqualTo("infiniframe.utils.setPointerCapture");
         await Assert.That(cancellationToken).IsEqualTo(ct);
         await Assert.That(jsArguments.Length).IsEqualTo(2);
-        // ReSharper disable once RedundantCast
-        await Assert.That(jsArguments[0]).IsEqualTo(element as object);
-        await Assert.That((long)jsArguments[1]!).IsEqualTo(42L);
+        await Assert.That(jsArguments[0]).IsEqualTo(element);
+        await Assert.That((long)jsArguments[1]!).IsEqualTo(pointerId);
     }
 
     [Test]
-    public async Task ReleasePointerCaptureAsync_InvokesExpectedJsFunction(CancellationToken ct = default) {
+    [Arguments(7L)]
+    [Arguments(0L)]
+    [Arguments(12345L)]
+    public async Task ReleasePointerCaptureAsync_InvokesExpectedJsFunction(long pointerId, CancellationToken ct = default) {
         // Arrange
         var jsRuntime = new RecordingJsRuntime();
         Mock<ILogger<InfiniFrameJs>> loggerMock = Mock.Of<ILogger<InfiniFrameJs>>();
@@ -41,16 +47,15 @@ public class InfiniFrameJsTests {
         var element = new ElementReference("element-2");
 
         // Act
-        await sut.ReleasePointerCaptureAsync(element, 7, ct);
+        await sut.ReleasePointerCaptureAsync(element, pointerId, ct);
 
         // Assert
         (string identifier, object?[] jsArguments, CancellationToken cancellationToken) = jsRuntime.Invocations.Single();
         await Assert.That(identifier).IsEqualTo("infiniframe.utils.releasePointerCapture");
         await Assert.That(cancellationToken).IsEqualTo(ct);
         await Assert.That(jsArguments.Length).IsEqualTo(2);
-        // ReSharper disable once RedundantCast
-        await Assert.That(jsArguments[0]).IsEqualTo(element as object);
-        await Assert.That((long)jsArguments[1]!).IsEqualTo(7L);
+        await Assert.That(jsArguments[0]).IsEqualTo(element);
+        await Assert.That((long)jsArguments[1]!).IsEqualTo(pointerId);
     }
 
     [Test]

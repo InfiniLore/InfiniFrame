@@ -16,7 +16,7 @@ namespace InfiniTests.InfiniFrame.BlazorWebView;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [NotInParallelInfiniTests]
-[RunOnMacOsMainThread]
+[MacOsMainThreadTestExecutor]
 public class InfiniFrameBlazorAppBuilderTests {
 
     // -----------------------------------------------------------------------------------------------------------------

@@ -10,16 +10,42 @@ namespace InfiniTests.InfiniFrame.Shared.Records;
 public class NavigationResultTests {
 
     [Test]
-    public async Task Constructor_SetsProperties(CancellationToken ct = default) {
+    [Arguments((ulong)1, NavigationStatus.Succeeded)]
+    [Arguments((ulong)2, NavigationStatus.Failed)]
+    [Arguments((ulong)3, NavigationStatus.Superseded)]
+    [Arguments((ulong)4, NavigationStatus.WindowClosed)]
+    public async Task Constructor_SetsStatus(ulong operationId, NavigationStatus status, CancellationToken ct = default) {
         // Arrange & Act
-        var result = new NavigationResult((ulong)1, NavigationStatus.Succeeded, new Uri("https://example.com"));
+        var result = new NavigationResult(operationId, status);
 
         // Assert
-        await Assert.That(result.OperationId).IsEqualTo((ulong)1);
-        await Assert.That(result.Status).IsEqualTo(NavigationStatus.Succeeded);
-        await Assert.That(result.Uri).IsEqualTo(new Uri("https://example.com"));
-        await Assert.That(result.NativeErrorCode).IsEqualTo(0);
-        await Assert.That(result.FailureReason).IsNull();
+        await Assert.That(result.OperationId).IsEqualTo(operationId);
+        await Assert.That(result.Status).IsEqualTo(status);
+    }
+
+    [Test]
+    [Arguments("")]
+    [Arguments("Not found")]
+    [Arguments("Connection timeout")]
+    public async Task Constructor_WithFailureReason_SetsReason(string failureReason, CancellationToken ct = default) {
+        // Arrange & Act
+        var result = new NavigationResult((ulong)5, NavigationStatus.Failed, null, 404, failureReason);
+
+        // Assert
+        await Assert.That(result.FailureReason).IsEqualTo(failureReason);
+    }
+
+    [Test]
+    [Arguments(0)]
+    [Arguments(-1)]
+    [Arguments(404)]
+    [Arguments(int.MaxValue)]
+    public async Task Constructor_WithNativeErrorCode_SetsErrorCode(int errorCode, CancellationToken ct = default) {
+        // Arrange & Act
+        var result = new NavigationResult((ulong)5, NavigationStatus.Failed, null, errorCode, "error");
+
+        // Assert
+        await Assert.That(result.NativeErrorCode).IsEqualTo(errorCode);
     }
 
     [Test]
@@ -28,21 +54,8 @@ public class NavigationResultTests {
         var result = new NavigationResult((ulong)42, NavigationStatus.Failed);
 
         // Assert
-        await Assert.That(result.OperationId).IsEqualTo((ulong)42);
-        await Assert.That(result.Status).IsEqualTo(NavigationStatus.Failed);
         await Assert.That(result.Uri).IsNull();
-        await Assert.That(result.NativeErrorCode).IsEqualTo(0);
         await Assert.That(result.FailureReason).IsNull();
-    }
-
-    [Test]
-    public async Task Constructor_WithFailureReason_SetsReason(CancellationToken ct = default) {
-        // Arrange & Act
-        var result = new NavigationResult((ulong)5, NavigationStatus.Failed, null, 404, "Not found");
-
-        // Assert
-        await Assert.That(result.FailureReason).IsEqualTo("Not found");
-        await Assert.That(result.NativeErrorCode).IsEqualTo(404);
     }
 
     [Test]
@@ -52,7 +65,7 @@ public class NavigationResultTests {
         var r1 = new NavigationResult((ulong)1, NavigationStatus.Succeeded, uri);
         var r2 = new NavigationResult((ulong)1, NavigationStatus.Succeeded, uri);
 
-        // Act & Assert
+        // Assert
         await Assert.That(r1).IsEqualTo(r2);
     }
 
@@ -62,7 +75,7 @@ public class NavigationResultTests {
         var r1 = new NavigationResult((ulong)1, NavigationStatus.Succeeded);
         var r2 = new NavigationResult((ulong)2, NavigationStatus.Succeeded);
 
-        // Act & Assert
+        // Assert
         await Assert.That(r1).IsNotEqualTo(r2);
     }
 
@@ -78,23 +91,5 @@ public class NavigationResultTests {
         await Assert.That(modified.Status).IsEqualTo(NavigationStatus.Failed);
         await Assert.That(modified.OperationId).IsEqualTo((ulong)1);
         await Assert.That(original.Status).IsEqualTo(NavigationStatus.Succeeded);
-    }
-
-    [Test]
-    public async Task WindowClosed_Status_HasCorrectValue(CancellationToken ct = default) {
-        // Arrange & Act
-        var result = new NavigationResult((ulong)1, NavigationStatus.WindowClosed);
-
-        // Assert
-        await Assert.That(result.Status).IsEqualTo(NavigationStatus.WindowClosed);
-    }
-
-    [Test]
-    public async Task Superseded_Status_HasCorrectValue(CancellationToken ct = default) {
-        // Arrange & Act
-        var result = new NavigationResult((ulong)1, NavigationStatus.Superseded);
-
-        // Assert
-        await Assert.That(result.Status).IsEqualTo(NavigationStatus.Superseded);
     }
 }

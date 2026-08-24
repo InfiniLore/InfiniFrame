@@ -10,33 +10,30 @@ namespace InfiniTests.InfiniFrame.Shared.Enums;
 public class DebuggingEnumsTests {
 
     [Test]
-    public async Task InfiniFrameDebugEventKind_AllValuesDistinct(CancellationToken ct = default) {
+    [Arguments(typeof(InfiniFrameDebugEventKind))]
+    [Arguments(typeof(InfiniFrameDebugEndpointStatus))]
+    public async Task AllValues_AreDistinct(Type enumType, CancellationToken ct = default) {
         // Arrange
-        var values = (InfiniFrameDebugEventKind[])Enum.GetValues(typeof(InfiniFrameDebugEventKind));
+        Array values = Enum.GetValues(enumType);
 
         // Act
-        int distinctCount = values.Select(v => (int)v).Distinct().Count();
+        int distinctCount = values.Cast<object>()
+            .Select(Convert.ToInt32)
+            .Distinct()
+            .Count();
 
         // Assert
         await Assert.That(distinctCount).IsEqualTo(values.Length);
     }
 
     [Test]
-    public async Task InfiniFrameDebugEndpointStatus_AllValuesDistinct(CancellationToken ct = default) {
-        // Arrange
-        var values = (InfiniFrameDebugEndpointStatus[])Enum.GetValues(typeof(InfiniFrameDebugEndpointStatus));
-
-        // Act
-        int distinctCount = values.Select(v => (int)v).Distinct().Count();
+    [Arguments(0)]
+    [Arguments(5)]
+    public async Task InfiniFrameDebugEndpointStatus_HasExpectedValues(int value, CancellationToken ct = default) {
+        // Arrange & Act
+        bool isDefined = Enum.IsDefined(typeof(InfiniFrameDebugEndpointStatus), value);
 
         // Assert
-        await Assert.That(distinctCount).IsEqualTo(values.Length);
-    }
-
-    [Test]
-    public async Task InfiniFrameDebugEndpointStatus_HasExpectedValues(CancellationToken ct = default) {
-        // Arrange & Act & Assert
-        await Assert.That(Enum.IsDefined(typeof(InfiniFrameDebugEndpointStatus), 0)).IsTrue();
-        await Assert.That(Enum.IsDefined(typeof(InfiniFrameDebugEndpointStatus), 5)).IsTrue();
+        await Assert.That(isDefined).IsTrue();
     }
 }

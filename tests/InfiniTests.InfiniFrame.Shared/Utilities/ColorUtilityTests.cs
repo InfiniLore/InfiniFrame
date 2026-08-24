@@ -13,110 +13,28 @@ public class ColorUtilityTests {
     // IsValidBackgroundColor
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    public async Task IsValidBackgroundColor_Null_ReturnsTrue(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        bool result = ColorUtility.IsValidBackgroundColor(null);
-
-        // Assert
-        await Assert.That(result).IsTrue();
-    }
-
-    [Test]
-    public async Task IsValidBackgroundColor_Transparent_ReturnsTrue(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        bool result = ColorUtility.IsValidBackgroundColor("transparent");
+    [Arguments(null)]
+    [Arguments("transparent")]
+    [Arguments("#FF00AA")]
+    [Arguments("#80FF00AA")]
+    [Arguments("#aabbcc")]
+    public async Task IsValidBackgroundColor_ValidInput_ReturnsTrue(string? input, CancellationToken ct = default) {
+        // Arrange & Act
+        bool result = ColorUtility.IsValidBackgroundColor(input);
 
         // Assert
         await Assert.That(result).IsTrue();
     }
 
     [Test]
-    public async Task IsValidBackgroundColor_SixDigitHex_ReturnsTrue(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        bool result = ColorUtility.IsValidBackgroundColor("#FF00AA");
-
-        // Assert
-        await Assert.That(result).IsTrue();
-    }
-
-    [Test]
-    public async Task IsValidBackgroundColor_EightDigitHex_ReturnsTrue(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        bool result = ColorUtility.IsValidBackgroundColor("#80FF00AA");
-
-        // Assert
-        await Assert.That(result).IsTrue();
-    }
-
-    [Test]
-    public async Task IsValidBackgroundColor_LowerCaseHex_ReturnsTrue(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        bool result = ColorUtility.IsValidBackgroundColor("#aabbcc");
-
-        // Assert
-        await Assert.That(result).IsTrue();
-    }
-
-    [Test]
-    public async Task IsValidBackgroundColor_NoHash_ReturnsFalse(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        bool result = ColorUtility.IsValidBackgroundColor("FF00AA");
-
-        // Assert
-        await Assert.That(result).IsFalse();
-    }
-
-    [Test]
-    public async Task IsValidBackgroundColor_TooShort_ReturnsFalse(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        bool result = ColorUtility.IsValidBackgroundColor("#FFF");
-
-        // Assert
-        await Assert.That(result).IsFalse();
-    }
-
-    [Test]
-    public async Task IsValidBackgroundColor_TooLong_ReturnsFalse(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        bool result = ColorUtility.IsValidBackgroundColor("#FFFFFFFF00");
-
-        // Assert
-        await Assert.That(result).IsFalse();
-    }
-
-    [Test]
-    public async Task IsValidBackgroundColor_InvalidHexChars_ReturnsFalse(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        bool result = ColorUtility.IsValidBackgroundColor("#GGHHII");
-
-        // Assert
-        await Assert.That(result).IsFalse();
-    }
-
-    [Test]
-    public async Task IsValidBackgroundColor_EmptyString_ReturnsFalse(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        bool result = ColorUtility.IsValidBackgroundColor("");
+    [Arguments("FF00AA")]
+    [Arguments("#FFF")]
+    [Arguments("#FFFFFFFF00")]
+    [Arguments("#GGHHII")]
+    [Arguments("")]
+    public async Task IsValidBackgroundColor_InvalidInput_ReturnsFalse(string input, CancellationToken ct = default) {
+        // Arrange & Act
+        bool result = ColorUtility.IsValidBackgroundColor(input);
 
         // Assert
         await Assert.That(result).IsFalse();
@@ -126,87 +44,26 @@ public class ColorUtilityTests {
     // ParseBackgroundColor
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    public async Task ParseBackgroundColor_Null_ReturnsZeros(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        ColorUtility.ParseBackgroundColor(null, out byte r, out byte g, out byte b, out byte a);
-
-        // Assert
-        await Assert.That((int)r).IsEqualTo(0);
-        await Assert.That((int)g).IsEqualTo(0);
-        await Assert.That((int)b).IsEqualTo(0);
-        await Assert.That((int)a).IsEqualTo(0);
-    }
-
-    [Test]
-    public async Task ParseBackgroundColor_Transparent_ReturnsZeros(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        ColorUtility.ParseBackgroundColor("transparent", out byte r, out byte g, out byte b, out byte a);
+    [Arguments(null, 0, 0, 0, 0)]
+    [Arguments("transparent", 0, 0, 0, 0)]
+    [Arguments("FF0000", 0xFF, 0x00, 0x00, 255)]
+    [Arguments("FF8040", 0xFF, 0x80, 0x40, 255)]
+    [Arguments("#aabbcc", 0xAA, 0xBB, 0xCC, 255)]
+    [Arguments("#80FF8040", 0xFF, 0x80, 0x40, 0x80)]
+    public async Task ParseBackgroundColor_ParsesCorrectly(string? input, byte r, byte g, byte b, byte a, CancellationToken ct = default) {
+        // Arrange & Act
+        ColorUtility.ParseBackgroundColor(
+            input, 
+            out byte rOutput,
+            out byte gOutput,
+            out byte bOutput,
+            out byte aOutput);
 
         // Assert
-        await Assert.That((int)r).IsEqualTo(0);
-        await Assert.That((int)g).IsEqualTo(0);
-        await Assert.That((int)b).IsEqualTo(0);
-        await Assert.That((int)a).IsEqualTo(0);
-    }
-
-    [Test]
-    public async Task ParseBackgroundColor_SixDigitHex_ParsesRgbWithFullAlpha(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        ColorUtility.ParseBackgroundColor("#FF8040", out byte r, out byte g, out byte b, out byte a);
-
-        // Assert
-        await Assert.That((int)r).IsEqualTo(0xFF);
-        await Assert.That((int)g).IsEqualTo(0x80);
-        await Assert.That((int)b).IsEqualTo(0x40);
-        await Assert.That((int)a).IsEqualTo(255);
-    }
-
-    [Test]
-    public async Task ParseBackgroundColor_EightDigitHex_ParsesArgb(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        ColorUtility.ParseBackgroundColor("#80FF8040", out byte r, out byte g, out byte b, out byte a);
-
-        // Assert
-        await Assert.That((int)a).IsEqualTo(0x80);
-        await Assert.That((int)r).IsEqualTo(0xFF);
-        await Assert.That((int)g).IsEqualTo(0x80);
-        await Assert.That((int)b).IsEqualTo(0x40);
-    }
-
-    [Test]
-    public async Task ParseBackgroundColor_LowerCase_ParsesCorrectly(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        ColorUtility.ParseBackgroundColor("#aabbcc", out byte r, out byte g, out byte b, out byte a);
-
-        // Assert
-        await Assert.That((int)r).IsEqualTo(0xAA);
-        await Assert.That((int)g).IsEqualTo(0xBB);
-        await Assert.That((int)b).IsEqualTo(0xCC);
-        await Assert.That((int)a).IsEqualTo(255);
-    }
-
-    [Test]
-    public async Task ParseBackgroundColor_WithoutHash_ParsesCorrectly(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        ColorUtility.ParseBackgroundColor("FF0000", out byte r, out byte g, out byte b, out byte a);
-
-        // Assert
-        await Assert.That((int)r).IsEqualTo(0xFF);
-        await Assert.That((int)g).IsEqualTo(0x00);
-        await Assert.That((int)b).IsEqualTo(0x00);
-        await Assert.That((int)a).IsEqualTo(255);
+        await Assert.That((int)rOutput).IsEqualTo(r);
+        await Assert.That((int)gOutput).IsEqualTo(g);
+        await Assert.That((int)bOutput).IsEqualTo(b);
+        await Assert.That((int)aOutput).IsEqualTo(a);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -220,9 +77,7 @@ public class ColorUtilityTests {
     [Arguments('a')]
     [Arguments('f')]
     public async Task IsHexDigit_ValidDigits_ReturnsTrue(char c, CancellationToken ct = default) {
-        // Arrange
-
-        // Act
+        // Arrange & Act
         bool result = ColorUtility.IsHexDigit(c);
 
         // Assert
@@ -235,9 +90,7 @@ public class ColorUtilityTests {
     [Arguments(' ')]
     [Arguments('/')]
     public async Task IsHexDigit_InvalidCharacters_ReturnsFalse(char c, CancellationToken ct = default) {
-        // Arrange
-
-        // Act
+        // Arrange & Act
         bool result = ColorUtility.IsHexDigit(c);
 
         // Assert
@@ -248,79 +101,18 @@ public class ColorUtilityTests {
     // HexDigitValue
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    public async Task HexDigitValue_Zero_ReturnsZero(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        int result = ColorUtility.HexDigitValue('0');
-
-        // Assert
-        await Assert.That(result).IsEqualTo(0);
-    }
-
-    [Test]
-    public async Task HexDigitValue_Nine_ReturnsNine(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        int result = ColorUtility.HexDigitValue('9');
+    [Arguments('0', 0)]
+    [Arguments('9', 9)]
+    [Arguments('A', 10)]
+    [Arguments('F', 15)]
+    [Arguments('a', 10)]
+    [Arguments('f', 15)]
+    [Arguments('G', -1)]
+    public async Task HexDigitValue_ReturnsExpected(char c, int expected, CancellationToken ct = default) {
+        // Arrange & Act
+        int result = ColorUtility.HexDigitValue(c);
 
         // Assert
-        await Assert.That(result).IsEqualTo(9);
-    }
-
-    [Test]
-    public async Task HexDigitValue_CapitalA_ReturnsTen(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        int result = ColorUtility.HexDigitValue('A');
-
-        // Assert
-        await Assert.That(result).IsEqualTo(10);
-    }
-
-    [Test]
-    public async Task HexDigitValue_CapitalF_ReturnsFifteen(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        int result = ColorUtility.HexDigitValue('F');
-
-        // Assert
-        await Assert.That(result).IsEqualTo(15);
-    }
-
-    [Test]
-    public async Task HexDigitValue_LowerCaseA_ReturnsTen(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        int result = ColorUtility.HexDigitValue('a');
-
-        // Assert
-        await Assert.That(result).IsEqualTo(10);
-    }
-
-    [Test]
-    public async Task HexDigitValue_LowerCaseF_ReturnsFifteen(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        int result = ColorUtility.HexDigitValue('f');
-
-        // Assert
-        await Assert.That(result).IsEqualTo(15);
-    }
-
-    [Test]
-    public async Task HexDigitValue_InvalidCharacter_ReturnsNegativeOne(CancellationToken ct = default) {
-        // Arrange
-
-        // Act
-        int result = ColorUtility.HexDigitValue('G');
-
-        // Assert
-        await Assert.That(result).IsEqualTo(-1);
+        await Assert.That(result).IsEqualTo(expected);
     }
 }

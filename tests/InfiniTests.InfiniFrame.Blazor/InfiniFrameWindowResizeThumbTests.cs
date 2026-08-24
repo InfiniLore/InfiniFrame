@@ -11,98 +11,58 @@ namespace InfiniTests.InfiniFrame.Blazor;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowResizeThumbTests : BunitContext {
-    [Test]
-    public async Task TopThumb_HasCorrectDataAttribute(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
-            parameters.Add(p => p.ResizeThumb, ResizeOrigin.Top)
-        );
-
-        IElement div = cut.Find("div");
-        await Assert.That(div.GetAttribute("data-infiniframe-resize")).IsEqualTo("top");
-    }
 
     [Test]
-    public async Task RightThumb_HasCorrectDataAttribute(CancellationToken ct = default) {
+    [Arguments(ResizeOrigin.Top, "top")]
+    [Arguments(ResizeOrigin.Right, "right")]
+    [Arguments(ResizeOrigin.Bottom, "bottom")]
+    [Arguments(ResizeOrigin.Left, "left")]
+    [Arguments(ResizeOrigin.TopLeft, "top-left")]
+    [Arguments(ResizeOrigin.TopRight, "top-right")]
+    [Arguments(ResizeOrigin.BottomRight, "bottom-right")]
+    [Arguments(ResizeOrigin.BottomLeft, "bottom-left")]
+    public async Task HasCorrectDataAttribute(ResizeOrigin origin, string expectedAttribute, CancellationToken ct = default) {
+        // Arrange
         IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
-            parameters.Add(p => p.ResizeThumb, ResizeOrigin.Right)
+            parameters.Add(p => p.ResizeThumb, origin)
         );
 
+        // Act
         IElement div = cut.Find("div");
-        await Assert.That(div.GetAttribute("data-infiniframe-resize")).IsEqualTo("right");
-    }
 
-    [Test]
-    public async Task BottomThumb_HasCorrectDataAttribute(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
-            parameters.Add(p => p.ResizeThumb, ResizeOrigin.Bottom)
-        );
-
-        IElement div = cut.Find("div");
-        await Assert.That(div.GetAttribute("data-infiniframe-resize")).IsEqualTo("bottom");
-    }
-
-    [Test]
-    public async Task LeftThumb_HasCorrectDataAttribute(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
-            parameters.Add(p => p.ResizeThumb, ResizeOrigin.Left)
-        );
-
-        IElement div = cut.Find("div");
-        await Assert.That(div.GetAttribute("data-infiniframe-resize")).IsEqualTo("left");
-    }
-
-    [Test]
-    public async Task TopLeftThumb_HasCorrectDataAttribute(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
-            parameters.Add(p => p.ResizeThumb, ResizeOrigin.TopLeft)
-        );
-
-        IElement div = cut.Find("div");
-        await Assert.That(div.GetAttribute("data-infiniframe-resize")).IsEqualTo("top-left");
-    }
-
-    [Test]
-    public async Task BottomRightThumb_HasCorrectDataAttribute(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
-            parameters.Add(p => p.ResizeThumb, ResizeOrigin.BottomRight)
-        );
-
-        IElement div = cut.Find("div");
-        await Assert.That(div.GetAttribute("data-infiniframe-resize")).IsEqualTo("bottom-right");
+        // Assert
+        await Assert.That(div.GetAttribute("data-infiniframe-resize")).IsEqualTo(expectedAttribute);
     }
 
     [Test]
     public async Task Thumb_HasPositionAbsoluteStyle(CancellationToken ct = default) {
+        // Arrange
         IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
             parameters.Add(p => p.ResizeThumb, ResizeOrigin.Top)
         );
 
+        // Act
         IElement div = cut.Find("div");
         string style = div.GetAttribute("style") ?? "";
+
+        // Assert
         await Assert.That(style).Contains("position: absolute");
     }
 
     [Test]
     public async Task Thumb_HasCorrectZIndex(CancellationToken ct = default) {
+        // Arrange
         IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
             parameters.Add(p => p.ResizeThumb, ResizeOrigin.Right)
                       .Add(p => p.ZIndex, 500)
         );
 
+        // Act
         IElement div = cut.Find("div");
         string style = div.GetAttribute("style") ?? "";
+
+        // Assert
         await Assert.That(style).Contains("z-index: 500");
-    }
-
-    [Test]
-    public async Task Thumb_HasCorrectCursor(CancellationToken ct = default) {
-        IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
-            parameters.Add(p => p.ResizeThumb, ResizeOrigin.BottomRight)
-        );
-
-        IElement div = cut.Find("div");
-        string style = div.GetAttribute("style") ?? "";
-        await Assert.That(style).Contains("cursor: se-resize");
     }
 
     [Test]
@@ -115,46 +75,65 @@ public class InfiniFrameWindowResizeThumbTests : BunitContext {
     [Arguments(ResizeOrigin.BottomLeft, "sw-resize")]
     [Arguments(ResizeOrigin.Left, "w-resize")]
     public async Task Thumb_HasCorrectCursorForOrigin(ResizeOrigin origin, string expectedCursor, CancellationToken ct = default) {
+        // Arrange
         IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
             parameters.Add(p => p.ResizeThumb, origin)
         );
 
+        // Act
         IElement div = cut.Find("div");
         string style = div.GetAttribute("style") ?? "";
+
+        // Assert
         await Assert.That(style).Contains($"cursor: {expectedCursor}");
     }
 
     [Test]
     public async Task Thumb_HasDefaultResizeArea(CancellationToken ct = default) {
+        // Arrange
         IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
             parameters.Add(p => p.ResizeThumb, ResizeOrigin.Top)
         );
 
+        // Act
         IElement div = cut.Find("div");
         string style = div.GetAttribute("style") ?? "";
+
+        // Assert
         await Assert.That(style).Contains("height: 10px");
     }
 
     [Test]
-    public async Task Thumb_UsesCustomResizeArea(CancellationToken ct = default) {
+    [Arguments(10, "height: 10px")]
+    [Arguments(20, "height: 20px")]
+    [Arguments(5, "height: 5px")]
+    public async Task Thumb_UsesCustomResizeArea(int resizeArea, string expectedStyle, CancellationToken ct = default) {
+        // Arrange
         IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
             parameters.Add(p => p.ResizeThumb, ResizeOrigin.Top)
-                      .Add(p => p.ResizeArea, 20)
+                      .Add(p => p.ResizeArea, resizeArea)
         );
 
+        // Act
         IElement div = cut.Find("div");
         string style = div.GetAttribute("style") ?? "";
-        await Assert.That(style).Contains("height: 20px");
+
+        // Assert
+        await Assert.That(style).Contains(expectedStyle);
     }
 
     [Test]
     public async Task Thumb_HasDefaultZIndex(CancellationToken ct = default) {
+        // Arrange
         IRenderedComponent<InfiniFrameWindowResizeThumb> cut = Render<InfiniFrameWindowResizeThumb>(parameters =>
             parameters.Add(p => p.ResizeThumb, ResizeOrigin.Left)
         );
 
+        // Act
         IElement div = cut.Find("div");
         string style = div.GetAttribute("style") ?? "";
+
+        // Assert
         await Assert.That(style).Contains("z-index: 1000");
     }
 }

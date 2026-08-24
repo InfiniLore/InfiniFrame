@@ -8,8 +8,8 @@ namespace InfiniTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-public sealed class RunOnMacOsMainThreadAttribute : Attribute, ITestExecutor {
-    private static readonly MacOsWindowExecutor Executor = new();
+public sealed class MacOsMainThreadTestExecutorAttribute : Attribute, ITestExecutor {
+    private static readonly MacOsMainThreadExecutor Executor = new();
 
     public async ValueTask ExecuteTest(TestContext context, Func<ValueTask> action) {
         await Executor.ExecuteTest(context, action);

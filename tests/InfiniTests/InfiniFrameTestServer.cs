@@ -83,9 +83,9 @@ public sealed class InfiniFrameTestServer : IAsyncDisposable {
                 app.WebApp.UseDefaultFiles();
                 app.WebApp.UseStaticFiles();
 
-#if !NET8_0
+                #if !NET8_0
                 app.WebApp.MapStaticAssets();
-#endif
+                #endif
 
                 // Exercise the documented WebServer lifecycle in automation tests. Run() starts
                 // Kestrel before creating the window, and the created callback runs on this STA

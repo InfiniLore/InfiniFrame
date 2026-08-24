@@ -1,15 +1,15 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniTests.Native;
 using System.Runtime.InteropServices;
+using InfiniTests.Native;
 using TUnit.Core.Interfaces;
 
 namespace InfiniTests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed class MacOsWindowExecutor : ITestExecutor {
+public sealed class MacOsMainThreadExecutor : ITestExecutor {
     private const string NativeWindowTestNamespace = "InfiniTests.InfiniFrame.Window";
     private const string LibDispatch = "/usr/lib/system/libdispatch.dylib";
 
@@ -44,7 +44,7 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
     }
 
     private static bool RequiresMainQueue(TestContext context)
-        => context.Metadata.TestDetails.HasAttribute<RunOnMacOsMainThreadAttribute>()
+        => context.Metadata.TestDetails.HasAttribute<MacOsMainThreadTestExecutorAttribute>()
             || IsNativeWindowTest(context);
 
     private static bool IsNativeWindowTest(TestContext context) {

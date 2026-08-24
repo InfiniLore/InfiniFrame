@@ -26,7 +26,10 @@ public class NativeInvokeTests {
     [Arguments("0xDEADBEEF", "<address>")]
     [Arguments("pointer=0x1234abcd", "pointer=<address>")]
     public async Task Sanitize_RedactsMemoryAddresses(string input, string expected, CancellationToken ct = default) {
+        // Arrange & Act
         string result = Sanitize(input);
+
+        // Assert
         await Assert.That(result).IsEqualTo(expected);
     }
 
@@ -38,7 +41,10 @@ public class NativeInvokeTests {
     [Arguments("D:\\Data\\config.json", "<path>")]
     [Arguments("Path is C:\\Program", "Path is <path>")]
     public async Task Sanitize_RedactsWindowsPaths(string input, string expected, CancellationToken ct = default) {
+        // Arrange & Act
         string result = Sanitize(input);
+
+        // Assert
         await Assert.That(result).IsEqualTo(expected);
     }
 
@@ -50,17 +56,11 @@ public class NativeInvokeTests {
     [Arguments("File: /home/user/file.txt", "File: <path>")]
     [Arguments("Path=/usr/local/bin", "Path=<path>")]
     public async Task Sanitize_RedactsUnixPaths(string input, string expected, CancellationToken ct = default) {
+        // Arrange & Act
         string result = Sanitize(input);
-        await Assert.That(result).IsEqualTo(expected);
-    }
 
-    // -----------------------------------------------------------------------------------------------------------------
-    // Sanitize - User Home Redaction
-    // -----------------------------------------------------------------------------------------------------------------
-    [Test]
-    public async Task Sanitize_RedactsUnixPathsContainingHome(CancellationToken ct = default) {
-        string result = Sanitize("Config at /etc/nginx/config");
-        await Assert.That(result).Contains("<path>");
+        // Assert
+        await Assert.That(result).IsEqualTo(expected);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -74,7 +74,10 @@ public class NativeInvokeTests {
     [Arguments("bearer: token123", "bearer=<redacted>")]
     [Arguments("pwd=test123", "pwd=<redacted>")]
     public async Task Sanitize_RedactsSecretPairs(string input, string expected, CancellationToken ct = default) {
+        // Arrange & Act
         string result = Sanitize(input);
+
+        // Assert
         await Assert.That(result).IsEqualTo(expected);
     }
 
@@ -82,27 +85,34 @@ public class NativeInvokeTests {
     // Sanitize - Edge Cases
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    public async Task Sanitize_NullOrEmpty_ReturnsNoNativeMessage(CancellationToken ct = default) {
-        string result = Sanitize("");
-        await Assert.That(result).IsEqualTo("No native error message provided.");
-    }
+    [Arguments("")]
+    [Arguments("   ")]
+    public async Task Sanitize_NullOrWhitespace_ReturnsNoNativeMessage(string input, CancellationToken ct = default) {
+        // Arrange & Act
+        string result = Sanitize(input);
 
-    [Test]
-    public async Task Sanitize_WhitespaceOnly_ReturnsNoNativeMessage(CancellationToken ct = default) {
-        string result = Sanitize("   ");
+        // Assert
         await Assert.That(result).IsEqualTo("No native error message provided.");
     }
 
     [Test]
     public async Task Sanitize_CleanMessage_ReturnsUnchanged(CancellationToken ct = default) {
+        // Arrange & Act
         string result = Sanitize("Operation completed successfully");
+
+        // Assert
         await Assert.That(result).IsEqualTo("Operation completed successfully");
     }
 
     [Test]
     public async Task Sanitize_MultipleSecrets_AllRedacted(CancellationToken ct = default) {
+        // Arrange
         string input = "token=abc123 password=secret456 api_key=xyz789";
+
+        // Act
         string result = Sanitize(input);
+
+        // Assert
         await Assert.That(result).Contains("<redacted>");
         await Assert.That(result).DoesNotContain("abc123");
         await Assert.That(result).DoesNotContain("secret456");
@@ -111,8 +121,13 @@ public class NativeInvokeTests {
 
     [Test]
     public async Task Sanitize_CombinedPatterns_AllRedacted(CancellationToken ct = default) {
+        // Arrange
         string input = "Error at 0xDEADBEEF in C:\\Users\\admin\\file token=secret123";
+
+        // Act
         string result = Sanitize(input);
+
+        // Assert
         await Assert.That(result).Contains("<address>");
         await Assert.That(result).Contains("<path>");
         await Assert.That(result).Contains("<redacted>");
@@ -123,8 +138,10 @@ public class NativeInvokeTests {
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
     public async Task InvokeSyncWithValidation_NullCallback_ThrowsArgumentNullException(CancellationToken ct = default) {
+        // Arrange
         var owner = new TestHandleOwner(123456);
 
+        // Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => {
             NativeInvoke.InvokeSyncWithValidation(
                 NullLogger.Instance,
@@ -137,6 +154,7 @@ public class NativeInvokeTests {
 
     [Test]
     public async Task InvokeSyncWithValidation_NullOwner_ThrowsArgumentNullException(CancellationToken ct = default) {
+        // Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => {
             NativeInvoke.InvokeSyncWithValidation(
                 NullLogger.Instance,
@@ -149,8 +167,10 @@ public class NativeInvokeTests {
 
     [Test]
     public async Task InvokeSyncWithoutValidation_NullCallback_ThrowsArgumentNullException(CancellationToken ct = default) {
+        // Arrange
         var owner = new TestHandleOwner(123456);
 
+        // Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => {
             NativeInvoke.InvokeSyncWithoutValidation(
                 NullLogger.Instance,
@@ -163,6 +183,7 @@ public class NativeInvokeTests {
 
     [Test]
     public async Task InvokeSyncWithoutValidation_NullOwner_ThrowsArgumentNullException(CancellationToken ct = default) {
+        // Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => {
             NativeInvoke.InvokeSyncWithoutValidation(
                 NullLogger.Instance,
@@ -178,41 +199,29 @@ public class NativeInvokeTests {
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
     public async Task InvokeSyncWithValidation_Action_ExecutesCallback(CancellationToken ct = default) {
+        // Arrange
         var owner = new TestHandleOwner(123456);
         bool executed = false;
 
+        // Act
         NativeInvoke.InvokeSyncWithValidation(
             NullLogger.Instance,
             owner,
             Environment.CurrentManagedThreadId,
             callback: () => executed = true);
 
+        // Assert
         await Assert.That(executed).IsTrue();
     }
 
     [Test]
-    public async Task InvokeSyncWithValidation_Func_ReturnsSuccessStatus(CancellationToken ct = default) {
-        var owner = new TestHandleOwner(123456);
-        InfiniFrameNativeInteropStatus result = InfiniFrameNativeInteropStatus.OperationFailed;
-
-        NativeInvoke.InvokeSyncWithValidation(
-            NullLogger.Instance,
-            owner,
-            Environment.CurrentManagedThreadId,
-            callback: () => {
-                result = InfiniFrameNativeInteropStatus.Success;
-                return InfiniFrameNativeInteropStatus.Success;
-            });
-
-        await Assert.That(result).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
-    }
-
-    [Test]
     public async Task InvokeSyncWithValidation_FuncWithHandle_PassesHandleToCallback(CancellationToken ct = default) {
+        // Arrange
         IntPtr expectedHandle = new(99999);
         var owner = new TestHandleOwner(expectedHandle);
         IntPtr received = IntPtr.Zero;
 
+        // Act
         NativeInvoke.InvokeSyncWithValidation(
             NullLogger.Instance,
             owner,
@@ -222,68 +231,62 @@ public class NativeInvokeTests {
                 return InfiniFrameNativeInteropStatus.Success;
             });
 
+        // Assert
         await Assert.That(received).IsEqualTo(expectedHandle);
     }
 
     [Test]
-    public async Task InvokeSyncWithValidation_FuncWithArgs_InvokesWithArg(CancellationToken ct = default) {
+    [Arguments(1, "hello")]
+    [Arguments(42, "world")]
+    [Arguments(0, "")]
+    public async Task InvokeSyncWithValidation_FuncWithArgs_VariousArguments(int argValue, string argString, CancellationToken ct = default) {
+        // Arrange
         var owner = new TestHandleOwner(123456);
-        int receivedArg = 0;
+        int receivedInt = 0;
+        string? receivedString = null;
 
+        // Act
         NativeInvoke.InvokeSyncWithValidation(
             NullLogger.Instance,
             owner,
             Environment.CurrentManagedThreadId,
-            callback: (IntPtr _, int arg) => {
-                receivedArg = arg;
+            callback: (IntPtr _, int intArg, string strArg) => {
+                receivedInt = intArg;
+                receivedString = strArg;
                 return InfiniFrameNativeInteropStatus.Success;
             },
-            arg: 42);
+            arg1: argValue,
+            arg2: argString);
 
-        await Assert.That(receivedArg).IsEqualTo(42);
-    }
-
-    [Test]
-    public async Task InvokeSyncWithValidation_FuncWithTwoArgs_InvokesWithArgs(CancellationToken ct = default) {
-        var owner = new TestHandleOwner(123456);
-        int receivedArg1 = 0;
-        string? receivedArg2 = null;
-
-        NativeInvoke.InvokeSyncWithValidation(
-            NullLogger.Instance,
-            owner,
-            Environment.CurrentManagedThreadId,
-            callback: (IntPtr _, int arg1, string arg2) => {
-                receivedArg1 = arg1;
-                receivedArg2 = arg2;
-                return InfiniFrameNativeInteropStatus.Success;
-            },
-            arg1: 42,
-            arg2: "hello");
-
-        await Assert.That(receivedArg1).IsEqualTo(42);
-        await Assert.That(receivedArg2).IsEqualTo("hello");
+        // Assert
+        await Assert.That(receivedInt).IsEqualTo(argValue);
+        await Assert.That(receivedString).IsEqualTo(argString);
     }
 
     [Test]
     public async Task InvokeSyncWithoutValidation_Action_ExecutesCallback(CancellationToken ct = default) {
+        // Arrange
         var owner = new TestHandleOwner(123456);
         bool executed = false;
 
+        // Act
         NativeInvoke.InvokeSyncWithoutValidation(
             NullLogger.Instance,
             owner,
             Environment.CurrentManagedThreadId,
             callback: () => executed = true);
 
+        // Assert
         await Assert.That(executed).IsTrue();
     }
 
     [Test]
     public async Task InvokeSyncWithoutValidation_FuncWithArgs_InvokesWithArg(CancellationToken ct = default) {
+        // Arrange
         var owner = new TestHandleOwner(123456);
         int receivedArg = 0;
 
+        // Act
         NativeInvoke.InvokeSyncWithoutValidation(
             NullLogger.Instance,
             owner,
@@ -294,6 +297,7 @@ public class NativeInvokeTests {
             },
             arg: 99);
 
+        // Assert
         await Assert.That(receivedArg).IsEqualTo(99);
     }
 
@@ -301,43 +305,53 @@ public class NativeInvokeTests {
     // Exception Propagation
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    public async Task InvokeSyncWithValidation_CallbackThrows_PropagatesException(CancellationToken ct = default) {
+    [Arguments("test error")]
+    [Arguments("func error")]
+    public async Task InvokeSyncWithValidation_CallbackThrows_PropagatesException(string errorMessage, CancellationToken ct = default) {
+        // Arrange
         var owner = new TestHandleOwner(123456);
 
         InvalidOperationException? caught = null;
         try {
+            // Act
             NativeInvoke.InvokeSyncWithValidation(
                 NullLogger.Instance,
                 owner,
                 Environment.CurrentManagedThreadId,
-                callback: () => throw new InvalidOperationException("test error"));
+                callback: () => throw new InvalidOperationException(errorMessage));
         }
         catch (InvalidOperationException ex) {
             caught = ex;
         }
 
+        // Assert
         await Assert.That(caught).IsNotNull();
-        await Assert.That(caught!.Message).IsEqualTo("test error");
+        await Assert.That(caught!.Message).IsEqualTo(errorMessage);
     }
 
     [Test]
-    public async Task InvokeSyncWithValidation_FuncThrows_PropagatesException(CancellationToken ct = default) {
+    [Arguments("test error")]
+    [Arguments("func error")]
+    public async Task InvokeSyncWithValidation_FuncThrows_PropagatesException(string errorMessage, CancellationToken ct = default) {
+        // Arrange
         var owner = new TestHandleOwner(123456);
 
         InvalidOperationException? caught = null;
         try {
+            // Act
             NativeInvoke.InvokeSyncWithValidation(
                 NullLogger.Instance,
                 owner,
                 Environment.CurrentManagedThreadId,
-                callback: (IntPtr _) => throw new InvalidOperationException("func error"));
+                callback: (IntPtr _) => throw new InvalidOperationException(errorMessage));
         }
         catch (InvalidOperationException ex) {
             caught = ex;
         }
 
+        // Assert
         await Assert.That(caught).IsNotNull();
-        await Assert.That(caught!.Message).IsEqualTo("func error");
+        await Assert.That(caught!.Message).IsEqualTo(errorMessage);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -345,8 +359,10 @@ public class NativeInvokeTests {
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
     public async Task InvokeSyncWithValidation_Success_ClearsStaleLastError(CancellationToken ct = default) {
+        // Arrange
         var owner = new TestHandleOwner(123456);
 
+        // Act
         Marshal.SetLastPInvokeError(203);
         NativeInvoke.InvokeSyncWithValidation(
             NullLogger.Instance,
@@ -354,6 +370,7 @@ public class NativeInvokeTests {
             Environment.CurrentManagedThreadId,
             callback: () => InfiniFrameNativeInteropStatus.Success);
 
+        // Assert
         await Assert.That(Marshal.GetLastPInvokeError()).IsEqualTo(0);
     }
 
@@ -361,35 +378,47 @@ public class NativeInvokeTests {
     // Lifecycle Variants
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    public async Task InvokeSyncForLifecycle_WithCallback_ExecutesCallback(CancellationToken ct = default) {
+    [Arguments(NativeHandleAccess.Feature)]
+    [Arguments(NativeHandleAccess.Close)]
+    [Arguments(NativeHandleAccess.WaitForExit)]
+    public async Task InvokeSyncForLifecycle_WithAction_ExecutesCallback(NativeHandleAccess access, CancellationToken ct = default) {
+        // Arrange
         var owner = new TestHandleOwner(123456);
         bool executed = false;
 
+        // Act
         NativeInvoke.InvokeSyncForLifecycle(
             NullLogger.Instance,
             owner,
             Environment.CurrentManagedThreadId,
-            access: NativeHandleAccess.Close,
+            access: access,
             callback: () => executed = true);
 
+        // Assert
         await Assert.That(executed).IsTrue();
     }
 
     [Test]
-    public async Task InvokeSyncForLifecycle_WithFuncHandle_ExecutesCallback(CancellationToken ct = default) {
+    [Arguments(NativeHandleAccess.Feature)]
+    [Arguments(NativeHandleAccess.Close)]
+    [Arguments(NativeHandleAccess.WaitForExit)]
+    public async Task InvokeSyncForLifecycle_WithFuncHandle_ExecutesCallback(NativeHandleAccess access, CancellationToken ct = default) {
+        // Arrange
         var owner = new TestHandleOwner(123456);
         bool executed = false;
 
+        // Act
         NativeInvoke.InvokeSyncForLifecycle(
             NullLogger.Instance,
             owner,
             Environment.CurrentManagedThreadId,
-            access: NativeHandleAccess.WaitForExit,
+            access: access,
             callback: (IntPtr _) => {
                 executed = true;
                 return InfiniFrameNativeInteropStatus.Success;
             });
 
+        // Assert
         await Assert.That(executed).IsTrue();
     }
 

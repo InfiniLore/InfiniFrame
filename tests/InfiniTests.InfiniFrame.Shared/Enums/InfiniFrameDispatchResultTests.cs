@@ -10,39 +10,28 @@ namespace InfiniTests.InfiniFrame.Shared.Enums;
 public class InfiniFrameDispatchResultTests {
 
     [Test]
-    public async Task Completed_IsFirstValue(CancellationToken ct = default) {
-        var value = InfiniFrameDispatchResult.Completed;
-        await Assert.That(value).IsEqualTo(InfiniFrameDispatchResult.Completed);
-    }
+    [Arguments(InfiniFrameDispatchResult.Completed)]
+    [Arguments(InfiniFrameDispatchResult.TimedOut)]
+    [Arguments(InfiniFrameDispatchResult.Cancelled)]
+    [Arguments(InfiniFrameDispatchResult.WindowClosed)]
+    [Arguments(InfiniFrameDispatchResult.Failed)]
+    public async Task Value_CanBeAssigned(InfiniFrameDispatchResult value, CancellationToken ct = default) {
+        // Arrange & Act
+        InfiniFrameDispatchResult assigned = value;
 
-    [Test]
-    public async Task TimedOut_IsSecondValue(CancellationToken ct = default) {
-        var value = InfiniFrameDispatchResult.TimedOut;
-        await Assert.That(value).IsEqualTo(InfiniFrameDispatchResult.TimedOut);
-    }
-
-    [Test]
-    public async Task Cancelled_IsThirdValue(CancellationToken ct = default) {
-        var value = InfiniFrameDispatchResult.Cancelled;
-        await Assert.That(value).IsEqualTo(InfiniFrameDispatchResult.Cancelled);
-    }
-
-    [Test]
-    public async Task WindowClosed_IsFourthValue(CancellationToken ct = default) {
-        var value = InfiniFrameDispatchResult.WindowClosed;
-        await Assert.That(value).IsEqualTo(InfiniFrameDispatchResult.WindowClosed);
-    }
-
-    [Test]
-    public async Task Failed_IsFifthValue(CancellationToken ct = default) {
-        var value = InfiniFrameDispatchResult.Failed;
-        await Assert.That(value).IsEqualTo(InfiniFrameDispatchResult.Failed);
+        // Assert
+        await Assert.That(assigned).IsEqualTo(value);
     }
 
     [Test]
     public async Task AllValues_CanBeIterated(CancellationToken ct = default) {
+        // Arrange
         InfiniFrameDispatchResult[] values = Enum.GetValues<InfiniFrameDispatchResult>();
+
+        // Act
         int count = values.Length;
+
+        // Assert
         await Assert.That(count).IsEqualTo(5);
     }
 }

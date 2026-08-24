@@ -1,40 +1,47 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using FluentValidation;
+using InfiniFrame;
+using InfiniFrame.BlazorWebView;
+using InfiniFrame.NativeBridge.Delegates;
+using InfiniFrame.NativeBridge.Parameters;
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
+
 namespace InfiniTests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class MockFactory
-{
-    public static Mock<InfiniFrame.IInfiniFrameWindow> CreateWindowMock() => Mock.Of<InfiniFrame.IInfiniFrameWindow>();
-    public static Mock<InfiniFrame.IInfiniFrameWindowFeatures> CreateFeaturesMock() => Mock.Of<InfiniFrame.IInfiniFrameWindowFeatures>();
-    public static Mock<InfiniFrame.IWebMessagingInfiniFrameWindowFeature> CreateWebMessagingMock() => Mock.Of<InfiniFrame.IWebMessagingInfiniFrameWindowFeature>();
-    public static Mock<InfiniFrame.ILifecycleInfiniFrameWindowFeature> CreateLifecycleMock() => Mock.Of<InfiniFrame.ILifecycleInfiniFrameWindowFeature>();
-    public static Mock<InfiniFrame.IBrowserInfiniFrameWindowFeature> CreateBrowserMock() => Mock.Of<InfiniFrame.IBrowserInfiniFrameWindowFeature>();
-    public static Mock<InfiniFrame.IDebuggingInfiniFrameWindowFeature> CreateDebuggingMock() => Mock.Of<InfiniFrame.IDebuggingInfiniFrameWindowFeature>();
-    public static Mock<InfiniFrame.IDecorationsInfiniFrameWindowFeature> CreateDecorationsMock() => Mock.Of<InfiniFrame.IDecorationsInfiniFrameWindowFeature>();
-    public static Mock<InfiniFrame.IFilePickerDialogsInfiniFrameWindowFeature> CreateFilePickerDialogsMock() => Mock.Of<InfiniFrame.IFilePickerDialogsInfiniFrameWindowFeature>();
-    public static Mock<InfiniFrame.IMonitorsInfiniFrameWindowFeature> CreateMonitorsMock() => Mock.Of<InfiniFrame.IMonitorsInfiniFrameWindowFeature>();
-    public static Mock<InfiniFrame.INotificationsInfiniFrameWindowFeature> CreateNotificationsMock() => Mock.Of<InfiniFrame.INotificationsInfiniFrameWindowFeature>();
-    public static Mock<InfiniFrame.IPageNavigationInfiniFrameWindowFeature> CreatePageNavigationMock() => Mock.Of<InfiniFrame.IPageNavigationInfiniFrameWindowFeature>();
-    public static Mock<InfiniFrame.IPositionInfiniFrameWindowFeature> CreatePositionMock() => Mock.Of<InfiniFrame.IPositionInfiniFrameWindowFeature>();
-    public static Mock<InfiniFrame.ISizeInfiniFrameWindowFeature> CreateSizeMock() => Mock.Of<InfiniFrame.ISizeInfiniFrameWindowFeature>();
-    public static Mock<InfiniFrame.IStateInfiniFrameWindowFeature> CreateStateMock() => Mock.Of<InfiniFrame.IStateInfiniFrameWindowFeature>();
-    public static Mock<InfiniFrame.IInvokeInfiniFrameWindowFeature> CreateInvokeMock() => Mock.Of<InfiniFrame.IInvokeInfiniFrameWindowFeature>();
-    public static Mock<InfiniFrame.IInfiniFrameWindowBuilder> CreateWindowBuilderMock() => Mock.Of<InfiniFrame.IInfiniFrameWindowBuilder>();
-    public static Mock<InfiniFrame.IInfiniFrameEvents> CreateEventsMock() => Mock.Of<InfiniFrame.IInfiniFrameEvents>();
-    public static Mock<InfiniFrame.IInfiniFrameEventsStore> CreateEventsStoreMock() => Mock.Of<InfiniFrame.IInfiniFrameEventsStore>();
-    public static Mock<InfiniFrame.IDragDropInfiniFrameWindowFeature> CreateDragDropMock() => Mock.Of<InfiniFrame.IDragDropInfiniFrameWindowFeature>();
-    public static Mock<InfiniFrame.ITaskbarInfiniFrameWindowFeature> CreateTaskbarMock() => Mock.Of<InfiniFrame.ITaskbarInfiniFrameWindowFeature>();
-    public static Mock<InfiniFrame.IMenuInfiniFrameWindowFeature> CreateMenuMock() => Mock.Of<InfiniFrame.IMenuInfiniFrameWindowFeature>();
-    public static Mock<InfiniFrame.IJavaScriptInfiniFrameWindowFeature> CreateJavaScriptMock() => Mock.Of<InfiniFrame.IJavaScriptInfiniFrameWindowFeature>();
-    public static Mock<InfiniFrame.IInfiniFrameWindowConfiguration> CreateWindowConfigurationMock() => Mock.Of<InfiniFrame.IInfiniFrameWindowConfiguration>();
-    public static Mock<Microsoft.Extensions.Logging.ILogger<T>> CreateLoggerMock<T>() => Mock.Of<Microsoft.Extensions.Logging.ILogger<T>>();
-    public static Mock<Microsoft.AspNetCore.Components.Dispatcher> CreateDispatcherMock() => Mock.Of<Microsoft.AspNetCore.Components.Dispatcher>();
-    public static Mock<InfiniFrame.BlazorWebView.IInfiniFrameWebViewManager> CreateWebViewManagerMock() => Mock.Of<InfiniFrame.BlazorWebView.IInfiniFrameWebViewManager>();
-    public static Mock<InfiniFrame.NativeBridge.Delegates.CppReleaseCustomSchemeResponseDelegate> CreateReleaseDelegateMock() => Mock.Of<InfiniFrame.NativeBridge.Delegates.CppReleaseCustomSchemeResponseDelegate>();
+public static class MockFactory {
+    public static Mock<IInfiniFrameWindow> CreateWindowMock() => Mock.Of<IInfiniFrameWindow>();
+    public static Mock<IInfiniFrameWindowFeatures> CreateFeaturesMock() => Mock.Of<IInfiniFrameWindowFeatures>();
+    public static Mock<IWebMessagingInfiniFrameWindowFeature> CreateWebMessagingMock() => Mock.Of<IWebMessagingInfiniFrameWindowFeature>();
+    public static Mock<ILifecycleInfiniFrameWindowFeature> CreateLifecycleMock() => Mock.Of<ILifecycleInfiniFrameWindowFeature>();
+    public static Mock<IBrowserInfiniFrameWindowFeature> CreateBrowserMock() => Mock.Of<IBrowserInfiniFrameWindowFeature>();
+    public static Mock<IDebuggingInfiniFrameWindowFeature> CreateDebuggingMock() => Mock.Of<IDebuggingInfiniFrameWindowFeature>();
+    public static Mock<IDecorationsInfiniFrameWindowFeature> CreateDecorationsMock() => Mock.Of<IDecorationsInfiniFrameWindowFeature>();
+    public static Mock<IFilePickerDialogsInfiniFrameWindowFeature> CreateFilePickerDialogsMock() => Mock.Of<IFilePickerDialogsInfiniFrameWindowFeature>();
+    public static Mock<IMonitorsInfiniFrameWindowFeature> CreateMonitorsMock() => Mock.Of<IMonitorsInfiniFrameWindowFeature>();
+    public static Mock<INotificationsInfiniFrameWindowFeature> CreateNotificationsMock() => Mock.Of<INotificationsInfiniFrameWindowFeature>();
+    public static Mock<IPageNavigationInfiniFrameWindowFeature> CreatePageNavigationMock() => Mock.Of<IPageNavigationInfiniFrameWindowFeature>();
+    public static Mock<IPositionInfiniFrameWindowFeature> CreatePositionMock() => Mock.Of<IPositionInfiniFrameWindowFeature>();
+    public static Mock<ISizeInfiniFrameWindowFeature> CreateSizeMock() => Mock.Of<ISizeInfiniFrameWindowFeature>();
+    public static Mock<IStateInfiniFrameWindowFeature> CreateStateMock() => Mock.Of<IStateInfiniFrameWindowFeature>();
+    public static Mock<IInvokeInfiniFrameWindowFeature> CreateInvokeMock() => Mock.Of<IInvokeInfiniFrameWindowFeature>();
+    public static Mock<IInfiniFrameWindowBuilder> CreateWindowBuilderMock() => Mock.Of<IInfiniFrameWindowBuilder>();
+    public static Mock<IInfiniFrameEvents> CreateEventsMock() => Mock.Of<IInfiniFrameEvents>();
+    public static Mock<IInfiniFrameEventsStore> CreateEventsStoreMock() => Mock.Of<IInfiniFrameEventsStore>();
+    public static Mock<IDragDropInfiniFrameWindowFeature> CreateDragDropMock() => Mock.Of<IDragDropInfiniFrameWindowFeature>();
+    public static Mock<ITaskbarInfiniFrameWindowFeature> CreateTaskbarMock() => Mock.Of<ITaskbarInfiniFrameWindowFeature>();
+    public static Mock<IMenuInfiniFrameWindowFeature> CreateMenuMock() => Mock.Of<IMenuInfiniFrameWindowFeature>();
+    public static Mock<IJavaScriptInfiniFrameWindowFeature> CreateJavaScriptMock() => Mock.Of<IJavaScriptInfiniFrameWindowFeature>();
+    public static Mock<IInfiniFrameWindowConfiguration> CreateWindowConfigurationMock() => Mock.Of<IInfiniFrameWindowConfiguration>();
+    public static Mock<ILogger<T>> CreateLoggerMock<T>() => Mock.Of<ILogger<T>>();
+    public static Mock<Dispatcher> CreateDispatcherMock() => Mock.Of<Dispatcher>();
+    public static Mock<IInfiniFrameWebViewManager> CreateWebViewManagerMock() => Mock.Of<IInfiniFrameWebViewManager>();
+    public static Mock<CppReleaseCustomSchemeResponseDelegate> CreateReleaseDelegateMock() => Mock.Of<CppReleaseCustomSchemeResponseDelegate>();
     public static Mock<IServiceProvider> CreateServiceProviderMock() => Mock.Of<IServiceProvider>();
     public static Mock<IDisposable> CreateDisposableMock() => Mock.Of<IDisposable>();
-    public static Mock<FluentValidation.IValidator<InfiniFrame.NativeBridge.Parameters.InfiniFrameNativeParameters>> CreateValidatorMock() => Mock.Of<FluentValidation.IValidator<InfiniFrame.NativeBridge.Parameters.InfiniFrameNativeParameters>>();
+    public static Mock<IValidator<InfiniFrameNativeParameters>> CreateValidatorMock() => Mock.Of<IValidator<InfiniFrameNativeParameters>>();
 }

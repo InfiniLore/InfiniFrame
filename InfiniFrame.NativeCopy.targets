@@ -22,14 +22,14 @@
               CopyToOutputDirectory="PreserveNewest"
               CopyToPublishDirectory="PreserveNewest"
               Pack="false"
-              Visible="false" />
+              Visible="false"/>
         <None Include="$(_InfiniFrameNativeArtifactsDir)/WebView2Loader.dll"
               Link="WebView2Loader.dll"
               Condition="Exists('$(_InfiniFrameNativeArtifactsDir)/WebView2Loader.dll')"
               CopyToOutputDirectory="PreserveNewest"
               CopyToPublishDirectory="PreserveNewest"
               Pack="false"
-              Visible="false" />
+              Visible="false"/>
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux')) and Exists('$(_InfiniFrameNativeArtifactsDir)/InfiniFrame.Native.so')">
@@ -38,7 +38,7 @@
               CopyToOutputDirectory="PreserveNewest"
               CopyToPublishDirectory="PreserveNewest"
               Pack="false"
-              Visible="false" />
+              Visible="false"/>
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX')) and Exists('$(_InfiniFrameNativeArtifactsDir)/InfiniFrame.Native.dylib')">
@@ -47,6 +47,6 @@
               CopyToOutputDirectory="PreserveNewest"
               CopyToPublishDirectory="PreserveNewest"
               Pack="false"
-              Visible="false" />
+              Visible="false"/>
     </ItemGroup>
 </Project>
