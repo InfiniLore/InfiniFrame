@@ -237,7 +237,8 @@ jobs:
                       echo "=== Running ${framework} ==="
                       local test_args=(
                         test
-                        --solution InfiniFrame.GitHubActions.Testing.slnf
+                        --solution
+                        InfiniFrame.GitHubActions.Testing.slnf
                         --configuration Release
                         --no-build
                         --no-restore
