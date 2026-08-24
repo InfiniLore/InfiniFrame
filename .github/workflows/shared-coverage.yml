@@ -79,36 +79,7 @@ jobs:
                     "pct=$pct" >> $env:GITHUB_OUTPUT
                     Write-Host "C# coverage: $pct% ($totalCovered / $totalLines lines)"
 
-            # Badge JSON 
-            -   name: Write Badge JSON
-                shell: pwsh
-                run: |
-                    $ts = "${{ steps.ts.outputs.pct }}%"
-                    $cs = "${{ steps.cs.outputs.pct }}%"
-                    $tsColor = if ([double]"${{ steps.ts.outputs.pct }}" -ge 90) { "brightgreen" }
-                               elseif ([double]"${{ steps.ts.outputs.pct }}" -ge 75) { "yellow" }
-                               else { "red" }
-                    $csColor = if ([double]"${{ steps.cs.outputs.pct }}" -ge 90) { "brightgreen" }
-                               elseif ([double]"${{ steps.cs.outputs.pct }}" -ge 75) { "yellow" }
-                               else { "red" }
-
-                    [ordered]@{
-                        schemaVersion = 1
-                        label         = "coverage"
-                        message       = $ts
-                        color         = $tsColor
-                    } | ConvertTo-Json | Set-Content "badges/ts-coverage.json"
-                      
-                    [ordered]@{
-                        schemaVersion = 1
-                        label         = "coverage"
-                        message       = $cs
-                        color         = $csColor
-                    } | ConvertTo-Json | Set-Content "badges/cs-coverage.json"
-
-                    Write-Host "Badges: TS=$ts ($tsColor), C#=$cs ($csColor)"
-
-            # PR Comment
+            # PR Comment (must run BEFORE writing badge files so delta reads old values)
             -   name: Post Coverage Comment on PR
                 if: ${{ inputs.pr_number != '' && inputs.pr_number != '0' }}
                 env:
@@ -154,18 +125,47 @@ jobs:
 
                     # Find existing coverage comment to update (avoid spam)
                     $existingComment = $null
-                    $comments = gh api "repos/${{ github.repository }}/issues/${prNumber}/comments" --paginate 2>$null | ConvertFrom-Json
+                    $comments = gh api "repos/${{ github.repository }}/issues/${prNumber}/comments?per_page=100" | ConvertFrom-Json
                     if ($comments) {
                         $existingComment = $comments | Where-Object { $_.body -match "## 📊 Code Coverage Report" } | Select-Object -First 1
                     }
 
                     if ($existingComment) {
-                        gh api "repos/${{ github.repository }}/issues/comments/$($existingComment.id)" -X PATCH -f body="$body" 2>$null
+                        gh api "repos/${{ github.repository }}/issues/comments/$($existingComment.id)" -X PATCH -f body="$body"
                         Write-Host "Updated existing coverage comment #$($existingComment.id) on PR #$prNumber"
                     } else {
-                        gh api "repos/${{ github.repository }}/issues/${prNumber}/comments" -X POST -f body="$body" 2>$null
+                        gh api "repos/${{ github.repository }}/issues/${prNumber}/comments" -X POST -f body="$body"
                         Write-Host "Posted new coverage comment on PR #$prNumber"
                     }
+
+            # Badge JSON (AFTER comment so old values are read first)
+            -   name: Write Badge JSON
+                shell: pwsh
+                run: |
+                    $ts = "${{ steps.ts.outputs.pct }}%"
+                    $cs = "${{ steps.cs.outputs.pct }}%"
+                    $tsColor = if ([double]"${{ steps.ts.outputs.pct }}" -ge 90) { "brightgreen" }
+                               elseif ([double]"${{ steps.ts.outputs.pct }}" -ge 75) { "yellow" }
+                               else { "red" }
+                    $csColor = if ([double]"${{ steps.cs.outputs.pct }}" -ge 90) { "brightgreen" }
+                               elseif ([double]"${{ steps.cs.outputs.pct }}" -ge 75) { "yellow" }
+                               else { "red" }
+
+                    [ordered]@{
+                        schemaVersion = 1
+                        label         = "coverage"
+                        message       = $ts
+                        color         = $tsColor
+                    } | ConvertTo-Json | Set-Content "badges/ts-coverage.json"
+                      
+                    [ordered]@{
+                        schemaVersion = 1
+                        label         = "coverage"
+                        message       = $cs
+                        color         = $csColor
+                    } | ConvertTo-Json | Set-Content "badges/cs-coverage.json"
+
+                    Write-Host "Badges: TS=$ts ($tsColor), C#=$cs ($csColor)"
 
             -   name: Commit Badge Updates
                 run: |
