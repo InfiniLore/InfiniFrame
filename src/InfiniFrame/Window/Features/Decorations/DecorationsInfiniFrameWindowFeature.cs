@@ -1,10 +1,10 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -15,8 +15,6 @@ public class DecorationsInfiniFrameWindowFeature(
     IInfiniFrameWindowBuilder originalBuilder,
     ILogger<DecorationsInfiniFrameWindowFeature> logger
 ) : IDecorationsInfiniFrameWindowFeature {
-
-    private string? _backgroundColor = originalBuilder.Features.Decorations.BackgroundColor;
 
     /// <inheritdoc cref="IDecorationsInfiniFrameWindowFeature.IsChromeless" />
     public bool IsChromeless => window.Configuration.StartupParameters.Chromeless;
@@ -45,7 +43,7 @@ public class DecorationsInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IDecorationsInfiniFrameWindowFeature.BackgroundColor" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public string? BackgroundColor => _backgroundColor;
+    public string? BackgroundColor { get; private set; } = originalBuilder.Features.Decorations.BackgroundColor;
 
     /// <inheritdoc cref="IDecorationsInfiniFrameWindowFeature.Title" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -99,10 +97,10 @@ public class DecorationsInfiniFrameWindowFeature(
             logger,
             window,
             window.ManagedThreadId,
-            handle => InfiniFrameNative.SetBackgroundColor(handle, r, g, b, a)
+            callback: handle => InfiniFrameNative.SetBackgroundColor(handle, r, g, b, a)
         );
 
-        _backgroundColor = color;
+        BackgroundColor = color;
     }
 
     /// <inheritdoc cref="IDecorationsInfiniFrameWindowFeature.SetTitle" />
@@ -159,5 +157,4 @@ public class DecorationsInfiniFrameWindowFeature(
     public void SetLimitLinuxWindowTitleLength(bool enabled = true) {
         LimitLinuxWindowTitleLength = enabled;
     }
-
 }

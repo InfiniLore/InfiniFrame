@@ -11,6 +11,11 @@ namespace InfiniFrame.DragDrop;
 ///     Provides data for file drop events.
 /// </summary>
 public sealed class FileDroppedEventArgs {
+
+    public FileDroppedEventArgs(IReadOnlyList<string> files, Point dropLocation) {
+        Files = files;
+        DropLocation = dropLocation;
+    }
     /// <summary>
     ///     Gets the file paths that were dropped.
     /// </summary>
@@ -20,9 +25,4 @@ public sealed class FileDroppedEventArgs {
     ///     Gets the screen coordinates where the drop occurred.
     /// </summary>
     public Point DropLocation { get; }
-
-    public FileDroppedEventArgs(IReadOnlyList<string> files, Point dropLocation) {
-        Files = files;
-        DropLocation = dropLocation;
-    }
 }

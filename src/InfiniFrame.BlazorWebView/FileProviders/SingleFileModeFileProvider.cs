@@ -60,10 +60,10 @@ internal sealed class SingleFileModeFileProvider : IFileProvider {
     public IChangeToken Watch(string filter) => NullChangeToken.Singleton;
 
     /// <summary>
-    ///     Creates a <see cref="SingleFileModeFileProvider"/> if the entry assembly contains embedded
+    ///     Creates a <see cref="SingleFileModeFileProvider" /> if the entry assembly contains embedded
     ///     resources with the "publish." prefix, indicating a packed deployment.
     /// </summary>
-    public static bool TryCreate(string baseDirectory,[NotNullWhen(true)] out IFileProvider? fileProvider) {
+    public static bool TryCreate(string baseDirectory, [NotNullWhen(true)] out IFileProvider? fileProvider) {
         fileProvider = null;
         var entryAssembly = Assembly.GetEntryAssembly();
         if (entryAssembly is null) return false;

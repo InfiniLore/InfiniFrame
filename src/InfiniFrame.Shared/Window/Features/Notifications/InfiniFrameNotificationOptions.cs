@@ -7,8 +7,8 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
 ///     Configuration for a rich notification. Pass an instance to
-///     <see cref="INotificationsInfiniFrameWindowFeature.ShowNotification(InfiniFrameNotificationOptions)"/>
-///     or <see cref="INotificationsInfiniFrameWindowFeature.ShowNotificationAsync"/>.
+///     <see cref="INotificationsInfiniFrameWindowFeature.ShowNotification(InfiniFrameNotificationOptions)" />
+///     or <see cref="INotificationsInfiniFrameWindowFeature.ShowNotificationAsync" />.
 /// </summary>
 public sealed class InfiniFrameNotificationOptions {
     /// <summary>
@@ -30,7 +30,7 @@ public sealed class InfiniFrameNotificationOptions {
 
     /// <summary>
     ///     Optional urgency level for the notification.
-    ///     Default is <see cref="InfiniFrameNotificationUrgency.Normal"/>.
+    ///     Default is <see cref="InfiniFrameNotificationUrgency.Normal" />.
     /// </summary>
     public InfiniFrameNotificationUrgency Urgency { get; init; } = InfiniFrameNotificationUrgency.Normal;
 

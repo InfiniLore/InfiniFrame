@@ -1,8 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -24,7 +24,7 @@ public partial class InfiniFrameEvents {
 
         IInfiniFrameWindow[] childWindows;
         lock (config.ChildWindowsLock) {
-            if (config.ChildWindowsInternal.Count <= 0) return; // No child windows to close
+            if (config.ChildWindowsInternal.Count <= 0) return;// No child windows to close
 
             childWindows = config.ChildWindowsInternal.ToArray();
             config.ChildWindowsInternal.Clear();

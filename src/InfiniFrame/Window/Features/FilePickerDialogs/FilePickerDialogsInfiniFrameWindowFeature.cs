@@ -112,6 +112,7 @@ public class FilePickerDialogsInfiniFrameWindowFeature(
     ) {
         ct.ThrowIfCancellationRequested();
         if (window.IsClosedOrClosing()) return [];
+
         defaultPath ??= Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         filters ??= [];
         var operation = new InfiniFileDialogOperation(

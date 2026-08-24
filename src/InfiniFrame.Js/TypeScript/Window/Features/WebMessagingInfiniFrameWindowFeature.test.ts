@@ -11,5 +11,8 @@ describe("WebMessagingInfiniFrameWindowFeature", () => {
         feature = new mod.WebMessagingInfiniFrameWindowFeature();
     });
 
-    it("sendWebMessage posts command", () => { feature.sendWebMessage("hello"); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
+    it("sendWebMessage posts command", () => {
+        feature.sendWebMessage("hello");
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
 });

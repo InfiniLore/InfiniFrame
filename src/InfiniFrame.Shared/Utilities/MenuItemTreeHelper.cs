@@ -26,7 +26,8 @@ public static class MenuItemTreeHelper {
         for (int i = 0; i < builder.Count; i++) {
             if (builder[i].Id == menuItemId) {
                 builder[i] = updater(builder[i]);
-            } else if (!builder[i].Children.IsDefaultOrEmpty) {
+            }
+            else if (!builder[i].Children.IsDefaultOrEmpty) {
                 builder[i] = builder[i] with {
                     Children = UpdateItem(builder[i].Children, menuItemId, updater)
                 };

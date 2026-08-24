@@ -20,12 +20,12 @@ public static class IWebMessagingInfiniFrameWindowFeatureExtensions {
     /// <param name="window">The window instance.</param>
     /// <param name="message">The message to send as a string.</param>
     /// <param name="ct">A cancellation token to cancel the operation.</param>
-    /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
-    public static ValueTask SendWebMessageAsync(this IInfiniFrameWindow window, string message, CancellationToken ct = default) {
-        return window.Features.WebMessaging.SendWebMessageAsync(message, ct);
-    }
+    /// <returns>A <see cref="ValueTask" /> representing the asynchronous operation.</returns>
+    public static ValueTask SendWebMessageAsync(this IInfiniFrameWindow window, string message, CancellationToken ct = default) => window.Features.WebMessaging.SendWebMessageAsync(message, ct);
 
     public static Task SendWebMessageWithAcknowledgementAsync(
-        this IInfiniFrameWindow window, string message, CancellationToken ct = default
+        this IInfiniFrameWindow window,
+        string message,
+        CancellationToken ct = default
     ) => window.Features.WebMessaging.SendWebMessageWithAcknowledgementAsync(message, ct);
 }

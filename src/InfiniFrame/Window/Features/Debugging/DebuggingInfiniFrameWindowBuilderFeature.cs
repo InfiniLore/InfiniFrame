@@ -1,40 +1,40 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Runtime.Versioning;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Utilities;
-using System.Runtime.Versioning;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class DebuggingInfiniFrameWindowBuilderFeature : IDebuggingInfiniFrameWindowBuilderFeature {
-    /// <inheritdoc cref="IDebuggingInfiniFrameWindowBuilderFeature.SupportsRemoteDebuggingEndpoint"/>
+    /// <inheritdoc cref="IDebuggingInfiniFrameWindowBuilderFeature.SupportsRemoteDebuggingEndpoint" />
     public bool SupportsRemoteDebuggingEndpoint => RemoteDebuggingUtility.IsSupportedPlatform();
 
-    /// <inheritdoc cref="IDebuggingInfiniFrameWindowBuilderFeature.SupportsWebInspectorAttach"/>
+    /// <inheritdoc cref="IDebuggingInfiniFrameWindowBuilderFeature.SupportsWebInspectorAttach" />
     public bool SupportsWebInspectorAttach => MacOsWebInspectorUtility.IsSupportedPlatform();
 
-    /// <inheritdoc cref="IDebuggingInfiniFrameWindowBuilderFeature.IsDevToolsEnabled"/>
+    /// <inheritdoc cref="IDebuggingInfiniFrameWindowBuilderFeature.IsDevToolsEnabled" />
     public bool IsDevToolsEnabled { get; private set; } = true;
 
-    /// <inheritdoc cref="IDebuggingInfiniFrameWindowBuilderFeature.IsWebInspectorEnabled"/>
+    /// <inheritdoc cref="IDebuggingInfiniFrameWindowBuilderFeature.IsWebInspectorEnabled" />
     public bool IsWebInspectorEnabled { get; private set; }
 
-    /// <inheritdoc cref="IDebuggingInfiniFrameWindowBuilderFeature.RemoteDebuggingPort"/>
+    /// <inheritdoc cref="IDebuggingInfiniFrameWindowBuilderFeature.RemoteDebuggingPort" />
     public int RemoteDebuggingPort { get; private set; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    /// <inheritdoc cref="IDebuggingInfiniFrameWindowBuilderFeature.EnableDevTools"/>
+    /// <inheritdoc cref="IDebuggingInfiniFrameWindowBuilderFeature.EnableDevTools" />
     public IDebuggingInfiniFrameWindowBuilderFeature EnableDevTools(bool enabled) {
         IsDevToolsEnabled = enabled;
         return this;
     }
 
-    /// <inheritdoc cref="IDebuggingInfiniFrameWindowBuilderFeature.EnableWebInspector"/>
+    /// <inheritdoc cref="IDebuggingInfiniFrameWindowBuilderFeature.EnableWebInspector" />
     [SupportedOSPlatform("macos13.3")]
     public IDebuggingInfiniFrameWindowBuilderFeature EnableWebInspector(bool enabled = true) {
         MacOsWebInspectorUtility.ThrowIfUnsupported();
@@ -43,7 +43,7 @@ public sealed class DebuggingInfiniFrameWindowBuilderFeature : IDebuggingInfiniF
         return this;
     }
 
-    /// <inheritdoc cref="IDebuggingInfiniFrameWindowBuilderFeature.SetRemoteDebuggingPort"/>
+    /// <inheritdoc cref="IDebuggingInfiniFrameWindowBuilderFeature.SetRemoteDebuggingPort" />
     [SupportedOSPlatform("windows")]
     [SupportedOSPlatform("linux")]
     public IDebuggingInfiniFrameWindowBuilderFeature SetRemoteDebuggingPort(int port) {

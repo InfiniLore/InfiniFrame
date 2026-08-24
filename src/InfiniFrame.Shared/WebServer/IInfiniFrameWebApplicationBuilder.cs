@@ -10,7 +10,7 @@ namespace InfiniFrame.WebServer;
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IInfiniFrameWebApplicationBuilder {
     /// <summary>
-    ///     Gets the underlying <see cref="WebApplicationBuilder"/> used to configure the ASP.NET Core application.
+    ///     Gets the underlying <see cref="WebApplicationBuilder" /> used to configure the ASP.NET Core application.
     /// </summary>
     WebApplicationBuilder WebApp { get; }
 

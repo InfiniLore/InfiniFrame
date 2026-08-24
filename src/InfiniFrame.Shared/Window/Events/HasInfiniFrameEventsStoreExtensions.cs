@@ -1,10 +1,10 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Drawing;
 using InfiniFrame.DragDrop;
 using InfiniFrame.NativeBridge;
 using Microsoft.Extensions.Logging.Abstractions;
-using System.Drawing;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -320,5 +320,4 @@ public static class HasInfiniFrameEventsStoreExtensions {
         obj.EventsStore.FileDropped.Add(handler);
         return obj;
     }
-
 }

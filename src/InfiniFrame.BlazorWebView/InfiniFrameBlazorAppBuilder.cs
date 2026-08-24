@@ -16,17 +16,17 @@ namespace InfiniFrame.BlazorWebView;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------------------------------------------------
+    private InfiniFrameBlazorAppBuilder() {}
     /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.RootComponents" />
     public IInfiniFrameRootComponentList RootComponents { get; } = new InfiniFrameRootComponentList();
     /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.Services" />
     public IServiceCollection Services { get; } = new ServiceCollection();
     /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.WindowBuilder" />
     public IInfiniFrameWindowBuilder WindowBuilder { get; } = InfiniFrameWindowBuilder.Create();
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Constructors
-    // -----------------------------------------------------------------------------------------------------------------
-    private InfiniFrameBlazorAppBuilder() {}
 
     public static InfiniFrameBlazorAppBuilder CreateDefault(
         string[]? args = null,

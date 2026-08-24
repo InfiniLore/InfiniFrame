@@ -26,7 +26,7 @@ export function resetNativeInteropBridgeState(): void {
 export function installNativeInteropBridge(setup: InfiniFrameSetup): void {
     if (setup.nativeInteropBridgeInitialized) return;
     setup.nativeInteropBridgeInitialized = true;
-    
+
     window.infiniframe = window.infiniframe ?? {} as Window["infiniframe"];
     const host = (window.infiniframe.host ?? {}) as InfiniFrameHostBridge;
     const existingPostData = host.postData;

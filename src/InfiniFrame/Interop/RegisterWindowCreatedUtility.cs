@@ -1,17 +1,18 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Runtime.CompilerServices;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Runtime.CompilerServices;
 
 namespace InfiniFrame.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Provides utility methods for registering web messages that are sent automatically when a window is created and ready.
+///     Provides utility methods for registering web messages that are sent automatically when a window is created and
+///     ready.
 /// </summary>
 public static class RegisterWindowCreatedUtility {
     private static readonly ConditionalWeakTable<IInfiniFrameWindowBuilder, WindowReadyRegistrationState> RegistrationStates = new();

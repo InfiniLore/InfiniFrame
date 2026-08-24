@@ -1,13 +1,20 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {DialogButtons,DialogIcon,DialogResult,NotificationsInfiniFrameWindowFeature as Contract} from "../../Contracts";
+import type {
+    DialogButtons,
+    DialogIcon,
+    DialogResult,
+    NotificationsInfiniFrameWindowFeature as Contract
+} from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export class NotificationsInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
-    constructor(){super("notifications");}
+    constructor() {
+        super("notifications");
+    }
 
     showNotification(title: string, body: string) {
         return this.post("showNotification", {title, body});

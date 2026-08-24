@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics;
+using System.Drawing;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
-using System.Drawing;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------

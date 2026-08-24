@@ -16,7 +16,7 @@ internal static class PositionCalculations {
     ///     Computes the centered position of a window within a monitor area.
     /// </summary>
     public static Point ComputeCenter(Rectangle monitorArea, int windowWidth, int windowHeight)
-        => new Point(
+        => new(
             monitorArea.X + monitorArea.Width / 2 - windowWidth / 2,
             monitorArea.Y + monitorArea.Height / 2 - windowHeight / 2
         );
@@ -25,7 +25,11 @@ internal static class PositionCalculations {
     ///     Clamps a window position so it remains fully within the monitor work area.
     /// </summary>
     public static (int Left, int Top) ClampToMonitorArea(
-        int left, int top, int windowWidth, int windowHeight, Rectangle workArea
+        int left,
+        int top,
+        int windowWidth,
+        int windowHeight,
+        Rectangle workArea
     ) {
         int horizontalWindowEdge = left + windowWidth;
         int verticalWindowEdge = top + windowHeight;

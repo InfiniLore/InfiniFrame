@@ -1,9 +1,9 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Reflection;
 using InfiniFrame.StaticAssets;
 using Microsoft.Extensions.FileProviders;
-using System.Reflection;
 
 // ReSharper disable once CheckNamespace
 namespace InfiniFrame;
@@ -11,7 +11,8 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Provides extension methods for configuring embedded wwwroot static assets on an <see cref="IInfiniFrameWindowBuilder" />.
+///     Provides extension methods for configuring embedded wwwroot static assets on an
+///     <see cref="IInfiniFrameWindowBuilder" />.
 /// </summary>
 public static class InfiniWindowBuilderStaticAssetExtensions {
     /// <summary>

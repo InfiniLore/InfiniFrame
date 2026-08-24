@@ -35,14 +35,15 @@ public static class ColorUtility {
         string hex = color.StartsWith('#') ? color[1..] : color;
 
         if (hex.Length == 8) {
-            a = (byte)(HexDigitValue(hex[0]) << 4 | HexDigitValue(hex[1]));
-            r = (byte)(HexDigitValue(hex[2]) << 4 | HexDigitValue(hex[3]));
-            g = (byte)(HexDigitValue(hex[4]) << 4 | HexDigitValue(hex[5]));
-            b = (byte)(HexDigitValue(hex[6]) << 4 | HexDigitValue(hex[7]));
-        } else {
-            r = (byte)(HexDigitValue(hex[0]) << 4 | HexDigitValue(hex[1]));
-            g = (byte)(HexDigitValue(hex[2]) << 4 | HexDigitValue(hex[3]));
-            b = (byte)(HexDigitValue(hex[4]) << 4 | HexDigitValue(hex[5]));
+            a = (byte)(HexDigitValue(hex[0])<<4 | HexDigitValue(hex[1]));
+            r = (byte)(HexDigitValue(hex[2])<<4 | HexDigitValue(hex[3]));
+            g = (byte)(HexDigitValue(hex[4])<<4 | HexDigitValue(hex[5]));
+            b = (byte)(HexDigitValue(hex[6])<<4 | HexDigitValue(hex[7]));
+        }
+        else {
+            r = (byte)(HexDigitValue(hex[0])<<4 | HexDigitValue(hex[1]));
+            g = (byte)(HexDigitValue(hex[2])<<4 | HexDigitValue(hex[3]));
+            b = (byte)(HexDigitValue(hex[4])<<4 | HexDigitValue(hex[5]));
             a = 255;
         }
     }

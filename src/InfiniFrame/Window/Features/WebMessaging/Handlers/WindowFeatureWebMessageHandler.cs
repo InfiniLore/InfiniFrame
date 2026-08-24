@@ -1,8 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Interop;
 using System.Text.Json;
+using InfiniFrame.Interop;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -28,6 +28,7 @@ internal static class WindowFeatureWebMessageHandler {
     private static WindowFeatureWebMessageRequest ParseRequest(string? payload) {
         if (!TryParseRequest(payload, out WindowFeatureWebMessageRequest request))
             throw new ArgumentException("The window feature request is invalid.", nameof(payload));
+
         return request;
     }
 
@@ -62,7 +63,7 @@ internal static class WindowFeatureWebMessageHandler {
         command = string.Empty;
         if (string.IsNullOrWhiteSpace(qualifiedCommand)) return false;
 
-        if (qualifiedCommand.Split(':') is not ["__infiniframe", "window", "features", { } parsedFeature, { } parsedCommand]
+        if (qualifiedCommand.Split(':') is not ["__infiniframe", "window", "features", {} parsedFeature, {} parsedCommand]
             || string.IsNullOrWhiteSpace(parsedFeature)
             || string.IsNullOrWhiteSpace(parsedCommand))
             return false;

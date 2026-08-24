@@ -28,11 +28,21 @@ internal sealed class DecorationsWebMessageDispatcher : WindowFeatureWebMessageD
 
     protected override void Post(IDecorationsInfiniFrameWindowFeature feature, string command, JsonElement? args) {
         switch (command) {
-            case "setTransparent": feature.SetTransparent(Arg(args, "enabled", true)); return;
-            case "setBackgroundColor": feature.SetBackgroundColor(Arg<string?>(args, "color", null)); return;
-            case "setTitle": feature.SetTitle(Arg<string?>(args, "title", null)); return;
-            case "setIconFile": feature.SetIconFile(Required<string>(args, "iconFilePath")); return;
-            case "setLimitLinuxWindowTitleLength": feature.SetLimitLinuxWindowTitleLength(Arg(args, "enabled", true)); return;
+            case "setTransparent":
+                feature.SetTransparent(Arg(args, "enabled", true));
+                return;
+            case "setBackgroundColor":
+                feature.SetBackgroundColor(Arg<string?>(args, "color", null));
+                return;
+            case "setTitle":
+                feature.SetTitle(Arg<string?>(args, "title", null));
+                return;
+            case "setIconFile":
+                feature.SetIconFile(Required<string>(args, "iconFilePath"));
+                return;
+            case "setLimitLinuxWindowTitleLength":
+                feature.SetLimitLinuxWindowTitleLength(Arg(args, "enabled", true));
+                return;
             default: throw Unsupported(command);
         }
     }

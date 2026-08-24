@@ -19,6 +19,56 @@ namespace InfiniFrame.NativeBridge.Parameters;
     typeof(ManagedToUnmanagedIn)
 )]
 internal static class InfiniFrameNativeParametersMarshaller {
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    /// <summary>
+    ///     Converts a <see cref="bool" /> to a <see cref="byte" /> (1 for <c>true</c>, 0 for <c>false</c>).
+    /// </summary>
+    private static byte ToByte(bool value)
+        => value ? (byte)1 : (byte)0;
+
+    /// <summary>
+    ///     Marshals a managed string to a CoTaskMem-allocated UTF-8 pointer, or <see cref="IntPtr.Zero" /> if null.
+    /// </summary>
+    private static IntPtr ToUtf8Ptr(string? value) => value is null
+        ? IntPtr.Zero
+        : Marshal.StringToCoTaskMemUTF8(value);
+
+    /// <summary>
+    ///     Converts a managed delegate to a function pointer suitable for native callbacks.
+    /// </summary>
+    /// <param name="callback">The managed delegate.</param>
+    /// <returns>A native function pointer, or <see cref="IntPtr.Zero" /> if null.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when the delegate type is not recognized.</exception>
+    private static IntPtr ToFunctionPtr(Delegate? callback) => callback is null
+        ? IntPtr.Zero
+        : callback switch {
+            CppClosedDelegate closed => Marshal.GetFunctionPointerForDelegate(closed),
+            CppClosingDelegate closing => Marshal.GetFunctionPointerForDelegate(closing),
+            CppFocusInDelegate focusIn => Marshal.GetFunctionPointerForDelegate(focusIn),
+            CppFocusOutDelegate focusOut => Marshal.GetFunctionPointerForDelegate(focusOut),
+            CppMaximizedDelegate maximized => Marshal.GetFunctionPointerForDelegate(maximized),
+            CppMinimizedDelegate minimized => Marshal.GetFunctionPointerForDelegate(minimized),
+            CppMovedDelegate moved => Marshal.GetFunctionPointerForDelegate(moved),
+            CppResizedDelegate resized => Marshal.GetFunctionPointerForDelegate(resized),
+            CppRestoredDelegate restored => Marshal.GetFunctionPointerForDelegate(restored),
+            CppWebMessageReceivedDelegate webMessageReceived => Marshal.GetFunctionPointerForDelegate(webMessageReceived),
+            CppDebugEventDelegate debugEvent => Marshal.GetFunctionPointerForDelegate(debugEvent),
+            CppWebResourceRequestedDelegate webResourceRequested => Marshal.GetFunctionPointerForDelegate(webResourceRequested),
+            CppNavigationStartingDelegate navigationStarting => Marshal.GetFunctionPointerForDelegate(navigationStarting),
+            CppFileDroppedDelegate fileDropped => Marshal.GetFunctionPointerForDelegate(fileDropped),
+            _ => throw new ArgumentOutOfRangeException(nameof(callback), callback.GetType(), "Unsupported callback delegate type.")
+        };
+
+    /// <summary>
+    ///     Gets a custom scheme name pointer from the array at the specified index, or <see cref="IntPtr.Zero" /> if
+    ///     unavailable.
+    /// </summary>
+    private static IntPtr GetCustomSchemeName(IntPtr[]? values, int index)
+        => values is not null && values.Length > index ? values[index] : IntPtr.Zero;
+
     /// <summary>
     ///     Unmanaged layout of <see cref="InfiniFrameNativeParameters" /> used for native interop.
     ///     Field order must match the C++ InfiniFrameInitParams struct exactly.
@@ -282,53 +332,4 @@ internal static class InfiniFrameNativeParametersMarshaller {
             Marshal.FreeCoTaskMem(_unmanaged.MenuBarJson);
         }
     }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Methods
-    // -----------------------------------------------------------------------------------------------------------------
-    /// <summary>
-    ///     Converts a <see cref="bool" /> to a <see cref="byte" /> (1 for <c>true</c>, 0 for <c>false</c>).
-    /// </summary>
-    private static byte ToByte(bool value)
-        => value ? (byte)1 : (byte)0;
-
-    /// <summary>
-    ///     Marshals a managed string to a CoTaskMem-allocated UTF-8 pointer, or <see cref="IntPtr.Zero" /> if null.
-    /// </summary>
-    private static IntPtr ToUtf8Ptr(string? value) => value is null
-        ? IntPtr.Zero
-        : Marshal.StringToCoTaskMemUTF8(value);
-
-    /// <summary>
-    ///     Converts a managed delegate to a function pointer suitable for native callbacks.
-    /// </summary>
-    /// <param name="callback">The managed delegate.</param>
-    /// <returns>A native function pointer, or <see cref="IntPtr.Zero" /> if null.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown when the delegate type is not recognized.</exception>
-    private static IntPtr ToFunctionPtr(Delegate? callback) => callback is null
-        ? IntPtr.Zero
-        : callback switch {
-            CppClosedDelegate closed => Marshal.GetFunctionPointerForDelegate(closed),
-            CppClosingDelegate closing => Marshal.GetFunctionPointerForDelegate(closing),
-            CppFocusInDelegate focusIn => Marshal.GetFunctionPointerForDelegate(focusIn),
-            CppFocusOutDelegate focusOut => Marshal.GetFunctionPointerForDelegate(focusOut),
-            CppMaximizedDelegate maximized => Marshal.GetFunctionPointerForDelegate(maximized),
-            CppMinimizedDelegate minimized => Marshal.GetFunctionPointerForDelegate(minimized),
-            CppMovedDelegate moved => Marshal.GetFunctionPointerForDelegate(moved),
-            CppResizedDelegate resized => Marshal.GetFunctionPointerForDelegate(resized),
-            CppRestoredDelegate restored => Marshal.GetFunctionPointerForDelegate(restored),
-            CppWebMessageReceivedDelegate webMessageReceived => Marshal.GetFunctionPointerForDelegate(webMessageReceived),
-            CppDebugEventDelegate debugEvent => Marshal.GetFunctionPointerForDelegate(debugEvent),
-            CppWebResourceRequestedDelegate webResourceRequested => Marshal.GetFunctionPointerForDelegate(webResourceRequested),
-            CppNavigationStartingDelegate navigationStarting => Marshal.GetFunctionPointerForDelegate(navigationStarting),
-            CppFileDroppedDelegate fileDropped => Marshal.GetFunctionPointerForDelegate(fileDropped),
-            _ => throw new ArgumentOutOfRangeException(nameof(callback), callback.GetType(), "Unsupported callback delegate type.")
-        };
-
-    /// <summary>
-    ///     Gets a custom scheme name pointer from the array at the specified index, or <see cref="IntPtr.Zero" /> if
-    ///     unavailable.
-    /// </summary>
-    private static IntPtr GetCustomSchemeName(IntPtr[]? values, int index)
-        => values is not null && values.Length > index ? values[index] : IntPtr.Zero;
 }

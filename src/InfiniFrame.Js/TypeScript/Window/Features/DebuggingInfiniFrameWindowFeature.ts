@@ -1,13 +1,20 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {DebugCapabilities,DebugDiagnostics,DebugEndpointResult,DebuggingInfiniFrameWindowFeature as Contract} from "../../Contracts";
+import type {
+    DebugCapabilities,
+    DebugDiagnostics,
+    DebugEndpointResult,
+    DebuggingInfiniFrameWindowFeature as Contract
+} from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export class DebuggingInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
-    constructor(){super("debugging");}
+    constructor() {
+        super("debugging");
+    }
 
     isDevToolsEnabledAsync() {
         return this.get<boolean>("isDevToolsEnabled");

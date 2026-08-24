@@ -16,8 +16,13 @@ internal static class SizeCalculations {
     ///     Computes the new window bounds after a resize from a given origin.
     /// </summary>
     public static (int X, int Y, int Width, int Height) ComputeResize(
-        int originalX, int originalY, int originalWidth, int originalHeight,
-        int widthOffset, int heightOffset, ResizeOrigin origin
+        int originalX,
+        int originalY,
+        int originalWidth,
+        int originalHeight,
+        int widthOffset,
+        int heightOffset,
+        ResizeOrigin origin
     ) {
         int x = originalX;
         int y = originalY;
@@ -79,9 +84,14 @@ internal static class SizeCalculations {
     ///     resetting position to original when clamped.
     /// </summary>
     public static (int X, int Y, int Width, int Height) ClampResize(
-        int x, int y, int width, int height,
-        int originalX, int originalY,
-        Size minSize, Size maxSize
+        int x,
+        int y,
+        int width,
+        int height,
+        int originalX,
+        int originalY,
+        Size minSize,
+        Size maxSize
     ) {
         if (width >= maxSize.Width) {
             width = maxSize.Width;

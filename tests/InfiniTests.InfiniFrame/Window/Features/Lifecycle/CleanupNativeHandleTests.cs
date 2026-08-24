@@ -16,6 +16,7 @@ namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 public class CleanupNativeHandleTests {
     [Test]
     public async Task CleanupNativeHandle_ReleasesEventNativeCallbackRoot(CancellationToken ct = default) {
+        // Arrange
         var events = new InfiniFrameEvents(new InfiniFrameEventsStore(), NullLogger<InfiniFrameEvents>.Instance);
         Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
         var windowId = Guid.NewGuid();
@@ -35,8 +36,10 @@ public class CleanupNativeHandleTests {
         events.AssignToWindow(window.Object);
         await Assert.That(roots.ContainsKey(windowId)).IsTrue();
 
+        // Act
         InvokeCleanupNativeHandle(lifecycle);
 
+        // Assert
         await Assert.That(roots.ContainsKey(windowId)).IsFalse();
     }
 

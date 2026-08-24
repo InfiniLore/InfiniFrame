@@ -12,13 +12,13 @@ namespace InfiniFrame.Interop;
 ///     per-window state machines.
 /// </summary>
 public sealed class WindowReadyRegistrationState {
-#if NET9_0_OR_GREATER
+    #if NET9_0_OR_GREATER
     /// <summary>Synchronization lock for thread-safe access to registration state.</summary>
     public readonly Lock Lock = new();
-#else
+    #else
     /// <summary>Synchronization lock for thread-safe access to registration state.</summary>
     public readonly object Lock = new();
-#endif
+    #endif
 
     /// <summary>Gets or sets whether the ready handler has been registered for the associated builder.</summary>
     public bool ReadyHandlerRegistered { get; set; }

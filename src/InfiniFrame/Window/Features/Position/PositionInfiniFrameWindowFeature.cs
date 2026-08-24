@@ -1,12 +1,12 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.NativeBridge;
-using InfiniFrame.Utilities;
-using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Drawing;
+using InfiniFrame.NativeBridge;
+using InfiniFrame.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -250,6 +250,4 @@ public class PositionInfiniFrameWindowFeature(
     /// <inheritdoc cref="IPositionInfiniFrameWindowFeature.MoveWithinCurrentMonitorArea(double, double)" />
     public void MoveWithinCurrentMonitorArea(double left, double top)
         => MoveWithinCurrentMonitorArea((int)left, (int)top);
-
-
 }

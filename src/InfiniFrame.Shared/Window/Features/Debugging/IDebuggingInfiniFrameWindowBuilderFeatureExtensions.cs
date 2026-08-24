@@ -49,16 +49,12 @@ public static class IDebuggingInfiniFrameWindowBuilderFeatureExtensions {
     /// </summary>
     /// <param name="builder">The builder instance.</param>
     /// <returns><c>true</c> if Web Inspector attach is supported; otherwise <c>false</c>.</returns>
-    public static bool SupportsWebInspectorAttach(this IInfiniFrameWindowBuilder builder) {
-        return builder.Features.Debugging.SupportsWebInspectorAttach;
-    }
+    public static bool SupportsWebInspectorAttach(this IInfiniFrameWindowBuilder builder) => builder.Features.Debugging.SupportsWebInspectorAttach;
 
     /// <summary>
     ///     Gets whether the platform supports a remote debugging endpoint.
     /// </summary>
     /// <param name="builder">The builder instance.</param>
     /// <returns><c>true</c> if remote debugging is supported; otherwise <c>false</c>.</returns>
-    public static bool SupportsRemoteDebuggingEndpoint(this IInfiniFrameWindowBuilder builder) {
-        return builder.Features.Debugging.SupportsRemoteDebuggingEndpoint;
-    }
+    public static bool SupportsRemoteDebuggingEndpoint(this IInfiniFrameWindowBuilder builder) => builder.Features.Debugging.SupportsRemoteDebuggingEndpoint;
 }

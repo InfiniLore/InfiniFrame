@@ -5,17 +5,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Using Include="Microsoft.AspNetCore.Builder" />
-        <Using Include="Microsoft.AspNetCore.Hosting" />
-        <Using Include="Microsoft.AspNetCore.Hosting.Server" />
-        <Using Include="Microsoft.AspNetCore.Http" />
-        <Using Include="Microsoft.Extensions.DependencyInjection" />
-        <Using Include="Microsoft.Extensions.Hosting" />
-        <Using Include="Microsoft.Extensions.Logging" />
+        <Using Include="Microsoft.AspNetCore.Builder"/>
+        <Using Include="Microsoft.AspNetCore.Hosting"/>
+        <Using Include="Microsoft.AspNetCore.Hosting.Server"/>
+        <Using Include="Microsoft.AspNetCore.Http"/>
+        <Using Include="Microsoft.Extensions.DependencyInjection"/>
+        <Using Include="Microsoft.Extensions.Hosting"/>
+        <Using Include="Microsoft.Extensions.Logging"/>
     </ItemGroup>
 
     <ItemGroup>

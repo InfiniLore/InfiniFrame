@@ -15,16 +15,16 @@ public interface IDragDropInfiniFrameWindowFeature {
     bool IsEnabled { get; }
 
     /// <summary>
-    ///     Enables or disables drag and drop.
-    /// </summary>
-    /// <param name="enabled">Whether to enable drag and drop.</param>
-    void SetEnabled(bool enabled);
-
-    /// <summary>
     ///     Gets the allowed file extensions for drop operations.
     ///     Empty means all file types are allowed.
     /// </summary>
     IReadOnlyList<string> AllowedExtensions { get; }
+
+    /// <summary>
+    ///     Enables or disables drag and drop.
+    /// </summary>
+    /// <param name="enabled">Whether to enable drag and drop.</param>
+    void SetEnabled(bool enabled);
 
     /// <summary>
     ///     Sets the allowed file extensions for drop operations.

@@ -32,10 +32,10 @@ namespace InfiniFrame.BlazorWebView;
 /// <param name="provider">The service provider used to resolve the <see cref="IInfiniFrameWindow" />.</param>
 /// <param name="state">An optional shared synchronization state; if omitted a new instance is created.</param>
 public class InfiniFrameSynchronizationContext(IServiceProvider provider, InfiniFrameSynchronizationState? state = null) : SynchronizationContext {
-    // ReSharper disable once ConvertClosureToMethodGroup
-    private Lazy<IInfiniFrameWindow> LazyWindow { get; } = new(() => provider.GetRequiredService<IInfiniFrameWindow>());
 
     private readonly InfiniFrameSynchronizationState _state = state ?? new InfiniFrameSynchronizationState();
+    // ReSharper disable once ConvertClosureToMethodGroup
+    private Lazy<IInfiniFrameWindow> LazyWindow { get; } = new(() => provider.GetRequiredService<IInfiniFrameWindow>());
 
     /// <summary>Raised when an unhandled exception occurs during work item execution.</summary>
     public event UnhandledExceptionEventHandler? UnhandledException;

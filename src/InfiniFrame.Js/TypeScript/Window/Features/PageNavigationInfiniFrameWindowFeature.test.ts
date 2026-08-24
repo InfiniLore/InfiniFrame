@@ -21,9 +21,18 @@ describe("PageNavigationInfiniFrameWindowFeature", () => {
         await feature.tryLoadPathAsync("/page.html");
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });
-    it("loadUri posts command", () => { feature.loadUri("https://example.com"); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("loadPath posts command", () => { feature.loadPath("/page.html"); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("loadRawString posts command", () => { feature.loadRawString("<html></html>"); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
+    it("loadUri posts command", () => {
+        feature.loadUri("https://example.com");
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("loadPath posts command", () => {
+        feature.loadPath("/page.html");
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("loadRawString posts command", () => {
+        feature.loadRawString("<html></html>");
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
     it("getCurrentUrlAsync calls get", async () => {
         messaging.getMessageFromHostAsync.mockResolvedValue(JSON.stringify("https://example.com"));
         await feature.getCurrentUrlAsync();

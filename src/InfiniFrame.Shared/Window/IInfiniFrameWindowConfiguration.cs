@@ -4,12 +4,12 @@
 using InfiniFrame.NativeBridge.Parameters;
 
 namespace InfiniFrame;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Provides configuration data for an InfiniFrame window, including startup parameters and parent/child window relationships.
+///     Provides configuration data for an InfiniFrame window, including startup parameters and parent/child window
+///     relationships.
 /// </summary>
 public interface IInfiniFrameWindowConfiguration {
     /// <summary>

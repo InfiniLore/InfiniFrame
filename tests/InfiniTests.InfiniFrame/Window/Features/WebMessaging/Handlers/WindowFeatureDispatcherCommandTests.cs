@@ -1,8 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Text.Json;
 using InfiniFrame;
+using System.Text.Json;
 
 namespace InfiniTests.InfiniFrame.Window.Features.WebMessaging.Handlers;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -79,6 +79,7 @@ public class WindowFeatureDispatcherCommandTests {
 
     [Test]
     public async Task EveryGetCommand_InvokesTheManifestMethodAndReturnsJson() {
+        // Arrange & Act & Assert
         foreach (CommandCase command in GetCommands) {
             (IInfiniFrameWindow window, object featureObj) = CreateWindow(command.Feature);
 
@@ -96,6 +97,7 @@ public class WindowFeatureDispatcherCommandTests {
 
     [Test]
     public async Task EveryPostCommand_InvokesTheManifestMethod() {
+        // Arrange & Act & Assert
         foreach (CommandCase command in PostCommands) {
             (IInfiniFrameWindow window, object featureObj) = CreateWindow(command.Feature);
 
@@ -118,7 +120,6 @@ public class WindowFeatureDispatcherCommandTests {
         if (mockObj is Mock<ISizeInfiniFrameWindowFeature> m10) return Mock.Invocations(m10).Any(c => c.MemberName == methodName);
         if (mockObj is Mock<IStateInfiniFrameWindowFeature> m11) return Mock.Invocations(m11).Any(c => c.MemberName == methodName);
         if (mockObj is Mock<IWebMessagingInfiniFrameWindowFeature> m12) return Mock.Invocations(m12).Any(c => c.MemberName == methodName);
-
         return false;
     }
 
@@ -151,7 +152,6 @@ public class WindowFeatureDispatcherCommandTests {
 
     private static JsonElement? Parse(string? json) {
         if (json is null) return null;
-
         using JsonDocument document = JsonDocument.Parse(json);
         return document.RootElement.Clone();
     }
@@ -160,6 +160,5 @@ public class WindowFeatureDispatcherCommandTests {
         => new(feature, command, managedMember, args);
     private static CommandCase Post(string feature, string command, string managedMember, string? args = null)
         => new(feature, command, managedMember, args);
-
     private sealed record CommandCase(string Feature, string Command, string ManagedMember, string? Args);
 }

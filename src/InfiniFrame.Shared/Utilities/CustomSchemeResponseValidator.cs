@@ -1,13 +1,16 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Text;
+
 namespace InfiniFrame.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
 ///     Pure validation logic for custom scheme responses.
-///     Extracted from <see>
+///     Extracted from
+///     <see>
 ///         <cref>InfiniFrameEvents.CustomScheme</cref>
 ///     </see>
 ///     for testability.
@@ -27,7 +30,7 @@ public static class CustomSchemeResponseValidator {
         if (normalized.IndexOfAny(['\r', '\n', '\0', '\t']) >= 0)
             throw new InvalidDataException("Custom scheme content type contains invalid control characters.");
 
-        byte[] contentTypeBytes = System.Text.Encoding.UTF8.GetBytes(normalized);
+        byte[] contentTypeBytes = Encoding.UTF8.GetBytes(normalized);
         if (contentTypeBytes.Length > 256)
             throw new InvalidDataException("Custom scheme content type exceeds the 256-byte limit.");
 

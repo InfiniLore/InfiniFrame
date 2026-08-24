@@ -24,7 +24,7 @@ public interface IPageNavigationInfiniFrameWindowFeature {
     /// </summary>
     /// <param name="path">The file path or URL string to load.</param>
     void Load(string path);
-    
+
     /// <summary>
     ///     Loads the content at the specified path in the window.
     /// </summary>
@@ -60,7 +60,7 @@ public interface IPageNavigationInfiniFrameWindowFeature {
     string? GetCurrentUrl();
 
     /// <summary>
-    ///     Convenience property that parses <see cref="GetCurrentUrl"/> into a <see cref="Uri"/>.
+    ///     Convenience property that parses <see cref="GetCurrentUrl" /> into a <see cref="Uri" />.
     /// </summary>
     Uri? GetCurrentUri();
 }

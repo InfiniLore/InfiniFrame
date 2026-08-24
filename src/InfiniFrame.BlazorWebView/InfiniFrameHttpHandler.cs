@@ -45,7 +45,7 @@ public class InfiniFrameHttpHandler : DelegatingHandler {
     /// <returns>The HTTP response message.</returns>
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) {
         (Stream? Data, string? ContentType) result = _manager.HandleWebRequest(null, request.RequestUri?.AbsoluteUri);
-        if (result is not ({ } content, { } contentType))
+        if (result is not ({} content, {} contentType))
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
         cancellationToken.ThrowIfCancellationRequested();

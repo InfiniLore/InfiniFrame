@@ -123,7 +123,7 @@ internal static class InteropEnvelopeProtocol {
 
     private static bool IsSupportedCommand(string? command)
         => string.Equals(command, PostCommand, StringComparison.Ordinal)
-           || string.Equals(command, GetCommand, StringComparison.Ordinal);
+            || string.Equals(command, GetCommand, StringComparison.Ordinal);
 
     private static bool LooksLikeJsonObject(string message) {
         ReadOnlySpan<char> span = message.AsSpan().TrimStart();

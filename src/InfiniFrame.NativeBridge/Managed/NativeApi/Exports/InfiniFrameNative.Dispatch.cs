@@ -9,17 +9,6 @@ namespace InfiniFrame.NativeBridge;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public partial class InfiniFrameNative {
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    internal delegate void ContextAction(IntPtr context);
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    internal delegate void OperationCompletedCallback(
-        IntPtr context,
-        ulong operationId,
-        int result,
-        int nativeCode,
-        IntPtr failureUtf8
-    );
     /// <summary>
     ///     Dispatches a callback to execute synchronously on the native window thread.
     /// </summary>
@@ -44,4 +33,16 @@ public partial class InfiniFrameNative {
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_CancelOperation", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus CancelOperation(IntPtr instance, ulong operationId, int result);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    internal delegate void ContextAction(IntPtr context);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    internal delegate void OperationCompletedCallback(
+        IntPtr context,
+        ulong operationId,
+        int result,
+        int nativeCode,
+        IntPtr failureUtf8
+    );
 }

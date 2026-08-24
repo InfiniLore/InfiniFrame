@@ -9,7 +9,7 @@ import type {BlazorCallback, InfiniFrameExternal, InfiniFrameSetup} from "../../
 export function initWindowExternalBridge(setup: InfiniFrameSetup): void {
     if (setup.windowExternalBridgeInitialized) return;
     setup.windowExternalBridgeInitialized = true;
-    
+
     const external = ensureWindowExternal();
     window.infiniframe = window.infiniframe ?? {} as Window["infiniframe"];
     const callbacks: BlazorCallback[] = [];

@@ -47,13 +47,6 @@ internal readonly record struct InteropEnvelopeParseResult(
     /// </summary>
     public static InteropEnvelopeParseResult BlazorMessage => new() { Result = ResultState.Blazor };
 
-    internal enum ResultState {
-        Success,
-        Failure,
-        Ignored,
-        Blazor
-    }
-
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
@@ -80,4 +73,11 @@ internal readonly record struct InteropEnvelopeParseResult(
     /// <returns>A new <see cref="InteropEnvelopeParseResult" /> indicating failure.</returns>
     public static InteropEnvelopeParseResult CreateFailure(string error)
         => new(null, null, null, null, error) { Result = ResultState.Failure };
+
+    internal enum ResultState {
+        Success,
+        Failure,
+        Ignored,
+        Blazor
+    }
 }

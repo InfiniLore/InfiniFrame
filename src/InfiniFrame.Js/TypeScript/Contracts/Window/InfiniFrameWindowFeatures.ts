@@ -3,35 +3,35 @@
 // ---------------------------------------------------------------------------------------------------------------------
 import {
     BrowserInfiniFrameWindowFeature,
-    PositionInfiniFrameWindowFeature,
-    SizeInfiniFrameWindowFeature,
-    StateInfiniFrameWindowFeature,
-    WebMessagingInfiniFrameWindowFeature,
-    NotificationsInfiniFrameWindowFeature,
     DebuggingInfiniFrameWindowFeature,
     DecorationsInfiniFrameWindowFeature,
     FilePickerDialogsInfiniFrameWindowFeature,
     InvokeInfiniFrameWindowFeature,
     LifecycleInfiniFrameWindowFeature,
     MonitorsInfiniFrameWindowFeature,
-    PageNavigationInfiniFrameWindowFeature
+    NotificationsInfiniFrameWindowFeature,
+    PageNavigationInfiniFrameWindowFeature,
+    PositionInfiniFrameWindowFeature,
+    SizeInfiniFrameWindowFeature,
+    StateInfiniFrameWindowFeature,
+    WebMessagingInfiniFrameWindowFeature
 } from "./Features";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export interface InfiniFrameWindowFeatures {
-    browser : BrowserInfiniFrameWindowFeature
+    browser: BrowserInfiniFrameWindowFeature
     debugging: DebuggingInfiniFrameWindowFeature
     decorations: DecorationsInfiniFrameWindowFeature
-    filePickerDialogs : FilePickerDialogsInfiniFrameWindowFeature
-    invoke : InvokeInfiniFrameWindowFeature
-    lifecycle : LifecycleInfiniFrameWindowFeature
-    monitors : MonitorsInfiniFrameWindowFeature
-    notifications : NotificationsInfiniFrameWindowFeature
-    pageNavigation : PageNavigationInfiniFrameWindowFeature
-    position : PositionInfiniFrameWindowFeature
-    size : SizeInfiniFrameWindowFeature
-    state : StateInfiniFrameWindowFeature
-    webMessaging : WebMessagingInfiniFrameWindowFeature
+    filePickerDialogs: FilePickerDialogsInfiniFrameWindowFeature
+    invoke: InvokeInfiniFrameWindowFeature
+    lifecycle: LifecycleInfiniFrameWindowFeature
+    monitors: MonitorsInfiniFrameWindowFeature
+    notifications: NotificationsInfiniFrameWindowFeature
+    pageNavigation: PageNavigationInfiniFrameWindowFeature
+    position: PositionInfiniFrameWindowFeature
+    size: SizeInfiniFrameWindowFeature
+    state: StateInfiniFrameWindowFeature
+    webMessaging: WebMessagingInfiniFrameWindowFeature
 }

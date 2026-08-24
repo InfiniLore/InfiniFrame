@@ -16,8 +16,10 @@ public static partial class InfiniFrameNativeTesting {
 
     public static nuint MacPooledHostCount() {
         if (!OperatingSystem.IsMacOS()) throw new PlatformNotSupportedException();
+
         InfiniFrameNativeInteropStatus status = MacPooledHostCountNative(out nuint value);
         if (status != InfiniFrameNativeInteropStatus.Success) throw new InvalidOperationException($"Native pool query failed: {status}");
+
         return value;
     }
     /// <summary>

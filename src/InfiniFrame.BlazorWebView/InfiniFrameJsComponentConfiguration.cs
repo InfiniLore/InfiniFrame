@@ -17,10 +17,15 @@ public sealed class InfiniFrameJsComponentConfiguration(
     JSComponentConfigurationStore jsComponents,
     ILogger<InfiniFrameJsComponentConfiguration> logger
 ) : IInfiniFrameJsComponentConfiguration {
-    public JSComponentConfigurationStore JSComponents { get; } = jsComponents;
     private AggregateException? _lastAddComponentException;
 
-    /// <inheritdoc cref="IInfiniFrameJsComponentConfiguration.Add"/>
+    /// <summary>
+    ///     Gets the last exception thrown by <see cref="Add" />, if any, or <c>null</c>.
+    /// </summary>
+    public AggregateException? LastAddComponentException => Volatile.Read(ref _lastAddComponentException);
+    public JSComponentConfigurationStore JSComponents { get; } = jsComponents;
+
+    /// <inheritdoc cref="IInfiniFrameJsComponentConfiguration.Add" />
     public void Add(Type typeComponent, string selector, IDictionary<string, object?>? parameters = null) {
         ParameterView parameterView = parameters is not null
             ? ParameterView.FromDictionary(parameters)
@@ -38,9 +43,4 @@ public sealed class InfiniFrameJsComponentConfiguration(
             TaskScheduler.Default
         );
     }
-
-    /// <summary>
-    ///     Gets the last exception thrown by <see cref="Add"/>, if any, or <c>null</c>.
-    /// </summary>
-    public AggregateException? LastAddComponentException => Volatile.Read(ref _lastAddComponentException);
 }

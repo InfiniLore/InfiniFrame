@@ -2,12 +2,11 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Indicates that the implementing type provides access to an <see cref="IInfiniFrameEventsStore"/>.
+///     Indicates that the implementing type provides access to an <see cref="IInfiniFrameEventsStore" />.
 /// </summary>
 public interface IHasInfiniFrameEventsStore {
     /// <summary>

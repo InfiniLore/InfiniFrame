@@ -1,14 +1,14 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using FluentValidation;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -19,36 +19,29 @@ public class LifecycleInfiniFrameWindowFeature(
     ILogger<LifecycleInfiniFrameWindowFeature> logger,
     IValidator<InfiniFrameNativeParameters> validator
 ) : ILifecycleInfiniFrameWindowFeature, IDisposable {
-    public InfiniFrameWindowLifecycleState State => window.LifecycleState;
-    private int _messageLoopStarted;
-    private int _messageLoopExited;
-    private int _closeRequestDispatched;
-    private int _disposed;
-    private int _cleanupCompleted;
-    private int _nativeCallbackRootReleased;
-    private int _milestoneRootReleased;
-    private readonly object _closeAttemptLock = new();
-    private TaskCompletionSource? _closeAttempt;
-    private GCHandle _milestoneRoot;
     private static readonly InfiniFrameNative.ContextAction ReadyCallback = OnNativeReady;
     private static readonly InfiniFrameNative.ContextAction TeardownCallback = OnNativeTeardown;
-    private readonly TaskCompletionSource _ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private readonly object _closeAttemptLock = new();
     private readonly TaskCompletionSource _closed = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly TaskCompletionSource _closedCallbacksDelivered = new(TaskCreationOptions.RunContinuationsAsynchronously);
-    private readonly TaskCompletionSource _teardown = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly TaskCompletionSource _messageLoopCompleted = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private readonly TaskCompletionSource _ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private readonly TaskCompletionSource _teardown = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private int _cleanupCompleted;
+    private TaskCompletionSource? _closeAttempt;
+    private int _closeRequestDispatched;
+    private int _disposed;
+    private int _messageLoopExited;
+    private int _messageLoopStarted;
+    private GCHandle _milestoneRoot;
+    private int _milestoneRootReleased;
+    private int _nativeCallbackRootReleased;
 
-    // -----------------------------------------------------------------------------------------------------------------
-    // Methods
-    // -----------------------------------------------------------------------------------------------------------------
-    /// <summary>
-    ///     Provides the lifecycle management features for an InfiniFrame window.
-    ///     Implements both <see cref="ILifecycleInfiniFrameWindowFeature" /> and <see cref="IDisposable" /> to handle
-    ///     the state transitions and resource cleanup related to the lifecycle of the window.
-    /// </summary>
-    ~LifecycleInfiniFrameWindowFeature() {
-        Dispose(false);
+    public void Dispose() {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
+    public InfiniFrameWindowLifecycleState State => window.LifecycleState;
 
     /// <inheritdoc cref="ILifecycleInfiniFrameWindowFeature.CleanupNativeHandle" />
     void ILifecycleInfiniFrameWindowFeature.CleanupNativeHandle() {
@@ -62,65 +55,12 @@ public class LifecycleInfiniFrameWindowFeature(
             || Environment.CurrentManagedThreadId != window.ManagedThreadId;
     }
 
-    public void Dispose() {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    private void Dispose(bool disposing) {
-        if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
-
-        if (window.LifecycleState < InfiniFrameWindowLifecycleState.TeardownComplete
-            && window.LifecycleState != InfiniFrameWindowLifecycleState.Disposed) {
-            // The normal teardown path hasn't completed yet. Still release callback roots
-            // and milestones to avoid leaks, and release the native handle so .NET 10's
-            // runtime doesn't abort during shutdown over unreleased SafeHandles.
-            ReleaseNativeCallbackRootOnce();
-            ReleaseMilestoneRootOnce();
-            try { window.ReleaseNativeHandle(); }
-            catch {
-                // ignored
-            }
-
-            try { window.MarkNativeHandleReleased(); }
-            catch {
-                // ignored
-            }
-
-            try { window.MarkDisposed(); }
-            catch {
-                // ignored
-            }
-
-            return;
-        }
-
-        CleanupClosedHandleAndCallbacks(disposing);
-    }
-
     bool ILifecycleInfiniFrameWindowFeature.CanWaitForTeardownDuringDispose()
         // Never wait re-entrantly from a native callback on the owning loop: the
         // callback must return before WM_NCDESTROY can schedule teardown. Once
         // WaitForClose has exited, or from any non-owning thread, blocking is safe.
         => Volatile.Read(ref _messageLoopExited) != 0
             || Environment.CurrentManagedThreadId != window.ManagedThreadId;
-
-    private void CleanupClosedHandleAndCallbacks(bool disposing) {
-        if (Interlocked.Exchange(ref _cleanupCompleted, 1) != 0) return;
-
-        try {
-            window.ReleaseNativeHandle();
-            window.MarkNativeHandleReleased();
-            window.MarkDisposed();
-        }
-        catch (Exception ex) when (!disposing && ExceptionsUtility.IsNonFatalException(ex)) {
-            logger.LogTrace(ex, "Ignoring non-fatal exception while finalizing lifecycle cleanup.");
-        }
-        finally {
-            ReleaseNativeCallbackRootOnce();
-            ReleaseMilestoneRootOnce();
-        }
-    }
 
     /// <inheritdoc cref="ILifecycleInfiniFrameWindowFeature.Initialize" />
     void ILifecycleInfiniFrameWindowFeature.Initialize() {
@@ -360,9 +300,6 @@ public class LifecycleInfiniFrameWindowFeature(
         await attempt.WaitAsync(ct).ConfigureAwait(false);
     }
 
-    /// <inheritdoc cref="LifecycleInfiniFrameWindowFeature.MarkAsClosed" />
-    private void MarkAsClosed() => window.Features.Lifecycle.MarkAsClosed();
-
     /// <inheritdoc cref="ILifecycleInfiniFrameWindowFeature.MarkAsClosed" />
     void ILifecycleInfiniFrameWindowFeature.MarkAsClosed() {
         if (window.LifecycleState >= InfiniFrameWindowLifecycleState.NativeClosed) {
@@ -394,6 +331,69 @@ public class LifecycleInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="ILifecycleInfiniFrameWindowFeature.IsClosedOrClosing" />
     public bool IsClosedOrClosing() => window.LifecycleState >= InfiniFrameWindowLifecycleState.ClosingRequested;
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    /// <summary>
+    ///     Provides the lifecycle management features for an InfiniFrame window.
+    ///     Implements both <see cref="ILifecycleInfiniFrameWindowFeature" /> and <see cref="IDisposable" /> to handle
+    ///     the state transitions and resource cleanup related to the lifecycle of the window.
+    /// </summary>
+    ~LifecycleInfiniFrameWindowFeature() {
+        Dispose(false);
+    }
+
+    private void Dispose(bool disposing) {
+        if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
+
+        if (window.LifecycleState < InfiniFrameWindowLifecycleState.TeardownComplete
+            && window.LifecycleState != InfiniFrameWindowLifecycleState.Disposed) {
+            // The normal teardown path hasn't completed yet. Still release callback roots
+            // and milestones to avoid leaks, and release the native handle so .NET 10's
+            // runtime doesn't abort during shutdown over unreleased SafeHandles.
+            ReleaseNativeCallbackRootOnce();
+            ReleaseMilestoneRootOnce();
+            try { window.ReleaseNativeHandle(); }
+            catch {
+                // ignored
+            }
+
+            try { window.MarkNativeHandleReleased(); }
+            catch {
+                // ignored
+            }
+
+            try { window.MarkDisposed(); }
+            catch {
+                // ignored
+            }
+
+            return;
+        }
+
+        CleanupClosedHandleAndCallbacks(disposing);
+    }
+
+    private void CleanupClosedHandleAndCallbacks(bool disposing) {
+        if (Interlocked.Exchange(ref _cleanupCompleted, 1) != 0) return;
+
+        try {
+            window.ReleaseNativeHandle();
+            window.MarkNativeHandleReleased();
+            window.MarkDisposed();
+        }
+        catch (Exception ex) when (!disposing && ExceptionsUtility.IsNonFatalException(ex)) {
+            logger.LogTrace(ex, "Ignoring non-fatal exception while finalizing lifecycle cleanup.");
+        }
+        finally {
+            ReleaseNativeCallbackRootOnce();
+            ReleaseMilestoneRootOnce();
+        }
+    }
+
+    /// <inheritdoc cref="LifecycleInfiniFrameWindowFeature.MarkAsClosed" />
+    private void MarkAsClosed() => window.Features.Lifecycle.MarkAsClosed();
 
     private bool IsClosed()
         => window.LifecycleState >= InfiniFrameWindowLifecycleState.NativeClosed;
@@ -432,7 +432,7 @@ public class LifecycleInfiniFrameWindowFeature(
 
         // Complete outside the reverse P/Invoke so async disposal cannot release the
         // native instance while its teardown callback is still returning.
-        ThreadPool.QueueUserWorkItem(static state => ((LifecycleInfiniFrameWindowFeature)state!).CompleteTeardown(), lifecycle);
+        ThreadPool.QueueUserWorkItem(callBack: static state => ((LifecycleInfiniFrameWindowFeature)state!).CompleteTeardown(), lifecycle);
     }
 
     private void CompleteReady() {

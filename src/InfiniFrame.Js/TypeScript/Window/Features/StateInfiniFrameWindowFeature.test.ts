@@ -64,12 +64,36 @@ describe("StateInfiniFrameWindowFeature", () => {
         feature.setCachedPreMaximizedBounds({left: 0, top: 0, width: 800, height: 600});
         expect(messaging.sendMessageToHost).toHaveBeenCalled();
     });
-    it("setMaximized posts command", () => { feature.setMaximized(true); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("toggleMaximized posts command", () => { feature.toggleMaximized(); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("setMinimized posts command", () => { feature.setMinimized(true); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("setFullScreen posts command", () => { feature.setFullScreen(true); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("setFocused posts command", () => { feature.setFocused(true); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("setZoomFactor posts command", () => { feature.setZoomFactor(1.5); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("enableZoom posts command", () => { feature.enableZoom(true); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
-    it("setTopMost posts command", () => { feature.setTopMost(true); expect(messaging.sendMessageToHost).toHaveBeenCalled(); });
+    it("setMaximized posts command", () => {
+        feature.setMaximized(true);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("toggleMaximized posts command", () => {
+        feature.toggleMaximized();
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("setMinimized posts command", () => {
+        feature.setMinimized(true);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("setFullScreen posts command", () => {
+        feature.setFullScreen(true);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("setFocused posts command", () => {
+        feature.setFocused(true);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("setZoomFactor posts command", () => {
+        feature.setZoomFactor(1.5);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("enableZoom posts command", () => {
+        feature.enableZoom(true);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
+    it("setTopMost posts command", () => {
+        feature.setTopMost(true);
+        expect(messaging.sendMessageToHost).toHaveBeenCalled();
+    });
 });

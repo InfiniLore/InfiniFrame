@@ -1,13 +1,15 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {FilePickerFilter,FilePickerDialogsInfiniFrameWindowFeature as Contract} from "../../Contracts";
+import type {FilePickerDialogsInfiniFrameWindowFeature as Contract, FilePickerFilter} from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export class FilePickerDialogsInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
-    constructor(){super("filePickerDialogs");}
+    constructor() {
+        super("filePickerDialogs");
+    }
 
     showOpenFileAsync(title = "Choose file", defaultPath: string | null = null, multiSelect = false, filters: FilePickerFilter[] | null = null) {
         return this.get<(string | null)[]>("showOpenFile", {title, defaultPath, multiSelect, filters});

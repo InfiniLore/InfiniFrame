@@ -69,7 +69,12 @@ public partial class InfiniFrameNative {
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_ShowNotificationWithOptions", SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus ShowNotificationWithOptions(
-        IntPtr instance, string title, string body, string iconPath, int urgency, string tag
+        IntPtr instance,
+        string title,
+        string body,
+        string iconPath,
+        int urgency,
+        string tag
     );
 
     /// <summary>
@@ -88,9 +93,15 @@ public partial class InfiniFrameNative {
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_BeginShowNotification", SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus BeginShowNotification(
-        IntPtr instance, ulong operationId,
-        string title, string body, string iconPath, int urgency, string tag,
-        OperationCompletedCallback completion, IntPtr completionContext
+        IntPtr instance,
+        ulong operationId,
+        string title,
+        string body,
+        string iconPath,
+        int urgency,
+        string tag,
+        OperationCompletedCallback completion,
+        IntPtr completionContext
     );
 
     /// <summary>
@@ -103,6 +114,8 @@ public partial class InfiniFrameNative {
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_CancelNotification", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus CancelNotification(
-        IntPtr instance, ulong operationId, [MarshalAs(UnmanagedType.I1)] out bool canceled
+        IntPtr instance,
+        ulong operationId,
+        [MarshalAs(UnmanagedType.I1)] out bool canceled
     );
 }

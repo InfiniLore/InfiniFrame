@@ -12,8 +12,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
-        
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+
         <PackageReference Include="JetBrains.Annotations"/>
         <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions"/>
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
@@ -21,9 +21,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="../InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj">
-          <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-      </ProjectReference>
+        <ProjectReference Include="../InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj">
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+        </ProjectReference>
     </ItemGroup>
 
 </Project>

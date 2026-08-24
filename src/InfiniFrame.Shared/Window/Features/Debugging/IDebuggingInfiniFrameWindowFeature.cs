@@ -1,8 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Debugging;
 using System.Runtime.Versioning;
+using InfiniFrame.Debugging;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -48,7 +48,7 @@ public interface IDebuggingInfiniFrameWindowFeature {
     /// <summary>
     ///     Gets diagnostics information about the current debugging state.
     /// </summary>
-    /// <returns>A <see cref="InfiniFrameDebugDiagnostics"/> instance with diagnostic data.</returns>
+    /// <returns>A <see cref="InfiniFrameDebugDiagnostics" /> instance with diagnostic data.</returns>
     InfiniFrameDebugDiagnostics GetDiagnostics();
 
     /// <summary>

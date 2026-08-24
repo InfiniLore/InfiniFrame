@@ -17,7 +17,7 @@ public interface IWebMessagingInfiniFrameWindowFeature {
     /// </summary>
     /// <param name="message">The message to send as a string.</param>
     /// <param name="ct">A cancellation token to cancel the operation.</param>
-    /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    /// <returns>A <see cref="ValueTask" /> representing the asynchronous operation.</returns>
     ValueTask SendWebMessageAsync(string message, CancellationToken ct = default);
 
     /// <summary>

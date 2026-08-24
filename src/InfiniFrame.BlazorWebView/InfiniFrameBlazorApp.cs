@@ -25,7 +25,7 @@ public class InfiniFrameBlazorApp(
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    /// <inheritdoc cref="IInfiniFrameBlazorApp.RunAsync"/>
+    /// <inheritdoc cref="IInfiniFrameBlazorApp.RunAsync" />
     public async Task RunAsync(CancellationToken ct = default) {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
 
@@ -41,10 +41,10 @@ public class InfiniFrameBlazorApp(
         }
     }
 
-    /// <inheritdoc cref="IInfiniFrameBlazorApp.Run"/>
+    /// <inheritdoc cref="IInfiniFrameBlazorApp.Run" />
     /// <remarks>
     ///     This method uses synchronous-over-async patterns for disposal. It should only be called
-    ///     from threads without a SynchronizationContext. Prefer <see cref="RunAsync"/> for async contexts.
+    ///     from threads without a SynchronizationContext. Prefer <see cref="RunAsync" /> for async contexts.
     /// </remarks>
     public void Run() {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
@@ -64,13 +64,6 @@ public class InfiniFrameBlazorApp(
         }
         finally {
             DisposeAsync().AsTask().GetAwaiter().GetResult();
-        }
-    }
-
-    private void RegisterRootComponents() {
-        if (RootComponentConfiguration is null) return;
-        foreach ((Type, string) component in RootComponents) {
-            RootComponentConfiguration.Add(component.Item1, component.Item2);
         }
     }
 
@@ -104,6 +97,14 @@ public class InfiniFrameBlazorApp(
         }
         catch (Exception e) when (ExceptionsUtility.IsNonFatalException(e)) {
             logger?.LogError(e, "Error disposing of InfiniFrameBlazorApp");
+        }
+    }
+
+    private void RegisterRootComponents() {
+        if (RootComponentConfiguration is null) return;
+
+        foreach ((Type, string) component in RootComponents) {
+            RootComponentConfiguration.Add(component.Item1, component.Item2);
         }
     }
 }

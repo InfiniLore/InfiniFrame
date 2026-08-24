@@ -6,7 +6,8 @@ import {SendToHostMessageIds} from "../Contracts";
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 export abstract class InfiniFrameWindowFeature {
-    protected constructor(private readonly featureName: string) {}
+    protected constructor(private readonly featureName: string) {
+    }
 
     protected post(command: string, args?: unknown): void {
         window.infiniframe.messaging.sendMessageToHost(

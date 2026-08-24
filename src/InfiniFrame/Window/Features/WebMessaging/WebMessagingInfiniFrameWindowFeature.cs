@@ -1,23 +1,23 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Collections.Concurrent;
+using System.Text;
+using System.Text.Json;
 using InfiniFrame.Interop;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
 using Microsoft.Extensions.Logging;
-using System.Collections.Concurrent;
-using System.Text;
-using System.Text.Json;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WebMessagingInfiniFrameWindowFeature : IWebMessagingInfiniFrameWindowFeature {
-    private long _nextAcknowledgementId;
-    private readonly IInfiniFrameWindow window;
-    private readonly ILogger<WebMessagingInfiniFrameWindowFeature> logger;
     private readonly ConcurrentDictionary<ulong, TaskCompletionSource> _acknowledgements = new();
+    private readonly ILogger<WebMessagingInfiniFrameWindowFeature> logger;
+    private readonly IInfiniFrameWindow window;
+    private long _nextAcknowledgementId;
 
     public WebMessagingInfiniFrameWindowFeature(
         IInfiniFrameWindow window,
@@ -27,7 +27,7 @@ public class WebMessagingInfiniFrameWindowFeature : IWebMessagingInfiniFrameWind
         this.logger = logger;
         window.EventsStore.WebMessagePostData.Add(
             JsHandlerNames.WebMessageAckResponse,
-            (_, payload) => {
+            handler: (_, payload) => {
                 if (ulong.TryParse(payload, out ulong id) && _acknowledgements.TryRemove(id, out TaskCompletionSource? completion))
                     completion.TrySetResult();
             }
@@ -52,26 +52,8 @@ public class WebMessagingInfiniFrameWindowFeature : IWebMessagingInfiniFrameWind
         ArgumentNullException.ThrowIfNull(message);
         if (ct.IsCancellationRequested)
             return ValueTask.FromCanceled(ct);
+
         return SendLocallyAsync(message, ct);
-    }
-
-    private async ValueTask SendLocallyAsync(string message, CancellationToken ct) {
-        if (window.IsClosedOrClosing()) return;
-
-        InfiniFrameDispatchResult result = await window.DispatchAsync(
-            () => {
-                using NativeHandleLease lease = window.AcquireNativeHandle();
-                InfiniFrameNativeInteropStatus status = InfiniFrameNative.SendWebMessage(lease.Handle, message);
-                if (status != InfiniFrameNativeInteropStatus.Success)
-                    throw new InfiniFrameNativeInteropException(InfiniFrameNative.GetLastErrorMessage() ?? "Could not submit web message.");
-            },
-            cancellationToken: ct
-        ).ConfigureAwait(false);
-
-        if (result == InfiniFrameDispatchResult.Cancelled)
-            throw new OperationCanceledException(ct);
-        if (result is InfiniFrameDispatchResult.Failed or InfiniFrameDispatchResult.TimedOut)
-            throw new InvalidOperationException($"Web-message submission ended with {result}.");
     }
 
     public async Task SendWebMessageWithAcknowledgementAsync(string message, CancellationToken ct = default) {
@@ -96,6 +78,7 @@ public class WebMessagingInfiniFrameWindowFeature : IWebMessagingInfiniFrameWind
             Task terminal = await Task.WhenAny(completion.Task, closed).WaitAsync(ct).ConfigureAwait(false);
             if (terminal == closed)
                 throw new ObjectDisposedException(window.GetType().Name, "The window closed before JavaScript acknowledged the message.");
+
             await completion.Task.ConfigureAwait(false);
             finalState = "Acknowledged";
         }
@@ -116,6 +99,25 @@ public class WebMessagingInfiniFrameWindowFeature : IWebMessagingInfiniFrameWind
         }
     }
 
+    private async ValueTask SendLocallyAsync(string message, CancellationToken ct) {
+        if (window.IsClosedOrClosing()) return;
+
+        InfiniFrameDispatchResult result = await window.DispatchAsync(
+            callback: () => {
+                using NativeHandleLease lease = window.AcquireNativeHandle();
+                InfiniFrameNativeInteropStatus status = InfiniFrameNative.SendWebMessage(lease.Handle, message);
+                if (status != InfiniFrameNativeInteropStatus.Success)
+                    throw new InfiniFrameNativeInteropException(InfiniFrameNative.GetLastErrorMessage() ?? "Could not submit web message.");
+            },
+            cancellationToken: ct
+        ).ConfigureAwait(false);
+
+        if (result == InfiniFrameDispatchResult.Cancelled)
+            throw new OperationCanceledException(ct);
+        if (result is InfiniFrameDispatchResult.Failed or InfiniFrameDispatchResult.TimedOut)
+            throw new InvalidOperationException($"Web-message submission ended with {result}.");
+    }
+
     private static string CreateAcknowledgementPayload(ulong id, string message) {
         using var stream = new MemoryStream();
         using (var writer = new Utf8JsonWriter(stream)) {
@@ -124,6 +126,7 @@ public class WebMessagingInfiniFrameWindowFeature : IWebMessagingInfiniFrameWind
             writer.WriteString("Message", message);
             writer.WriteEndObject();
         }
+
         return Encoding.UTF8.GetString(stream.ToArray());
     }
 }

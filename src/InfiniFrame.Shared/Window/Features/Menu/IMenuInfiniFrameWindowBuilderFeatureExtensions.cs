@@ -6,7 +6,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Fluent extension methods for the menu builder feature on <see cref="IInfiniFrameWindowBuilder"/>.
+///     Fluent extension methods for the menu builder feature on <see cref="IInfiniFrameWindowBuilder" />.
 /// </summary>
 public static class IMenuInfiniFrameWindowBuilderFeatureExtensions {
     /// <summary>

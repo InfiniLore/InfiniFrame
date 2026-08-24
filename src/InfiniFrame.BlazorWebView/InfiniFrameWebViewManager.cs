@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Threading.Channels;
 using InfiniFrame.Security;
 using InfiniFrame.Utilities;
 using Microsoft.AspNetCore.Components;
@@ -10,7 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Threading.Channels;
 
 namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -26,13 +26,13 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
 
     private readonly Channel<string> _channel;
     private readonly CancellationTokenSource _messagePumpShutdown = new();
-    private readonly int _messageQueueCapacity;
-    private readonly BoundedChannelFullMode _messageQueueFullMode;
-    private int _disposeStarted;
-    private int _disposed;
 
     private readonly Task _messagePumpTask;
+    private readonly int _messageQueueCapacity;
+    private readonly BoundedChannelFullMode _messageQueueFullMode;
     private readonly IInfiniFrameUriSecurityPolicy _uriSecurityPolicy;
+    private int _disposeStarted;
+    private int _disposed;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructor
