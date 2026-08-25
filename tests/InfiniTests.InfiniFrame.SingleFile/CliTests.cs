@@ -47,10 +47,11 @@ public class CliTests {
     [Test]
     public async Task Cli_ProjectArgument_IsRequired(CancellationToken ct = default) {
         // The CLI requires a project argument - running without it should fail
+        string framework = Path.GetFileName(AppContext.BaseDirectory);
         string cliPath = Path.GetFullPath(Path.Combine(
             AppContext.BaseDirectory,
             "..", "..", "..", "..", "..", "..",
-            "src", "InfiniFrame.SingleFile", "bin", "Release", "net10.0",
+            "src", "InfiniFrame.SingleFile", "bin", "Release", framework,
             "InfiniFrame.SingleFile.dll"));
 
         var psi = new System.Diagnostics.ProcessStartInfo("dotnet") {
