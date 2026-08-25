@@ -110,6 +110,16 @@ namespace infiniframe::linux_gtk::ui_thread {
 
                         mainLoop = g_main_loop_new(ownerContext, FALSE);
                         g_main_loop_run(mainLoop);
+
+                        // Drain pending sources (e.g. WebKit web-process cleanup idle
+                        // callbacks) so they complete while the X11 display connection
+                        // is still valid. Without this, they fire later during process
+                        // teardown when GLib/GDK/X11 objects are half-torn-down,
+                        // causing SIGABRT on libwebkit2gtk-4.1.
+                        while (g_main_context_pending(ownerContext)) {
+                            g_main_context_iteration(ownerContext, FALSE);
+                        }
+
                         g_main_loop_unref(mainLoop);
                         mainLoop = nullptr;
 
