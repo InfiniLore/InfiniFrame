@@ -95,11 +95,15 @@ jobs:
             -   name: Compile GSettings schemas
                 run: sudo glib-compile-schemas /usr/share/glib-2.0/schemas/
 
-            -   name: Install Mutter (Wayland compositor)
+            -   name: Install Wayland compositor
                 if: matrix.display_server == 'wayland'
                 run: |
                     sudo apt-get update
-                    sudo apt-get install -y mutter
+                    if [ "${{ matrix.arch }}" = "arm64" ]; then
+                      sudo apt-get install -y mutter
+                    else
+                      sudo apt-get install -y weston
+                    fi
 
             -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
@@ -141,16 +145,22 @@ jobs:
                       export XDG_SESSION_TYPE=wayland
                       export WAYLAND_DISPLAY=wayland-0
 
-                      echo "Launching Mutter (headless Wayland compositor)..."
-                      mutter --headless --wayland --no-x11 \
-                        --virtual-monitor 1920x1080 \
-                        --wayland-display="$WAYLAND_DISPLAY" \
-                        &> mutter.log &
+                      if [ "${{ matrix.arch }}" = "arm64" ]; then
+                        echo "Launching Mutter (headless Wayland compositor)..."
+                        mutter --headless --wayland --no-x11 \
+                          --virtual-monitor 1920x1080 \
+                          &> compositor.log &
+                      else
+                        echo "Launching Weston (headless Wayland compositor)..."
+                        weston --backend=headless --socket="$WAYLAND_DISPLAY" \
+                          --width=1920 --height=1080 \
+                          &> compositor.log &
+                      fi
 
                       echo "Waiting for Wayland compositor..."
                       timeout 30 bash -c 'until [ -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]; do sleep 1; done' || {
-                        echo "Mutter failed to start."
-                        cat mutter.log || true
+                        echo "Wayland compositor failed to start."
+                        cat compositor.log || true
                         exit 1
                       }
 
