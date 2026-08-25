@@ -5,6 +5,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="../InfiniTests/InfiniTests.csproj"/>
         <ProjectReference Include="../../src/InfiniFrame.SingleFile/InfiniFrame.SingleFile.csproj"/>
     </ItemGroup>
 </Project>
