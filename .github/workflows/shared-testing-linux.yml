@@ -232,42 +232,29 @@ jobs:
 
                     exit_code=0
 
-                    test_projects=(
-                      tests/InfiniTests.InfiniFrame.Js/InfiniTests.InfiniFrame.Js.csproj
-                      tests/InfiniTests.InfiniFrame.Blazor/InfiniTests.InfiniFrame.Blazor.csproj
-                      tests/InfiniTests.InfiniFrame.WebServer/InfiniTests.InfiniFrame.WebServer.csproj
-                      tests/InfiniTests.InfiniFrame.Shared/InfiniTests.InfiniFrame.Shared.csproj
-                      tests/InfiniTests.InfiniFrame.NativeBridge/InfiniTests.InfiniFrame.NativeBridge.csproj
-                      tests/InfiniTests.InfiniFrame.BlazorWebView/InfiniTests.InfiniFrame.BlazorWebView.csproj
-                      tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj
-                      tests/InfiniTests.InfiniFrame.SingleFile/InfiniTests.InfiniFrame.SingleFile.csproj
-                    )
-
                     for framework in net8.0 net9.0 net10.0; do
                       echo "=== Running ${framework} ==="
-                      for project in "${test_projects[@]}"; do
-                        echo "--- ${project} (${framework}) ---"
-                        test_args=(
-                          test
-                          --project "$project"
-                          --configuration Release
-                          --no-build
-                          --no-restore
-                          --framework "$framework"
-                          -p:NativeArch=${{ matrix.arch }}
-                          -p:InfiniFrameSkipNativeBuild=true
-                          -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
-                          --
-                          --no-ansi
-                          --maximum-parallel-tests 1
-                        )
 
-                        if [ "${{ inputs.enable_coverage }}" = "true" ] && [ "$framework" = "net10.0" ]; then
-                          test_args+=(--results-directory "artifacts/testresults/$framework" --coverage --coverage-output-format cobertura)
-                        fi
+                      test_args=(
+                        test
+                        --solution InfiniFrame.GitHubActions.Testing.slnf
+                        --configuration Release
+                        --no-build
+                        --no-restore
+                        --framework "$framework"
+                        -p:NativeArch=${{ matrix.arch }}
+                        -p:InfiniFrameSkipNativeBuild=true
+                        -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
+                        --
+                        --no-ansi
+                        --maximum-parallel-tests 1
+                      )
 
-                        dotnet "${test_args[@]}" || exit_code=$?
-                      done
+                      if [ "${{ inputs.enable_coverage }}" = "true" ] && [ "$framework" = "net10.0" ]; then
+                        test_args+=(--results-directory "artifacts/testresults/$framework" --coverage --coverage-output-format cobertura)
+                      fi
+
+                      dotnet "${test_args[@]}" || exit_code=$?
                     done
 
                     shopt -s nullglob
