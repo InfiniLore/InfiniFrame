@@ -244,7 +244,7 @@ jobs:
                     
                     echo "=== Running Tests ==="
                     
-                    mkdir -p artifacts/native-crash
+                    mkdir -p artifacts/native-crash artifacts/testresults
                     ulimit -c unlimited
                     sudo sysctl -w kernel.core_uses_pid=1
                     sudo sysctl -w "kernel.core_pattern=${GITHUB_WORKSPACE}/artifacts/native-crash/core.%e.%p.%t"
