@@ -31,7 +31,7 @@ public class InstanceAlreadyRunningExceptionTests {
     [Test]
     public async Task CanBeCaughtAsInvalidOperationException(CancellationToken ct = default) {
         // Arrange & Act
-        InvalidOperationException? caught = null;
+        InvalidOperationException? caught;
         try {
             throw new InstanceAlreadyRunningException();
         }

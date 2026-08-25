@@ -45,10 +45,7 @@ public class FileProviderFactoryTests {
     [Test]
     public async Task CreateWwwrootProvider_NullAssembly_UsesDefaultAssembly(CancellationToken ct = default) {
         // Arrange & Act
-        IFileProvider provider = FileProviderFactory.CreateWwwrootProvider(
-            null,
-            includePhysicalFallback: false
-        );
+        IFileProvider provider = FileProviderFactory.CreateWwwrootProvider(includePhysicalFallback: false);
 
         // Assert
         await Assert.That(provider).IsNotNull();
@@ -63,8 +60,7 @@ public class FileProviderFactoryTests {
         // Act
         IFileProvider provider = FileProviderFactory.CreateWwwrootProvider(
             assembly,
-            nonExistentPath,
-            true
+            nonExistentPath
         );
 
         // Assert

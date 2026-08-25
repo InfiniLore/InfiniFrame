@@ -21,8 +21,7 @@ public class FileProviderFactoryAdditionalTests {
             // Act
             IFileProvider provider = FileProviderFactory.CreateWwwrootProvider(
                 assembly,
-                tempDir,
-                true
+                tempDir
             );
 
             // Assert - should return a composite provider (DisposableCompositeFileProvider or CompositeFileProvider)

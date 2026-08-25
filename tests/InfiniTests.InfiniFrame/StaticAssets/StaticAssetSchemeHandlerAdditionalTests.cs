@@ -263,7 +263,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
-        (Stream? data, string? contentType) = handler(null!, "");
+        (Stream? data, string? _) = handler(null!, "");
 
         // Assert
         await Assert.That(data).IsNotNull();
@@ -277,7 +277,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
-        (Stream? data, string? contentType) = handler(null!, null!);
+        (Stream? data, string? _) = handler(null!, null!);
 
         // Assert
         await Assert.That(data).IsNotNull();
@@ -291,7 +291,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
-        (Stream? data, string? contentType) = handler(null!, "nonexistent.txt");
+        (Stream? data, string? _) = handler(null!, "nonexistent.txt");
 
         // Assert
         await Assert.That(data).IsNull();
@@ -304,7 +304,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
-        (Stream? data, string? contentType) = handler(null!, "subdir/");
+        (Stream? data, string? _) = handler(null!, "subdir/");
 
         // Assert
         await Assert.That(data).IsNotNull();
@@ -321,7 +321,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
-        (Stream? data, string? contentType) = handler(null!, "../secret.txt");
+        (Stream? data, string? _) = handler(null!, "../secret.txt");
 
         // Assert
         await Assert.That(data).IsNull();
@@ -334,7 +334,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
-        (Stream? data, string? contentType) = handler(null!, "%2e%2e/secret.txt");
+        (Stream? data, string? _) = handler(null!, "%2e%2e/secret.txt");
 
         // Assert
         await Assert.That(data).IsNull();
@@ -347,7 +347,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
-        (Stream? data, string? contentType) = handler(null!, "%2fsecret.txt");
+        (Stream? data, string? _) = handler(null!, "%2fsecret.txt");
 
         // Assert
         await Assert.That(data).IsNull();
@@ -360,7 +360,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
-        (Stream? data, string? contentType) = handler(null!, "%252e%252e/secret.txt");
+        (Stream? data, string? _) = handler(null!, "%252e%252e/secret.txt");
 
         // Assert
         await Assert.That(data).IsNull();
@@ -376,7 +376,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
-        (Stream? data, string? contentType) = handler(null!, "app://localhost/assets/data.txt");
+        (Stream? data, string? _) = handler(null!, "app://localhost/assets/data.txt");
 
         // Assert
         await Assert.That(data).IsNotNull();
@@ -393,7 +393,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
 
         // Act
         bool resolved = StaticAssetSchemeHandler.TryResolveUri(
-            provider, "", "app://localhost/", "index.html", out Uri uri);
+            provider, "", "app://localhost/", "index.html", out Uri _);
 
         // Assert
         // Empty path becomes default document, which exists
@@ -407,7 +407,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
 
         // Act
         bool resolved = StaticAssetSchemeHandler.TryResolveUri(
-            provider, "nonexistent.html", "app://localhost/", "index.html", out Uri uri);
+            provider, "nonexistent.html", "app://localhost/", "index.html", out Uri _);
 
         // Assert
         await Assert.That(resolved).IsFalse();
@@ -420,7 +420,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
 
         // Act
         bool resolved = StaticAssetSchemeHandler.TryResolveUri(
-            provider, "subdir/", "app://localhost/", "index.html", out Uri uri);
+            provider, "subdir/", "app://localhost/", "index.html", out Uri _);
 
         // Assert
         await Assert.That(resolved).IsFalse();

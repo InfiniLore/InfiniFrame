@@ -39,7 +39,7 @@ public class InteropEnvelopeProtocolCreateTests {
     [Test]
     public async Task CreateEnvelopeMessage_NullData_WritesNull(CancellationToken ct = default) {
         // Arrange & Act
-        string message = InteropEnvelopeProtocol.CreateEnvelopeMessage("test-id", null);
+        string message = InteropEnvelopeProtocol.CreateEnvelopeMessage("test-id");
 
         // Assert
         await Assert.That(message).Contains("\"data\":null");

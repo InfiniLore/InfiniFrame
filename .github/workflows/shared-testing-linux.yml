@@ -20,6 +20,10 @@ on:
                 type: boolean
                 required: false
                 default: false
+            enable_coverage:
+                type: boolean
+                required: false
+                default: false
 
 jobs:
     linux:
@@ -230,17 +234,27 @@ jobs:
 
                     for framework in net8.0 net9.0 net10.0; do
                       echo "=== Running ${framework} ==="
-                      dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
-                        --configuration Release \
-                        --no-build \
-                        --no-restore \
-                        --framework "$framework" \
-                        -p:NativeArch=${{ matrix.arch }} \
-                        -p:InfiniFrameSkipNativeBuild=true \
-                        -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
-                        -- \
-                        --no-ansi \
-                        --maximum-parallel-tests 1 || exit_code=$?
+                      test_args=(
+                        test
+                        --solution InfiniFrame.GitHubActions.Testing.slnf
+                        --configuration Release
+                        --no-build
+                        --no-restore
+                        --framework "$framework"
+                        -p:NativeArch=${{ matrix.arch }}
+                        -p:InfiniFrameSkipNativeBuild=true
+                        -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
+                        --results-directory "artifacts/testresults/$framework"
+                        --
+                        --no-ansi
+                        --maximum-parallel-tests 1
+                      )
+
+                      if [ "${{ inputs.enable_coverage }}" = "true" ] && [ "$framework" = "net10.0" ]; then
+                        test_args+=(--coverage --coverage-output-format cobertura)
+                      fi
+
+                      dotnet "${test_args[@]}" || exit_code=$?
                     done
 
                     shopt -s nullglob
@@ -302,6 +316,15 @@ jobs:
                         WebView2Loader.dll
                         InfiniFrame.Native.so
                         InfiniFrame.Native.dylib
+
+            -   name: Upload C# Coverage
+                if: ${{ inputs.enable_coverage == true && success() }}
+                uses: actions/upload-artifact@v7
+                with:
+                    name: cs-coverage-linux-${{ matrix.arch }}-${{ matrix.display_server }}
+                    path: artifacts/testresults/net10.0/**/*.cobertura.xml
+                    if-no-files-found: warn
+                    retention-days: 1
 
             -   name: Update Linux Check
                 if: always()
