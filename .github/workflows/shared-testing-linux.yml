@@ -99,11 +99,7 @@ jobs:
                 if: matrix.display_server == 'wayland'
                 run: |
                     sudo apt-get update
-                    if [ "${{ matrix.arch }}" = "arm64" ]; then
-                      sudo apt-get install -y mutter
-                    else
-                      sudo apt-get install -y weston
-                    fi
+                    sudo apt-get install -y weston mutter
 
             -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
@@ -145,17 +141,10 @@ jobs:
                       export XDG_SESSION_TYPE=wayland
                       export WAYLAND_DISPLAY=wayland-0
 
-                      if [ "${{ matrix.arch }}" = "arm64" ]; then
-                        echo "Launching Mutter (headless Wayland compositor)..."
-                        mutter --headless --wayland --no-x11 \
-                          --virtual-monitor 1920x1080 \
-                          &> compositor.log &
-                      else
-                        echo "Launching Weston (headless Wayland compositor)..."
-                        weston --backend=headless --socket="$WAYLAND_DISPLAY" \
-                          --width=1920 --height=1080 \
-                          &> compositor.log &
-                      fi
+                      echo "Launching Weston (headless Wayland compositor)..."
+                      weston --backend=headless --socket="$WAYLAND_DISPLAY" \
+                        --width=1920 --height=1080 \
+                        &> compositor.log &
 
                       echo "Waiting for Wayland compositor..."
                       timeout 30 bash -c 'until [ -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]; do sleep 1; done' || {
@@ -243,28 +232,42 @@ jobs:
 
                     exit_code=0
 
+                    test_projects=(
+                      tests/InfiniTests.InfiniFrame.Js/InfiniTests.InfiniFrame.Js.csproj
+                      tests/InfiniTests.InfiniFrame.Blazor/InfiniTests.InfiniFrame.Blazor.csproj
+                      tests/InfiniTests.InfiniFrame.WebServer/InfiniTests.InfiniFrame.WebServer.csproj
+                      tests/InfiniTests.InfiniFrame.Shared/InfiniTests.InfiniFrame.Shared.csproj
+                      tests/InfiniTests.InfiniFrame.NativeBridge/InfiniTests.InfiniFrame.NativeBridge.csproj
+                      tests/InfiniTests.InfiniFrame.BlazorWebView/InfiniTests.InfiniFrame.BlazorWebView.csproj
+                      tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj
+                      tests/InfiniTests.InfiniFrame.SingleFile/InfiniTests.InfiniFrame.SingleFile.csproj
+                    )
+
                     for framework in net8.0 net9.0 net10.0; do
                       echo "=== Running ${framework} ==="
-                      test_args=(
-                        test
-                        --solution InfiniFrame.GitHubActions.Testing.slnf
-                        --configuration Release
-                        --no-build
-                        --no-restore
-                        --framework "$framework"
-                        -p:NativeArch=${{ matrix.arch }}
-                        -p:InfiniFrameSkipNativeBuild=true
-                        -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
-                        --
-                        --no-ansi
-                        --maximum-parallel-tests 1
-                      )
+                      for project in "${test_projects[@]}"; do
+                        echo "--- ${project} (${framework}) ---"
+                        test_args=(
+                          test
+                          --project "$project"
+                          --configuration Release
+                          --no-build
+                          --no-restore
+                          --framework "$framework"
+                          -p:NativeArch=${{ matrix.arch }}
+                          -p:InfiniFrameSkipNativeBuild=true
+                          -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
+                          --
+                          --no-ansi
+                          --maximum-parallel-tests 1
+                        )
 
-                      if [ "${{ inputs.enable_coverage }}" = "true" ] && [ "$framework" = "net10.0" ]; then
-                        test_args+=(--results-directory "artifacts/testresults/$framework" --coverage --coverage-output-format cobertura)
-                      fi
+                        if [ "${{ inputs.enable_coverage }}" = "true" ] && [ "$framework" = "net10.0" ]; then
+                          test_args+=(--results-directory "artifacts/testresults/$framework" --coverage --coverage-output-format cobertura)
+                        fi
 
-                      dotnet "${test_args[@]}" || exit_code=$?
+                        dotnet "${test_args[@]}" || exit_code=$?
+                      done
                     done
 
                     shopt -s nullglob
