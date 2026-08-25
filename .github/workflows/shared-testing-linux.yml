@@ -99,7 +99,7 @@ jobs:
                 if: matrix.display_server == 'wayland'
                 run: |
                     sudo apt-get update
-                    sudo apt-get install -y mutter
+                    sudo apt-get install -y weston
 
             -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
@@ -135,14 +135,34 @@ jobs:
                     if [ "${{ matrix.display_server }}" = "wayland" ]; then
                       echo "=== Wayland Setup ==="
 
+                      echo "Launching Xvfb (host for nested Wayland compositor)..."
+                      Xvfb :99 \
+                        -screen 0 1920x1080x24 \
+                        -ac \
+                        +extension GLX \
+                        +extension RANDR \
+                        +extension RENDER \
+                        -nolisten tcp \
+                        -noreset &> xvfb.log &
+
+                      export DISPLAY=:99
+
+                      echo "Waiting for X server..."
+                      timeout 30 bash -c 'until xdpyinfo >/dev/null 2>&1; do sleep 1; done' || {
+                        echo "X server failed to start."
+                        cat xvfb.log || true
+                        exit 1
+                      }
+
                       export XDG_RUNTIME_DIR="/tmp/runtime-$USER"
                       mkdir -p "$XDG_RUNTIME_DIR"
                       chmod 700 "$XDG_RUNTIME_DIR"
                       export XDG_SESSION_TYPE=wayland
                       export WAYLAND_DISPLAY=wayland-0
 
-                      echo "Launching Mutter (headless Wayland compositor)..."
-                      mutter --headless --wayland \
+                      echo "Launching Weston (x11 backend, nested in Xvfb)..."
+                      weston --backend=x11 --socket="$WAYLAND_DISPLAY" \
+                        --width=1920 --height=1080 \
                         &> compositor.log &
 
                       echo "Waiting for Wayland compositor..."
