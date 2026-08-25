@@ -61,10 +61,17 @@ public class CliTests {
             Arguments = $"\"{cliPath}\" --help"
         };
 
+        // On Linux, a crashing child process can send SIGABRT to the parent
+        // process group, killing the test host. Isolate in a new session.
+        if (OperatingSystem.IsLinux()) {
+            psi.FileName = "setsid";
+            psi.Arguments = $"dotnet \"{cliPath}\" --help";
+        }
+
         using var process = System.Diagnostics.Process.Start(psi)!;
+        string output = await process.StandardOutput.ReadToEndAsync();
         await process.WaitForExitAsync(ct);
 
-        string output = await process.StandardOutput.ReadToEndAsync();
         await Assert.That(output).Contains("InfiniFrame");
     }
 }
