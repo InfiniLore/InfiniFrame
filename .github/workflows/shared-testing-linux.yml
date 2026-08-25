@@ -95,11 +95,11 @@ jobs:
             -   name: Compile GSettings schemas
                 run: sudo glib-compile-schemas /usr/share/glib-2.0/schemas/
 
-            -   name: Install Weston (Wayland)
+            -   name: Install Mutter (Wayland compositor)
                 if: matrix.display_server == 'wayland'
                 run: |
                     sudo apt-get update
-                    sudo apt-get install -y weston
+                    sudo apt-get install -y mutter
 
             -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
@@ -141,15 +141,16 @@ jobs:
                       export XDG_SESSION_TYPE=wayland
                       export WAYLAND_DISPLAY=wayland-0
 
-                      echo "Launching Weston (headless Wayland compositor)..."
-                      weston --backend=headless --socket="$WAYLAND_DISPLAY" \
-                        --width=1920 --height=1080 \
-                        &> weston.log &
+                      echo "Launching Mutter (headless Wayland compositor)..."
+                      mutter --headless --wayland --no-x11 \
+                        --virtual-monitor 1920x1080 \
+                        --wayland-display="$WAYLAND_DISPLAY" \
+                        &> mutter.log &
 
                       echo "Waiting for Wayland compositor..."
                       timeout 30 bash -c 'until [ -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]; do sleep 1; done' || {
-                        echo "Weston failed to start."
-                        cat weston.log || true
+                        echo "Mutter failed to start."
+                        cat mutter.log || true
                         exit 1
                       }
 
@@ -244,14 +245,13 @@ jobs:
                         -p:NativeArch=${{ matrix.arch }}
                         -p:InfiniFrameSkipNativeBuild=true
                         -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
-                        --results-directory "artifacts/testresults/$framework"
                         --
                         --no-ansi
                         --maximum-parallel-tests 1
                       )
 
                       if [ "${{ inputs.enable_coverage }}" = "true" ] && [ "$framework" = "net10.0" ]; then
-                        test_args+=(--coverage --coverage-output-format cobertura)
+                        test_args+=(--results-directory "artifacts/testresults/$framework" --coverage --coverage-output-format cobertura)
                       fi
 
                       dotnet "${test_args[@]}" || exit_code=$?
