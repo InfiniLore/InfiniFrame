@@ -99,7 +99,7 @@ jobs:
                 if: matrix.display_server == 'wayland'
                 run: |
                     sudo apt-get update
-                    sudo apt-get install -y weston mutter
+                    sudo apt-get install -y mutter
 
             -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
@@ -141,9 +141,8 @@ jobs:
                       export XDG_SESSION_TYPE=wayland
                       export WAYLAND_DISPLAY=wayland-0
 
-                      echo "Launching Weston (headless Wayland compositor)..."
-                      weston --backend=headless --socket="$WAYLAND_DISPLAY" \
-                        --width=1920 --height=1080 \
+                      echo "Launching Mutter (headless Wayland compositor)..."
+                      mutter --headless --wayland \
                         &> compositor.log &
 
                       echo "Waiting for Wayland compositor..."
