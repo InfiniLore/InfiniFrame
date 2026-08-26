@@ -40,8 +40,8 @@
   <Folder Name="/.dev-tools/github/actions/download-native-binaries/">
     <File Path=".github/actions/download-native-binaries/action.yml" />
   </Folder>
-  <Folder Name="/.dev-tools/github/actions/packtool-e2e/">
-    <File Path=".github/actions/packtool-e2e/action.yml" />
+  <Folder Name="/.dev-tools/github/actions/singlefile-e2e/">
+    <File Path=".github/actions/singlefile-e2e/action.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/actions/setup-dependencies-native/">
     <File Path=".github/actions/setup-dependencies-native/action.yml" />
