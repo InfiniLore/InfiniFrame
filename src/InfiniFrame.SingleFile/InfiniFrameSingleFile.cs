@@ -10,13 +10,24 @@ namespace InfiniFrame.SingleFile;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides helpers for configuring single-file packaged deployments that embed native binaries as managed resources.
+/// </summary>
 public static class InfiniFrameSingleFile {
+    /// <summary>
+    ///     Extracts embedded native binaries and registers a <see cref="NativeLibrary"/> resolver.
+    ///     Call once at startup when <see cref="InfiniFramePackMode.IsActive"/> is <c>true</c>.
+    /// </summary>
     public static void Initialize() {
         if (!InfiniFramePackMode.IsActive) return;
 
         InfiniFrameSingleFileBootstrap.Initialize();
     }
 
+    /// <summary>
+    ///     Configures the window builder to serve embedded wwwroot assets for single-file deployments.
+    /// </summary>
+    /// <param name="builder">The window builder.</param>
     public static void AddSingleFileRequirements(this IInfiniFrameWindowBuilder builder) {
         if (!InfiniFramePackMode.IsActive) return;
 
@@ -30,6 +41,10 @@ public static class InfiniFrameSingleFile {
         );
     }
 
+    /// <summary>
+    ///     Registers the single-file <see cref="IFileProvider"/> for Blazor app integration.
+    /// </summary>
+    /// <param name="builder">The Blazor app builder.</param>
     public static void AddSingleFileRequirements(this IInfiniFrameBlazorAppBuilder builder) {
         if (!InfiniFramePackMode.IsActive) return;
 

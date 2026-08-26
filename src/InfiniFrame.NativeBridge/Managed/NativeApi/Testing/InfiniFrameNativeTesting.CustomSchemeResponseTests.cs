@@ -8,6 +8,9 @@ namespace InfiniFrame.NativeBridge;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides managed wrappers around native test entry points for custom scheme response handling.
+/// </summary>
 public static partial class InfiniFrameNativeTesting {
 
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeTests_ParseOrigin", SetLastError = true)]

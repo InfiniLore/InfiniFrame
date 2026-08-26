@@ -5,12 +5,20 @@ namespace InfiniFrame.Security;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Default implementation of <see cref="IInfiniFrameUriSecurityPolicy"/> that validates navigation schemes,
+///     external schemes, and trusted origins.
+/// </summary>
 public sealed class InfiniFrameUriSecurityPolicy(
     IEnumerable<string> allowedNavigationSchemes,
     IEnumerable<string> allowedExternalSchemes,
     IEnumerable<Uri>? trustedOrigins = null,
     bool trustAllOrigins = false
 ) : IInfiniFrameUriSecurityPolicy {
+    /// <summary>
+    ///     Gets the default security policy that allows HTTPS, HTTP, and the "app" scheme for navigation,
+    ///     and HTTPS, HTTP, and "mailto" for external content.
+    /// </summary>
     public static InfiniFrameUriSecurityPolicy Default { get; } = new(
         [Uri.UriSchemeHttps, Uri.UriSchemeHttp, "app"],
         [Uri.UriSchemeHttps, Uri.UriSchemeHttp, Uri.UriSchemeMailto]

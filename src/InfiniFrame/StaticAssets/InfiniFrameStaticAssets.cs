@@ -7,6 +7,10 @@ namespace InfiniFrame.StaticAssets;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Concrete implementation of <see cref="IInfiniFrameStaticAssets"/> that holds a file provider,
+///     base URI, and default document configuration for serving embedded assets.
+/// </summary>
 public sealed class InfiniFrameStaticAssets : IInfiniFrameStaticAssets {
     /// <inheritdoc cref="IInfiniFrameStaticAssets.FileProvider" />
     public required IFileProvider FileProvider { get; init; }
