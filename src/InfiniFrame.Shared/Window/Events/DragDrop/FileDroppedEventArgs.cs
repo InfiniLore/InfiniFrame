@@ -12,6 +12,11 @@ namespace InfiniFrame.DragDrop;
 /// </summary>
 public sealed class FileDroppedEventArgs {
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="FileDroppedEventArgs"/> class.
+    /// </summary>
+    /// <param name="files">The file paths that were dropped.</param>
+    /// <param name="dropLocation">The screen coordinates where the drop occurred.</param>
     public FileDroppedEventArgs(IReadOnlyList<string> files, Point dropLocation) {
         Files = files;
         DropLocation = dropLocation;

@@ -23,6 +23,9 @@ public sealed class InfiniFrameJsComponentConfiguration(
     ///     Gets the last exception thrown by <see cref="Add" />, if any, or <c>null</c>.
     /// </summary>
     public AggregateException? LastAddComponentException => Volatile.Read(ref _lastAddComponentException);
+    /// <summary>
+    ///     Gets the JavaScript component configuration store for registering root components.
+    /// </summary>
     public JSComponentConfigurationStore JSComponents { get; } = jsComponents;
 
     /// <inheritdoc cref="IInfiniFrameJsComponentConfiguration.Add" />

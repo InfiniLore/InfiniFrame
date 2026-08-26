@@ -22,6 +22,12 @@ public static class OpenExternalTargetWebMessageHandler {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
+    /// <summary>
+    ///     Registers a JavaScript handler that opens external URLs in the default system browser.
+    /// </summary>
+    /// <typeparam name="T">The builder type.</typeparam>
+    /// <param name="builder">The window builder.</param>
+    /// <returns>The builder for chaining.</returns>
     public static T RegisterOpenExternalTargetWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
         builder.RegisterWebMessagePostHandler(JsHandlerNames.OpenExternal, HandleWebMessage);
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, JsHandlerNames.RegisterOpenExternal);

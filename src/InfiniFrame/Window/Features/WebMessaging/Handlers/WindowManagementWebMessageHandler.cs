@@ -13,6 +13,12 @@ namespace InfiniFrame;
 ///     maximize, close, restore, move, and resize.
 /// </summary>
 public static class WindowManagementWebMessageHandler {
+    /// <summary>
+    ///     Registers JavaScript handlers for window management operations including minimize, maximize, close, restore, move, and resize.
+    /// </summary>
+    /// <typeparam name="T">The builder type.</typeparam>
+    /// <param name="builder">The window builder.</param>
+    /// <returns>The builder for chaining.</returns>
     public static T RegisterWindowManagementWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
         builder.RegisterWebMessagePostHandler(
             JsHandlerNames.WindowMinimize,

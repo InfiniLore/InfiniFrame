@@ -9,11 +9,19 @@ namespace InfiniFrame.NativeBridge;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides managed wrappers around native test entry points for verification and diagnostics.
+/// </summary>
 public static partial class InfiniFrameNativeTesting {
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeTests_MacPooledHostCount", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     private static partial InfiniFrameNativeInteropStatus MacPooledHostCountNative(out nuint value);
 
+    /// <summary>
+    ///     Returns the number of pooled native host handles on macOS. Throws on other platforms.
+    /// </summary>
+    /// <returns>The count of pooled host handles.</returns>
+    /// <exception cref="PlatformNotSupportedException">Thrown when not running on macOS.</exception>
     public static nuint MacPooledHostCount() {
         if (!OperatingSystem.IsMacOS()) throw new PlatformNotSupportedException();
 

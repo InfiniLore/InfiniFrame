@@ -46,6 +46,15 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     // -----------------------------------------------------------------------------------------------------------------
     // Constructor
     // -----------------------------------------------------------------------------------------------------------------
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="InfiniFrameWebViewManager"/> class.
+    /// </summary>
+    /// <param name="builder">The window builder for configuring the native window.</param>
+    /// <param name="provider">The service provider for dependency injection.</param>
+    /// <param name="dispatcher">The Blazor dispatcher for thread marshalling.</param>
+    /// <param name="fileProvider">The file provider for serving static assets.</param>
+    /// <param name="jsComponents">The JavaScript component configuration store.</param>
+    /// <param name="config">The Blazor application configuration.</param>
     public InfiniFrameWebViewManager(
         IInfiniFrameWindowBuilder builder,
         IServiceProvider provider,

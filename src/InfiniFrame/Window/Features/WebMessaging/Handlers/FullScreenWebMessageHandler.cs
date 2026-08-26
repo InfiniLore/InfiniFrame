@@ -12,6 +12,12 @@ namespace InfiniFrame;
 ///     from web content.
 /// </summary>
 public static class FullScreenWebMessageHandler {
+    /// <summary>
+    ///     Registers JavaScript message handlers for entering, exiting, and toggling full-screen mode.
+    /// </summary>
+    /// <typeparam name="T">The builder type.</typeparam>
+    /// <param name="builder">The window builder.</param>
+    /// <returns>The builder for chaining.</returns>
     public static T RegisterFullScreenWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
         builder.RegisterWebMessagePostHandler(
             JsHandlerNames.FullscreenEnter,
