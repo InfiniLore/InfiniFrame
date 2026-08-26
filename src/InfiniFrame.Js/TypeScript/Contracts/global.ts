@@ -11,7 +11,7 @@ declare global {
     // noinspection JSUnusedGlobalSymbols
     interface Window {
         infiniframe: InfiniFrame;
-        __dispatchMessageCallback?: (message: string) => void;
+        __infiniframe_dispatch?: (message: string) => void;
 
         // Managed by the host: Webview or WebKit
         chrome?: {

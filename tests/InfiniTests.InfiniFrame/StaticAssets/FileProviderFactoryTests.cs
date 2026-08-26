@@ -55,7 +55,7 @@ public class FileProviderFactoryTests {
     public async Task CreateWwwrootProvider_NonExistentPhysicalPath_ReturnsCompositeProvider(CancellationToken ct = default) {
         // Arrange
         Assembly assembly = typeof(FileProviderFactory).Assembly;
-        string nonExistentPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString(), "wwwroot");
+        string nonExistentPath = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString(), "wwwroot");
 
         // Act
         IFileProvider provider = FileProviderFactory.CreateWwwrootProvider(

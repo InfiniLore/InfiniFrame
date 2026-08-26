@@ -77,11 +77,11 @@ public sealed class IconFileTaskbarTests {
     private static string ResolveRepoAsset(params string[] parts) {
         string path = AppContext.BaseDirectory;
         for (int i = 0; i < 5; i++) {
-            path = Path.GetFullPath(Path.Combine(path, ".."));
+            path = Path.GetFullPath(Path.Join(path, ".."));
         }
 
         foreach (string part in parts) {
-            path = Path.Combine(path, part);
+            path = Path.Join(path, part);
         }
 
         return path;

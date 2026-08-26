@@ -10,15 +10,15 @@ public class SingleFileTargetsTests {
     private static string GetRepoRoot() {
         string? dir = AppContext.BaseDirectory;
         while (dir is not null) {
-            if (Directory.Exists(Path.Combine(dir, ".git")))
+            if (Directory.Exists(Path.Join(dir, ".git")))
                 return dir;
             dir = Path.GetDirectoryName(dir);
         }
-        return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", ".."));
+        return Path.GetFullPath(Path.Join(AppContext.BaseDirectory, "..", "..", "..", "..", "..", ".."));
     }
 
     private static string GetTargetsPath()
-        => Path.Combine(GetRepoRoot(), "src", "InfiniFrame.SingleFile", "InfiniFrame.SingleFile.targets");
+        => Path.Join(GetRepoRoot(), "src", "InfiniFrame.SingleFile", "InfiniFrame.SingleFile.targets");
 
     [Test]
     public async Task TargetsFile_Exists(CancellationToken ct = default) {

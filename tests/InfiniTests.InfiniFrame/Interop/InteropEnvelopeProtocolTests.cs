@@ -17,13 +17,13 @@ public class InteropEnvelopeProtocolTests {
     }
 
     private static string ResolveGoldenVectorsPath() {
-        string outputLinkedPath = Path.Combine(AppContext.BaseDirectory, "Interop", GoldenVectorsFileName);
+        string outputLinkedPath = Path.Join(AppContext.BaseDirectory, "Interop", GoldenVectorsFileName);
         if (File.Exists(outputLinkedPath))
             return outputLinkedPath;
 
         DirectoryInfo? current = new(AppContext.BaseDirectory);
         while (current is not null) {
-            string candidate = Path.Combine(
+            string candidate = Path.Join(
                 current.FullName,
                 "src",
                 "InfiniFrame.Js",

@@ -61,7 +61,7 @@ public class Win32SetWebView2PathTests {
         }
 
         string runtimePath = await GetOrProvisionFixedRuntimePath(ct);
-        await Assert.That(File.Exists(Path.Combine(runtimePath, "msedgewebview2.exe"))).IsTrue();
+        await Assert.That(File.Exists(Path.Join(runtimePath, "msedgewebview2.exe"))).IsTrue();
 
         int port = GetAvailableLoopbackPort();
         using InfiniFrameTestWindow windowUtility = CreateWindowWithFixedRuntime(runtimePath, port, ct);
@@ -73,7 +73,7 @@ public class Win32SetWebView2PathTests {
 
     private static async Task<string> GetOrProvisionFixedRuntimePath(CancellationToken ct) {
         string? configuredPath = Environment.GetEnvironmentVariable("INFINIFRAME_TEST_WEBVIEW2_RUNTIME_PATH");
-        if (!string.IsNullOrWhiteSpace(configuredPath) && File.Exists(Path.Combine(configuredPath, "msedgewebview2.exe"))) {
+        if (!string.IsNullOrWhiteSpace(configuredPath) && File.Exists(Path.Join(configuredPath, "msedgewebview2.exe"))) {
             return configuredPath;
         }
 
@@ -110,7 +110,7 @@ public class Win32SetWebView2PathTests {
             }
 
             string runtimePath = standardOutput.Trim();
-            if (!File.Exists(Path.Combine(runtimePath, "msedgewebview2.exe"))) {
+            if (!File.Exists(Path.Join(runtimePath, "msedgewebview2.exe"))) {
                 throw new InvalidOperationException("WebView2 fixed runtime provisioning returned an invalid runtime path.");
             }
 
@@ -124,7 +124,7 @@ public class Win32SetWebView2PathTests {
     private static string FindRepositoryFile(params string[] relativePath) {
         foreach (string startPath in new[] { AppContext.BaseDirectory, Environment.CurrentDirectory }) {
             for (DirectoryInfo? directory = new(startPath); directory is not null; directory = directory.Parent) {
-                string candidate = Path.Combine([directory.FullName, .. relativePath]);
+                string candidate = Path.Join([directory.FullName, .. relativePath]);
                 if (File.Exists(candidate)) return candidate;
             }
         }
