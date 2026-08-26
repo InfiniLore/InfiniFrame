@@ -31,7 +31,7 @@
 
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
-        <Version>0.60.0</Version>
+        <Version>0.61.0</Version>
         <Authors>InfiniFrame, TryPhotino</Authors>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -39,42 +39,42 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="InfiniFrame"/>
-        <InternalsVisibleTo Include="InfiniFrame.Blazor"/>
-        <InternalsVisibleTo Include="InfiniFrame.BlazorWebView"/>
-        <InternalsVisibleTo Include="InfiniFrame.Js"/>
-        <InternalsVisibleTo Include="InfiniFrame.NativeBridge"/>
-        <InternalsVisibleTo Include="InfiniFrame.Shared"/>
-        <InternalsVisibleTo Include="InfiniFrame.SingleFile"/>
-        <InternalsVisibleTo Include="InfiniFrame.WebServer"/>
+        <InternalsVisibleTo Include="InfiniFrame" />
+        <InternalsVisibleTo Include="InfiniFrame.Blazor" />
+        <InternalsVisibleTo Include="InfiniFrame.BlazorWebView" />
+        <InternalsVisibleTo Include="InfiniFrame.Js" />
+        <InternalsVisibleTo Include="InfiniFrame.NativeBridge" />
+        <InternalsVisibleTo Include="InfiniFrame.Shared" />
+        <InternalsVisibleTo Include="InfiniFrame.SingleFile" />
+        <InternalsVisibleTo Include="InfiniFrame.WebServer" />
 
-        <InternalsVisibleTo Include="InfiniTests"/>
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame"/>
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Blazor"/>
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.BlazorWebView"/>
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Js"/>
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.NativeBridge"/>
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Shared"/>
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.SingleFile"/>
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.WebServer"/>
+        <InternalsVisibleTo Include="InfiniTests" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Blazor" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.BlazorWebView" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Js" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.NativeBridge" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Shared" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.SingleFile" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.WebServer" />
 
-        <InternalsVisibleTo Include="InfiniAutomationTests"/>
-        <InternalsVisibleTo Include="InfiniAutomationTests.BlazorWebView.MudBlazor"/>
-        <InternalsVisibleTo Include="InfiniAutomationTests.WebApp.React"/>
-        <InternalsVisibleTo Include="InfiniAutomationTests.WebApp.Vue"/>
+        <InternalsVisibleTo Include="InfiniAutomationTests" />
+        <InternalsVisibleTo Include="InfiniAutomationTests.BlazorWebView.MudBlazor" />
+        <InternalsVisibleTo Include="InfiniAutomationTests.WebApp.React" />
+        <InternalsVisibleTo Include="InfiniAutomationTests.WebApp.Vue" />
 
-        <InternalsVisibleTo Include="DynamicProxyGenAssembly2"/>
+        <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     </ItemGroup>
 
-    <Import Project="AnalyzerBaseline.props" Condition="Exists('AnalyzerBaseline.props')"/>
+    <Import Project="AnalyzerBaseline.props" Condition="Exists('AnalyzerBaseline.props')" />
 
     <PropertyGroup Condition="'$(AnalyzerBaselineWarningsNotAsErrors)' != ''">
         <WarningsNotAsErrors>$(WarningsNotAsErrors);$(AnalyzerBaselineWarningsNotAsErrors)</WarningsNotAsErrors>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="../../LICENSE" Pack="true" PackagePath="" Visible="false"/>
-        <None Include="../../README.md" Pack="true" PackagePath="" Visible="false"/>
-        <None Include="../../assets/icon.png" Pack="true" PackagePath="" Visible="false"/>
+        <None Include="../../LICENSE" Pack="true" PackagePath="" Visible="false" />
+        <None Include="../../README.md" Pack="true" PackagePath="" Visible="false" />
+        <None Include="../../assets/icon.png" Pack="true" PackagePath="" Visible="false" />
     </ItemGroup>
 </Project>
