@@ -7,6 +7,9 @@ namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Configures JavaScript component interop for the Blazor web view.
+/// </summary>
 public interface IInfiniFrameJsComponentConfiguration : IJSComponentConfiguration {
     /// <summary>
     ///     Adds a root component of the specified type to the window at the given CSS selector.

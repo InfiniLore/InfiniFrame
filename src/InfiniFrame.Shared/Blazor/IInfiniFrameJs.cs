@@ -7,6 +7,9 @@ namespace InfiniFrame.Blazor;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides JavaScript interop utilities for Blazor components, including pointer capture.
+/// </summary>
 public interface IInfiniFrameJs {
     /// <summary>
     ///     Sets the pointer capture to a specific element for the given pointer ID.

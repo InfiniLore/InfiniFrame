@@ -7,6 +7,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Fluent extension methods for <see cref="ISizeInfiniFrameWindowBuilderFeature"/> on <see cref="IInfiniFrameWindowBuilder"/>.
+/// </summary>
 public static class ISizeInfiniFrameWindowBuilderFeatureExtensions {
     /// <summary>
     ///     Sets the size of the window using width and height values and returns the builder for chaining.

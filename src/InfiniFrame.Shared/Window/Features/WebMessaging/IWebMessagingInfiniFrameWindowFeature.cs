@@ -26,9 +26,6 @@ public interface IWebMessagingInfiniFrameWindowFeature {
     /// <summary>
     ///     Sends an InfiniFrame envelope and waits until the JavaScript message router acknowledges receipt.
     /// </summary>
-    /// <summary>
-    ///     Sends an InfiniFrame envelope and waits until the JavaScript message router acknowledges receipt.
-    /// </summary>
     /// <param name="message">The message to send as a string.</param>
     /// <param name="ct">A cancellation token to cancel the operation.</param>
     /// <returns>A <see cref="Task" /> that completes when the message has been acknowledged.</returns>

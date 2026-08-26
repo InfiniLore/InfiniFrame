@@ -16,12 +16,21 @@ namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Manages the Blazor web view lifecycle, resource serving, and custom URL scheme handling.
+/// </summary>
 public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewManager {
 
     // BlazorWebView resources are always hosted on a dedicated app:// origin.
     // This keeps module/script fetches on the same trusted internal origin
     // across platforms and avoids localhost/CORS routing edge-cases.
+    /// <summary>
+    ///     The custom URL scheme used for serving Blazor application resources.
+    /// </summary>
     public const string BlazorAppScheme = "app";
+    /// <summary>
+    ///     The base URI for the Blazor application's internal origin.
+    /// </summary>
     public const string AppBaseUri = $"{BlazorAppScheme}://localhost/";
 
     private readonly Channel<string> _channel;

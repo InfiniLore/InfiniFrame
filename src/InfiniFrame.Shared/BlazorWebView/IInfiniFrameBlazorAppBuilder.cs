@@ -7,6 +7,9 @@ namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Defines the builder for creating a Blazor application hosted in an InfiniFrame native window.
+/// </summary>
 public interface IInfiniFrameBlazorAppBuilder {
     /// <summary>
     ///     Gets the list of root components to be added to the Blazor application.

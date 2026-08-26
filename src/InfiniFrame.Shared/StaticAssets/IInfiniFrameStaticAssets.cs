@@ -7,6 +7,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides access to static assets embedded in the application assembly.
+/// </summary>
 public interface IInfiniFrameStaticAssets {
     /// <summary>
     ///     Gets the file provider used to serve static assets.

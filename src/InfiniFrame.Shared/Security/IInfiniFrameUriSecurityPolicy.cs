@@ -5,6 +5,9 @@ namespace InfiniFrame.Security;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Defines the URI security policy for validating trusted origins.
+/// </summary>
 public interface IInfiniFrameUriSecurityPolicy {
     /// <summary>
     ///     Gets the set of URI schemes that are allowed for navigation.

@@ -5,6 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Fluent extension methods for <see cref="IPageNavigationInfiniFrameWindowBuilderFeature"/> on <see cref="IInfiniFrameWindowBuilder"/>.
+/// </summary>
 public static class IPageNavigationInfiniFrameWindowBuilderFeatureExtensions {
     /// <summary>
     ///     Sets the content to display as the start page and returns the builder for chaining.

@@ -9,6 +9,10 @@ namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Represents a running Blazor application hosted in an InfiniFrame native window.
+///     Manages the application lifecycle and service provider.
+/// </summary>
 public class InfiniFrameBlazorApp(
     IServiceProvider provider,
     IInfiniFrameRootComponentList rootComponents,
@@ -17,6 +21,9 @@ public class InfiniFrameBlazorApp(
 ) : IInfiniFrameBlazorApp {
 
     private int _disposed;
+    /// <summary>
+    ///     Gets the service provider for the running Blazor application.
+    /// </summary>
     public IServiceProvider ServiceProvider { get; } = provider;
     private IInfiniFrameRootComponentList RootComponents { get; } = rootComponents;
     private IInfiniFrameJsComponentConfiguration? RootComponentConfiguration { get; } = rootComponentConfiguration;
