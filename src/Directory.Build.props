@@ -12,6 +12,7 @@
         <AnalysisLevel>latest</AnalysisLevel>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
+        <ExcludeByFile>**/*.g.cs;**/*.g.props;**/*.g.targets;**/obj/**;**/bin/**</ExcludeByFile>
 
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>

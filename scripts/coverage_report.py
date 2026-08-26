@@ -88,13 +88,16 @@ def write_badge(path: Path, label: str, message: str, color: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         json.dumps(
-            OrderedDict(
-                schemaVersion=1,
-                label=label,
-                message=message,
-                color=color,
-            )
-        ),
+            {
+                "schemaVersion": 1,
+                "label": label,
+                "message": message,
+                "color": color,
+            },
+            indent=4,
+            sort_keys=False,
+        )
+        + "\n",
         encoding="utf-8",
     )
 
