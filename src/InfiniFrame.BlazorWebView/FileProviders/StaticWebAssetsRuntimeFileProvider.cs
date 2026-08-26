@@ -409,8 +409,12 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, s
             try {
                 children = Directory.GetDirectories(directory, searchPattern, SearchOption.TopDirectoryOnly);
             }
-            catch (IOException) {}
-            catch (UnauthorizedAccessException) {}
+            catch (IOException) {
+                // Ignore
+            }
+            catch (UnauthorizedAccessException) {
+                // Ignore
+            }
 
             if (children.Length > 0) return children[0];
 
