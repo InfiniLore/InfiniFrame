@@ -1,13 +1,12 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Text.Json;
 using InfiniFrame;
 using InfiniFrame.Interop;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniTests.Substitutes;
 using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
-using System.Text.Json;
 
 namespace InfiniTests.InfiniFrame.Window.Features.WebMessaging.Handlers;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -27,7 +26,7 @@ public class GetMessageWebMessageHandlerTests {
 
         events.OnWebMessageReceived(inboundMessage);
 
-        window.Window.Features.Decorations.Received(1).SetTitle("Mapped title");
+        window.Decorations.SetTitle("Mapped title").WasCalled(Times.Once);
     }
 
     [Test]
@@ -37,7 +36,7 @@ public class GetMessageWebMessageHandlerTests {
             = CreateWindowHarness();
 
         builder.RegisterGetWebMessageHandler();
-        window.Window.Features.Decorations.Title.Returns("Native Test Title");
+        window.Decorations.Title.Returns("Native Test Title");
 
         string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(
             JsHandlerNames.GetRequest,

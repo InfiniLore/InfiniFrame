@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Text.Json;
 using InfiniAutomationTests.BlazorWebView.MudBlazor.TestUtility;
 using InfiniAutomationTests.Tests;
 using InfiniTests;
 using Microsoft.Playwright;
-using System.Text.Json;
 
 namespace InfiniAutomationTests.BlazorWebView.MudBlazor;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ public sealed class FragmentAndCustomSchemeRequestTests : InfiniFramePlaywrightT
             new PageWaitForFunctionOptions { Timeout = 20_000 });
         await page.WaitForSelectorAsync("#settings", new PageWaitForSelectorOptions { Timeout = 20_000 });
 
-        JsonElement pageState = await EvaluateWhenPageReadyAsync<JsonElement>(
+        var pageState = await EvaluateWhenPageReadyAsync<JsonElement>(
             page,
             // lang=javascript
             """
@@ -46,7 +46,7 @@ public sealed class FragmentAndCustomSchemeRequestTests : InfiniFramePlaywrightT
         await Assert.That(pageState.GetProperty("hasSettings").GetBoolean()).IsTrue();
         await WaitForInfiniFrameReadyAsync(page);
 
-        JsonElement fetchResult = await EvaluateWhenPageReadyAsync<JsonElement>(
+        var fetchResult = await EvaluateWhenPageReadyAsync<JsonElement>(
             page,
             // lang=javascript
             """
@@ -69,9 +69,13 @@ public sealed class FragmentAndCustomSchemeRequestTests : InfiniFramePlaywrightT
         await Assert.That(fetchResult.GetProperty("status").GetInt32()).IsEqualTo(200);
         await Assert.That(fetchResult.GetProperty("contentType").GetString()).StartsWith("application/json");
         await Assert.That(fetchResult.GetProperty("body").GetString())
-            .IsEqualTo("{\"message\":\"InfiniFrame fragment fetch payload\"}");
+            .IsEqualTo("""
+            {
+                "message": "InfiniFrame fragment fetch payload"
+            }
+            """);
 
-        JsonElement xhrResult = await EvaluateWhenPageReadyAsync<JsonElement>(
+        var xhrResult = await EvaluateWhenPageReadyAsync<JsonElement>(
             page,
             // lang=javascript
             """
@@ -93,7 +97,11 @@ public sealed class FragmentAndCustomSchemeRequestTests : InfiniFramePlaywrightT
         await Assert.That(xhrResult.GetProperty("status").GetInt32()).IsEqualTo(200);
         await Assert.That(xhrResult.GetProperty("contentType").GetString()).StartsWith("application/json");
         await Assert.That(xhrResult.GetProperty("body").GetString())
-            .IsEqualTo("{\"message\":\"InfiniFrame fragment fetch payload\"}");
+            .IsEqualTo("""
+            {
+                "message": "InfiniFrame fragment fetch payload"
+            }
+            """);
 
         string messageTitle = await EvaluateWhenPageReadyAsync<string>(
             page,

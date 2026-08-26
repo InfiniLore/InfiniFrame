@@ -24,8 +24,12 @@ void InfiniFrameWindow::ShowNotification(const char* title, const char* body) {
 }
 
 void InfiniFrameWindow::ShowNotificationWithOptions(
-    const char* title, const char* body, const char* iconPath, const int urgency, const char* tag
-) {
+    const char* title,
+    const char* body,
+    const char* iconPath,
+    const int urgency,
+    const char* tag
+    ) {
     (void)tag;
     std::wstring wideTitle = ToUTF16String(title);
     std::wstring wideBody = ToUTF16String(body);
@@ -38,17 +42,19 @@ void InfiniFrameWindow::ShowNotificationWithOptions(
         const char* iconStr = NullToEmpty(iconPath);
         if (iconStr[0] != '\0') {
             toast.setImagePath(ToUTF16String(iconStr));
-        }
-        else if (!m_impl->_iconFileName.empty()) {
+        } else if (!m_impl->_iconFileName.empty()) {
             toast.setImagePath(m_impl->_iconFileName);
         }
 
         if (urgency >= 0 && urgency <= 3) {
-            toast.setAudioOption(static_cast<WinToastTemplate::AudioOption>(
-                urgency == 3 ? WinToastTemplate::AudioOption::Loop
-                : urgency == 1 ? WinToastTemplate::AudioOption::Silent
-                : WinToastTemplate::AudioOption::Default
-            ));
+            toast.setAudioOption(
+                static_cast<WinToastTemplate::AudioOption>(
+                    urgency == 3
+                    ? WinToastTemplate::AudioOption::Loop
+                    : urgency == 1
+                    ? WinToastTemplate::AudioOption::Silent
+                    : WinToastTemplate::AudioOption::Default
+                ));
         }
 
         WinToast::instance()->showToast(toast, m_impl->_toastHandler.get());
@@ -57,10 +63,14 @@ void InfiniFrameWindow::ShowNotificationWithOptions(
 
 void InfiniFrameWindow::BeginShowNotification(
     const uint64_t operationId,
-    const char* title, const char* body, const char* iconPath,
-    const int urgency, const char* tag,
-    const OperationCompletedCallback completion, void* completionContext
-) {
+    const char* title,
+    const char* body,
+    const char* iconPath,
+    const int urgency,
+    const char* tag,
+    const OperationCompletedCallback completion,
+    void* completionContext
+    ) {
     (void)tag;
     std::wstring wideTitle = ToUTF16String(title);
     std::wstring wideBody = ToUTF16String(body);
@@ -73,17 +83,19 @@ void InfiniFrameWindow::BeginShowNotification(
         const char* iconStr = NullToEmpty(iconPath);
         if (iconStr[0] != '\0') {
             toast.setImagePath(ToUTF16String(iconStr));
-        }
-        else if (!m_impl->_iconFileName.empty()) {
+        } else if (!m_impl->_iconFileName.empty()) {
             toast.setImagePath(m_impl->_iconFileName);
         }
 
         if (urgency >= 0 && urgency <= 3) {
-            toast.setAudioOption(static_cast<WinToastTemplate::AudioOption>(
-                urgency == 3 ? WinToastTemplate::AudioOption::Loop
-                : urgency == 1 ? WinToastTemplate::AudioOption::Silent
-                : WinToastTemplate::AudioOption::Default
-            ));
+            toast.setAudioOption(
+                static_cast<WinToastTemplate::AudioOption>(
+                    urgency == 3
+                    ? WinToastTemplate::AudioOption::Loop
+                    : urgency == 1
+                    ? WinToastTemplate::AudioOption::Silent
+                    : WinToastTemplate::AudioOption::Default
+                ));
         }
 
         WinToast::instance()->showToast(toast, m_impl->_toastHandler.get());
@@ -96,5 +108,6 @@ void InfiniFrameWindow::BeginShowNotification(
 
 void InfiniFrameWindow::CancelNotification(const uint64_t operationId, bool* canceled) {
     (void)operationId;
-    if (canceled) *canceled = false;
+    if (canceled)
+        *canceled = false;
 }

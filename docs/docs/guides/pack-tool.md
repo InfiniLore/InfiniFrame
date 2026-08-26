@@ -1,231 +1,145 @@
-# InfiniLore.InfiniFrame.Tools.Pack Guide
+# Single-File Executable Packaging Guide
 
-`InfiniLore.InfiniFrame.Tools.Pack` is a .NET tool that packages an InfiniFrame application into a single-file executable while embedding:
+`InfiniLore.InfiniFrame.SingleFile` packages an InfiniFrame application into a single-file executable while embedding:
 
 - `wwwroot` content
 - Native InfiniFrame runtime binaries for the selected runtime identifier (RID)
 
-This guide covers how to install the tool, run it, and avoid common packaging issues.
+This guide covers how to use the MSBuild target, configure options, and avoid common packaging issues.
 
 ## Contents
 
 - [Overview](#overview)
 - [How It Works](#how-it-works)
-- [Install and Setup](#install-and-setup)
-- [Install from NuGet](#install-from-nuget)
+- [Install](#install)
 - [Command Syntax](#command-syntax)
 - [Usage Examples](#usage-examples)
 - [Common Patterns](#common-patterns)
 - [App Bootstrap Requirement](#app-bootstrap-requirement)
+- [MSBuild Target Reference](#msbuild-target-reference)
 - [Edge Cases and Pitfalls](#edge-cases-and-pitfalls)
-- [Native Artifact Fallback Policy](#native-artifact-fallback-policy)
 
 ## Overview
 
-Use `InfiniLore.InfiniFrame.Tools.Pack` when you want a single distributable output for an InfiniFrame app.
+Use `InfiniLore.InfiniFrame.SingleFile` when you want a single distributable output for an InfiniFrame app.
 
-Compared to a regular `dotnet publish`, the tool additionally:
+Compared to a regular `dotnet publish`, the target additionally:
 
-- Resolves native InfiniFrame runtime files from publish output
-- Verifies required native artifacts exist before publish starts
-- Injects custom MSBuild targets so `wwwroot` and native runtime files are embedded as resources
-- Cleans unpacked runtime artifacts from the final publish directory
+- Embeds `wwwroot` content as managed resources
+- Embeds native InfiniFrame runtime files (`InfiniFrame.Native.dll`, `WebView2Loader.dll`, etc.) as managed resources
+- Removes unpacked sidecar files from the final publish directory
+- Performs a two-pass publish to ensure all content is available before embedding
 
 Because native files are embedded as resources, your app must initialize the runtime resolver at startup with `InfiniFrameSingleFileBootstrap.Initialize()`.
 
 ## How It Works
 
-At a high level, `infiniframe-pack publish` runs this pipeline:
+The `InfiniFrameSingleFile` MSBuild target runs a two-pass publish pipeline:
 
-1. Parse CLI options and resolve defaults (`RID`, framework, output path).
-2. Resolve native runtime artifacts from a preflight `dotnet publish` output (repo-agnostic, works for NuGet consumers).
-3. Run `dotnet publish` in single-file mode with custom MSBuild targets.
-4. Remove unpacked `wwwroot` and native runtime files from the publish folder.
+1. **Pass 1**: Publish without single-file to generate all `wwwroot` content, static web assets, and framework files.
+2. **Pass 2**: Publish with `PublishSingleFile=true`, embedding all generated content and native runtime files as embedded resources.
+3. **Cleanup**: Remove unpacked `wwwroot`, sidecar files (`*.staticwebassets.endpoints.json`, `web.config`), and native runtime files from the publish directory.
 
-## Install and Setup
+## Install
 
-### Prerequisites
+### NuGet package
 
-- .NET 10 SDK (or a compatible SDK for your repo setup)
-- A publishable app `.csproj`
-- An app publish output that includes InfiniFrame native runtime files for the selected RID
+```bash
+dotnet add package InfiniLore.InfiniFrame.SingleFile
+```
 
-### Build and install from source (local feed)
+The package ships MSBuild `.targets` that are automatically imported when the package is referenced.
+
+### Build from source (for repo development)
 
 From the repository root:
 
-```powershell
-.\src\InfiniFrame.Tools.Pack\install-or-update-pack-tool.ps1
-```
-
 ```bash
-bash ./src/InfiniFrame.Tools.Pack/install-or-update-pack-tool.sh
+dotnet build src/InfiniFrame.SingleFile/InfiniFrame.SingleFile.csproj -c Release
 ```
 
-Manual alternative:
-
-```bash
-dotnet pack src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj -c Release
-dotnet tool install --local --add-source ./src/InfiniFrame.Tools.Pack/bin/Release InfiniLore.InfiniFrame.Tools.Pack
-```
-
-Run with:
-
-```bash
-dotnet tool run infiniframe-pack --help
-```
-
-## Install from NuGet
-
-If the package is published to NuGet, you can install it directly without building from source.
-
-### Global install
-
-```bash
-dotnet tool install --global InfiniLore.InfiniFrame.Tools.Pack
-```
-
-Run with:
-
-```bash
-infiniframe-pack --help
-```
-
-### Update or uninstall
-
-```bash
-dotnet tool update --global InfiniLore.InfiniFrame.Tools.Pack
-dotnet tool uninstall --global InfiniLore.InfiniFrame.Tools.Pack
-```
+No separate tool installation is required -- the targets are consumed directly via MSBuild.
 
 ## Command Syntax
 
 ```bash
-dotnet tool run infiniframe-pack publish <project.csproj> [options]
+dotnet publish <project.csproj> -t:InfiniFrameSingleFile -r <RID> -c <Configuration>
 ```
 
-Options:
+Or set the target to auto-run after a standard publish:
 
-- `--rid <RID|auto>`: Target runtime identifier. Default is `auto`.
-- `--configuration <Config>`: Build configuration. Default is `Release`.
-- `--framework <TFM>`: Target framework. Default is `TargetFramework`, or first `TargetFrameworks` entry.
-- `--self-contained <true|false>`: Self-contained publish mode. Default is `true`.
-- `--output <path>`: Publish output directory. Default is `bin/<Config>/<TFM>/<RID>/publish`.
-- `--no-restore`: Skip restore during publish.
-- `--verbose`: Use normal verbosity for preflight and final publish.
-- `--force-clean-output`: Allow recursive deletion of non-default output folders before publish.
-- `--native-artifacts-fallback <path>`: Explicit fallback native artifact directory (optional).
-- `--allow-stale-native-fallback`: Required to permit fallback artifacts when preflight fails.
+```bash
+dotnet publish <project.csproj> -r <RID> -c Release -p:InfiniFrameSingleFileAuto=true
+```
 
-Environment overrides:
+### Target properties
 
-- `INFINIFRAME_PACK_NATIVE_ARTIFACTS_FALLBACK=<path>`
-- `INFINIFRAME_PACK_ALLOW_STALE_NATIVE_FALLBACK=true|false`
+| Property | Default | Description |
+|----------|---------|-------------|
+| `-r <RID>` | (required) | Target runtime identifier (e.g. `win-x64`, `linux-arm64`, `osx-x64`) |
+| `-c <Configuration>` | `Release` | Build configuration |
+| `InfiniFrameSingleFileSelfContained` | `true` | Self-contained publish mode |
+| `InfiniFrameSingleFileAuto` | `false` | Auto-run after `dotnet publish` |
 
 ## Usage Examples
 
-### Basic publish with defaults
+### Basic publish
 
 ```bash
-dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj
+dotnet publish src/MyApp/MyApp.csproj -t:InfiniFrameSingleFile -r win-x64 -c Release
 ```
 
-### Publish for a specific runtime
+### Publish for Linux
 
 ```bash
-dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid win-x64
+dotnet publish src/MyApp/MyApp.csproj -t:InfiniFrameSingleFile -r linux-x64 -c Release
 ```
 
-### Multi-targeted app, choose framework explicitly
+### Auto-run after publish
 
 ```bash
-dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --framework net10.0
+dotnet publish src/MyApp/MyApp.csproj -r win-x64 -c Release -p:InfiniFrameSingleFileAuto=true
 ```
 
-### Custom output and faster inner-loop publish
+### Non-self-contained publish
 
 ```bash
-dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj \
-  --configuration Debug \
-  --no-restore \
-  --output artifacts/publish/MyApp-win-x64 \
-  --verbose
+dotnet publish src/MyApp/MyApp.csproj -t:InfiniFrameSingleFile -r win-x64 -c Release -p:InfiniFrameSingleFileSelfContained=false
 ```
 
 ## Common Patterns
 
-### MSBuild integration (for `InfiniFramePackAfterBuild`)
+### Packaging multiple RIDs
 
-If your project runs packaging from an MSBuild target (for example with `$(InfiniFramePackCommand)`), the tool command
-must be available on the machine first.
-
-For repo development, build and install from `src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj`:
-
-```powershell
-.\src\InfiniFrame.Tools.Pack\install-or-update-pack-tool.ps1
-```
+Run the publish command once per RID:
 
 ```bash
-bash ./src/InfiniFrame.Tools.Pack/install-or-update-pack-tool.sh
-```
-
-Manual alternative:
-
-```bash
-dotnet pack src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj -c Release
-dotnet tool install --global --add-source ./src/InfiniFrame.Tools.Pack/bin/Release InfiniLore.InfiniFrame.Tools.Pack
-```
-
-If you cannot install globally, set your project to use a different command, for example:
-
-```bash
--p:InfiniFramePackCommand="dotnet tool run infiniframe-pack"
+dotnet publish src/MyApp/MyApp.csproj -t:InfiniFrameSingleFile -r win-x64 -c Release
+dotnet publish src/MyApp/MyApp.csproj -t:InfiniFrameSingleFile -r linux-x64 -c Release
+dotnet publish src/MyApp/MyApp.csproj -t:InfiniFrameSingleFile -r osx-arm64 -c Release
 ```
 
 ### CI-friendly deterministic output paths
 
-Pass an explicit `--output` directory so build artifacts land in a stable path:
+Pass an explicit `-o` directory so build artifacts land in a stable path:
 
 ```bash
-dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --output artifacts/publish/MyApp
+dotnet publish src/MyApp/MyApp.csproj -t:InfiniFrameSingleFile -r win-x64 -c Release -o artifacts/publish/MyApp
 ```
 
-### Packaging multiple RIDs
+### MSBuild auto-run integration
 
-Run the tool once per RID and separate outputs:
+To automatically run single-file packaging as part of your build, add to your `.csproj`:
 
-```bash
-dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid win-x64 --output artifacts/publish/MyApp-win-x64
-dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid linux-x64 --output artifacts/publish/MyApp-linux-x64
-dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid osx-arm64 --output artifacts/publish/MyApp-osx-arm64
+```xml
+<PropertyGroup>
+    <InfiniFrameSingleFileAuto>true</InfiniFrameSingleFileAuto>
+</PropertyGroup>
 ```
-
-### Prefer explicit `--framework` for multi-targeting projects
-
-If your project uses `TargetFrameworks`, pass `--framework` to avoid accidental changes when framework order is edited.
-
-## Native Artifact Fallback Policy
-
-`infiniframe-pack` is fail-fast by default and repo-agnostic by default.
-
-- It first runs a preflight publish and validates native artifacts from that output.
-- It does not auto-discover `artifacts/native/...` folders by walking parent directories.
-- If preflight fails or preflight artifact validation fails, packaging fails unless an explicit fallback path is configured.
-
-When you need fallback artifacts:
-
-1. Provide an explicit path with `--native-artifacts-fallback <path>` (or `INFINIFRAME_PACK_NATIVE_ARTIFACTS_FALLBACK`).
-2. Explicitly allow stale fallback use with `--allow-stale-native-fallback` (or `INFINIFRAME_PACK_ALLOW_STALE_NATIVE_FALLBACK=true`).
-
-Risk model:
-
-- Fallback artifacts are treated as potentially stale relative to the current source/build inputs.
-- Because of that, fallback usage requires explicit operator opt-in.
-- Without explicit stale opt-in, the tool exits with an error even when fallback path exists and validates structurally.
 
 ## App Bootstrap Requirement
 
-After packaging with `InfiniLore.InfiniFrame.Tools.Pack`, initialize the single-file bootstrap before creating a window:
+After publishing with `InfiniLore.InfiniFrame.SingleFile`, initialize the single-file bootstrap before creating a window:
 
 ```csharp
 using InfiniFrame;
@@ -248,20 +162,52 @@ public static class Program {
 
 Why this is required:
 
-- `infiniframe-pack publish` embeds `InfiniFrame.Native` and platform loader files (`WebView2Loader.dll` on Windows) as resources.
+- The publish target embeds `InfiniFrame.Native` and platform loader files (`WebView2Loader.dll` on Windows) as resources.
 - `InfiniFrameSingleFileBootstrap.Initialize()` extracts them to a temporary RID-specific folder and registers a native resolver so P/Invoke can load them.
+
+Alternatively, use the higher-level `InfiniFrameSingleFile.Initialize()` helper which also configures embedded static web assets for Blazor apps:
+
+```csharp
+using InfiniFrame.SingleFile;
+
+public static class Program {
+    [STAThread]
+    public static void Main(string[] args) {
+        InfiniFrameSingleFile.Initialize();
+
+        var window = InfiniFrameWindowBuilder.Create()
+            .SetTitle("My App")
+            .SetSize(1280, 720)
+            .Center()
+            .Build();
+
+        window.WaitForClose();
+    }
+}
+```
+
+## MSBuild Target Reference
+
+The `InfiniFrame.SingleFile.targets` file defines the following MSBuild targets:
+
+| Target | Description |
+|--------|-------------|
+| `InfiniFrameSingleFile` | Two-pass publish for truly single-file output |
+| `InfiniFramePackEmbedStaticWebAssets` | Embeds static web assets and `wwwroot` content as resources |
+| `InfiniFramePackEmbedNativeArtifacts` | Embeds native runtime files (`InfiniFrame.Native.dll`, `WebView2Loader.dll`, etc.) |
+| `InfiniFramePackCleanupPublishArtifacts` | Removes sidecar files and native files from the publish directory |
+| `InfiniFramePackGenerateConfig` | Generates a module initializer to set `InfiniFramePackMode.IsActive` at compile time |
+| `InfiniFrameSingleFileAuto` | Auto-runs `InfiniFrameSingleFile` after `Publish` when enabled |
+
+### Pack mode detection
+
+The targets set `InfiniFramePackMode.IsActive = true` via a generated module initializer when packaging is active. The `InfiniFrameSingleFile` library checks this flag at runtime to skip bootstrap when not in pack mode.
 
 ## Edge Cases and Pitfalls
 
-- If preflight publish output does not contain required native files for the selected RID, the tool exits with a dedicated dependency-missing failure.
-  The process exit code is `2`.
-- `--rid auto` only supports current OS with `x64` or `arm64`.
-  Other architectures throw a platform-not-supported error.
-- Existing output folders are deleted before publish.
-  By default, only project-local `bin/...` outputs are allowed to be cleaned.
-  Use `--force-clean-output` to allow cleaning custom output folders.
-- If your project defines `TargetFrameworks` and you omit `--framework`, the first framework entry is used.
-- The tool performs a preflight `dotnet publish` before final single-file publish.
-  If native artifacts are missing in preflight output, packaging stops early unless explicit fallback is configured and stale fallback is explicitly allowed.
-- `--self-contained` must be `true` or `false` (case-insensitive boolean parsing).
-- If final output does not contain the expected main single-file executable, the tool exits with a non-zero code.
+- `-r <RID>` is required. The target fails with an error if no `RuntimeIdentifier` is specified.
+- `--rid auto` is not supported. You must specify an explicit RID (`win-x64`, `linux-arm64`, `osx-x64`, etc.).
+- The two-pass publish performs a full non-single-file publish first. Ensure your project builds successfully in non-single-file mode.
+- If your project defines `TargetFrameworks` (plural), the target uses the first framework entry. Pass `-f <TFM>` to select a specific framework.
+- The target requires `pwsh` (PowerShell Core) to be available on the system PATH for generating the pack mode initializer.
+- If final output does not contain the expected single-file executable, the build may succeed but the app may fail at runtime. Verify the publish output contains the expected executable.

@@ -14,8 +14,8 @@ describe("blazorExternalBridge", () => {
     beforeEach(() => {
         setup = createSetup();
         delete window.infiniframe;
-        delete window.__blazorCallbacks;
-        delete window.__blazorDispatchHooked;
+        delete (window as any).__blazorCallbacks;
+        delete (window as any).__blazorDispatchHooked;
         vi.restoreAllMocks();
     });
 
@@ -106,6 +106,119 @@ describe("blazorExternalBridge", () => {
         initWindowExternalBridge(setup);
 
         expect(receiveCallback).toHaveBeenCalledTimes(1);
+    });
+
+    it("warns when host bridge postData is not available", () => {
+        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {
+        });
+        window.infiniframe = {
+            host: {
+                postData: undefined as any,
+                receiveCallback: vi.fn()
+            },
+            messaging: undefined!,
+            window: undefined!,
+            utils: undefined!
+        };
+
+        initWindowExternalBridge(setup);
+
+        const external = window.external as InfiniFrameExternal;
+        external.sendMessage!("test");
+
+        expect(warnSpy).toHaveBeenCalled();
+        warnSpy.mockRestore();
+    });
+
+    it("warns when host bridge is not available", () => {
+        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {
+        });
+        window.infiniframe = {
+            host: undefined as any,
+            messaging: undefined!,
+            window: undefined!,
+            utils: undefined!
+        };
+
+        initWindowExternalBridge(setup);
+
+        const external = window.external as InfiniFrameExternal;
+        external.sendMessage!("test");
+
+        expect(warnSpy).toHaveBeenCalled();
+        warnSpy.mockRestore();
+    });
+
+    it("tolerates throwing Blazor callbacks", () => {
+        let hostCallback: BlazorCallback | null = null;
+        window.infiniframe = {
+            host: {
+                postData: vi.fn(),
+                receiveCallback: vi.fn(callback => {
+                    hostCallback = callback;
+                })
+            },
+            messaging: undefined!,
+            window: undefined!,
+            utils: undefined!
+        };
+
+        initWindowExternalBridge(setup);
+
+        const throwingCallback = vi.fn(() => {
+            throw new Error("callback error");
+        });
+        const normalCallback = vi.fn();
+        const external = window.external as InfiniFrameExternal;
+        external.receiveMessage!(throwingCallback);
+        external.receiveMessage!(normalCallback);
+
+        // Should not throw even though first callback throws
+        hostCallback!("host-message");
+
+        expect(throwingCallback).toHaveBeenCalled();
+        expect(normalCallback).toHaveBeenCalledWith("host-message");
+    });
+
+    it("uses existing window.external when available", () => {
+        const existingExternal = {sendMessage: vi.fn()} as any;
+        Object.defineProperty(window, "external", {
+            configurable: true,
+            value: existingExternal,
+            writable: true
+        });
+
+        window.infiniframe = {
+            host: {
+                postData: vi.fn(),
+                receiveCallback: vi.fn()
+            },
+            messaging: undefined!,
+            window: undefined!,
+            utils: undefined!
+        };
+
+        initWindowExternalBridge(setup);
+
+        expect(window.external).toBe(existingExternal);
+    });
+
+    it("does nothing if already initialized", () => {
+        setup.windowExternalBridgeInitialized = true;
+        const receiveCallback = vi.fn();
+        window.infiniframe = {
+            host: {
+                postData: vi.fn(),
+                receiveCallback
+            },
+            messaging: undefined!,
+            window: undefined!,
+            utils: undefined!
+        };
+
+        initWindowExternalBridge(setup);
+
+        expect(receiveCallback).not.toHaveBeenCalled();
     });
 });
 

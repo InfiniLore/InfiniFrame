@@ -42,6 +42,7 @@ public struct CustomSchemeResponse {
 /// <returns>Non-zero when a response was produced; zero for not found or handler failure.</returns>
 [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
 public delegate int CppWebResourceRequestedDelegate(
-    [MarshalAs(UnmanagedType.LPUTF8Str)] string url,
+    [MarshalAs(UnmanagedType.LPUTF8Str)]
+    string url,
     ref CustomSchemeResponse response
 );

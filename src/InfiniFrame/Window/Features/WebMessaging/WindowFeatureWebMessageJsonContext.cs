@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Debugging;
-using InfiniFrame.NativeBridge.Dialogs;
 using System.Drawing;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using InfiniFrame.Debugging;
+using InfiniFrame.NativeBridge.Dialogs;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------

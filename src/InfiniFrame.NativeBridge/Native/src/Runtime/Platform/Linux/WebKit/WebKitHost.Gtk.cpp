@@ -12,16 +12,24 @@
 // ---------------------------------------------------------------------------------------------------------------------
 extern void on_webview_load_changed(WebKitWebView* web_view, WebKitLoadEvent load_event, gpointer user_data);
 extern gboolean on_webview_load_failed(
-    WebKitWebView* web_view, WebKitLoadEvent load_event, gchar* failing_uri, GError* error, gpointer user_data
-);
+    WebKitWebView* web_view,
+    WebKitLoadEvent load_event,
+    gchar* failing_uri,
+    GError* error,
+    gpointer user_data
+    );
 extern void on_webview_process_terminated(
-    WebKitWebView* web_view, WebKitWebProcessTerminationReason reason, gpointer user_data
-);
+    WebKitWebView* web_view,
+    WebKitWebProcessTerminationReason reason,
+    gpointer user_data
+    );
 extern void on_webview_size_allocate(GtkWidget* widget, GtkAllocation* allocation, gpointer user_data);
 extern gboolean on_webview_decide_policy(
-    WebKitWebView* web_view, WebKitPolicyDecision* decision,
-    WebKitPolicyDecisionType decision_type, gpointer user_data
-);
+    WebKitWebView* web_view,
+    WebKitPolicyDecision* decision,
+    WebKitPolicyDecisionType decision_type,
+    gpointer user_data
+    );
 
 void InfiniFrameWindow::Show(const bool isAlreadyShown) {
     (void)isAlreadyShown;
@@ -49,7 +57,8 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
     m_impl->_webContext = nullptr;
 
     // Attach the web view to the GTK window and make it fill the available space.
-    WebKitUserContentManager* contentManager = webkit_web_view_get_user_content_manager(WEBKIT_WEB_VIEW(m_impl->_webview));
+    WebKitUserContentManager* contentManager = webkit_web_view_get_user_content_manager(
+        WEBKIT_WEB_VIEW(m_impl->_webview));
 
     gtk_container_add(GTK_CONTAINER(m_impl->_window), m_impl->_webview);
     gtk_widget_set_hexpand(m_impl->_webview, TRUE);
@@ -61,7 +70,7 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
     WebKitUserScript* script = webkit_user_script_new(
         jsCode.c_str(), WEBKIT_USER_CONTENT_INJECT_ALL_FRAMES, WEBKIT_USER_SCRIPT_INJECT_AT_DOCUMENT_START, nullptr,
         nullptr
-    );
+        );
 
     webkit_user_content_manager_add_script(contentManager, script);
     webkit_user_script_unref(script);
@@ -72,7 +81,7 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
     m_impl->_webMessageSignalHandlerId = g_signal_connect(
         contentManager, "script-message-received::infiniFrameInterop", G_CALLBACK(gtk_webkit::HandleWebMessage),
         reinterpret_cast<void*>(m_impl->_webMessageReceivedCallback)
-    );
+        );
     webkit_user_content_manager_register_script_message_handler(contentManager, "infiniFrameInterop");
 
     // Connect WebKit signals for load lifecycle, process termination, sizing,
@@ -81,7 +90,7 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
     g_signal_connect(G_OBJECT(m_impl->_webview), "load-failed", G_CALLBACK(on_webview_load_failed), this);
     g_signal_connect(
         G_OBJECT(m_impl->_webview), "web-process-terminated", G_CALLBACK(on_webview_process_terminated), this
-    );
+        );
     g_signal_connect(G_OBJECT(m_impl->_webview), "size-allocate", G_CALLBACK(on_webview_size_allocate), this);
     g_signal_connect(G_OBJECT(m_impl->_webview), "decide-policy", G_CALLBACK(on_webview_decide_policy), this);
 
@@ -95,7 +104,7 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
         GtkWidget* dialog = gtk_message_dialog_new(
             nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
             "Neither StartUrl nor StartString was specified"
-        );
+            );
         gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy(dialog);
         return;

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Project>
-    <Import Project="$(MSBuildThisFileDirectory)../InfiniFrame.NativeCopy.targets" />
+    <Import Project="$(MSBuildThisFileDirectory)../InfiniFrame.NativeCopy.targets"/>
 
     <PropertyGroup Condition="'$(IsTestingPlatformApplication)' == 'true' and '$(InfiniFrameUseMacOsTestingPlatformHost)' == '' and $([MSBuild]::IsOSPlatform('OSX'))">
         <InfiniFrameUseMacOsTestingPlatformHost>true</InfiniFrameUseMacOsTestingPlatformHost>

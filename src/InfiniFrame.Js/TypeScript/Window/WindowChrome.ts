@@ -437,7 +437,8 @@ export class WindowChrome {
             if (target.hasPointerCapture(this.lastPointerId)) {
                 target.releasePointerCapture(this.lastPointerId);
             }
-        } catch { /* Element may no longer exist */ }
+        } catch { /* Element may no longer exist */
+        }
         this.lastPointerId = 0;
     }
 

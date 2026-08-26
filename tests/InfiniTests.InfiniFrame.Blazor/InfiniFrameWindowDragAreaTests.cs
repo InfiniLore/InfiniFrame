@@ -32,7 +32,7 @@ public class InfiniFrameWindowDragAreaTests : BunitContext {
     public async Task PassesExtraAttributes(CancellationToken ct = default) {
         IRenderedComponent<InfiniFrameWindowDragArea> cut = Render<InfiniFrameWindowDragArea>(parameters =>
             parameters.AddUnmatched("class", "my-drag-area")
-                      .AddUnmatched("id", "titlebar")
+                .AddUnmatched("id", "titlebar")
         );
 
         IElement div = cut.Find("div");
@@ -44,7 +44,7 @@ public class InfiniFrameWindowDragAreaTests : BunitContext {
     public async Task CombinesExtraAttributesWithDragRegion(CancellationToken ct = default) {
         IRenderedComponent<InfiniFrameWindowDragArea> cut = Render<InfiniFrameWindowDragArea>(parameters =>
             parameters.AddUnmatched("class", "custom")
-                      .AddChildContent("Content")
+                .AddChildContent("Content")
         );
 
         IElement div = cut.Find("div");

@@ -16,14 +16,14 @@ public interface INotificationsInfiniFrameWindowFeature {
     void ShowNotification(string title, string body);
 
     /// <summary>
-    ///     Displays a rich notification configured through <paramref name="options"/>.
+    ///     Displays a rich notification configured through <paramref name="options" />.
     ///     Supports action buttons, custom icons, urgency levels, and notification tagging.
     /// </summary>
     /// <param name="options">The notification configuration.</param>
     void ShowNotification(InfiniFrameNotificationOptions options);
 
     /// <summary>
-    ///     Displays a rich notification and returns a <see cref="Task"/> that completes with the
+    ///     Displays a rich notification and returns a <see cref="Task" /> that completes with the
     ///     user's interaction result. The task resolves when the notification is activated,
     ///     dismissed, timed out, or fails to display.
     /// </summary>
@@ -42,12 +42,13 @@ public interface INotificationsInfiniFrameWindowFeature {
     /// <param name="text">The optional text content of the message dialog.</param>
     /// <param name="buttons">The button options to display on the dialog.</param>
     /// <param name="icon">The icon to display on the dialog.</param>
-    /// <returns>The user's response as an <see cref="InfiniFrameDialogResult"/>.</returns>
+    /// <returns>The user's response as an <see cref="InfiniFrameDialogResult" />.</returns>
     InfiniFrameDialogResult ShowMessage(string title, string? text, InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok, InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info);
 
     /// <summary>Displays a native message dialog and completes when it is answered, canceled, or its owner closes.</summary>
     Task<InfiniFrameDialogResult> ShowMessageAsync(
-        string title, string? text,
+        string title,
+        string? text,
         InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok,
         InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info,
         CancellationToken ct = default

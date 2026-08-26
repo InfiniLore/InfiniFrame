@@ -28,8 +28,10 @@ HRESULT InfiniFrameWindow::ApplyInitialWebViewSettings() {
         SetBrowserShortcutsEnabled(false);
     if (m_impl->_transparentEnabled)
         SetTransparentEnabled(true);
-    if (m_impl->_backgroundColorR != 0 || m_impl->_backgroundColorG != 0 || m_impl->_backgroundColorB != 0 || m_impl->_backgroundColorA != 0)
-        SetBackgroundColor(m_impl->_backgroundColorR, m_impl->_backgroundColorG, m_impl->_backgroundColorB, m_impl->_backgroundColorA);
+    if (m_impl->_backgroundColorR != 0 || m_impl->_backgroundColorG != 0 || m_impl->_backgroundColorB != 0 || m_impl->
+        _backgroundColorA != 0)
+        SetBackgroundColor(
+            m_impl->_backgroundColorR, m_impl->_backgroundColorG, m_impl->_backgroundColorB, m_impl->_backgroundColorA);
     if (m_impl->_zoom != 100)
         SetZoom(m_impl->_zoom);
 
@@ -183,7 +185,9 @@ void InfiniFrameWindow::SetBrowserShortcutsEnabled(const bool enabled) {
         return;
     const char* flag = enabled ? "true" : "false";
     std::string payload = std::string("{\"enabled\":") + flag + "}";
-    std::string envelope = "{\"version\":1,\"messageId\":\"__infiniframe:browser:setBrowserShortcutsEnabled\",\"payload\":\"" + payload + "\"}";
+    std::string envelope =
+        "{\"version\":1,\"messageId\":\"__infiniframe:browser:setBrowserShortcutsEnabled\",\"payload\":\"" + payload +
+        "\"}";
     SendWebMessage(envelope.c_str());
 }
 

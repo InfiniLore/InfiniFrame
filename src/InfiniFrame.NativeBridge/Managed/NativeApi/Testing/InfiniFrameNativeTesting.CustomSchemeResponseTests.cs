@@ -93,6 +93,7 @@ public static partial class InfiniFrameNativeTesting {
 
     private static IntPtr MarshalStringToNative(string? value) {
         if (value == null) return IntPtr.Zero;
+
         return Marshal.StringToCoTaskMemUTF8(value);
     }
 

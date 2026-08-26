@@ -47,7 +47,9 @@ export interface InfiniFrameHostMessaging {
     readonly isReady: boolean;
 
     sendMessageToHost(id: SendToHostMessageId | string, data?: unknown): void;
+
     getMessageFromHostRawAsync(message: InteropEnvelopeV1 | string): Promise<string>;
+
     getMessageFromHostAsync(message: string, args?: any): Promise<string>;
 
     assignMessageReceivedHandler(messageId: string, callback: MessageCallback): void;

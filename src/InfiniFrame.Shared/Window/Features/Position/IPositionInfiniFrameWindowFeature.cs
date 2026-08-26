@@ -31,7 +31,7 @@ public interface IPositionInfiniFrameWindowFeature {
     void SetLocation(int left, int top);
 
     /// <summary>
-    ///     Sets the position of the window using a <see cref="Point"/>.
+    ///     Sets the position of the window using a <see cref="Point" />.
     /// </summary>
     /// <param name="location">The location point.</param>
     void SetLocation(Point location);
@@ -92,7 +92,7 @@ public interface IPositionInfiniFrameWindowFeature {
     void MoveWithinCurrentMonitorArea(int left, int top);
 
     /// <summary>
-    ///     Moves the window within the current monitor's work area using a <see cref="Point"/>.
+    ///     Moves the window within the current monitor's work area using a <see cref="Point" />.
     /// </summary>
     /// <param name="location">The location point.</param>
     void MoveWithinCurrentMonitorArea(Point location);

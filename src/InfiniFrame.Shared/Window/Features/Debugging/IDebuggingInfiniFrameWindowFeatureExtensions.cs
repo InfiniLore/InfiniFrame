@@ -1,8 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Debugging;
 using System.Runtime.Versioning;
+using InfiniFrame.Debugging;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ public static class IDebuggingInfiniFrameWindowFeatureExtensions {
     ///     Gets diagnostics information about the current debugging state.
     /// </summary>
     /// <param name="window">The window instance.</param>
-    /// <returns>A <see cref="InfiniFrameDebugDiagnostics"/> instance with diagnostic data.</returns>
+    /// <returns>A <see cref="InfiniFrameDebugDiagnostics" /> instance with diagnostic data.</returns>
     public static InfiniFrameDebugDiagnostics GetDebugDiagnostics(this IInfiniFrameWindow window)
         => window.Features.Debugging.GetDiagnostics();
 
@@ -56,16 +56,12 @@ public static class IDebuggingInfiniFrameWindowFeatureExtensions {
     /// </summary>
     /// <param name="window">The window instance.</param>
     /// <returns><c>true</c> if Web Inspector attach is supported; otherwise <c>false</c>.</returns>
-    public static bool SupportsWebInspectorAttach(this IInfiniFrameWindow window) {
-        return window.Features.Debugging.SupportsWebInspectorAttach;
-    }
+    public static bool SupportsWebInspectorAttach(this IInfiniFrameWindow window) => window.Features.Debugging.SupportsWebInspectorAttach;
 
     /// <summary>
     ///     Gets whether the platform supports a remote debugging endpoint.
     /// </summary>
     /// <param name="window">The window instance.</param>
     /// <returns><c>true</c> if remote debugging is supported; otherwise <c>false</c>.</returns>
-    public static bool SupportsRemoteDebuggingEndpoint(this IInfiniFrameWindow window) {
-        return window.Features.Debugging.SupportsRemoteDebuggingEndpoint;
-    }
+    public static bool SupportsRemoteDebuggingEndpoint(this IInfiniFrameWindow window) => window.Features.Debugging.SupportsRemoteDebuggingEndpoint;
 }

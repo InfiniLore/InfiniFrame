@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics;
+using System.Runtime.Versioning;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Dialogs;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
-using System.Runtime.Versioning;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -69,6 +69,7 @@ public class NotificationsInfiniFrameWindowFeature(
     ) {
         ct.ThrowIfCancellationRequested();
         if (window.IsClosedOrClosing()) return new InfiniFrameNotificationActivation(InfiniFrameNotificationResult.Dismissed);
+
         var operation = new InfiniNotificationOperation(
             window, logger, options, ct
         );
@@ -97,13 +98,15 @@ public class NotificationsInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="INotificationsInfiniFrameWindowFeature.ShowMessageAsync" />
     public async Task<InfiniFrameDialogResult> ShowMessageAsync(
-        string title, string? text,
+        string title,
+        string? text,
         InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok,
         InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info,
         CancellationToken ct = default
     ) {
         ct.ThrowIfCancellationRequested();
         if (window.IsClosedOrClosing()) return InfiniFrameDialogResult.Cancel;
+
         var operation = new InfiniMessageDialogOperation(
             window, logger, title, text ?? string.Empty, buttons, icon, ct
         );

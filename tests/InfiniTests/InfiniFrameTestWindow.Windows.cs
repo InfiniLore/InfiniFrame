@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Runtime.Versioning;
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Handles;
 using InfiniFrame.Utilities;
 using JetBrains.Annotations;
-using System.Runtime.Versioning;
 
 namespace InfiniTests;
 // ---------------------------------------------------------------------------------------------------------------------

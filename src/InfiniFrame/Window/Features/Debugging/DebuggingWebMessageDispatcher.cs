@@ -37,6 +37,7 @@ internal sealed class DebuggingWebMessageDispatcher : WindowFeatureWebMessageDis
     private static DebugEndpointResult GetRemoteDebuggingEndpoint(IDebuggingInfiniFrameWindowFeature feature) {
         if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux())
             return new DebugEndpointResult(false, null, "Remote debugging endpoints are not supported on this platform.");
+
         bool success = feature.TryGetRemoteDebuggingEndpoint(out Uri? endpoint);
         return new DebugEndpointResult(success, endpoint?.ToString(), null);
     }
@@ -44,6 +45,7 @@ internal sealed class DebuggingWebMessageDispatcher : WindowFeatureWebMessageDis
     private static DebugEndpointResult ProbeEndpoint(IDebuggingInfiniFrameWindowFeature feature) {
         if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux())
             return new DebugEndpointResult(false, null, "Remote debugging endpoints are not supported on this platform.");
+
         bool success = feature.TryProbeEndpoint(out Uri? endpoint, out string? reason);
         return new DebugEndpointResult(success, endpoint?.ToString(), reason);
     }

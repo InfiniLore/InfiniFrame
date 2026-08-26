@@ -161,6 +161,7 @@ public sealed class InfiniFrameNativeParametersValidator
             if (!Directory.Exists(path)) {
                 Directory.CreateDirectory(path);
             }
+
             return CanAccessTemporaryFilesPath(path);
         }
         catch (Exception ex) when (

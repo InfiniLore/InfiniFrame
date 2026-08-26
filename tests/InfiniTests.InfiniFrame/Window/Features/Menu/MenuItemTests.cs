@@ -13,12 +13,12 @@ public class MenuItemTests {
     public async Task MenuItem_Creation(CancellationToken ct) {
         // Arrange & Act
         var item = new InfiniFrameMenuItem(
-            Id: "test-id",
-            Label: "Test Label",
-            Type: InfiniFrameMenuItemType.Normal,
-            IsEnabled: false,
-            IsVisible: false,
-            KeyboardShortcut: "Ctrl+T"
+            "test-id",
+            "Test Label",
+            InfiniFrameMenuItemType.Normal,
+            false,
+            false,
+            "Ctrl+T"
         );
 
         // Assert
@@ -65,7 +65,7 @@ public class MenuItemTests {
         var submenu = new InfiniFrameMenuItem(
             "parent",
             "Parent",
-            Type: InfiniFrameMenuItemType.Submenu,
+            InfiniFrameMenuItemType.Submenu,
             Children: [child1, child2]
         );
 

@@ -13,12 +13,19 @@
  * InfiniFrameWindow::AddCustomSchemeName and delegates response generation to
  * the WebResourceRequestedCallback provided at window initialisation
  */
-@ interface UrlSchemeHandler :
+@
+interface UrlSchemeHandler :
     NSObject<WKURLSchemeHandler>{
         @public
     WebResourceRequestedCallback requestHandler; /// Callback that produces the response body and MIME type
-        @private
-    NSMutableSet* activeTasks;
+         @private
+         NSMutableSet * activeTasks;
     }
-- (void)invalidate;
-@ end
+
+-
+(
+void
+)
+invalidate;
+@
+end

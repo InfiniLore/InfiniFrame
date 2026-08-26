@@ -17,18 +17,18 @@ public static class IPositionInfiniFrameWindowBuilderFeatureExtensions {
     /// <param name="builder">The window builder instance.</param>
     /// <param name="left">The left coordinate.</param>
     /// <param name="top">The top coordinate.</param>
-    /// <returns>The <see cref="IInfiniFrameWindowBuilder"/> for method chaining.</returns>
+    /// <returns>The <see cref="IInfiniFrameWindowBuilder" /> for method chaining.</returns>
     public static IInfiniFrameWindowBuilder SetLocation(this IInfiniFrameWindowBuilder builder, int left, int top) {
         builder.Features.Position.SetLocation(left, top);
         return builder;
     }
 
     /// <summary>
-    ///     Sets the position of the window using a <see cref="Point"/> and returns the builder for chaining.
+    ///     Sets the position of the window using a <see cref="Point" /> and returns the builder for chaining.
     /// </summary>
     /// <param name="builder">The window builder instance.</param>
     /// <param name="location">The location point.</param>
-    /// <returns>The <see cref="IInfiniFrameWindowBuilder"/> for method chaining.</returns>
+    /// <returns>The <see cref="IInfiniFrameWindowBuilder" /> for method chaining.</returns>
     public static IInfiniFrameWindowBuilder SetLocation(this IInfiniFrameWindowBuilder builder, Point location) {
         builder.Features.Position.SetLocation(location);
         return builder;
@@ -39,7 +39,7 @@ public static class IPositionInfiniFrameWindowBuilderFeatureExtensions {
     /// </summary>
     /// <param name="builder">The window builder instance.</param>
     /// <param name="left">The left coordinate.</param>
-    /// <returns>The <see cref="IInfiniFrameWindowBuilder"/> for method chaining.</returns>
+    /// <returns>The <see cref="IInfiniFrameWindowBuilder" /> for method chaining.</returns>
     public static IInfiniFrameWindowBuilder SetLeft(this IInfiniFrameWindowBuilder builder, int left) {
         builder.Features.Position.SetLeft(left);
         return builder;
@@ -50,7 +50,7 @@ public static class IPositionInfiniFrameWindowBuilderFeatureExtensions {
     /// </summary>
     /// <param name="builder">The window builder instance.</param>
     /// <param name="top">The top coordinate.</param>
-    /// <returns>The <see cref="IInfiniFrameWindowBuilder"/> for method chaining.</returns>
+    /// <returns>The <see cref="IInfiniFrameWindowBuilder" /> for method chaining.</returns>
     public static IInfiniFrameWindowBuilder SetTop(this IInfiniFrameWindowBuilder builder, int top) {
         builder.Features.Position.SetTop(top);
         return builder;
@@ -61,7 +61,7 @@ public static class IPositionInfiniFrameWindowBuilderFeatureExtensions {
     /// </summary>
     /// <param name="builder">The window builder instance.</param>
     /// <param name="enabled">Whether to use the OS default location.</param>
-    /// <returns>The <see cref="IInfiniFrameWindowBuilder"/> for method chaining.</returns>
+    /// <returns>The <see cref="IInfiniFrameWindowBuilder" /> for method chaining.</returns>
     public static IInfiniFrameWindowBuilder UseOsDefaultLocation(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
         builder.Features.Position.UseOsDefaultLocation(enabled);
         return builder;
@@ -72,7 +72,7 @@ public static class IPositionInfiniFrameWindowBuilderFeatureExtensions {
     /// </summary>
     /// <param name="builder">The window builder instance.</param>
     /// <param name="enabled">Whether to center on the main monitor.</param>
-    /// <returns>The <see cref="IInfiniFrameWindowBuilder"/> for method chaining.</returns>
+    /// <returns>The <see cref="IInfiniFrameWindowBuilder" /> for method chaining.</returns>
     public static IInfiniFrameWindowBuilder CenteredOnMainMonitor(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
         builder.Features.Position.CenteredOnMainMonitor(enabled);
         return builder;

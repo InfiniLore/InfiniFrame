@@ -1,45 +1,46 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal enum InfiniFileDialogKind { OpenFile, OpenFolder, SaveFile }
+internal enum InfiniFileDialogKind {
+    OpenFile,
+    OpenFolder,
+    SaveFile
+}
 
 internal sealed class InfiniFileDialogOperation {
     private static long _nextId;
     private static readonly InfiniFrameNative.FileDialogCompletedCallback CompletionCallback = Complete;
-
-    private readonly IInfiniFrameWindow _window;
-    private readonly ILogger _logger;
-    private readonly InfiniFileDialogKind _kind;
-    private readonly string _title;
-    private readonly string _defaultPath;
-    private readonly bool _multiSelect;
-    private readonly string[] _filters;
-    private readonly string? _defaultFileName;
     private readonly CancellationToken _cancellationToken;
-    private readonly string? _diagnosticKey;
     private readonly TaskCompletionSource<string?[]> _completion =
         new(TaskCreationOptions.RunContinuationsAsynchronously);
-    private NativeHandleLease? _lease;
-    private GCHandle _selfHandle;
-    private CancellationTokenRegistration _cancellationRegistration;
-    private int _nativeStarted;
-    private int _cancellationRequested;
-    private int _cancellationDispatchStarted;
-    private int _completed;
+    private readonly string? _defaultFileName;
+    private readonly string _defaultPath;
+    private readonly string? _diagnosticKey;
+    private readonly string[] _filters;
+    private readonly InfiniFileDialogKind _kind;
+    private readonly ILogger _logger;
+    private readonly bool _multiSelect;
+    private readonly string _title;
 
-    public ulong Id { get; } = unchecked((ulong)Interlocked.Increment(ref _nextId));
-    public Task<string?[]> Task => _completion.Task;
+    private readonly IInfiniFrameWindow _window;
+    private int _cancellationDispatchStarted;
+    private CancellationTokenRegistration _cancellationRegistration;
+    private int _cancellationRequested;
+    private int _completed;
+    private NativeHandleLease? _lease;
+    private int _nativeStarted;
+    private GCHandle _selfHandle;
 
     public InfiniFileDialogOperation(
         IInfiniFrameWindow window,
@@ -64,10 +65,13 @@ internal sealed class InfiniFileDialogOperation {
         _diagnosticKey = (window as InfiniFrameWindow)?.BeginDiagnosticOperation(kind.ToString(), Id);
     }
 
+    public ulong Id { get; } = unchecked((ulong)Interlocked.Increment(ref _nextId));
+    public Task<string?[]> Task => _completion.Task;
+
     public async Task StartAsync() {
         try {
             _cancellationRegistration = _cancellationToken.Register(
-                static state => ((InfiniFileDialogOperation)state!).OnCancellationRequested(), this
+                callback: static state => ((InfiniFileDialogOperation)state!).OnCancellationRequested(), this
             );
             await _window.WaitForReadyAsync(_cancellationToken).ConfigureAwait(false);
             _lease = _window.AcquireNativeHandle();
@@ -112,6 +116,7 @@ internal sealed class InfiniFileDialogOperation {
 
     private void StartCancellationDispatch() {
         if (Volatile.Read(ref _completed) != 0) return;
+
         if (Interlocked.Exchange(ref _cancellationDispatchStarted, 1) == 0)
             _ = RequestCancellationAsync();
     }
@@ -120,6 +125,7 @@ internal sealed class InfiniFileDialogOperation {
         try {
             InfiniFrameDispatchResult dispatched = await _window.DispatchAsync(() => {
                 if (_lease is null) return;
+
                 InfiniFrameNativeInteropStatus status = InfiniFrameNative.CancelDialog(_lease.Handle, Id, out _);
                 if (status != InfiniFrameNativeInteropStatus.Success)
                     throw new InfiniFrameNativeInteropException(InfiniFrameNative.GetLastErrorMessage() ?? "Could not cancel native dialog.");
@@ -147,16 +153,18 @@ internal sealed class InfiniFileDialogOperation {
                 ? Marshal.PtrToStringUni(pointer)
                 : Marshal.PtrToStringUTF8(pointer)).ToArray();
         }
+
         operation.Finish(resultValues);
     }
 
     private void Finish(string?[] result) {
         if (Interlocked.Exchange(ref _completed, 1) != 0) return;
+
         (_window as InfiniFrameWindow)?.CompleteDiagnosticOperation(
             _diagnosticKey, _cancellationToken.IsCancellationRequested ? "Cancelled" : "Completed"
         );
         _completion.TrySetResult(result);
-        ThreadPool.QueueUserWorkItem(static state => state.Cleanup(), this, false);
+        ThreadPool.QueueUserWorkItem(callBack: static state => state.Cleanup(), this, false);
     }
 
     private void Cleanup() {
@@ -168,6 +176,7 @@ internal sealed class InfiniFileDialogOperation {
     private static bool TryGet(IntPtr context, [NotNullWhen(true)] out InfiniFileDialogOperation? operation) {
         operation = null;
         if (context == IntPtr.Zero) return false;
+
         try {
             operation = GCHandle.FromIntPtr(context).Target as InfiniFileDialogOperation;
             return operation is not null;

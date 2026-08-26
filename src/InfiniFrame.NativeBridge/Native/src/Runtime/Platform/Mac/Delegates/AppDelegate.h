@@ -17,5 +17,8 @@
  * Responsible for initialising the Cocoa application, forwarding notification events,
  * and acting as a fallback window delegate when a per-window delegate is not set
  */
-@interface AppDelegate : NSObject<NSApplicationDelegate, NSUserNotificationCenterDelegate>
-@ end
+@
+interface AppDelegate :
+    NSObject<NSApplicationDelegate, NSUserNotificationCenterDelegate>
+@
+end

@@ -46,7 +46,10 @@ public interface ITaskbarInfiniFrameWindowFeature {
     ///     Flashes the taskbar icon using the specified mode and count.
     /// </summary>
     /// <param name="mode">The flash mode to use.</param>
-    /// <param name="count">The number of times to flash (ignored for <see cref="TaskbarFlashMode.All"/> and <see cref="TaskbarFlashMode.Stop"/>).</param>
+    /// <param name="count">
+    ///     The number of times to flash (ignored for <see cref="TaskbarFlashMode.All" /> and
+    ///     <see cref="TaskbarFlashMode.Stop" />).
+    /// </param>
     void SetFlash(TaskbarFlashMode mode, uint count);
 
     /// <summary>

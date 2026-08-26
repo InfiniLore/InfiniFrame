@@ -55,7 +55,7 @@ class InfiniFrameDialog {
         const char** filters,
         int filterCount,
         int* resultCount
-    );
+        );
 
     /**
          * @brief Show open folder dialog
@@ -82,7 +82,7 @@ class InfiniFrameDialog {
         const char** filters,
         int filterCount,
         const char* defaultFileName = nullptr
-    );
+        );
 
     /**
          * @brief Show message dialog

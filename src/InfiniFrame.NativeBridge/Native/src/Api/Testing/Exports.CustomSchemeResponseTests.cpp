@@ -27,7 +27,7 @@ namespace {
         const CharT* contentType,
         const CharT* resourceUri,
         const CharT* requestOrigin
-    ) {
+        ) {
         std::basic_string<CharT> result = infiniframe::BuildCustomSchemeResponseHeaders<CharT>(
             std::basic_string<CharT>(contentType),
             std::basic_string<CharT>(resourceUri),
@@ -37,54 +37,60 @@ namespace {
 }
 
 extern "C" {
-
 EXPORTED InteropStatus InfiniFrameNativeTests_ParseOrigin(
     const char* value,
     const char** scheme,
     const char** host,
     const char** port,
     int* valid
-) {
-    if (scheme != nullptr) *scheme = nullptr;
-    if (host != nullptr) *host = nullptr;
-    if (port != nullptr) *port = nullptr;
-    if (valid != nullptr) *valid = 0;
+    ) {
+    if (scheme != nullptr)
+        *scheme = nullptr;
+    if (host != nullptr)
+        *host = nullptr;
+    if (port != nullptr)
+        *port = nullptr;
+    if (valid != nullptr)
+        *valid = 0;
 
-    return RunExportStatus([&] {
-        if (!EnsureNotNull(value, "value") ||
-            !EnsureNotNull(scheme, "scheme", ::InteropStatus::OutParameterSetToInvalidNull) ||
-            !EnsureNotNull(host, "host", ::InteropStatus::OutParameterSetToInvalidNull) ||
-            !EnsureNotNull(port, "port", ::InteropStatus::OutParameterSetToInvalidNull) ||
-            !EnsureNotNull(valid, "valid", ::InteropStatus::OutParameterSetToInvalidNull)) {
-            return;
-        }
+    return RunExportStatus(
+        [&] {
+            if (!EnsureNotNull(value, "value") ||
+                !EnsureNotNull(scheme, "scheme", ::InteropStatus::OutParameterSetToInvalidNull) ||
+                !EnsureNotNull(host, "host", ::InteropStatus::OutParameterSetToInvalidNull) ||
+                !EnsureNotNull(port, "port", ::InteropStatus::OutParameterSetToInvalidNull) ||
+                !EnsureNotNull(valid, "valid", ::InteropStatus::OutParameterSetToInvalidNull)) {
+                return;
+            }
 
-        auto result = CallParseOrigin(value);
-        *valid = result.Valid ? 1 : 0;
-        if (result.Valid) {
-            *scheme = AllocateStringCopy(result.Scheme);
-            *host = AllocateStringCopy(result.Host);
-            *port = AllocateStringCopy(result.Port);
-        }
-    });
+            auto result = CallParseOrigin(value);
+            *valid = result.Valid ? 1 : 0;
+            if (result.Valid) {
+                *scheme = AllocateStringCopy(result.Scheme);
+                *host = AllocateStringCopy(result.Host);
+                *port = AllocateStringCopy(result.Port);
+            }
+        });
 }
 
 EXPORTED InteropStatus InfiniFrameNativeTests_IsSameOrigin(
     const char* left,
     const char* right,
     int* result
-) {
-    if (result != nullptr) *result = 0;
+    ) {
+    if (result != nullptr)
+        *result = 0;
 
-    return RunExportStatus([&] {
-        if (!EnsureNotNull(left, "left") ||
-            !EnsureNotNull(right, "right") ||
-            !EnsureNotNull(result, "result", ::InteropStatus::OutParameterSetToInvalidNull)) {
-            return;
-        }
+    return RunExportStatus(
+        [&] {
+            if (!EnsureNotNull(left, "left") ||
+                !EnsureNotNull(right, "right") ||
+                !EnsureNotNull(result, "result", ::InteropStatus::OutParameterSetToInvalidNull)) {
+                return;
+            }
 
-        *result = CallIsSameOrigin(left, right) ? 1 : 0;
-    });
+            *result = CallIsSameOrigin(left, right) ? 1 : 0;
+        });
 }
 
 EXPORTED InteropStatus InfiniFrameNativeTests_BuildHeaders(
@@ -92,21 +98,22 @@ EXPORTED InteropStatus InfiniFrameNativeTests_BuildHeaders(
     const char* resourceUri,
     const char* requestOrigin,
     const char** headers
-) {
-    if (headers != nullptr) *headers = nullptr;
+    ) {
+    if (headers != nullptr)
+        *headers = nullptr;
 
-    return RunExportStatus([&] {
-        if (!EnsureNotNull(contentType, "contentType") ||
-            !EnsureNotNull(resourceUri, "resourceUri") ||
-            !EnsureNotNull(requestOrigin, "requestOrigin") ||
-            !EnsureNotNull(headers, "headers", ::InteropStatus::OutParameterSetToInvalidNull)) {
-            return;
-        }
+    return RunExportStatus(
+        [&] {
+            if (!EnsureNotNull(contentType, "contentType") ||
+                !EnsureNotNull(resourceUri, "resourceUri") ||
+                !EnsureNotNull(requestOrigin, "requestOrigin") ||
+                !EnsureNotNull(headers, "headers", ::InteropStatus::OutParameterSetToInvalidNull)) {
+                return;
+            }
 
-        *headers = CallBuildHeaders(contentType, resourceUri, requestOrigin);
-    });
+            *headers = CallBuildHeaders(contentType, resourceUri, requestOrigin);
+        });
 }
-
 }
 
 #endif

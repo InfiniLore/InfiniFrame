@@ -14,26 +14,26 @@ public static class INotificationsInfiniFrameWindowFeatureExtensions {
     /// <param name="window">The window instance.</param>
     /// <param name="title">The title of the notification.</param>
     /// <param name="body">The body text of the notification.</param>
-    /// <returns>The <see cref="IInfiniFrameWindow"/> for method chaining.</returns>
+    /// <returns>The <see cref="IInfiniFrameWindow" /> for method chaining.</returns>
     public static IInfiniFrameWindow ShowNotification(this IInfiniFrameWindow window, string title, string body) {
         window.Features.Notifications.ShowNotification(title, body);
         return window;
     }
 
     /// <summary>
-    ///     Displays a rich notification configured through <paramref name="options"/>
+    ///     Displays a rich notification configured through <paramref name="options" />
     ///     and returns the window for chaining.
     /// </summary>
     /// <param name="window">The window instance.</param>
     /// <param name="options">The notification configuration.</param>
-    /// <returns>The <see cref="IInfiniFrameWindow"/> for method chaining.</returns>
+    /// <returns>The <see cref="IInfiniFrameWindow" /> for method chaining.</returns>
     public static IInfiniFrameWindow ShowNotification(this IInfiniFrameWindow window, InfiniFrameNotificationOptions options) {
         window.Features.Notifications.ShowNotification(options);
         return window;
     }
 
     /// <summary>
-    ///     Displays a rich notification and returns a <see cref="Task"/> that completes with the
+    ///     Displays a rich notification and returns a <see cref="Task" /> that completes with the
     ///     user's interaction result.
     /// </summary>
     /// <param name="window">The window instance.</param>
@@ -54,13 +54,15 @@ public static class INotificationsInfiniFrameWindowFeatureExtensions {
     /// <param name="text">The optional text content of the message dialog.</param>
     /// <param name="buttons">The button options to display on the dialog.</param>
     /// <param name="icon">The icon to display on the dialog.</param>
-    /// <returns>The user's response as an <see cref="InfiniFrameDialogResult"/>.</returns>
+    /// <returns>The user's response as an <see cref="InfiniFrameDialogResult" />.</returns>
     public static InfiniFrameDialogResult ShowMessage(this IInfiniFrameWindow window, string title, string? text, InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok, InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info)
         => window.Features.Notifications.ShowMessage(title, text, buttons, icon);
 
     /// <summary>Displays a native message dialog and completes when it is answered, canceled, or its owner closes.</summary>
     public static Task<InfiniFrameDialogResult> ShowMessageAsync(
-        this IInfiniFrameWindow window, string title, string? text,
+        this IInfiniFrameWindow window,
+        string title,
+        string? text,
         InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok,
         InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info,
         CancellationToken ct = default

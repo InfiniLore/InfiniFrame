@@ -1,13 +1,15 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {StateInfiniFrameWindowFeature as Contract,Rectangle} from "../../Contracts";
+import type {Rectangle, StateInfiniFrameWindowFeature as Contract} from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export class StateInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
-    constructor(){super("state");}
+    constructor() {
+        super("state");
+    }
 
     isFullScreenAsync() {
         return this.get<boolean>("isFullScreen");

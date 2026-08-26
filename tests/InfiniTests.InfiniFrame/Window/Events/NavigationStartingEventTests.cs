@@ -58,15 +58,24 @@ public class NavigationStartingEventTests {
         List<int> executionOrder = [];
 
         window.RegisterNavigationStartingHandler((_, _) => {
-            lock (executionOrder) executionOrder.Add(1);
+            lock (executionOrder) {
+                executionOrder.Add(1);
+            }
+
             return NavigationStartingResult.Allow;
         });
         window.RegisterNavigationStartingHandler((_, _) => {
-            lock (executionOrder) executionOrder.Add(2);
+            lock (executionOrder) {
+                executionOrder.Add(2);
+            }
+
             return NavigationStartingResult.Allow;
         });
         window.RegisterNavigationStartingHandler((_, _) => {
-            lock (executionOrder) executionOrder.Add(3);
+            lock (executionOrder) {
+                executionOrder.Add(3);
+            }
+
             return NavigationStartingResult.Allow;
         });
 

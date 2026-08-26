@@ -33,7 +33,8 @@ namespace {
 
     void onMenuActivate(GtkMenuItem* /*menuItem*/, const gpointer userData) {
         auto* data = static_cast<MenuActivateData*>(userData);
-        if (data == nullptr || data->window == nullptr) return;
+        if (data == nullptr || data->window == nullptr)
+            return;
 
         std::string message = std::string("menu:") + data->itemId;
         data->window->SendWebMessage(message.c_str());
@@ -46,10 +47,11 @@ namespace {
         std::unordered_map<guint, std::string>& commandToId,
         guint& nextId,
         std::vector<void*>& activateDataList
-    ) {
+        ) {
         for (const auto& item : items) {
             simdjson::dom::object obj;
-            if (item.get(obj) != simdjson::SUCCESS) continue;
+            if (item.get(obj) != simdjson::SUCCESS)
+                continue;
 
             std::string id;
             if (obj["id"].get_string().get(id) != simdjson::SUCCESS)
@@ -105,7 +107,10 @@ namespace {
         }
     }
 
-    GtkWidget* FindMenuItemWidget(GtkWidget* menuBar, const std::unordered_map<std::string, guint>& idToCommand, const char* menuItemId) {
+    GtkWidget* FindMenuItemWidget(
+        GtkWidget* menuBar,
+        const std::unordered_map<std::string, guint>& idToCommand,
+        const char* menuItemId) {
         auto it = idToCommand.find(menuItemId);
         if (it == idToCommand.end())
             return nullptr;
@@ -116,10 +121,12 @@ namespace {
         for (GList* t = topItems; t != nullptr; t = t->next) {
             GtkWidget* topItem = GTK_WIDGET(t->data);
             GtkWidget* topChild = gtk_bin_get_child(GTK_BIN(topItem));
-            if (topChild == nullptr) continue;
+            if (topChild == nullptr)
+                continue;
 
             GtkWidget* subMenu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(topChild));
-            if (subMenu == nullptr) continue;
+            if (subMenu == nullptr)
+                continue;
 
             GList* subItems = gtk_container_get_children(GTK_CONTAINER(subMenu));
             for (GList* s = subItems; s != nullptr; s = s->next) {
@@ -189,7 +196,7 @@ void InfiniFrameWindow::ApplyInitMenuBar(const char* menuBarJson) {
             impl->_menuCommandIdToItemId,
             impl->_nextMenuCommandId,
             impl->_menuActivateDataList
-        );
+            );
 
         impl->_menuBar = menuBar;
         impl->_menuBarJson = menuBarJson;
@@ -197,8 +204,7 @@ void InfiniFrameWindow::ApplyInitMenuBar(const char* menuBarJson) {
         GtkWidget* box = GTK_WIDGET(gtk_bin_get_child(GTK_BIN(impl->_window)));
         gtk_box_pack_start(GTK_BOX(box), menuBar, FALSE, FALSE, 0);
         gtk_widget_show_all(impl->_window);
-    } catch (const simdjson::simdjson_error&) {
-    }
+    } catch (const simdjson::simdjson_error&) {}
 }
 
 void InfiniFrameWindow::SetMenuBarJson(const char* menuBarJson) {

@@ -6,13 +6,30 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-@interface InfiniFrameWebView : WKWebView {
-    @private
+@
+interface InfiniFrameWebView :
+    WKWebView{
+        @private
     BOOL _infiniFrameContextMenuEnabled;
     BOOL _infiniFrameZoomEnabled;
-}
+    }
 
-- (void)setInfiniFrameContextMenuEnabled:(BOOL)enabled;
-- (void)setInfiniFrameZoomEnabled:(BOOL)enabled;
+-
+(
+void
+)
+setInfiniFrameContextMenuEnabled :
+    (BOOL)
 
-@end
+enabled;
+-
+(
+void
+)
+setInfiniFrameZoomEnabled :
+    (BOOL)
+
+enabled;
+
+@
+end

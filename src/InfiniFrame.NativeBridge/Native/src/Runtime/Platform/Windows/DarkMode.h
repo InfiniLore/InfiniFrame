@@ -14,7 +14,7 @@ void InitDarkModeSupport() noexcept;
  * @brief Check whether the current Windows theme is dark
  * @return true if the system is in dark mode
  */
-[[nodiscard]] auto IsDarkModeEnabled() noexcept -> bool;
+[[nodiscard]] bool IsDarkModeEnabled() noexcept;
 
 /**
  * @brief Apply or remove dark mode coloring on a window's non-client area
@@ -35,7 +35,7 @@ void RefreshNonClientArea(HWND hwnd) noexcept;
  * @param l_param lParam from a WM_SETTINGCHANGE message
  * @return true if the message indicates an immersive color-scheme change
  */
-[[nodiscard]] auto IsColorSchemeChange(LPARAM lParam) noexcept -> bool;
+[[nodiscard]] bool IsColorSchemeChange(LPARAM lParam) noexcept;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Internal UxTheme / DWM types (undocumented Win32 API surface)

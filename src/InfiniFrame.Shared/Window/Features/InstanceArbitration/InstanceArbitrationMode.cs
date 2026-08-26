@@ -15,7 +15,7 @@ public enum InstanceArbitrationMode {
     Disabled = 0,
 
     /// <summary>
-    ///     Only the primary instance is allowed. A secondary instance throws <see cref="InvalidOperationException"/>.
+    ///     Only the primary instance is allowed. A secondary instance throws <see cref="InvalidOperationException" />.
     /// </summary>
     PrimaryOnly = 1,
 

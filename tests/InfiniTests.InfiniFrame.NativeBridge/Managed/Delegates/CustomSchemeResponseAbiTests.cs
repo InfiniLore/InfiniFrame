@@ -1,9 +1,9 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Runtime.InteropServices;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Delegates;
-using System.Runtime.InteropServices;
 
 namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Delegates;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -96,7 +96,9 @@ public class CustomSchemeResponseAbiTests {
         await Assert.That(Volatile.Read(ref releaseCount)).IsEqualTo(requestCount);
         return;
 
-        int Response(string _, ref CustomSchemeResponse value) => CreateResponse(releaseCallback, ref value);
+        int Response(string _, ref CustomSchemeResponse value) {
+            return CreateResponse(releaseCallback, ref value);
+        }
     }
 
     [Test]
@@ -135,7 +137,9 @@ public class CustomSchemeResponseAbiTests {
         await Assert.That(Volatile.Read(ref releaseCount)).IsEqualTo(requestCount);
         return;
 
-        int Response(string _, ref CustomSchemeResponse value) => CreateResponse(releaseCallback, ref value);
+        int Response(string _, ref CustomSchemeResponse value) {
+            return CreateResponse(releaseCallback, ref value);
+        }
     }
 
     // ReSharper disable once RedundantAssignment

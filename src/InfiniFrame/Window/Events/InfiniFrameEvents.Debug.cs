@@ -29,7 +29,7 @@ public partial class InfiniFrameEvents {
     ) {
         ArgumentNullException.ThrowIfNull(Sender);
 
-        if (!Enum.TryParse(kind, ignoreCase: true, out InfiniFrameDebugEventKind parsedKind)) {
+        if (!Enum.TryParse(kind, true, out InfiniFrameDebugEventKind parsedKind)) {
             parsedKind = InfiniFrameDebugEventKind.Runtime;
         }
 

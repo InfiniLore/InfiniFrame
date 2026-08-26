@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {InfiniFrameHostBridge, InfiniFrameSetup, InteropEnvelopeV1} from "../../Contracts";
+import type {InfiniFrameHostBridge, InfiniFrameSetup, InteropEnvelopeCommand, InteropEnvelopeV1} from "../../Contracts";
 import {
     InteropEnvelopeVersion,
     InteropGetCommand,
@@ -18,10 +18,15 @@ const GetMessageTimeoutMs = 10_000;
 const receiveCallbacks = new Set<(message: string) => void>();
 let receiveBridgeAttached = false;
 
+export function resetNativeInteropBridgeState(): void {
+    receiveCallbacks.clear();
+    receiveBridgeAttached = false;
+}
+
 export function installNativeInteropBridge(setup: InfiniFrameSetup): void {
     if (setup.nativeInteropBridgeInitialized) return;
     setup.nativeInteropBridgeInitialized = true;
-    
+
     window.infiniframe = window.infiniframe ?? {} as Window["infiniframe"];
     const host = (window.infiniframe.host ?? {}) as InfiniFrameHostBridge;
     const existingPostData = host.postData;
@@ -209,8 +214,8 @@ function createRequestId(): string {
 
 function normalizeEnvelope(
     envelope: InteropEnvelopeV1,
-    command = envelope.command ?? InteropPostCommand,
-    requestId = envelope.requestId
+    command?: InteropEnvelopeCommand,
+    requestId?: string
 ): InteropEnvelopeV1 | null {
     if (!envelope || typeof envelope !== "object") {
         console.warn("Host bridge payload must be an envelope object.");
@@ -225,8 +230,8 @@ function normalizeEnvelope(
 
     const normalized: InteropEnvelopeV1 = {
         id: envelope.id,
-        command,
-        requestId,
+        command: command ?? envelope.command ?? InteropPostCommand,
+        requestId: requestId ?? envelope.requestId,
         data: envelope.data,
         version: InteropEnvelopeVersion
     };

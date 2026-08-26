@@ -1,9 +1,9 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Dialogs;
-using System.Diagnostics.CodeAnalysis;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Notifications;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -91,14 +91,18 @@ public class ShowMessageTests {
     }
 
     private static async Task WaitForOutstandingOperation(
-        IInfiniFrameWindow window, string name, CancellationToken ct
+        IInfiniFrameWindow window,
+        string name,
+        CancellationToken ct
     ) {
         DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
         while (DateTime.UtcNow < timeoutAt) {
             if (window.GetDebugDiagnostics().OutstandingOperations.Any(operation => operation.Name == name))
                 return;
+
             await Task.Delay(25, ct);
         }
+
         throw new TimeoutException($"The {name} operation was not registered.");
     }
 
@@ -107,8 +111,10 @@ public class ShowMessageTests {
         while (DateTime.UtcNow < timeoutAt) {
             if (window.GetDebugDiagnostics().OutstandingOperations.Count == 0)
                 return;
+
             await Task.Delay(25, ct);
         }
+
         throw new TimeoutException("The canceled native dialog did not complete.");
     }
 }

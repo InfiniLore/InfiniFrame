@@ -1,13 +1,13 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Buffers;
+using System.Runtime.InteropServices;
+using System.Text;
 using InfiniFrame.NativeBridge.Delegates;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
-using System.Buffers;
-using System.Runtime.InteropServices;
-using System.Text;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -17,21 +17,6 @@ public partial class InfiniFrameEvents {
     private const int StreamCopyBufferSize = 81920;
     private static readonly CppReleaseCustomSchemeResponseDelegate ReleaseCustomSchemeResponse = ReleaseResponseStorage;
     private static long _activeCustomSchemeResponseAllocations;
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Methods
-    // -----------------------------------------------------------------------------------------------------------------
-    private void ApplyCustomSchemeNames(ref InfiniFrameNativeParameters startupParameters) {
-        var availableHandlers = new HashSet<string>(EventsStore.CustomScheme.Snapshot.Select(static item => item.Key), StringComparer.Ordinal);
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-
-        IntPtr[] customSchemeNameArray = CustomSchemeNameMemory.Allocate(
-            EventsStore.CustomScheme.Snapshot.Keys.Where(key => seen.Add(key) && availableHandlers.Contains(key))
-        );
-
-        CustomSchemeNameMemory.FreeAll(startupParameters.CustomSchemeNames);
-        startupParameters.CustomSchemeNames = customSchemeNameArray;
-    }
 
     /// <inheritdoc cref="IInfiniFrameEvents.OnCustomScheme" />
     public int OnCustomScheme(string url, ref CustomSchemeResponse response) {
@@ -77,6 +62,21 @@ public partial class InfiniFrameEvents {
             Logger.LogError(ex, "Custom scheme handler failed for URL '{Url}'.", url);
             return 0;
         }
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    private void ApplyCustomSchemeNames(ref InfiniFrameNativeParameters startupParameters) {
+        var availableHandlers = new HashSet<string>(EventsStore.CustomScheme.Snapshot.Select(static item => item.Key), StringComparer.Ordinal);
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+
+        IntPtr[] customSchemeNameArray = CustomSchemeNameMemory.Allocate(
+            EventsStore.CustomScheme.Snapshot.Keys.Where(key => seen.Add(key) && availableHandlers.Contains(key))
+        );
+
+        CustomSchemeNameMemory.FreeAll(startupParameters.CustomSchemeNames);
+        startupParameters.CustomSchemeNames = customSchemeNameArray;
     }
 
     private static CustomSchemeResponse BufferResponse(Stream source, string? contentType) {
@@ -186,6 +186,7 @@ public partial class InfiniFrameEvents {
         IntPtr storage = Marshal.AllocCoTaskMem(allocationSize);
         if (storage == IntPtr.Zero)
             throw new OutOfMemoryException($"Failed to allocate {allocationSize} bytes for custom scheme response.");
+
         Interlocked.Increment(ref _activeCustomSchemeResponseAllocations);
         return storage;
     }

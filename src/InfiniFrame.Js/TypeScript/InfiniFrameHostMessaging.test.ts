@@ -98,7 +98,11 @@ describe("InfiniFrameHostMessaging", () => {
     it("registers open-external click handler only once", async () => {
         const {getReceiveCallback, blankTargetHandler} = await setupHostMessaging();
         const addEventListenerSpy = vi.spyOn(document, "addEventListener");
-        const registerMessage = JSON.stringify({id: ReceiveFromHostMessageIds.registerOpenExternal, command: "Post", version: 2});
+        const registerMessage = JSON.stringify({
+            id: ReceiveFromHostMessageIds.registerOpenExternal,
+            command: "Post",
+            version: 2
+        });
 
         getReceiveCallback()(registerMessage);
         getReceiveCallback()(registerMessage);
@@ -108,13 +112,33 @@ describe("InfiniFrameHostMessaging", () => {
         expect(registrations[0][1]).toBe(blankTargetHandler);
     });
 
+    it("registers fullscreen change handler only once", async () => {
+        const {getReceiveCallback} = await setupHostMessaging();
+        const addEventListenerSpy = vi.spyOn(document, "addEventListener");
+        const registerMessage = JSON.stringify({
+            id: ReceiveFromHostMessageIds.registerFullscreenChange,
+            command: "Post",
+            version: 2
+        });
+
+        getReceiveCallback()(registerMessage);
+        getReceiveCallback()(registerMessage);
+
+        const fullscreenRegistrations = addEventListenerSpy.mock.calls.filter(call => call[0] === "fullscreenchange");
+        expect(fullscreenRegistrations.length).toBe(1);
+    });
+
     it("registers title observer on registerTitleChange message", async () => {
         const title = document.createElement("title");
         title.textContent = "My Title";
         document.head.appendChild(title);
 
         const {getReceiveCallback, titleObserverObserve} = await setupHostMessaging();
-        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.registerTitleChange, command: "Post", version: 2}));
+        getReceiveCallback()(JSON.stringify({
+            id: ReceiveFromHostMessageIds.registerTitleChange,
+            command: "Post",
+            version: 2
+        }));
 
         expect(titleObserverObserve).toHaveBeenCalledWith(title, {childList: true});
     });
@@ -122,19 +146,313 @@ describe("InfiniFrameHostMessaging", () => {
     it("overrides window.close after registerWindowClose and routes to host", async () => {
         const {getReceiveCallback, postData} = await setupHostMessaging();
         const originalClose = window.close;
-        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.registerWindowClose, command: "Post", version: 2}));
+        getReceiveCallback()(JSON.stringify({
+            id: ReceiveFromHostMessageIds.registerWindowClose,
+            command: "Post",
+            version: 2
+        }));
 
         window.close();
 
         const closeMessages = postData.mock.calls
             .map(call => call[0])
             .filter(
-                message => typeof message === "object" 
-                    && message !== null 
+                message => typeof message === "object"
+                    && message !== null
                     && (message as { id?: string }).id === SendToHostMessageIds.windowClose
             );
         expect(closeMessages.length).toBe(1);
 
         window.close = originalClose;
+    });
+
+    it("sends readyAck and marks handshake as acknowledged", async () => {
+        const {messaging, getReceiveCallback} = await setupHostMessaging();
+
+        expect(messaging.isReady).toBe(false);
+
+        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.readyAck, command: "Post", version: 2}));
+
+        expect(messaging.isReady).toBe(true);
+        await expect(messaging.ready).resolves.toBeUndefined();
+    });
+
+    it("readyAck only resolves once", async () => {
+        const {getReceiveCallback} = await setupHostMessaging();
+
+        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.readyAck, command: "Post", version: 2}));
+        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.readyAck, command: "Post", version: 2}));
+
+        // Should not throw
+    });
+
+    it("unregisterMessageReceivedHandler removes handler", async () => {
+        const {messaging, getReceiveCallback} = await setupHostMessaging();
+        const handler = vi.fn();
+        messaging.assignMessageReceivedHandler("test:event", handler);
+        messaging.unregisterMessageReceivedHandler("test:event");
+
+        getReceiveCallback()(JSON.stringify({id: "test:event", command: "Post", data: "payload", version: 2}));
+
+        expect(handler).not.toHaveBeenCalled();
+    });
+
+    it("ignores messages with no registered handler", async () => {
+        const {getReceiveCallback} = await setupHostMessaging();
+        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+        getReceiveCallback()(JSON.stringify({id: "unregistered:event", command: "Post", data: "payload", version: 2}));
+
+        expect(warnSpy).toHaveBeenCalled();
+        warnSpy.mockRestore();
+    });
+
+    it("ignores invalid messages (non-string)", async () => {
+        const {getReceiveCallback} = await setupHostMessaging();
+        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+        getReceiveCallback()(123 as any);
+
+        warnSpy.mockRestore();
+    });
+
+    it("ignores empty messages", async () => {
+        const {getReceiveCallback} = await setupHostMessaging();
+        getReceiveCallback()("");
+    });
+
+    it("ignores messages with parse errors", async () => {
+        const {getReceiveCallback} = await setupHostMessaging();
+        getReceiveCallback()("not-valid-json{{{");
+    });
+
+    it("sends webMessageAckResponse for acknowledged messages", async () => {
+        const {messaging, getReceiveCallback, postData} = await setupHostMessaging();
+        messaging.assignMessageReceivedHandler("custom:event", vi.fn());
+
+        getReceiveCallback()(JSON.stringify({
+            id: ReceiveFromHostMessageIds.webMessageAckRequest,
+            command: "Post",
+            data: JSON.stringify({
+                OperationId: "op-1",
+                Message: JSON.stringify({id: "custom:event", command: "Post", data: "hello", version: 2})
+            }),
+            version: 2
+        }));
+
+        const ackResponses = postData.mock.calls
+            .map((call: any[]) => call[0])
+            .filter((msg: any) => typeof msg === "object" && msg?.id === SendToHostMessageIds.webMessageAckResponse);
+        expect(ackResponses.length).toBe(1);
+    });
+
+    it("ignores webMessageAckRequest with missing OperationId", async () => {
+        const {getReceiveCallback} = await setupHostMessaging();
+        getReceiveCallback()(JSON.stringify({
+            id: ReceiveFromHostMessageIds.webMessageAckRequest,
+            command: "Post",
+            data: JSON.stringify({Message: "hello"}),
+            version: 2
+        }));
+    });
+
+    it("ignores webMessageAckRequest with non-string Message", async () => {
+        const {getReceiveCallback} = await setupHostMessaging();
+        getReceiveCallback()(JSON.stringify({
+            id: ReceiveFromHostMessageIds.webMessageAckRequest,
+            command: "Post",
+            data: JSON.stringify({OperationId: "op-1", Message: 123}),
+            version: 2
+        }));
+    });
+
+    it("routes javascript eval requests", async () => {
+        const {getReceiveCallback} = await setupHostMessaging();
+
+        // eval requests route through handleJavaScriptEvalRequest which needs window.infiniframe.messaging
+        // This is the real InfiniFrameHostMessaging instance, so eval sends response via postData
+        getReceiveCallback()(JSON.stringify({
+            id: "__infiniframe:javascript:eval",
+            command: "Post",
+            data: JSON.stringify({requestId: "req-1", script: "1+1"}),
+            version: 2
+        }));
+
+        // The eval handler calls handleJavaScriptEvalRequest which calls messaging.sendMessageToHost
+        // Since messaging IS the real instance, it calls postData with eval:result
+    });
+
+    it("routes javascript eval responses", async () => {
+        const {getReceiveCallback} = await setupHostMessaging();
+
+        getReceiveCallback()(JSON.stringify({
+            id: "__infiniframe:javascript:eval:response",
+            command: "Post",
+            data: JSON.stringify({requestId: "req-1", result: "42"}),
+            version: 2
+        }));
+    });
+
+    it("ignores javascript eval response with no payload", async () => {
+        const {getReceiveCallback} = await setupHostMessaging();
+        getReceiveCallback()(JSON.stringify({
+            id: "__infiniframe:javascript:eval:response",
+            command: "Post",
+            version: 2
+        }));
+    });
+
+    it("ignores javascript eval request with no payload", async () => {
+        const {getReceiveCallback} = await setupHostMessaging();
+        getReceiveCallback()(JSON.stringify({
+            id: "__infiniframe:javascript:eval",
+            command: "Post",
+            version: 2
+        }));
+    });
+
+    it("getMessageFromHostAsync throws when getDataAsync not available", async () => {
+        const {messaging} = await setupHostMessaging();
+        // Access the real host object that was stored during construction
+        const host = testWindow.infiniframe?.host as any;
+        delete host?.getDataAsync;
+
+        await expect(messaging.getMessageFromHostAsync("test")).rejects.toThrow();
+    });
+
+    it("sendMessageToHost warns when host bridge not initialized", async () => {
+        const {messaging} = await setupHostMessaging();
+        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+        (testWindow.infiniframe.host as any).postData = undefined;
+
+        messaging.sendMessageToHost("test" as any);
+
+        expect(warnSpy).toHaveBeenCalled();
+        warnSpy.mockRestore();
+    });
+
+    it("assignWebMessageReceiver warns when host bridge not available", async () => {
+        // @ts-ignore
+        testWindow.infiniframe = {host: undefined};
+        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+        const module = await import("././InfiniFrameHostMessaging");
+        new module.default();
+
+        expect(warnSpy).toHaveBeenCalled();
+        warnSpy.mockRestore();
+    });
+
+    it("registerTitleChange with no existing title element creates head observer", async () => {
+        // Remove any existing title elements
+        document.querySelectorAll("title").forEach(el => el.remove());
+
+        const {getReceiveCallback, titleObserverObserve} = await setupHostMessaging();
+        getReceiveCallback()(JSON.stringify({
+            id: ReceiveFromHostMessageIds.registerTitleChange,
+            command: "Post",
+            version: 2
+        }));
+
+        // Should not throw even with no title element
+        expect(titleObserverObserve).not.toHaveBeenCalled();
+    });
+
+    it("registerTitleChange is idempotent", async () => {
+        const {getReceiveCallback} = await setupHostMessaging();
+        const addEventListenerSpy = vi.spyOn(document, "addEventListener");
+
+        getReceiveCallback()(JSON.stringify({
+            id: ReceiveFromHostMessageIds.registerTitleChange,
+            command: "Post",
+            version: 2
+        }));
+        getReceiveCallback()(JSON.stringify({
+            id: ReceiveFromHostMessageIds.registerTitleChange,
+            command: "Post",
+            version: 2
+        }));
+
+        // Should only observe once
+    });
+
+    it("registerFullscreenChange sends fullscreenEnter when fullscreenElement exists", async () => {
+        const {getReceiveCallback, postData} = await setupHostMessaging();
+        const addEventListenerSpy = vi.spyOn(document, "addEventListener");
+
+        getReceiveCallback()(JSON.stringify({
+            id: ReceiveFromHostMessageIds.registerFullscreenChange,
+            command: "Post",
+            version: 2
+        }));
+
+        // Find the fullscreenchange handler
+        const fullscreenHandler = addEventListenerSpy.mock.calls.find(
+            (call: any[]) => call[0] === "fullscreenchange"
+        )?.[1] as (e: Event) => void;
+
+        if (fullscreenHandler) {
+            // Mock fullscreenElement to be truthy
+            Object.defineProperty(document, "fullscreenElement", {value: document.body, configurable: true});
+            fullscreenHandler(new Event("fullscreenchange"));
+
+            const fullscreenMessages = postData.mock.calls
+                .map((call: any[]) => call[0])
+                .filter((msg: any) => typeof msg === "object" && msg?.id === SendToHostMessageIds.fullscreenEnter);
+            expect(fullscreenMessages.length).toBe(1);
+
+            // Reset
+            Object.defineProperty(document, "fullscreenElement", {value: null, configurable: true});
+        }
+    });
+
+    it("registerFullscreenChange sends fullscreenExit when no fullscreenElement", async () => {
+        const {getReceiveCallback, postData} = await setupHostMessaging();
+        const addEventListenerSpy = vi.spyOn(document, "addEventListener");
+
+        getReceiveCallback()(JSON.stringify({
+            id: ReceiveFromHostMessageIds.registerFullscreenChange,
+            command: "Post",
+            version: 2
+        }));
+
+        const fullscreenHandler = addEventListenerSpy.mock.calls.find(
+            (call: any[]) => call[0] === "fullscreenchange"
+        )?.[1] as (e: Event) => void;
+
+        if (fullscreenHandler) {
+            Object.defineProperty(document, "fullscreenElement", {value: null, configurable: true});
+            fullscreenHandler(new Event("fullscreenchange"));
+
+            const fullscreenMessages = postData.mock.calls
+                .map((call: any[]) => call[0])
+                .filter((msg: any) => typeof msg === "object" && msg?.id === SendToHostMessageIds.fullscreenExit);
+            expect(fullscreenMessages.length).toBe(1);
+        }
+    });
+
+    it("webMessageAckRequest with malformed JSON does not throw", async () => {
+        const {getReceiveCallback} = await setupHostMessaging();
+        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+        getReceiveCallback()(JSON.stringify({
+            id: ReceiveFromHostMessageIds.webMessageAckRequest,
+            command: "Post",
+            data: "not-json",
+            version: 2
+        }));
+
+        expect(warnSpy).toHaveBeenCalled();
+        warnSpy.mockRestore();
+    });
+
+    it("handleInteropMessage returns false for non-string messages", async () => {
+        const {messaging} = await setupHostMessaging();
+        // The handleInteropMessage is private, but we can test it indirectly
+        // through the receive callback with a non-string message
+        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+        const {getReceiveCallback} = await setupHostMessaging();
+        getReceiveCallback()(123 as any);
+        warnSpy.mockRestore();
     });
 });

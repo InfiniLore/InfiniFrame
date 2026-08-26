@@ -31,7 +31,7 @@ void InfiniFrameWindow::Impl::set_webkit_settings() {
         _userAgent.c_str(),
 
         NULL
-    );
+        );
 
     if (!_browserControlInitParameters.empty())
         set_webkit_customsettings(settings);

@@ -11,6 +11,8 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
+
+    private IServiceCollection Services { get; init; } = new ServiceCollection().AddInfiniFrame();
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.Configuration" />
     public IInfiniFrameWindowBuilderConfiguration Configuration { get; } = new InfiniFrameWindowBuilderConfiguration();
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.Features" />
@@ -22,22 +24,6 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.StaticAssets" />
     public IInfiniFrameStaticAssets? StaticAssets { get; set; }
-
-    private IServiceCollection Services { get; init; } = new ServiceCollection().AddInfiniFrame();
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Constructors
-    // -----------------------------------------------------------------------------------------------------------------
-    public static InfiniFrameWindowBuilder Create(IServiceCollection? collection = null, InfiniFrameEventsStore? events = null) {
-        var builder = new InfiniFrameWindowBuilder {
-            EventsStore = events ?? new InfiniFrameEventsStore(),
-            Services = (collection ?? new ServiceCollection())
-                .AddLogging()
-                .AddInfiniFrame()
-        };
-
-        return builder;
-    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -82,6 +68,20 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
         return window;
 
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------------------------------------------------
+    public static InfiniFrameWindowBuilder Create(IServiceCollection? collection = null, InfiniFrameEventsStore? events = null) {
+        var builder = new InfiniFrameWindowBuilder {
+            EventsStore = events ?? new InfiniFrameEventsStore(),
+            Services = (collection ?? new ServiceCollection())
+                .AddLogging()
+                .AddInfiniFrame()
+        };
+
+        return builder;
     }
 
     internal InfiniFrameNativeParameters CollectNativeParameters() {

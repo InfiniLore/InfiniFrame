@@ -45,14 +45,18 @@ public class DisposeAsyncTests {
     }
 
     private static async Task WaitForOutstandingOperation(
-        IInfiniFrameWindow window, string name, CancellationToken ct
+        IInfiniFrameWindow window,
+        string name,
+        CancellationToken ct
     ) {
         DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
         while (DateTime.UtcNow < timeoutAt) {
             if (window.GetDebugDiagnostics().OutstandingOperations.Any(operation => operation.Name == name))
                 return;
+
             await Task.Delay(25, ct);
         }
+
         throw new TimeoutException($"The {name} operation was not registered.");
     }
 }

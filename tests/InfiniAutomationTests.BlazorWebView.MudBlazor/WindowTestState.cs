@@ -1,7 +1,6 @@
 ﻿using InfiniFrame;
 
 namespace InfiniAutomationTests.BlazorWebView.MudBlazor;
-
 public sealed record WindowTestState(string Title, bool IsFullScreen) {
     public static WindowTestState Default { get; } = new(
         "InfiniFrame Playwright BlazorWebView",

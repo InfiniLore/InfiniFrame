@@ -44,6 +44,21 @@ public interface IInfiniFrameWindow : IHasInfiniFrameEventsStore, INativeWindowH
     /// <summary>Gets the current window lifecycle state.</summary>
     InfiniFrameWindowLifecycleState LifecycleState { get; }
 
+    /// <summary>
+    ///     Gets the native window handle.
+    /// </summary>
+    IntPtr WindowHandle { get; }
+
+    /// <summary>
+    ///     Gets the managed thread ID that owns window invoke dispatching.
+    /// </summary>
+    int ManagedThreadId { get; }
+
+    /// <summary>
+    ///     Gets the unique identifier for this window instance.
+    /// </summary>
+    Guid Id { get; }
+
     internal void BeginInitialization();
     internal void AssignNativeHandle(IntPtr handle);
     internal void MarkReady();
@@ -57,22 +72,7 @@ public interface IInfiniFrameWindow : IHasInfiniFrameEventsStore, INativeWindowH
     internal void ReleaseNativeHandle();
 
     /// <summary>
-    ///     Gets the native window handle.
-    /// </summary>
-    IntPtr WindowHandle { get; }
-
-    /// <summary>
-    ///     Gets the managed thread ID that owns window invoke dispatching.
-    /// </summary>
-    int ManagedThreadId { get; }
-
-    /// <summary>
     ///     Updates the managed thread ID used for invoke dispatching.
     /// </summary>
     internal void SetManagedThreadId(int managedThreadId);
-
-    /// <summary>
-    ///     Gets the unique identifier for this window instance.
-    /// </summary>
-    Guid Id { get; }
 }

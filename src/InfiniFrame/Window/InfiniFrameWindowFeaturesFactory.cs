@@ -35,76 +35,76 @@ public class InfiniFrameWindowFeaturesFactory(IServiceProvider provider) {
     /// <returns>An <see cref="IInfiniFrameWindowFeatures" /> instance with all feature implementations.</returns>
     public IInfiniFrameWindowFeatures Create(IInfiniFrameWindow window, IInfiniFrameWindowBuilder originalBuilder)
         => new InfiniFrameWindowFeatures(
-            Debugging: new DebuggingInfiniFrameWindowFeature(
+            new DebuggingInfiniFrameWindowFeature(
                 window,
                 GetLogger<DebuggingInfiniFrameWindowFeature>(provider)
             ),
-            Lifecycle: new LifecycleInfiniFrameWindowFeature(
+            new LifecycleInfiniFrameWindowFeature(
                 window,
                 GetLogger<LifecycleInfiniFrameWindowFeature>(provider),
                 provider.GetRequiredService<IValidator<InfiniFrameNativeParameters>>()
             ),
-            Invoke: new InvokeInfiniFrameWindowFeature(
+            new InvokeInfiniFrameWindowFeature(
                 window,
                 GetLogger<InvokeInfiniFrameWindowFeature>(provider)
             ),
-            WebMessaging: new WebMessagingInfiniFrameWindowFeature(
+            new WebMessagingInfiniFrameWindowFeature(
                 window,
                 GetLogger<WebMessagingInfiniFrameWindowFeature>(provider)
             ),
-            Notifications: new NotificationsInfiniFrameWindowFeature(
+            new NotificationsInfiniFrameWindowFeature(
                 window,
                 GetLogger<NotificationsInfiniFrameWindowFeature>(provider)
             ),
-            FilePickerDialogs: new FilePickerDialogsInfiniFrameWindowFeature(
+            new FilePickerDialogsInfiniFrameWindowFeature(
                 window,
                 GetLogger<FilePickerDialogsInfiniFrameWindowFeature>(provider)
             ),
-            Monitors: new MonitorsInfiniFrameWindowFeature(
+            new MonitorsInfiniFrameWindowFeature(
                 window,
                 GetLogger<MonitorsInfiniFrameWindowFeature>(provider)
             ),
-            PageNavigation: new PageNavigationInfiniFrameWindowFeature(
+            new PageNavigationInfiniFrameWindowFeature(
                 window,
                 GetLogger<PageNavigationInfiniFrameWindowFeature>(provider),
                 provider.GetService<IInfiniFrameStaticAssets>()
                 ?? originalBuilder.StaticAssets?.DeepCopy()
             ),
-            Position: new PositionInfiniFrameWindowFeature(
+            new PositionInfiniFrameWindowFeature(
                 window,
                 GetLogger<PositionInfiniFrameWindowFeature>(provider)
             ),
-            Size: new SizeInfiniFrameWindowFeature(
+            new SizeInfiniFrameWindowFeature(
                 window,
                 GetLogger<SizeInfiniFrameWindowFeature>(provider)
             ),
-            Decorations: new DecorationsInfiniFrameWindowFeature(
+            new DecorationsInfiniFrameWindowFeature(
                 window,
                 originalBuilder,
                 GetLogger<DecorationsInfiniFrameWindowFeature>(provider)
             ),
-            State: new StateInfiniFrameWindowFeature(
+            new StateInfiniFrameWindowFeature(
                 window,
                 GetLogger<StateInfiniFrameWindowFeature>(provider)
             ),
-            Browser: new BrowserInfiniFrameWindowFeature(
+            new BrowserInfiniFrameWindowFeature(
                 window,
                 GetLogger<BrowserInfiniFrameWindowFeature>(provider)
             ),
-            DragDrop: new DragDropInfiniFrameWindowFeature(
+            new DragDropInfiniFrameWindowFeature(
                 window,
                 GetLogger<DragDropInfiniFrameWindowFeature>(provider)
             ),
-            Taskbar: new TaskbarInfiniFrameWindowFeature(
+            new TaskbarInfiniFrameWindowFeature(
                 window,
                 GetLogger<TaskbarInfiniFrameWindowFeature>(provider)
             ),
-            Menu: new MenuInfiniFrameWindowFeature(
+            new MenuInfiniFrameWindowFeature(
                 window,
                 GetLogger<MenuInfiniFrameWindowFeature>(provider),
                 originalBuilder.Features.Menu.MenuBar
             ),
-            JavaScript: new JavaScriptInfiniFrameWindowFeature(
+            new JavaScriptInfiniFrameWindowFeature(
                 window,
                 GetLogger<JavaScriptInfiniFrameWindowFeature>(provider)
             )

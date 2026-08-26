@@ -1,8 +1,14 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
-
+<Project Sdk="Microsoft.NET.Sdk.Razor">
     <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
         <OutputType>WinExe</OutputType>
+        <LangVersion>14.0</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
         <UseAppHost>true</UseAppHost>
+        <IsPackable>false</IsPackable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <ApplicationIcon>../../assets/favicon.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
@@ -16,5 +22,22 @@
         <PackageReference Include="Serilog.AspNetCore"/>
         <PackageReference Include="Serilog.Sinks.Async"/>
         <PackageReference Include="Serilog.Sinks.Console"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="../../assets/favicon.ico">
+            <Link>wwwroot/favicon.ico</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <Import Project="../../InfiniFrame.NativeCopy.targets" />
+
+    <ItemGroup>
+        <None Include="bin/$(Configuration)/$(TargetFramework)/**/publish/$(AssemblyName).exe;
+                       bin/$(Configuration)/$(TargetFramework)/**/publish/$(AssemblyName)"
+              Visible="true">
+            <Link>builds/$(Configuration)/$(TargetFramework)/%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </None>
     </ItemGroup>
 </Project>

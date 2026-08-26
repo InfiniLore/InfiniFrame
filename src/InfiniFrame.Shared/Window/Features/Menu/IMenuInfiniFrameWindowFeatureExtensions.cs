@@ -6,7 +6,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Fluent extension methods for the menu feature on <see cref="IInfiniFrameWindow"/>.
+///     Fluent extension methods for the menu feature on <see cref="IInfiniFrameWindow" />.
 /// </summary>
 public static class IMenuInfiniFrameWindowFeatureExtensions {
     /// <summary>
@@ -14,7 +14,7 @@ public static class IMenuInfiniFrameWindowFeatureExtensions {
     /// </summary>
     /// <param name="window">The window instance.</param>
     /// <param name="menuBar">The menu bar to apply.</param>
-    /// <returns>The <see cref="IInfiniFrameWindow"/> for method chaining.</returns>
+    /// <returns>The <see cref="IInfiniFrameWindow" /> for method chaining.</returns>
     public static IInfiniFrameWindow SetMenuBar(this IInfiniFrameWindow window, InfiniFrameMenuBar menuBar) {
         window.Features.Menu.SetMenuBar(menuBar);
         return window;
@@ -26,7 +26,7 @@ public static class IMenuInfiniFrameWindowFeatureExtensions {
     /// <param name="window">The window instance.</param>
     /// <param name="menuItemId">The unique identifier of the menu item.</param>
     /// <param name="enabled">Whether the item should be enabled.</param>
-    /// <returns>The <see cref="IInfiniFrameWindow"/> for method chaining.</returns>
+    /// <returns>The <see cref="IInfiniFrameWindow" /> for method chaining.</returns>
     public static IInfiniFrameWindow SetMenuItemEnabled(this IInfiniFrameWindow window, string menuItemId, bool enabled) {
         window.Features.Menu.SetMenuItemEnabled(menuItemId, enabled);
         return window;
@@ -38,7 +38,7 @@ public static class IMenuInfiniFrameWindowFeatureExtensions {
     /// <param name="window">The window instance.</param>
     /// <param name="menuItemId">The unique identifier of the menu item.</param>
     /// <param name="visible">Whether the item should be visible.</param>
-    /// <returns>The <see cref="IInfiniFrameWindow"/> for method chaining.</returns>
+    /// <returns>The <see cref="IInfiniFrameWindow" /> for method chaining.</returns>
     public static IInfiniFrameWindow SetMenuItemVisible(this IInfiniFrameWindow window, string menuItemId, bool visible) {
         window.Features.Menu.SetMenuItemVisible(menuItemId, visible);
         return window;
@@ -49,7 +49,7 @@ public static class IMenuInfiniFrameWindowFeatureExtensions {
     /// </summary>
     /// <param name="window">The window instance.</param>
     /// <param name="menuItemId">The unique identifier of the menu item to click.</param>
-    /// <returns>The <see cref="IInfiniFrameWindow"/> for method chaining.</returns>
+    /// <returns>The <see cref="IInfiniFrameWindow" /> for method chaining.</returns>
     public static IInfiniFrameWindow ClickMenuItem(this IInfiniFrameWindow window, string menuItemId) {
         window.Features.Menu.ClickMenuItem(menuItemId);
         return window;

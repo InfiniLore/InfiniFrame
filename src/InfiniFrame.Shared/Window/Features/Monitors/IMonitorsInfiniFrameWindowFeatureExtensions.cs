@@ -10,7 +10,7 @@ public static class IMonitorsInfiniFrameWindowFeatureExtensions {
     ///     Gets all available monitors for the window.
     /// </summary>
     /// <param name="window">The window instance.</param>
-    /// <returns>A collection of <see cref="InfiniMonitor"/> instances.</returns>
+    /// <returns>A collection of <see cref="InfiniMonitor" /> instances.</returns>
     public static IEnumerable<InfiniMonitor> GetMonitors(this IInfiniFrameWindow window)
         => window.Features.Monitors.GetMonitors();
 
@@ -18,7 +18,7 @@ public static class IMonitorsInfiniFrameWindowFeatureExtensions {
     ///     Gets the main (primary) monitor for the window.
     /// </summary>
     /// <param name="window">The window instance.</param>
-    /// <returns>The main <see cref="InfiniMonitor"/> instance.</returns>
+    /// <returns>The main <see cref="InfiniMonitor" /> instance.</returns>
     public static InfiniMonitor GetMainMonitor(this IInfiniFrameWindow window)
         => window.Features.Monitors.GetMainMonitor();
 

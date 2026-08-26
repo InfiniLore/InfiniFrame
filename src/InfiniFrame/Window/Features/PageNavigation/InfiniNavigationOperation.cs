@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -15,24 +15,21 @@ internal sealed class InfiniNavigationOperation {
     private const int NativeOperationResultSuperseded = 5;
     private static long _nextId;
     private static readonly InfiniFrameNative.OperationCompletedCallback CompletionCallback = Complete;
-
-    private readonly IInfiniFrameWindow _window;
-    private readonly ILogger _logger;
-    private readonly string _value;
-    private readonly Uri? _uri;
-    private readonly bool _rawString;
     private readonly CancellationToken _cancellationToken;
-    private readonly string? _diagnosticKey;
     private readonly TaskCompletionSource<NavigationResult> _completion =
         new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private readonly string? _diagnosticKey;
+    private readonly ILogger _logger;
+    private readonly bool _rawString;
+    private readonly Uri? _uri;
+    private readonly string _value;
+
+    private readonly IInfiniFrameWindow _window;
+    private CancellationTokenRegistration _cancellationRegistration;
+    private int _cleanupQueued;
+    private int _completed;
     private NativeHandleLease? _lease;
     private GCHandle _selfHandle;
-    private CancellationTokenRegistration _cancellationRegistration;
-    private int _completed;
-    private int _cleanupQueued;
-
-    public ulong Id { get; } = unchecked((ulong)Interlocked.Increment(ref _nextId));
-    public Task<NavigationResult> Task => _completion.Task;
 
     public InfiniNavigationOperation(
         IInfiniFrameWindow window,
@@ -53,6 +50,9 @@ internal sealed class InfiniNavigationOperation {
         );
     }
 
+    public ulong Id { get; } = unchecked((ulong)Interlocked.Increment(ref _nextId));
+    public Task<NavigationResult> Task => _completion.Task;
+
     public async Task StartAsync() {
 
         try {
@@ -61,7 +61,7 @@ internal sealed class InfiniNavigationOperation {
             _selfHandle = GCHandle.Alloc(this);
             IntPtr context = GCHandle.ToIntPtr(_selfHandle);
 
-            InfiniFrameDispatchResult dispatch = await _window.DispatchAsync(() => {
+            InfiniFrameDispatchResult dispatch = await _window.DispatchAsync(callback: () => {
                 InfiniFrameNativeInteropStatus status = _rawString
                     ? InfiniFrameNative.BeginNavigateToString(_lease.Handle, Id, _value, CompletionCallback, context)
                     : InfiniFrameNative.BeginNavigateToUrl(_lease.Handle, Id, _value, CompletionCallback, context);
@@ -85,10 +85,10 @@ internal sealed class InfiniNavigationOperation {
             }
 
             CancellationTokenRegistration registration = _cancellationToken.Register(
-                static state => ((InfiniNavigationOperation)state!).RequestCancellation(), this
+                callback: static state => ((InfiniNavigationOperation)state!).RequestCancellation(), this
             );
             _cancellationRegistration = registration;
-            
+
             // A backend is allowed to complete synchronously while BeginNavigate is returning.
             // In that race cleanup may have run before this registration was assigned.
             try {
@@ -129,7 +129,7 @@ internal sealed class InfiniNavigationOperation {
         _ = _window.DispatchAsync(() => InfiniFrameNative.CancelNavigation(lease.Handle, Id))
             .AsTask()
             .ContinueWith(
-                t => _logger.LogWarning(t.Exception, "Unhandled error while cancelling navigation {OperationId}.", Id),
+                continuationAction: t => _logger.LogWarning(t.Exception, "Unhandled error while cancelling navigation {OperationId}.", Id),
                 CancellationToken.None,
                 TaskContinuationOptions.OnlyOnFaulted,
                 TaskScheduler.Default
@@ -167,6 +167,7 @@ internal sealed class InfiniNavigationOperation {
 
     private void FinishCancelled() {
         if (Interlocked.Exchange(ref _completed, 1) != 0) return;
+
         (_window as InfiniFrameWindow)?.CompleteDiagnosticOperation(_diagnosticKey, "Cancelled");
         _completion.TrySetCanceled(_cancellationToken.IsCancellationRequested
             ? _cancellationToken
@@ -176,6 +177,7 @@ internal sealed class InfiniNavigationOperation {
 
     private void Finish(NavigationResult result) {
         if (Interlocked.Exchange(ref _completed, 1) != 0) return;
+
         (_window as InfiniFrameWindow)?.CompleteDiagnosticOperation(
             _diagnosticKey, result.Status.ToString(), result.NativeErrorCode, result.FailureReason
         );
@@ -185,7 +187,8 @@ internal sealed class InfiniNavigationOperation {
 
     private void QueueCleanup() {
         if (Interlocked.Exchange(ref _cleanupQueued, 1) != 0) return;
-        ThreadPool.QueueUserWorkItem(static state => state.Cleanup(), this, false);
+
+        ThreadPool.QueueUserWorkItem(callBack: static state => state.Cleanup(), this, false);
     }
 
     private void Cleanup() {
@@ -196,10 +199,12 @@ internal sealed class InfiniNavigationOperation {
 
     private static bool TryGet(
         IntPtr context,
-        [NotNullWhen(true)] out InfiniNavigationOperation? operation
+        [NotNullWhen(true)]
+        out InfiniNavigationOperation? operation
     ) {
         operation = null;
         if (context == IntPtr.Zero) return false;
+
         try {
             operation = GCHandle.FromIntPtr(context).Target as InfiniNavigationOperation;
             return operation is not null;

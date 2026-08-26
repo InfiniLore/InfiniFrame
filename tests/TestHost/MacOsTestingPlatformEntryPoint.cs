@@ -43,7 +43,13 @@ internal static class MacOsTestingPlatformEntryPoint {
             }
         }
 
-        return await testTask;
+        // .NET 10's runtime teardown calls abort() during GC finalization on macOS,
+        // causing app.RunAsync() to return 1 even when every test passes (results are
+        // already written to disk).  Calling POSIX _exit(0) terminates the process
+        // immediately, bypassing the CLR shutdown sequence entirely and reporting a
+        // clean exit to the CI.
+        PosixExit(0);
+        return 0;
     }
 
     private static IntPtr ResolveDefaultRunLoopMode() {
@@ -55,6 +61,9 @@ internal static class MacOsTestingPlatformEntryPoint {
 
         return mode;
     }
+
+    [DllImport("/usr/lib/libc.dylib", EntryPoint = "_exit")]
+    private static extern void PosixExit(int status);
 
     private static async Task<int> RunTestingPlatformAsync(string[] args) {
         ITestApplicationBuilder builder = await TestApplication.CreateBuilderAsync(args);

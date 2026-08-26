@@ -10,57 +10,15 @@ namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Dialogs;
 public class InfiniFrameDialogButtonsTests {
 
     [Test]
-    public async Task Ok_HasValueZero(CancellationToken ct = default) {
-        // Arrange & Act
-        var buttons = InfiniFrameDialogButtons.Ok;
-
-        // Assert
-        await Assert.That((int)buttons).IsEqualTo(0);
-    }
-
-    [Test]
-    public async Task OkCancel_HasValueOne(CancellationToken ct = default) {
-        // Arrange & Act
-        var buttons = InfiniFrameDialogButtons.OkCancel;
-
-        // Assert
-        await Assert.That((int)buttons).IsEqualTo(1);
-    }
-
-    [Test]
-    public async Task YesNo_HasValueTwo(CancellationToken ct = default) {
-        // Arrange & Act
-        var buttons = InfiniFrameDialogButtons.YesNo;
-
-        // Assert
-        await Assert.That((int)buttons).IsEqualTo(2);
-    }
-
-    [Test]
-    public async Task YesNoCancel_HasValueThree(CancellationToken ct = default) {
-        // Arrange & Act
-        var buttons = InfiniFrameDialogButtons.YesNoCancel;
-
-        // Assert
-        await Assert.That((int)buttons).IsEqualTo(3);
-    }
-
-    [Test]
-    public async Task RetryCancel_HasValueFour(CancellationToken ct = default) {
-        // Arrange & Act
-        var buttons = InfiniFrameDialogButtons.RetryCancel;
-
-        // Assert
-        await Assert.That((int)buttons).IsEqualTo(4);
-    }
-
-    [Test]
-    public async Task AbortRetryIgnore_HasValueFive(CancellationToken ct = default) {
-        // Arrange & Act
-        var buttons = InfiniFrameDialogButtons.AbortRetryIgnore;
-
-        // Assert
-        await Assert.That((int)buttons).IsEqualTo(5);
+    [Arguments(InfiniFrameDialogButtons.Ok, 0)]
+    [Arguments(InfiniFrameDialogButtons.OkCancel, 1)]
+    [Arguments(InfiniFrameDialogButtons.YesNo, 2)]
+    [Arguments(InfiniFrameDialogButtons.YesNoCancel, 3)]
+    [Arguments(InfiniFrameDialogButtons.RetryCancel, 4)]
+    [Arguments(InfiniFrameDialogButtons.AbortRetryIgnore, 5)]
+    public async Task HasExpectedIntValue(InfiniFrameDialogButtons buttons, int expected, CancellationToken ct = default) {
+        // Arrange & Act & Assert
+        await Assert.That((int)buttons).IsEqualTo(expected);
     }
 
     [Test]
@@ -80,7 +38,7 @@ public class InfiniFrameDialogButtonsTests {
         // Arrange
         var values = (InfiniFrameDialogButtons[])Enum.GetValues(typeof(InfiniFrameDialogButtons));
 
-        // Act & Assert, each value matches its ordinal index, important for native interop
+        // Assert
         for (int i = 0; i < values.Length; i++) {
             await Assert.That((int)values[i]).IsEqualTo(i);
         }

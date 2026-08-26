@@ -31,6 +31,6 @@ void InfiniFrameWindow::GetAllMonitors(GetAllMonitorsCallback Callback) const {
     if (Callback) {
         EnumDisplayMonitors(
             nullptr, nullptr, MonitorEnum, reinterpret_cast<LPARAM>(Callback)
-        );
+            );
     }
 }

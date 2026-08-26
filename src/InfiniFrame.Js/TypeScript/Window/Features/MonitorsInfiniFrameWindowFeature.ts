@@ -1,13 +1,15 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {MonitorsInfiniFrameWindowFeature as Contract,InfiniMonitor} from "../../Contracts";
+import type {InfiniMonitor, MonitorsInfiniFrameWindowFeature as Contract} from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export class MonitorsInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
-    constructor(){super("monitors");}
+    constructor() {
+        super("monitors");
+    }
 
     getMonitorsAsync() {
         return this.get<InfiniMonitor[]>("monitors");

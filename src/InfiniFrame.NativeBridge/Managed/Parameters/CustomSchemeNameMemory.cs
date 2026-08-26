@@ -20,11 +20,15 @@ internal static class CustomSchemeNameMemory {
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     /// <summary>
-    ///     Allocates a fixed-size array of native pointers (CoTaskMem-allocated UTF-8 strings) from a sequence of scheme names.
+    ///     Allocates a fixed-size array of native pointers (CoTaskMem-allocated UTF-8 strings) from a sequence of scheme
+    ///     names.
     /// </summary>
     /// <param name="names">The scheme name strings to allocate.</param>
-    /// <returns>An array of native pointers sized <see cref="MaxCustomSchemeNames"/>.</returns>
-    /// <exception cref="InvalidOperationException">Thrown when more than <see cref="MaxCustomSchemeNames"/> names are provided.</exception>
+    /// <returns>An array of native pointers sized <see cref="MaxCustomSchemeNames" />.</returns>
+    /// <exception cref="InvalidOperationException">
+    ///     Thrown when more than <see cref="MaxCustomSchemeNames" /> names are
+    ///     provided.
+    /// </exception>
     internal static IntPtr[] Allocate(IEnumerable<string> names) {
         IntPtr[] pointers = new IntPtr[MaxCustomSchemeNames];
         int index = 0;

@@ -20,13 +20,14 @@
 //   auto headers = infiniframe::BuildCustomSchemeResponseHeaders<wchar_t>(contentType, uri, origin);
 // ---------------------------------------------------------------------------------------------------------------------
 namespace infiniframe {
-
     static constexpr std::size_t MaxCustomSchemeContentTypeBytes = 1024;
 
     /** Calls the producer-provided release function exactly once on every native exit path. */
     class CustomSchemeResponseLease final {
-    public:
-        explicit CustomSchemeResponseLease(CustomSchemeResponse& response) noexcept : _response(response) {}
+        public:
+        explicit CustomSchemeResponseLease(CustomSchemeResponse& response) noexcept :
+            _response(response) {}
+
         CustomSchemeResponseLease(const CustomSchemeResponseLease&) = delete;
         CustomSchemeResponseLease& operator=(const CustomSchemeResponseLease&) = delete;
 
@@ -37,7 +38,7 @@ namespace infiniframe {
             }
         }
 
-    private:
+        private:
         CustomSchemeResponse& _response;
     };
 
@@ -63,20 +64,20 @@ namespace infiniframe {
 
     template <>
     struct SchemeResponseTraits<char> {
-        static constexpr const char* ContentTypePrefix       = "Content-Type: ";
-        static constexpr const char* CrLf                    = "\r\n";
-        static constexpr const char* AllowOriginPrefix       = "Access-Control-Allow-Origin: ";
-        static constexpr const char* AllowCredentials        = "Access-Control-Allow-Credentials: true";
-        static constexpr const char* VaryOrigin              = "Vary: Origin";
+        static constexpr auto ContentTypePrefix = "Content-Type: ";
+        static constexpr auto CrLf = "\r\n";
+        static constexpr auto AllowOriginPrefix = "Access-Control-Allow-Origin: ";
+        static constexpr auto AllowCredentials = "Access-Control-Allow-Credentials: true";
+        static constexpr auto VaryOrigin = "Vary: Origin";
     };
 
     template <>
     struct SchemeResponseTraits<wchar_t> {
-        static constexpr const wchar_t* ContentTypePrefix    = L"Content-Type: ";
-        static constexpr const wchar_t* CrLf                 = L"\r\n";
-        static constexpr const wchar_t* AllowOriginPrefix    = L"Access-Control-Allow-Origin: ";
-        static constexpr const wchar_t* AllowCredentials     = L"Access-Control-Allow-Credentials: true";
-        static constexpr const wchar_t* VaryOrigin           = L"Vary: Origin";
+        static constexpr auto ContentTypePrefix = L"Content-Type: ";
+        static constexpr auto CrLf = L"\r\n";
+        static constexpr auto AllowOriginPrefix = L"Access-Control-Allow-Origin: ";
+        static constexpr auto AllowCredentials = L"Access-Control-Allow-Credentials: true";
+        static constexpr auto VaryOrigin = L"Vary: Origin";
     };
 
     template <typename CharT>
@@ -90,27 +91,34 @@ namespace infiniframe {
     template <typename CharT>
     ParsedOrigin<CharT> ParseOrigin(const std::basic_string<CharT>& value) {
         ParsedOrigin<CharT> result;
-        const auto delimiter = value.find(std::basic_string<CharT>{static_cast<CharT>(':'), static_cast<CharT>('/'), static_cast<CharT>('/')});
-        if (delimiter == std::basic_string<CharT>::npos || delimiter == 0) return result;
+        const auto delimiter = value.find(
+            std::basic_string<CharT>{static_cast<CharT>(':'), static_cast<CharT>('/'), static_cast<CharT>('/')});
+        if (delimiter == std::basic_string<CharT>::npos || delimiter == 0)
+            return result;
 
         const auto authorityStart = delimiter + 3;
         auto authorityEnd = value.find_first_of(
             std::basic_string<CharT>{static_cast<CharT>('/'), static_cast<CharT>('?'), static_cast<CharT>('#')},
             authorityStart);
-        if (authorityEnd == std::basic_string<CharT>::npos) authorityEnd = value.size();
-        if (authorityEnd == authorityStart) return result;
+        if (authorityEnd == std::basic_string<CharT>::npos)
+            authorityEnd = value.size();
+        if (authorityEnd == authorityStart)
+            return result;
 
         auto authority = value.substr(authorityStart, authorityEnd - authorityStart);
-        if (authority.find(static_cast<CharT>('@')) != std::basic_string<CharT>::npos) return result;
+        if (authority.find(static_cast<CharT>('@')) != std::basic_string<CharT>::npos)
+            return result;
         auto portSeparator = authority.rfind(static_cast<CharT>(':'));
         if (portSeparator != std::basic_string<CharT>::npos) {
             result.Host = authority.substr(0, portSeparator);
             result.Port = authority.substr(portSeparator + 1);
-            if (result.Port.empty()) return result;
+            if (result.Port.empty())
+                return result;
         } else {
             result.Host = authority;
         }
-        if (result.Host.empty()) return result;
+        if (result.Host.empty())
+            return result;
 
         result.Scheme = value.substr(0, delimiter);
         auto lower = [](CharT character) {
@@ -121,10 +129,14 @@ namespace infiniframe {
         std::transform(result.Scheme.begin(), result.Scheme.end(), result.Scheme.begin(), lower);
         std::transform(result.Host.begin(), result.Host.end(), result.Host.begin(), lower);
         if (result.Port.empty()) {
-            if (result.Scheme == std::basic_string<CharT>{static_cast<CharT>('h'), static_cast<CharT>('t'), static_cast<CharT>('t'), static_cast<CharT>('p')})
+            if (result.Scheme == std::basic_string<CharT>{static_cast<CharT>('h'), static_cast<CharT>('t'),
+                                                          static_cast<CharT>('t'), static_cast<CharT>('p')})
                 result.Port = std::basic_string<CharT>{static_cast<CharT>('8'), static_cast<CharT>('0')};
-            else if (result.Scheme == std::basic_string<CharT>{static_cast<CharT>('h'), static_cast<CharT>('t'), static_cast<CharT>('t'), static_cast<CharT>('p'), static_cast<CharT>('s')})
-                result.Port = std::basic_string<CharT>{static_cast<CharT>('4'), static_cast<CharT>('4'), static_cast<CharT>('3')};
+            else if (result.Scheme == std::basic_string<CharT>{static_cast<CharT>('h'), static_cast<CharT>('t'),
+                                                               static_cast<CharT>('t'), static_cast<CharT>('p'),
+                                                               static_cast<CharT>('s')})
+                result.Port = std::basic_string<CharT>{static_cast<CharT>('4'), static_cast<CharT>('4'),
+                                                       static_cast<CharT>('3')};
         }
         result.Valid = true;
         return result;
@@ -145,7 +157,7 @@ namespace infiniframe {
         const std::basic_string<CharT>& contentType,
         const std::basic_string<CharT>& resourceUri,
         const std::basic_string<CharT>& requestOrigin
-    ) {
+        ) {
         using T = SchemeResponseTraits<CharT>;
         std::basic_string<CharT> h;
         h += T::ContentTypePrefix;
@@ -161,5 +173,4 @@ namespace infiniframe {
         }
         return h;
     }
-
-} 
+}

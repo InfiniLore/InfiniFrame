@@ -1,0 +1,23 @@
+﻿@page "/"
+@using global::MudBlazor
+
+<PageTitle>Home</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+    <MudText Typo="Typo.h3" GutterBottom="true">Hello, world!</MudText>
+
+    <MudText Typo="Typo.body1" Class="mb-4">
+        Welcome to your new <MudLink Href="https://mudblazor.com" Target="_blank">MudBlazor</MudLink> + <MudLink Href="https://tailwindcss.com" Target="_blank">Tailwind CSS</MudLink> app running in InfiniFrame.
+    </MudText>
+
+    <MudDivider Class="my-4" />
+
+    <MudStack Row="true" Spacing="2">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/counter">
+            Go to Counter
+        </MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Href="/fetchdata">
+            Fetch Data
+        </MudButton>
+    </MudStack>
+</MudContainer>

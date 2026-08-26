@@ -8,8 +8,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 namespace gtk_webkit {
     void HandleWebMessage(
-        WebKitUserContentManager* contentManager, WebKitJavascriptResult* jsResult, gpointer userData
-    );
+        WebKitUserContentManager* contentManager,
+        WebKitJavascriptResult* jsResult,
+        gpointer userData
+        );
 
     void HandleCustomSchemeRequest(WebKitURISchemeRequest* request, gpointer userData);
 }

@@ -4,7 +4,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.BlazorWebView.Utilities;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -33,10 +32,10 @@ namespace InfiniFrame.BlazorWebView;
 /// <param name="provider">The service provider used to resolve the <see cref="IInfiniFrameWindow" />.</param>
 /// <param name="state">An optional shared synchronization state; if omitted a new instance is created.</param>
 public class InfiniFrameSynchronizationContext(IServiceProvider provider, InfiniFrameSynchronizationState? state = null) : SynchronizationContext {
-    // ReSharper disable once ConvertClosureToMethodGroup
-    private Lazy<IInfiniFrameWindow> LazyWindow { get; } = new(() => provider.GetRequiredService<IInfiniFrameWindow>());
 
     private readonly InfiniFrameSynchronizationState _state = state ?? new InfiniFrameSynchronizationState();
+    // ReSharper disable once ConvertClosureToMethodGroup
+    private Lazy<IInfiniFrameWindow> LazyWindow { get; } = new(() => provider.GetRequiredService<IInfiniFrameWindow>());
 
     /// <summary>Raised when an unhandled exception occurs during work item execution.</summary>
     public event UnhandledExceptionEventHandler? UnhandledException;
@@ -154,7 +153,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
     ///         a deadlock cycle can form.
     ///     </para>
     ///     <para>
-    ///         This is expected to be rare in practice — Blazor's renderer uses <see cref="Post" />, not
+    ///         This is expected to be rare in practice, Blazor's renderer uses <see cref="Post" />, not
     ///         <see cref="Send" />. However, if a component synchronously awaits a result that triggers
     ///         re-entrant dispatch under heavy load, a deadlock is possible. Callers should prefer
     ///         <see cref="InvokeAsync{TResult}" /> or <see cref="Post" /> where possible.

@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 import type {InfiniFrame} from "./InfiniFrame";
 import type {BlazorCallback, BlazorComponent, BlazorCustomElementParameterDefinition} from "./BlazorInterop";
-import type {WindowChrome} from "../Window/WindowChrome";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -11,9 +10,9 @@ export {}
 declare global {
     // noinspection JSUnusedGlobalSymbols
     interface Window {
-        infiniframe : InfiniFrame;
+        infiniframe: InfiniFrame;
         __dispatchMessageCallback?: (message: string) => void;
-        
+
         // Managed by the host: Webview or WebKit
         chrome?: {
             webview?: {

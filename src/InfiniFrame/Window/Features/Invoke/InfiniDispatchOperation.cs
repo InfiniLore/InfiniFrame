@@ -1,12 +1,12 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -16,26 +16,23 @@ internal sealed class InfiniDispatchOperation {
     private static long _nextOperationId;
     private static readonly InfiniFrameNative.ContextAction InvokeCallback = Invoke;
     private static readonly InfiniFrameNative.OperationCompletedCallback CompletionCallback = Complete;
-
-    private readonly IInfiniFrameWindow _window;
-    private readonly ILogger _logger;
     private readonly Action _callback;
-    private readonly TimeSpan _timeout;
     private readonly CancellationToken _cancellationToken;
-    private readonly string? _diagnosticKey;
     private readonly TaskCompletionSource<InfiniFrameDispatchResult> _completion =
         new(TaskCreationOptions.RunContinuationsAsynchronously);
-    private NativeHandleLease? _lease;
-    private Timer? _timeoutTimer;
-    private CancellationTokenRegistration _cancellationRegistration;
-    private GCHandle _selfHandle;
-    private Exception? _callbackException;
-    private int _pendingCancellation = -1;
-    private int _completed;
-    private int _cleanupQueued;
+    private readonly string? _diagnosticKey;
+    private readonly ILogger _logger;
+    private readonly TimeSpan _timeout;
 
-    public ulong Id { get; } = unchecked((ulong)Interlocked.Increment(ref _nextOperationId));
-    public Task<InfiniFrameDispatchResult> Task => _completion.Task;
+    private readonly IInfiniFrameWindow _window;
+    private Exception? _callbackException;
+    private CancellationTokenRegistration _cancellationRegistration;
+    private int _cleanupQueued;
+    private int _completed;
+    private NativeHandleLease? _lease;
+    private int _pendingCancellation = -1;
+    private GCHandle _selfHandle;
+    private Timer? _timeoutTimer;
 
     public InfiniDispatchOperation(
         IInfiniFrameWindow window,
@@ -52,6 +49,9 @@ internal sealed class InfiniDispatchOperation {
         _diagnosticKey = (window as InfiniFrameWindow)?.BeginDiagnosticOperation("Dispatch", Id);
     }
 
+    public ulong Id { get; } = unchecked((ulong)Interlocked.Increment(ref _nextOperationId));
+    public Task<InfiniFrameDispatchResult> Task => _completion.Task;
+
     public void Start() {
         try {
             _lease = _window.AcquireNativeHandle();
@@ -59,13 +59,13 @@ internal sealed class InfiniDispatchOperation {
             IntPtr context = GCHandle.ToIntPtr(_selfHandle);
 
             _timeoutTimer = new Timer(
-                static state => ((InfiniDispatchOperation)state!).Cancel(InfiniFrameDispatchResult.TimedOut),
+                callback: static state => ((InfiniDispatchOperation)state!).Cancel(InfiniFrameDispatchResult.TimedOut),
                 this,
                 _timeout,
                 Timeout.InfiniteTimeSpan
             );
             _cancellationRegistration = _cancellationToken.Register(
-                static state => ((InfiniDispatchOperation)state!).Cancel(InfiniFrameDispatchResult.Cancelled), this
+                callback: static state => ((InfiniDispatchOperation)state!).Cancel(InfiniFrameDispatchResult.Cancelled), this
             );
 
             InfiniFrameNativeInteropStatus status = InfiniFrameNative.BeginInvoke(
@@ -104,6 +104,7 @@ internal sealed class InfiniDispatchOperation {
     private static void Invoke(IntPtr context) {
         if (!TryGet(context, out InfiniDispatchOperation? operation))
             return;
+
         try {
             operation._callback();
         }
@@ -150,7 +151,8 @@ internal sealed class InfiniDispatchOperation {
     private void QueueCleanupAfterReverseCallback() {
         if (Interlocked.Exchange(ref _cleanupQueued, 1) != 0)
             return;
-        ThreadPool.QueueUserWorkItem(static state => state.Cleanup(), this, false);
+
+        ThreadPool.QueueUserWorkItem(callBack: static state => state.Cleanup(), this, false);
     }
 
     private void Cleanup() {
@@ -172,6 +174,7 @@ internal sealed class InfiniDispatchOperation {
         operation = null;
         if (context == IntPtr.Zero)
             return false;
+
         try {
             operation = GCHandle.FromIntPtr(context).Target as InfiniDispatchOperation;
             return operation is not null;

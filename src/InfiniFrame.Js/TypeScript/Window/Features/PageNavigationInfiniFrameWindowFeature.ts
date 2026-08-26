@@ -7,13 +7,15 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export class PageNavigationInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
-    constructor(){super("pageNavigation");}
+    constructor() {
+        super("pageNavigation");
+    }
 
     loadUri(uri: string) {
         return this.post("loadUri", {uri});
     }
 
-    loadPath(path:string) {
+    loadPath(path: string) {
         return this.post("loadPath", {path});
     }
 

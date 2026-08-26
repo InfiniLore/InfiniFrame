@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame.Utilities;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -18,7 +17,8 @@ internal static class MacOsWebInspectorUtility {
         => OperatingSystem.IsMacOSVersionAtLeast(13, 3);
 
     /// <summary>
-    ///     Throws a <see cref="PlatformNotSupportedException" /> if the web inspector is not supported on the current platform.
+    ///     Throws a <see cref="PlatformNotSupportedException" /> if the web inspector is not supported on the current
+    ///     platform.
     /// </summary>
     public static void ThrowIfUnsupported() {
         if (IsSupportedPlatform()) return;

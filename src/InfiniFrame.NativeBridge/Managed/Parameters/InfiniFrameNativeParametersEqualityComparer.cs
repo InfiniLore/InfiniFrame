@@ -19,7 +19,7 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
     /// </summary>
     internal static readonly InfiniFrameNativeParametersEqualityComparer Instance = new();
 
-    private InfiniFrameNativeParametersEqualityComparer() { }
+    private InfiniFrameNativeParametersEqualityComparer() {}
 
     /// <summary>
     ///     Determines whether two <see cref="InfiniFrameNativeParameters" /> instances are equal
@@ -67,6 +67,7 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         // Custom scheme support - compare string content rather than raw pointer addresses
         if (x.CustomSchemeNames is not null && y.CustomSchemeNames is not null) {
             if (x.CustomSchemeNames.Length != y.CustomSchemeNames.Length) return false;
+
             for (int i = 0; i < x.CustomSchemeNames.Length; i++) {
                 string? xStr = Marshal.PtrToStringUTF8(x.CustomSchemeNames[i]);
                 string? yStr = Marshal.PtrToStringUTF8(y.CustomSchemeNames[i]);

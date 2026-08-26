@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using NSubstitute;
 using System.Text.Json;
 
 namespace InfiniTests.InfiniFrame.Window.Features.WebMessaging.Handlers;
@@ -80,9 +79,9 @@ public class WindowFeatureDispatcherCommandTests {
 
     [Test]
     public async Task EveryGetCommand_InvokesTheManifestMethodAndReturnsJson() {
-        // Arrange, Act & Assert
+        // Arrange & Act & Assert
         foreach (CommandCase command in GetCommands) {
-            (IInfiniFrameWindow window, object feature) = CreateWindow(command.Feature);
+            (IInfiniFrameWindow window, object featureObj) = CreateWindow(command.Feature);
 
             string response = WindowFeatureWebMessageRouter.Get(window, command.Feature, command.Command, Parse(command.Args));
 
@@ -91,63 +90,75 @@ public class WindowFeatureDispatcherCommandTests {
                 && command.ManagedMember.StartsWith("Try", StringComparison.Ordinal)
                 && !OperatingSystem.IsWindows()
                 && !OperatingSystem.IsLinux();
-            await Assert.That(feature.ReceivedCalls().Any(call => call.GetMethodInfo().Name == command.ManagedMember))
+            await Assert.That(WasMethodCalled(featureObj, command.ManagedMember))
                 .IsEqualTo(!platformShortCircuit);
         }
     }
 
     [Test]
     public async Task EveryPostCommand_InvokesTheManifestMethod() {
-        // Arrange, Act & Assert
+        // Arrange & Act & Assert
         foreach (CommandCase command in PostCommands) {
-            (IInfiniFrameWindow window, object feature) = CreateWindow(command.Feature);
+            (IInfiniFrameWindow window, object featureObj) = CreateWindow(command.Feature);
 
             WindowFeatureWebMessageRouter.Post(window, command.Feature, command.Command, Parse(command.Args));
 
-            await Assert.That(feature.ReceivedCalls().Any(call => call.GetMethodInfo().Name == command.ManagedMember)).IsTrue();
+            await Assert.That(WasMethodCalled(featureObj, command.ManagedMember)).IsTrue();
         }
     }
 
-    private static (IInfiniFrameWindow Window, object Feature) CreateWindow(string featureName) {
-        var window = Substitute.For<IInfiniFrameWindow>();
-        var features = Substitute.For<IInfiniFrameWindowFeatures>();
-        window.Features.Returns(features);
-        object feature = featureName switch {
-            "browser" => Assign(Substitute.For<IBrowserInfiniFrameWindowFeature>(), assign: value => features.Browser.Returns(value)),
-            "debugging" => Assign(Substitute.For<IDebuggingInfiniFrameWindowFeature>(), assign: value => features.Debugging.Returns(value)),
-            "decorations" => Assign(Substitute.For<IDecorationsInfiniFrameWindowFeature>(), assign: value => features.Decorations.Returns(value)),
-            "filePickerDialogs" => Assign(Substitute.For<IFilePickerDialogsInfiniFrameWindowFeature>(), assign: value => features.FilePickerDialogs.Returns(value)),
-            "lifecycle" => Assign(Substitute.For<ILifecycleInfiniFrameWindowFeature>(), assign: value => features.Lifecycle.Returns(value)),
-            "monitors" => Assign(Substitute.For<IMonitorsInfiniFrameWindowFeature>(), assign: value => features.Monitors.Returns(value)),
-            "notifications" => Assign(Substitute.For<INotificationsInfiniFrameWindowFeature>(), assign: value => features.Notifications.Returns(value)),
-            "pageNavigation" => Assign(Substitute.For<IPageNavigationInfiniFrameWindowFeature>(), assign: value => features.PageNavigation.Returns(value)),
-            "position" => Assign(Substitute.For<IPositionInfiniFrameWindowFeature>(), assign: value => features.Position.Returns(value)),
-            "size" => Assign(Substitute.For<ISizeInfiniFrameWindowFeature>(), assign: value => features.Size.Returns(value)),
-            "state" => Assign(Substitute.For<IStateInfiniFrameWindowFeature>(), assign: value => features.State.Returns(value)),
-            "webMessaging" => Assign(Substitute.For<IWebMessagingInfiniFrameWindowFeature>(), assign: value => features.WebMessaging.Returns(value)),
-            _ => throw new ArgumentOutOfRangeException(nameof(featureName), featureName, null)
-        };
-        feature.ClearReceivedCalls();
-        return (window, feature);
+    private static bool WasMethodCalled(object mockObj, string methodName) {
+        if (mockObj is Mock<IBrowserInfiniFrameWindowFeature> m1) return Mock.Invocations(m1).Any(c => c.MemberName == methodName);
+        if (mockObj is Mock<IDebuggingInfiniFrameWindowFeature> m2) return Mock.Invocations(m2).Any(c => c.MemberName == methodName);
+        if (mockObj is Mock<IDecorationsInfiniFrameWindowFeature> m3) return Mock.Invocations(m3).Any(c => c.MemberName == methodName);
+        if (mockObj is Mock<IFilePickerDialogsInfiniFrameWindowFeature> m4) return Mock.Invocations(m4).Any(c => c.MemberName == methodName);
+        if (mockObj is Mock<ILifecycleInfiniFrameWindowFeature> m5) return Mock.Invocations(m5).Any(c => c.MemberName == methodName);
+        if (mockObj is Mock<IMonitorsInfiniFrameWindowFeature> m6) return Mock.Invocations(m6).Any(c => c.MemberName == methodName);
+        if (mockObj is Mock<INotificationsInfiniFrameWindowFeature> m7) return Mock.Invocations(m7).Any(c => c.MemberName == methodName);
+        if (mockObj is Mock<IPageNavigationInfiniFrameWindowFeature> m8) return Mock.Invocations(m8).Any(c => c.MemberName == methodName);
+        if (mockObj is Mock<IPositionInfiniFrameWindowFeature> m9) return Mock.Invocations(m9).Any(c => c.MemberName == methodName);
+        if (mockObj is Mock<ISizeInfiniFrameWindowFeature> m10) return Mock.Invocations(m10).Any(c => c.MemberName == methodName);
+        if (mockObj is Mock<IStateInfiniFrameWindowFeature> m11) return Mock.Invocations(m11).Any(c => c.MemberName == methodName);
+        if (mockObj is Mock<IWebMessagingInfiniFrameWindowFeature> m12) return Mock.Invocations(m12).Any(c => c.MemberName == methodName);
+        return false;
     }
 
-    private static T Assign<T>(T feature, Action<T> assign) where T : class {
-        assign(feature);
-        return feature;
+    private static (IInfiniFrameWindow Window, object Feature) CreateWindow(string featureName) {
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        window.Features.Returns(features.Object);
+        object feature = featureName switch {
+            "browser" => Assign(MockFactory.CreateBrowserMock(), assign: value => features.Browser.Returns(value)),
+            "debugging" => Assign(MockFactory.CreateDebuggingMock(), assign: value => features.Debugging.Returns(value)),
+            "decorations" => Assign(MockFactory.CreateDecorationsMock(), assign: value => features.Decorations.Returns(value)),
+            "filePickerDialogs" => Assign(MockFactory.CreateFilePickerDialogsMock(), assign: value => features.FilePickerDialogs.Returns(value)),
+            "lifecycle" => Assign(MockFactory.CreateLifecycleMock(), assign: value => features.Lifecycle.Returns(value)),
+            "monitors" => Assign(MockFactory.CreateMonitorsMock(), assign: value => features.Monitors.Returns(value)),
+            "notifications" => Assign(MockFactory.CreateNotificationsMock(), assign: value => features.Notifications.Returns(value)),
+            "pageNavigation" => Assign(MockFactory.CreatePageNavigationMock(), assign: value => features.PageNavigation.Returns(value)),
+            "position" => Assign(MockFactory.CreatePositionMock(), assign: value => features.Position.Returns(value)),
+            "size" => Assign(MockFactory.CreateSizeMock(), assign: value => features.Size.Returns(value)),
+            "state" => Assign(MockFactory.CreateStateMock(), assign: value => features.State.Returns(value)),
+            "webMessaging" => Assign(MockFactory.CreateWebMessagingMock(), assign: value => features.WebMessaging.Returns(value)),
+            _ => throw new ArgumentOutOfRangeException(nameof(featureName), featureName, null)
+        };
+        return (window.Object, feature);
+    }
+
+    private static Mock<T> Assign<T>(Mock<T> mock, Action<T> assign) where T : class {
+        assign(mock.Object);
+        return mock;
     }
 
     private static JsonElement? Parse(string? json) {
         if (json is null) return null;
-
         using JsonDocument document = JsonDocument.Parse(json);
         return document.RootElement.Clone();
     }
 
     private static CommandCase Get(string feature, string command, string managedMember, string? args = null)
         => new(feature, command, managedMember, args);
-
     private static CommandCase Post(string feature, string command, string managedMember, string? args = null)
         => new(feature, command, managedMember, args);
-
     private sealed record CommandCase(string Feature, string Command, string ManagedMember, string? Args);
 }

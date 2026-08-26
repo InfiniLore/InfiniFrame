@@ -1,12 +1,12 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.NativeBridge;
-using InfiniFrame.Utilities;
-using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Drawing;
+using InfiniFrame.NativeBridge;
+using InfiniFrame.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -186,8 +186,7 @@ public class PositionInfiniFrameWindowFeature(
         }
 
         Rectangle area = monitor.MonitorArea;
-
-        var newLocation = new Point(area.X + area.Width / 2 - width / 2, area.Y + area.Height / 2 - height / 2);
+        Point newLocation = PositionCalculations.ComputeCenter(area, width, height);
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
@@ -215,8 +214,7 @@ public class PositionInfiniFrameWindowFeature(
             InfiniFrameNative.GetSize
         );
         Rectangle area = monitors[monitorIndex].MonitorArea;
-
-        var newLocation = new Point(area.X + area.Width / 2 - width / 2, area.Y + area.Height / 2 - height / 2);
+        Point newLocation = PositionCalculations.ComputeCenter(area, width, height);
         NativeInvoke.InvokeSyncWithValidation(
             logger,
             window,
@@ -230,20 +228,10 @@ public class PositionInfiniFrameWindowFeature(
     /// <inheritdoc cref="IPositionInfiniFrameWindowFeature.MoveWithinCurrentMonitorArea(int, int)" />
     public void MoveWithinCurrentMonitorArea(int left, int top) {
         MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out InfiniMonitor monitor);
-        int horizontalWindowEdge = left + windowRect.Width;
-        int verticalWindowEdge = top + windowRect.Height;
 
-        int leftBound = monitor.WorkArea.X;
-        int topBound = monitor.WorkArea.Y;
-        int rightBound = monitor.WorkArea.X + monitor.WorkArea.Width;
-        int bottomBound = monitor.WorkArea.Y + monitor.WorkArea.Height;
-
-        left = horizontalWindowEdge > rightBound
-            ? Math.Max(rightBound - window.Features.Size.Width, leftBound)
-            : Math.Max(left, leftBound);
-        top = verticalWindowEdge > bottomBound
-            ? Math.Max(bottomBound - window.Features.Size.Height, topBound)
-            : Math.Max(top, topBound);
+        (left, top) = PositionCalculations.ClampToMonitorArea(
+            left, top, windowRect.Width, windowRect.Height, monitor.WorkArea
+        );
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
@@ -262,6 +250,4 @@ public class PositionInfiniFrameWindowFeature(
     /// <inheritdoc cref="IPositionInfiniFrameWindowFeature.MoveWithinCurrentMonitorArea(double, double)" />
     public void MoveWithinCurrentMonitorArea(double left, double top)
         => MoveWithinCurrentMonitorArea((int)left, (int)top);
-
-
 }

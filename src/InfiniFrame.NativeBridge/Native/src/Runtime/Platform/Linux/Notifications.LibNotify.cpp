@@ -18,8 +18,12 @@ void InfiniFrameWindow::ShowNotification(const char* title, const char* message)
 }
 
 void InfiniFrameWindow::ShowNotificationWithOptions(
-    const char* title, const char* body, const char* iconPath, const int urgency, const char* tag
-) {
+    const char* title,
+    const char* body,
+    const char* iconPath,
+    const int urgency,
+    const char* tag
+    ) {
     (void)iconPath;
     (void)urgency;
     (void)tag;
@@ -28,10 +32,18 @@ void InfiniFrameWindow::ShowNotificationWithOptions(
 
     NotifyUrgency libnotifyUrgency = NOTIFY_URGENCY_NORMAL;
     switch (urgency) {
-        case 1: libnotifyUrgency = NOTIFY_URGENCY_LOW; break;
-        case 2: libnotifyUrgency = NOTIFY_URGENCY_CRITICAL; break;
-        case 3: libnotifyUrgency = NOTIFY_URGENCY_CRITICAL; break;
-        default: libnotifyUrgency = NOTIFY_URGENCY_NORMAL; break;
+        case 1:
+            libnotifyUrgency = NOTIFY_URGENCY_LOW;
+            break;
+        case 2:
+            libnotifyUrgency = NOTIFY_URGENCY_CRITICAL;
+            break;
+        case 3:
+            libnotifyUrgency = NOTIFY_URGENCY_CRITICAL;
+            break;
+        default:
+            libnotifyUrgency = NOTIFY_URGENCY_NORMAL;
+            break;
     }
     notify_notification_set_urgency(notification, libnotifyUrgency);
 
@@ -41,10 +53,14 @@ void InfiniFrameWindow::ShowNotificationWithOptions(
 
 void InfiniFrameWindow::BeginShowNotification(
     const uint64_t operationId,
-    const char* title, const char* body, const char* iconPath,
-    const int urgency, const char* tag,
-    const OperationCompletedCallback completion, void* completionContext
-) {
+    const char* title,
+    const char* body,
+    const char* iconPath,
+    const int urgency,
+    const char* tag,
+    const OperationCompletedCallback completion,
+    void* completionContext
+    ) {
     ShowNotificationWithOptions(title, body, iconPath, urgency, tag);
 
     if (completion) {
@@ -54,5 +70,6 @@ void InfiniFrameWindow::BeginShowNotification(
 
 void InfiniFrameWindow::CancelNotification(const uint64_t operationId, bool* canceled) {
     (void)operationId;
-    if (canceled) *canceled = false;
+    if (canceled)
+        *canceled = false;
 }

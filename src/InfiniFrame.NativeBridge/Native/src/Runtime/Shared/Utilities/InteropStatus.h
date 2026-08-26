@@ -12,5 +12,3 @@ enum class InteropStatus : int {
     OutParameterSetToInvalidNull = 2001,
     OperationFailed = 14
 };
-
-

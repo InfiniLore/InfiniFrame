@@ -17,7 +17,8 @@ namespace InfiniFrame.NativeBridge.Delegates;
 /// <returns>0 to allow, 1 to cancel.</returns>
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 internal delegate byte CppNavigationStartingDelegate(
-    [MarshalAs(UnmanagedType.LPUTF8Str)] string url,
+    [MarshalAs(UnmanagedType.LPUTF8Str)]
+    string url,
     int isUserInitiated,
     int isRedirect,
     int isMainFrame

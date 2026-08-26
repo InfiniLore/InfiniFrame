@@ -31,13 +31,14 @@ namespace infiniframe::exports {
     }
 
     template <typename Fn> InteropStatus RunWindowExportStatus(InfiniFrameWindow* instance, Fn&& fn) noexcept {
-        return RunExportStatus([&] {
-            if (!EnsureNotNull(instance, "instance")) {
-                return;
-            }
+        return RunExportStatus(
+            [&] {
+                if (!EnsureNotNull(instance, "instance")) {
+                    return;
+                }
 
-            std::forward<Fn>(fn)(instance);
-        });
+                std::forward<Fn>(fn)(instance);
+            });
     }
 
     template <typename T, typename Fn>

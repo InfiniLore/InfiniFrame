@@ -1,7 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.BlazorWebView.FileProviders.Static;
+using System.Reflection;
+using InfiniFrame.BlazorWebView.FileProviders;
 using InfiniFrame.Security;
 using InfiniFrame.StaticAssets;
 using Microsoft.AspNetCore.Components;
@@ -15,17 +16,17 @@ namespace InfiniFrame.BlazorWebView;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------------------------------------------------
+    private InfiniFrameBlazorAppBuilder() {}
     /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.RootComponents" />
     public IInfiniFrameRootComponentList RootComponents { get; } = new InfiniFrameRootComponentList();
     /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.Services" />
     public IServiceCollection Services { get; } = new ServiceCollection();
     /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.WindowBuilder" />
     public IInfiniFrameWindowBuilder WindowBuilder { get; } = InfiniFrameWindowBuilder.Create();
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Constructors
-    // -----------------------------------------------------------------------------------------------------------------
-    private InfiniFrameBlazorAppBuilder() {}
 
     public static InfiniFrameBlazorAppBuilder CreateDefault(
         string[]? args = null,
@@ -96,9 +97,10 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
         if (fileProvider is not null) return fileProvider;
 
         string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
         var providers = new List<IFileProvider>();
 
-        IFileProvider? staticWebAssetsProvider = StaticWebAssetsRuntimeFileProvider.TryCreate(baseDirectory);
+        IFileProvider? staticWebAssetsProvider = StaticWebAssetsRuntimeFileProvider.TryCreate(baseDirectory, Assembly.GetEntryAssembly());
         if (staticWebAssetsProvider is not null) providers.Add(staticWebAssetsProvider);
 
         string defaultWwwrootPath = Path.Join(baseDirectory, "wwwroot");

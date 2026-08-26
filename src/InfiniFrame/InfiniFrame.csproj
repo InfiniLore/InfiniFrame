@@ -15,6 +15,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame.Js/InfiniFrame.Js.csproj"/>
         <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
     </ItemGroup>

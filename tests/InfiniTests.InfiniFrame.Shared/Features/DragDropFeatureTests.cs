@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using NSubstitute;
 
 namespace InfiniTests.InfiniFrame.Shared.Features;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -13,60 +12,60 @@ public class DragDropFeatureTests {
     [Test]
     public async Task EnableDragDrop_SetsEnabledTrue(CancellationToken ct = default) {
         // Arrange
-        var feature = Substitute.For<IDragDropInfiniFrameWindowFeature>();
+        Mock<IDragDropInfiniFrameWindowFeature> feature = MockFactory.CreateDragDropMock();
 
         // Act
-        feature.SetEnabled(true);
+        feature.Object.SetEnabled(true);
 
         // Assert
-        feature.Received(1).SetEnabled(true);
+        feature.SetEnabled(true).WasCalled(Times.Once);
     }
 
     [Test]
     public async Task DisableDragDrop_SetsEnabledFalse(CancellationToken ct = default) {
         // Arrange
-        var feature = Substitute.For<IDragDropInfiniFrameWindowFeature>();
+        Mock<IDragDropInfiniFrameWindowFeature> feature = MockFactory.CreateDragDropMock();
 
         // Act
-        feature.SetEnabled(false);
+        feature.Object.SetEnabled(false);
 
         // Assert
-        feature.Received(1).SetEnabled(false);
+        feature.SetEnabled(false).WasCalled(Times.Once);
     }
 
     [Test]
     public async Task SetAllowedExtensions_StoresExtensions(CancellationToken ct = default) {
         // Arrange
-        var feature = Substitute.For<IDragDropInfiniFrameWindowFeature>();
+        Mock<IDragDropInfiniFrameWindowFeature> feature = MockFactory.CreateDragDropMock();
         string[] extensions = new[] { ".txt", ".png" };
 
         // Act
-        feature.SetAllowedExtensions(extensions);
+        feature.Object.SetAllowedExtensions(extensions);
 
         // Assert
-        feature.Received(1).SetAllowedExtensions(extensions);
+        feature.SetAllowedExtensions(extensions).WasCalled(Times.Once);
     }
 
     [Test]
     public async Task IsEnabled_ReturnsCurrentState(CancellationToken ct = default) {
         // Arrange
-        var feature = Substitute.For<IDragDropInfiniFrameWindowFeature>();
+        Mock<IDragDropInfiniFrameWindowFeature> feature = MockFactory.CreateDragDropMock();
         feature.IsEnabled.Returns(true);
 
         // Act & Assert
-        await Assert.That(feature.IsEnabled).IsTrue();
+        await Assert.That(feature.Object.IsEnabled).IsTrue();
     }
 
     [Test]
     public async Task AllowedExtensions_ReturnsConfiguredExtensions(CancellationToken ct = default) {
         // Arrange
-        var feature = Substitute.For<IDragDropInfiniFrameWindowFeature>();
+        Mock<IDragDropInfiniFrameWindowFeature> feature = MockFactory.CreateDragDropMock();
         var extensions = new List<string> { ".txt", ".pdf" };
         feature.AllowedExtensions.Returns(extensions.AsReadOnly());
 
         // Act & Assert
-        await Assert.That(feature.AllowedExtensions.Count).IsEqualTo(2);
-        await Assert.That(feature.AllowedExtensions[0]).IsEqualTo(".txt");
-        await Assert.That(feature.AllowedExtensions[1]).IsEqualTo(".pdf");
+        await Assert.That(feature.Object.AllowedExtensions.Count).IsEqualTo(2);
+        await Assert.That(feature.Object.AllowedExtensions[0]).IsEqualTo(".txt");
+        await Assert.That(feature.Object.AllowedExtensions[1]).IsEqualTo(".pdf");
     }
 }

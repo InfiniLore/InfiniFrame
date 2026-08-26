@@ -53,7 +53,7 @@ public class InvokeInfiniFrameWindowFeature(
         CancellationToken cancellationToken = default
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        if (timeout is { } value && value <= TimeSpan.Zero)
+        if (timeout is {} value && value <= TimeSpan.Zero)
             return new ValueTask<InfiniFrameDispatchResult>(InfiniFrameDispatchResult.TimedOut);
         if (cancellationToken.IsCancellationRequested)
             return new ValueTask<InfiniFrameDispatchResult>(InfiniFrameDispatchResult.Cancelled);

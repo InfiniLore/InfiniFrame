@@ -43,7 +43,7 @@ public interface IStateInfiniFrameWindowFeature {
 
     /// <summary>
     ///     Gets whether zoom is currently enabled for the window.
-    ///     When disabled, programmatic calls to <see cref="SetZoomFactor"/> are
+    ///     When disabled, programmatic calls to <see cref="SetZoomFactor" /> are
     ///     silently ignored. On Windows, this also disables Ctrl+Scroll zoom.
     ///     On macOS, native pinch-to-zoom gestures are also suppressed.
     ///     On Linux, native Ctrl+Scroll gestures cannot be suppressed at
@@ -99,7 +99,7 @@ public interface IStateInfiniFrameWindowFeature {
 
     /// <summary>
     ///     Sets whether zoom is enabled for the window.
-    ///     When disabled, programmatic calls to <see cref="SetZoomFactor"/> are
+    ///     When disabled, programmatic calls to <see cref="SetZoomFactor" /> are
     ///     silently ignored. On Windows, this also disables Ctrl+Scroll zoom.
     ///     On macOS, native pinch-to-zoom gestures are also suppressed.
     ///     On Linux, native Ctrl+Scroll gestures cannot be suppressed at

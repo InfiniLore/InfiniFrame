@@ -24,6 +24,7 @@ internal sealed class JavaScriptWebMessageDispatcher : WindowFeatureWebMessageDi
                 feature.SendEvalToBrowser(script, requestId);
                 return;
             }
+
             default: throw Unsupported(command);
         }
     }

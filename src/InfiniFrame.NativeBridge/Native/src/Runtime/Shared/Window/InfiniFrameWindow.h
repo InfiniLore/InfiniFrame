@@ -80,7 +80,7 @@ class InfiniFrameWindow {
         int filterCount,
         FileDialogCompletedCallback completion,
         void* completionContext
-    );
+        );
     void BeginShowOpenFolder(
         uint64_t operationId,
         const char* title,
@@ -88,7 +88,7 @@ class InfiniFrameWindow {
         bool multiSelect,
         FileDialogCompletedCallback completion,
         void* completionContext
-    );
+        );
     void BeginShowSaveFile(
         uint64_t operationId,
         const char* title,
@@ -98,20 +98,28 @@ class InfiniFrameWindow {
         const char* defaultFileName,
         FileDialogCompletedCallback completion,
         void* completionContext
-    );
+        );
     void BeginShowMessage(
-        uint64_t operationId, const char* title, const char* text,
-        DialogButtons buttons, DialogIcon icon,
-        OperationCompletedCallback completion, void* completionContext
-    );
+        uint64_t operationId,
+        const char* title,
+        const char* text,
+        DialogButtons buttons,
+        DialogIcon icon,
+        OperationCompletedCallback completion,
+        void* completionContext
+        );
     bool CancelDialog(uint64_t operationId);
     std::shared_ptr<DialogOperation> RegisterFileDialogOperation(
-        uint64_t operationId, const char* name,
-        FileDialogCompletedCallback completion, void* completionContext
-    );
+        uint64_t operationId,
+        const char* name,
+        FileDialogCompletedCallback completion,
+        void* completionContext
+        );
     std::shared_ptr<DialogOperation> RegisterMessageDialogOperation(
-        uint64_t operationId, OperationCompletedCallback completion, void* completionContext
-    );
+        uint64_t operationId,
+        OperationCompletedCallback completion,
+        void* completionContext
+        );
     void CompleteDialogsForClose();
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -342,19 +350,22 @@ class InfiniFrameWindow {
         const char* content,
         OperationCompletedCallback completion,
         void* completionContext
-    );
+        );
     bool BeginNavigateToUrl(
         uint64_t operationId,
         const char* url,
         OperationCompletedCallback completion,
         void* completionContext
-    );
+        );
     bool CancelNavigation(uint64_t operationId);
     void BindNavigationBackendId(uint64_t backendId);
     void CompleteNavigation(uint64_t backendId, bool succeeded, int nativeCode, const char* failureUtf8);
     void CompleteNavigationAndSignalReady(
-        uint64_t backendId, bool succeeded, int nativeCode, const char* failureUtf8
-    );
+        uint64_t backendId,
+        bool succeeded,
+        int nativeCode,
+        const char* failureUtf8
+        );
     void CompleteNavigationForClose();
 
     /** @brief Restore the window from a minimized or maximized state */
@@ -565,7 +576,12 @@ class InfiniFrameWindow {
          * @param urgency Urgency level (0=Normal, 1=Low, 2=High, 3=Critical)
          * @param tag     UTF-8 tag for grouping/replacing notifications, or empty for none
          */
-    void ShowNotificationWithOptions(const char* title, const char* body, const char* iconPath, int urgency, const char* tag);
+    void ShowNotificationWithOptions(
+        const char* title,
+        const char* body,
+        const char* iconPath,
+        int urgency,
+        const char* tag);
 
     /**
          * @brief Show a rich native notification with an activation callback
@@ -580,9 +596,14 @@ class InfiniFrameWindow {
          */
     void BeginShowNotification(
         uint64_t operationId,
-        const char* title, const char* body, const char* iconPath, int urgency, const char* tag,
-        OperationCompletedCallback completion, void* completionContext
-    );
+        const char* title,
+        const char* body,
+        const char* iconPath,
+        int urgency,
+        const char* tag,
+        OperationCompletedCallback completion,
+        void* completionContext
+        );
 
     /**
          * @brief Cancel a pending notification operation
@@ -721,7 +742,7 @@ class InfiniFrameWindow {
         void* callbackContext,
         OperationCompletedCallback completion,
         void* completionContext
-    );
+        );
 
     /** Cancel a queued operation. Running callbacks cannot be cancelled. */
     bool CancelOperation(uint64_t operationId, NativeOperationResult result);
@@ -735,7 +756,7 @@ class InfiniFrameWindow {
         NativeOperationResult result,
         int nativeCode,
         const char* failure
-    ) noexcept;
+        ) noexcept;
 
     /** Platform-specific non-blocking event-loop enqueue. */
     bool ScheduleOperation(const std::shared_ptr<NativeOperation>& operation);
@@ -797,7 +818,7 @@ class InfiniFrameWindow {
         int statusCode,
         int64_t timestampUnixMillisecondsUtc,
         const char* platformPayload
-    ) const noexcept;
+        ) const noexcept;
 
     /**
      * @brief Fire the file-dropped callback
@@ -915,7 +936,6 @@ class InfiniFrameWindow {
     // -----------------------------------------------------------------------------------------------------------------
     // Private Implementation (Pimpl)
     // -----------------------------------------------------------------------------------------------------------------
-    public:
     struct Impl;
 
     private:

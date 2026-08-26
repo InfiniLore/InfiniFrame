@@ -1,11 +1,12 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.NativeBridge;
-using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text.Json;
+using InfiniFrame.NativeBridge;
+using InfiniFrame.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -16,12 +17,11 @@ namespace InfiniFrame;
 ///     Stores the menu bar in memory and provides get/set/enable/disable/click operations.
 /// </summary>
 public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature {
-    private readonly IInfiniFrameWindow _window;
     private readonly ILogger<MenuInfiniFrameWindowFeature> _logger;
-    private InfiniFrameMenuBar _menuBar;
+    private readonly IInfiniFrameWindow _window;
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="MenuInfiniFrameWindowFeature"/> class.
+    ///     Initializes a new instance of the <see cref="MenuInfiniFrameWindowFeature" /> class.
     /// </summary>
     /// <param name="window">The window instance.</param>
     /// <param name="logger">The logger instance.</param>
@@ -33,25 +33,25 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
     ) {
         _window = window;
         _logger = logger;
-        _menuBar = menuBar ?? new InfiniFrameMenuBar();
+        MenuBar = menuBar ?? new InfiniFrameMenuBar();
     }
 
-    /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.MenuBar"/>
+    /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.MenuBar" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public InfiniFrameMenuBar MenuBar => _menuBar;
+    public InfiniFrameMenuBar MenuBar { get; private set; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.SetMenuBar"/>
+    /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.SetMenuBar" />
     public void SetMenuBar(InfiniFrameMenuBar? menuBar) {
         _logger.LogDebug(".SetMenuBar()");
 
-        _menuBar = menuBar ?? new InfiniFrameMenuBar();
+        MenuBar = menuBar ?? new InfiniFrameMenuBar();
 
-        string? json = _menuBar.Items.IsEmpty
+        string? json = MenuBar.Items.IsEmpty
             ? null
-            : JsonSerializer.Serialize(_menuBar, MenuJsonContext.Default.InfiniFrameMenuBar);
+            : JsonSerializer.Serialize(MenuBar, MenuJsonContext.Default.InfiniFrameMenuBar);
 
         NativeInvoke.InvokeSyncWithValidation(
             _logger,
@@ -62,11 +62,11 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
         );
     }
 
-    /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.SetMenuItemEnabled"/>
+    /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.SetMenuItemEnabled" />
     public void SetMenuItemEnabled(string menuItemId, bool enabled) {
         _logger.LogDebug(".SetMenuItemEnabled({MenuItemId}, {Enabled})", menuItemId, enabled);
 
-        _menuBar = UpdateMenuItemProperty(_menuBar, menuItemId, item => item with { IsEnabled = enabled });
+        MenuBar = UpdateMenuItemProperty(MenuBar, menuItemId, updater: item => item with { IsEnabled = enabled });
 
         NativeInvoke.InvokeSyncWithValidation(
             _logger,
@@ -78,11 +78,11 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
         );
     }
 
-    /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.SetMenuItemVisible"/>
+    /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.SetMenuItemVisible" />
     public void SetMenuItemVisible(string menuItemId, bool visible) {
         _logger.LogDebug(".SetMenuItemVisible({MenuItemId}, {Visible})", menuItemId, visible);
 
-        _menuBar = UpdateMenuItemProperty(_menuBar, menuItemId, item => item with { IsVisible = visible });
+        MenuBar = UpdateMenuItemProperty(MenuBar, menuItemId, updater: item => item with { IsVisible = visible });
 
         NativeInvoke.InvokeSyncWithValidation(
             _logger,
@@ -94,7 +94,7 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
         );
     }
 
-    /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.ClickMenuItem"/>
+    /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.ClickMenuItem" />
     public void ClickMenuItem(string menuItemId) {
         _logger.LogDebug(".ClickMenuItem({MenuItemId})", menuItemId);
 
@@ -112,27 +112,7 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
         string menuItemId,
         Func<InfiniFrameMenuItem, InfiniFrameMenuItem> updater
     ) {
-        ImmutableArray<InfiniFrameMenuItem> updatedItems = UpdateItemsRecursive(menuBar.Items, menuItemId, updater);
+        ImmutableArray<InfiniFrameMenuItem> updatedItems = MenuItemTreeHelper.UpdateItem(menuBar.Items, menuItemId, updater);
         return menuBar with { Items = updatedItems };
-    }
-
-    private static ImmutableArray<InfiniFrameMenuItem> UpdateItemsRecursive(
-        ImmutableArray<InfiniFrameMenuItem> items,
-        string menuItemId,
-        Func<InfiniFrameMenuItem, InfiniFrameMenuItem> updater
-    ) {
-        ImmutableArray<InfiniFrameMenuItem>.Builder builder = items.ToBuilder();
-
-        for (int i = 0; i < builder.Count; i++) {
-            if (builder[i].Id == menuItemId) {
-                builder[i] = updater(builder[i]);
-            } else if (!builder[i].Children.IsDefaultOrEmpty) {
-                builder[i] = builder[i] with {
-                    Children = UpdateItemsRecursive(builder[i].Children, menuItemId, updater)
-                };
-            }
-        }
-
-        return builder.ToImmutable();
     }
 }

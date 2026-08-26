@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame.Security;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -60,13 +59,13 @@ public interface IInfiniFrameUriSecurityPolicy {
     ///     Creates a new security policy with the specified origin added to the trusted origins collection.
     /// </summary>
     /// <param name="trustedOrigin">The origin URI to trust.</param>
-    /// <returns>A new <see cref="IInfiniFrameUriSecurityPolicy"/> instance with the added trusted origin.</returns>
+    /// <returns>A new <see cref="IInfiniFrameUriSecurityPolicy" /> instance with the added trusted origin.</returns>
     IInfiniFrameUriSecurityPolicy WithTrustedOrigin(Uri trustedOrigin);
 
     /// <summary>
     ///     Creates a new security policy with the specified origins added to the trusted origins collection.
     /// </summary>
     /// <param name="trustedOrigins">The origin URIs to trust.</param>
-    /// <returns>A new <see cref="IInfiniFrameUriSecurityPolicy"/> instance with the added trusted origins.</returns>
+    /// <returns>A new <see cref="IInfiniFrameUriSecurityPolicy" /> instance with the added trusted origins.</returns>
     IInfiniFrameUriSecurityPolicy WithTrustedOrigins(IEnumerable<Uri> trustedOrigins);
 }

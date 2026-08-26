@@ -45,6 +45,11 @@ on:
                 type: boolean
                 required: false
                 default: false
+            enable_coverage:
+                description: 'Enable code coverage collection'
+                type: boolean
+                required: false
+                default: false
 
 jobs:
 
@@ -94,6 +99,7 @@ jobs:
         with:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
+            enable_coverage: ${{ inputs.enable_coverage }}
 
     native-build:
         name: Build Native Artifacts
@@ -125,6 +131,7 @@ jobs:
             target_sha: ${{ needs.prepare.outputs.sha }}
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
             enable_test_exports: ${{ inputs.enable_test_exports }}
+            enable_coverage: ${{ inputs.enable_coverage }}
         secrets: inherit
 
     macos:
@@ -138,6 +145,7 @@ jobs:
             target_sha: ${{ needs.prepare.outputs.sha }}
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
             enable_test_exports: ${{ inputs.enable_test_exports }}
+            enable_coverage: ${{ inputs.enable_coverage }}
         secrets: inherit
 
     windows:
@@ -151,6 +159,7 @@ jobs:
             target_sha: ${{ needs.prepare.outputs.sha }}
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
             enable_test_exports: ${{ inputs.enable_test_exports }}
+            enable_coverage: ${{ inputs.enable_coverage }}
         secrets: inherit
 
     windows-playwright:

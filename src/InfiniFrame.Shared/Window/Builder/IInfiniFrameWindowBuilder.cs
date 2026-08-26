@@ -6,7 +6,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Builds an <see cref="IInfiniFrameWindow"/> by collecting configuration, features, and event handlers.
+///     Builds an <see cref="IInfiniFrameWindow" /> by collecting configuration, features, and event handlers.
 /// </summary>
 public interface IInfiniFrameWindowBuilder : IHasInfiniFrameEventsStore {
     /// <summary>
@@ -30,9 +30,9 @@ public interface IInfiniFrameWindowBuilder : IHasInfiniFrameEventsStore {
     IInfiniFrameWindowBuilderFeatures Features { get; }
 
     /// <summary>
-    ///     Builds and returns the <see cref="IInfiniFrameWindow"/> instance.
+    ///     Builds and returns the <see cref="IInfiniFrameWindow" /> instance.
     /// </summary>
     /// <param name="provider">Optional service provider. If null, a default one is created.</param>
-    /// <returns>The constructed <see cref="IInfiniFrameWindow"/>.</returns>
+    /// <returns>The constructed <see cref="IInfiniFrameWindow" />.</returns>
     IInfiniFrameWindow Build(IServiceProvider? provider = null);
 }

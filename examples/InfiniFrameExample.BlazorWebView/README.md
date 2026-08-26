@@ -40,5 +40,5 @@ appBuilder.Build().Run();
 
 ## Related documentation
 
-- [Blazor WebView Guide](../../docs/Guides/Blazor.md)
-- [Builder API Reference](../../docs/Reference/BuilderApi.md)
+- [Blazor WebView Guide](../../docs/docs/guides/blazor-webview.md)
+- [Core Window Guide](../../docs/docs/guides/core-window.md)

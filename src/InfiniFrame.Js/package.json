@@ -15,12 +15,12 @@
     "description": "",
     "devDependencies": {
         "@types/node": "^26.2.0",
-        "@vitest/coverage-v8": "^4.1.10",
-        "concurrently": "^10.0.4",
+        "@vitest/coverage-v8": "^4.1.11",
+        "concurrently": "^10.0.5",
         "jsdom": "^30.0.1",
         "terser": "^5.50.0",
         "typescript": "^7.0.2",
-        "vite": "^8.2.1",
-        "vitest": "^4.1.10"
+        "vite": "^8.2.2",
+        "vitest": "^4.1.11"
     }
 }

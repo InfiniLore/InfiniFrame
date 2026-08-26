@@ -6,11 +6,14 @@ technologies — load any URL, render HTML strings, or embed a full Blazor appli
 Supports **Windows** (WebView2), **Linux** (WebKit2GTK), and **macOS** (WKWebView)
 
 > **Note:** This project is a modern rework
-> of [Photino.Net](https://github.com/tryphotino/photino.NET), [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server), [Photino.Blazor](https://github.com/tryphotino/Photino.Blazor)
+>
+of [Photino.Net](https://github.com/tryphotino/photino.NET), [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server), [Photino.Blazor](https://github.com/tryphotino/Photino.Blazor)
 > and [Photino.Native](https://github.com/tryphotino/photino.Native) and is not affiliated with or endorsed by the
 > original Photino authors
 
 [![CI: Platform Tests](https://github.com/InfiniLore/InfiniFrame/actions/workflows/ci-testing.yml/badge.svg)](https://github.com/InfiniLore/InfiniFrame/actions/workflows/ci-testing.yml)
+![TypeScript Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/InfiniLore/InfiniFrame/refs/heads/coverage/badges/ts-coverage.json)
+![C# Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/InfiniLore/InfiniFrame/refs/heads/coverage/badges/cs-coverage.json)
 
 ## Packages
 
@@ -22,6 +25,7 @@ Supports **Windows** (WebView2), **Linux** (WebKit2GTK), and **macOS** (WKWebVie
 | Full Blazor app integration inside a native window   | [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.BlazorWebView?label=InfiniLore.InfiniFrame.BlazorWebView)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.BlazorWebView) |
 | ASP.NET Core web app running inside a native window  | [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.WebServer?label=InfiniLore.InfiniFrame.WebServer)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.WebServer)             |
 | JavaScript and Blazor interop utilities              | [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.Js?label=InfiniLore.InfiniFrame.Js)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.Js)                                  |
+| Single-file executable packaging                    | [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.SingleFile?label=InfiniLore.InfiniFrame.SingleFile)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.SingleFile)       |
 
 ## Quick Start
 
@@ -115,60 +119,42 @@ they are independent integration paths
 
 ## Examples
 
-| Example                                                                                         | What it demonstrates                                          |
-|-------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
-| [BlazorWebView](examples/InfiniFrameExample.BlazorWebView/)                                     | Basic Blazor app in a native window                           |
-| [WebApp.Blazor](examples/InfiniFrameExample.WebApp.Blazor/)                                     | Blazor Server hosted via ASP.NET Core                         |
-| [WebApp.React](examples/InfiniFrameExample.WebApp.React/)                                       | React frontend with custom scheme handler and web messaging   |
-| [WebApp.Vue](examples/InfiniFrameExample.WebApp.Vue/)                                           | Vue.js frontend with all built-in JS message handlers         |
+| Example                                                     | What it demonstrates                                        |
+|-------------------------------------------------------------|-------------------------------------------------------------|
+| [BlazorWebView](examples/InfiniFrameExample.BlazorWebView/) | Basic Blazor app in a native window                         |
+| [WebApp.Blazor](examples/InfiniFrameExample.WebApp.Blazor/) | Blazor Server hosted via ASP.NET Core                       |
+| [WebApp.React](examples/InfiniFrameExample.WebApp.React/)   | React frontend with custom scheme handler and web messaging |
+| [WebApp.Vue](examples/InfiniFrameExample.WebApp.Vue/)       | Vue.js frontend with all built-in JS message handlers       |
 
 ## Single-File Executable Packing
 
-Use the custom .NET tool `InfiniFrame-Pack` to package your app into a single executable with embedded native
-dependencies.
-See [`/docs`](docs/articles/guides/pack-tool.md) for full usage details and options
+Use the `InfiniLore.InfiniFrame.SingleFile` package to publish your app as a single executable with embedded native
+dependencies. See [`/docs`](docs/docs/guides/pack-tool.md) for full usage details and options
 
-Install the tool first before running packaging commands (including the `InfiniFrameExample.SingleFileExe` post-build
-pack target):
-
-```powershell
-.\src\InfiniFrame.Tools.Pack\install-or-update-pack-tool.ps1
+```bash
+dotnet add package InfiniLore.InfiniFrame.SingleFile
 ```
 
 ```bash
-bash ./src/InfiniFrame.Tools.Pack/install-or-update-pack-tool.sh
-```
-
-Manual alternative:
-
-```powershell
-dotnet pack src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj -c Release
-dotnet tool install --global --add-source .\src\InfiniFrame.Tools.Pack\bin\Release InfiniLore.InfiniFrame.Tools.Pack
-```
-
-```powershell
-dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid win-x64
+dotnet publish src/MyApp/MyApp.csproj -t:InfiniFrameSingleFile -r win-x64 -c Release
 ```
 
 ## Documentation
 
 - [Docs Home](https://docs.infiniframe.dev/)
-- [Getting Started](https://docs.infiniframe.dev/guides/getting-started) — Installation, first app,
-  platform requirements
+- [Getting Started](https://docs.infiniframe.dev/guides/getting-started) — Installation, first app, platform
+  requirements
 
 ### Guides
 
-- [Core Window](https://docs.infiniframe.dev/guides/core-window) — Builder pattern, configuration, events,
-  messaging
+- [Core Window](https://docs.infiniframe.dev/guides/core-window) — Builder pattern, configuration, events, messaging
 - [Trim/AOT Compatibility](https://docs.infiniframe.dev/guides/trim-aot-compatibility) — Trimming and NativeAOT
   guarantees and consumer guidance
-- [Blazor WebView](https://docs.infiniframe.dev/guides/blazor-webview) — Hosting a full Blazor app in a
-  native window
+- [Blazor WebView](https://docs.infiniframe.dev/guides/blazor-webview) — Hosting a full Blazor app in a native window
 - [Web Server](https://docs.infiniframe.dev/guides/web-server) — ASP.NET Core + native window integration
-- [Custom Window Chrome](https://docs.infiniframe.dev/guides/custom-window-chrome) — Chromeless windows
-  with Blazor components
-- [JavaScript Interop](https://docs.infiniframe.dev/guides/javascript-interop) — Communicating between JS
-  and C#
+- [Custom Window Chrome](https://docs.infiniframe.dev/guides/custom-window-chrome) — Chromeless windows with Blazor
+  components
+- [JavaScript Interop](https://docs.infiniframe.dev/guides/javascript-interop) — Communicating between JS and C#
 
 ### API Reference
 
@@ -177,8 +163,8 @@ dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid win-x64
 
 ### Migration
 
-- [Breaking Changes vs Photino.NET](https://docs.infiniframe.dev/migration/photino-breaking-changes) —
-  API, namespace, event system, and behavioral differences from the original Photino projects
+- [Breaking Changes vs Photino.NET](https://docs.infiniframe.dev/migration/photino-breaking-changes) — API, namespace,
+  event system, and behavioral differences from the original Photino projects
 
 ### Build Docs Locally
 
@@ -212,7 +198,8 @@ The full scripts reference lives in docs:
 
 - [Scripts Reference](https://docs.infiniframe.dev/guides/scripts)
 
-Local Docker wrappers are under `docker/scripts/` (Linux/Windows test runs and Playwright runs). Shared helper scripts (for example NuGet bootstrap) remain in `scripts/`.
+Local Docker wrappers are under `docker/scripts/` (Linux/Windows test runs and Playwright runs). Shared helper scripts
+(for example NuGet bootstrap) remain in `scripts/`.
 
 ## Docker Matrix (Local)
 
@@ -267,8 +254,8 @@ Notes:
 
 This repo was originally forked from [Photino.NET](https://github.com/tryphotino/photino.NET) and then the history of
 the [Photino.Blazor](https://github.com/tryphotino/Photino.Blazor)
-and [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server) repositories were merged into this.
-By merging the histories, it was possible to ease further development, especially whilst also preserving the original
+and [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server) repositories were merged into this. By
+merging the histories, it was possible to ease further development, especially whilst also preserving the original
 commit history and attribution from the contributors of Photino
 
 This was also done for the [Photino.Native](https://github.com/tryphotino/photino.Native) library, but given the

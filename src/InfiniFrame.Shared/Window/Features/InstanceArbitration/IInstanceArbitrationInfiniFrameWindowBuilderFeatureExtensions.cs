@@ -14,7 +14,7 @@ public static class IInstanceArbitrationInfiniFrameWindowBuilderFeatureExtension
     /// </summary>
     /// <param name="builder">The window builder instance.</param>
     /// <param name="mode">The arbitration mode to apply.</param>
-    /// <returns>The <see cref="IInfiniFrameWindowBuilder"/> for method chaining.</returns>
+    /// <returns>The <see cref="IInfiniFrameWindowBuilder" /> for method chaining.</returns>
     public static IInfiniFrameWindowBuilder SetInstanceArbitrationMode(
         this IInfiniFrameWindowBuilder builder,
         InstanceArbitrationMode mode
@@ -28,7 +28,7 @@ public static class IInstanceArbitrationInfiniFrameWindowBuilderFeatureExtension
     /// </summary>
     /// <param name="builder">The window builder instance.</param>
     /// <param name="mutexName">The mutex name. Must be unique across applications on the system.</param>
-    /// <returns>The <see cref="IInfiniFrameWindowBuilder"/> for method chaining.</returns>
+    /// <returns>The <see cref="IInfiniFrameWindowBuilder" /> for method chaining.</returns>
     public static IInfiniFrameWindowBuilder SetInstanceArbitrationMutexName(
         this IInfiniFrameWindowBuilder builder,
         string mutexName

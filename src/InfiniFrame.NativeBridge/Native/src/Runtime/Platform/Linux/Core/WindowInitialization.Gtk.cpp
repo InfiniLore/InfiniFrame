@@ -21,7 +21,7 @@ gboolean on_webview_context_menu(
     WebKitHitTestResult* hit_test_result,
     gboolean triggered_with_keyboard,
     gpointer user_data
-);
+    );
 gboolean on_permission_request(WebKitWebView* web_view, WebKitPermissionRequest* request, gpointer user_data);
 
 void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameInitParams* initParams) {
@@ -136,8 +136,9 @@ void InfiniFrameWindow::Impl::ConfigureInitialWindow(InfiniFrameWindow* window, 
 }
 
 void InfiniFrameWindow::Impl::ApplyInitialWindowState(
-    InfiniFrameWindow* window, const InfiniFrameInitParams* initParams
-) {
+    InfiniFrameWindow* window,
+    const InfiniFrameInitParams* initParams
+    ) {
     window->SetTitle(const_cast<const char*>(_windowTitle.c_str()));
 
     if (initParams->Chromeless) {
@@ -179,40 +180,50 @@ void InfiniFrameWindow::Impl::ConnectWindowSignals(InfiniFrameWindow* window) {
     g_signal_connect(G_OBJECT(_window), "focus-out-event", G_CALLBACK(on_focus_out_event), window);
 
     if (_dragDropEnabled) {
-        const GtkTargetEntry targets[] = {};
+        constexpr GtkTargetEntry targets[] = {};
         gtk_drag_dest_set(GTK_WIDGET(_window), GTK_DEST_DEFAULT_ALL, targets, 0, GDK_ACTION_COPY);
 
-        g_signal_connect(G_OBJECT(_window), "drag-data-received",
-            G_CALLBACK(+[](GtkWidget* /*widget*/, GdkDragContext* context, const gint x, const gint y,
-                           GtkSelectionData* data, guint /*info*/, const guint time, const gpointer userData) {
-                auto* instance = static_cast<InfiniFrameWindow*>(userData);
+        g_signal_connect(
+            G_OBJECT(_window), "drag-data-received",
+            G_CALLBACK(
+                +[](
+                GtkWidget* /*widget*/,
+                GdkDragContext* context,
+                const gint x,
+                const gint y,
+                GtkSelectionData* data,
+                guint /*info*/,
+                const guint time,
+                const gpointer userData) {
+                    auto* instance = static_cast<InfiniFrameWindow*>(userData);
 
-                gchar** uris = gtk_selection_data_get_uris(data);
-                if (uris) {
-                    int count = 0;
-                    while (uris[count]) count++;
+                    gchar** uris = gtk_selection_data_get_uris(data);
+                    if (uris) {
+                        int count = 0;
+                        while (uris[count])
+                            count++;
 
-                    std::vector<std::string> paths;
-                    for (int i = 0; i < count; i++) {
-                        gchar* filename = g_filename_from_uri(uris[i], nullptr, nullptr);
-                        if (filename) {
-                            paths.push_back(filename);
-                            g_free(filename);
+                        std::vector<std::string> paths;
+                        for (int i = 0; i < count; i++) {
+                            gchar* filename = g_filename_from_uri(uris[i], nullptr, nullptr);
+                            if (filename) {
+                                paths.push_back(filename);
+                                g_free(filename);
+                            }
                         }
-                    }
 
-                    std::vector<const char*> autoStrings;
-                    autoStrings.reserve(paths.size());
-                    for (const auto& p : paths) {
-                        autoStrings.push_back(p.c_str());
-                    }
+                        std::vector<const char*> autoStrings;
+                        autoStrings.reserve(paths.size());
+                        for (const auto& p : paths) {
+                            autoStrings.push_back(p.c_str());
+                        }
 
-                    instance->InvokeFileDropped(autoStrings.data(), static_cast<int>(autoStrings.size()), x, y);
-                }
-                g_free(uris);
-                gtk_drag_finish(context, TRUE, FALSE, time);
-            }), window
-        );
+                        instance->InvokeFileDropped(autoStrings.data(), static_cast<int>(autoStrings.size()), x, y);
+                    }
+                    g_free(uris);
+                    gtk_drag_finish(context, TRUE, FALSE, time);
+                }), window
+            );
     }
 }
 

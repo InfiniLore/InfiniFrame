@@ -20,7 +20,8 @@ public class ClearBrowserAutoFillTests {
         Exception? caught = null;
         try {
             window.Features.Browser.ClearBrowserAutoFill();
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             caught = ex;
         }
 

@@ -7,6 +7,8 @@ import type {InfiniMonitor} from "./WindowFeatureTypes";
 // ---------------------------------------------------------------------------------------------------------------------
 export interface MonitorsInfiniFrameWindowFeature {
     getMonitorsAsync(): Promise<InfiniMonitor[]>;
+
     getMainMonitorAsync(): Promise<InfiniMonitor>;
+
     getMainMonitorScreenDpiAsync(): Promise<number>;
 }

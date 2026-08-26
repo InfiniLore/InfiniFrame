@@ -1,10 +1,10 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Runtime.InteropServices;
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters;
 using Microsoft.Extensions.Logging.Abstractions;
-using System.Runtime.InteropServices;
 
 namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -86,14 +86,14 @@ public class RegisterCustomSchemeHandlerTests {
     [OnlyRunOnMacOs]
     [NotInParallelInfiniTests]
     public async Task OnMacOs_PooledSession_DoesNotReusePriorCustomSchemeRegistration(CancellationToken ct = default) {
-        using (var first = InfiniFrameTestWindow.Create(builder => {
-            builder.RegisterCustomSchemeHandler("first-session", EmptyHandler);
-        }, ct)) {
+        using (var first = InfiniFrameTestWindow.Create(builder: builder => {
+                builder.RegisterCustomSchemeHandler("first-session", EmptyHandler);
+            }, ct)) {
             first.Window.Close();
             first.Window.WaitForClose();
         }
 
-        using var second = InfiniFrameTestWindow.Create(builder => {
+        using var second = InfiniFrameTestWindow.Create(builder: builder => {
             builder.RegisterCustomSchemeHandler("second-session", EmptyHandler);
         }, ct);
         await Assert.That(second.Window.EventsStore.CustomScheme.ContainsKey("second-session")).IsTrue();
@@ -107,19 +107,26 @@ public class RegisterCustomSchemeHandlerTests {
     public async Task OnMacOs_PooledHost_RoutesNativeSchemeRequestOnlyToCurrentSession(CancellationToken ct = default) {
         int firstCalls = 0;
         int secondCalls = 0;
-        using (var first = InfiniFrameTestWindow.Create(builder => {
-            builder.RegisterCustomSchemeHandler("pooltest", (_, _) => { Interlocked.Increment(ref firstCalls); return default; });
-            builder.Features.PageNavigation.SetStartPageContent("<img src='pooltest://first/resource'>");
-        }, ct)) {
-            await WaitForAsync(() => Volatile.Read(ref firstCalls) > 0, ct);
+        using (var first = InfiniFrameTestWindow.Create(builder: builder => {
+                builder.RegisterCustomSchemeHandler("pooltest", handler: (_, _) => {
+                    Interlocked.Increment(ref firstCalls);
+                    return default;
+                });
+                builder.Features.PageNavigation.SetStartPageContent("<img src='pooltest://first/resource'>");
+            }, ct)) {
+            await WaitForAsync(condition: () => Volatile.Read(ref firstCalls) > 0, ct);
             first.Window.Close();
             first.Window.WaitForClose();
         }
-        using var second = InfiniFrameTestWindow.Create(builder => {
-            builder.RegisterCustomSchemeHandler("pooltest", (_, _) => { Interlocked.Increment(ref secondCalls); return default; });
+
+        using var second = InfiniFrameTestWindow.Create(builder: builder => {
+            builder.RegisterCustomSchemeHandler("pooltest", handler: (_, _) => {
+                Interlocked.Increment(ref secondCalls);
+                return default;
+            });
             builder.Features.PageNavigation.SetStartPageContent("<img src='pooltest://second/resource'>");
         }, ct);
-        await WaitForAsync(() => Volatile.Read(ref secondCalls) > 0, ct);
+        await WaitForAsync(condition: () => Volatile.Read(ref secondCalls) > 0, ct);
         await Assert.That(firstCalls).IsEqualTo(1);
     }
 
@@ -127,6 +134,7 @@ public class RegisterCustomSchemeHandlerTests {
         DateTime deadline = DateTime.UtcNow.AddSeconds(5);
         while (!condition()) {
             if (DateTime.UtcNow >= deadline) throw new TimeoutException("Expected custom-scheme request was not received.");
+
             await Task.Delay(25, ct);
         }
     }

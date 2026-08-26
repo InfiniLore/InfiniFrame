@@ -22,7 +22,7 @@ namespace Embedded {
 
     const std::string& InfiniFrameJsUtf8() {
         static const std::string cached(
-                reinterpret_cast<const char*>(GInfiniframeJsData), GInfiniframeJsSize);
+            reinterpret_cast<const char*>(GInfiniframeJsData), GInfiniframeJsSize);
         return cached;
     }
 }

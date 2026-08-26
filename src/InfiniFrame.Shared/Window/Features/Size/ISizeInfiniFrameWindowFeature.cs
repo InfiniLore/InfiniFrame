@@ -66,7 +66,7 @@ public interface ISizeInfiniFrameWindowFeature {
     void SetSize(int width, int height);
 
     /// <summary>
-    ///     Sets the size of the window using a <see cref="Size"/> value.
+    ///     Sets the size of the window using a <see cref="Size" /> value.
     /// </summary>
     /// <param name="size">The size to set.</param>
     void SetSize(Size size);
@@ -85,7 +85,7 @@ public interface ISizeInfiniFrameWindowFeature {
     void SetMaxSize(int maxWidth, int maxHeight);
 
     /// <summary>
-    ///     Sets the maximum size of the window using a <see cref="Size"/> value.
+    ///     Sets the maximum size of the window using a <see cref="Size" /> value.
     /// </summary>
     /// <param name="size">The maximum size.</param>
     void SetMaxSize(Size size);
@@ -110,7 +110,7 @@ public interface ISizeInfiniFrameWindowFeature {
     void SetMinSize(int minWidth, int minHeight);
 
     /// <summary>
-    ///     Sets the minimum size of the window using a <see cref="Size"/> value.
+    ///     Sets the minimum size of the window using a <see cref="Size" /> value.
     /// </summary>
     /// <param name="size">The minimum size.</param>
     void SetMinSize(Size size);

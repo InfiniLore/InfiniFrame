@@ -1,11 +1,11 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Text.Json;
 using InfiniAutomationTests.BlazorWebView.MudBlazor.TestUtility;
 using InfiniAutomationTests.Tests;
 using InfiniTests;
 using Microsoft.Playwright;
-using System.Text.Json;
 
 namespace InfiniAutomationTests.BlazorWebView.MudBlazor;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -20,7 +20,7 @@ public sealed class CustomSchemeCorsHeaderTests : InfiniFramePlaywrightTestBase 
     public async Task Fetch_SameOrigin_IncludesCorsHeaders(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
 
-        JsonElement fetchResult = await EvaluateWhenPageReadyAsync<JsonElement>(
+        var fetchResult = await EvaluateWhenPageReadyAsync<JsonElement>(
             page,
             // lang=javascript
             """
@@ -49,7 +49,12 @@ public sealed class CustomSchemeCorsHeaderTests : InfiniFramePlaywrightTestBase 
         // visible to JavaScript. The native handler builds them; browser controls visibility.
         // Verify the response body is delivered successfully instead.
         await Assert.That(fetchResult.GetProperty("body").GetString())
-            .IsEqualTo("{\"message\":\"CORS test payload\",\"value\":42}");
+            .IsEqualTo("""
+            {
+                "message": "CORS test payload",
+                "value": 42
+            }
+            """);
     }
 
     [Test]
@@ -58,7 +63,7 @@ public sealed class CustomSchemeCorsHeaderTests : InfiniFramePlaywrightTestBase 
     public async Task Xhr_SameOrigin_IncludesCorsHeaders(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
 
-        JsonElement xhrResult = await EvaluateWhenPageReadyAsync<JsonElement>(
+        var xhrResult = await EvaluateWhenPageReadyAsync<JsonElement>(
             page,
             // lang=javascript
             """
@@ -86,7 +91,12 @@ public sealed class CustomSchemeCorsHeaderTests : InfiniFramePlaywrightTestBase 
         // visible to JavaScript. The native handler builds them; browser controls visibility.
         // Verify the response body is delivered successfully instead.
         await Assert.That(xhrResult.GetProperty("body").GetString())
-            .IsEqualTo("{\"message\":\"CORS test payload\",\"value\":42}");
+            .IsEqualTo("""
+            {
+                "message": "CORS test payload",
+                "value": 42
+            }
+            """);
     }
 
     [Test]
@@ -95,7 +105,7 @@ public sealed class CustomSchemeCorsHeaderTests : InfiniFramePlaywrightTestBase 
     public async Task Fetch_CustomScheme_VariousContentTypes(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
 
-        JsonElement fetchJsonResult = await EvaluateWhenPageReadyAsync<JsonElement>(
+        var fetchJsonResult = await EvaluateWhenPageReadyAsync<JsonElement>(
             page,
             // lang=javascript
             """
@@ -117,7 +127,7 @@ public sealed class CustomSchemeCorsHeaderTests : InfiniFramePlaywrightTestBase 
         await Assert.That(fetchJsonResult.GetProperty("status").GetInt32()).IsEqualTo(200);
         await Assert.That(fetchJsonResult.GetProperty("contentType").GetString()).StartsWith("application/json");
 
-        JsonElement fetchHtmlResult = await EvaluateWhenPageReadyAsync<JsonElement>(
+        var fetchHtmlResult = await EvaluateWhenPageReadyAsync<JsonElement>(
             page,
             // lang=javascript
             """
@@ -146,7 +156,7 @@ public sealed class CustomSchemeCorsHeaderTests : InfiniFramePlaywrightTestBase 
     public async Task Fetch_CustomScheme_HandlerReturnsNotFound_Verify404(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
 
-        JsonElement fetchResult = await EvaluateWhenPageReadyAsync<JsonElement>(
+        var fetchResult = await EvaluateWhenPageReadyAsync<JsonElement>(
             page,
             // lang=javascript
             """

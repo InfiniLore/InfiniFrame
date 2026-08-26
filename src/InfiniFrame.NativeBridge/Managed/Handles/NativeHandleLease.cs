@@ -11,8 +11,6 @@ namespace InfiniFrame.NativeBridge.Handles;
 public sealed class NativeHandleLease : IDisposable {
     private NativeWindowHandle? _handle;
 
-    public IntPtr Handle { get; }
-
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
@@ -30,6 +28,8 @@ public sealed class NativeHandleLease : IDisposable {
             throw;
         }
     }
+
+    public IntPtr Handle { get; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods

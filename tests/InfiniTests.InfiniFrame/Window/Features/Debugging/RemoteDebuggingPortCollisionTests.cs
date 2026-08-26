@@ -37,7 +37,5 @@ public class RemoteDebuggingPortCollisionTests {
         await Assert.That(exception!.Message).Contains(port.ToString());
     }
 
-    private static int GetAvailableLoopbackPort() {
-        return PortUtils.GetOpenPortValue();
-    }
+    private static int GetAvailableLoopbackPort() => PortUtils.GetOpenPortValue();
 }
