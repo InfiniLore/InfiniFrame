@@ -1,3 +1,6 @@
+/**
+ * @file Blazor custom elements patch. Registers custom HTML elements that bridge to Blazor component parameters.
+ */
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
@@ -13,6 +16,13 @@ import type {
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Converts a camelCase or PascalCase identifier to kebab-case.
+ *
+ * @param name - The identifier string to convert.
+ * @returns The kebab-case version of the input string.
+ */
 function toKebabCase(name: string): string {
     return String(name)
         .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
@@ -20,6 +30,13 @@ function toKebabCase(name: string): string {
         .toLowerCase();
 }
 
+/**
+ * Converts a raw HTML attribute string value to the appropriate .NET parameter type.
+ *
+ * @param rawValue - The raw attribute value from the DOM, or null when the attribute is absent.
+ * @param typeName - The .NET type name (e.g. "bool", "int", "number") that determines the conversion.
+ * @returns The converted value appropriate for the given type.
+ */
 function toParameterValue(rawValue: string | null, typeName: string): unknown {
     if (typeName === "bool" || typeName === "boolean") {
         if (rawValue === null) return false;
@@ -35,6 +52,12 @@ function toParameterValue(rawValue: string | null, typeName: string): unknown {
     return rawValue;
 }
 
+/**
+ * Checks whether a .NET type name represents a numeric type.
+ *
+ * @param typeName - The .NET type name to check.
+ * @returns `true` if the type is one of: "number", "int", "float", "double", or "decimal".
+ */
 function isNumericType(typeName: string): boolean {
     return ["number", "int", "float", "double", "decimal"].indexOf(typeName) >= 0;
 }
@@ -42,6 +65,13 @@ function isNumericType(typeName: string): boolean {
 const pendingAutoCustomElementRegistrations: PendingBlazorCustomElementRegistration[] = [];
 let autoCustomElementRegistrationScheduled = false;
 
+/**
+ * Schedules auto-registration of custom elements that lack an initializer, deferring to the next microtask.
+ *
+ * @param defs - A map of custom element tag names to their parameter definitions.
+ * @param initMap - A map of Blazor root component IDs to the tag names they have already initialized.
+ * @returns {void}
+ */
 function scheduleAutoRegisterMissingInitializerCustomElements(
     defs: Record<string, BlazorCustomElementParameterDefinition[]>,
     initMap: BlazorCustomElementInitMap
@@ -59,6 +89,11 @@ function scheduleAutoRegisterMissingInitializerCustomElements(
     }, 0);
 }
 
+/**
+ * Flushes the pending queue of auto-registration tasks, registering any custom elements not yet covered by an initializer.
+ *
+ * @returns {void}
+ */
 function flushAutoRegisterMissingInitializerCustomElements(): void {
     if (typeof window.registerBlazorCustomElement !== "function") return;
 
@@ -76,6 +111,13 @@ function flushAutoRegisterMissingInitializerCustomElements(): void {
     }
 }
 
+/**
+ * Registers custom element tag names that do not already have an initializer in the provided init map.
+ *
+ * @param defs - A map of custom element tag names to their parameter definitions.
+ * @param initMap - A map of Blazor root component IDs to the tag names they have already initialized.
+ * @returns {void}
+ */
 function autoRegisterMissingInitializerCustomElements(
     defs: Record<string, BlazorCustomElementParameterDefinition[]>,
     initMap: BlazorCustomElementInitMap
@@ -96,6 +138,11 @@ function autoRegisterMissingInitializerCustomElements(
     }
 }
 
+/**
+ * Patches `Blazor._internal.attachWebRendererInterop` to intercept custom element definitions after Blazor initializes.
+ *
+ * @returns `true` if the function was patched or had already been patched; `false` if Blazor internals are not available.
+ */
 function patchAttachWebRendererInteropIfAvailable(): boolean {
     const blazor = window.Blazor;
 
@@ -123,6 +170,13 @@ function patchAttachWebRendererInteropIfAvailable(): boolean {
     return true;
 }
 
+/**
+ * Initializes the Blazor custom elements patch. If `Blazor._internal.attachWebRendererInterop` is not yet available,
+ * a property setter is installed on `window.Blazor` to patch it once Blazor loads.
+ *
+ * @param setup - The setup guard that tracks which initializations have already been performed.
+ * @returns {void}
+ */
 export function initBlazorCustomElementsPatch(setup: InfiniFrameSetup): void {
     if (setup.blazorCustomElementsPatchInitialized) return;
     setup.blazorCustomElementsPatchInitialized = true;
@@ -150,6 +204,13 @@ export function initBlazorCustomElementsPatch(setup: InfiniFrameSetup): void {
     }
 }
 
+/**
+ * Initializes the global `window.registerBlazorCustomElement` function. When called, it defines a custom HTML element
+ * that hosts a Blazor root component, mapping HTML attributes to component parameters via `setParameters`.
+ *
+ * @param setup - The setup guard that tracks which initializations have already been performed.
+ * @returns {void}
+ */
 export function initCustomElements(setup: InfiniFrameSetup): void {
     if (setup.customElementsInitialized) return;
     setup.customElementsInitialized = true;

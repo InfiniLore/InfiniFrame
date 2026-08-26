@@ -1,3 +1,6 @@
+/**
+ * @file Native interop bridge. Installs the window.infiniframe.host object that communicates with the native WebView host.
+ */
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
@@ -18,11 +21,23 @@ const GetMessageTimeoutMs = 10_000;
 const receiveCallbacks = new Set<(message: string) => void>();
 let receiveBridgeAttached = false;
 
+/**
+ * Resets the internal bridge state, clearing all registered receive callbacks and the bridge-attached flag.
+ *
+ * @returns {void}
+ */
 export function resetNativeInteropBridgeState(): void {
     receiveCallbacks.clear();
     receiveBridgeAttached = false;
 }
 
+/**
+ * Installs the native interop bridge on `window.infiniframe.host`, wiring up {@link InfiniFrameHostBridge.postData},
+ * {@link InfiniFrameHostBridge.receiveCallback}, and {@link InfiniFrameHostBridge.getDataAsync}.
+ *
+ * @param setup - The setup guard that tracks which initializations have already been performed.
+ * @returns {void}
+ */
 export function installNativeInteropBridge(setup: InfiniFrameSetup): void {
     if (setup.nativeInteropBridgeInitialized) return;
     setup.nativeInteropBridgeInitialized = true;
@@ -46,6 +61,13 @@ export function installNativeInteropBridge(setup: InfiniFrameSetup): void {
     window.infiniframe.host = host;
 }
 
+/**
+ * Dispatches an envelope or raw string message to the native host via the existing bridge or platform adapter.
+ *
+ * @param envelope - The envelope object or raw string to send.
+ * @param existingPostData - Optional previously-installed post-data handler to try first.
+ * @returns {void}
+ */
 function dispatchEnvelopeToHost(
     envelope: InteropEnvelopeV1 | string,
     existingPostData?: ((envelope: InteropEnvelopeV1 | string) => void)
@@ -96,6 +118,15 @@ function dispatchEnvelopeToHost(
     postToPlatform(serializedEnvelope);
 }
 
+/**
+ * Sends a get-style message to the host and returns a promise that resolves with the host response.
+ *
+ * @param message - The envelope object or string message to request from the host.
+ * @param host - The host bridge instance used to post the request.
+ * @param existingGetData - Optional previously-installed get-data handler to try first.
+ * @param existingReceiveCallback - Optional previously-installed receive callback handler to try first.
+ * @returns A promise that resolves with the host response string.
+ */
 function requestMessageFromHost(
     message: InteropEnvelopeV1 | string,
     host: InfiniFrameHostBridge,
@@ -170,6 +201,13 @@ function requestMessageFromHost(
     });
 }
 
+/**
+ * Creates a get-request envelope from a normalized message and request ID.
+ *
+ * @param normalizedMessage - The normalized envelope or string message.
+ * @param requestId - The unique request identifier to include in the envelope.
+ * @returns A normalized {@link InteropEnvelopeV1} for a get request, or null if the input is invalid.
+ */
 function createGetRequestEnvelope(normalizedMessage: InteropEnvelopeV1 | string, requestId: string): InteropEnvelopeV1 | null {
     if (typeof normalizedMessage !== "string") {
         return normalizeEnvelope(normalizedMessage, InteropGetCommand, requestId);
@@ -187,6 +225,12 @@ function createGetRequestEnvelope(normalizedMessage: InteropEnvelopeV1 | string,
     return normalizeEnvelope({id: normalizedMessage, version: InteropEnvelopeVersion}, InteropGetCommand, requestId);
 }
 
+/**
+ * Normalizes a get-message input by trimming strings and validating envelope objects.
+ *
+ * @param message - The raw message input (string or envelope object).
+ * @returns The trimmed string or normalized envelope, or null if the input is invalid.
+ */
 function normalizeGetMessageInput(message: InteropEnvelopeV1 | string): InteropEnvelopeV1 | string | null {
     if (typeof message === "string") {
         const trimmed = message.trim();
@@ -205,6 +249,11 @@ function normalizeGetMessageInput(message: InteropEnvelopeV1 | string): InteropE
     return normalizedEnvelope;
 }
 
+/**
+ * Generates a unique request ID using a timestamp and random hex bytes.
+ *
+ * @returns A unique request ID string prefixed with `if_req_`.
+ */
 function createRequestId(): string {
     const randomBytes = new Uint8Array(16);
     crypto.getRandomValues(randomBytes);
@@ -212,6 +261,14 @@ function createRequestId(): string {
     return `if_req_${Date.now().toString(36)}_${randomHex}`;
 }
 
+/**
+ * Normalizes an envelope object by filling in missing fields and validating required properties.
+ *
+ * @param envelope - The raw envelope object to normalize.
+ * @param command - Optional command to override the envelope's command field.
+ * @param requestId - Optional request ID to override the envelope's requestId field.
+ * @returns A fully normalized {@link InteropEnvelopeV1}, or null if the envelope is invalid.
+ */
 function normalizeEnvelope(
     envelope: InteropEnvelopeV1,
     command?: InteropEnvelopeCommand,
@@ -244,6 +301,13 @@ function normalizeEnvelope(
     return normalized;
 }
 
+/**
+ * Registers a callback to receive messages from the native host.
+ *
+ * @param callback - The callback function to invoke when a message is received.
+ * @param existingReceiveCallback - Optional previously-installed receive callback handler to try first.
+ * @returns {void}
+ */
 function registerWebMessageReceiver(
     callback: (message: string) => void,
     existingReceiveCallback?: (callback: (message: string) => void) => void
@@ -252,10 +316,22 @@ function registerWebMessageReceiver(
     attachReceiveBridgeOnce(existingReceiveCallback);
 }
 
+/**
+ * Unregisters a previously registered message receive callback.
+ *
+ * @param callback - The callback function to remove from the receive set.
+ * @returns {void}
+ */
 function unregisterWebMessageReceiver(callback: (message: string) => void): void {
     receiveCallbacks.delete(callback);
 }
 
+/**
+ * Attaches the platform-specific receive bridge exactly once, dispatching messages to all registered callbacks.
+ *
+ * @param existingReceiveCallback - Optional previously-installed receive callback handler to try first.
+ * @returns {void}
+ */
 function attachReceiveBridgeOnce(existingReceiveCallback?: (callback: (message: string) => void) => void): void {
     if (receiveBridgeAttached) {
         return;
@@ -297,6 +373,12 @@ function attachReceiveBridgeOnce(existingReceiveCallback?: (callback: (message: 
     console.warn("Receive message registration failed. No supported host receive transport was found.");
 }
 
+/**
+ * Posts a raw string message to the native host using the platform-specific transport.
+ *
+ * @param message - The serialized message string to send.
+ * @returns {void}
+ */
 function postToPlatform(message: string): void {
     if (window.chrome?.webview?.postMessage) {
         window.chrome.webview.postMessage(message);
@@ -311,10 +393,22 @@ function postToPlatform(message: string): void {
     console.warn("[InfiniFrame] No native bridge available:", message);
 }
 
+/**
+ * Type guard that checks whether a value is a non-null object.
+ *
+ * @param value - The value to check.
+ * @returns `true` if the value is a non-null object.
+ */
 function isObject(value: unknown): value is Record<string, unknown> {
     return typeof value === "object" && value !== null;
 }
 
+/**
+ * Type guard that checks whether a value has the shape of a get-message response payload.
+ *
+ * @param value - The value to check.
+ * @returns `true` if the value matches the expected response payload shape.
+ */
 function isGetMessageResponsePayload(value: unknown): value is {
     requestId: string;
     success: boolean;

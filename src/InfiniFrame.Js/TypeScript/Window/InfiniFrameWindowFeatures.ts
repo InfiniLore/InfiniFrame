@@ -1,4 +1,10 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+﻿/**
+ * Feature collection. Instantiates and exposes all window feature implementations.
+ *
+ * @module InfiniFrameWindowFeatures
+ */
+
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import type {
@@ -37,22 +43,42 @@ import {
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/**
+ * Container for all runtime window features (Browser, Debugging, Decorations, Size, State, Position, etc.).
+ */
 export class InfiniFrameWindowFeatures implements InfiniFrameWindowFeaturesContract {
+    /** Browser settings: context menu, media autoplay, web security, user agent. */
     browser: InfiniFrameWindowFeatureBrowserContract;
+    /** Debug settings: dev tools, remote debugging, diagnostics. */
     debugging: InfiniFrameWindowFeatureDebuggingContract;
+    /** Window decorations: title, icon, transparency, background color. */
     decorations: InfiniFrameWindowFeatureDecorationsContract;
+    /** Native file and folder picker dialogs. */
     filePickerDialogs: InfiniFrameWindowFeatureFilePickerDialogsContract;
+    /** Cross-thread invoke dispatch. */
     invoke: InfiniFrameWindowFeatureInvokeContract;
+    /** Window lifecycle: close, ready, teardown. */
     lifecycle: InfiniFrameWindowFeatureLifecycleContract;
+    /** Display enumeration and DPI information. */
     monitors: InfiniFrameWindowFeatureMonitorsContract;
+    /** Desktop notifications and message box dialogs. */
     notifications: InfiniFrameWindowFeatureNotificationsContract;
+    /** URL and HTML page navigation. */
     pageNavigation: InfiniFrameWindowFeaturePageNavigationContract;
+    /** Window position and centering. */
     position: InfiniFrameWindowFeaturePositionContract;
+    /** Window dimensions and constraints. */
     size: InfiniFrameWindowFeatureSizeContract;
+    /** Window state: maximized, minimized, fullscreen, topmost, zoom. */
     state: InfiniFrameWindowFeatureStateContract;
+    /** Web messaging to C# host. */
     webMessaging: InfiniFrameWindowFeatureWebMessagingContract;
+    /** JavaScript execution in the browser context. */
     javaScript: InfiniFrameWindowFeatureJavaScriptContract;
 
+    /**
+     * Creates a new feature collection, instantiating every window feature.
+     */
     constructor() {
         this.browser = new BrowserInfiniFrameWindowFeature();
         this.debugging = new DebuggingInfiniFrameWindowFeature();
