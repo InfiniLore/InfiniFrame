@@ -13,7 +13,7 @@ public class TryLoadUriTests {
     [SkipOnLinux]
     public async Task AtWindowStage_FileUri_ReturnsTrue(CancellationToken ct) {
         // Arrange
-        string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.html");
+        string tempFilePath = Path.Join(Path.GetTempPath(), $"{Guid.NewGuid():N}.html");
         await File.WriteAllTextAsync(tempFilePath, "<html><body>try-load-uri</body></html>", ct);
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;

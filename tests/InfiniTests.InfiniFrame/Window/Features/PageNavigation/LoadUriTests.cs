@@ -45,7 +45,7 @@ public class LoadUriTests {
     [SkipOnLinux]
     public async Task AtWindowStage_DirectAssignment_FileUri(CancellationToken ct) {
         // Arrange
-        string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.html");
+        string tempFilePath = Path.Join(Path.GetTempPath(), $"{Guid.NewGuid():N}.html");
         await File.WriteAllTextAsync(tempFilePath, "<html><body>file-uri</body></html>", ct);
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;

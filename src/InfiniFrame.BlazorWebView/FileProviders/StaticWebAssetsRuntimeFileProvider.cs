@@ -402,7 +402,7 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, s
         string searchPattern = fileName;
         string? directory = baseDirectory;
         while (!string.IsNullOrEmpty(directory)) {
-            string candidate = Path.Combine(directory, searchPattern);
+            string candidate = Path.Join(directory, searchPattern);
             if (Directory.Exists(candidate)) return candidate;
 
             string[] children = [];

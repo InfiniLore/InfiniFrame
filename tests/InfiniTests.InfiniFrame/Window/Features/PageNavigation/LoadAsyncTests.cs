@@ -45,7 +45,7 @@ public class LoadAsyncTests {
     [SkipOnLinux]
     public async Task LoadAsync_WithStringPath_ReturnsNavigationResult(CancellationToken ct) {
         // Arrange
-        string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.html");
+        string tempFilePath = Path.Join(Path.GetTempPath(), $"{Guid.NewGuid():N}.html");
         await File.WriteAllTextAsync(tempFilePath, "<html><body>async-file</body></html>", ct);
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;

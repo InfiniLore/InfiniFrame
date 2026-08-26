@@ -15,7 +15,7 @@ public class FileProviderFactoryAdditionalTests {
     public async Task CreateWwwrootProvider_WithExistingPhysicalPath_ReturnsDisposableComposite(CancellationToken ct = default) {
         // Arrange
         Assembly assembly = typeof(FileProviderFactory).Assembly;
-        string tempDir = Path.Combine(Path.GetTempPath(), $"InfiniFrameTest_{Guid.NewGuid():N}");
+        string tempDir = Path.Join(Path.GetTempPath(), $"InfiniFrameTest_{Guid.NewGuid():N}");
         Directory.CreateDirectory(tempDir);
         try {
             // Act
@@ -36,7 +36,7 @@ public class FileProviderFactoryAdditionalTests {
     public async Task CreateWwwrootProvider_IncludePhysicalFallbackFalse_AlwaysReturnsComposite(CancellationToken ct = default) {
         // Arrange
         Assembly assembly = typeof(FileProviderFactory).Assembly;
-        string tempDir = Path.Combine(Path.GetTempPath(), $"InfiniFrameTest_{Guid.NewGuid():N}");
+        string tempDir = Path.Join(Path.GetTempPath(), $"InfiniFrameTest_{Guid.NewGuid():N}");
         Directory.CreateDirectory(tempDir);
         try {
             // Act
