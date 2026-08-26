@@ -381,6 +381,9 @@ src/InfiniFrame.Js/wwwroot/InfiniFrame.js
 src/InfiniFrame.Js/wwwroot/InfiniFrame.dev.js
 src/InfiniFrame.Js/wwwroot/InfiniFrame.dev.js.map
 
-/.claude
+/.claude/
 /scripts/dotnet-install.sh
 /.codex/
+/.pytest_cache/
+/.venv/
+/.idea/

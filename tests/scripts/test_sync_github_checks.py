@@ -3,7 +3,7 @@
 # Imports
 # ---------------------------------------------------------------------------------------------------------------------
 from __future__ import annotations
-
+import sys
 from typing import Any
 
 import pytest
@@ -254,4 +254,111 @@ def test_main_succeeds_when_status_updates(monkeypatch: pytest.MonkeyPatch) -> N
     monkeypatch.setattr(sgc, "post_status", lambda args, token: True)
     monkeypatch.setattr(sgc, "complete_matching_check_runs", lambda args, token: False)
 
+    assert sgc.main() == 0
+
+
+def test_build_ssl_context_returns_ssl_context():
+    ctx = sgc._build_ssl_context()
+    import ssl
+    assert isinstance(ctx, ssl.SSLContext)
+
+
+def test_build_ssl_context_fallback_returns_unverified():
+    ctx = sgc._build_ssl_context_fallback()
+    import ssl
+    assert isinstance(ctx, ssl.SSLContext)
+    assert ctx.check_hostname is False
+    assert ctx.verify_mode == ssl.CERT_NONE
+
+
+def test_fail_raises_system_exit():
+    with pytest.raises(SystemExit):
+        sgc.fail("error message")
+
+
+def test_fail_prints_message(capsys: pytest.CaptureFixture[str]):
+    with pytest.raises(SystemExit):
+        sgc.fail("something broke")
+    assert "something broke" in capsys.readouterr().out
+
+
+def test_fail_prints_details(capsys: pytest.CaptureFixture[str]):
+    with pytest.raises(SystemExit):
+        sgc.fail("error", {"key": "value"})
+    out = capsys.readouterr().out
+    assert "error" in out
+    assert "key" in out
+
+
+def test_parse_args_all_required(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        sys, "argv", [
+            "prog", "--repo", "o/r", "--sha", "abc", "--context", "CI",
+            "--state", "success", "--description", "ok", "--target-url", "http://x",
+        ]
+    )
+    args = sgc.parse_args()
+    assert args.repo == "o/r"
+    assert args.sha == "abc"
+    assert args.context == "CI"
+    assert args.state == "success"
+    assert args.description == "ok"
+    assert args.target_url == "http://x"
+    assert args.token_env == "GITHUB_TOKEN"
+    assert args.allow_status_422 is False
+    assert args.complete_check_runs is False
+    assert args.check_conclusion == "success"
+    assert args.require_update is False
+    assert args.create_check_run_if_missing is False
+
+
+def test_parse_args_optional_flags(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        sys, "argv", [
+            "prog", "--repo", "o/r", "--sha", "abc", "--context", "CI",
+            "--state", "failure", "--description", "fail", "--target-url", "http://x",
+            "--token-env", "MY_TOKEN",
+            "--allow-status-422",
+            "--complete-check-runs",
+            "--check-conclusion", "failure",
+            "--check-summary", "summary",
+            "--require-update",
+            "--create-check-run-if-missing",
+        ]
+    )
+    args = sgc.parse_args()
+    assert args.token_env == "MY_TOKEN"
+    assert args.allow_status_422 is True
+    assert args.complete_check_runs is True
+    assert args.check_conclusion == "failure"
+    assert args.check_summary == "summary"
+    assert args.require_update is True
+    assert args.create_check_run_if_missing is True
+
+
+def test_parse_args_missing_required(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(sys, "argv", ["prog"])
+    with pytest.raises(SystemExit):
+        sgc.parse_args()
+
+
+def test_main_no_token_fails(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    monkeypatch.setattr(sgc, "parse_args", lambda: make_args())
+    with pytest.raises(SystemExit):
+        sgc.main()
+
+
+def test_main_empty_token_fails(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("GITHUB_TOKEN", "  ")
+    monkeypatch.setattr(sgc, "parse_args", lambda: make_args())
+    with pytest.raises(SystemExit):
+        sgc.main()
+
+
+def test_main_check_runs_enabled(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("GITHUB_TOKEN", "token")
+    monkeypatch.setattr(sgc, "parse_args", lambda: make_args(complete_check_runs=True))
+    monkeypatch.setattr(sgc, "post_status", lambda args, token: True)
+    monkeypatch.setattr(sgc, "complete_matching_check_runs", lambda args, token: True)
     assert sgc.main() == 0

@@ -3,6 +3,7 @@
 # Imports
 # ---------------------------------------------------------------------------------------------------------------------
 import json
+import sys
 from collections import OrderedDict
 from pathlib import Path
 
@@ -21,13 +22,11 @@ from scripts.coverage_report import (
     trend,
     write_badge,
 )
+import scripts.coverage_report as cr
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------------------------------------------------
-# ── coverage_pct ──────────────────────────────────────────────────────────────
-
-
 def test_coverage_pct_basic():
     assert coverage_pct(50, 100) == 50.0
 
@@ -46,9 +45,6 @@ def test_coverage_pct_full_coverage():
 
 def test_coverage_pct_no_coverage():
     assert coverage_pct(0, 100) == 0.0
-
-
-# ── badge_color ───────────────────────────────────────────────────────────────
 
 
 def test_badge_color_green_at_90():
@@ -75,9 +71,6 @@ def test_badge_color_red_at_zero():
     assert badge_color(0.0) == "red"
 
 
-# ── trend ─────────────────────────────────────────────────────────────────────
-
-
 def test_trend_improved():
     assert trend(80.0, 85.0) == ("\U0001f4c8", "improved")
 
@@ -90,9 +83,6 @@ def test_trend_unchanged():
     assert trend(80.0, 80.0) == ("\u27a1\ufe0f", "unchanged")
 
 
-# ── format_delta ──────────────────────────────────────────────────────────────
-
-
 def test_format_delta_positive():
     assert format_delta(2.5) == "+2.5"
 
@@ -103,9 +93,6 @@ def test_format_delta_negative():
 
 def test_format_delta_zero():
     assert format_delta(0.0) == "0.0"
-
-
-# ── parse_ts_coverage ─────────────────────────────────────────────────────────
 
 
 def test_parse_ts_coverage_basic(tmp_path: Path):
@@ -130,9 +117,6 @@ def test_parse_ts_coverage_no_lcov(tmp_path: Path):
     lines, hit = parse_ts_coverage(lcov)
     assert lines == 0
     assert hit == 0
-
-
-# ── parse_cs_coverage ─────────────────────────────────────────────────────────
 
 
 COBERTURA_TEMPLATE = """\
@@ -248,9 +232,6 @@ def test_parse_cs_coverage_empty_directory(tmp_path: Path):
     assert len(pkg) == 0
 
 
-# ── write_badge / read_old_pct ────────────────────────────────────────────────
-
-
 def test_write_badge_creates_file(tmp_path: Path):
     path = tmp_path / "badges" / "ts.json"
     write_badge(path, "coverage", "92.5%", "brightgreen")
@@ -281,9 +262,6 @@ def test_read_old_pct_strips_percent(tmp_path: Path):
     path = tmp_path / "badge.json"
     path.write_text(json.dumps({"message": "100%"}))
     assert read_old_pct(path) == 100.0
-
-
-# ── build_pr_comment ──────────────────────────────────────────────────────────
 
 
 def test_build_pr_comment_basic_structure():
@@ -338,9 +316,6 @@ def test_build_pr_comment_breakdown_sorted_by_coverage():
     assert high_idx < low_idx
 
 
-# ── post_pr_comment ───────────────────────────────────────────────────────────
-
-
 def test_post_pr_comment_skips_if_not_a_pr(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
     monkeypatch.setattr(
         "scripts.coverage_report.run",
@@ -371,9 +346,6 @@ def test_post_pr_comment_deletes_old_comment_and_posts_new(monkeypatch: pytest.M
     assert len(posts) == 1
 
 
-# ── git_commit_badges ─────────────────────────────────────────────────────────
-
-
 def test_git_commit_badges_commits_when_changes_staged(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
     calls: list[list[str]] = []
 
@@ -400,3 +372,170 @@ def test_git_commit_badges_skips_when_no_changes(monkeypatch: pytest.MonkeyPatch
     monkeypatch.setattr("scripts.coverage_report.run", fake_run)
     git_commit_badges("", "main")
     assert "No badge changes" in capsys.readouterr().out
+
+
+def test_parse_ts_coverage_empty_file(tmp_path: Path):
+    lcov = tmp_path / "lcov.info"
+    lcov.write_text("")
+    lines, hit = parse_ts_coverage(lcov)
+    assert lines == 0
+    assert hit == 0
+
+
+def test_parse_ts_coverage_large_numbers(tmp_path: Path):
+    lcov = tmp_path / "lcov.info"
+    lcov.write_text("LF:1000000\nLH:999999\n")
+    lines, hit = parse_ts_coverage(lcov)
+    assert lines == 1000000
+    assert hit == 999999
+
+
+def test_parse_cs_coverage_no_packages_element(tmp_path: Path):
+    cob_dir = tmp_path / "cov"
+    cob_dir.mkdir()
+    xml = '<?xml version="1.0" ?><coverage version="5.0"></coverage>'
+    (cob_dir / "empty.cobertura.xml").write_text(xml)
+    total, covered, pkg = parse_cs_coverage(cob_dir)
+    assert total == 0
+    assert covered == 0
+    assert len(pkg) == 0
+
+
+def test_parse_cs_coverage_empty_packages(tmp_path: Path):
+    cob_dir = tmp_path / "cov"
+    cob_dir.mkdir()
+    xml = '<?xml version="1.0" ?><coverage version="5.0"><packages></packages></coverage>'
+    (cob_dir / "empty.cobertura.xml").write_text(xml)
+    total, covered, pkg = parse_cs_coverage(cob_dir)
+    assert total == 0
+
+
+def test_parse_cs_coverage_all_covered(tmp_path: Path):
+    _make_cobertura(tmp_path, "a", [1, 1, 1])
+    total, covered, pkg = parse_cs_coverage(tmp_path / "cobertura")
+    assert total == 3
+    assert covered == 3
+
+
+def test_parse_cs_coverage_none_covered(tmp_path: Path):
+    _make_cobertura(tmp_path, "a", [0, 0, 0])
+    total, covered, pkg = parse_cs_coverage(tmp_path / "cobertura")
+    assert total == 3
+    assert covered == 0
+
+
+def test_parse_cs_coverage_multiple_files(tmp_path: Path):
+    cob_dir = tmp_path / "cov"
+    cob_dir.mkdir()
+    xml1 = """\
+<?xml version="1.0" ?>
+<coverage version="5.0">
+  <packages>
+    <package name="A">
+      <classes><class name="C" filename="a.cs">
+        <methods><method name="M" signature="()">
+          <lines><line number="1" hits="1"/></lines>
+        </method></methods>
+      </class></classes>
+    </package>
+  </packages>
+</coverage>"""
+    xml2 = """\
+<?xml version="1.0" ?>
+<coverage version="5.0">
+  <packages>
+    <package name="B">
+      <classes><class name="D" filename="b.cs">
+        <methods><method name="N" signature="()">
+          <lines><line number="1" hits="0"/><line number="2" hits="1"/></lines>
+        </method></methods>
+      </class></classes>
+    </package>
+  </packages>
+</coverage>"""
+    (cob_dir / "1.cobertura.xml").write_text(xml1)
+    (cob_dir / "2.cobertura.xml").write_text(xml2)
+    total, covered, pkg = parse_cs_coverage(cob_dir)
+    assert total == 3
+    assert covered == 2
+    assert pkg["A"]["lines"] == 1
+    assert pkg["B"]["lines"] == 2
+
+
+def test_main_writes_badges(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
+    monkeypatch.setattr(cr, "Path", lambda p: tmp_path / p if not isinstance(p, Path) else p)
+    monkeypatch.setattr(sys, "argv", ["coverage_report.py"])
+    cr.main()
+    assert (tmp_path / "badges" / "ts-coverage.json").exists()
+    assert (tmp_path / "badges" / "cs-coverage.json").exists()
+    assert (tmp_path / "badges" / "python-coverage.json").exists()
+
+
+def test_main_with_ts_coverage(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
+    lcov_dir = tmp_path / "ts-coverage"
+    lcov_dir.mkdir()
+    (lcov_dir / "lcov.info").write_text("LF:10\nLH:8\n")
+    monkeypatch.setattr(cr, "Path", lambda p: tmp_path / p if not isinstance(p, Path) else p)
+    monkeypatch.setattr(sys, "argv", ["coverage_report.py"])
+    cr.main()
+    out = capsys.readouterr().out
+    assert "TS coverage: 80.0%" in out
+
+
+def test_main_with_cs_coverage(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
+    cob_dir = tmp_path / "cs-coverage" / "sub"
+    cob_dir.mkdir(parents=True)
+    xml = """\
+<?xml version="1.0" ?>
+<coverage version="5.0">
+  <packages>
+    <package name="MyApp">
+      <classes><class name="C" filename="a.cs">
+        <methods><method name="M" signature="()">
+          <lines><line number="1" hits="1"/><line number="2" hits="0"/></lines>
+        </method></methods>
+      </class></classes>
+    </package>
+  </packages>
+</coverage>"""
+    (cob_dir / "test.cobertura.xml").write_text(xml)
+    monkeypatch.setattr(cr, "Path", lambda p: tmp_path / p if not isinstance(p, Path) else p)
+    monkeypatch.setattr(sys, "argv", ["coverage_report.py"])
+    cr.main()
+    out = capsys.readouterr().out
+    assert "C# coverage: 50.0%" in out
+    assert (tmp_path / "cs-coverage-breakdown.json").exists()
+
+
+def test_main_with_pr_number(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
+    calls: list[list[str]] = []
+
+    def fake_run(cmd, **kw):
+        calls.append(cmd)
+        if cmd[0] == "gh" and cmd[1] == "pr":
+            return type("R", (), {"returncode": 1, "stdout": ""})()
+        return type("R", (), {"returncode": 0, "stdout": ""})()
+
+    monkeypatch.setattr(cr, "Path", lambda p: tmp_path / p if not isinstance(p, Path) else p)
+    monkeypatch.setattr("scripts.coverage_report.run", fake_run)
+    monkeypatch.setattr(sys, "argv", ["coverage_report.py", "--pr-number", "42", "--repo", "owner/repo"])
+    cr.main()
+    pr_calls = [c for c in calls if c[0] == "gh" and c[1] == "pr"]
+    assert len(pr_calls) == 1
+
+
+def test_main_with_badge_branch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
+    calls: list[list[str]] = []
+
+    def fake_run(cmd, **kw):
+        calls.append(cmd)
+        if cmd[:4] == ["git", "diff", "--staged", "--quiet"]:
+            return type("R", (), {"returncode": 0})()
+        return type("R", (), {"returncode": 0, "stdout": ""})()
+
+    monkeypatch.setattr(cr, "Path", lambda p: tmp_path / p if not isinstance(p, Path) else p)
+    monkeypatch.setattr("scripts.coverage_report.run", fake_run)
+    monkeypatch.setattr(sys, "argv", ["coverage_report.py", "--badge-branch", "core"])
+    cr.main()
+    git_calls = [c for c in calls if c[0] == "git"]
+    assert len(git_calls) > 0

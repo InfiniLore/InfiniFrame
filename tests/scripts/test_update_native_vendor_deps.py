@@ -119,9 +119,6 @@ def test_no_update_returns_0(monkeypatch, tmp_path: Path) -> None:
     assert loaded["libraries"][0]["tag"] == "v1.1.0"
 
 
-# ── get_latest_release ────────────────────────────────────────────────────────
-
-
 def test_get_latest_release_parses_tag_and_assets(monkeypatch) -> None:
     payload = {
         "tag_name": "v2.0.0",
@@ -163,9 +160,6 @@ def test_get_latest_release_ignores_malformed_assets(monkeypatch) -> None:
     assert assets == {"ok.h": "https://dl/ok.h"}
 
 
-# ── main ──────────────────────────────────────────────────────────────────────
-
-
 def test_main_returns_0_when_no_updates(monkeypatch, tmp_path: Path) -> None:
     manifest_path = tmp_path / "manifest.json"
     write_manifest(manifest_path, "v1.0.0")
@@ -186,3 +180,134 @@ def test_main_raises_when_manifest_missing(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(sys, "argv", ["prog", "--manifest", str(tmp_path / "nope.json")])
     with pytest.raises(RuntimeError, match="Manifest does not exist"):
         upd.main()
+
+
+def test_request_json_sends_headers(monkeypatch) -> None:
+    captured_req = [None]
+
+    def fake_urlopen(req, **kwargs):
+        captured_req[0] = req
+        class FakeResp:
+            status = 200
+            def read(self):
+                return b'{"ok": true}'
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                pass
+        return FakeResp()
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    body = upd.request_json("https://api.github.com/test", "mytoken")
+    assert body == {"ok": True}
+    req = captured_req[0]
+    assert req.get_header("Authorization") == "Bearer mytoken"
+    assert req.get_header("User-agent") == "infiniframe-native-vendor-updater"
+
+
+def test_request_json_raises_on_non_dict(monkeypatch) -> None:
+    def fake_urlopen(req, **kwargs):
+        class FakeResp:
+            status = 200
+            def read(self):
+                return b'[1, 2, 3]'
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                pass
+        return FakeResp()
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    with pytest.raises(RuntimeError, match="Unexpected non-object"):
+        upd.request_json("https://api.github.com/test", "tok")
+
+
+def test_download_file_writes_content(monkeypatch, tmp_path: Path) -> None:
+    def fake_urlopen(req, **kwargs):
+        class FakeResp:
+            def read(self):
+                return b"file-content"
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                pass
+        return FakeResp()
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    dest = tmp_path / "sub" / "file.bin"
+    upd.download_file("https://example.com/file.bin", dest, "tok")
+    assert dest.read_bytes() == b"file-content"
+
+
+def test_get_latest_release_empty_assets(monkeypatch) -> None:
+    monkeypatch.setattr(upd, "request_json", lambda url, token: {"tag_name": "v1.0.0", "assets": []})
+    tag, assets = upd.get_latest_release("repo/repo", "tok")
+    assert tag == "v1.0.0"
+    assert assets == {}
+
+
+def test_get_latest_release_no_assets_key(monkeypatch) -> None:
+    monkeypatch.setattr(upd, "request_json", lambda url, token: {"tag_name": "v1.0.0"})
+    tag, assets = upd.get_latest_release("repo/repo", "tok")
+    assert tag == "v1.0.0"
+    assert assets == {}
+
+
+def test_get_latest_release_no_tag_name(monkeypatch) -> None:
+    monkeypatch.setattr(upd, "request_json", lambda url, token: {"assets": []})
+    tag, assets = upd.get_latest_release("repo/repo", "tok")
+    assert tag is None
+
+
+def test_update_manifest_invalid_library_entry(tmp_path: Path, monkeypatch) -> None:
+    manifest = {"libraries": ["not-a-dict"]}
+    manifest_path = tmp_path / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest))
+    monkeypatch.setattr(upd, "REPO_ROOT", tmp_path)
+    with pytest.raises(RuntimeError, match="non-object library entry"):
+        upd.update_manifest(manifest_path, check_only=False)
+
+
+def test_update_manifest_missing_required_fields(tmp_path: Path, monkeypatch) -> None:
+    manifest = {"libraries": [{"name": "lib"}]}
+    manifest_path = tmp_path / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest))
+    monkeypatch.setattr(upd, "REPO_ROOT", tmp_path)
+    with pytest.raises(RuntimeError, match="must define string"):
+        upd.update_manifest(manifest_path, check_only=False)
+
+
+def test_update_manifest_invalid_library_list(tmp_path: Path, monkeypatch) -> None:
+    manifest = {"libraries": "not-a-list"}
+    manifest_path = tmp_path / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest))
+    monkeypatch.setattr(upd, "REPO_ROOT", tmp_path)
+    with pytest.raises(RuntimeError, match="must be a list"):
+        upd.update_manifest(manifest_path, check_only=False)
+
+
+def test_update_manifest_no_libraries_key(tmp_path: Path, monkeypatch) -> None:
+    manifest_path = tmp_path / "manifest.json"
+    manifest_path.write_text(json.dumps({}))
+    monkeypatch.setattr(upd, "REPO_ROOT", tmp_path)
+    with pytest.raises(RuntimeError, match="must be a list"):
+        upd.update_manifest(manifest_path, check_only=False)
+
+
+def test_parse_args_defaults(monkeypatch) -> None:
+    monkeypatch.setattr(sys, "argv", ["prog"])
+    args = upd.parse_args()
+    assert args.check_only is False
+    assert "native-vendor-deps.json" in args.manifest
+
+
+def test_parse_args_check_only(monkeypatch) -> None:
+    monkeypatch.setattr(sys, "argv", ["prog", "--check-only"])
+    args = upd.parse_args()
+    assert args.check_only is True
+
+
+def test_parse_args_custom_manifest(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(sys, "argv", ["prog", "--manifest", str(tmp_path / "custom.json")])
+    args = upd.parse_args()
+    assert args.manifest == str(tmp_path / "custom.json")

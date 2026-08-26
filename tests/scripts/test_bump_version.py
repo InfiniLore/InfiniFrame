@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import json
+import sys
 import tempfile
 from pathlib import Path
 
@@ -18,6 +19,7 @@ from scripts.bump_version import (
     validate_version,
     _replace_version_in_string,
 )
+import scripts.bump_version as bv
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Tests
@@ -133,3 +135,165 @@ def test_update_all_package_json_files(tmp_path: Path) -> None:
     assert json.loads(pkg1.read_text())["version"] == "3.0.0"
     assert json.loads(pkg2.read_text())["version"] == "3.0.0"
     assert json.loads(skipped.read_text())["version"] == "9.9.9"
+
+
+DIRS_XML = (
+    '<?xml version="1.0" encoding="utf-8"?>'
+    "<Project>"
+    "  <PropertyGroup><Version>1.0.0</Version></PropertyGroup>"
+    "</Project>"
+)
+
+CMAKE_TXT = (
+    "cmake_minimum_required(VERSION 3.20)\n"
+    "project(InfiniFrame.Native VERSION 1.0.0)\n"
+    "add_executable(main main.c)\n"
+)
+
+
+def _setup_main_env(tmp_path: Path) -> None:
+    src = tmp_path / "src"
+    src.mkdir()
+    (src / "Directory.Build.props").write_text(DIRS_XML, encoding="utf-8")
+    native = src / "InfiniFrame.NativeBridge" / "Native"
+    native.mkdir(parents=True)
+    (native / "CMakeLists.txt").write_text(CMAKE_TXT, encoding="utf-8")
+
+
+def test_main_patch_bump(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _setup_main_env(tmp_path)
+    monkeypatch.setattr(bv, "FILE", tmp_path / "src" / "Directory.Build.props")
+    monkeypatch.setattr(bv, "CMAKE_FILE", tmp_path / "src" / "InfiniFrame.NativeBridge" / "Native" / "CMakeLists.txt")
+    monkeypatch.setattr(bv, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["bump_version.py", "patch"])
+
+    assert bv.main() == 0
+
+    props = (tmp_path / "src" / "Directory.Build.props").read_text()
+    assert "1.0.1" in props
+    cmake = (tmp_path / "src" / "InfiniFrame.NativeBridge" / "Native" / "CMakeLists.txt").read_text()
+    assert "VERSION 1.0.1" in cmake
+
+
+def test_main_custom_version(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _setup_main_env(tmp_path)
+    monkeypatch.setattr(bv, "FILE", tmp_path / "src" / "Directory.Build.props")
+    monkeypatch.setattr(bv, "CMAKE_FILE", tmp_path / "src" / "InfiniFrame.NativeBridge" / "Native" / "CMakeLists.txt")
+    monkeypatch.setattr(bv, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["bump_version.py", "custom", "5.0.0-preview.1"])
+
+    assert bv.main() == 0
+
+    props = (tmp_path / "src" / "Directory.Build.props").read_text()
+    assert "5.0.0-preview.1" in props
+
+
+def test_main_no_args_fails(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(sys, "argv", ["bump_version.py"])
+    with pytest.raises(SystemExit):
+        bv.main()
+
+
+def test_main_custom_no_version_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _setup_main_env(tmp_path)
+    monkeypatch.setattr(bv, "FILE", tmp_path / "src" / "Directory.Build.props")
+    monkeypatch.setattr(bv, "CMAKE_FILE", tmp_path / "src" / "InfiniFrame.NativeBridge" / "Native" / "CMakeLists.txt")
+    monkeypatch.setattr(bv, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["bump_version.py", "custom"])
+    with pytest.raises(SystemExit):
+        bv.main()
+
+
+def test_main_custom_invalid_version_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _setup_main_env(tmp_path)
+    monkeypatch.setattr(bv, "FILE", tmp_path / "src" / "Directory.Build.props")
+    monkeypatch.setattr(bv, "CMAKE_FILE", tmp_path / "src" / "InfiniFrame.NativeBridge" / "Native" / "CMakeLists.txt")
+    monkeypatch.setattr(bv, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["bump_version.py", "custom", "not-a-version"])
+    with pytest.raises(SystemExit):
+        bv.main()
+
+
+def test_main_unknown_part_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _setup_main_env(tmp_path)
+    monkeypatch.setattr(bv, "FILE", tmp_path / "src" / "Directory.Build.props")
+    monkeypatch.setattr(bv, "CMAKE_FILE", tmp_path / "src" / "InfiniFrame.NativeBridge" / "Native" / "CMakeLists.txt")
+    monkeypatch.setattr(bv, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["bump_version.py", "banana"])
+    with pytest.raises(SystemExit):
+        bv.main()
+
+
+def test_main_file_not_found_fails(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(bv, "FILE", tmp_path / "nonexistent" / "Directory.Build.props")
+    monkeypatch.setattr(bv, "CMAKE_FILE", tmp_path / "nonexistent" / "CMakeLists.txt")
+    monkeypatch.setattr(sys, "argv", ["bump_version.py", "patch"])
+    with pytest.raises(SystemExit):
+        bv.main()
+
+
+def test_main_cmake_not_found_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    src = tmp_path / "src"
+    src.mkdir()
+    (src / "Directory.Build.props").write_text(DIRS_XML, encoding="utf-8")
+    monkeypatch.setattr(bv, "FILE", tmp_path / "src" / "Directory.Build.props")
+    monkeypatch.setattr(bv, "CMAKE_FILE", tmp_path / "nonexistent" / "CMakeLists.txt")
+    monkeypatch.setattr(sys, "argv", ["bump_version.py", "patch"])
+    with pytest.raises(SystemExit):
+        bv.main()
+
+
+def test_main_no_version_element_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    src = tmp_path / "src"
+    src.mkdir()
+    (src / "Directory.Build.props").write_text(
+        '<?xml version="1.0"?><Project><PropertyGroup></PropertyGroup></Project>',
+        encoding="utf-8",
+    )
+    native = src / "InfiniFrame.NativeBridge" / "Native"
+    native.mkdir(parents=True)
+    (native / "CMakeLists.txt").write_text(CMAKE_TXT, encoding="utf-8")
+    monkeypatch.setattr(bv, "FILE", tmp_path / "src" / "Directory.Build.props")
+    monkeypatch.setattr(bv, "CMAKE_FILE", tmp_path / "src" / "InfiniFrame.NativeBridge" / "Native" / "CMakeLists.txt")
+    monkeypatch.setattr(sys, "argv", ["bump_version.py", "patch"])
+    with pytest.raises(SystemExit):
+        bv.main()
+
+
+def test_main_major_bump(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _setup_main_env(tmp_path)
+    monkeypatch.setattr(bv, "FILE", tmp_path / "src" / "Directory.Build.props")
+    monkeypatch.setattr(bv, "CMAKE_FILE", tmp_path / "src" / "InfiniFrame.NativeBridge" / "Native" / "CMakeLists.txt")
+    monkeypatch.setattr(bv, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["bump_version.py", "major"])
+
+    assert bv.main() == 0
+
+    props = (tmp_path / "src" / "Directory.Build.props").read_text()
+    assert "2.0.0" in props
+
+
+def test_main_minor_bump(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _setup_main_env(tmp_path)
+    monkeypatch.setattr(bv, "FILE", tmp_path / "src" / "Directory.Build.props")
+    monkeypatch.setattr(bv, "CMAKE_FILE", tmp_path / "src" / "InfiniFrame.NativeBridge" / "Native" / "CMakeLists.txt")
+    monkeypatch.setattr(bv, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["bump_version.py", "minor"])
+
+    assert bv.main() == 0
+
+    props = (tmp_path / "src" / "Directory.Build.props").read_text()
+    assert "1.1.0" in props
+
+
+def test_main_preview_bump(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _setup_main_env(tmp_path)
+    monkeypatch.setattr(bv, "FILE", tmp_path / "src" / "Directory.Build.props")
+    monkeypatch.setattr(bv, "CMAKE_FILE", tmp_path / "src" / "InfiniFrame.NativeBridge" / "Native" / "CMakeLists.txt")
+    monkeypatch.setattr(bv, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["bump_version.py", "preview"])
+
+    assert bv.main() == 0
+
+    props = (tmp_path / "src" / "Directory.Build.props").read_text()
+    assert "1.0.0-preview.1" in props

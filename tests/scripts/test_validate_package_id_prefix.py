@@ -167,3 +167,101 @@ def test_parse_args_custom_values(monkeypatch: pytest.MonkeyPatch) -> None:
     args = original_parse_args()
     assert args.slnf == "custom.slnf"
     assert args.prefix == "MyOrg"
+
+
+def test_extract_package_ids_multiple(tmp_path: Path) -> None:
+    project = tmp_path / "App.csproj"
+    project.write_text(
+        '<Project><PropertyGroup>'
+        '<PackageId>InfiniLore.App</PackageId>'
+        '<PackageId>InfiniLore.App.Sub</PackageId>'
+        '</PropertyGroup></Project>',
+        encoding="utf-8",
+    )
+    ids = vpp._extract_package_ids(project)
+    assert "InfiniLore.App" in ids
+    assert "InfiniLore.App.Sub" in ids
+
+
+def test_extract_package_ids_none(tmp_path: Path) -> None:
+    project = tmp_path / "App.csproj"
+    project.write_text(
+        '<Project><PropertyGroup></PropertyGroup></Project>',
+        encoding="utf-8",
+    )
+    assert vpp._extract_package_ids(project) == []
+
+
+def test_load_projects_invalid_json(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(vpp, "REPO_ROOT", tmp_path)
+    slnf = tmp_path / "bad.slnf"
+    slnf.write_text("not json", encoding="utf-8")
+    with pytest.raises(ValueError):
+        vpp._load_projects_from_solution_filter(slnf)
+
+
+def test_load_projects_empty_projects(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(vpp, "REPO_ROOT", tmp_path)
+    slnf = tmp_path / "empty.slnf"
+    slnf.write_text(json.dumps({"solution": {"projects": []}}), encoding="utf-8")
+    with pytest.raises(ValueError, match="No projects found"):
+        vpp._load_projects_from_solution_filter(slnf)
+
+
+def test_load_projects_non_string_entry(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(vpp, "REPO_ROOT", tmp_path)
+    slnf = tmp_path / "bad.slnf"
+    slnf.write_text(json.dumps({"solution": {"projects": [123]}}), encoding="utf-8")
+    with pytest.raises(ValueError, match="Invalid project path"):
+        vpp._load_projects_from_solution_filter(slnf)
+
+
+def test_main_multiple_invalid_projects(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setattr(vpp, "REPO_ROOT", tmp_path)
+    slnf = tmp_path / "release.slnf"
+    app_a = tmp_path / "src/AppA/AppA.csproj"
+    app_a.parent.mkdir(parents=True)
+    app_a.write_text(
+        '<Project><PropertyGroup><PackageId>Wrong.App</PackageId></PropertyGroup></Project>',
+        encoding="utf-8",
+    )
+    app_b = tmp_path / "src/AppB/AppB.csproj"
+    app_b.parent.mkdir(parents=True)
+    app_b.write_text(
+        '<Project><PropertyGroup><PackageId>AlsoWrong.App</PackageId></PropertyGroup></Project>',
+        encoding="utf-8",
+    )
+    _write_slnf(slnf, ["src/AppA/AppA.csproj", "src/AppB/AppB.csproj"])
+    monkeypatch.setattr(
+        vpp,
+        "parse_args",
+        lambda: type("Args", (), {"slnf": "release.slnf", "prefix": "InfiniLore"})(),
+    )
+    assert vpp.main() == 1
+    captured = capsys.readouterr()
+    assert "Wrong.App" in captured.out
+    assert "AlsoWrong.App" in captured.out
+
+
+def test_main_project_file_not_found(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setattr(vpp, "REPO_ROOT", tmp_path)
+    slnf = tmp_path / "release.slnf"
+    _write_slnf(slnf, ["src/Missing/Missing.csproj"])
+    monkeypatch.setattr(
+        vpp,
+        "parse_args",
+        lambda: type("Args", (), {"slnf": "release.slnf", "prefix": "InfiniLore"})(),
+    )
+    assert vpp.main() == 1
+    captured = capsys.readouterr()
+    assert "project file not found" in captured.out
+
+
+def test_main_parse_args_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(sys, "argv", ["prog", "--invalid-flag"])
+    with pytest.raises(SystemExit):
+        vpp.main()
