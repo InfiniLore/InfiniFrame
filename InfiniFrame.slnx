@@ -66,20 +66,24 @@
   <Folder Name="/.dev-tools/github/actions/" />
   <Folder Name="/.dev-tools/github/workflows/shared/">
     <File Path=".github/workflows/shared-coverage.yml" />
+  </Folder>
+  <Folder Name="/.dev-tools/github/workflows/shared/release/">
     <File Path=".github/workflows/shared-release-build.yml" />
     <File Path=".github/workflows/shared-release-bump-version.yml" />
     <File Path=".github/workflows/shared-release-publish-docs.yml" />
     <File Path=".github/workflows/shared-release-publish.yml" />
+  </Folder>
+  <Folder Name="/.dev-tools/github/workflows/shared/testing/">
     <File Path=".github/workflows/shared-testing-build.yml" />
     <File Path=".github/workflows/shared-testing-docs.yml" />
-    <File Path=".github/workflows/shared-testing-linux.yml" />
-    <File Path=".github/workflows/shared-testing-macos.yml" />
-    <File Path=".github/workflows/shared-testing-windows.yml" />
     <File Path=".github/workflows/shared-testing-dotnetpack.yml" />
     <File Path=".github/workflows/shared-testing-js.yml" />
-    <File Path=".github/workflows/shared-testing-windows-automation.yml" />
+    <File Path=".github/workflows/shared-testing-linux.yml" />
+    <File Path=".github/workflows/shared-testing-macos.yml" />
     <File Path=".github/workflows/shared-testing-python.yml" />
+    <File Path=".github/workflows/shared-testing-windows-automation.yml" />
     <File Path=".github/workflows/shared-testing-windows-trim-aot.yml" />
+    <File Path=".github/workflows/shared-testing-windows.yml" />
     <File Path=".github/workflows/shared-testing.yml" />
   </Folder>
   <Folder Name="/.dev-tools/scripts/">
