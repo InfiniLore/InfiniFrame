@@ -82,6 +82,8 @@ jobs:
         uses: ./.github/workflows/shared-coverage.yml
         with:
             pr_number: ${{ inputs.pr_number }}
+            target_sha: ${{ github.sha }}
         permissions:
             contents: write
             pull-requests: write
+            checks: write
