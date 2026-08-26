@@ -299,7 +299,9 @@ public class LifecycleInfiniFrameWindowFeature(
             && Environment.CurrentManagedThreadId == window.ManagedThreadId
             && Volatile.Read(ref _messageLoopStarted) == 0
             && !IsClosed()) {
-            await WaitForCloseAsync(ct).ConfigureAwait(false);
+            // ReSharper disable once MethodHasAsyncOverloadWithCancellation
+            // Yes this is needed to be synchronous else everything fails
+            WaitForClose();
         }
 
         Task attempt;
