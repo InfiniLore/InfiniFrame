@@ -2,6 +2,8 @@
 
 This guide covers native desktop notifications in InfiniFrame: simple fire-and-forget notifications, rich notifications with action buttons and custom icons, and platform-specific behavior.
 
+Notifications are implemented as a window feature. For an overview of the feature system, see [Window Features Architecture](window-features-architecture.md). For message boxes (which are also part of this feature), see the [Notifications feature API](notifications.md#message-box).
+
 ## Contents
 
 - [Quick Start](#quick-start)
@@ -22,7 +24,7 @@ var window = InfiniFrameWindowBuilder.Create()
     .SetTitle("My App")
     .EnableNotifications(true)
     .SetNotificationRegistrationId("com.example.myapp")
-    .SetStartUrl("https://myapp.local")
+    .SetStartPageUrl("https://myapp.local")
     .Build();
 
 // Simple fire-and-forget
@@ -212,3 +214,55 @@ window.infiniframe.host.postData({
 - Custom icons are supported via notification attachments
 - `Tag` maps to the notification request identifier for grouping
 - Critical notifications require a special entitlement from Apple
+
+## Message Box
+
+The Notifications feature also provides native message box dialogs:
+
+```csharp
+var result = window.ShowMessage(
+    title: "Confirm",
+    text: "Are you sure you want to quit?",
+    buttons: InfiniFrameDialogButtons.YesNo,
+    icon: InfiniFrameDialogIcon.Question
+);
+
+if (result == InfiniFrameDialogResult.Yes) {
+    window.Close();
+}
+```
+
+### Async version
+
+```csharp
+var result = await window.ShowMessageAsync(
+    title: "Confirm",
+    text: "Are you sure you want to quit?",
+    buttons: InfiniFrameDialogButtons.YesNo,
+    icon: InfiniFrameDialogIcon.Question
+);
+```
+
+### Dialog buttons
+
+| Value | Description |
+|-------|-------------|
+| `Ok` | OK button only |
+| `OkCancel` | OK and Cancel buttons |
+| `YesNo` | Yes and No buttons |
+| `YesNoCancel` | Yes, No, and Cancel buttons |
+
+### Dialog icons
+
+| Value | Description |
+|-------|-------------|
+| `Info` | Information icon |
+| `Warning` | Warning icon |
+| `Error` | Error icon |
+| `Question` | Question icon |
+
+## See Also
+
+- [Window Features Architecture](window-features-architecture.md) — How the feature system works
+- [File Dialogs](file-dialogs-feature.md) — Open/save file and folder dialogs
+- [Core Window Guide](core-window.md) — Builder API and feature overview

@@ -52,7 +52,7 @@ var window = InfiniFrameWindowBuilder.Create()
     .SetTitle("Hello, InfiniFrame")
     .SetSize(1280, 720)
     .Center()
-    .SetStartUrl("https://example.com")
+    .SetStartPageUrl("https://example.com")
     .Build();
 
 // Block until the user closes the window
@@ -80,7 +80,7 @@ public static class Program {
             .SetTitle("Hello, InfiniFrame")
             .SetSize(1280, 720)
             .Center()
-            .SetStartUrl("https://example.com")
+            .SetStartPageUrl("https://example.com")
             .Build();
 
         window.WaitForClose();
@@ -184,7 +184,8 @@ The start URL is automatically read from `ASPNETCORE_URLS` or the `urls` configu
 
 ## Next Steps
 
-- [Core Window Guide](core-window.md): Window events, messaging, dialogs, custom schemes
+- [Core Window Guide](core-window.md): Builder API, feature overview, and quick reference
+- [Window Features Architecture](window-features-architecture.md): How the feature system works
 - [Blazor Guide](blazor-webview.md): DI, file providers, component configuration
 - [Web Server Guide](web-server.md): ASP.NET Core pipeline, DI access, graceful shutdown
 - [API Reference](../api.md): Central API navigation and language-specific guides

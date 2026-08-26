@@ -5,6 +5,8 @@ InfiniFrame provides two layers of JS interop:
 1. **Web messaging**: a versioned message channel between C# and the page's JavaScript
 2. **InfiniFrame.Js**: Blazor-specific utilities for pointer capture and built-in window management message handlers
 
+For executing arbitrary JavaScript from C# (as opposed to messaging), see the [JavaScript Execution feature](javascript-execution-feature.md). For an overview of the feature system, see [Window Features Architecture](window-features-architecture.md).
+
 ## Contents
 
 - [Web Messaging](#web-messaging)
@@ -238,3 +240,9 @@ window.MessageHandlers.RegisterMessageHandler("log", (_, payload) => {
 
 - `InfiniFrameExample.WebApp.Vue` (`examples/InfiniFrameExample.WebApp.Vue`) - registers all built-in message handlers for window management, fullscreen, title change, and external links
 - `InfiniFrameExample.WebApp.React` (`examples/InfiniFrameExample.WebApp.React`) - custom scheme handler returning dynamic JavaScript, and a two-way messaging round-trip
+
+## See Also
+
+- [JavaScript Execution Feature](javascript-execution-feature.md) — Execute arbitrary JS from C#
+- [Window Features Architecture](window-features-architecture.md) — How the feature system works
+- [Core Window Guide](core-window.md) — Builder API and feature overview

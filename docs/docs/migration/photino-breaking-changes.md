@@ -4,6 +4,11 @@ InfiniFrame is a full, independent rework of Photino.NET, Photino.Native, and th
 It's not a drop-in replacement, and some API decisions and general design choices are intentionally different.
 This document walks through what changed to help you migrate.
 
+For detailed documentation on the new feature-based API, see:
+- [Window Features Architecture](../guides/window-features-architecture.md) — How the feature system works
+- [Core Window Guide](../guides/core-window.md) — Builder API and feature overview
+- Individual feature guides under [Guides > Window Features](../guides/core-window.md)
+
 ## Table of Contents
 
 - [Package and Namespace](#package-and-namespace)
@@ -57,7 +62,7 @@ InfiniFrame uses a dedicated builder. Configuration must be set before calling `
 IInfiniFrameWindow window = InfiniFrameWindowBuilder.Create()
     .SetTitle("My App")
     .SetDevToolsEnabled(true)
-    .SetStartUrl("https://example.com")
+    .SetStartPageUrl("https://example.com")
     .Build();
 window.WaitForClose();
 ```
@@ -93,8 +98,8 @@ InfiniFrame can pull window configuration from `IConfiguration` under an `"Infin
 
 | Photino                                                                            | InfiniFrame                                                                         | Notes                                                                                             |
 |------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
-| `PhotinoWindow.Load(Uri)` / `Load(string)`                                         | `IInfiniFrameWindow.Load(Uri)` / `Load(string)`                                     | Available at runtime; initial URL can also be set via `SetStartUrl()` in the builder              |
-| `PhotinoWindow.LoadRawString(string)`                                              | `IInfiniFrameWindow.LoadRawString(string)`                                          | Available at runtime; initial HTML can also be set via `SetStartString()` in the builder          |
+| `PhotinoWindow.Load(Uri)` / `Load(string)`                                         | `IInfiniFrameWindow.Load(Uri)` / `Load(string)`                                     | Available at runtime; initial URL can also be set via `SetStartPageUrl()` in the builder              |
+| `PhotinoWindow.LoadRawString(string)`                                              | `IInfiniFrameWindow.LoadRawString(string)`                                          | Available at runtime; initial HTML can also be set via `SetStartPageContent()` in the builder          |
 | `PhotinoWindow.Center()`                                                           | `IInfiniFrameWindow.Center()` / `CenterOnCurrentMonitor()` / `CenterOnMonitor(int)` | Available at runtime                                                                              |
 | `PhotinoWindow.MoveTo(Point, bool)` / `Offset(Point)`                              | `window.SetLocation(x, y)` / `window.Offset(x, y)`                                  |                                                                                                   |
 | `PhotinoWindow.SetMinHeight(int)` / `SetMinWidth(int)`                             | Removed; use `SetMinSize(width, height)`                                            | Consolidated                                                                                      |
