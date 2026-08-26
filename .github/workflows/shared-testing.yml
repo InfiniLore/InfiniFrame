@@ -49,7 +49,7 @@ on:
                 description: 'Enable code coverage collection'
                 type: boolean
                 required: false
-                default: false
+                default: true
 
 jobs:
 

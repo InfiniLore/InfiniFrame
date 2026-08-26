@@ -1,9 +1,17 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
 name: "Shared: Python Tests"
-permissions:
-    contents: read
+
 on:
     workflow_call:
+        inputs:
+            enable_coverage:
+                description: 'Enable code coverage collection'
+                type: boolean
+                required: false
+                default: true
+
+permissions:
+    contents: read
 
 jobs:
     python-tests:
@@ -25,13 +33,18 @@ jobs:
                     python -m pip install pytest pytest-cov
 
             -   name: Run Pytest
+                shell: bash
                 run: |
-                    python -m pytest tests/scripts -q \
-                      --cov=scripts \
-                      --cov-report=lcov:python-coverage/lcov.info
+                    if [ "${{ inputs.enable_coverage }}" = "true" ]; then
+                      python -m pytest tests/scripts -q \
+                        --cov=scripts \
+                        --cov-report=lcov:python-coverage/lcov.info
+                    else
+                      python -m pytest tests/scripts -q
+                    fi
 
             -   name: Upload Python Coverage
-                if: success()
+                if: ${{ inputs.enable_coverage == true && success() }}
                 uses: actions/upload-artifact@v7
                 with:
                     name: python-coverage
