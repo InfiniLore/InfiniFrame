@@ -80,5 +80,4 @@ public partial class InfiniFrameNative {
             FreeString(ptr);
         }
     }
-
 }

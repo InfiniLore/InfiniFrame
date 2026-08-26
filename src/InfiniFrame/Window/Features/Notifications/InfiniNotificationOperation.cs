@@ -1,12 +1,12 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -15,27 +15,25 @@ namespace InfiniFrame;
 internal sealed class InfiniNotificationOperation {
     private static long _nextId;
     private static readonly InfiniFrameNative.OperationCompletedCallback CompletionCallback = Complete;
-
-    private readonly IInfiniFrameWindow _window;
-    private readonly ILogger _logger;
-    private readonly InfiniFrameNotificationOptions _options;
     private readonly CancellationToken _cancellationToken;
-    private readonly string? _diagnosticKey;
     private readonly TaskCompletionSource<InfiniFrameNotificationActivation> _completion =
         new(TaskCreationOptions.RunContinuationsAsynchronously);
-    private NativeHandleLease? _lease;
-    private GCHandle _selfHandle;
-    private CancellationTokenRegistration _cancellationRegistration;
-    private int _nativeStarted;
-    private int _cancellationRequested;
-    private int _cancellationDispatchStarted;
-    private int _completed;
+    private readonly string? _diagnosticKey;
+    private readonly ILogger _logger;
+    private readonly InfiniFrameNotificationOptions _options;
 
-    public ulong Id { get; } = unchecked((ulong)Interlocked.Increment(ref _nextId));
-    public Task<InfiniFrameNotificationActivation> Task => _completion.Task;
+    private readonly IInfiniFrameWindow _window;
+    private int _cancellationDispatchStarted;
+    private CancellationTokenRegistration _cancellationRegistration;
+    private int _cancellationRequested;
+    private int _completed;
+    private NativeHandleLease? _lease;
+    private int _nativeStarted;
+    private GCHandle _selfHandle;
 
     public InfiniNotificationOperation(
-        IInfiniFrameWindow window, ILogger logger,
+        IInfiniFrameWindow window,
+        ILogger logger,
         InfiniFrameNotificationOptions options,
         CancellationToken cancellationToken
     ) {
@@ -46,10 +44,13 @@ internal sealed class InfiniNotificationOperation {
         _diagnosticKey = (window as InfiniFrameWindow)?.BeginDiagnosticOperation("ShowNotification", Id);
     }
 
+    public ulong Id { get; } = unchecked((ulong)Interlocked.Increment(ref _nextId));
+    public Task<InfiniFrameNotificationActivation> Task => _completion.Task;
+
     public async Task StartAsync() {
         try {
             _cancellationRegistration = _cancellationToken.Register(
-                static state => ((InfiniNotificationOperation)state!).OnCancellationRequested(), this
+                callback: static state => ((InfiniNotificationOperation)state!).OnCancellationRequested(), this
             );
             await _window.WaitForReadyAsync(_cancellationToken).ConfigureAwait(false);
             _lease = _window.AcquireNativeHandle();
@@ -93,6 +94,7 @@ internal sealed class InfiniNotificationOperation {
 
     private void StartCancellationDispatch() {
         if (Volatile.Read(ref _completed) != 0) return;
+
         if (Interlocked.Exchange(ref _cancellationDispatchStarted, 1) == 0)
             _ = RequestCancellationAsync();
     }
@@ -101,6 +103,7 @@ internal sealed class InfiniNotificationOperation {
         try {
             await _window.DispatchAsync(() => {
                 if (_lease is null) return;
+
                 InfiniFrameNativeInteropStatus status = InfiniFrameNative.CancelNotification(_lease.Handle, Id, out _);
                 if (status != InfiniFrameNativeInteropStatus.Success)
                     throw new InfiniFrameNativeInteropException(
@@ -117,7 +120,11 @@ internal sealed class InfiniNotificationOperation {
     }
 
     private static void Complete(
-        IntPtr context, ulong operationId, int result, int nativeCode, IntPtr failureUtf8
+        IntPtr context,
+        ulong operationId,
+        int result,
+        int nativeCode,
+        IntPtr failureUtf8
     ) {
         if (!TryGet(context, out InfiniNotificationOperation? operation) || operation.Id != operationId)
             return;
@@ -131,11 +138,12 @@ internal sealed class InfiniNotificationOperation {
 
     private void Finish(InfiniFrameNotificationActivation activation) {
         if (Interlocked.Exchange(ref _completed, 1) != 0) return;
+
         (_window as InfiniFrameWindow)?.CompleteDiagnosticOperation(
             _diagnosticKey, _cancellationToken.IsCancellationRequested ? "Cancelled" : activation.Result.ToString()
         );
         _completion.TrySetResult(activation);
-        ThreadPool.QueueUserWorkItem(static state => state.Cleanup(), this, false);
+        ThreadPool.QueueUserWorkItem(callBack: static state => state.Cleanup(), this, false);
     }
 
     private void Cleanup() {
@@ -147,6 +155,7 @@ internal sealed class InfiniNotificationOperation {
     private static bool TryGet(IntPtr context, [NotNullWhen(true)] out InfiniNotificationOperation? operation) {
         operation = null;
         if (context == IntPtr.Zero) return false;
+
         try {
             operation = GCHandle.FromIntPtr(context).Target as InfiniNotificationOperation;
             return operation is not null;

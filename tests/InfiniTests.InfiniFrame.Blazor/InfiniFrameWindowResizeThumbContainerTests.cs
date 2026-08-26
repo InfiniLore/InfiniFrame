@@ -34,7 +34,7 @@ public class InfiniFrameWindowResizeThumbContainerTests : BunitContext {
     [Test]
     public async Task PassesCustomZIndex(CancellationToken ct = default) {
         IRenderedComponent<InfiniFrameWindowResizeThumbContainer> cut = Render<InfiniFrameWindowResizeThumbContainer>(parameters =>
-            parameters.Add(p => p.ZIndex, 500)
+            parameters.Add(parameterSelector: p => p.ZIndex, 500)
         );
 
         IReadOnlyList<IElement> thumbs = cut.FindAll("div[data-infiniframe-resize]");
@@ -47,7 +47,7 @@ public class InfiniFrameWindowResizeThumbContainerTests : BunitContext {
     [Test]
     public async Task PassesCustomResizeArea(CancellationToken ct = default) {
         IRenderedComponent<InfiniFrameWindowResizeThumbContainer> cut = Render<InfiniFrameWindowResizeThumbContainer>(parameters =>
-            parameters.Add(p => p.ResizeArea, 15)
+            parameters.Add(parameterSelector: p => p.ResizeArea, 15)
         );
 
         IElement topThumb = cut.Find("div[data-infiniframe-resize='top']");

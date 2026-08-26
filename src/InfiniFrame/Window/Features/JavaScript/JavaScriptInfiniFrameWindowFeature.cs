@@ -1,21 +1,21 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Interop;
-using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json;
+using InfiniFrame.Interop;
+using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class JavaScriptInfiniFrameWindowFeature : IJavaScriptInfiniFrameWindowFeature {
-    private long _nextRequestId;
-    private readonly IInfiniFrameWindow window;
-    private readonly ILogger<JavaScriptInfiniFrameWindowFeature> logger;
     private readonly ConcurrentDictionary<string, TaskCompletionSource<string?>> _pendingEvals = new();
+    private readonly ILogger<JavaScriptInfiniFrameWindowFeature> logger;
+    private readonly IInfiniFrameWindow window;
+    private long _nextRequestId;
 
     public JavaScriptInfiniFrameWindowFeature(
         IInfiniFrameWindow window,
@@ -33,8 +33,9 @@ public class JavaScriptInfiniFrameWindowFeature : IJavaScriptInfiniFrameWindowFe
     public ValueTask<string?> ExecuteJavaScriptAsync(string script, CancellationToken ct = default) {
         ArgumentException.ThrowIfNullOrWhiteSpace(script);
         if (ct.IsCancellationRequested) return ValueTask.FromCanceled<string?>(ct);
+
         return !window.IsClosedOrClosing()
-            ? ExecuteLocallyAsync(script, ct) 
+            ? ExecuteLocallyAsync(script, ct)
             : ValueTask.FromException<string?>(new ObjectDisposedException(window.GetType().Name));
 
     }
@@ -43,6 +44,7 @@ public class JavaScriptInfiniFrameWindowFeature : IJavaScriptInfiniFrameWindowFe
     public async ValueTask<T?> ExecuteJavaScriptAsync<T>(string script, CancellationToken ct = default) {
         string? json = await ExecuteJavaScriptAsync(script, ct).ConfigureAwait(false);
         if (json is null) return default;
+
         return JsonSerializer.Deserialize(json, WindowFeatureWebMessageJsonContext.Default.GetTypeInfo(typeof(T))!) is T result
             ? result
             : default;
@@ -52,6 +54,7 @@ public class JavaScriptInfiniFrameWindowFeature : IJavaScriptInfiniFrameWindowFe
     public void SendEvalToBrowser(string script, string? requestId = null) {
         ArgumentException.ThrowIfNullOrWhiteSpace(script);
         if (window.IsClosedOrClosing()) return;
+
         string evalRequestId = requestId ?? $"eval_{unchecked((ulong)Interlocked.Increment(ref _nextRequestId))}";
         string envelope = CreateEvalRequestEnvelope(evalRequestId, script);
         window.Features.WebMessaging.SendWebMessage(envelope);
@@ -75,6 +78,7 @@ public class JavaScriptInfiniFrameWindowFeature : IJavaScriptInfiniFrameWindowFe
             Task terminal = await Task.WhenAny(completion.Task, closed).WaitAsync(ct).ConfigureAwait(false);
             if (terminal == closed)
                 throw new ObjectDisposedException(window.GetType().Name, "The window closed before JavaScript evaluation completed.");
+
             string? result = await completion.Task.ConfigureAwait(false);
             finalState = "Succeeded";
             return result;
@@ -130,6 +134,7 @@ public class JavaScriptInfiniFrameWindowFeature : IJavaScriptInfiniFrameWindowFe
                 else {
                     completion.TrySetResult(result);
                 }
+
                 return;
             }
 
@@ -153,6 +158,7 @@ public class JavaScriptInfiniFrameWindowFeature : IJavaScriptInfiniFrameWindowFe
             writer.WriteString("script", script);
             writer.WriteEndObject();
         }
+
         return InteropEnvelopeProtocol.CreateEnvelopeMessage(
             JsHandlerNames.JavaScriptEvalRequest,
             Encoding.UTF8.GetString(stream.ToArray())
@@ -171,9 +177,11 @@ public class JavaScriptInfiniFrameWindowFeature : IJavaScriptInfiniFrameWindowFe
             else {
                 writer.WriteNull("result");
             }
+
             if (error is not null) writer.WriteString("error", error);
             writer.WriteEndObject();
         }
+
         return Encoding.UTF8.GetString(stream.ToArray());
     }
 }

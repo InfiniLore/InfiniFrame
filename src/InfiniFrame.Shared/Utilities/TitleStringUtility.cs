@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame.Utilities;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -26,6 +25,7 @@ internal static class TitleStringUtility {
     /// <returns>The validated and possibly truncated title, or <c>null</c> if the input is null or whitespace.</returns>
     public static string? Validate(string? title, bool limitLinuxLength) {
         if (string.IsNullOrWhiteSpace(title)) return title;
+
         string newTitle = title.Trim();
 
         if (limitLinuxLength && OperatingSystem.IsLinux() && newTitle.Length > 31)

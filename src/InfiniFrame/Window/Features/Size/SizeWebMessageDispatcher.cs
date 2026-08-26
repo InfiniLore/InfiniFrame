@@ -31,22 +31,42 @@ internal sealed class SizeWebMessageDispatcher : WindowFeatureWebMessageDispatch
 
     protected override void Post(ISizeInfiniFrameWindowFeature feature, string command, JsonElement? args) {
         switch (command) {
-            case "setSize": feature.SetSize(Required<int>(args, "width"), Required<int>(args, "height")); return;
-            case "setHeight": feature.SetHeight(Required<int>(args, "height")); return;
-            case "setMaxSize": feature.SetMaxSize(Required<int>(args, "width"), Required<int>(args, "height")); return;
-            case "setMaxHeight": feature.SetMaxHeight(Required<int>(args, "height")); return;
-            case "setMaxWidth": feature.SetMaxWidth(Required<int>(args, "width")); return;
-            case "setMinSize": feature.SetMinSize(Required<int>(args, "width"), Required<int>(args, "height")); return;
-            case "setMinHeight": feature.SetMinHeight(Required<int>(args, "height")); return;
-            case "setMinWidth": feature.SetMinWidth(Required<int>(args, "width")); return;
-            case "setWidth": feature.SetWidth(Required<int>(args, "width")); return;
+            case "setSize":
+                feature.SetSize(Required<int>(args, "width"), Required<int>(args, "height"));
+                return;
+            case "setHeight":
+                feature.SetHeight(Required<int>(args, "height"));
+                return;
+            case "setMaxSize":
+                feature.SetMaxSize(Required<int>(args, "width"), Required<int>(args, "height"));
+                return;
+            case "setMaxHeight":
+                feature.SetMaxHeight(Required<int>(args, "height"));
+                return;
+            case "setMaxWidth":
+                feature.SetMaxWidth(Required<int>(args, "width"));
+                return;
+            case "setMinSize":
+                feature.SetMinSize(Required<int>(args, "width"), Required<int>(args, "height"));
+                return;
+            case "setMinHeight":
+                feature.SetMinHeight(Required<int>(args, "height"));
+                return;
+            case "setMinWidth":
+                feature.SetMinWidth(Required<int>(args, "width"));
+                return;
+            case "setWidth":
+                feature.SetWidth(Required<int>(args, "width"));
+                return;
             case "resize":
                 feature.Resize(
                     Required<int>(args, "widthOffset"),
                     Required<int>(args, "heightOffset"),
                     Required<ResizeOrigin>(args, "origin"));
                 return;
-            case "setResizable": feature.SetResizable(Arg(args, "resizable", true)); return;
+            case "setResizable":
+                feature.SetResizable(Arg(args, "resizable", true));
+                return;
             default: throw Unsupported(command);
         }
     }

@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Reflection;
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
 using InfiniFrame.NativeBridge.Parameters;
@@ -9,15 +10,13 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using NSubstitute;
-using System.Reflection;
 
 namespace InfiniTests.InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [NotInParallelInfiniTests]
-[RunOnMacOsMainThread]
+[MacOsMainThreadTestExecutor]
 public class InfiniFrameBlazorAppBuilderTests {
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -371,16 +370,16 @@ public class InfiniFrameBlazorAppBuilderTests {
     [NotInParallelInfiniTests]
     public async Task Build_ExposesDebuggingThroughWindowFeatures(CancellationToken ct = default) {
         // Arrange
-        var debuggingFeature = Substitute.For<IDebuggingInfiniFrameWindowFeature>();
-        var features = Substitute.For<IInfiniFrameWindowFeatures>();
-        var window = Substitute.For<IInfiniFrameWindow>();
-        features.Debugging.Returns(debuggingFeature);
-        window.Features.Returns(features);
-        window.Debugging.Returns(debuggingFeature);
+        Mock<IDebuggingInfiniFrameWindowFeature> debuggingFeature = MockFactory.CreateDebuggingMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
+        features.Debugging.Returns(debuggingFeature.Object);
+        window.Features.Returns(features.Object);
+        window.Debugging.Returns(debuggingFeature.Object);
 
         var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
         appBuilder.Services.RemoveAll<IInfiniFrameWindow>();
-        appBuilder.Services.AddSingleton(window);
+        appBuilder.Services.AddSingleton(window.Object);
 
         // Act
         InfiniFrameBlazorApp app = appBuilder.Build();
@@ -392,7 +391,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     private sealed class TestJsComponent : IComponent {
-        public void Attach(RenderHandle renderHandle) { }
+        public void Attach(RenderHandle renderHandle) {}
 
         public Task SetParametersAsync(ParameterView parameters) => Task.CompletedTask;
     }

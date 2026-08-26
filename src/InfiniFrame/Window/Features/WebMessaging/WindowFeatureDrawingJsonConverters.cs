@@ -30,6 +30,7 @@ internal sealed class PointWebMessageJsonConverter : JsonConverter<Point> {
             || !property.TryGetInt32(out int result)) {
             throw new JsonException($"Property '{propertyName}' must be a 32-bit integer.");
         }
+
         return result;
     }
 }

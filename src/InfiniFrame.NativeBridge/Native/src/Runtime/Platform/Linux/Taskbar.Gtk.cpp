@@ -8,12 +8,12 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 // D-Bus paths and interfaces for taskbar integration
-static const char* statusNotifierItemBusName = "org.kde.StatusNotifierItem";
-static const char* statusNotifierItemPath = "/StatusNotifierItem";
-static const char* statusNotifierItemIface = "org.kde.StatusNotifierItem";
-static const char* launcherEntryBusName = "com.canonical.Unity.LauncherEntry";
-static const char* launcherEntryPath = "/com/canonical/Unity/LauncherEntry";
-static const char* launcherEntryIface = "com.canonical.Unity.LauncherEntry";
+static auto statusNotifierItemBusName = "org.kde.StatusNotifierItem";
+static auto statusNotifierItemPath = "/StatusNotifierItem";
+static auto statusNotifierItemIface = "org.kde.StatusNotifierItem";
+static auto launcherEntryBusName = "com.canonical.Unity.LauncherEntry";
+static auto launcherEntryPath = "/com/canonical/Unity/LauncherEntry";
+static auto launcherEntryIface = "com.canonical.Unity.LauncherEntry";
 
 // Cached D-Bus connections and proxy objects
 static GDBusConnection* sessionBus = nullptr;
@@ -42,7 +42,7 @@ static void EnsureDBusInitialized() {
     statusNotifierProxy = g_dbus_proxy_new_sync(
         sessionBus, G_DBUS_PROXY_FLAGS_NONE, nullptr, statusNotifierItemBusName, statusNotifierItemPath,
         statusNotifierItemIface, nullptr, &error
-    );
+        );
     if (statusNotifierProxy != nullptr && error == nullptr) {
         hasStatusNotifier = true;
     }
@@ -55,7 +55,7 @@ static void EnsureDBusInitialized() {
     launcherEntryProxy = g_dbus_proxy_new_sync(
         sessionBus, G_DBUS_PROXY_FLAGS_NONE, nullptr, launcherEntryBusName, launcherEntryPath, launcherEntryIface,
         nullptr, &error
-    );
+        );
     if (launcherEntryProxy != nullptr && error == nullptr) {
         hasLauncherEntry = true;
     }
@@ -91,13 +91,13 @@ void InfiniFrameWindow::SetTaskbarProgress(const int state, const uint64_t curre
             "org.freedesktop.DBus.Properties", "Set",
             g_variant_new("(ssv)", launcherEntryIface, "UnityCount", g_variant_new_int32(0)), nullptr,
             G_DBUS_CALL_FLAGS_NONE, -1, nullptr, &error
-        );
+            );
         g_dbus_connection_call_sync(
             g_dbus_proxy_get_connection(launcherEntryProxy), launcherEntryBusName, launcherEntryPath,
             "org.freedesktop.DBus.Properties", "Set",
             g_variant_new("(ssv)", launcherEntryIface, "UnityProgress", progressVariant), nullptr,
             G_DBUS_CALL_FLAGS_NONE, -1, nullptr, &error
-        );
+            );
         if (error != nullptr) {
             g_error_free(error);
         }
@@ -105,7 +105,7 @@ void InfiniFrameWindow::SetTaskbarProgress(const int state, const uint64_t curre
 
     // StatusNotifierItem
     if (hasStatusNotifier && statusNotifierProxy != nullptr) {
-        const char* status = "NeedsAttention";
+        auto status = "NeedsAttention";
         if (state == 0) {
             status = "Passive";
         } else if (state == 2) {
@@ -118,7 +118,7 @@ void InfiniFrameWindow::SetTaskbarProgress(const int state, const uint64_t curre
             "org.freedesktop.DBus.Properties", "Set",
             g_variant_new("(ssv)", statusNotifierItemIface, "Status", g_variant_new_string(status)), nullptr,
             G_DBUS_CALL_FLAGS_NONE, -1, nullptr, &error
-        );
+            );
         if (error != nullptr) {
             g_error_free(error);
         }
@@ -136,7 +136,7 @@ void InfiniFrameWindow::SetTaskbarFlash(const int mode, uint32_t) {
         return;
     }
 
-    const char* status = "Passive";
+    auto status = "Passive";
     switch (mode) {
         case 0:
             status = "Passive";
@@ -157,7 +157,7 @@ void InfiniFrameWindow::SetTaskbarFlash(const int mode, uint32_t) {
         "org.freedesktop.DBus.Properties", "Set",
         g_variant_new("(ssv)", statusNotifierItemIface, "Status", g_variant_new_string(status)), nullptr,
         G_DBUS_CALL_FLAGS_NONE, -1, nullptr, &error
-    );
+        );
     if (error != nullptr) {
         g_error_free(error);
     }
@@ -176,7 +176,7 @@ void InfiniFrameWindow::StopTaskbarFlash() {
         "org.freedesktop.DBus.Properties", "Set",
         g_variant_new("(ssv)", statusNotifierItemIface, "Status", g_variant_new_string("Passive")), nullptr,
         G_DBUS_CALL_FLAGS_NONE, -1, nullptr, &error
-    );
+        );
     if (error != nullptr) {
         g_error_free(error);
     }

@@ -11,5 +11,6 @@ struct Monitor {
         int x, y;
         int width, height;
     } monitor, work;
+
     double scale;
 };

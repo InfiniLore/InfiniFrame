@@ -12,130 +12,130 @@ namespace InfiniFrame;
 ///     media autoplay, user agent, security, permissions, and other WebView options.
 /// </summary>
 public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowBuilderFeature {
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsContextMenuEnabled"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsContextMenuEnabled" />
     public bool IsContextMenuEnabled { get; private set; } = true;
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsMediaAutoplayEnabled"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsMediaAutoplayEnabled" />
     public bool IsMediaAutoplayEnabled { get; private set; } = true;
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.UserAgent"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.UserAgent" />
     public string? UserAgent { get; private set; } = "InfiniFrame WebView";
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsFileSystemAccessEnabled"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsFileSystemAccessEnabled" />
     public bool IsFileSystemAccessEnabled { get; private set; } = true;
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsWebSecurityEnabled"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsWebSecurityEnabled" />
     public bool IsWebSecurityEnabled { get; private set; } = true;
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsJavascriptClipboardAccessEnabled"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsJavascriptClipboardAccessEnabled" />
     public bool IsJavascriptClipboardAccessEnabled { get; private set; } = true;
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsMediaStreamEnabled"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsMediaStreamEnabled" />
     public bool IsMediaStreamEnabled { get; private set; } = true;
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsIgnoreCertificateErrorsEnabled"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsIgnoreCertificateErrorsEnabled" />
     public bool IsIgnoreCertificateErrorsEnabled { get; private set; } = true;
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.GrantBrowserPermissions"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.GrantBrowserPermissions" />
     public bool GrantBrowserPermissions { get; private set; } = true;
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsSmoothScrollingEnabled"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsSmoothScrollingEnabled" />
     public bool IsSmoothScrollingEnabled { get; private set; } = true;
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsStatusBarEnabled"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsStatusBarEnabled" />
     public bool IsStatusBarEnabled { get; private set; } = true;
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsBrowserShortcutsEnabled"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.IsBrowserShortcutsEnabled" />
     public bool IsBrowserShortcutsEnabled { get; private set; } = true;
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.BrowserControlInitParameters"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.BrowserControlInitParameters" />
     public string? BrowserControlInitParameters { get; private set; }
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.TemporaryFilesPath"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.TemporaryFilesPath" />
     public string TemporaryFilesPath { get; private set; } = Path.Join(
         Path.GetTempPath(),
         "infiniframe",
         Environment.ProcessId.ToString()
     );
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.WebView2RuntimePath"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.WebView2RuntimePath" />
     public string? WebView2RuntimePath { get; private set; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableContextMenu"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableContextMenu" />
     public void EnableContextMenu(bool enabled) {
         IsContextMenuEnabled = enabled;
     }
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableMediaAutoplay"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableMediaAutoplay" />
     public void EnableMediaAutoplay(bool enabled) {
         IsMediaAutoplayEnabled = enabled;
     }
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.SetUserAgent"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.SetUserAgent" />
     public void SetUserAgent(string? userAgent) {
         if (string.IsNullOrWhiteSpace(userAgent)) userAgent = string.Empty;
         UserAgent = userAgent;
     }
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableFileSystemAccess"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableFileSystemAccess" />
     public void EnableFileSystemAccess(bool enabled) {
         IsFileSystemAccessEnabled = enabled;
     }
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableWebSecurity"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableWebSecurity" />
     public void EnableWebSecurity(bool enabled) {
         IsWebSecurityEnabled = enabled;
     }
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableJavascriptClipboardAccess"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableJavascriptClipboardAccess" />
     public void EnableJavascriptClipboardAccess(bool enabled) {
         IsJavascriptClipboardAccessEnabled = enabled;
     }
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableMediaStream"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableMediaStream" />
     public void EnableMediaStream(bool enabled) {
         IsMediaStreamEnabled = enabled;
     }
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableIgnoreCertificateErrors"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableIgnoreCertificateErrors" />
     public void EnableIgnoreCertificateErrors(bool enabled) {
         IsIgnoreCertificateErrorsEnabled = enabled;
     }
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableBrowserPermissions"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableBrowserPermissions" />
     public void EnableBrowserPermissions(bool enabled) {
         GrantBrowserPermissions = enabled;
     }
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableSmoothScrolling"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableSmoothScrolling" />
     public void EnableSmoothScrolling(bool enabled) {
         IsSmoothScrollingEnabled = enabled;
     }
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableStatusBar"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableStatusBar" />
     public void EnableStatusBar(bool enabled) {
         IsStatusBarEnabled = enabled;
     }
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableBrowserShortcuts"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableBrowserShortcuts" />
     public void EnableBrowserShortcuts(bool enabled) {
         IsBrowserShortcutsEnabled = enabled;
     }
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.SetBrowserControlInitParameters"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.SetBrowserControlInitParameters" />
     public void SetBrowserControlInitParameters(string? parameters) {
         BrowserControlInitParameters = parameters;
     }
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.SetTemporaryFilesPath"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.SetTemporaryFilesPath" />
     public void SetTemporaryFilesPath(string path) {
         TemporaryFilesPath = path;
     }
 
-    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.SetWebView2RuntimePath"/>
+    /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.SetWebView2RuntimePath" />
     public void SetWebView2RuntimePath(string path) {
         WebView2RuntimePath = path;
     }

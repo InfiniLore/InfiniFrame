@@ -20,7 +20,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 namespace {
     void DestroyMenuRecursive(const HMENU menu) {
-        if (menu == nullptr) return;
+        if (menu == nullptr)
+            return;
         int count = GetMenuItemCount(menu);
         for (int i = 0; i < count; i++) {
             HMENU sub = GetSubMenu(menu, i);
@@ -36,10 +37,11 @@ namespace {
         std::unordered_map<std::string, UINT>& idToCommand,
         std::unordered_map<UINT, std::string>& commandToId,
         UINT& nextId
-    ) {
+        ) {
         for (const auto& item : items) {
             simdjson::dom::object obj;
-            if (item.get(obj) != simdjson::SUCCESS) continue;
+            if (item.get(obj) != simdjson::SUCCESS)
+                continue;
 
             std::string id;
             if (obj["id"].get_string().get(id) != simdjson::SUCCESS)
@@ -77,11 +79,13 @@ namespace {
                     BuildMenuFromJson(subMenu, children, idToCommand, commandToId, nextId);
                 }
                 UINT flags = MF_POPUP | MF_STRING;
-                if (!isEnabled) flags |= MF_GRAYED;
+                if (!isEnabled)
+                    flags |= MF_GRAYED;
                 AppendMenuW(parentMenu, flags, reinterpret_cast<UINT_PTR>(subMenu), wideLabel.c_str());
             } else {
                 UINT flags = MF_STRING;
-                if (!isEnabled) flags |= MF_GRAYED;
+                if (!isEnabled)
+                    flags |= MF_GRAYED;
                 AppendMenuW(parentMenu, flags, commandId, wideLabel.c_str());
             }
         }
@@ -93,7 +97,7 @@ namespace {
         HMENU& outParent,
         UINT& outPosition,
         UINT& outCommandId
-    ) {
+        ) {
         auto it = impl->_menuItemIdToCommandId.find(menuItemId);
         if (it == impl->_menuItemIdToCommandId.end())
             return false;
@@ -107,7 +111,8 @@ namespace {
         int topCount = GetMenuItemCount(menuBar);
         for (int t = 0; t < topCount; t++) {
             HMENU sub = GetSubMenu(menuBar, t);
-            if (sub == nullptr) continue;
+            if (sub == nullptr)
+                continue;
 
             int subCount = GetMenuItemCount(sub);
             for (int s = 0; s < subCount; s++) {
@@ -118,7 +123,8 @@ namespace {
                 }
 
                 HMENU nested = GetSubMenu(sub, s);
-                if (nested == nullptr) continue;
+                if (nested == nullptr)
+                    continue;
 
                 int nestedCount = GetMenuItemCount(nested);
                 for (int n = 0; n < nestedCount; n++) {
@@ -163,15 +169,14 @@ void InfiniFrameWindow::ApplyInitMenuBar(const char* menuBarJson) {
             m_impl->_menuItemIdToCommandId,
             m_impl->_menuCommandIdToItemId,
             m_impl->_nextMenuCommandId
-        );
+            );
 
         m_impl->_menuBar = menuBar;
         m_impl->_menuBarJson = menuBarJson;
 
         SetMenu(m_impl->_hWnd, menuBar);
         DrawMenuBar(m_impl->_hWnd);
-    } catch (const simdjson::simdjson_error&) {
-    }
+    } catch (const simdjson::simdjson_error&) {}
 }
 
 void InfiniFrameWindow::SetMenuBarJson(const char* menuBarJson) {

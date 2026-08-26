@@ -75,8 +75,8 @@ public static class InfiniFrameUriSecurityPolicyRegistry {
     }
 
     private sealed class PolicyHolder(IInfiniFrameUriSecurityPolicy policy) {
-        public IInfiniFrameUriSecurityPolicy Policy { get; set; } = policy;
 
-        public PolicyHolder() : this(InfiniFrameUriSecurityPolicy.Default) { }
+        public PolicyHolder() : this(InfiniFrameUriSecurityPolicy.Default) {}
+        public IInfiniFrameUriSecurityPolicy Policy { get; set; } = policy;
     }
 }

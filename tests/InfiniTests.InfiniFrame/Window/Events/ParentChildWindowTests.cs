@@ -71,9 +71,9 @@ public class ParentChildWindowTests {
         using var parentUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow parent = parentUtility.Window;
         IntPtr childHost;
-        using (var childUtility = InfiniFrameTestWindow.Create(builder => {
-            ((InfiniFrameWindowBuilderConfiguration)builder.Configuration).ParentWindow = parent;
-        }, ct)) {
+        using (var childUtility = InfiniFrameTestWindow.Create(builder: builder => {
+                ((InfiniFrameWindowBuilderConfiguration)builder.Configuration).ParentWindow = parent;
+            }, ct)) {
             childHost = childUtility.Window.WindowHandle;
             childUtility.Window.Close();
             childUtility.Window.WaitForClose();

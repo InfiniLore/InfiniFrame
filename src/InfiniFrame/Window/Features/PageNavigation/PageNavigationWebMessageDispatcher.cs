@@ -26,9 +26,15 @@ internal sealed class PageNavigationWebMessageDispatcher : WindowFeatureWebMessa
 
     protected override void Post(IPageNavigationInfiniFrameWindowFeature feature, string command, JsonElement? args) {
         switch (command) {
-            case "loadUri": feature.Load(new Uri(Required<string>(args, "uri"), UriKind.RelativeOrAbsolute)); return;
-            case "loadPath": feature.Load(Required<string>(args, "path")); return;
-            case "loadRawString": feature.LoadRawString(Required<string>(args, "content")); return;
+            case "loadUri":
+                feature.Load(new Uri(Required<string>(args, "uri"), UriKind.RelativeOrAbsolute));
+                return;
+            case "loadPath":
+                feature.Load(Required<string>(args, "path"));
+                return;
+            case "loadRawString":
+                feature.LoadRawString(Required<string>(args, "content"));
+                return;
             default: throw Unsupported(command);
         }
     }

@@ -1,14 +1,14 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Collections.Concurrent;
+using System.Drawing;
+using System.Runtime.InteropServices;
 using InfiniFrame.DragDrop;
 using InfiniFrame.NativeBridge.Delegates;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
-using System.Collections.Concurrent;
-using System.Drawing;
-using System.Runtime.InteropServices;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -20,8 +20,31 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     // native window has fully exited its message loop and lifecycle cleanup releases the root.
     private static readonly ConcurrentDictionary<Guid, InfiniFrameEvents> NativeCallbackRoots = new();
 
-    /// <inheritdoc cref="IHasInfiniFrameEventsStore.EventsStore"/>
-    public IInfiniFrameEventsStore EventsStore { get; }
+    // -----------------------------------------------------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------------------------------------------------
+    public InfiniFrameEvents(IInfiniFrameEventsStore eventsStore, ILogger<InfiniFrameEvents> logger) {
+        EventsStore = eventsStore;
+        Logger = logger;
+
+        ClosedHandler = () => InvokeNativeCallback("window closed", OnWindowClosed);
+        ClosingHandler = () => InvokeNativeCallback("window closing", OnWindowClosing, fallback: static () => (byte)0);
+        DebugEventHandler = (kind, message, level, uri, statusCode, timestamp, platformPayload) =>
+            InvokeNativeCallback("debug event", callback: () => OnDebugEvent(kind, message, level, uri, statusCode, timestamp, platformPayload));
+        FocusInHandler = () => InvokeNativeCallback("window focus in", OnFocusIn);
+        FocusOutHandler = () => InvokeNativeCallback("window focus out", OnFocusOut);
+        MaximizedHandler = () => InvokeNativeCallback("window maximized", OnMaximized);
+        MinimizedHandler = () => InvokeNativeCallback("window minimized", OnMinimized);
+        MovedHandler = (left, top) => InvokeNativeCallback("window moved", callback: () => OnLocationChanged(left, top));
+        ResizedHandler = (width, height) => InvokeNativeCallback("window resized", callback: () => OnSizeChanged(width, height));
+        RestoredHandler = () => InvokeNativeCallback("window restored", OnRestored);
+        WebMessageReceivedHandler = (message, origin) => InvokeNativeCallback("web message received", callback: () => OnWebMessageReceived(message, origin));
+        CustomSchemeHandler = OnCustomScheme;
+        NavigationStartingHandler = (url, isUserInitiated, isRedirect, isMainFrame) =>
+            InvokeNativeCallback("navigation starting", callback: () => OnNavigationStarting(url, isUserInitiated, isRedirect, isMainFrame), fallback: static () => (byte)0);
+        FileDroppedHandler = (pathsPtr, count, x, y) =>
+            InvokeNativeCallback("file dropped", callback: () => OnFileDropped(pathsPtr, count, x, y));
+    }
     private ILogger<InfiniFrameEvents> Logger { get; }
     private IInfiniFrameWindow? Sender { get; set; }
     private Guid CallbackRootId { get; set; } = Guid.Empty;
@@ -42,31 +65,8 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     private CppNavigationStartingDelegate NavigationStartingHandler { get; }
     private CppFileDroppedDelegate FileDroppedHandler { get; }
 
-    // -----------------------------------------------------------------------------------------------------------------
-    // Constructors
-    // -----------------------------------------------------------------------------------------------------------------
-    public InfiniFrameEvents(IInfiniFrameEventsStore eventsStore, ILogger<InfiniFrameEvents> logger) {
-        EventsStore = eventsStore;
-        Logger = logger;
-
-        ClosedHandler = () => InvokeNativeCallback("window closed", OnWindowClosed);
-        ClosingHandler = () => InvokeNativeCallback("window closing", OnWindowClosing, static () => (byte)0);
-        DebugEventHandler = (kind, message, level, uri, statusCode, timestamp, platformPayload) =>
-            InvokeNativeCallback("debug event", () => OnDebugEvent(kind, message, level, uri, statusCode, timestamp, platformPayload));
-        FocusInHandler = () => InvokeNativeCallback("window focus in", OnFocusIn);
-        FocusOutHandler = () => InvokeNativeCallback("window focus out", OnFocusOut);
-        MaximizedHandler = () => InvokeNativeCallback("window maximized", OnMaximized);
-        MinimizedHandler = () => InvokeNativeCallback("window minimized", OnMinimized);
-        MovedHandler = (left, top) => InvokeNativeCallback("window moved", () => OnLocationChanged(left, top));
-        ResizedHandler = (width, height) => InvokeNativeCallback("window resized", () => OnSizeChanged(width, height));
-        RestoredHandler = () => InvokeNativeCallback("window restored", OnRestored);
-        WebMessageReceivedHandler = (message, origin) => InvokeNativeCallback("web message received", () => OnWebMessageReceived(message, origin));
-        CustomSchemeHandler = OnCustomScheme;
-        NavigationStartingHandler = (url, isUserInitiated, isRedirect, isMainFrame) =>
-            InvokeNativeCallback("navigation starting", () => OnNavigationStarting(url, isUserInitiated, isRedirect, isMainFrame), static () => (byte)0);
-        FileDroppedHandler = (pathsPtr, count, x, y) =>
-            InvokeNativeCallback("file dropped", () => OnFileDropped(pathsPtr, count, x, y));
-    }
+    /// <inheritdoc cref="IHasInfiniFrameEventsStore.EventsStore" />
+    public IInfiniFrameEventsStore EventsStore { get; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -106,7 +106,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         ApplyCustomSchemeNames(ref parameters);
     }
 
-    /// <inheritdoc cref="IInfiniFrameEvents.OnLocationChanged"/>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnLocationChanged" />
     public void OnLocationChanged(int left, int top) {
         ArgumentNullException.ThrowIfNull(Sender);
 
@@ -114,7 +114,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         EventsStore.WindowLocationChanged.Invoke(Sender, location);
     }
 
-    /// <inheritdoc cref="IInfiniFrameEvents.OnSizeChanged"/>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnSizeChanged" />
     public void OnSizeChanged(int width, int height) {
         ArgumentNullException.ThrowIfNull(Sender);
 
@@ -122,37 +122,37 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         EventsStore.WindowSizeChanged.Invoke(Sender, size);
     }
 
-    /// <inheritdoc cref="IInfiniFrameEvents.OnFocusIn"/>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnFocusIn" />
     public void OnFocusIn() {
         ArgumentNullException.ThrowIfNull(Sender);
         EventsStore.WindowFocusIn.Invoke(Sender);
     }
 
-    /// <inheritdoc cref="IInfiniFrameEvents.OnMaximized"/>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnMaximized" />
     public void OnMaximized() {
         ArgumentNullException.ThrowIfNull(Sender);
         EventsStore.WindowMaximized.Invoke(Sender);
     }
 
-    /// <inheritdoc cref="IInfiniFrameEvents.OnRestored"/>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnRestored" />
     public void OnRestored() {
         ArgumentNullException.ThrowIfNull(Sender);
         EventsStore.WindowRestored.Invoke(Sender);
     }
 
-    /// <inheritdoc cref="IInfiniFrameEvents.OnFocusOut"/>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnFocusOut" />
     public void OnFocusOut() {
         ArgumentNullException.ThrowIfNull(Sender);
         EventsStore.WindowFocusOut.Invoke(Sender);
     }
 
-    /// <inheritdoc cref="IInfiniFrameEvents.OnMinimized"/>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnMinimized" />
     public void OnMinimized() {
         ArgumentNullException.ThrowIfNull(Sender);
         EventsStore.WindowMinimized.Invoke(Sender);
     }
 
-    /// <inheritdoc cref="IInfiniFrameEvents.OnWindowClosed"/>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnWindowClosed" />
     public void OnWindowClosed() {
         ArgumentNullException.ThrowIfNull(Sender);
 
@@ -165,13 +165,13 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         }
     }
 
-    /// <inheritdoc cref="IInfiniFrameEvents.OnWindowClosingRequested"/>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnWindowClosingRequested" />
     public void OnWindowClosingRequested() {
         ArgumentNullException.ThrowIfNull(Sender);
         EventsStore.WindowClosingRequested.Invoke(Sender);
     }
 
-    /// <inheritdoc cref="IInfiniFrameEvents.OnWindowClosing"/>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnWindowClosing" />
     public byte OnWindowClosing() {
         ArgumentNullException.ThrowIfNull(Sender);
 
@@ -187,7 +187,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         return cancel;
     }
 
-    /// <inheritdoc cref="IInfiniFrameEvents.OnNavigationStarting"/>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnNavigationStarting" />
     public byte OnNavigationStarting(string url, int isUserInitiated, int isRedirect, int isMainFrame) {
         ArgumentNullException.ThrowIfNull(Sender);
         ArgumentNullException.ThrowIfNull(url);
@@ -202,21 +202,29 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
             Logger.LogDebug("Navigation canceled by handler: {Url}", url);
             return 1;
         }
+
         return 0;
     }
 
-    /// <inheritdoc cref="IInfiniFrameEvents.OnWindowCreating"/>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnWindowCreating" />
     public void OnWindowCreating() {
         ArgumentNullException.ThrowIfNull(Sender);
 
         EventsStore.WindowCreating.Invoke(Sender);
     }
 
-    /// <inheritdoc cref="IInfiniFrameEvents.OnWindowCreated"/>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnWindowCreated" />
     public void OnWindowCreated() {
         ArgumentNullException.ThrowIfNull(Sender);
 
         EventsStore.WindowCreated.Invoke(Sender);
+    }
+
+    void IInfiniFrameEvents.ReleaseNativeCallbackRoot() {
+        if (CallbackRootId == Guid.Empty) return;
+
+        NativeCallbackRoots.TryRemove(CallbackRootId, out _);
+        CallbackRootId = Guid.Empty;
     }
 
     /// <summary>
@@ -237,13 +245,6 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
 
         var args = new FileDroppedEventArgs(files, new Point(x, y));
         EventsStore.FileDropped.Invoke(Sender, args);
-    }
-
-    void IInfiniFrameEvents.ReleaseNativeCallbackRoot() {
-        if (CallbackRootId == Guid.Empty) return;
-
-        NativeCallbackRoots.TryRemove(CallbackRootId, out _);
-        CallbackRootId = Guid.Empty;
     }
 
     private void InvokeNativeCallback(string callbackName, Action callback) {

@@ -1,16 +1,13 @@
 // ---------------------------------------------------------------------------------------------------------------------
-// Imports
-// ---------------------------------------------------------------------------------------------------------------------
-import {
-    ReceiveFromHostMessageIds,
-    SendToHostMessageIds
-} from "./Contracts";
 import type {
     InfiniFrameHostMessaging as InfiniFrameHostMessagingContract,
     InteropEnvelopeV1,
     MessageCallback,
     SendToHostMessageId
 } from "./Contracts";
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+import {ReceiveFromHostMessageIds, SendToHostMessageIds} from "./Contracts";
 import {
     createEnvelope,
     createGetEnvelope,
@@ -18,13 +15,17 @@ import {
     parseIncomingMessage
 } from "./Interop/EnvelopeProtocol/InteropEnvelopeProtocol";
 import {blankTargetHandler, getTitleObserver, getTitleObserverTarget} from "./Utils";
-import {handleJavaScriptEvalRequest, handleJavaScriptEvalResponse} from "./Window/Features/JavaScriptInfiniFrameWindowFeature";
+import {
+    handleJavaScriptEvalRequest,
+    handleJavaScriptEvalResponse
+} from "./Window/Features/JavaScriptInfiniFrameWindowFeature";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
     private static readonly BlazorWebViewMessagePrefix = "__bwv:";
+    public readonly ready: Promise<void>;
     private messageHandlers: Map<string, MessageCallback> = new Map();
     private openExternalRegistered = false;
     private fullscreenRegistered = false;
@@ -32,12 +33,7 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
     private windowCloseRegistered = false;
     private readyHandshakeAcknowledged = false;
     private resolveReady!: () => void;
-    public readonly ready: Promise<void>;
 
-    public get isReady(): boolean {
-        return this.readyHandshakeAcknowledged;
-    }
-    
     constructor() {
         this.ready = new Promise<void>(resolve => {
             this.resolveReady = resolve;
@@ -72,8 +68,7 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
                 if (!request.OperationId || typeof request.Message !== "string") return;
                 if (!this.handleInteropMessage(request.Message)) return;
                 this.sendMessageToHost(SendToHostMessageIds.webMessageAckResponse, request.OperationId);
-            }
-            catch (error) {
+            } catch (error) {
                 console.warn("Could not process acknowledged host message.", error);
             }
         })
@@ -82,8 +77,7 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
             if (!payload) return;
             try {
                 handleJavaScriptEvalResponse(JSON.parse(payload));
-            }
-            catch (error) {
+            } catch (error) {
                 console.warn("Could not process JavaScript eval response.", error);
             }
         })
@@ -92,13 +86,16 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
             if (!payload) return;
             try {
                 handleJavaScriptEvalRequest(JSON.parse(payload));
-            }
-            catch (error) {
+            } catch (error) {
                 console.warn("Could not process JavaScript eval request.", error);
             }
         })
 
         this.sendReadyHandshake();
+    }
+
+    public get isReady(): boolean {
+        return this.readyHandshakeAcknowledged;
     }
 
     public sendMessageToHost(id: SendToHostMessageId | string, data?: unknown) {
@@ -111,7 +108,7 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
             return;
         }
     }
-    
+
     public async getMessageFromHostRawAsync(message: InteropEnvelopeV1 | string): Promise<string> {
         const host = window.infiniframe?.host;
         if (!host?.getDataAsync) throw new Error("Message to host failed. Host getDataAsync API is not initialized.");
@@ -122,14 +119,13 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
 
         return await host.getDataAsync(envelope);
     }
-    
+
     public async getMessageFromHostAsync(command: string, args?: any): Promise<string> {
         try {
             return await window.infiniframe.messaging.getMessageFromHostRawAsync(
                 createGetEnvelope(command, args)
             );
-        }
-        catch (e) {
+        } catch (e) {
             console.error("Failed to get response message from host.", e);
             throw e;
         }
@@ -148,8 +144,7 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
             window.infiniframe.host.receiveCallback((message: string) => {
                 this.handleInteropMessage(message);
             });
-        }
-        else {
+        } else {
             console.warn("Web message receiver failed. Host bridge API is not initialized.");
             return;
         }

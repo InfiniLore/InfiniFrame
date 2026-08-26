@@ -9,12 +9,12 @@ namespace InfiniFrame.WebServer;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilder {
-    /// <inheritdoc cref="IInfiniFrameWebApplicationBuilder.WebApp"/>
+    /// <inheritdoc cref="IInfiniFrameWebApplicationBuilder.WebApp" />
     public required WebApplicationBuilder WebApp { get; init; }
-    /// <inheritdoc cref="IInfiniFrameWebApplicationBuilder.WindowBuilder"/>
+    /// <inheritdoc cref="IInfiniFrameWebApplicationBuilder.WindowBuilder" />
     public required IInfiniFrameWindowBuilder WindowBuilder { get; init; }
 
-    /// <inheritdoc cref="IInfiniFrameWebApplicationBuilder.Services"/>
+    /// <inheritdoc cref="IInfiniFrameWebApplicationBuilder.Services" />
     public IServiceCollection Services => WebApp.Services;
 
     // -----------------------------------------------------------------------------------------------------------------

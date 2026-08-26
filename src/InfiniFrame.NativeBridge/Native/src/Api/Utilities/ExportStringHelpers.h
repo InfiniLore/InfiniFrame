@@ -27,7 +27,7 @@ namespace infiniframe::exports {
     }
 
     inline const char* NullToEmpty(const char* value) noexcept {
-        static const char empty[] = "";
+        static constexpr char empty[] = "";
         return value != nullptr ? value : const_cast<const char*>(empty);
     }
 

@@ -1,21 +1,21 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
-using InfiniFrame.NativeBridge.Parameters;
 using System.Diagnostics;
 using System.Runtime.Versioning;
 using System.Text.Json;
+using InfiniFrame;
+using InfiniFrame.NativeBridge.Parameters;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Browser;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class Win32SetWebView2PathTests {
+    private const string FixedRuntimeVersion = "150.0.4078.99";
     private static readonly HttpClient Client = new() {
         Timeout = TimeSpan.FromMilliseconds(500)
     };
-    private const string FixedRuntimeVersion = "150.0.4078.99";
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -78,7 +78,7 @@ public class Win32SetWebView2PathTests {
         }
 
         string scriptPath = FindRepositoryFile("tests", "scripts", "ensure-webview2-fixed-runtime.ps1");
-        return await Task.Run(() => RunProvisioningScript(scriptPath), ct);
+        return await Task.Run(function: () => RunProvisioningScript(scriptPath), ct);
     }
 
     private static string RunProvisioningScript(string scriptPath) {
@@ -134,15 +134,13 @@ public class Win32SetWebView2PathTests {
 
     [SupportedOSPlatform("windows")]
     private static InfiniFrameTestWindow CreateWindowWithFixedRuntime(string runtimePath, int port, CancellationToken ct)
-        => InfiniFrameTestWindow.Create(builder => builder
+        => InfiniFrameTestWindow.Create(builder: builder => builder
                 .SetWebView2RuntimePath(runtimePath)
                 .SetRemoteDebuggingPort(port),
             ct
         );
 
-    private static int GetAvailableLoopbackPort() {
-        return PortUtils.GetOpenPortValue();
-    }
+    private static int GetAvailableLoopbackPort() => PortUtils.GetOpenPortValue();
 
     private static async Task<string?> WaitForBrowserVersion(int port, CancellationToken ct) {
         DateTime timeoutAt = DateTime.UtcNow.AddSeconds(15);

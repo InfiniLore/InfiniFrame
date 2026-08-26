@@ -31,9 +31,19 @@ const contracts: FeatureContract[] = [
         ].map(([method, command, result]) => ({method: method as string, command: command as string, result})),
         posts: [
             {method: "enableContextMenu", command: "enableContextMenu", parameters: [false], args: {enabled: false}},
-            {method: "enableMediaAutoplay", command: "enableMediaAutoplay", parameters: [false], args: {enabled: false}},
+            {
+                method: "enableMediaAutoplay",
+                command: "enableMediaAutoplay",
+                parameters: [false],
+                args: {enabled: false}
+            },
             {method: "setUserAgent", command: "setUserAgent", parameters: [null], args: {userAgent: null}},
-            {method: "win32SetWebView2Path", command: "win32SetWebView2Path", parameters: ["C:/WebView2"], args: {path: "C:/WebView2"}},
+            {
+                method: "win32SetWebView2Path",
+                command: "win32SetWebView2Path",
+                parameters: ["C:/WebView2"],
+                args: {path: "C:/WebView2"}
+            },
             {method: "clearBrowserAutoFill", command: "clearBrowserAutoFill"}
         ]
     },
@@ -47,7 +57,11 @@ const contracts: FeatureContract[] = [
             ["getRemoteDebuggingPortAsync", "remoteDebuggingPort", 9222],
             ["getCapabilitiesAsync", "capabilities", {supportsLocalDevTools: true}],
             ["getDiagnosticsAsync", "diagnostics", {platform: "test"}],
-            ["tryGetRemoteDebuggingEndpointAsync", "remoteDebuggingEndpoint", {success: true, endpoint: "http://localhost:9222", reason: null}],
+            ["tryGetRemoteDebuggingEndpointAsync", "remoteDebuggingEndpoint", {
+                success: true,
+                endpoint: "http://localhost:9222",
+                reason: null
+            }],
             ["tryProbeEndpointAsync", "probeEndpoint", {success: false, endpoint: null, reason: "test"}]
         ].map(([method, command, result]) => ({method: method as string, command: command as string, result})),
         posts: [{method: "enableDevTools", command: "enableDevTools", parameters: [false], args: {enabled: false}}]
@@ -64,19 +78,58 @@ const contracts: FeatureContract[] = [
         ].map(([method, command, result]) => ({method: method as string, command: command as string, result})),
         posts: [
             {method: "setTransparent", command: "setTransparent", parameters: [false], args: {enabled: false}},
-            {method: "setBackgroundColor", command: "setBackgroundColor", parameters: ["#FF0000"], args: {color: "#FF0000"}},
+            {
+                method: "setBackgroundColor",
+                command: "setBackgroundColor",
+                parameters: ["#FF0000"],
+                args: {color: "#FF0000"}
+            },
             {method: "setTitle", command: "setTitle", parameters: [null], args: {title: null}},
             {method: "setIconFile", command: "setIconFile", parameters: ["icon.ico"], args: {iconFilePath: "icon.ico"}},
-            {method: "setLimitLinuxWindowTitleLength", command: "setLimitLinuxWindowTitleLength", parameters: [false], args: {enabled: false}}
+            {
+                method: "setLimitLinuxWindowTitleLength",
+                command: "setLimitLinuxWindowTitleLength",
+                parameters: [false],
+                args: {enabled: false}
+            }
         ]
     },
     {
         feature: "filePickerDialogs",
         gets: [
-            {method: "showOpenFileAsync", command: "showOpenFile", parameters: ["Open", "/tmp", true, [{name: "Text", extensions: ["txt"]}]], args: {title: "Open", defaultPath: "/tmp", multiSelect: true, filters: [{name: "Text", extensions: ["txt"]}]}, result: ["/tmp/a.txt"]},
-            {method: "showOpenFolderAsync", command: "showOpenFolder", parameters: ["Folder", "/tmp", true], args: {title: "Folder", defaultPath: "/tmp", multiSelect: true}, result: ["/tmp"]},
-            {method: "showSaveFileAsync", command: "showSaveFile", parameters: ["Save", "/tmp/a.txt", null, null], args: {title: "Save", defaultPath: "/tmp/a.txt", filters: null, defaultFileName: null}, result: "/tmp/a.txt"},
-            {method: "showSaveFileAsync", command: "showSaveFile", parameters: ["Save", "/tmp/a.txt", null, "document.txt"], args: {title: "Save", defaultPath: "/tmp/a.txt", filters: null, defaultFileName: "document.txt"}, result: "/tmp/a.txt"}
+            {
+                method: "showOpenFileAsync",
+                command: "showOpenFile",
+                parameters: ["Open", "/tmp", true, [{name: "Text", extensions: ["txt"]}]],
+                args: {
+                    title: "Open",
+                    defaultPath: "/tmp",
+                    multiSelect: true,
+                    filters: [{name: "Text", extensions: ["txt"]}]
+                },
+                result: ["/tmp/a.txt"]
+            },
+            {
+                method: "showOpenFolderAsync",
+                command: "showOpenFolder",
+                parameters: ["Folder", "/tmp", true],
+                args: {title: "Folder", defaultPath: "/tmp", multiSelect: true},
+                result: ["/tmp"]
+            },
+            {
+                method: "showSaveFileAsync",
+                command: "showSaveFile",
+                parameters: ["Save", "/tmp/a.txt", null, null],
+                args: {title: "Save", defaultPath: "/tmp/a.txt", filters: null, defaultFileName: null},
+                result: "/tmp/a.txt"
+            },
+            {
+                method: "showSaveFileAsync",
+                command: "showSaveFile",
+                parameters: ["Save", "/tmp/a.txt", null, "document.txt"],
+                args: {title: "Save", defaultPath: "/tmp/a.txt", filters: null, defaultFileName: "document.txt"},
+                result: "/tmp/a.txt"
+            }
         ]
     },
     {
@@ -91,25 +144,66 @@ const contracts: FeatureContract[] = [
         feature: "monitors",
         gets: [
             {method: "getMonitorsAsync", command: "monitors", result: []},
-            {method: "getMainMonitorAsync", command: "mainMonitor", result: {monitorArea: {x: 0, y: 0, width: 1920, height: 1080}, workArea: {x: 0, y: 0, width: 1920, height: 1040}, scale: 1}},
+            {
+                method: "getMainMonitorAsync",
+                command: "mainMonitor",
+                result: {
+                    monitorArea: {x: 0, y: 0, width: 1920, height: 1080},
+                    workArea: {x: 0, y: 0, width: 1920, height: 1040},
+                    scale: 1
+                }
+            },
             {method: "getMainMonitorScreenDpiAsync", command: "mainMonitorScreenDpi", result: 96}
         ]
     },
     {
         feature: "notifications",
-        gets: [{method: "showMessageAsync", command: "showMessage", parameters: ["Title", "Text", "yesNo", "question"], args: {title: "Title", text: "Text", buttons: "yesNo", icon: "question"}, result: "yes"}],
-        posts: [{method: "showNotification", command: "showNotification", parameters: ["Title", "Body"], args: {title: "Title", body: "Body"}}]
+        gets: [{
+            method: "showMessageAsync",
+            command: "showMessage",
+            parameters: ["Title", "Text", "yesNo", "question"],
+            args: {title: "Title", text: "Text", buttons: "yesNo", icon: "question"},
+            result: "yes"
+        }],
+        posts: [{
+            method: "showNotification",
+            command: "showNotification",
+            parameters: ["Title", "Body"],
+            args: {title: "Title", body: "Body"}
+        }]
     },
     {
         feature: "pageNavigation",
         gets: [
-            {method: "tryLoadUriAsync", command: "tryLoadUri", parameters: ["https://example.test"], args: {uri: "https://example.test"}, result: true},
-            {method: "tryLoadPathAsync", command: "tryLoadPath", parameters: ["index.html"], args: {path: "index.html"}, result: true}
+            {
+                method: "tryLoadUriAsync",
+                command: "tryLoadUri",
+                parameters: ["https://example.test"],
+                args: {uri: "https://example.test"},
+                result: true
+            },
+            {
+                method: "tryLoadPathAsync",
+                command: "tryLoadPath",
+                parameters: ["index.html"],
+                args: {path: "index.html"},
+                result: true
+            }
         ],
         posts: [
-            {method: "loadUri", command: "loadUri", parameters: ["https://example.test"], args: {uri: "https://example.test"}},
+            {
+                method: "loadUri",
+                command: "loadUri",
+                parameters: ["https://example.test"],
+                args: {uri: "https://example.test"}
+            },
             {method: "loadPath", command: "loadPath", parameters: ["index.html"], args: {path: "index.html"}},
-            {method: "loadRawString", command: "loadRawString", parameters: ["<p>test</p>"], args: {content: "<p>test</p>"}}
+            {
+                method: "loadRawString",
+                command: "loadRawString",
+                parameters: ["<p>test</p>"],
+                args: {content: "<p>test</p>"}
+            }
         ]
     },
     {
@@ -127,39 +221,91 @@ const contracts: FeatureContract[] = [
             {method: "center", command: "center"},
             {method: "centerOnCurrentMonitor", command: "centerOnCurrentMonitor"},
             {method: "centerOnMonitor", command: "centerOnMonitor", parameters: [1], args: {monitorIndex: 1}},
-            {method: "moveWithinCurrentMonitorArea", command: "moveWithinCurrentMonitorArea", parameters: [10, 20], args: {left: 10, top: 20}}
+            {
+                method: "moveWithinCurrentMonitorArea",
+                command: "moveWithinCurrentMonitorArea",
+                parameters: [10, 20],
+                args: {left: 10, top: 20}
+            }
         ]
     },
     {
         feature: "size",
         gets: [
-            ["getSizeAsync", "size", {width: 800, height: 600}], ["getHeightAsync", "height", 600], ["getWidthAsync", "width", 800],
-            ["getMaxSizeAsync", "maxSize", {width: 1600, height: 1200}], ["getMaxHeightAsync", "maxHeight", 1200], ["getMaxWidthAsync", "maxWidth", 1600],
-            ["getMinSizeAsync", "minSize", {width: 320, height: 200}], ["getMinHeightAsync", "minHeight", 200], ["getMinWidthAsync", "minWidth", 320],
+            ["getSizeAsync", "size", {
+                width: 800,
+                height: 600
+            }], ["getHeightAsync", "height", 600], ["getWidthAsync", "width", 800],
+            ["getMaxSizeAsync", "maxSize", {
+                width: 1600,
+                height: 1200
+            }], ["getMaxHeightAsync", "maxHeight", 1200], ["getMaxWidthAsync", "maxWidth", 1600],
+            ["getMinSizeAsync", "minSize", {
+                width: 320,
+                height: 200
+            }], ["getMinHeightAsync", "minHeight", 200], ["getMinWidthAsync", "minWidth", 320],
             ["isResizableAsync", "isResizable", true]
         ].map(([method, command, result]) => ({method: method as string, command: command as string, result})),
         posts: [
-            ["setSize", "setSize", [800, 600], {width: 800, height: 600}], ["setHeight", "setHeight", [600], {height: 600}], ["setWidth", "setWidth", [800], {width: 800}],
-            ["setMaxSize", "setMaxSize", [1600, 1200], {width: 1600, height: 1200}], ["setMaxHeight", "setMaxHeight", [1200], {height: 1200}], ["setMaxWidth", "setMaxWidth", [1600], {width: 1600}],
-            ["setMinSize", "setMinSize", [320, 200], {width: 320, height: 200}], ["setMinHeight", "setMinHeight", [200], {height: 200}], ["setMinWidth", "setMinWidth", [320], {width: 320}],
-            ["resize", "resize", [10, 20, "bottomRight"], {widthOffset: 10, heightOffset: 20, origin: "bottomRight"}], ["setResizable", "setResizable", [false], {resizable: false}]
-        ].map(([method, command, parameters, args]) => ({method: method as string, command: command as string, parameters: parameters as unknown[], args}))
+            ["setSize", "setSize", [800, 600], {
+                width: 800,
+                height: 600
+            }], ["setHeight", "setHeight", [600], {height: 600}], ["setWidth", "setWidth", [800], {width: 800}],
+            ["setMaxSize", "setMaxSize", [1600, 1200], {
+                width: 1600,
+                height: 1200
+            }], ["setMaxHeight", "setMaxHeight", [1200], {height: 1200}], ["setMaxWidth", "setMaxWidth", [1600], {width: 1600}],
+            ["setMinSize", "setMinSize", [320, 200], {
+                width: 320,
+                height: 200
+            }], ["setMinHeight", "setMinHeight", [200], {height: 200}], ["setMinWidth", "setMinWidth", [320], {width: 320}],
+            ["resize", "resize", [10, 20, "bottomRight"], {
+                widthOffset: 10,
+                heightOffset: 20,
+                origin: "bottomRight"
+            }], ["setResizable", "setResizable", [false], {resizable: false}]
+        ].map(([method, command, parameters, args]) => ({
+            method: method as string,
+            command: command as string,
+            parameters: parameters as unknown[],
+            args
+        }))
     },
     {
         feature: "state",
         gets: [
             ["isFullScreenAsync", "isFullScreen", false], ["isMaximizedAsync", "isMaximized", false], ["isMinimizedAsync", "isMinimized", false],
             ["isTopMostAsync", "isTopMost", false], ["isFocusedAsync", "isFocused", true], ["getZoomFactorAsync", "zoomFactor", 100],
-            ["isZoomEnabledAsync", "isZoomEnabled", true], ["getCachedPreFullScreenBoundsAsync", "cachedPreFullScreenBounds", {x: 0, y: 0, width: 800, height: 600}],
+            ["isZoomEnabledAsync", "isZoomEnabled", true], ["getCachedPreFullScreenBoundsAsync", "cachedPreFullScreenBounds", {
+                x: 0,
+                y: 0,
+                width: 800,
+                height: 600
+            }],
             ["getCachedPreMaximizedBoundsAsync", "cachedPreMaximizedBounds", {x: 0, y: 0, width: 800, height: 600}]
         ].map(([method, command, result]) => ({method: method as string, command: command as string, result})),
         posts: [
-            ["setCachedPreFullScreenBounds", "setCachedPreFullScreenBounds", [{x: 1, y: 2, width: 800, height: 600}], {bounds: {x: 1, y: 2, width: 800, height: 600}}],
-            ["setCachedPreMaximizedBounds", "setCachedPreMaximizedBounds", [{x: 3, y: 4, width: 1024, height: 768}], {bounds: {x: 3, y: 4, width: 1024, height: 768}}],
+            ["setCachedPreFullScreenBounds", "setCachedPreFullScreenBounds", [{
+                x: 1,
+                y: 2,
+                width: 800,
+                height: 600
+            }], {bounds: {x: 1, y: 2, width: 800, height: 600}}],
+            ["setCachedPreMaximizedBounds", "setCachedPreMaximizedBounds", [{
+                x: 3,
+                y: 4,
+                width: 1024,
+                height: 768
+            }], {bounds: {x: 3, y: 4, width: 1024, height: 768}}],
             ["setMaximized", "setMaximized", [false], {maximized: false}], ["toggleMaximized", "toggleMaximized", [], undefined], ["setMinimized", "setMinimized", [false], {minimized: false}],
             ["setFullScreen", "setFullScreen", [false], {fullScreen: false}], ["setFocused", "setFocused", [], undefined], ["setZoomFactor", "setZoomFactor", [125], {zoom: 125}],
             ["enableZoom", "enableZoom", [false], {enabled: false}], ["setTopMost", "setTopMost", [false], {topMost: false}]
-        ].map(([method, command, parameters, args]) => ({method: method as string, command: command as string, parameters: parameters as unknown[], args}))
+        ].map(([method, command, parameters, args]) => ({
+            method: method as string,
+            command: command as string,
+            parameters: parameters as unknown[],
+            args
+        }))
     },
     {
         feature: "webMessaging",
@@ -180,7 +326,11 @@ describe.each(contracts)("$feature window feature", ({feature, gets = [], posts 
             assignMessageReceivedHandler: vi.fn(),
             unregisterMessageReceivedHandler: vi.fn()
         } as unknown as InfiniFrameHostMessaging;
-        window.infiniframe = {messaging, window: {} as InfiniFrameWindow, utils: {setPointerCapture: vi.fn(), releasePointerCapture: vi.fn()}};
+        window.infiniframe = {
+            messaging,
+            window: {} as InfiniFrameWindow,
+            utils: {setPointerCapture: vi.fn(), releasePointerCapture: vi.fn()}
+        };
         windowApi = new InfiniFrameWindow();
         window.infiniframe.window = windowApi;
     });
@@ -223,7 +373,11 @@ describe("strongly typed feature behavior", () => {
             assignMessageReceivedHandler: vi.fn(),
             unregisterMessageReceivedHandler: vi.fn()
         } as unknown as InfiniFrameHostMessaging;
-        window.infiniframe = {messaging, window: {} as InfiniFrameWindow, utils: {setPointerCapture: vi.fn(), releasePointerCapture: vi.fn()}};
+        window.infiniframe = {
+            messaging,
+            window: {} as InfiniFrameWindow,
+            utils: {setPointerCapture: vi.fn(), releasePointerCapture: vi.fn()}
+        };
         windowApi = new InfiniFrameWindow();
         window.infiniframe.window = windowApi;
     });

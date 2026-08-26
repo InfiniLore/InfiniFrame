@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <PackageId>InfiniLore.InfiniFrame.SingleFile</PackageId>
+        <Description>Single-file packaging for InfiniFrame applications. Embeds all static web assets, native libraries, and framework files into a single executable.</Description>
+        <PackageTags>infiniframe;publish;single-file;blazor</PackageTags>
+    </PropertyGroup>
+
+    <!-- Copy .targets to output so it's found at runtime (dotnet run) -->
+    <ItemGroup>
+        <None Include="InfiniFrame.SingleFile.targets" CopyToOutputDirectory="PreserveNewest"/>
+    </ItemGroup>
+
+    <!-- Ship the .targets file with the NuGet package so consumers can use dotnet publish -t:InfiniFrameSingleFile -->
+    <ItemGroup>
+        <None Include="InfiniFrame.SingleFile.targets" Pack="true" PackagePath="build/InfiniLore.InfiniFrame.SingleFile.targets"/>
+        <None Include="InfiniFrame.SingleFile.targets" Pack="true" PackagePath="buildTransitive/InfiniLore.InfiniFrame.SingleFile.targets"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\InfiniFrame\InfiniFrame.csproj"/>
+        <ProjectReference Include="..\InfiniFrame.BlazorWebView\InfiniFrame.BlazorWebView.csproj"/>
+    </ItemGroup>
+</Project>

@@ -10,9 +10,9 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 namespace {
-    constexpr const char* LoopbackAddress = "127.0.0.1";
-    constexpr const char* InspectorServerEnvVar = "WEBKIT_INSPECTOR_SERVER";
-    constexpr const char* InspectorHttpServerEnvVar = "WEBKIT_INSPECTOR_HTTP_SERVER";
+    constexpr auto LoopbackAddress = "127.0.0.1";
+    constexpr auto InspectorServerEnvVar = "WEBKIT_INSPECTOR_SERVER";
+    constexpr auto InspectorHttpServerEnvVar = "WEBKIT_INSPECTOR_HTTP_SERVER";
 
     std::string BuildInspectorBinding(const int port) {
         return std::string{LoopbackAddress} + ":" + std::to_string(port);
@@ -20,8 +20,9 @@ namespace {
 
     [[noreturn]] void ThrowEnvMutationFailure(const char* operation, const char* variableName) {
         throw std::runtime_error(
-            std::string{"Failed to "} + operation + " " + variableName + " for Linux remote debugging: " + std::strerror(errno)
-        );
+            std::string{"Failed to "} + operation + " " + variableName + " for Linux remote debugging: " +
+            std::strerror(errno)
+            );
     }
 }
 
@@ -45,5 +46,5 @@ void InfiniFrameWindow::Impl::configure_webkit_remote_debugging() const {
         binding.c_str(),
         InspectorServerEnvVar,
         InspectorHttpServerEnvVar
-    );
+        );
 }

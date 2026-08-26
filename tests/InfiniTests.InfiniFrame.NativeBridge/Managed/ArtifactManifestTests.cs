@@ -2,8 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Diagnostics.CodeAnalysis;
-using InfiniFrame.NativeBridge;
 using System.Runtime.InteropServices;
+using InfiniFrame.NativeBridge;
 
 namespace InfiniTests.InfiniFrame.NativeBridge.Managed;
 // ---------------------------------------------------------------------------------------------------------------------

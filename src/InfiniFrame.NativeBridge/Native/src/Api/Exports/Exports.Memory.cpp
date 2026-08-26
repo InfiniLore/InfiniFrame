@@ -7,26 +7,28 @@
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
 EXPORTED InteropStatus InfiniFrameNative_FreeString(const char* value) {
-    return RunExportStatus([&] {
-        if (!EnsureNotNull(value, "value"))
-            return;
-        delete[] value;
-    });
+    return RunExportStatus(
+        [&] {
+            if (!EnsureNotNull(value, "value"))
+                return;
+            delete[] value;
+        });
 }
 
 EXPORTED InteropStatus InfiniFrameNative_FreeStringArray(const char** values, const int count) {
-    return RunExportStatus([&] {
-        if (!EnsureNotNull(values, "values"))
-            return;
-        if (count < 0)
-            throw std::invalid_argument("Argument 'count' must be >= 0.");
-        for (int i = 0; i < count; ++i) {
-            if (values[i] != nullptr) {
-                InfiniFrameNative_FreeString(values[i]);
+    return RunExportStatus(
+        [&] {
+            if (!EnsureNotNull(values, "values"))
+                return;
+            if (count < 0)
+                throw std::invalid_argument("Argument 'count' must be >= 0.");
+            for (int i = 0; i < count; ++i) {
+                if (values[i] != nullptr) {
+                    InfiniFrameNative_FreeString(values[i]);
+                }
             }
-        }
-        delete[] values;
-    });
+            delete[] values;
+        });
 }
 
 /// @param[out] value Owned string, caller must free with InfiniFrameNative_FreeString.

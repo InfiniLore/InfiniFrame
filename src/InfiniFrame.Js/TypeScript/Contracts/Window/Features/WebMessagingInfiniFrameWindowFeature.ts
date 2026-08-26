@@ -5,6 +5,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export interface WebMessagingInfiniFrameWindowFeature { 
+export interface WebMessagingInfiniFrameWindowFeature {
     sendWebMessage(message: string): void
 }

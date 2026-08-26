@@ -4,8 +4,8 @@
 import type {
     InfiniFrame as InfiniFrameContract,
     InfiniFrameHostBridge,
-    InfiniFrameSetup,
     InfiniFrameHostMessaging as InfiniFrameHostMessagingContract,
+    InfiniFrameSetup,
     InfiniFrameUtils as InfiniFrameUtilsContract,
     InfiniFrameWindow as InfiniFrameWindowContract
 } from "./Contracts";

@@ -16,27 +16,27 @@ public sealed class InfiniFrameUriSecurityPolicy(
         [Uri.UriSchemeHttps, Uri.UriSchemeHttp, Uri.UriSchemeMailto]
     );
 
-    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.AllowedNavigationSchemes"/>
+    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.AllowedNavigationSchemes" />
     public IReadOnlySet<string> AllowedNavigationSchemes { get; } = NormalizeSchemes(allowedNavigationSchemes);
-    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.AllowedExternalSchemes"/>
+    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.AllowedExternalSchemes" />
     public IReadOnlySet<string> AllowedExternalSchemes { get; } = NormalizeSchemes(allowedExternalSchemes);
-    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.TrustedOrigins"/>
+    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.TrustedOrigins" />
     public IReadOnlySet<Uri> TrustedOrigins { get; } = NormalizeTrustedOrigins(trustedOrigins ?? []);
-    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.TrustAllOrigins"/>
+    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.TrustAllOrigins" />
     public bool TrustAllOrigins { get; } = trustAllOrigins;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.IsNavigationSchemeAllowed(string)"/>
+    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.IsNavigationSchemeAllowed(string)" />
     public bool IsNavigationSchemeAllowed(string scheme)
         => AllowedNavigationSchemes.Contains(scheme);
 
-    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.IsExternalSchemeAllowed(string)"/>
+    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.IsExternalSchemeAllowed(string)" />
     public bool IsExternalSchemeAllowed(string scheme)
         => AllowedExternalSchemes.Contains(scheme);
 
-    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.IsTrustedOrigin(Uri)"/>
+    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.IsTrustedOrigin(Uri)" />
     public bool IsTrustedOrigin(Uri candidateOrigin) {
         ArgumentNullException.ThrowIfNull(candidateOrigin);
 
@@ -44,7 +44,7 @@ public sealed class InfiniFrameUriSecurityPolicy(
             && (TrustAllOrigins || TrustedOrigins.Any(trustedOrigin => IsSameOrigin(candidateOrigin, trustedOrigin)));
     }
 
-    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.IsTrustedOrigin(Uri, Uri)"/>
+    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.IsTrustedOrigin(Uri, Uri)" />
     public bool IsTrustedOrigin(Uri candidateOrigin, Uri trustedOrigin) {
         ArgumentNullException.ThrowIfNull(candidateOrigin);
         ArgumentNullException.ThrowIfNull(trustedOrigin);
@@ -53,13 +53,13 @@ public sealed class InfiniFrameUriSecurityPolicy(
             && (TrustAllOrigins || IsSameOrigin(candidateOrigin, trustedOrigin));
     }
 
-    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.WithTrustedOrigin"/>
+    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.WithTrustedOrigin" />
     public IInfiniFrameUriSecurityPolicy WithTrustedOrigin(Uri trustedOrigin) {
         ArgumentNullException.ThrowIfNull(trustedOrigin);
         return WithTrustedOrigins([trustedOrigin]);
     }
 
-    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.WithTrustedOrigins"/>
+    /// <inheritdoc cref="IInfiniFrameUriSecurityPolicy.WithTrustedOrigins" />
     public IInfiniFrameUriSecurityPolicy WithTrustedOrigins(IEnumerable<Uri> trustedOrigins) {
         ArgumentNullException.ThrowIfNull(trustedOrigins);
 
@@ -94,8 +94,8 @@ public sealed class InfiniFrameUriSecurityPolicy(
 
     private static bool IsSameOrigin(Uri left, Uri right)
         => string.Equals(left.Scheme, right.Scheme, StringComparison.OrdinalIgnoreCase)
-        && string.Equals(left.Host, right.Host, StringComparison.OrdinalIgnoreCase)
-        && left.Port == right.Port;
+            && string.Equals(left.Host, right.Host, StringComparison.OrdinalIgnoreCase)
+            && left.Port == right.Port;
 
     private sealed class OriginComparer : IEqualityComparer<Uri> {
         public static OriginComparer Instance { get; } = new();

@@ -26,15 +26,21 @@ struct DialogOperation final {
     std::atomic<int32_t> finalResult = static_cast<int32_t>(NativeOperationResult::Completed);
 
     DialogOperation(
-        const uint64_t operationId, std::string operationName,
-        const FileDialogCompletedCallback completion, void* context
-    ) : id(operationId), kind(Kind::File), name(std::move(operationName)),
+        const uint64_t operationId,
+        std::string operationName,
+        const FileDialogCompletedCallback completion,
+        void* context
+        ) :
+        id(operationId), kind(Kind::File), name(std::move(operationName)),
         fileCompletion(completion), completionContext(context) {}
 
     DialogOperation(
-        const uint64_t operationId, std::string operationName,
-        const OperationCompletedCallback completion, void* context
-    ) : id(operationId), kind(Kind::Message), name(std::move(operationName)),
+        const uint64_t operationId,
+        std::string operationName,
+        const OperationCompletedCallback completion,
+        void* context
+        ) :
+        id(operationId), kind(Kind::Message), name(std::move(operationName)),
         messageCompletion(completion), completionContext(context) {}
 
     void SetCancelAction(std::function<void()> action);

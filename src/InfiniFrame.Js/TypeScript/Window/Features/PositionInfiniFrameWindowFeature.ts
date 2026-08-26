@@ -1,13 +1,15 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {PositionInfiniFrameWindowFeature as Contract,Point} from "../../Contracts";
+import type {Point, PositionInfiniFrameWindowFeature as Contract} from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export class PositionInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
-    constructor(){super("position");}
+    constructor() {
+        super("position");
+    }
 
     getLocationAsync() {
         return this.get<Point>("location");
@@ -33,7 +35,7 @@ export class PositionInfiniFrameWindowFeature extends InfiniFrameWindowFeature i
         return this.post("setTop", {top});
     }
 
-    offset(left:number, top:number) {
+    offset(left: number, top: number) {
         return this.post("offset", {left, top});
     }
 

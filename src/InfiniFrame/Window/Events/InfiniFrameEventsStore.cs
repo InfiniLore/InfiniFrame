@@ -1,61 +1,62 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Drawing;
 using InfiniFrame.Debugging;
 using InfiniFrame.DragDrop;
-using System.Drawing;
+
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameEventsStore : IInfiniFrameEventsStore {
-    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowLocationChanged"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowLocationChanged" />
     public OrderedEvent<Point> WindowLocationChanged { get; } = new();
-    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowSizeChanged"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowSizeChanged" />
     public OrderedEvent<Size> WindowSizeChanged { get; } = new();
-    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowFocusIn"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowFocusIn" />
     public OrderedEvent WindowFocusIn { get; } = new();
-    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowMaximized"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowMaximized" />
     public OrderedEvent WindowMaximized { get; } = new();
-    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowRestored"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowRestored" />
     public OrderedEvent WindowRestored { get; } = new();
-    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowFocusOut"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowFocusOut" />
     public OrderedEvent WindowFocusOut { get; } = new();
-    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowMinimized"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowMinimized" />
     public OrderedEvent WindowMinimized { get; } = new();
-    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowClosingRequested"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowClosingRequested" />
     public OrderedEvent WindowClosingRequested { get; } = new();
-    /// <inheritdoc cref="IInfiniFrameEventsStore.Closing"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.Closing" />
     public OrderedResultEvent<EventArgs?, WindowClosingResult> Closing { get; } = new();
-    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowClosed"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowClosed" />
     public OrderedEvent WindowClosed { get; } = new();
-    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowCreating"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowCreating" />
     public OrderedEvent WindowCreating { get; } = new();
-    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowCreated"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.WindowCreated" />
     public OrderedEvent WindowCreated { get; } = new();
 
-    /// <inheritdoc cref="IInfiniFrameEventsStore.WebMessageReceived"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.WebMessageReceived" />
     public OrderedEvent<InfiniFrameWebMessageReceivedEvent> WebMessageReceived { get; } = new();
-    /// <inheritdoc cref="IInfiniFrameEventsStore.DebuggingEvent"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.DebuggingEvent" />
     public OrderedEvent<InfiniFrameDebugEventArgs> DebuggingEvent { get; } = new();
-    /// <inheritdoc cref="IInfiniFrameEventsStore.WebMessagePostData"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.WebMessagePostData" />
     public KeyedEvent<string, string?> WebMessagePostData { get; } = new();
-    /// <inheritdoc cref="IInfiniFrameEventsStore.WebMessageGetData"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.WebMessageGetData" />
     public KeyedResultEvent<string, string?, string?> WebMessageGetData { get; } = new();
 
-    /// <inheritdoc cref="IInfiniFrameEventsStore.FileDropped"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.FileDropped" />
     public OrderedEvent<FileDroppedEventArgs> FileDropped { get; } = new();
-    /// <inheritdoc cref="IInfiniFrameEventsStore.CustomScheme"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.CustomScheme" />
     public KeyedResultEvent<string, string, (Stream? Data, string? ContentType)> CustomScheme { get; } = new();
-    /// <inheritdoc cref="IInfiniFrameEventsStore.NavigationStarting"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.NavigationStarting" />
     public OrderedResultEvent<NavigationStartingEventArgs, NavigationStartingResult> NavigationStarting { get; } = new();
-    /// <inheritdoc cref="IInfiniFrameEventsStore.CopyTo"/>
+    /// <inheritdoc cref="IInfiniFrameEventsStore.CopyTo" />
     public void CopyTo(IInfiniFrameEventsStore target) {
         CopyHandlers(WebMessageReceived.Snapshot, target.WebMessageReceived.Add);
         CopyHandlers(DebuggingEvent.Snapshot, target.DebuggingEvent.Add);
-        CopyHandlers(WebMessagePostData.Snapshot, static (t, item) => t.WebMessagePostData.Add(item.Key, item.Value), target);
-        CopyHandlers(WebMessageGetData.Snapshot, static (t, item) => t.WebMessageGetData.Add(item.Key, item.Value), target);
-        CopyHandlers(CustomScheme.Snapshot, static (t, item) => t.CustomScheme.Add(item.Key, item.Value), target);
+        CopyHandlers(WebMessagePostData.Snapshot, addHandler: static (t, item) => t.WebMessagePostData.Add(item.Key, item.Value), target);
+        CopyHandlers(WebMessageGetData.Snapshot, addHandler: static (t, item) => t.WebMessageGetData.Add(item.Key, item.Value), target);
+        CopyHandlers(CustomScheme.Snapshot, addHandler: static (t, item) => t.CustomScheme.Add(item.Key, item.Value), target);
 
         CopyHandlers(WindowClosed.Snapshot, target.WindowClosed.Add);
         CopyHandlers(Closing.Snapshot, target.Closing.Add);

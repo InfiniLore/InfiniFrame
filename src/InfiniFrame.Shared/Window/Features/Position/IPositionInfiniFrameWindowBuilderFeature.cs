@@ -36,7 +36,7 @@ public interface IPositionInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBu
     void SetLocation(int left, int top);
 
     /// <summary>
-    ///     Sets the position of the window using a <see cref="Point"/>.
+    ///     Sets the position of the window using a <see cref="Point" />.
     /// </summary>
     /// <param name="location">The location point.</param>
     void SetLocation(Point location);

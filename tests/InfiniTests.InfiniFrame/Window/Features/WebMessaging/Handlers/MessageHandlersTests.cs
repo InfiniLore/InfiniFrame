@@ -6,7 +6,6 @@ using InfiniFrame.Interop;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniTests.Substitutes;
 using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
 
 namespace InfiniTests.InfiniFrame.Window.Features.WebMessaging.Handlers;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -23,9 +22,7 @@ public class MessageHandlersTests {
         events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.WindowClose));
 
         // Assert
-        int closeCallCount = window.Window.Features.Lifecycle.ReceivedCalls()
-            .Count(call => string.Equals(call.GetMethodInfo().Name, nameof(ILifecycleInfiniFrameWindowFeature.Close), StringComparison.Ordinal));
-        await Assert.That(closeCallCount).IsEqualTo(1);
+        window.Lifecycle.Close().WasCalled(Times.Once);
     }
 
     [Test]
@@ -54,9 +51,7 @@ public class MessageHandlersTests {
         events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.FullscreenToggle));
 
         // Assert
-        int invokeCallCount = window.Window.Features.State.ReceivedCalls()
-            .Count(call => string.Equals(call.GetMethodInfo().Name, nameof(IStateInfiniFrameWindowFeature.SetFullScreen), StringComparison.Ordinal));
-        await Assert.That(invokeCallCount).IsEqualTo(1);
+        await Assert.That(Mock.Invocations(window.State).Count(c => c.MemberName == "SetFullScreen")).IsEqualTo(1);
     }
 
     [Test]
@@ -69,9 +64,7 @@ public class MessageHandlersTests {
         events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.TitleChanged, "new title"));
 
         // Assert
-        int invokeCallCount = window.Window.Features.Decorations.ReceivedCalls()
-            .Count(call => string.Equals(call.GetMethodInfo().Name, nameof(IDecorationsInfiniFrameWindowFeature.SetTitle), StringComparison.Ordinal));
-        await Assert.That(invokeCallCount).IsEqualTo(1);
+        window.Decorations.SetTitle(Any<string?>()).WasCalled(Times.Once);
     }
 
     [Test]
@@ -84,9 +77,7 @@ public class MessageHandlersTests {
         events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.TitleChanged));
 
         // Assert
-        int invokeCallCount = window.Window.Features.Decorations.ReceivedCalls()
-            .Count(call => string.Equals(call.GetMethodInfo().Name, nameof(IDecorationsInfiniFrameWindowFeature.SetTitle), StringComparison.Ordinal));
-        await Assert.That(invokeCallCount).IsEqualTo(0);
+        window.Decorations.SetTitle(Any<string?>()).WasNeverCalled();
     }
 
     private static (InfiniFrameWindowBuilder Builder, InfiniFrameEvents Events, RecordingInfiniFrameWindowSubstitute Window) CreateWindowHarness() {

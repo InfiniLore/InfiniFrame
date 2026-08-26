@@ -10,7 +10,13 @@ namespace InfiniTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class PortUtils {
+    #if NET9_0_OR_GREATER
+    private static readonly Lock RecentlyReturnedPortsLock = new();
+    #else
+    // ReSharper disable once ChangeFieldTypeToSystemThreadingLock
     private static readonly object RecentlyReturnedPortsLock = new();
+    #endif
+
     private static readonly HashSet<int> RecentlyReturnedPorts = [];
 
     /// <summary>

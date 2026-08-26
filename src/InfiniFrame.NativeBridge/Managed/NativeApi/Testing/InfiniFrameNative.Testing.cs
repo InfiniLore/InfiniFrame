@@ -16,8 +16,10 @@ public static partial class InfiniFrameNativeTesting {
 
     public static nuint MacPooledHostCount() {
         if (!OperatingSystem.IsMacOS()) throw new PlatformNotSupportedException();
+
         InfiniFrameNativeInteropStatus status = MacPooledHostCountNative(out nuint value);
         if (status != InfiniFrameNativeInteropStatus.Success) throw new InvalidOperationException($"Native pool query failed: {status}");
+
         return value;
     }
     /// <summary>
@@ -61,7 +63,7 @@ public static partial class InfiniFrameNativeTesting {
     internal static InfiniFrameNativeInteropStatus NativeParametersReturnAsIsPtr(ref InfiniFrameNativeParameters parameters, out IntPtr newParametersPtr) {
         var marshaller = new InfiniFrameNativeParametersMarshaller.ManagedToUnmanagedIn();
         marshaller.FromManaged(parameters);
-        InfiniFrameNativeParametersMarshaller.Unmanaged unmanaged = marshaller.ToUnmanaged();
+        var unmanaged = marshaller.ToUnmanaged();
         InfiniFrameNativeInteropStatus status;
         IntPtr unmanagedPtr = IntPtr.Zero;
 

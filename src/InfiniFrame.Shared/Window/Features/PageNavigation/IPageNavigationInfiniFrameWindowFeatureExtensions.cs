@@ -11,12 +11,12 @@ public static class IPageNavigationInfiniFrameWindowFeatureExtensions {
     /// </summary>
     /// <param name="window">The window instance.</param>
     /// <param name="uri">The URI to load.</param>
-    /// <returns>The <see cref="IInfiniFrameWindow"/> for method chaining.</returns>
+    /// <returns>The <see cref="IInfiniFrameWindow" /> for method chaining.</returns>
     public static IInfiniFrameWindow Load(this IInfiniFrameWindow window, Uri uri) {
         window.Features.PageNavigation.Load(uri);
         return window;
     }
-    
+
     /// <summary>
     ///     Loads the specified URI in the window and returns the window for chaining.
     /// </summary>
@@ -46,7 +46,7 @@ public static class IPageNavigationInfiniFrameWindowFeatureExtensions {
     /// </summary>
     /// <param name="window">The window instance.</param>
     /// <param name="path">The file path or URL string to load.</param>
-    /// <returns>The <see cref="IInfiniFrameWindow"/> for method chaining.</returns>
+    /// <returns>The <see cref="IInfiniFrameWindow" /> for method chaining.</returns>
     public static IInfiniFrameWindow Load(this IInfiniFrameWindow window, string path) {
         window.Features.PageNavigation.Load(path);
         return window;
@@ -57,7 +57,7 @@ public static class IPageNavigationInfiniFrameWindowFeatureExtensions {
     /// </summary>
     /// <param name="window">The window instance.</param>
     /// <param name="content">The raw HTML content to load.</param>
-    /// <returns>The <see cref="IInfiniFrameWindow"/> for method chaining.</returns>
+    /// <returns>The <see cref="IInfiniFrameWindow" /> for method chaining.</returns>
     public static IInfiniFrameWindow LoadRawString(this IInfiniFrameWindow window, string content) {
         window.Features.PageNavigation.LoadRawString(content);
         return window;
@@ -82,7 +82,7 @@ public static class IPageNavigationInfiniFrameWindowFeatureExtensions {
     /// <returns>The current page URL, or null.</returns>
     public static string? GetCurrentUrl(this IInfiniFrameWindow window)
         => window.Features.PageNavigation.GetCurrentUrl();
-    
+
     /// <summary>
     ///     Gets the current page URL as a Uri, or null if no URL is available.
     /// </summary>

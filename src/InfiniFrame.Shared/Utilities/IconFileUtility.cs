@@ -16,11 +16,15 @@ internal static class IconFileUtility {
     /// </summary>
     /// <param name="filePath">The relative or absolute file path to resolve.</param>
     /// <param name="resolvedFilePath">When this method returns, contains the resolved full path if the file exists.</param>
-    /// <param name="baseDirectory">The base directory to use for relative path resolution. If null, <see cref="AppContext.BaseDirectory" /> is used.</param>
+    /// <param name="baseDirectory">
+    ///     The base directory to use for relative path resolution. If null,
+    ///     <see cref="AppContext.BaseDirectory" /> is used.
+    /// </param>
     /// <returns><c>true</c> if the icon file was found; otherwise, <c>false</c>.</returns>
     public static bool TryResolveIconFilePath(
         string? filePath,
-        [NotNullWhen(true)] out string? resolvedFilePath,
+        [NotNullWhen(true)]
+        out string? resolvedFilePath,
         string? baseDirectory = null
     ) {
         resolvedFilePath = null;

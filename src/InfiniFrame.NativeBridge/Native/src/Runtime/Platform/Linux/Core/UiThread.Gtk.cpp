@@ -20,7 +20,7 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 namespace {
-    constexpr const char* NotifyAppName = "InfiniFrame";
+    constexpr auto NotifyAppName = "InfiniFrame";
 
     std::once_flag initializeOnce;
     std::mutex initializeMutex;
@@ -53,8 +53,7 @@ namespace {
         }
         try {
             state->callback();
-        }
-        catch (...) {
+        } catch (...) {
             state->failure = std::current_exception();
         }
 
@@ -90,34 +89,49 @@ namespace {
 
 namespace infiniframe::linux_gtk::ui_thread {
     void EnsureInitialized() {
-        std::call_once(initializeOnce, [] {
-            std::atexit(AtexitShutdown);
+        std::call_once(
+            initializeOnce, [] {
+                std::atexit(AtexitShutdown);
 
-            gtkThread = std::thread([] {
-                infiniframe::linux_gtk::ConfigureGraphicsEnvironment();
-                XInitThreads();
-                gtk_init(nullptr, nullptr);
-                notify_init(NotifyAppName);
+                gtkThread = std::thread(
+                    [] {
+                        linux_gtk::ConfigureGraphicsEnvironment();
+                        XInitThreads();
+                        gtk_init(nullptr, nullptr);
+                        notify_init(NotifyAppName);
 
-                {
-                    std::lock_guard lock(initializeMutex);
-                    ownerThreadId = std::this_thread::get_id();
-                    ownerContext = g_main_context_default();
-                    initialized = true;
-                    initializeCompleted.notify_all();
-                }
+                        {
+                            std::lock_guard lock(initializeMutex);
+                            ownerThreadId = std::this_thread::get_id();
+                            ownerContext = g_main_context_default();
+                            initialized = true;
+                            initializeCompleted.notify_all();
+                        }
 
-                mainLoop = g_main_loop_new(ownerContext, FALSE);
-                g_main_loop_run(mainLoop);
-                g_main_loop_unref(mainLoop);
-                mainLoop = nullptr;
+                        mainLoop = g_main_loop_new(ownerContext, FALSE);
+                        g_main_loop_run(mainLoop);
 
-                notify_uninit();
+                        // Drain pending sources (e.g. WebKit web-process cleanup idle
+                        // callbacks) so they complete while the X11 display connection
+                        // is still valid. Without this, they fire later during process
+                        // teardown when GLib/GDK/X11 objects are half-torn-down,
+                        // causing SIGABRT on libwebkit2gtk-4.1.
+                        while (g_main_context_pending(ownerContext)) {
+                            g_main_context_iteration(ownerContext, FALSE);
+                        }
+
+                        g_main_loop_unref(mainLoop);
+                        mainLoop = nullptr;
+
+                        notify_uninit();
+                    });
+
+                std::unique_lock lock(initializeMutex);
+                initializeCompleted.wait(
+                    lock, [] {
+                        return initialized;
+                    });
             });
-
-            std::unique_lock lock(initializeMutex);
-            initializeCompleted.wait(lock, [] { return initialized; });
-        });
     }
 
     void Shutdown() {
@@ -159,7 +173,7 @@ namespace infiniframe::linux_gtk::ui_thread {
             g_source_set_priority(source, priority);
             g_source_set_callback(
                 source, ExecuteAsync, new std::function<void()>(std::move(callback)), nullptr
-            );
+                );
             const guint sourceId = g_source_attach(source, ownerContext);
             g_source_unref(source);
             if (sourceId == 0)
@@ -193,11 +207,15 @@ namespace infiniframe::linux_gtk::ui_thread {
         state->callback = std::move(callback);
 
         g_main_context_invoke_full(
-            ownerContext, G_PRIORITY_DEFAULT, InvokeOnOwnerContext, new std::shared_ptr<InvokeState>(state), ReleaseInvokeState
-        );
+            ownerContext, G_PRIORITY_DEFAULT, InvokeOnOwnerContext, new std::shared_ptr<InvokeState>(state),
+            ReleaseInvokeState
+            );
 
         std::unique_lock lock(state->completionMutex);
-        const bool completed = state->completion.wait_for(lock, std::chrono::seconds(15), [&] { return state->completed; });
+        const bool completed = state->completion.wait_for(
+            lock, std::chrono::seconds(15), [&] {
+                return state->completed;
+            });
         if (!completed) {
             // If the UI callback has not started, suppress it. If it won the race, keep the P/Invoke alive until it
             // completes; returning while it runs would leave native code holding an invalid managed callback.
@@ -206,7 +224,10 @@ namespace infiniframe::linux_gtk::ui_thread {
                 g_warning("InfiniFrame UI dispatch timed out; late callback suppressed.");
                 return;
             }
-            state->completion.wait(lock, [&] { return state->completed; });
+            state->completion.wait(
+                lock, [&] {
+                    return state->completed;
+                });
         }
 
         if (state->failure != nullptr) {

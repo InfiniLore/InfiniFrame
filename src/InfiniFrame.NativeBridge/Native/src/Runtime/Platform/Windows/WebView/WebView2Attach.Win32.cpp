@@ -18,8 +18,8 @@ using namespace Microsoft::WRL;
 namespace {
     int64_t unix_timestamp_milliseconds_utc() {
         return std::chrono::duration_cast<std::chrono::milliseconds>(
-                   std::chrono::system_clock::now().time_since_epoch()
-               )
+                std::chrono::system_clock::now().time_since_epoch()
+                )
             .count();
     }
 }
@@ -115,7 +115,7 @@ void InfiniFrameWindow::AttachWebView() {
             TraceTeardown(
                 L"AttachWebView: temporary user-data path is not writable. Falling back to default path. path=%ls",
                 m_impl->_temporaryFilesPath.c_str()
-            );
+                );
     }
 
     HRESULT envResult = CreateCoreWebView2EnvironmentWithOptions(
@@ -167,7 +167,7 @@ void InfiniFrameWindow::AttachWebView() {
                                 m_impl->_isWebView2Initializing = false;
                                 TraceTeardown(
                                     L"CreateController callback failed hr=0x%08X", static_cast<unsigned>(result)
-                                );
+                                    );
                                 return result;
                             }
                             if (controller == nullptr) {
@@ -190,11 +190,12 @@ void InfiniFrameWindow::AttachWebView() {
                             const auto js_wide = Embedded::InfiniFrameJsUtf16();
                             OutputDebugStringW(
                                 std::format(L"[InfiniFrame] Bridge script length: {} chars\n", js_wide.size()).c_str()
-                            );
+                                );
 
                             struct NavigateOnce {
                                 InfiniFrameWindow* self;
                                 bool fired = false;
+
                                 void navigate() {
                                     if (fired)
                                         return;
@@ -204,11 +205,11 @@ void InfiniFrameWindow::AttachWebView() {
                                     else if (!self->m_impl->_startString.empty())
                                         self->m_impl->_webviewWindow->NavigateToString(
                                             self->m_impl->_startString.c_str()
-                                        );
+                                            );
                                     else {
                                         OutputDebugStringW(
                                             L"[InfiniFrame] ERROR: Neither StartUrl nor StartString was specified\n"
-                                        );
+                                            );
                                         self->m_impl->_isWebView2Initializing = false;
                                     }
                                 }
@@ -243,9 +244,9 @@ void InfiniFrameWindow::AttachWebView() {
                                         }
                                         return S_OK;
                                     }
-                                ).Get(),
+                                    ).Get(),
                                 &webMessageToken
-                            );
+                                );
                             m_impl->_webMessageReceivedToken = webMessageToken;
                             m_impl->_hasWebMessageReceivedToken = true;
 
@@ -266,9 +267,9 @@ void InfiniFrameWindow::AttachWebView() {
                                         if (permissionKind == COREWEBVIEW2_PERMISSION_KIND_AUTOPLAY) {
                                             args->put_State(
                                                 m_impl->_mediaAutoplayEnabled
-                                                    ? COREWEBVIEW2_PERMISSION_STATE_ALLOW
-                                                    : COREWEBVIEW2_PERMISSION_STATE_DENY
-                                            );
+                                                ? COREWEBVIEW2_PERMISSION_STATE_ALLOW
+                                                : COREWEBVIEW2_PERMISSION_STATE_DENY
+                                                );
                                             return S_OK;
                                         }
 #endif
@@ -277,9 +278,9 @@ void InfiniFrameWindow::AttachWebView() {
                                             args->put_State(COREWEBVIEW2_PERMISSION_STATE_ALLOW);
                                         return S_OK;
                                     }
-                                ).Get(),
+                                    ).Get(),
                                 &permissionRequestedToken
-                            );
+                                );
                             m_impl->_permissionRequestedToken = permissionRequestedToken;
                             m_impl->_hasPermissionRequestedToken = true;
 
@@ -287,7 +288,8 @@ void InfiniFrameWindow::AttachWebView() {
                             m_impl->_webviewWindow->add_NavigationStarting(
                                 Callback<ICoreWebView2NavigationStartingEventHandler>(
                                     [this](ICoreWebView2*, ICoreWebView2NavigationStartingEventArgs* args) -> HRESULT {
-                                        if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire) || args == nullptr)
+                                        if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire) || args ==
+                                            nullptr)
                                             return S_OK;
 
                                         UINT64 navigationId = 0;
@@ -311,15 +313,15 @@ void InfiniFrameWindow::AttachWebView() {
                                         auto uriUtf8 = WideToUtf8(uri.get());
                                         int cancel = m_impl->_navigationStartingCallback(
                                             uriUtf8.c_str(), isUserInitiated ? 1 : 0, isRedirected ? 1 : 0, isMainFrame
-                                        );
+                                            );
                                         if (cancel) {
                                             args->put_Cancel(TRUE);
                                         }
                                         return S_OK;
                                     }
-                                ).Get(),
+                                    ).Get(),
                                 &navigationStartingToken
-                            );
+                                );
                             m_impl->_navigationStartingToken = navigationStartingToken;
                             m_impl->_hasNavigationStartingToken = true;
 
@@ -358,12 +360,12 @@ void InfiniFrameWindow::AttachWebView() {
                                                 0,
                                                 unix_timestamp_milliseconds_utc(),
                                                 nullptr
-                                            );
+                                                );
                                         } else {
                                             const std::wstring payload = std::format(
                                                 L"{{\"webErrorStatus\":{}}}",
                                                 static_cast<int>(webErrorStatus)
-                                            );
+                                                );
                                             auto sourceUtf8 = WideToUtf8(source.get());
                                             auto payloadUtf8 = WideToUtf8(payload.c_str());
                                             InvokeDebugEvent(
@@ -374,7 +376,7 @@ void InfiniFrameWindow::AttachWebView() {
                                                 static_cast<int>(webErrorStatus),
                                                 unix_timestamp_milliseconds_utc(),
                                                 payloadUtf8.c_str()
-                                            );
+                                                );
                                             InvokeDebugEvent(
                                                 "ScriptError",
                                                 "Navigation failed",
@@ -383,7 +385,7 @@ void InfiniFrameWindow::AttachWebView() {
                                                 static_cast<int>(webErrorStatus),
                                                 unix_timestamp_milliseconds_utc(),
                                                 payloadUtf8.c_str()
-                                            );
+                                                );
                                         }
 
                                         if (!m_impl->_pendingWebMessages.empty() && m_impl->_webviewWindow) {
@@ -394,12 +396,12 @@ void InfiniFrameWindow::AttachWebView() {
                                         CompleteNavigationAndSignalReady(
                                             navigationId, isSuccess != FALSE, static_cast<int>(webErrorStatus),
                                             isSuccess ? nullptr : "WebView2 navigation failed."
-                                        );
+                                            );
                                         return S_OK;
                                     }
-                                ).Get(),
+                                    ).Get(),
                                 &navigationCompletedToken
-                            );
+                                );
                             m_impl->_navigationCompletedToken = navigationCompletedToken;
                             m_impl->_hasNavigationCompletedToken = true;
 
@@ -419,7 +421,7 @@ void InfiniFrameWindow::AttachWebView() {
                                             const std::wstring payload = std::format(
                                                 L"{{\"processFailedKind\":{}}}",
                                                 static_cast<int>(processFailedKind)
-                                            );
+                                                );
                                             auto payloadUtf8 = WideToUtf8(payload.c_str());
                                             InvokeDebugEvent(
                                                 "Process",
@@ -429,12 +431,12 @@ void InfiniFrameWindow::AttachWebView() {
                                                 static_cast<int>(processFailedKind),
                                                 unix_timestamp_milliseconds_utc(),
                                                 payloadUtf8.c_str()
-                                            );
+                                                );
                                             return S_OK;
                                         }
-                                    ).Get(),
+                                        ).Get(),
                                     &processFailedToken
-                                );
+                                    );
                                 m_impl->_processFailedToken = processFailedToken;
                                 m_impl->_hasProcessFailedToken = true;
                             }
@@ -447,17 +449,17 @@ void InfiniFrameWindow::AttachWebView() {
                                             std::format(
                                                 L"[InfiniFrame] AddScriptToExecuteOnDocumentCreated callback: "
                                                 L"hr=0x{:08X} id={}\n",
-                                                (unsigned)errorCode, id ? id : L"(null)"
-                                            )
-                                                .c_str()
-                                        );
+                                                static_cast<unsigned>(errorCode), id ? id : L"(null)"
+                                                )
+                                            .c_str()
+                                            );
                                         if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
                                             return S_OK;
                                         nav->navigate();
                                         return S_OK;
                                     }
-                                ).Get()
-                            );
+                                    ).Get()
+                                );
 
                             if (FAILED(addScriptHr))
                                 nav->navigate();
@@ -472,15 +474,15 @@ void InfiniFrameWindow::AttachWebView() {
                             m_impl->_isWebView2Initializing = false;
                             return S_OK;
                         }
-                    ).Get()
-                );
+                        ).Get()
+                    );
                 if (FAILED(createControllerHr))
                     m_impl->_isWebView2Initializing = false;
 
                 return createControllerHr;
             }
-        ).Get()
-    );
+            ).Get()
+        );
 
     if (envResult != S_OK) {
         m_impl->_isWebView2Initializing = false;

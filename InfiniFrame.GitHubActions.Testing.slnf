@@ -8,7 +8,7 @@
             "src\\InfiniFrame.Js\\InfiniFrame.Js.csproj",
             "src\\InfiniFrame.NativeBridge\\InfiniFrame.NativeBridge.csproj",
             "src\\InfiniFrame.Shared\\InfiniFrame.Shared.csproj",
-            "src\\InfiniFrame.Tools.Pack\\InfiniFrame.Tools.Pack.csproj",
+            "src\\InfiniFrame.SingleFile\\InfiniFrame.SingleFile.csproj",
             "src\\InfiniFrame.WebServer\\InfiniFrame.WebServer.csproj",
             
             "tests\\InfiniTests\\InfiniTests.csproj",
@@ -18,9 +18,8 @@
             "tests\\InfiniTests.InfiniFrame.Js\\InfiniTests.InfiniFrame.Js.csproj",
             "tests\\InfiniTests.InfiniFrame.NativeBridge\\InfiniTests.InfiniFrame.NativeBridge.csproj",
             "tests\\InfiniTests.InfiniFrame.Shared\\InfiniTests.InfiniFrame.Shared.csproj",
-            "tests\\InfiniTests.InfiniFrame.WebServer\\InfiniTests.InfiniFrame.WebServer.csproj",
-            
-            "tests\\InfiniTests.InfiniFrame.Tools.Pack\\InfiniTests.InfiniFrame.Tools.Pack.csproj"
+            "tests\\InfiniTests.InfiniFrame.SingleFile\\InfiniTests.InfiniFrame.SingleFile.csproj",
+            "tests\\InfiniTests.InfiniFrame.WebServer\\InfiniTests.InfiniFrame.WebServer.csproj"
         ]
     }
 }

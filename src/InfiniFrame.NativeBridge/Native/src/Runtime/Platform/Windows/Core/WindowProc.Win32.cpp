@@ -35,7 +35,7 @@ namespace {
         SetWindowPos(
             hwnd, nullptr, newWindowRect->left, newWindowRect->top, newWindowRect->right - newWindowRect->left,
             newWindowRect->bottom - newWindowRect->top, SWP_NOZORDER | SWP_NOACTIVATE
-        );
+            );
 
         return 0;
     }
@@ -155,7 +155,7 @@ namespace {
                 TraceTeardown(
                     L"WM_CLOSE detached owner hwnd=%p prevOwner=%p err=%lu", hwnd,
                     reinterpret_cast<void*>(previousOwner), ownerDetachError
-                );
+                    );
             }
 
             DestroyWindow(hwnd);
@@ -324,7 +324,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
         case WM_USER_DISPATCH_OPERATION: {
             std::unique_ptr<std::shared_ptr<NativeOperation>> retained(
                 reinterpret_cast<std::shared_ptr<NativeOperation>*>(lParam)
-            );
+                );
             if (retained && *retained)
                 (*retained)->Execute();
             return 0;

@@ -15,9 +15,9 @@ public sealed record InfiniFrameMenuBar(
     ImmutableArray<InfiniFrameMenuItem> Items = default
 ) {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="InfiniFrameMenuBar"/> record with an empty menu bar.
+    ///     Initializes a new instance of the <see cref="InfiniFrameMenuBar" /> record with an empty menu bar.
     /// </summary>
-    public InfiniFrameMenuBar() : this(default(ImmutableArray<InfiniFrameMenuItem>)) { }
+    public InfiniFrameMenuBar() : this(default(ImmutableArray<InfiniFrameMenuItem>)) {}
 
     /// <summary>
     ///     Gets the menu items, returning an empty array if the default was not set.

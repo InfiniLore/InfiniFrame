@@ -6,5 +6,5 @@ import {InfiniFrameWindowFeatures} from "./InfiniFrameWindowFeatures";
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export interface InfiniFrameWindow {
-    features : InfiniFrameWindowFeatures
+    features: InfiniFrameWindowFeatures
 }

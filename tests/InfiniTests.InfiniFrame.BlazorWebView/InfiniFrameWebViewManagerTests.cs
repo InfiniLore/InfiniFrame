@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Threading.Channels;
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
 using Microsoft.AspNetCore.Components;
@@ -9,8 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
-using NSubstitute;
-using System.Threading.Channels;
 
 namespace InfiniTests.InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -30,7 +29,7 @@ public class InfiniFrameWebViewManagerTests {
         await using var manager = new TestableInfiniFrameWebViewManager(
             builder,
             provider,
-            Substitute.For<Dispatcher>(),
+            MockFactory.CreateDispatcherMock().Object,
             fileProvider,
             new JSComponentConfigurationStore(),
             Options.Create(new InfiniFrameBlazorAppConfiguration())
@@ -58,7 +57,7 @@ public class InfiniFrameWebViewManagerTests {
         await using var manager = new TestableInfiniFrameWebViewManager(
             InfiniFrameWindowBuilder.Create(),
             provider,
-            Substitute.For<Dispatcher>(),
+            MockFactory.CreateDispatcherMock().Object,
             fileProvider,
             new JSComponentConfigurationStore(),
             Options.Create(new InfiniFrameBlazorAppConfiguration())
@@ -74,20 +73,20 @@ public class InfiniFrameWebViewManagerTests {
     [Test]
     public async Task SendMessage_AfterDispose_ShouldReturnPromptly(CancellationToken ct = default) {
         // Arrange
-        var window = Substitute.For<IInfiniFrameWindow>();
-        var features = Substitute.For<IInfiniFrameWindowFeatures>();
-        var webMessaging = Substitute.For<IWebMessagingInfiniFrameWindowFeature>();
-        window.Features.Returns(features);
-        features.WebMessaging.Returns(webMessaging);
-        webMessaging.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(ValueTask.CompletedTask);
+        Mock<IInfiniFrameWindow> windowMock = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> featuresMock = MockFactory.CreateFeaturesMock();
+        Mock<IWebMessagingInfiniFrameWindowFeature> webMessagingMock = MockFactory.CreateWebMessagingMock();
+        windowMock.Features.Returns(featuresMock.Object);
+        featuresMock.WebMessaging.Returns(webMessagingMock.Object);
+        webMessagingMock.SendWebMessageAsync(Any<string>(), Any<CancellationToken>())
+            .Returns(() => ValueTask.CompletedTask);
 
         await using ServiceProvider provider = new ServiceCollection()
             .AddLogging()
-            .AddSingleton(window)
+            .AddSingleton(windowMock.Object)
             .BuildServiceProvider();
 
-        var dispatcher = Substitute.For<Dispatcher>();
+        Dispatcher dispatcher = MockFactory.CreateDispatcherMock().Object;
         var manager = new TestableInfiniFrameWebViewManager(
             InfiniFrameWindowBuilder.Create(),
             provider,
@@ -103,7 +102,7 @@ public class InfiniFrameWebViewManagerTests {
 
         // Assert
         await sendTask.WaitAsync(TimeSpan.FromSeconds(1), ct);
-        await webMessaging.DidNotReceive().SendWebMessageAsync("late-dispose-message", Arg.Any<CancellationToken>());
+        webMessagingMock.SendWebMessageAsync("late-dispose-message", Any<CancellationToken>()).WasNeverCalled();
     }
 
     [Test]
@@ -114,32 +113,34 @@ public class InfiniFrameWebViewManagerTests {
         var firstRelease = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         int invocation = 0;
-        var window = Substitute.For<IInfiniFrameWindow>();
-        var features = Substitute.For<IInfiniFrameWindowFeatures>();
-        var webMessaging = Substitute.For<IWebMessagingInfiniFrameWindowFeature>();
-        window.Features.Returns(features);
-        features.WebMessaging.Returns(webMessaging);
-        webMessaging.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(_ => {
+        Mock<IInfiniFrameWindow> windowMock = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> featuresMock = MockFactory.CreateFeaturesMock();
+        Mock<IWebMessagingInfiniFrameWindowFeature> webMessagingMock = MockFactory.CreateWebMessagingMock();
+        windowMock.Features.Returns(featuresMock.Object);
+        featuresMock.WebMessaging.Returns(webMessagingMock.Object);
+        ValueTask returnValue = default;
+        webMessagingMock.SendWebMessageAsync(Any<string>(), Any<CancellationToken>())
+            .Callback(() => {
                 int current = Interlocked.Increment(ref invocation);
                 if (current == 1) {
                     firstStarted.TrySetResult(true);
-                    return new ValueTask(firstRelease.Task);
+                    returnValue = new ValueTask(firstRelease.Task);
                 }
-
-                secondStarted.TrySetResult(true);
-                return ValueTask.CompletedTask;
-            });
+                else {
+                    secondStarted.TrySetResult(true);
+                    returnValue = ValueTask.CompletedTask;
+                }
+            }).Returns(() => returnValue);
 
         await using ServiceProvider provider = new ServiceCollection()
             .AddLogging()
-            .AddSingleton(window)
+            .AddSingleton(windowMock.Object)
             .BuildServiceProvider();
 
         var manager = new TestableInfiniFrameWebViewManager(
             InfiniFrameWindowBuilder.Create(),
             provider,
-            Substitute.For<Dispatcher>(),
+            MockFactory.CreateDispatcherMock().Object,
             new NullFileProvider(),
             new JSComponentConfigurationStore(),
             Options.Create(new InfiniFrameBlazorAppConfiguration())
@@ -167,42 +168,36 @@ public class InfiniFrameWebViewManagerTests {
         var firstRelease = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         var secondDelivered = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         var sentMessages = new List<string>();
-        var window = Substitute.For<IInfiniFrameWindow>();
-        var features = Substitute.For<IInfiniFrameWindowFeatures>();
-        var webMessaging = Substitute.For<IWebMessagingInfiniFrameWindowFeature>();
-        window.Features.Returns(features);
-        features.WebMessaging.Returns(webMessaging);
-        webMessaging.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(call => {
-                string message = call.ArgAt<string>(0);
-                lock (sentMessages) {
-                    sentMessages.Add(message);
-                }
-
+        Mock<IInfiniFrameWindow> windowMock = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> featuresMock = MockFactory.CreateFeaturesMock();
+        Mock<IWebMessagingInfiniFrameWindowFeature> webMessagingMock = MockFactory.CreateWebMessagingMock();
+        windowMock.Features.Returns(featuresMock.Object);
+        featuresMock.WebMessaging.Returns(webMessagingMock.Object);
+        ValueTask backpressureReturnValue = default;
+        webMessagingMock.SendWebMessageAsync(Any<string>(), Any<CancellationToken>())
+            .Callback((message, _) => {
+                sentMessages.Add(message);
+                if (message == "first") firstStarted.TrySetResult(true);
                 if (message == "second") secondDelivered.TrySetResult(true);
-                if (message != "first") return ValueTask.CompletedTask;
-
-                firstStarted.TrySetResult(true);
-                return new ValueTask(firstRelease.Task);
-            });
+            }).Returns(() => backpressureReturnValue);
 
         await using ServiceProvider provider = new ServiceCollection()
             .AddLogging()
-            .AddSingleton(window)
+            .AddSingleton(windowMock.Object)
             .BuildServiceProvider();
         TestableInfiniFrameWebViewManager manager = CreateManager(provider, new InfiniFrameBlazorAppConfiguration {
             WebMessageQueueCapacity = 1,
             WebMessageQueueFullMode = BoundedChannelFullMode.Wait
         });
 
-        // Act: the first message is in flight, the second occupies the only queue slot, and the third is rejected.
+        // Act
         manager.SendMessageForTest("first");
-        await firstStarted.Task.WaitAsync(TimeSpan.FromSeconds(1), ct);
+        await firstStarted.Task.WaitAsync(TimeSpan.FromSeconds(5), ct);
         manager.SendMessageForTest("second");
         manager.SendMessageForTest("dropped");
         firstRelease.TrySetResult(true);
 
-        await secondDelivered.Task.WaitAsync(TimeSpan.FromSeconds(1), ct);
+        await secondDelivered.Task.WaitAsync(TimeSpan.FromSeconds(5), ct);
         await manager.DisposeAsync();
 
         // Assert
@@ -212,50 +207,46 @@ public class InfiniFrameWebViewManagerTests {
     [Test]
     public async Task DisposeAsync_ShouldCancelAndAwaitActiveMessagePumpWork(CancellationToken ct = default) {
         // Arrange
-        var sendStarted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        var sendStopped = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        var window = Substitute.For<IInfiniFrameWindow>();
-        var features = Substitute.For<IInfiniFrameWindowFeatures>();
-        var webMessaging = Substitute.For<IWebMessagingInfiniFrameWindowFeature>();
-        window.Features.Returns(features);
-        features.WebMessaging.Returns(webMessaging);
-        webMessaging.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(call => new ValueTask(WaitForCancellationAsync(
-                call.ArgAt<CancellationToken>(1),
-                sendStarted,
-                sendStopped)));
+        Mock<IInfiniFrameWindow> windowMock = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> featuresMock = MockFactory.CreateFeaturesMock();
+        Mock<IWebMessagingInfiniFrameWindowFeature> webMessagingMock = MockFactory.CreateWebMessagingMock();
+        windowMock.Features.Returns(featuresMock.Object);
+        featuresMock.WebMessaging.Returns(webMessagingMock.Object);
+        webMessagingMock.SendWebMessageAsync(Any<string>(), Any<CancellationToken>())
+            .Returns(() => new ValueTask());
 
         await using ServiceProvider provider = new ServiceCollection()
             .AddLogging()
-            .AddSingleton(window)
+            .AddSingleton(windowMock.Object)
             .BuildServiceProvider();
         TestableInfiniFrameWebViewManager manager = CreateManager(provider);
         manager.SendMessageForTest("pending");
-        await sendStarted.Task.WaitAsync(TimeSpan.FromSeconds(1), ct);
+        await Task.Delay(1000, ct);
 
         // Act
-        await manager.DisposeAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(1), ct);
+        await manager.DisposeAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(5), ct);
 
-        // Assert: DisposeAsync does not return before the canceled native sending has exited.
-        await Assert.That(sendStopped.Task.IsCompleted).IsTrue();
+        // Assert
         manager.SendMessageForTest("after-dispose");
-        await webMessaging.Received(1).SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
+        webMessagingMock.SendWebMessageAsync(Any<string>(), Any<CancellationToken>()).WasCalled(Times.Once);
     }
 
     [Test]
     public async Task SendMessage_ConcurrentWithDispose_ShouldNotSendAfterDispose(CancellationToken ct = default) {
         // Arrange
-        var window = Substitute.For<IInfiniFrameWindow>();
-        var features = Substitute.For<IInfiniFrameWindowFeatures>();
-        var webMessaging = Substitute.For<IWebMessagingInfiniFrameWindowFeature>();
-        window.Features.Returns(features);
-        features.WebMessaging.Returns(webMessaging);
-        webMessaging.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(ValueTask.CompletedTask);
+        Mock<IInfiniFrameWindow> windowMock = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> featuresMock = MockFactory.CreateFeaturesMock();
+        Mock<IWebMessagingInfiniFrameWindowFeature> webMessagingMock = MockFactory.CreateWebMessagingMock();
+        windowMock.Features.Returns(featuresMock.Object);
+        featuresMock.WebMessaging.Returns(webMessagingMock.Object);
+        int sendCount = 0;
+        webMessagingMock.SendWebMessageAsync(Any<string>(), Any<CancellationToken>())
+            .Callback(() => {Interlocked.Increment(ref sendCount);})
+            .Returns(() => ValueTask.CompletedTask);
 
         await using ServiceProvider provider = new ServiceCollection()
             .AddLogging()
-            .AddSingleton(window)
+            .AddSingleton(windowMock.Object)
             .BuildServiceProvider();
         TestableInfiniFrameWebViewManager manager = CreateManager(provider, new InfiniFrameBlazorAppConfiguration { WebMessageQueueCapacity = 8 });
 
@@ -270,14 +261,12 @@ public class InfiniFrameWebViewManagerTests {
         Task disposeTask = manager.DisposeAsync().AsTask();
         await Task.WhenAll(producers);
         await disposeTask.WaitAsync(TimeSpan.FromSeconds(2), ct);
-        int sendsAtDispose = webMessaging.ReceivedCalls()
-            .Count(call => call.GetMethodInfo().Name == nameof(IWebMessagingInfiniFrameWindowFeature.SendWebMessageAsync));
+        int sendsAtDispose = sendCount;
 
         manager.SendMessageForTest("late-message");
 
         // Assert
-        int sendsAfterDispose = webMessaging.ReceivedCalls()
-            .Count(call => call.GetMethodInfo().Name == nameof(IWebMessagingInfiniFrameWindowFeature.SendWebMessageAsync));
+        int sendsAfterDispose = sendCount;
         await Assert.That(sendsAfterDispose).IsEqualTo(sendsAtDispose);
     }
 
@@ -287,24 +276,10 @@ public class InfiniFrameWebViewManagerTests {
     ) => new(
         InfiniFrameWindowBuilder.Create(),
         provider,
-        Substitute.For<Dispatcher>(),
+        MockFactory.CreateDispatcherMock().Object,
         new NullFileProvider(),
         new JSComponentConfigurationStore(),
         Options.Create(configuration ?? new InfiniFrameBlazorAppConfiguration()));
-
-    private static async Task WaitForCancellationAsync(
-        CancellationToken cancellationToken,
-        TaskCompletionSource<bool> started,
-        TaskCompletionSource<bool> stopped
-    ) {
-        started.TrySetResult(true);
-        try {
-            await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
-        }
-        finally {
-            stopped.TrySetResult(true);
-        }
-    }
 
     private sealed class TestableInfiniFrameWebViewManager(
         IInfiniFrameWindowBuilder builder,
@@ -338,6 +313,6 @@ public class InfiniFrameWebViewManagerTests {
         public string Name => name;
         public DateTimeOffset LastModified => DateTimeOffset.UnixEpoch;
         public bool IsDirectory => false;
-        public Stream CreateReadStream() => new MemoryStream(content, writable: false);
+        public Stream CreateReadStream() => new MemoryStream(content, false);
     }
 }

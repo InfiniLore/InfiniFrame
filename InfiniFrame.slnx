@@ -13,6 +13,10 @@
     <File Path="InfiniFrame.GitHubActions.Release.slnf" />
     <File Path="InfiniFrame.GitHubActions.slnf" />
   </Folder>
+  <Folder Name="/.dev-tools/badges/">
+    <File Path="badges/cs-coverage.json" />
+    <File Path="badges/ts-coverage.json" />
+  </Folder>
   <Folder Name="/.dev-tools/devcontainer/">
     <File Path=".devcontainer/devcontainer.json" />
     <File Path=".devcontainer/docker-compose.yml" />
@@ -73,6 +77,7 @@
   </Folder>
   <Folder Name="/.dev-tools/github/actions/" />
   <Folder Name="/.dev-tools/github/workflows/shared/">
+    <File Path=".github/workflows/shared-coverage.yml" />
     <File Path=".github/workflows/shared-release-build.yml" />
     <File Path=".github/workflows/shared-release-bump-version.yml" />
     <File Path=".github/workflows/shared-release-publish-docs.yml" />
@@ -100,15 +105,22 @@
     <Project Path="docs/InfiniFrame.Docs.proj" Type="845b7716-6f03-4d02-8e86-79f95485b5d8" />
   </Folder>
   <Folder Name="/examples/">
-    <File Path="examples/Directory.Build.props" />
+    <File Path="examples/README.md" />
     <Project Path="examples/InfiniFrameExample.BlazorWebView/InfiniFrameExample.BlazorWebView.csproj" />
     <Project Path="examples/InfiniFrameExample.NativeMenu/InfiniFrameExample.NativeMenu.csproj" />
-    <Project Path="examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj" />
     <Project Path="examples/InfiniFrameExample.TrimAotSmoke/InfiniFrameExample.TrimAotSmoke.csproj" />
-    <Project Path="examples/InfiniFrameExample.WebApp.Blazor/InfiniFrameExample.WebApp.Blazor.csproj" />
-    <Project Path="examples/InfiniFrameExample.WebApp.React/InfiniFrameExample.WebApp.React.csproj" />
-    <Project Path="examples/InfiniFrameExample.WebApp.Vue/InfiniFrameExample.WebApp.Vue.csproj" />
-    <Project Path="examples/InfiniFrameExample.WebApp/InfiniFrameExample.WebApp.csproj" />
+  </Folder>
+  <Folder Name="/examples/SingleFileExe/">
+    <Project Path="examples/SingleFileExe/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj" />
+    <Project Path="examples/SingleFileExe/InfiniFrameExample.SingleFileExe.MudBlazor/InfiniFrameExample.SingleFileExe.MudBlazor.csproj" />
+    <Project Path="examples/SingleFileExe/InfiniFrameExample.SingleFileExe.React/InfiniFrameExample.SingleFileExe.React.csproj" />
+    <Project Path="examples/SingleFileExe/InfiniFrameExample.SingleFileExe.Vue/InfiniFrameExample.SingleFileExe.Vue.csproj" />
+  </Folder>
+  <Folder Name="/examples/WebApp/">
+    <Project Path="examples/WebApp/InfiniFrameExample.WebApp/InfiniFrameExample.WebApp.csproj" />
+    <Project Path="examples/WebApp/InfiniFrameExample.WebApp.Blazor/InfiniFrameExample.WebApp.Blazor.csproj" />
+    <Project Path="examples/WebApp/InfiniFrameExample.WebApp.React/InfiniFrameExample.WebApp.React.csproj" />
+    <Project Path="examples/WebApp/InfiniFrameExample.WebApp.Vue/InfiniFrameExample.WebApp.Vue.csproj" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/InfiniFrame.Blazor/InfiniFrame.Blazor.csproj" />
@@ -116,14 +128,12 @@
     <Project Path="src/InfiniFrame.Js/InfiniFrame.Js.csproj" />
     <Project Path="src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj" />
     <Project Path="src/InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
+    <Project Path="src/InfiniFrame.SingleFile/InfiniFrame.SingleFile.csproj" />
     <Project Path="src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj" />
     <Project Path="src/InfiniFrame/InfiniFrame.csproj" />
     <File Path="Directory.Packages.props" />
     <File Path="src/AnalyzerBaseline.props" />
     <File Path="src/Directory.Build.props" />
-  </Folder>
-  <Folder Name="/src/tools/">
-    <Project Path="src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <File Path="tests/Directory.Build.props" />
@@ -133,6 +143,7 @@
     <Project Path="tests/InfiniTests.InfiniFrame.Js/InfiniTests.InfiniFrame.Js.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame.NativeBridge/InfiniTests.InfiniFrame.NativeBridge.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame.Shared/InfiniTests.InfiniFrame.Shared.csproj" />
+    <Project Path="tests/InfiniTests.InfiniFrame.SingleFile/InfiniTests.InfiniFrame.SingleFile.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame.WebServer/InfiniTests.InfiniFrame.WebServer.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj" />
     <Project Path="tests/InfiniTests/InfiniTests.csproj" />
@@ -147,8 +158,5 @@
   </Folder>
   <Folder Name="/tests/testHosts/">
     <File Path="tests/TestHost/MacOsTestingPlatformEntryPoint.cs" />
-  </Folder>
-  <Folder Name="/tests/tools/">
-    <Project Path="tests/InfiniTests.InfiniFrame.Tools.Pack/InfiniTests.InfiniFrame.Tools.Pack.csproj" />
   </Folder>
 </Solution>

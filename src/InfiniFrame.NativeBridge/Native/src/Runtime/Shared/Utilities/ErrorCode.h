@@ -67,4 +67,4 @@ inline std::error_code make_error_code(const ErrorCode e) noexcept {
     return {static_cast<int>(e), errorCategory()};
 }
 
-template <> struct std::is_error_code_enum<ErrorCode> : true_type {}; 
+template <> struct std::is_error_code_enum<ErrorCode> : true_type {};

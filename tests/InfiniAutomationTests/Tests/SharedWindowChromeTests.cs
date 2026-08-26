@@ -36,10 +36,9 @@ public abstract class SharedWindowChromeTests : InfiniFramePlaywrightTestBase {
         await EvaluateWhenPageReadyAsync(page, "window.infiniframe.windowChrome.register({})");
     }
 
-    private static async Task<bool> HasMessageAsync(IPage page, string predicate) {
-        return await EvaluateWhenPageReadyAsync<bool>(page,
+    private static async Task<bool> HasMessageAsync(IPage page, string predicate) =>
+        await EvaluateWhenPageReadyAsync<bool>(page,
             $"() => window.__testMessageLog.some(m => {predicate})");
-    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Tests
@@ -64,16 +63,16 @@ public abstract class SharedWindowChromeTests : InfiniFramePlaywrightTestBase {
 
         try {
             await SetupTestAsync(page, """
-                const el = document.createElement('div');
-                el.setAttribute('data-infiniframe-drag-region', '');
-                el.id = 'test-drag-region';
-                document.body.appendChild(el);
-                """);
+            const el = document.createElement('div');
+            el.setAttribute('data-infiniframe-drag-region', '');
+            el.id = 'test-drag-region';
+            document.body.appendChild(el);
+            """);
 
             await EvaluateWhenPageReadyAsync(page, """
-                document.getElementById('test-drag-region')
-                    .dispatchEvent(new PointerEvent('pointerdown', { button: 0, pointerId: 1, bubbles: true }));
-                """);
+            document.getElementById('test-drag-region')
+                .dispatchEvent(new PointerEvent('pointerdown', { button: 0, pointerId: 1, bubbles: true }));
+            """);
 
             await Assert.That(await HasMessageAsync(page, "true")).IsTrue();
         }
@@ -89,18 +88,18 @@ public abstract class SharedWindowChromeTests : InfiniFramePlaywrightTestBase {
 
         try {
             await SetupTestAsync(page, """
-                const el = document.createElement('div');
-                el.setAttribute('data-infiniframe-resize', 'top');
-                el.id = 'test-resize-top';
-                document.body.appendChild(el);
-                """);
+            const el = document.createElement('div');
+            el.setAttribute('data-infiniframe-resize', 'top');
+            el.id = 'test-resize-top';
+            document.body.appendChild(el);
+            """);
 
             await EvaluateWhenPageReadyAsync(page, """
-                const el = document.getElementById('test-resize-top');
-                el.dispatchEvent(new PointerEvent('pointerdown', { button: 0, pointerId: 1, bubbles: true }));
-                el.dispatchEvent(new PointerEvent('pointermove', { button: 0, pointerId: 1, movementX: 10, movementY: 5, bubbles: true }));
-                el.dispatchEvent(new PointerEvent('pointerup', { button: 0, pointerId: 1, bubbles: true }));
-                """);
+            const el = document.getElementById('test-resize-top');
+            el.dispatchEvent(new PointerEvent('pointerdown', { button: 0, pointerId: 1, bubbles: true }));
+            el.dispatchEvent(new PointerEvent('pointermove', { button: 0, pointerId: 1, movementX: 10, movementY: 5, bubbles: true }));
+            el.dispatchEvent(new PointerEvent('pointerup', { button: 0, pointerId: 1, bubbles: true }));
+            """);
 
             await Assert.That(await HasMessageAsync(page, "m.payload?.command?.includes('resize')")).IsTrue();
         }
@@ -116,11 +115,11 @@ public abstract class SharedWindowChromeTests : InfiniFramePlaywrightTestBase {
 
         try {
             await SetupTestAsync(page, """
-                const el = document.createElement('div');
-                el.setAttribute('data-infiniframe-window-action', 'minimize');
-                el.id = 'test-minimize-btn';
-                document.body.appendChild(el);
-                """);
+            const el = document.createElement('div');
+            el.setAttribute('data-infiniframe-window-action', 'minimize');
+            el.id = 'test-minimize-btn';
+            document.body.appendChild(el);
+            """);
 
             await EvaluateWhenPageReadyAsync(page,
                 "document.getElementById('test-minimize-btn').click()");
@@ -139,11 +138,11 @@ public abstract class SharedWindowChromeTests : InfiniFramePlaywrightTestBase {
 
         try {
             await SetupTestAsync(page, """
-                const el = document.createElement('div');
-                el.setAttribute('data-infiniframe-window-action', 'maximize');
-                el.id = 'test-maximize-btn';
-                document.body.appendChild(el);
-                """);
+            const el = document.createElement('div');
+            el.setAttribute('data-infiniframe-window-action', 'maximize');
+            el.id = 'test-maximize-btn';
+            document.body.appendChild(el);
+            """);
 
             await EvaluateWhenPageReadyAsync(page,
                 "document.getElementById('test-maximize-btn').click()");
@@ -162,11 +161,11 @@ public abstract class SharedWindowChromeTests : InfiniFramePlaywrightTestBase {
 
         try {
             await SetupTestAsync(page, """
-                const el = document.createElement('div');
-                el.setAttribute('data-infiniframe-window-action', 'close');
-                el.id = 'test-close-btn';
-                document.body.appendChild(el);
-                """);
+            const el = document.createElement('div');
+            el.setAttribute('data-infiniframe-window-action', 'close');
+            el.id = 'test-close-btn';
+            document.body.appendChild(el);
+            """);
 
             await EvaluateWhenPageReadyAsync(page,
                 "document.getElementById('test-close-btn').click()");
@@ -185,16 +184,16 @@ public abstract class SharedWindowChromeTests : InfiniFramePlaywrightTestBase {
 
         try {
             await SetupTestAsync(page, """
-                const el = document.createElement('div');
-                el.setAttribute('data-infiniframe-drag-region', '');
-                el.id = 'test-drag-region';
-                document.body.appendChild(el);
-                """);
+            const el = document.createElement('div');
+            el.setAttribute('data-infiniframe-drag-region', '');
+            el.id = 'test-drag-region';
+            document.body.appendChild(el);
+            """);
 
             await EvaluateWhenPageReadyAsync(page, """
-                const el = document.getElementById('test-drag-region');
-                el.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
-                """);
+            const el = document.getElementById('test-drag-region');
+            el.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+            """);
 
             await Assert.That(await HasMessageAsync(page, "m.payload?.command?.includes('toggleMaximize')")).IsTrue();
         }
@@ -210,17 +209,17 @@ public abstract class SharedWindowChromeTests : InfiniFramePlaywrightTestBase {
 
         try {
             await EvaluateWhenPageReadyAsync(page, """
-                const el = document.createElement('div');
-                el.setAttribute('data-infiniframe-window-action', 'minimize');
-                el.id = 'test-minimize-btn';
-                document.body.appendChild(el);
-                """);
+            const el = document.createElement('div');
+            el.setAttribute('data-infiniframe-window-action', 'minimize');
+            el.id = 'test-minimize-btn';
+            document.body.appendChild(el);
+            """);
             await EvaluateWhenPageReadyAsync(page, SetupInterceptHtml);
             await EvaluateWhenPageReadyAsync(page, """
-                window.infiniframe.windowChrome.register({
-                    controls: { minimize: '#test-minimize-btn' }
-                })
-                """);
+            window.infiniframe.windowChrome.register({
+                controls: { minimize: '#test-minimize-btn' }
+            })
+            """);
 
             await EvaluateWhenPageReadyAsync(page,
                 "document.getElementById('test-minimize-btn').click()");
@@ -239,11 +238,11 @@ public abstract class SharedWindowChromeTests : InfiniFramePlaywrightTestBase {
 
         try {
             await SetupTestAsync(page, """
-                const el = document.createElement('div');
-                el.setAttribute('data-infiniframe-window-action', 'minimize');
-                el.id = 'test-minimize-btn';
-                document.body.appendChild(el);
-                """);
+            const el = document.createElement('div');
+            el.setAttribute('data-infiniframe-window-action', 'minimize');
+            el.id = 'test-minimize-btn';
+            document.body.appendChild(el);
+            """);
 
             await EvaluateWhenPageReadyAsync(page, "window.infiniframe.windowChrome.unregister()");
             await EvaluateWhenPageReadyAsync(page, "window.__testMessageLog = []");

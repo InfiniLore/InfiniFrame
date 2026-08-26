@@ -47,21 +47,22 @@ namespace {
 namespace infiniframe::linux_gtk {
     void ConfigureGraphicsEnvironment() {
         static std::once_flag configureOnce;
-        std::call_once(configureOnce, [] {
-            const char* forceSoftware = g_getenv("INFINIFRAME_LINUX_FORCE_SOFTWARE_RENDERING");
-            const bool shouldUseSoftwareRendering =
-                IsTruthy(forceSoftware) ||
-                (forceSoftware == nullptr && (IsTruthy(g_getenv("CI")) || !HasRenderDevice()));
+        std::call_once(
+            configureOnce, [] {
+                const char* forceSoftware = g_getenv("INFINIFRAME_LINUX_FORCE_SOFTWARE_RENDERING");
+                const bool shouldUseSoftwareRendering =
+                    IsTruthy(forceSoftware) ||
+                    (forceSoftware == nullptr && (IsTruthy(g_getenv("CI")) || !HasRenderDevice()));
 
-            if (IsDisabled(forceSoftware) || !shouldUseSoftwareRendering)
-                return;
+                if (IsDisabled(forceSoftware) || !shouldUseSoftwareRendering)
+                    return;
 
-            SetDefaultEnvironmentVariable("LIBGL_ALWAYS_SOFTWARE", "1");
-            SetDefaultEnvironmentVariable("GALLIUM_DRIVER", "llvmpipe");
-            SetDefaultEnvironmentVariable("MESA_LOADER_DRIVER_OVERRIDE", "llvmpipe");
-            SetDefaultEnvironmentVariable("MESA_GL_VERSION_OVERRIDE", "3.3");
-            SetDefaultEnvironmentVariable("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
-            SetDefaultEnvironmentVariable("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
-        });
+                SetDefaultEnvironmentVariable("LIBGL_ALWAYS_SOFTWARE", "1");
+                SetDefaultEnvironmentVariable("GALLIUM_DRIVER", "llvmpipe");
+                SetDefaultEnvironmentVariable("MESA_LOADER_DRIVER_OVERRIDE", "llvmpipe");
+                SetDefaultEnvironmentVariable("MESA_GL_VERSION_OVERRIDE", "3.3");
+                SetDefaultEnvironmentVariable("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
+                SetDefaultEnvironmentVariable("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+            });
     }
 }

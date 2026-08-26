@@ -42,13 +42,13 @@ bool InfiniFrameWindow::BeginInvoke(
     void* callbackContext,
     const OperationCompletedCallback completion,
     void* completionContext
-) {
+    ) {
     if (operationId == 0 || callback == nullptr || completion == nullptr)
         return false;
 
     auto operation = std::make_shared<NativeOperation>(
         operationId, callback, callbackContext, completion, completionContext, this
-    );
+        );
     {
         std::lock_guard lock(ImplBase()->_operationMutex);
         if (!ImplBase()->_operations.emplace(operationId, operation).second)
@@ -87,7 +87,7 @@ void InfiniFrameWindow::CompleteOperationsForClose() {
         for (const auto& [id, operation] : ImplBase()->_operations) {
             int expected = NativeOperation::Pending;
             if (operation && operation->state.compare_exchange_strong(
-                    expected, NativeOperation::Terminal, std::memory_order_acq_rel)) {
+                expected, NativeOperation::Terminal, std::memory_order_acq_rel)) {
                 completions.push_back({id, operation->completion, operation->completionContext});
             }
         }
@@ -100,7 +100,7 @@ void InfiniFrameWindow::CompleteOperationsForClose() {
         completion.callback(
             completion.context, completion.id,
             static_cast<int32_t>(NativeOperationResult::WindowClosed), 0, nullptr
-        );
+            );
     }
 }
 
@@ -111,7 +111,7 @@ void InfiniFrameWindow::FinalizeOperation(
     const NativeOperationResult result,
     const int nativeCode,
     const char* failure
-) noexcept {
+    ) noexcept {
     {
         std::lock_guard lock(ImplBase()->_operationMutex);
         ImplBase()->_operations.erase(operationId);
@@ -182,12 +182,12 @@ namespace {
         const NativeOperationResult result,
         const int nativeCode = 0,
         const char* failure = nullptr
-    ) {
+        ) {
         if (operation && operation->completion)
             operation->completion(
                 operation->completionContext, operation->id,
                 static_cast<int32_t>(result), nativeCode, failure
-            );
+                );
     }
 }
 
@@ -196,14 +196,15 @@ bool InfiniFrameWindow::BeginNavigateToString(
     const char* content,
     const OperationCompletedCallback completion,
     void* completionContext
-) {
+    ) {
     std::unique_ptr<NavigationOperation> superseded;
     {
         std::lock_guard lock(ImplBase()->_navigationMutex);
         superseded = std::move(ImplBase()->_navigationOperation);
-        ImplBase()->_navigationOperation = std::make_unique<NavigationOperation>(NavigationOperation{
-            operationId, 0, completion, completionContext
-        });
+        ImplBase()->_navigationOperation = std::make_unique<NavigationOperation>(
+            NavigationOperation{
+                operationId, 0, completion, completionContext
+            });
     }
     NavigateToString(content);
     CompleteDetachedNavigation(std::move(superseded), NativeOperationResult::Superseded);
@@ -215,14 +216,15 @@ bool InfiniFrameWindow::BeginNavigateToUrl(
     const char* url,
     const OperationCompletedCallback completion,
     void* completionContext
-) {
+    ) {
     std::unique_ptr<NavigationOperation> superseded;
     {
         std::lock_guard lock(ImplBase()->_navigationMutex);
         superseded = std::move(ImplBase()->_navigationOperation);
-        ImplBase()->_navigationOperation = std::make_unique<NavigationOperation>(NavigationOperation{
-            operationId, 0, completion, completionContext
-        });
+        ImplBase()->_navigationOperation = std::make_unique<NavigationOperation>(
+            NavigationOperation{
+                operationId, 0, completion, completionContext
+            });
     }
     NavigateToUrl(url);
     CompleteDetachedNavigation(std::move(superseded), NativeOperationResult::Superseded);
@@ -252,7 +254,7 @@ void InfiniFrameWindow::CompleteNavigation(
     const bool succeeded,
     const int nativeCode,
     const char* failureUtf8
-) {
+    ) {
     std::unique_ptr<NavigationOperation> completed;
     {
         std::lock_guard lock(ImplBase()->_navigationMutex);
@@ -267,7 +269,7 @@ void InfiniFrameWindow::CompleteNavigation(
         std::move(completed),
         succeeded ? NativeOperationResult::Completed : NativeOperationResult::Failed,
         nativeCode, failureUtf8
-    );
+        );
 }
 
 void InfiniFrameWindow::CompleteNavigationAndSignalReady(
@@ -275,7 +277,7 @@ void InfiniFrameWindow::CompleteNavigationAndSignalReady(
     const bool succeeded,
     const int nativeCode,
     const char* failureUtf8
-) {
+    ) {
     std::unique_ptr<NavigationOperation> completed;
     ContextAction readyCallback = nullptr;
     void* readyContext = nullptr;
@@ -302,7 +304,7 @@ void InfiniFrameWindow::CompleteNavigationAndSignalReady(
         std::move(completed),
         succeeded ? NativeOperationResult::Completed : NativeOperationResult::Failed,
         nativeCode, failureUtf8
-    );
+        );
     if (readyCallback != nullptr)
         readyCallback(readyContext);
 }

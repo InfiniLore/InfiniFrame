@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Text.Json;
-using Assembly = System.Reflection.Assembly;
+using Assembly=System.Reflection.Assembly;
 
 namespace InfiniTests.InfiniFrame.Js;
 // ---------------------------------------------------------------------------------------------------------------------

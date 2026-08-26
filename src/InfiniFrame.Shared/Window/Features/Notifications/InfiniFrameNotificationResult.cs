@@ -20,7 +20,7 @@ public enum InfiniFrameNotificationResult {
     BodyClicked,
 
     /// <summary>
-    ///     The user clicked an action button. The <see cref="InfiniFrameNotificationActivation.ActionIdentifier"/>
+    ///     The user clicked an action button. The <see cref="InfiniFrameNotificationActivation.ActionIdentifier" />
     ///     field identifies which action was activated.
     /// </summary>
     ActionClicked,

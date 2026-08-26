@@ -1,12 +1,13 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
-        <NoWarn>$(NoWarn);NU1902</NoWarn>
+        <NoWarn>$(NoWarn);NU1902;CS0105</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="bUnit"/>
         <PackageReference Include="TUnit"/>
+        <PackageReference Include="TUnit.Mocks"/>
     </ItemGroup>
 
     <ItemGroup>

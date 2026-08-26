@@ -28,7 +28,7 @@ public sealed partial class InfiniFrameTestWindow : IDisposable {
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    private InfiniFrameTestWindow() { }
+    private InfiniFrameTestWindow() {}
 
     public required IInfiniFrameWindow Window { get; init; }
     public required IInfiniFrameWindowBuilder BuilderSnapshot { get; init; }

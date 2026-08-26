@@ -1,8 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.NativeBridge.Parameters;
 using System.Runtime.InteropServices;
+using InfiniFrame.NativeBridge.Parameters;
 
 namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Parameters;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -122,7 +122,7 @@ public class InfiniFrameNativeParametersMarshallerTests {
     private static bool MarshalDebugEventHandlerIsNonNull() {
         var parameters = new InfiniFrameNativeParameters {
             StartUrl = "https://example.com",
-            DebugEventHandler = (_, _, _, _, _, _, _) => { },
+            DebugEventHandler = (_, _, _, _, _, _, _) => {},
             CustomSchemeNames = new IntPtr[16]
         };
 

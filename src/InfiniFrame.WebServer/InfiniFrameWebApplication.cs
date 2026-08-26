@@ -12,11 +12,11 @@ namespace InfiniFrame.WebServer;
 ///     <see cref="IInfiniFrameWindow" />, providing lifecycle management for both the web server and the native window.
 /// </summary>
 public class InfiniFrameWebApplication {
-#if NET9_0_OR_GREATER
+    #if NET9_0_OR_GREATER
     private readonly Lock _shutdownLock = new();
-#else
+    #else
     private readonly object _shutdownLock = new();
-#endif
+    #endif
     private Task? _shutdownTask;
 
     /// <summary>Gets or sets the logger for the application.</summary>
@@ -49,7 +49,7 @@ public class InfiniFrameWebApplication {
     /// <remarks>
     ///     This method uses synchronous-over-async patterns for ASP.NET Core host lifecycle
     ///     operations. It should only be called from threads without a SynchronizationContext
-    ///     (e.g., console applications or the default thread pool). Prefer <see cref="RunAsync"/>
+    ///     (e.g., console applications or the default thread pool). Prefer <see cref="RunAsync" />
     ///     for async contexts.
     /// </remarks>
     public void Run() {

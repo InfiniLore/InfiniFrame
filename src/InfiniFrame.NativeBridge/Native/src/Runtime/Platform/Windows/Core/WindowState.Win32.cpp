@@ -160,12 +160,12 @@ void InfiniFrameWindow::SetFullScreen(const bool fullScreen) {
             SetWindowPos(
                 m_impl->_hWnd, HWND_TOP, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
                 SWP_FRAMECHANGED | SWP_NOOWNERZORDER
-            );
+                );
         } else {
             SetWindowPos(
                 m_impl->_hWnd, HWND_TOP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN),
                 SWP_FRAMECHANGED | SWP_NOOWNERZORDER
-            );
+                );
         }
     } else {
         style |= WS_OVERLAPPEDWINDOW;
@@ -177,7 +177,7 @@ void InfiniFrameWindow::SetFullScreen(const bool fullScreen) {
             SetWindowPos(
                 m_impl->_hWnd, HWND_TOP, r.left, r.top, r.right - r.left, r.bottom - r.top,
                 SWP_FRAMECHANGED | SWP_NOOWNERZORDER
-            );
+                );
             m_impl->_hasSavedRect = false;
         }
     }
@@ -198,13 +198,13 @@ void InfiniFrameWindow::SetIconFile(const char* filename) {
         LoadImageW(
             nullptr, wideFilename.c_str(), IMAGE_ICON, smallWidth, smallHeight,
             LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED
-        )
+            )
     );
     HICON iconBig = static_cast<HICON>(
         LoadImageW(
             nullptr, wideFilename.c_str(), IMAGE_ICON, bigWidth, bigHeight,
             LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED
-        )
+            )
     );
 
     if (iconSmall != nullptr) {

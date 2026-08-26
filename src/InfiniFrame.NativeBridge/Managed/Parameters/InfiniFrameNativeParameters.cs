@@ -397,7 +397,8 @@ public struct InfiniFrameNativeParameters() {
 
     /// <summary>
     ///     Set when GetParamErrors() is called before initializing the native window. It is a check to make sure the
-    ///     struct matches what C++ is expecting. This field is readonly to ensure ABI stability; do not modify after construction.
+    ///     struct matches what C++ is expecting. This field is readonly to ensure ABI stability; do not modify after
+    ///     construction.
     /// </summary>
     [MarshalAs(UnmanagedType.I4)]
     internal readonly int Size = Marshal.SizeOf<InfiniFrameNativeParameters>();

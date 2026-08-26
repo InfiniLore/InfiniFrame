@@ -8,7 +8,19 @@ export default defineConfig({
         restoreMocks: true,
         coverage: {
             provider: "v8",
-            reporter: ["text", "lcov"]
+            reporter: ["text", "lcov"],
+            include: ["TypeScript/**/*.ts"],
+            exclude: [
+                "TypeScript/Contracts/**",
+                "TypeScript/Window/Features/index.ts",
+                "TypeScript/Utils/index.ts"
+            ],
+            thresholds: {
+                lines: 85,
+                branches: 65,
+                functions: 90,
+                statements: 84
+            }
         }
     }
 });

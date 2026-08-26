@@ -1,11 +1,10 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
-using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
 using System.Collections.Concurrent;
 using System.Reflection;
+using InfiniFrame;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -17,7 +16,7 @@ public class InfiniFrameEventsCallbackLifetimeTests {
     public async Task AssignToWindow_AddsNativeCallbackRoot_ReleaseRemovesIt(CancellationToken ct = default) {
         // Arrange
         var events = new InfiniFrameEvents(new InfiniFrameEventsStore(), NullLogger<InfiniFrameEvents>.Instance);
-        var window = Substitute.For<IInfiniFrameWindow>();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
         var windowId = Guid.NewGuid();
         window.Id.Returns(windowId);
 
@@ -25,7 +24,7 @@ public class InfiniFrameEventsCallbackLifetimeTests {
         roots.TryRemove(windowId, out _);
 
         // Act
-        events.AssignToWindow(window);
+        events.AssignToWindow(window.Object);
 
         // Assert
         await Assert.That(roots.TryGetValue(windowId, out InfiniFrameEvents? rootedEvents)).IsTrue();
@@ -40,8 +39,8 @@ public class InfiniFrameEventsCallbackLifetimeTests {
     public async Task AssignToWindow_WhenReassigned_MovesNativeCallbackRootToNewWindow(CancellationToken ct = default) {
         // Arrange
         var events = new InfiniFrameEvents(new InfiniFrameEventsStore(), NullLogger<InfiniFrameEvents>.Instance);
-        var firstWindow = Substitute.For<IInfiniFrameWindow>();
-        var secondWindow = Substitute.For<IInfiniFrameWindow>();
+        Mock<IInfiniFrameWindow> firstWindow = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindow> secondWindow = MockFactory.CreateWindowMock();
         var firstId = Guid.NewGuid();
         var secondId = Guid.NewGuid();
         firstWindow.Id.Returns(firstId);
@@ -52,8 +51,8 @@ public class InfiniFrameEventsCallbackLifetimeTests {
         roots.TryRemove(secondId, out _);
 
         // Act
-        events.AssignToWindow(firstWindow);
-        events.AssignToWindow(secondWindow);
+        events.AssignToWindow(firstWindow.Object);
+        events.AssignToWindow(secondWindow.Object);
 
         // Assert
         await Assert.That(roots.ContainsKey(firstId)).IsFalse();
@@ -68,7 +67,6 @@ public class InfiniFrameEventsCallbackLifetimeTests {
     private static ConcurrentDictionary<Guid, InfiniFrameEvents> GetNativeCallbackRoots() {
         FieldInfo field = typeof(InfiniFrameEvents)
             .GetField("NativeCallbackRoots", BindingFlags.Static | BindingFlags.NonPublic)!;
-
         return (ConcurrentDictionary<Guid, InfiniFrameEvents>)field.GetValue(null)!;
     }
 
@@ -76,7 +74,6 @@ public class InfiniFrameEventsCallbackLifetimeTests {
         MethodInfo method = typeof(InfiniFrameEvents)
             .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
             .Single(static candidate => candidate.Name.EndsWith("ReleaseNativeCallbackRoot", StringComparison.Ordinal));
-
         method.Invoke(events, null);
     }
 }

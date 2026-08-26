@@ -13,8 +13,10 @@ using namespace Microsoft::WRL;
 bool InfiniFrameWindow::RegisterCustomSchemesOnOptions(ICoreWebView2EnvironmentOptions* options) {
     bool requiresAppSchemeRegistration = std::any_of(
         m_impl->_customSchemeNames.begin(), m_impl->_customSchemeNames.end(),
-        [](const std::wstring& schemeName) { return _wcsicmp(schemeName.c_str(), L"app") == 0; }
-    );
+        [](const std::wstring& schemeName) {
+            return _wcsicmp(schemeName.c_str(), L"app") == 0;
+        }
+        );
     bool appSchemeRegistrationSupported = false;
 
     // Register custom schemes with WebView2 so top-level navigations like app://... are allowed.
@@ -49,7 +51,7 @@ bool InfiniFrameWindow::RegisterCustomSchemesOnOptions(ICoreWebView2EnvironmentO
 
                 options4->SetCustomSchemeRegistrations(
                     static_cast<UINT32>(rawRegistrations.size()), rawRegistrations.data()
-                );
+                    );
             }
         }
     }
@@ -60,7 +62,7 @@ bool InfiniFrameWindow::RegisterCustomSchemesOnOptions(ICoreWebView2EnvironmentO
             L"This app requires WebView2 custom scheme registration for app://localhost/. Please update "
             L"WebView2 Runtime to a version that supports ICoreWebView2EnvironmentOptions4.",
             L"WebView2 Runtime Too Old", MB_OK | MB_ICONERROR
-        );
+            );
         return false;
     }
 
@@ -81,12 +83,12 @@ void InfiniFrameWindow::AttachCustomSchemeHandler() {
         webview23->AddWebResourceRequestedFilterWithRequestSourceKinds(
             L"*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL,
             COREWEBVIEW2_WEB_RESOURCE_REQUEST_SOURCE_KINDS_ALL
-        );
+            );
     } else {
         // Compatibility path for runtimes that do not expose ICoreWebView2_23.
         m_impl->_webviewWindow->AddWebResourceRequestedFilter(
             L"*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL
-        );
+            );
     }
 
     // Central interception callback: validates/normalizes custom-scheme requests and
@@ -120,18 +122,18 @@ void InfiniFrameWindow::AttachCustomSchemeHandler() {
                     wil::com_ptr<IStream> dataStream;
                     dataStream.attach(
                         SHCreateMemStream(emptyModuleArray, sizeof(emptyModuleArray))
-                    );
+                        );
                     if (!dataStream)
                         return S_OK;
 
                     auto responseHeaders = infiniframe::BuildCustomSchemeResponseHeaders<wchar_t>(
                         std::wstring(L"application/json"), uriString, requestOrigin
-                    );
+                        );
 
                     wil::com_ptr<ICoreWebView2WebResourceResponse> response;
                     m_impl->_webviewEnvironment->CreateWebResourceResponse(
                         dataStream.get(), 200, L"OK", responseHeaders.c_str(), &response
-                    );
+                        );
                     args->put_Response(response.get());
                     return S_OK;
                 }
@@ -141,7 +143,7 @@ void InfiniFrameWindow::AttachCustomSchemeHandler() {
                     auto it = std::find(
                         m_impl->_customSchemeNames.begin(), m_impl->_customSchemeNames.end(),
                         scheme
-                    );
+                        );
 
                     if (it != m_impl->_customSchemeNames.end() &&
                         m_impl->_customSchemeCallback != nullptr) {
@@ -149,7 +151,7 @@ void InfiniFrameWindow::AttachCustomSchemeHandler() {
                         auto uriUtf8 = WideToUtf8(uriString.c_str());
                         const int handled = m_impl->_customSchemeCallback(
                             uriUtf8.c_str(), &managedResponse
-                        );
+                            );
                         infiniframe::CustomSchemeResponseLease responseLease(managedResponse);
                         if (handled == 0 || !infiniframe::IsValidBufferedCustomSchemeResponse(managedResponse))
                             return S_OK;
@@ -159,21 +161,23 @@ void InfiniFrameWindow::AttachCustomSchemeHandler() {
                             return S_OK;
 
                         wil::com_ptr<IStream> dataStream;
-                        dataStream.attach(SHCreateMemStream(
-                            reinterpret_cast<const BYTE*>(managedResponse.Body),
-                            static_cast<UINT>(managedResponse.ContentLength)
-                        ));
+                        dataStream.attach(
+                            SHCreateMemStream(
+                                reinterpret_cast<const BYTE*>(managedResponse.Body),
+                                static_cast<UINT>(managedResponse.ContentLength)
+                                ));
                         if (!dataStream)
                             return S_OK;
 
                         wil::com_ptr<ICoreWebView2WebResourceResponse> response;
                         auto responseHeaders = infiniframe::BuildCustomSchemeResponseHeaders<wchar_t>(
                             contentTypeWS, uriString, requestOrigin
-                        );
-                        if (SUCCEEDED(m_impl->_webviewEnvironment->CreateWebResourceResponse(
+                            );
+                        if (SUCCEEDED(
+                            m_impl->_webviewEnvironment->CreateWebResourceResponse(
                                 dataStream.get(), static_cast<int>(managedResponse.StatusCode), L"OK",
                                 responseHeaders.c_str(), &response
-                            )) && response) {
+                                )) && response) {
                             args->put_Response(response.get());
                         }
                     }
@@ -181,9 +185,9 @@ void InfiniFrameWindow::AttachCustomSchemeHandler() {
 
                 return S_OK;
             }
-        ).Get(),
+            ).Get(),
         &webResourceRequestedToken
-    );
+        );
 
     // Persist registration state so the handler can be removed during teardown.
     m_impl->_webResourceRequestedTokenForCustomScheme = webResourceRequestedToken;

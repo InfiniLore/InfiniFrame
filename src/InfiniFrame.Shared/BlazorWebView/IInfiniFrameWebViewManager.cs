@@ -1,8 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using Microsoft.AspNetCore.Components;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Components;
 
 namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -48,6 +48,9 @@ public interface IInfiniFrameWebViewManager {
     /// </summary>
     /// <param name="infiniFrameWindow">The native window that initiated the request.</param>
     /// <param name="url">The URL being requested.</param>
-    /// <returns>A tuple containing the response data stream and its content type, or <c>null</c> if the request could not be handled.</returns>
+    /// <returns>
+    ///     A tuple containing the response data stream and its content type, or <c>null</c> if the request could not be
+    ///     handled.
+    /// </returns>
     (Stream? Data, string? ContentType) HandleWebRequest(IInfiniFrameWindow? infiniFrameWindow, string? url);
 }

@@ -125,9 +125,16 @@ public interface IBrowserInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBui
 
     /// <summary>
     ///     Enables or disables ignoring certificate errors.
-    ///     <para>⚠️ Security Warning: Enabling this feature bypasses SSL/TLS certificate validation. Only use in controlled development/test scenarios. Never enable in production applications handling sensitive data.</para>
+    ///     <para>
+    ///         ⚠️ Security Warning: Enabling this feature bypasses SSL/TLS certificate validation. Only use in controlled
+    ///         development/test scenarios. Never enable in production applications handling sensitive data.
+    ///     </para>
     ///     <para>This is a startup-only configuration and cannot be changed at runtime.</para>
-    ///     <para>Platform-specific behavior: Windows passes --ignore-certificate-errors Chromium flag to WebView2; Linux sets WEBKIT_TLS_ERRORS_POLICY_IGNORE on WebKit data manager; macOS trusts all server certificates in didReceiveAuthenticationChallenge: delegate.</para>
+    ///     <para>
+    ///         Platform-specific behavior: Windows passes --ignore-certificate-errors Chromium flag to WebView2; Linux sets
+    ///         WEBKIT_TLS_ERRORS_POLICY_IGNORE on WebKit data manager; macOS trusts all server certificates in
+    ///         didReceiveAuthenticationChallenge: delegate.
+    ///     </para>
     /// </summary>
     /// <param name="enabled">Whether certificate errors should be ignored.</param>
     void EnableIgnoreCertificateErrors(bool enabled);

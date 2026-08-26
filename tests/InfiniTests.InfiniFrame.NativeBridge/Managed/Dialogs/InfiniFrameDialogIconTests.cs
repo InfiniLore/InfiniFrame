@@ -10,39 +10,13 @@ namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Dialogs;
 public class InfiniFrameDialogIconTests {
 
     [Test]
-    public async Task Info_HasValueZero(CancellationToken ct = default) {
-        // Arrange & Act
-        var icon = InfiniFrameDialogIcon.Info;
-
-        // Assert
-        await Assert.That((int)icon).IsEqualTo(0);
-    }
-
-    [Test]
-    public async Task Warning_HasValueOne(CancellationToken ct = default) {
-        // Arrange & Act
-        var icon = InfiniFrameDialogIcon.Warning;
-
-        // Assert
-        await Assert.That((int)icon).IsEqualTo(1);
-    }
-
-    [Test]
-    public async Task Error_HasValueTwo(CancellationToken ct = default) {
-        // Arrange & Act
-        var icon = InfiniFrameDialogIcon.Error;
-
-        // Assert
-        await Assert.That((int)icon).IsEqualTo(2);
-    }
-
-    [Test]
-    public async Task Question_HasValueThree(CancellationToken ct = default) {
-        // Arrange & Act
-        var icon = InfiniFrameDialogIcon.Question;
-
-        // Assert
-        await Assert.That((int)icon).IsEqualTo(3);
+    [Arguments(InfiniFrameDialogIcon.Info, 0)]
+    [Arguments(InfiniFrameDialogIcon.Warning, 1)]
+    [Arguments(InfiniFrameDialogIcon.Error, 2)]
+    [Arguments(InfiniFrameDialogIcon.Question, 3)]
+    public async Task HasExpectedIntValue(InfiniFrameDialogIcon icon, int expected, CancellationToken ct = default) {
+        // Arrange & Act & Assert
+        await Assert.That((int)icon).IsEqualTo(expected);
     }
 
     [Test]
@@ -58,32 +32,11 @@ public class InfiniFrameDialogIconTests {
     }
 
     [Test]
-    public async Task Info_IsLessThan_Warning(CancellationToken ct = default) {
-        // Arrange & Act
-        int info = (int)InfiniFrameDialogIcon.Info;
-        int warning = (int)InfiniFrameDialogIcon.Warning;
-
-        // Assert, ordinal order must match the C++ enum
-        await Assert.That(info).IsLessThan(warning);
-    }
-
-    [Test]
-    public async Task Warning_IsLessThan_Error(CancellationToken ct = default) {
-        // Arrange & Act
-        int warning = (int)InfiniFrameDialogIcon.Warning;
-        int error = (int)InfiniFrameDialogIcon.Error;
-
-        // Assert
-        await Assert.That(warning).IsLessThan(error);
-    }
-
-    [Test]
-    public async Task Error_IsLessThan_Question(CancellationToken ct = default) {
-        // Arrange & Act
-        int error = (int)InfiniFrameDialogIcon.Error;
-        int question = (int)InfiniFrameDialogIcon.Question;
-
-        // Assert
-        await Assert.That(error).IsLessThan(question);
+    [Arguments(InfiniFrameDialogIcon.Info, InfiniFrameDialogIcon.Warning)]
+    [Arguments(InfiniFrameDialogIcon.Warning, InfiniFrameDialogIcon.Error)]
+    [Arguments(InfiniFrameDialogIcon.Error, InfiniFrameDialogIcon.Question)]
+    public async Task IsLessThan_NextValue(InfiniFrameDialogIcon smaller, InfiniFrameDialogIcon larger, CancellationToken ct = default) {
+        // Arrange & Act & Assert
+        await Assert.That((int)smaller).IsLessThan((int)larger);
     }
 }

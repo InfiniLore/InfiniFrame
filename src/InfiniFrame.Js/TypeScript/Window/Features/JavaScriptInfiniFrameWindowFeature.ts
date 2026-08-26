@@ -6,12 +6,12 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-const pendingEvals = new Map<string, {resolve: (value: string | null) => void, reject: (reason: Error) => void}>();
+const pendingEvals = new Map<string, { resolve: (value: string | null) => void, reject: (reason: Error) => void }>();
 let evalCounter = 0;
 
 export function handleJavaScriptEvalRequest(payload: unknown) {
     if (!payload || typeof payload !== "object") return;
-    const {requestId, script} = payload as {requestId?: string, script?: string};
+    const {requestId, script} = payload as { requestId?: string, script?: string };
     if (!requestId || !script) return;
 
     try {
@@ -21,8 +21,7 @@ export function handleJavaScriptEvalRequest(payload: unknown) {
             "__infiniframe:javascript:eval:result",
             {requestId, result: resultJson}
         );
-    }
-    catch (e) {
+    } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
         window.infiniframe.messaging.sendMessageToHost(
             "__infiniframe:javascript:eval:result",
@@ -33,7 +32,7 @@ export function handleJavaScriptEvalRequest(payload: unknown) {
 
 export function handleJavaScriptEvalResponse(payload: unknown) {
     if (!payload || typeof payload !== "object") return;
-    const {requestId, result, error} = payload as {requestId?: string, result?: string | null, error?: string};
+    const {requestId, result, error} = payload as { requestId?: string, result?: string | null, error?: string };
     if (!requestId) return;
     const pending = pendingEvals.get(requestId);
     if (!pending) return;
@@ -46,7 +45,9 @@ export function handleJavaScriptEvalResponse(payload: unknown) {
 }
 
 export class JavaScriptInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
-    constructor(){super("javaScript");}
+    constructor() {
+        super("javaScript");
+    }
 
     evalAsync(script: string): Promise<string | null> {
         return new Promise<string | null>((resolve, reject) => {

@@ -13,7 +13,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 static_assert(sizeof(wchar_t) == sizeof(char16_t));
 
-const wchar_t* CLASS_NAME = L"InfiniFrame";
+auto CLASS_NAME = L"InfiniFrame";
 std::atomic<HINSTANCE> _hInstance{nullptr};
 thread_local HWND messageLoopRootWindowHandle = nullptr;
 
@@ -55,7 +55,7 @@ namespace {
         std::unique_ptr<void, HBRUSHDeleter> m_darkBrush;
         std::unique_ptr<void, HBRUSHDeleter> m_lightBrush;
     };
-} 
+}
 
 HBRUSH GetDarkBrush() {
     return BrushManager::instance().dark();
@@ -110,7 +110,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         throw std::invalid_argument(
             "Initial parameters passed are " + std::to_string(initParams->StructSize) +
             " bytes, but expected " + std::to_string(sizeof(InfiniFrameInitParams)) + " bytes."
-        );
+            );
     }
 
     if (initParams->WindowsAppUserModelId != nullptr && initParams->WindowsAppUserModelId[0] != '\0') {
@@ -122,8 +122,8 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
                 std::format(
                     "Could not set Windows AppUserModelID (HRESULT 0x{:08X}).",
                     static_cast<unsigned long>(result)
-                )
-            );
+                    )
+                );
         }
     }
 
@@ -267,7 +267,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         initParams->Transparent ? WS_EX_LAYERED : 0, CLASS_NAME, m_impl->_windowTitle.c_str(),
         initParams->Chromeless || initParams->FullScreen ? WS_POPUP : WS_OVERLAPPEDWINDOW, normalizedLeft,
         normalizedTop, normalizedWidth, normalizedHeight, nullptr, nullptr, windowInstance, this
-    );
+        );
     if (m_impl->_hWnd == nullptr) {
         throw std::runtime_error("CreateWindowEx failed to create the native window.");
     }
@@ -321,8 +321,13 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
 
 InfiniFrameWindow::~InfiniFrameWindow() {}
 
-InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() noexcept { return m_impl.get(); }
-const InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() const noexcept { return m_impl.get(); }
+InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() noexcept {
+    return m_impl.get();
+}
+
+const InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() const noexcept {
+    return m_impl.get();
+}
 
 HWND InfiniFrameWindow::getHwnd() {
     return m_impl->_hWnd;

@@ -66,7 +66,7 @@ The window opens immediately when `Build()` is called and runs on the current th
 
 ### Single-file/native packaging bootstrap
 
-If you package your app with embedded native binaries (for example via `InfiniLore.InfiniFrame.Tools.Pack`), initialize the single-file bootstrap before building your first window:
+If you package your app with embedded native binaries (for example via `InfiniLore.InfiniFrame.SingleFile`), initialize the single-file bootstrap before building your first window:
 
 ```csharp
 using InfiniFrame;

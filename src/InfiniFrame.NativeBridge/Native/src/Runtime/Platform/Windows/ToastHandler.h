@@ -26,8 +26,8 @@ class WinToastHandler final : public IWinToastHandler {
          * @brief Construct a handler bound to a specific window
          * @param window The window to bring to the foreground on notification activation
          */
-    explicit WinToastHandler(InfiniFrameWindow* window)
-        : _window(window) {}
+    explicit WinToastHandler(InfiniFrameWindow* window) :
+        _window(window) {}
 
     /** @brief Called when the user clicks the notification body; restores and focuses the window */
     void toastActivated() const override {

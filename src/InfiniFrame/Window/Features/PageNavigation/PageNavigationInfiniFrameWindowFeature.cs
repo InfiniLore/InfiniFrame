@@ -1,12 +1,12 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.Security;
 using InfiniFrame.StaticAssets;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics.CodeAnalysis;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -21,31 +21,31 @@ public class PageNavigationInfiniFrameWindowFeature(
     /// <inheritdoc cref="IPageNavigationInfiniFrameWindowFeature.GetCurrentUrl" />
     public string? GetCurrentUrl() {
         if (window.IsClosedOrClosing()) return null;
-        
+
         string? url = NativeInvoke.InvokeSyncWithValidation<string?>(
             logger,
             window,
             window.ManagedThreadId,
             InfiniFrameNative.GetCurrentUrl
         );
-        
-        return !string.IsNullOrEmpty(url) 
-            ? url 
+
+        return !string.IsNullOrEmpty(url)
+            ? url
             : null;
     }
 
     /// <inheritdoc cref="IPageNavigationInfiniFrameWindowFeature.GetCurrentUri" />
     public Uri? GetCurrentUri() {
         string? url = GetCurrentUrl();
-        return url != null && Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) 
-            ? uri 
+        return url != null && Uri.TryCreate(url, UriKind.Absolute, out Uri? uri)
+            ? uri
             : null;
     }
 
     /// <inheritdoc cref="IPageNavigationInfiniFrameWindowFeature.Load(Uri)" />
     public void Load(Uri uri)
         => TryLoadUri(uri);
-    
+
     /// <inheritdoc cref="IPageNavigationInfiniFrameWindowFeature.LoadAsync(Uri,CancellationToken)" />
     public Task<NavigationResult> LoadAsync(Uri uri, CancellationToken ct = default) {
         ArgumentNullException.ThrowIfNull(uri);

@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
 
 namespace InfiniTests.InfiniFrame.WebServer;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -17,12 +16,12 @@ namespace InfiniTests.InfiniFrame.WebServer;
 public class InfiniFrameWebApplicationTests {
     private const int DefaultGetMessageHandlerCount = 1;
 
-    private static IInfiniFrameWindow CreateMockWindow() {
-        var mockWindow = Substitute.For<IInfiniFrameWindow>();
+    private static (Mock<IInfiniFrameWindow> Mock, IInfiniFrameWindow Object) CreateMockWindow() {
+        Mock<IInfiniFrameWindow> mockWindow = MockFactory.CreateWindowMock();
         var eventsStore = new InfiniFrameEventsStore();
         mockWindow.Events.Returns(new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance));
         mockWindow.EventsStore.Returns(eventsStore);
-        return mockWindow;
+        return (mockWindow, mockWindow.Object);
     }
 
     [Test]
@@ -59,15 +58,15 @@ public class InfiniFrameWebApplicationTests {
     [Test]
     public async Task UseAutoServerClose_WhenWindowNotCreated_ShouldRegisterWithBuilder() {
         // Arrange
-        var mockWindowBuilder = Substitute.For<IInfiniFrameWindowBuilder>();
+        Mock<IInfiniFrameWindowBuilder> mockWindowBuilder = MockFactory.CreateWindowBuilderMock();
         var mockBuilderEventsStore = new InfiniFrameEventsStore();
         mockWindowBuilder.EventsStore.Returns(mockBuilderEventsStore);
 
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
-        webAppBuilder.Services.AddSingleton(mockWindowBuilder);
+        webAppBuilder.Services.AddSingleton(mockWindowBuilder.Object);
 
         WebApplication webApp = webAppBuilder.Build();
-        var lazyWindow = new Lazy<IInfiniFrameWindow>(CreateMockWindow);
+        var lazyWindow = new Lazy<IInfiniFrameWindow>(() => CreateMockWindow().Object);
 
         var app = new InfiniFrameWebApplication {
             Logger = NullLogger<InfiniFrameWebApplication>.Instance,
@@ -86,7 +85,7 @@ public class InfiniFrameWebApplicationTests {
     [Test]
     public async Task UseAutoServerClose_WhenWindowCreated_ShouldRegisterWithWindow() {
         // Arrange
-        IInfiniFrameWindow mockWindow = CreateMockWindow();
+        (_, IInfiniFrameWindow mockWindow) = CreateMockWindow();
         IInfiniFrameEvents mockEvents = mockWindow.Events;
 
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
@@ -113,7 +112,7 @@ public class InfiniFrameWebApplicationTests {
     [Test]
     public async Task UseAutoServerClose_ClosingHandler_ShouldReturnFalse() {
         // Arrange
-        IInfiniFrameWindow mockWindow = CreateMockWindow();
+        (_, IInfiniFrameWindow mockWindow) = CreateMockWindow();
         IInfiniFrameEvents mockEvents = mockWindow.Events;
 
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
@@ -141,7 +140,7 @@ public class InfiniFrameWebApplicationTests {
     [Test]
     public async Task UseAutoServerClose_ClosingHandler_ShouldInitiateStopAsync() {
         // Arrange
-        IInfiniFrameWindow mockWindow = CreateMockWindow();
+        (_, IInfiniFrameWindow mockWindow) = CreateMockWindow();
         IInfiniFrameEvents mockEvents = mockWindow.Events;
 
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
@@ -181,7 +180,7 @@ public class InfiniFrameWebApplicationTests {
     [Test]
     public async Task Window_Property_ShouldReturnLazyValue() {
         // Arrange
-        IInfiniFrameWindow mockWindow = CreateMockWindow();
+        (_, IInfiniFrameWindow mockWindow) = CreateMockWindow();
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
         WebApplication webApp = webAppBuilder.Build();
 

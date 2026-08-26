@@ -1,9 +1,9 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Runtime.InteropServices;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Parameters;
-using System.Runtime.InteropServices;
 
 namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Parameters;
 // ---------------------------------------------------------------------------------------------------------------------

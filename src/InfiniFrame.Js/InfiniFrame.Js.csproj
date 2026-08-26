@@ -18,41 +18,41 @@
         <Content Update="TypeScript/**/*"
                  Pack="false"
                  CopyToOutputDirectory="Never"
-                 CopyToPublishDirectory="Never" />
+                 CopyToPublishDirectory="Never"/>
 
         <Content Update="package.json"
                  Pack="false"
                  CopyToOutputDirectory="Never"
-                 CopyToPublishDirectory="Never" />
+                 CopyToPublishDirectory="Never"/>
 
         <Content Update="package-lock.json"
                  Pack="false"
                  CopyToOutputDirectory="Never"
-                 CopyToPublishDirectory="Never" />
+                 CopyToPublishDirectory="Never"/>
 
         <Content Update="tsconfig.json"
                  Pack="false"
                  CopyToOutputDirectory="Never"
-                 CopyToPublishDirectory="Never" />
+                 CopyToPublishDirectory="Never"/>
 
         <Content Update="vite.config.dev.ts"
                  Pack="false"
                  CopyToOutputDirectory="Never"
-                 CopyToPublishDirectory="Never" />
+                 CopyToPublishDirectory="Never"/>
 
         <Content Update="vite.config.prod.ts"
                  Pack="false"
                  CopyToOutputDirectory="Never"
-                 CopyToPublishDirectory="Never" />
+                 CopyToPublishDirectory="Never"/>
 
         <Content Update="vitest.config.ts"
                  Pack="false"
                  CopyToOutputDirectory="Never"
-                 CopyToPublishDirectory="Never" />
+                 CopyToPublishDirectory="Never"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="wwwroot/" />
+        <Folder Include="wwwroot/"/>
     </ItemGroup>
 
     <Target Name="BuildFrontend"
@@ -61,18 +61,18 @@
                      and '$(RunFrontendBuild)'=='true'
                      and '$(SkipTypeScriptBuild)'!='true'">
 
-        <Message Text="Running frontend build..." Importance="high" />
+        <Message Text="Running frontend build..." Importance="high"/>
 
         <Exec Command="node &quot;$(RepositoryRoot)/scripts/js-buildfrontend.mjs&quot; &quot;$(MSBuildProjectDirectory)&quot; &quot;$(FrontendStampFile)&quot; &quot;$(FrontendProdFile)&quot; &quot;$(FrontendDevFile)&quot;"
-              WorkingDirectory="$(MSBuildProjectDirectory)" />
+              WorkingDirectory="$(MSBuildProjectDirectory)"/>
 
         <Error Condition="!Exists('$(FrontendProdFile)')"
-               Text="Missing: $(FrontendProdFile)" />
+               Text="Missing: $(FrontendProdFile)"/>
 
         <Error Condition="!Exists('$(FrontendDevFile)')"
-               Text="Missing: $(FrontendDevFile)" />
+               Text="Missing: $(FrontendDevFile)"/>
 
-        <Message Text="Frontend build completed successfully." Importance="high" />
+        <Message Text="Frontend build completed successfully." Importance="high"/>
 
     </Target>
 
@@ -81,14 +81,14 @@
             Condition="'$(DesignTimeBuild)'!='true'">
 
         <ItemGroup>
-            <_FrontendGeneratedFiles Include="$(FrontendProdFile)" />
-            <_FrontendGeneratedFiles Include="$(FrontendDevFile)" />
-            <_FrontendGeneratedFiles Include="$(FrontendDevFile).map" />
-            <_FrontendGeneratedFiles Include="$(FrontendStampFile)" />
+            <_FrontendGeneratedFiles Include="$(FrontendProdFile)"/>
+            <_FrontendGeneratedFiles Include="$(FrontendDevFile)"/>
+            <_FrontendGeneratedFiles Include="$(FrontendDevFile).map"/>
+            <_FrontendGeneratedFiles Include="$(FrontendStampFile)"/>
         </ItemGroup>
 
         <Delete Files="@(_FrontendGeneratedFiles)"
-                TreatErrorsAsWarnings="true" />
+                TreatErrorsAsWarnings="true"/>
 
     </Target>
 

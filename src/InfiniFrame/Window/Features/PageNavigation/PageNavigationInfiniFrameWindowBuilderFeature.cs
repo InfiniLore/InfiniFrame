@@ -8,25 +8,25 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class PageNavigationInfiniFrameWindowBuilderFeature : IPageNavigationInfiniFrameWindowBuilderFeature {
-    /// <inheritdoc cref="IPageNavigationInfiniFrameWindowBuilderFeature.StartString"/>
+    /// <inheritdoc cref="IPageNavigationInfiniFrameWindowBuilderFeature.StartString" />
     public string? StartString { get; private set; }
-    /// <inheritdoc cref="IPageNavigationInfiniFrameWindowBuilderFeature.StartUrl"/>
+    /// <inheritdoc cref="IPageNavigationInfiniFrameWindowBuilderFeature.StartUrl" />
     public string? StartUrl { get; private set; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    /// <inheritdoc cref="IPageNavigationInfiniFrameWindowBuilderFeature.SetStartPageContent"/>
+    /// <inheritdoc cref="IPageNavigationInfiniFrameWindowBuilderFeature.SetStartPageContent" />
     public void SetStartPageContent(string? startString) {
         StartString = startString;
     }
 
-    /// <inheritdoc cref="IPageNavigationInfiniFrameWindowBuilderFeature.SetStartPageUrl"/>
+    /// <inheritdoc cref="IPageNavigationInfiniFrameWindowBuilderFeature.SetStartPageUrl" />
     public void SetStartPageUrl(string? startUrl) {
         StartUrl = startUrl;
     }
 
-    /// <inheritdoc cref="IPageNavigationInfiniFrameWindowBuilderFeature.SetUrl"/>
+    /// <inheritdoc cref="IPageNavigationInfiniFrameWindowBuilderFeature.SetUrl" />
     public void SetUrl(Uri? startUrl) {
         StartUrl = startUrl?.ToString();
     }

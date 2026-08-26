@@ -1,12 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Reflection;
+using System.Runtime.InteropServices;
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Delegates;
 using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
-using System.Reflection;
-using System.Runtime.InteropServices;
 
 namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -136,9 +135,9 @@ public class CustomSchemeResponsePipelineTests {
         var store = new InfiniFrameEventsStore();
         store.CustomScheme.Add("app", handler);
         var events = new InfiniFrameEvents(store, NullLogger<InfiniFrameEvents>.Instance);
-        var window = Substitute.For<IInfiniFrameWindow>();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
         window.Id.Returns(Guid.NewGuid());
-        events.AssignToWindow(window);
+        events.AssignToWindow(window.Object);
         return events;
     }
 
@@ -160,7 +159,7 @@ public class CustomSchemeResponsePipelineTests {
         public override bool CanWrite => false;
         public override long Length => length;
         public override long Position { get; set; }
-        public override void Flush() { }
+        public override void Flush() {}
         public override int Read(byte[] buffer, int offset, int count) => 0;
         public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
         public override void SetLength(long value) => throw new NotSupportedException();

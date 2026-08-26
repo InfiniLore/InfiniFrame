@@ -9,13 +9,20 @@ namespace InfiniTests.InfiniFrame.Shared.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class ExceptionsUtilityTests {
 
-    // -----------------------------------------------------------------------------------------------------------------
-    // Non-fatal exceptions, should return true
-    // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    public async Task IsNonFatalException_InvalidOperationException_ReturnsTrue(CancellationToken ct = default) {
+    [Arguments(typeof(InvalidOperationException))]
+    [Arguments(typeof(ArgumentException))]
+    [Arguments(typeof(ArgumentNullException))]
+    [Arguments(typeof(NullReferenceException))]
+    [Arguments(typeof(IOException))]
+    [Arguments(typeof(OperationCanceledException))]
+    [Arguments(typeof(NotImplementedException))]
+    [Arguments(typeof(NotSupportedException))]
+    [Arguments(typeof(TimeoutException))]
+    [Arguments(typeof(ObjectDisposedException))]
+    public async Task IsNonFatalException_NonFatalTypes_ReturnsTrue(Type exceptionType, CancellationToken ct = default) {
         // Arrange
-        var exception = new InvalidOperationException("test");
+        var exception = (Exception)Activator.CreateInstance(exceptionType, "test")!;
 
         // Act
         bool result = ExceptionsUtility.IsNonFatalException(exception);
@@ -25,84 +32,11 @@ public class ExceptionsUtilityTests {
     }
 
     [Test]
-    public async Task IsNonFatalException_ArgumentException_ReturnsTrue(CancellationToken ct = default) {
+    [Arguments(typeof(OutOfMemoryException))]
+    [Arguments(typeof(AccessViolationException))]
+    public async Task IsNonFatalException_FatalTypes_ReturnsFalse(Type exceptionType, CancellationToken ct = default) {
         // Arrange
-        var exception = new ArgumentException("test");
-
-        // Act
-        bool result = ExceptionsUtility.IsNonFatalException(exception);
-
-        // Assert
-        await Assert.That(result).IsTrue();
-    }
-
-    [Test]
-    public async Task IsNonFatalException_NullReferenceException_ReturnsTrue(CancellationToken ct = default) {
-        // Arrange
-        var exception = new NullReferenceException();
-
-        // Act
-        bool result = ExceptionsUtility.IsNonFatalException(exception);
-
-        // Assert
-        await Assert.That(result).IsTrue();
-    }
-
-    [Test]
-    public async Task IsNonFatalException_IOException_ReturnsTrue(CancellationToken ct = default) {
-        // Arrange
-        var exception = new IOException("disk error");
-
-        // Act
-        bool result = ExceptionsUtility.IsNonFatalException(exception);
-
-        // Assert
-        await Assert.That(result).IsTrue();
-    }
-
-    [Test]
-    public async Task IsNonFatalException_OperationCanceledException_ReturnsTrue(CancellationToken ct = default) {
-        // Arrange, OperationCanceledException is not in the fatal list
-        var exception = new OperationCanceledException();
-
-        // Act
-        bool result = ExceptionsUtility.IsNonFatalException(exception);
-
-        // Assert
-        await Assert.That(result).IsTrue();
-    }
-
-    [Test]
-    public async Task IsNonFatalException_NotImplementedException_ReturnsTrue(CancellationToken ct = default) {
-        // Arrange
-        var exception = new NotImplementedException();
-
-        // Act
-        bool result = ExceptionsUtility.IsNonFatalException(exception);
-
-        // Assert
-        await Assert.That(result).IsTrue();
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Fatal exceptions, should return false
-    // -----------------------------------------------------------------------------------------------------------------
-    [Test]
-    public async Task IsNonFatalException_OutOfMemoryException_ReturnsFalse(CancellationToken ct = default) {
-        // Arrange
-        var exception = new OutOfMemoryException();
-
-        // Act
-        bool result = ExceptionsUtility.IsNonFatalException(exception);
-
-        // Assert
-        await Assert.That(result).IsFalse();
-    }
-
-    [Test]
-    public async Task IsNonFatalException_AccessViolationException_ReturnsFalse(CancellationToken ct = default) {
-        // Arrange
-        var exception = new AccessViolationException();
+        var exception = (Exception)Activator.CreateInstance(exceptionType)!;
 
         // Act
         bool result = ExceptionsUtility.IsNonFatalException(exception);

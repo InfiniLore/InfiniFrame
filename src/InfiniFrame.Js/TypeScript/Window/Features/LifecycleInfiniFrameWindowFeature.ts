@@ -1,13 +1,15 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {LifecycleInfiniFrameWindowFeature as Contract,WindowLifecycleState} from "../../Contracts";
+import type {LifecycleInfiniFrameWindowFeature as Contract, WindowLifecycleState} from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export class LifecycleInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
-    constructor(){super("lifecycle");}
+    constructor() {
+        super("lifecycle");
+    }
 
     getStateAsync() {
         return this.get<WindowLifecycleState>("state");

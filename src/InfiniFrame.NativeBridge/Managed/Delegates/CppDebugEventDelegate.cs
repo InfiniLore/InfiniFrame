@@ -19,11 +19,16 @@ namespace InfiniFrame.NativeBridge.Delegates;
 /// <param name="platformPayload">Optional platform-specific payload.</param>
 [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
 public delegate void CppDebugEventDelegate(
-    [MarshalAs(UnmanagedType.LPUTF8Str)] string kind,
-    [MarshalAs(UnmanagedType.LPUTF8Str)] string? message,
-    [MarshalAs(UnmanagedType.LPUTF8Str)] string? level,
-    [MarshalAs(UnmanagedType.LPUTF8Str)] string? uri,
+    [MarshalAs(UnmanagedType.LPUTF8Str)]
+    string kind,
+    [MarshalAs(UnmanagedType.LPUTF8Str)]
+    string? message,
+    [MarshalAs(UnmanagedType.LPUTF8Str)]
+    string? level,
+    [MarshalAs(UnmanagedType.LPUTF8Str)]
+    string? uri,
     int statusCode,
     long timestampUnixMillisecondsUtc,
-    [MarshalAs(UnmanagedType.LPUTF8Str)] string? platformPayload
+    [MarshalAs(UnmanagedType.LPUTF8Str)]
+    string? platformPayload
 );

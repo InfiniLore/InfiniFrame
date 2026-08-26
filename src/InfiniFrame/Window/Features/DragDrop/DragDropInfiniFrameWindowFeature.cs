@@ -1,9 +1,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics;
 using InfiniFrame.NativeBridge;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -16,13 +16,11 @@ public class DragDropInfiniFrameWindowFeature(
     IInfiniFrameWindow window,
     ILogger<DragDropInfiniFrameWindowFeature> logger
 ) : IDragDropInfiniFrameWindowFeature {
-
-    private bool _isEnabled;
     private List<string> _allowedExtensions = new();
 
     /// <inheritdoc cref="IDragDropInfiniFrameWindowFeature.IsEnabled" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool IsEnabled => _isEnabled;
+    public bool IsEnabled { get; private set; }
 
     /// <inheritdoc cref="IDragDropInfiniFrameWindowFeature.AllowedExtensions" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -42,7 +40,7 @@ public class DragDropInfiniFrameWindowFeature(
             InfiniFrameNative.SetDragDropEnabled,
             enabled
         );
-        _isEnabled = enabled;
+        IsEnabled = enabled;
     }
 
     /// <inheritdoc cref="IDragDropInfiniFrameWindowFeature.SetAllowedExtensions" />

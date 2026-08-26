@@ -74,7 +74,7 @@ set(WINDOWS_SOURCES
         src/Runtime/Platform/Windows/ToastHandler.h
         src/Runtime/Platform/Windows/Window.Win32.Context.h
         src/Runtime/Platform/Windows/Window.Win32.Internal.h
-        
+
         src/Runtime/Platform/Windows/Core/UiDispatcher.Win32.cpp
         src/Runtime/Platform/Windows/Core/WindowCore.Win32.cpp
         src/Runtime/Platform/Windows/Core/WindowEncoding.Win32.cpp
@@ -104,7 +104,7 @@ set(LINUX_SOURCES
         src/Runtime/Platform/Linux/Window.Gtk.Internal.h
         src/Runtime/Platform/Linux/Core/GtkCallbackGuard.h
         src/Runtime/Platform/Linux/Core/LinuxGraphicsEnvironment.Gtk.h
-        
+
         src/Runtime/Platform/Linux/Core/LinuxGraphicsEnvironment.Gtk.cpp
         src/Runtime/Platform/Linux/Core/UiDispatcher.Gtk.cpp
         src/Runtime/Platform/Linux/Core/UiThread.Gtk.cpp
@@ -137,7 +137,7 @@ set(MAC_SOURCES
         src/Runtime/Platform/Mac/CocoaCoordinates.h
         src/Runtime/Platform/Mac/MacDiagnostics.h
         src/Runtime/Platform/Mac/WebKit/InfiniFrameWebView.h
-        
+
         src/Runtime/Platform/Mac/Core/UiDispatcher.Cocoa.mm
         src/Runtime/Platform/Mac/Core/WindowCore.Cocoa.mm
         src/Runtime/Platform/Mac/Core/WindowEvents.Cocoa.mm
@@ -199,7 +199,7 @@ if (WIN32)
     )
 
     infiniframe_setup_embed_js(${PROJECT_NAME})
-    
+
 elseif (APPLE)
     infiniframe_configure_macos_target(
             ${PROJECT_NAME}

@@ -34,7 +34,7 @@ std::wstring Utf8ToWide(const char* source);
 std::string WideToUtf8(const wchar_t* source);
 bool EnsureDirectoryWritable(const std::wstring& directoryPath);
 InfiniFrameWindow* LookupWindowInstance(HWND hwnd);
-HWND ResolveParentWindowHandle(InfiniFrameWindow* parent);
+HWND ResolveParentWindowHandle(InfiniFrameWindow * parent);
 HBRUSH GetDarkBrush();
 HBRUSH GetLightBrush();
 
@@ -62,7 +62,7 @@ template <typename TImpl> void ApplyPendingOwnerWindow(TImpl* impl, const wchar_
         TraceTeardown(
             L"ApplyPendingOwnerWindow failed phase=%ls child=%p owner=%p err=%lu", phase, impl->_hWnd,
             impl->_pendingOwnerHwnd, lastError
-        );
+            );
         return;
     }
 
@@ -73,5 +73,5 @@ template <typename TImpl> void ApplyPendingOwnerWindow(TImpl* impl, const wchar_
     TraceTeardown(
         L"ApplyPendingOwnerWindow success phase=%ls child=%p owner=%p childTid=%lu ownerTid=%lu prev=%p", phase,
         impl->_hWnd, impl->_pendingOwnerHwnd, childThreadId, ownerThreadId, reinterpret_cast<void*>(previousOwner)
-    );
+        );
 }

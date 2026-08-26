@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Utilities;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Decorations;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -111,7 +112,7 @@ public class BackgroundColorTests {
     [Arguments("#80FF0000", (byte)255, (byte)0, (byte)0, (byte)128)]
     [Arguments("#00000000", (byte)0, (byte)0, (byte)0, (byte)0)]
     public async Task ParseBackgroundColor_ParsesHexCorrectly(string hex, byte expectedR, byte expectedG, byte expectedB, byte expectedA, CancellationToken ct) {
-        DecorationsInfiniFrameWindowFeature.ParseBackgroundColor(hex, out byte r, out byte g, out byte b, out byte a);
+        ColorUtility.ParseBackgroundColor(hex, out byte r, out byte g, out byte b, out byte a);
 
         await Assert.That(r).IsEqualTo(expectedR);
         await Assert.That(g).IsEqualTo(expectedG);
@@ -121,7 +122,7 @@ public class BackgroundColorTests {
 
     [Test]
     public async Task ParseBackgroundColor_Transparent_ReturnsZeros(CancellationToken ct) {
-        DecorationsInfiniFrameWindowFeature.ParseBackgroundColor("transparent", out byte r, out byte g, out byte b, out byte a);
+        ColorUtility.ParseBackgroundColor("transparent", out byte r, out byte g, out byte b, out byte a);
 
         await Assert.That(r).IsEqualTo((byte)0);
         await Assert.That(g).IsEqualTo((byte)0);
@@ -131,7 +132,7 @@ public class BackgroundColorTests {
 
     [Test]
     public async Task ParseBackgroundColor_Null_ReturnsZeros(CancellationToken ct) {
-        DecorationsInfiniFrameWindowFeature.ParseBackgroundColor(null, out byte r, out byte g, out byte b, out byte a);
+        ColorUtility.ParseBackgroundColor(null, out byte r, out byte g, out byte b, out byte a);
 
         await Assert.That(r).IsEqualTo((byte)0);
         await Assert.That(g).IsEqualTo((byte)0);
@@ -145,7 +146,7 @@ public class BackgroundColorTests {
     [Arguments("#GG0000")]
     [Arguments("")]
     public async Task IsValidBackgroundColor_InvalidFormats_ReturnsFalse(string? invalid, CancellationToken ct) {
-        await Assert.That(DecorationsInfiniFrameWindowFeature.IsValidBackgroundColor(invalid)).IsFalse();
+        await Assert.That(ColorUtility.IsValidBackgroundColor(invalid)).IsFalse();
     }
 
     [Test]
@@ -155,6 +156,6 @@ public class BackgroundColorTests {
     [Arguments(null)]
     [Arguments("transparent")]
     public async Task IsValidBackgroundColor_ValidFormats_ReturnsTrue(string? valid, CancellationToken ct) {
-        await Assert.That(DecorationsInfiniFrameWindowFeature.IsValidBackgroundColor(valid)).IsTrue();
+        await Assert.That(ColorUtility.IsValidBackgroundColor(valid)).IsTrue();
     }
 }

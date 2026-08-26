@@ -1,13 +1,15 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {SizeInfiniFrameWindowFeature as Contract,ResizeOrigin,Size} from "../../Contracts";
+import type {ResizeOrigin, Size, SizeInfiniFrameWindowFeature as Contract} from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export class SizeInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
-    constructor(){super("size");}
+    constructor() {
+        super("size");
+    }
 
     getSizeAsync() {
         return this.get<Size>("size");

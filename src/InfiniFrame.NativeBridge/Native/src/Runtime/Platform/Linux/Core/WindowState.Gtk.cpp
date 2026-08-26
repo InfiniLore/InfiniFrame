@@ -64,8 +64,7 @@ unsigned int InfiniFrameWindow::GetScreenDpi() const {
     gdouble dpi = gdk_screen_get_resolution(screen);
     if (dpi < 0)
         return 96;
-    else
-        return static_cast<unsigned int>(dpi);
+    return static_cast<unsigned int>(dpi);
 }
 
 void InfiniFrameWindow::GetSize(int* width, int* height) const {
@@ -176,17 +175,18 @@ static std::string escapeJsonString(const std::string_view input) {
 }
 
 static void webview_eval_finished(GObject* object, GAsyncResult* result, gpointer) {
-    infiniframe::linux_gtk::RunGtkCallbackNoThrow("evaluate-javascript-finished", [&] {
-        if (object == nullptr || result == nullptr)
-            return;
+    infiniframe::linux_gtk::RunGtkCallbackNoThrow(
+        "evaluate-javascript-finished", [&] {
+            if (object == nullptr || result == nullptr)
+                return;
 
-        GError* error = nullptr;
-        webkit_web_view_evaluate_javascript_finish(WEBKIT_WEB_VIEW(object), result, &error);
-        if (error) {
-            g_warning("JavaScript evaluation failed: %s", error->message);
-            g_error_free(error);
-        }
-    });
+            GError* error = nullptr;
+            webkit_web_view_evaluate_javascript_finish(WEBKIT_WEB_VIEW(object), result, &error);
+            if (error) {
+                g_warning("JavaScript evaluation failed: %s", error->message);
+                g_error_free(error);
+            }
+        });
 }
 
 void InfiniFrameWindow::FlushPendingWebMessages() {
@@ -194,8 +194,9 @@ void InfiniFrameWindow::FlushPendingWebMessages() {
     if (!m_impl->_pendingWebMessages.empty() && !m_impl->_webviewClosed && m_impl->_webview != nullptr) {
         for (const auto& js : m_impl->_pendingWebMessages) {
             webkit_web_view_evaluate_javascript(
-                WEBKIT_WEB_VIEW(m_impl->_webview), js.c_str(), -1, nullptr, nullptr, nullptr, webview_eval_finished, nullptr
-            );
+                WEBKIT_WEB_VIEW(m_impl->_webview), js.c_str(), -1, nullptr, nullptr, nullptr, webview_eval_finished,
+                nullptr
+                );
         }
         m_impl->_pendingWebMessages.clear();
     }
@@ -221,7 +222,7 @@ void InfiniFrameWindow::SendWebMessage(const char* message) {
 
     webkit_web_view_evaluate_javascript(
         WEBKIT_WEB_VIEW(m_impl->_webview), js.c_str(), -1, nullptr, nullptr, nullptr, webview_eval_finished, nullptr
-    );
+        );
 }
 
 void InfiniFrameWindow::SetContextMenuEnabled(const bool enabled) {
@@ -229,7 +230,8 @@ void InfiniFrameWindow::SetContextMenuEnabled(const bool enabled) {
     if (m_impl->_webview == nullptr)
         return;
     std::string payload = "{\"enabled\":" + std::string(enabled ? "true" : "false") + "}";
-    std::string envelope = "{\"version\":1,\"messageId\":\"__infiniframe:browser:setContextMenuEnabled\",\"payload\":\"" + escapeJsonString(payload) + "\"}";
+    std::string envelope = "{\"version\":1,\"messageId\":\"__infiniframe:browser:setContextMenuEnabled\",\"payload\":\""
+        + escapeJsonString(payload) + "\"}";
     SendWebMessage(envelope.c_str());
 }
 
@@ -252,7 +254,7 @@ void InfiniFrameWindow::SetUserAgent(const char* userAgent) {
     webkit_settings_set_user_agent(
         settings,
         m_impl->_userAgent.empty() ? nullptr : m_impl->_userAgent.c_str()
-    );
+        );
     webkit_web_view_reload(WEBKIT_WEB_VIEW(m_impl->_webview));
 }
 
@@ -261,7 +263,8 @@ void InfiniFrameWindow::SetZoomEnabled(const bool enabled) {
     if (m_impl->_webview == nullptr)
         return;
     std::string payload = "{\"enabled\":" + std::string(enabled ? "true" : "false") + "}";
-    std::string envelope = "{\"version\":1,\"messageId\":\"__infiniframe:browser:setZoomEnabled\",\"payload\":\"" + escapeJsonString(payload) + "\"}";
+    std::string envelope = "{\"version\":1,\"messageId\":\"__infiniframe:browser:setZoomEnabled\",\"payload\":\"" +
+        escapeJsonString(payload) + "\"}";
     SendWebMessage(envelope.c_str());
 }
 
@@ -276,7 +279,9 @@ void InfiniFrameWindow::SetBrowserShortcutsEnabled(const bool enabled) {
     if (m_impl->_webview == nullptr)
         return;
     std::string payload = "{\"enabled\":" + std::string(enabled ? "true" : "false") + "}";
-    std::string envelope = "{\"version\":1,\"messageId\":\"__infiniframe:browser:setBrowserShortcutsEnabled\",\"payload\":\"" + escapeJsonString(payload) + "\"}";
+    std::string envelope =
+        "{\"version\":1,\"messageId\":\"__infiniframe:browser:setBrowserShortcutsEnabled\",\"payload\":\"" +
+        escapeJsonString(payload) + "\"}";
     SendWebMessage(envelope.c_str());
 }
 
@@ -318,16 +323,16 @@ void InfiniFrameWindow::SetMaximized(const bool maximized) {
 
 void InfiniFrameWindow::SetPosition(const int x, const int y) {
     GtkWindow* window = GTK_WINDOW(m_impl->_window);
-    
+
     if (gtk_window_is_maximized(window)) {
         gtk_window_unmaximize(window);
     }
     if (m_impl->_isFullScreen) {
         gtk_window_unfullscreen(window);
     }
-    
+
     GdkWindow* gdkWindow = gtk_widget_get_window(GTK_WIDGET(window));
-    
+
     if (gdkWindow) {
         gdk_window_move(gdkWindow, x, y);
     } else {
@@ -348,7 +353,7 @@ void InfiniFrameWindow::SetMinSize(const int width, const int height) {
     gtk_window_set_geometry_hints(
         GTK_WINDOW(m_impl->_window), nullptr, &m_impl->_hints,
         static_cast<GdkWindowHints>(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE)
-    );
+        );
 }
 
 void InfiniFrameWindow::SetMaxSize(const int width, const int height) {
@@ -360,7 +365,7 @@ void InfiniFrameWindow::SetMaxSize(const int width, const int height) {
     gtk_window_set_geometry_hints(
         GTK_WINDOW(m_impl->_window), nullptr, &m_impl->_hints,
         static_cast<GdkWindowHints>(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE)
-    );
+        );
 }
 
 void InfiniFrameWindow::SetSize(const int width, const int height) {

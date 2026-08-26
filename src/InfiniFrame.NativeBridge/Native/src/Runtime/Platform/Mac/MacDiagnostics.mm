@@ -26,12 +26,17 @@ namespace {
     std::mutex nativeCallbackMutex;
     std::condition_variable nativeCallbackCondition;
     void WriteSignalMessage(const int signalNumber) noexcept {
-        static constexpr char prefix[] = "\n[InfiniFrame macOS fatal signal] native stack follows\n";
-        (void)!write(STDERR_FILENO, prefix, sizeof(prefix) - 1);
+        std::fprintf(stderr, "\n[InfiniFrame macOS fatal signal] signal=%d native stack follows\n", signalNumber);
 
         void* frames[128];
         const int frameCount = backtrace(frames, 128);
-        backtrace_symbols_fd(frames, frameCount, STDERR_FILENO);
+        char** symbols = backtrace_symbols(frames, frameCount);
+        if (symbols != nullptr) {
+            for (int i = 0; i < frameCount; ++i)
+                std::fprintf(stderr, "  %s\n", symbols[i]);
+            std::free(symbols);
+        }
+        std::fflush(stderr);
 
         signal(signalNumber, SIG_DFL);
         raise(signalNumber);

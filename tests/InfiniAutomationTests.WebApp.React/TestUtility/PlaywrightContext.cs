@@ -13,7 +13,7 @@ public sealed class PlaywrightContext : ServerPlaywrightContextBase {
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    private PlaywrightContext() : base("InfiniFrame Playwright React") { }
+    private PlaywrightContext() : base("InfiniFrame Playwright React") {}
     public static PlaywrightContext Instance { get; } = new();
 
     // -----------------------------------------------------------------------------------------------------------------

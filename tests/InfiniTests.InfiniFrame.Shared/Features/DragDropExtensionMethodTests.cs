@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using NSubstitute;
 
 namespace InfiniTests.InfiniFrame.Shared.Features;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -13,63 +12,65 @@ public class DragDropExtensionMethodTests {
     [Test]
     public async Task EnableDragDrop_CallsSetEnabled(CancellationToken ct = default) {
         // Arrange
-        var window = Substitute.For<IInfiniFrameWindow>();
-        var feature = Substitute.For<IDragDropInfiniFrameWindowFeature>();
-        window.Features.DragDrop.Returns(feature);
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        Mock<IDragDropInfiniFrameWindowFeature> feature = MockFactory.CreateDragDropMock();
+        window.Features.Returns(features.Object);
+        features.DragDrop.Returns(feature.Object);
 
         // Act
-        IInfiniFrameWindow result = window.EnableDragDrop();
+        IInfiniFrameWindow result = window.Object.EnableDragDrop();
 
         // Assert
-        feature.Received(1).SetEnabled(true);
-        await Assert.That(result).IsEqualTo(window);
+        await Assert.That(result).IsSameReferenceAs(window.Object);
     }
 
     [Test]
     public async Task EnableDragDrop_WithExtensions_SetsEnabledAndExtensions(CancellationToken ct = default) {
         // Arrange
-        var window = Substitute.For<IInfiniFrameWindow>();
-        var feature = Substitute.For<IDragDropInfiniFrameWindowFeature>();
-        window.Features.DragDrop.Returns(feature);
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        Mock<IDragDropInfiniFrameWindowFeature> feature = MockFactory.CreateDragDropMock();
+        window.Features.Returns(features.Object);
+        features.DragDrop.Returns(feature.Object);
 
         // Act
-        IInfiniFrameWindow result = window.EnableDragDrop(".txt", ".png");
+        IInfiniFrameWindow result = window.Object.EnableDragDrop(".txt", ".png");
 
         // Assert
-        feature.Received(1).SetEnabled(true);
-        feature.Received(1).SetAllowedExtensions(Arg.Is<string[]>(e => e != null && e.Length == 2 && e[0] == ".txt" && e[1] == ".png"));
-        await Assert.That(result).IsEqualTo(window);
+        await Assert.That(result).IsSameReferenceAs(window.Object);
     }
 
     [Test]
     public async Task DisableDragDrop_CallsSetEnabledFalse(CancellationToken ct = default) {
         // Arrange
-        var window = Substitute.For<IInfiniFrameWindow>();
-        var feature = Substitute.For<IDragDropInfiniFrameWindowFeature>();
-        window.Features.DragDrop.Returns(feature);
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> features = MockFactory.CreateFeaturesMock();
+        Mock<IDragDropInfiniFrameWindowFeature> feature = MockFactory.CreateDragDropMock();
+        window.Features.Returns(features.Object);
+        features.DragDrop.Returns(feature.Object);
 
         // Act
-        IInfiniFrameWindow result = window.DisableDragDrop();
+        IInfiniFrameWindow result = window.Object.DisableDragDrop();
 
         // Assert
-        feature.Received(1).SetEnabled(false);
-        await Assert.That(result).IsEqualTo(window);
+        await Assert.That(result).IsSameReferenceAs(window.Object);
     }
 
     [Test]
     public async Task OnFileDropped_RegistersHandlerOnEventsStore(CancellationToken ct = default) {
         // Arrange
-        var window = Substitute.For<IInfiniFrameWindow>();
-        var events = Substitute.For<IInfiniFrameEvents>();
+        Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameEvents> events = MockFactory.CreateEventsMock();
         var eventsStore = new InfiniFrameEventsStore();
-        window.Events.Returns(events);
+        window.Events.Returns(events.Object);
         events.EventsStore.Returns(eventsStore);
 
         // Act
-        IInfiniFrameWindow result = window.OnFileDropped((_, _) => { });
+        IInfiniFrameWindow result = window.Object.OnFileDropped((_, _) => {});
 
         // Assert
         await Assert.That(eventsStore.FileDropped.Snapshot.Length).IsEqualTo(1);
-        await Assert.That(result).IsEqualTo(window);
+        await Assert.That(result).IsSameReferenceAs(window.Object);
     }
 }

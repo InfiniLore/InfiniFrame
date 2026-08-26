@@ -19,11 +19,13 @@
  * Intercepts authentication challenges to optionally suppress TLS certificate
  * errors when InfiniFrameInitParams::IgnoreCertificateErrors is set
  */
-@ interface NavigationDelegate:
+@
+interface NavigationDelegate:
     NSObject<WKNavigationDelegate>{
         @public
          NSWindow * window;           /// The host NSWindow
          InfiniFrameWindow * infiniFrame;   /// The InfiniFrameWindow instance this delegate belongs to
 
     }
-@ end
+@
+end

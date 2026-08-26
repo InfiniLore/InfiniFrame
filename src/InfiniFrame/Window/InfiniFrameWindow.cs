@@ -1,12 +1,12 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -29,12 +29,12 @@ public sealed class InfiniFrameWindow(
     private readonly Dictionary<string, InfiniFrameOperationDiagnostics> _outstandingOperations = [];
     private InfiniFrameOperationDiagnostics? _lastOperation;
     private bool _ownsServiceProvider;
-#if NET9_0_OR_GREATER
+    #if NET9_0_OR_GREATER
     private readonly Lock _disposeLock = new();
-#else
+    #else
     // ReSharper disable once ConvertToAutoPropertyWhenPossible
     private readonly object _disposeLock = new();
-#endif
+    #endif
     /// <inheritdoc cref="IInfiniFrameWindow.MainProgramHandle" />
     public IntPtr MainProgramHandle => LazyMainProgramHandle.Value;
 
@@ -109,15 +109,21 @@ public sealed class InfiniFrameWindow(
                 FinalState = "Pending"
             };
         }
+
         return key;
     }
 
     internal void CompleteDiagnosticOperation(
-        string? key, string finalState, int? nativeCode = null, string? failureReason = null
+        string? key,
+        string finalState,
+        int? nativeCode = null,
+        string? failureReason = null
     ) {
         if (key is null) return;
+
         lock (_diagnosticsLock) {
             if (!_outstandingOperations.Remove(key, out InfiniFrameOperationDiagnostics? operation)) return;
+
             _lastOperation = operation with {
                 CompletedUtc = DateTimeOffset.UtcNow,
                 FinalState = finalState,
@@ -147,6 +153,7 @@ public sealed class InfiniFrameWindow(
                 (int)InfiniFrameWindowLifecycleState.Created) != (int)InfiniFrameWindowLifecycleState.Created) {
             throw new InvalidOperationException($"Cannot initialize a window in state {LifecycleState}.");
         }
+
         RecordLifecycleTransition();
     }
 
@@ -176,8 +183,8 @@ public sealed class InfiniFrameWindow(
 
     void IInfiniFrameWindow.MarkReady() {
         if (Interlocked.CompareExchange(
-                ref _lifecycleState, 
-                (int)InfiniFrameWindowLifecycleState.Ready, 
+                ref _lifecycleState,
+                (int)InfiniFrameWindowLifecycleState.Ready,
                 (int)InfiniFrameWindowLifecycleState.Creating) != (int)InfiniFrameWindowLifecycleState.Creating
         ) return;
 
@@ -191,9 +198,11 @@ public sealed class InfiniFrameWindow(
             InfiniFrameWindowLifecycleState state = LifecycleState;
             if (state is not (InfiniFrameWindowLifecycleState.Creating or InfiniFrameWindowLifecycleState.Ready))
                 return false;
+
             if (Interlocked.CompareExchange(ref _lifecycleState,
                     (int)InfiniFrameWindowLifecycleState.CloseRequested, (int)state) != (int)state)
                 continue;
+
             // Write the return state atomically with the lifecycle transition so that
             // CancelCloseRequest always reads the value that corresponds to the current
             // CloseRequested transition.
@@ -210,9 +219,11 @@ public sealed class InfiniFrameWindow(
         int currentState = Volatile.Read(ref _lifecycleState);
         if (currentState != (int)InfiniFrameWindowLifecycleState.CloseRequested)
             return;
+
         int returnState = Volatile.Read(ref _closeReturnState);
         if (returnState is not ((int)InfiniFrameWindowLifecycleState.Creating or (int)InfiniFrameWindowLifecycleState.Ready))
             return;
+
         if (Interlocked.CompareExchange(ref _lifecycleState,
                 returnState,
                 (int)InfiniFrameWindowLifecycleState.CloseRequested) == (int)InfiniFrameWindowLifecycleState.CloseRequested)
@@ -223,6 +234,7 @@ public sealed class InfiniFrameWindow(
         while (true) {
             InfiniFrameWindowLifecycleState state = LifecycleState;
             if (state >= InfiniFrameWindowLifecycleState.NativeClosed) return;
+
             if (Interlocked.CompareExchange(ref _lifecycleState,
                     (int)InfiniFrameWindowLifecycleState.NativeClosed, (int)state) == (int)state) {
                 RecordLifecycleTransition();
@@ -242,6 +254,7 @@ public sealed class InfiniFrameWindow(
         while (true) {
             InfiniFrameWindowLifecycleState state = LifecycleState;
             if (state >= InfiniFrameWindowLifecycleState.TeardownComplete) return;
+
             if (Interlocked.CompareExchange(ref _lifecycleState,
                     (int)InfiniFrameWindowLifecycleState.TeardownComplete, (int)state) == (int)state) {
                 RecordLifecycleTransition();
@@ -328,7 +341,7 @@ public sealed class InfiniFrameWindow(
             Features.Lifecycle.CleanupNativeHandle();
 
             if (_ownsServiceProvider && ServiceProvider is IDisposable disposableProvider) {
-                using var _ = disposableProvider;
+                using IDisposable _ = disposableProvider;
             }
         }
     }

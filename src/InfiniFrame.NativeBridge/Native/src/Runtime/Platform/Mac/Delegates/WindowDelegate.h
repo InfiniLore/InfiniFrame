@@ -20,13 +20,24 @@
  * translates them into the corresponding InfiniFrame Invoke* calls.
  * Also handles file drag-and-drop when enabled.
  */
-@ interface WindowDelegate :
+@
+interface WindowDelegate :
     NSObject<NSWindowDelegate, NSDraggingDestination>
     {
         @public
          InfiniFrameWindow * infiniFrame; ///< The InfiniFrameWindow instance this delegate belongs to
 
     }
-- (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender;
-- (BOOL)performDragOperation:(id<NSDraggingInfo>)sender;
-@ end
+
+-
+(NSDragOperation)draggingEntered:
+    (id<NSDraggingInfo>)
+
+sender;
+-
+(BOOL)performDragOperation:
+    (id<NSDraggingInfo>)
+
+sender;
+@
+end

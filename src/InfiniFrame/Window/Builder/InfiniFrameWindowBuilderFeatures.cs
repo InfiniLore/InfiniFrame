@@ -11,32 +11,32 @@ namespace InfiniFrame;
 ///     Aggregates all builder-level feature configurations that are applied to native parameters before window creation.
 /// </summary>
 public sealed class InfiniFrameWindowBuilderFeatures : IInfiniFrameWindowBuilderFeatures {
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Debugging"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Debugging" />
     public IDebuggingInfiniFrameWindowBuilderFeature Debugging { get; } = new DebuggingInfiniFrameWindowBuilderFeature();
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Browser"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Browser" />
     public IBrowserInfiniFrameWindowBuilderFeature Browser { get; } = new BrowserInfiniFrameWindowBuilderFeature();
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Decorations"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Decorations" />
     public IDecorationsInfiniFrameWindowBuilderFeature Decorations { get; } = new DecorationsInfiniFrameWindowBuilderFeature();
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Notifications"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Notifications" />
     public INotificationsInfiniFrameWindowBuilderFeature Notifications { get; } = new NotificationsInfiniFrameWindowBuilderFeature();
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.PageNavigation"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.PageNavigation" />
     public IPageNavigationInfiniFrameWindowBuilderFeature PageNavigation { get; } = new PageNavigationInfiniFrameWindowBuilderFeature();
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Position"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Position" />
     public IPositionInfiniFrameWindowBuilderFeature Position { get; } = new PositionInfiniFrameWindowBuilderFeature();
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Size"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Size" />
     public ISizeInfiniFrameWindowBuilderFeature Size { get; } = new SizeInfiniFrameWindowBuilderFeature();
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.State"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.State" />
     public IStateInfiniFrameWindowBuilderFeature State { get; } = new StateInfiniFrameWindowBuilderFeature();
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.InstanceArbitration"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.InstanceArbitration" />
     public IInstanceArbitrationInfiniFrameWindowBuilderFeature InstanceArbitration { get; } = new InstanceArbitrationInfiniFrameWindowBuilderFeature();
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Menu"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.Menu" />
     public IMenuInfiniFrameWindowBuilderFeature Menu { get; } = new MenuInfiniFrameWindowBuilderFeature();
 
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.ApplyToNativeParameters"/>
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatures.ApplyToNativeParameters" />
     /// <summary>
     ///     Applies all configured feature settings to the native parameters.
     /// </summary>

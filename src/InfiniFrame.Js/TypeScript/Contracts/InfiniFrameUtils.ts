@@ -7,5 +7,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 export interface InfiniFrameUtils {
     setPointerCapture(element: Element, pointerId: number): void;
+
     releasePointerCapture(element: Element, pointerId: number): void;
 }

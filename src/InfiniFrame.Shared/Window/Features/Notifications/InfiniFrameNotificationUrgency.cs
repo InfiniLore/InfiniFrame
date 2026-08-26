@@ -29,7 +29,7 @@ public enum InfiniFrameNotificationUrgency {
 
     /// <summary>
     ///     Critical urgency. The notification interrupts the user immediately.
-    ///     Not supported on all platforms; falls back to <see cref="High"/> where unavailable.
+    ///     Not supported on all platforms; falls back to <see cref="High" /> where unavailable.
     /// </summary>
     Critical
 }
