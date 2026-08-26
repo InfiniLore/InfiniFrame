@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# ---------------------------------------------------------------------------------------------------------------------
+# Imports
+# ---------------------------------------------------------------------------------------------------------------------
 from __future__ import annotations
 
 import sys
@@ -13,7 +16,9 @@ if str(SCRIPT_DIR) not in sys.path:
 
 import sync_github_checks as sgc
 
-
+# ---------------------------------------------------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------------------------------------------------
 def make_args(**overrides: Any) -> sgc.Args:
     base = sgc.Args(
         repo="owner/repo",
@@ -88,8 +93,7 @@ def test_complete_matching_check_runs_creates_when_no_matches_and_enabled(
     def fake_request(
         method: str,
         url: str,
-        token: str,
-        payload: dict[str, sgc.JsonValue] | None = None,
+        payload: object = None,
     ) -> tuple[int, dict[str, sgc.JsonValue]]:
         calls.append((method, url, payload))
         if method == "GET":
@@ -113,8 +117,7 @@ def test_complete_matching_check_runs_patches_matching_sorted(monkeypatch: pytes
     def fake_request(
         method: str,
         url: str,
-        token: str,
-        payload: dict[str, sgc.JsonValue] | None = None,
+        payload: object = None,
     ) -> tuple[int, dict[str, sgc.JsonValue]]:
         calls.append((method, url, payload))
         if method == "GET":
@@ -160,14 +163,13 @@ def test_complete_matching_check_runs_patches_matching_sorted(monkeypatch: pytes
 def test_complete_matching_check_runs_updates_existing_completed_when_same_target(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    calls: list[tuple[str, str, dict[str, sgc.JsonValue] | None]] = []
+    calls: list[tuple[str, str, object]] = []
 
     # noinspection PyUnusedLocal
     def fake_request(
         method: str,
         url: str,
-        token: str,
-        payload: dict[str, sgc.JsonValue] | None = None,
+        payload: object = None,
     ) -> tuple[int, dict[str, sgc.JsonValue]]:
         calls.append((method, url, payload))
         if method == "GET":
@@ -196,14 +198,13 @@ def test_complete_matching_check_runs_updates_existing_completed_when_same_targe
 def test_complete_matching_check_runs_fallback_create_on_list_404_when_enabled(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    calls: list[tuple[str, str, dict[str, sgc.JsonValue] | None]] = []
+    calls: list[tuple[str, str, object]] = []
 
     # noinspection PyUnusedLocal
     def fake_request(
         method: str,
         url: str,
-        token: str,
-        payload: dict[str, sgc.JsonValue] | None = None,
+        payload: object = None,
     ) -> tuple[int, dict[str, sgc.JsonValue]]:
         calls.append((method, url, payload))
         if method == "GET":
@@ -220,9 +221,6 @@ def test_complete_matching_check_runs_raises_on_create_failure(monkeypatch: pyte
     # noinspection PyUnusedLocal
     def fake_request(
         method: str,
-        url: str,
-        token: str,
-        payload: dict[str, sgc.JsonValue] | None = None,
     ) -> tuple[int, dict[str, sgc.JsonValue]]:
         if method == "GET":
             return 200, {"check_runs": []}

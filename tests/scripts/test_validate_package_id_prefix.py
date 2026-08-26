@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# ---------------------------------------------------------------------------------------------------------------------
+# Imports
+# ---------------------------------------------------------------------------------------------------------------------
 from __future__ import annotations
 
 import json
@@ -15,7 +18,9 @@ import validate_package_id_prefix as vpp
 
 original_parse_args = vpp.parse_args
 
-
+# ---------------------------------------------------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------------------------------------------------
 def _write_csproj(path: Path, package_id: str | None) -> None:
     package_id_xml = f"<PackageId>{package_id}</PackageId>" if package_id is not None else ""
     path.write_text(

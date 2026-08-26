@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# ---------------------------------------------------------------------------------------------------------------------
+# Imports
+# ---------------------------------------------------------------------------------------------------------------------
 from __future__ import annotations
 
 import json
@@ -13,7 +16,9 @@ if str(SCRIPT_DIR) not in sys.path:
 
 import update_native_vendor_deps as upd
 
-
+# ---------------------------------------------------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------------------------------------------------
 def write_manifest(path: Path, tag: str) -> None:
     manifest = {
         "libraries": [
@@ -71,7 +76,7 @@ def test_update_downloads_files_and_updates_manifest(monkeypatch, tmp_path: Path
     monkeypatch.setattr(upd, "REPO_ROOT", tmp_path)
     monkeypatch.setattr(upd, "get_latest_release", lambda repo, token: ("v1.1.0", {"simdjson.h": "https://dl/h"}))
 
-    def fake_download(url: str, destination: Path, token: str) -> None:
+    def fake_download(url: str, destination: Path) -> None:
         downloads.append((url, destination))
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_text("x", encoding="utf-8")
@@ -132,7 +137,7 @@ def test_get_latest_release_parses_tag_and_assets(monkeypatch) -> None:
 
 
 def test_get_latest_release_returns_none_on_404(monkeypatch) -> None:
-    def raise_404(url, token):
+    def raise_404(url):
         raise urllib.error.HTTPError(url, 404, "Not Found", {}, None)
 
     monkeypatch.setattr(upd, "request_json", raise_404)

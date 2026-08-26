@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# ---------------------------------------------------------------------------------------------------------------------
+# Imports
+# ---------------------------------------------------------------------------------------------------------------------
 from __future__ import annotations
 
 import json
@@ -6,22 +9,16 @@ import sys
 import tempfile
 from pathlib import Path
 
+import bump_version
 import pytest
 
 SCRIPT_DIR = Path(__file__).resolve().parent.parent.parent / "scripts"
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from bump_version import (
-    bump,
-    update_all_package_json_files,
-    update_cmake_version,
-    update_package_json_version,
-    validate_version,
-    _replace_version_in_string,
-)
-
-
+# ---------------------------------------------------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------------------------------------------------
 @pytest.mark.parametrize(
     ("version", "expected"),
     [

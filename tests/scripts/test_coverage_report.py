@@ -1,5 +1,7 @@
 """Unit tests for coverage_report module."""
-
+# ---------------------------------------------------------------------------------------------------------------------
+# Imports
+# ---------------------------------------------------------------------------------------------------------------------
 import json
 import sys
 from collections import OrderedDict
@@ -25,11 +27,13 @@ from coverage_report import (
     write_badge,
 )
 
-
-# ── coverage_pct ──────────────────────────────────────────────────────────────
-
-
+# ---------------------------------------------------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------------------------------------------------
 class TestCoveragePct:
+    def __init__(self):
+        pass
+
     def test_basic(self):
         assert coverage_pct(50, 100) == 50.0
 
@@ -46,10 +50,10 @@ class TestCoveragePct:
         assert coverage_pct(0, 100) == 0.0
 
 
-# ── badge_color ───────────────────────────────────────────────────────────────
-
-
 class TestBadgeColor:
+    def __init__(self):
+        pass
+
     def test_green_at_90(self):
         assert badge_color(90.0) == "brightgreen"
 
@@ -68,11 +72,10 @@ class TestBadgeColor:
     def test_red_at_zero(self):
         assert badge_color(0.0) == "red"
 
-
-# ── trend ─────────────────────────────────────────────────────────────────────
-
-
 class TestTrend:
+    def __init__(self):
+        pass
+
     def test_improved(self):
         assert trend(80.0, 85.0) == ("\U0001f4c8", "improved")
 
@@ -83,10 +86,10 @@ class TestTrend:
         assert trend(80.0, 80.0) == ("\u27a1\ufe0f", "unchanged")
 
 
-# ── format_delta ──────────────────────────────────────────────────────────────
-
-
 class TestFormatDelta:
+    def __init__(self):
+        pass
+
     def test_positive(self):
         assert format_delta(2.5) == "+2.5"
 
@@ -97,10 +100,10 @@ class TestFormatDelta:
         assert format_delta(0.0) == "0.0"
 
 
-# ── parse_ts_coverage ─────────────────────────────────────────────────────────
-
-
 class TestParseTsCoverage:
+    def __init__(self):
+        pass
+
     def test_basic(self, tmp_path: Path):
         lcov = tmp_path / "lcov.info"
         lcov.write_text("SF:foo.ts\nDA:1,3\nDA:2,0\nend_of_record\nLF:2\nLH:1\n")
@@ -121,9 +124,6 @@ class TestParseTsCoverage:
         lines, hit = parse_ts_coverage(lcov)
         assert lines == 0
         assert hit == 0
-
-
-# ── parse_cs_coverage ─────────────────────────────────────────────────────────
 
 
 COBERTURA_TEMPLATE = """\
@@ -165,7 +165,6 @@ def _make_cobertura(
     xml_dir.mkdir(exist_ok=True)
     covered = sum(1 for h in lines if h > 0)
     valid = len(lines)
-    rate = covered / valid if valid else 0.0
     line_xml = "\n".join(LINE_HIT.format(n=i + 1, hits=h) for i, h in enumerate(lines))
     pkg = PACKAGE_TEMPLATE.format(name=pkg_name, lines=line_xml)
     xml = COBERTURA_TEMPLATE.format(valid=valid, covered=covered, packages=pkg)
@@ -175,6 +174,9 @@ def _make_cobertura(
 
 
 class TestParseCsCoverage:
+    def __init__(self):
+        pass
+
     def test_basic(self, tmp_path: Path):
         _make_cobertura(tmp_path, "a", [3, 0, 1])
         total, covered, pkg = parse_cs_coverage(tmp_path / "cobertura")
@@ -239,10 +241,10 @@ class TestParseCsCoverage:
         assert len(pkg) == 0
 
 
-# ── write_badge / read_old_pct ────────────────────────────────────────────────
-
-
 class TestWriteBadge:
+    def __init__(self):
+        pass
+
     def test_creates_file(self, tmp_path: Path):
         path = tmp_path / "badges" / "ts.json"
         write_badge(path, "coverage", "92.5%", "brightgreen")
@@ -259,6 +261,9 @@ class TestWriteBadge:
 
 
 class TestReadOldPct:
+    def __init__(self):
+        pass
+
     def test_reads_existing(self, tmp_path: Path):
         path = tmp_path / "badge.json"
         path.write_text(json.dumps({"message": "87.3%"}))
@@ -273,10 +278,10 @@ class TestReadOldPct:
         assert read_old_pct(path) == 100.0
 
 
-# ── build_pr_comment ──────────────────────────────────────────────────────────
-
-
 class TestBuildPrComment:
+    def __init__(self):
+        pass
+
     def test_basic_structure(self):
         body = build_pr_comment(93.6, 85.2, 88.0, 90.0, 80.0, 85.0, {})
         assert "## \U0001f4ca Code Coverage Report" in body
@@ -324,10 +329,10 @@ class TestBuildPrComment:
         assert high_idx < low_idx
 
 
-# ── post_pr_comment ───────────────────────────────────────────────────────────
-
-
 class TestPostPrComment:
+    def __init__(self):
+        pass
+
     def test_skips_if_not_a_pr(self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
         monkeypatch.setattr(
             "coverage_report.run",
@@ -336,10 +341,10 @@ class TestPostPrComment:
         post_pr_comment("1", "owner/repo", 90.0, 80.0, 85.0, 85.0, 75.0, 80.0, {})
         assert "not a pull request" in capsys.readouterr().out
 
-    def test_deletes_old_comment_and_posts_new(self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
+    def test_deletes_old_comment_and_posts_new(self, monkeypatch: pytest.MonkeyPatch):
         call_log: list[tuple[str, str]] = []
 
-        def fake_run(cmd, **kw):
+        def fake_run(cmd):
             call_log.append((cmd[1] if len(cmd) > 1 else cmd[0], cmd[2] if len(cmd) > 2 else ""))
             if cmd[0] == "gh" and cmd[1] == "pr":
                 return type("R", (), {"returncode": 0, "stdout": '{"number":1}'})()
@@ -357,14 +362,14 @@ class TestPostPrComment:
         assert len(posts) == 1
 
 
-# ── git_commit_badges ─────────────────────────────────────────────────────────
-
-
 class TestGitCommitBadges:
-    def test_commits_when_changes_staged(self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
+    def __init__(self):
+        pass
+
+    def test_commits_when_changes_staged(self, monkeypatch: pytest.MonkeyPatch):
         calls: list[list[str]] = []
 
-        def fake_run(cmd, **kw):
+        def fake_run(cmd):
             calls.append(cmd)
             if cmd[:3] == ["git", "diff", "--staged", "--quiet"]:
                 return type("R", (), {"returncode": 1})()
@@ -378,7 +383,7 @@ class TestGitCommitBadges:
         assert "push" in cmds
 
     def test_skips_when_no_changes(self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
-        def fake_run(cmd, **kw):
+        def fake_run(cmd):
             if cmd[:3] == ["git", "diff", "--staged", "--quiet"]:
                 return type("R", (), {"returncode": 0})()
             return type("R", (), {"returncode": 0, "stdout": ""})()

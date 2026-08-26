@@ -4,7 +4,9 @@
 Parses TypeScript (lcov), Python (lcov), and C# (Cobertura XML) coverage data,
 generates badge JSON files, posts PR comments, and commits badge updates.
 """
-
+# ---------------------------------------------------------------------------------------------------------------------
+# Imports
+# ---------------------------------------------------------------------------------------------------------------------
 import argparse
 import json
 import re
@@ -13,9 +15,14 @@ import xml.etree.ElementTree as ET
 from collections import OrderedDict
 from pathlib import Path
 
+# ---------------------------------------------------------------------------------------------------------------------
+# Constants
+# ---------------------------------------------------------------------------------------------------------------------
 TEST_PACKAGES = ("InfiniTests", "InfiniAutomationTests")
 
-
+# ---------------------------------------------------------------------------------------------------------------------
+# Code
+# ---------------------------------------------------------------------------------------------------------------------
 def run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
     return subprocess.run(cmd, capture_output=True, text=True, **kwargs)
 

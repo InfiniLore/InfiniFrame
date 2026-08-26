@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# ---------------------------------------------------------------------------------------------------------------------
+# Imports
+# ---------------------------------------------------------------------------------------------------------------------
 from __future__ import annotations
 
 import argparse
@@ -11,6 +14,9 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Literal, Never, TypedDict
 
+# ---------------------------------------------------------------------------------------------------------------------
+# Types
+# ---------------------------------------------------------------------------------------------------------------------
 JsonPrimitive = str | int | float | bool | None
 JsonValue = JsonPrimitive | list["JsonValue"] | dict[str, "JsonValue"]
 
@@ -47,7 +53,9 @@ class Args:
     require_update: bool
     create_check_run_if_missing: bool
 
-
+# ---------------------------------------------------------------------------------------------------------------------
+# Code
+# ---------------------------------------------------------------------------------------------------------------------
 def fail(message: str, details: JsonValue | None = None) -> Never:
     print(message)
     if details is not None:
