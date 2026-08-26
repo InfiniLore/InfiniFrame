@@ -7,6 +7,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides runtime control over window position including absolute placement, centering, and monitor-aware positioning.
+/// </summary>
 public interface IPositionInfiniFrameWindowFeature {
     /// <summary>
     ///     Gets the current position of the window.

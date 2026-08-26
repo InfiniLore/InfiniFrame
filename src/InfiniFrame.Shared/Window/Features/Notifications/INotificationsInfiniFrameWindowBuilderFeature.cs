@@ -5,6 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Configures notification settings before window creation.
+/// </summary>
 public interface INotificationsInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBuilderFeature {
     /// <summary>
     ///     Gets whether notifications are enabled for the window.

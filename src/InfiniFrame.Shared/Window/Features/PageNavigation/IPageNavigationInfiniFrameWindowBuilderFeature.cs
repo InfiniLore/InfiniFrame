@@ -5,6 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Configures the initial page content before window creation.
+/// </summary>
 public interface IPageNavigationInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBuilderFeature {
     /// <summary>
     ///     Gets the start page content to display when the window is created.

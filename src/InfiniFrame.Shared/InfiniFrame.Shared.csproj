@@ -4,6 +4,7 @@
         <PackageId>InfiniLore.InfiniFrame.Shared</PackageId>
         <OutputType>Library</OutputType>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <Description>Shared interfaces, types, enums, delegates, and native interop layer for InfiniFrame. Contains the feature system contracts used by the core and integration packages.</Description>
     </PropertyGroup>
 
     <ItemGroup>

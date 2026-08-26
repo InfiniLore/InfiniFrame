@@ -5,6 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Fluent extension methods for <see cref="IStateInfiniFrameWindowFeature" /> on <see cref="IInfiniFrameWindow" />.
+/// </summary>
 public static class IStateInfiniFrameWindowFeatureExtension {
     /// <summary>
     ///     Sets whether the window is maximized and returns the window for chaining.

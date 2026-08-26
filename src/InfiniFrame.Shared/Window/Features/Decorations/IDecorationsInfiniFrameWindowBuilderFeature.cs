@@ -5,6 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Configures window decorations before window creation.
+/// </summary>
 public interface IDecorationsInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBuilderFeature {
     /// <summary>
     ///     Gets whether the window is chromeless (no title bar or borders).

@@ -2,6 +2,7 @@
     <PropertyGroup>
         <PackageId>InfiniLore.InfiniFrame.Blazor</PackageId>
         <OutputType>Library</OutputType>
+        <Description>Pre-built Razor components for custom window chrome in InfiniFrame Blazor applications. Includes drag areas, window buttons, and resize thumbs.</Description>
     </PropertyGroup>
 
     <ItemGroup>

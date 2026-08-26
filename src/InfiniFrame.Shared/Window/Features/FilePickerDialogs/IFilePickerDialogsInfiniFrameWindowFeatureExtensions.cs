@@ -5,6 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Fluent extension methods for <see cref="IFilePickerDialogsInfiniFrameWindowFeature" /> on <see cref="IInfiniFrameWindow" />.
+/// </summary>
 public static class IFilePickerDialogsInfiniFrameWindowFeatureExtensions {
     /// <summary>
     ///     Shows an open file dialog and returns the selected file paths.

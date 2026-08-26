@@ -5,6 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Fluent extension methods for <see cref="IMonitorsInfiniFrameWindowFeature" /> on <see cref="IInfiniFrameWindow" />.
+/// </summary>
 public static class IMonitorsInfiniFrameWindowFeatureExtensions {
     /// <summary>
     ///     Gets all available monitors for the window.

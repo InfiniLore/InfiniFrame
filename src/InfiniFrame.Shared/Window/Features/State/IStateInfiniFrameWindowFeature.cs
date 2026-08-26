@@ -7,6 +7,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides runtime control over window state including maximized, minimized, fullscreen, topmost, focus, and zoom.
+/// </summary>
 public interface IStateInfiniFrameWindowFeature {
     /// <summary>
     ///     Gets whether the window is currently in full-screen mode.

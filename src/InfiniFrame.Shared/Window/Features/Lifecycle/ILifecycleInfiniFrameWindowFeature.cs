@@ -12,6 +12,11 @@ public interface ILifecycleInfiniFrameWindowFeature {
     /// <summary>Gets the current deterministic lifecycle state.</summary>
     InfiniFrameWindowLifecycleState State { get; }
 
+    /// <summary>
+    ///     Waits asynchronously for the window to reach the ready state.
+    /// </summary>
+    /// <param name="ct">A cancellation token to cancel the wait operation.</param>
+    /// <returns>A task that completes when the window is ready or cancellation is requested.</returns>
     ValueTask WaitForReadyAsync(CancellationToken ct = default);
 
     /// <summary>
@@ -31,8 +36,18 @@ public interface ILifecycleInfiniFrameWindowFeature {
     /// <returns>A task that completes when the window closes or cancellation is requested.</returns>
     ValueTask WaitForCloseAsync(CancellationToken ct = default);
 
+    /// <summary>
+    ///     Waits asynchronously for all registered close callbacks to complete.
+    /// </summary>
+    /// <param name="ct">A cancellation token to cancel the wait operation.</param>
+    /// <returns>A task that completes when all close callbacks have been delivered or cancellation is requested.</returns>
     ValueTask WaitForClosedCallbacksAsync(CancellationToken ct = default);
 
+    /// <summary>
+    ///     Waits asynchronously for the window teardown to complete, including native handle release.
+    /// </summary>
+    /// <param name="ct">A cancellation token to cancel the wait operation.</param>
+    /// <returns>A task that completes when teardown is finished or cancellation is requested.</returns>
     ValueTask WaitForTeardownAsync(CancellationToken ct = default);
 
     /// <summary>

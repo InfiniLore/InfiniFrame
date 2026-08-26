@@ -2,6 +2,7 @@
     <PropertyGroup>
         <PackageId>InfiniLore.InfiniFrame.BlazorWebView</PackageId>
         <OutputType>Library</OutputType>
+        <Description>Integrates a full Blazor WebAssembly-style application into a native InfiniFrame window with no HTTP server required. The Blazor runtime runs entirely in-process.</Description>
     </PropertyGroup>
 
     <ItemGroup>

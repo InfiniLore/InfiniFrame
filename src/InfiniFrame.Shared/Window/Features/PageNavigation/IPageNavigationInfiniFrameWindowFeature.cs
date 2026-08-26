@@ -5,6 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides runtime control over page navigation including loading URLs, HTML strings, and intercepting navigation requests.
+/// </summary>
 public interface IPageNavigationInfiniFrameWindowFeature {
     /// <summary>
     ///     Loads the specified URI in the window.
@@ -52,6 +55,12 @@ public interface IPageNavigationInfiniFrameWindowFeature {
     /// <param name="content">The raw HTML content to load.</param>
     void LoadRawString(string content);
 
+    /// <summary>
+    ///     Loads raw HTML content as a string in the window and returns a navigation result.
+    /// </summary>
+    /// <param name="content">The raw HTML content to load.</param>
+    /// <param name="ct">The cancellation token to use.</param>
+    /// <returns>A <see cref="Task" /> that completes with the <see cref="NavigationResult"/>.</returns>
     Task<NavigationResult> LoadRawStringAsync(string content, CancellationToken ct = default);
 
     /// <summary>

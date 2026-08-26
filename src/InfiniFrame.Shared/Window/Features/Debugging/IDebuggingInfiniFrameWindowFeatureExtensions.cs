@@ -8,6 +8,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Fluent extension methods for <see cref="IDebuggingInfiniFrameWindowFeature" /> on <see cref="IInfiniFrameWindow" />.
+/// </summary>
 public static class IDebuggingInfiniFrameWindowFeatureExtensions {
     /// <summary>
     ///     Enables or disables developer tools for the window.

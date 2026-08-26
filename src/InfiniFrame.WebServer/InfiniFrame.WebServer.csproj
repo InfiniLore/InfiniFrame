@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <PackageId>InfiniLore.InfiniFrame.WebServer</PackageId>
+        <Description>Runs an ASP.NET Core web application in a background thread while opening a native InfiniFrame window pointed at it. Ideal for middleware, controllers, SignalR, and Blazor Server.</Description>
     </PropertyGroup>
 
     <ItemGroup>
