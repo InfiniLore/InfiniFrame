@@ -291,19 +291,19 @@ def main() -> None:
     # 6. Write badge JSON files
     write_badge(
         Path("badges/ts-coverage.json"),
-        "coverage",
+        "TS coverage",
         f"{ts_pct}%",
         badge_color(ts_pct),
     )
     write_badge(
         Path("badges/cs-coverage.json"),
-        "coverage",
+        "C# coverage",
         f"{cs_pct}%",
         badge_color(cs_pct),
     )
     write_badge(
         Path("badges/python-coverage.json"),
-        "coverage",
+        "Python coverage",
         f"{py_pct}%",
         badge_color(py_pct),
     )
