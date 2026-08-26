@@ -7,6 +7,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides extension methods to register JavaScript handlers for entering, exiting, and toggling full-screen mode
+///     from web content.
+/// </summary>
 public static class FullScreenWebMessageHandler {
     public static T RegisterFullScreenWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
         builder.RegisterWebMessagePostHandler(

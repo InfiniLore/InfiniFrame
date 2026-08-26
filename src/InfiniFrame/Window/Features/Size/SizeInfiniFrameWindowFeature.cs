@@ -11,6 +11,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Runtime feature implementation for querying and modifying window size constraints, dimensions, and resizable
+///     state at runtime.
+/// </summary>
 public class SizeInfiniFrameWindowFeature(
     IInfiniFrameWindow window,
     ILogger<SizeInfiniFrameWindowFeature> logger
@@ -177,12 +181,24 @@ public class SizeInfiniFrameWindowFeature(
         );
     }
 
+    /// <summary>
+    ///     Sets the maximum window size from a Size value.
+    /// </summary>
+    /// <param name="size">The maximum size to set.</param>
     public void SetMaxSize(Size size)
         => SetMaxSize(size.Width, size.Height);
 
+    /// <summary>
+    ///     Sets the maximum window height.
+    /// </summary>
+    /// <param name="maxHeight">The maximum height to set.</param>
     public void SetMaxHeight(int maxHeight)
         => SetMaxSize(MaxWidth, maxHeight);
 
+    /// <summary>
+    ///     Sets the maximum window width.
+    /// </summary>
+    /// <param name="maxWidth">The maximum width to set.</param>
     public void SetMaxWidth(int maxWidth)
         => SetMaxSize(maxWidth, MaxHeight);
 
@@ -199,15 +215,31 @@ public class SizeInfiniFrameWindowFeature(
         );
     }
 
+    /// <summary>
+    ///     Sets the minimum window size from a Size value.
+    /// </summary>
+    /// <param name="size">The minimum size to set.</param>
     public void SetMinSize(Size size)
         => SetMinSize(size.Width, size.Height);
 
+    /// <summary>
+    ///     Sets the minimum window height.
+    /// </summary>
+    /// <param name="minHeight">The minimum height to set.</param>
     public void SetMinHeight(int minHeight)
         => SetMinSize(MinWidth, minHeight);
 
+    /// <summary>
+    ///     Sets the minimum window width.
+    /// </summary>
+    /// <param name="minWidth">The minimum width to set.</param>
     public void SetMinWidth(int minWidth)
         => SetMinSize(minWidth, MinHeight);
 
+    /// <summary>
+    ///     Sets the window width while preserving the current height.
+    /// </summary>
+    /// <param name="width">The new width to set.</param>
     public void SetWidth(int width) {
         logger.LogDebug(".SetWidth({Width})", width);
 
@@ -228,6 +260,12 @@ public class SizeInfiniFrameWindowFeature(
         );
     }
 
+    /// <summary>
+    ///     Resizes the window by the specified offset from the given origin, clamping to min/max constraints.
+    /// </summary>
+    /// <param name="widthOffset">The horizontal offset to apply.</param>
+    /// <param name="heightOffset">The vertical offset to apply.</param>
+    /// <param name="origin">The anchor point for the resize operation.</param>
     public void Resize(int widthOffset, int heightOffset, ResizeOrigin origin) {
 
         (int width, int height) = NativeInvoke.InvokeSyncWithValidation<int, int>(
@@ -272,6 +310,10 @@ public class SizeInfiniFrameWindowFeature(
         );
     }
 
+    /// <summary>
+    ///     Enables or disables window resizability.
+    /// </summary>
+    /// <param name="resizable"><c>true</c> to enable resizing; otherwise, <c>false</c>.</param>
     public void SetResizable(bool resizable = true) {
         NativeInvoke.InvokeSyncWithValidation(
             logger,

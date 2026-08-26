@@ -12,6 +12,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Runtime feature implementation for navigating to URLs, paths, raw HTML strings, and static assets, with URI
+///     security validation and async navigation support.
+/// </summary>
 public class PageNavigationInfiniFrameWindowFeature(
     IInfiniFrameWindow window,
     ILogger<PageNavigationInfiniFrameWindowFeature> logger,

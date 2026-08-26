@@ -13,12 +13,21 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Runtime feature implementation for sending web messages to the native WebView with acknowledgement tracking
+///     and typed request/response support.
+/// </summary>
 public class WebMessagingInfiniFrameWindowFeature : IWebMessagingInfiniFrameWindowFeature {
     private readonly ConcurrentDictionary<ulong, TaskCompletionSource> _acknowledgements = new();
     private readonly ILogger<WebMessagingInfiniFrameWindowFeature> logger;
     private readonly IInfiniFrameWindow window;
     private long _nextAcknowledgementId;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="WebMessagingInfiniFrameWindowFeature"/> class.
+    /// </summary>
+    /// <param name="window">The window instance to send web messages through.</param>
+    /// <param name="logger">The logger instance.</param>
     public WebMessagingInfiniFrameWindowFeature(
         IInfiniFrameWindow window,
         ILogger<WebMessagingInfiniFrameWindowFeature> logger

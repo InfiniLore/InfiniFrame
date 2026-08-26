@@ -7,6 +7,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Builder feature implementation for configuring initial window state including full screen, maximized, minimized,
+///     topmost, and zoom factor.
+/// </summary>
 public class StateInfiniFrameWindowBuilderFeature : IStateInfiniFrameWindowBuilderFeature {
     /// <inheritdoc cref="IStateInfiniFrameWindowBuilderFeature.StartFullScreen" />
     public bool StartFullScreen { get; private set; }

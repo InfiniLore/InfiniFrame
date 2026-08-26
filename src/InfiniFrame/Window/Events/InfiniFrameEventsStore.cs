@@ -9,6 +9,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Concrete implementation of <see cref="IInfiniFrameEventsStore"/> that holds ordered and keyed event handler
+///     collections for all window events.
+/// </summary>
 public class InfiniFrameEventsStore : IInfiniFrameEventsStore {
     /// <inheritdoc cref="IInfiniFrameEventsStore.WindowLocationChanged" />
     public OrderedEvent<Point> WindowLocationChanged { get; } = new();

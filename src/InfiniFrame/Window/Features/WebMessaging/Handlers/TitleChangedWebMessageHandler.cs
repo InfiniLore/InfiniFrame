@@ -7,6 +7,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides extension methods to register a JavaScript handler that updates the window title when changed from
+///     web content.
+/// </summary>
 public static class TitleChangedWebMessageHandler {
     public static T RegisterTitleChangedWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
         builder.RegisterWebMessagePostHandler(JsHandlerNames.TitleChanged, HandleWebMessage);

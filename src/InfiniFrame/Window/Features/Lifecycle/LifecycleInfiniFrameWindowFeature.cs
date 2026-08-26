@@ -14,6 +14,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Runtime feature implementation managing the native window lifecycle including creation, readiness, close requests,
+///     message loop execution, and resource cleanup.
+/// </summary>
 public class LifecycleInfiniFrameWindowFeature(
     IInfiniFrameWindow window,
     ILogger<LifecycleInfiniFrameWindowFeature> logger,

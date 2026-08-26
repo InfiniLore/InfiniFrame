@@ -8,6 +8,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Builder feature implementation for configuring window decorations including chromeless mode, transparency,
+///     title, icon, and background color.
+/// </summary>
 public class DecorationsInfiniFrameWindowBuilderFeature : IDecorationsInfiniFrameWindowBuilderFeature {
     /// <inheritdoc cref="IDecorationsInfiniFrameWindowBuilderFeature.IsChromeless" />
     public bool IsChromeless { get; private set; }

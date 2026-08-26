@@ -12,6 +12,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides extension methods to register a JavaScript handler that opens external URLs in the default system
+///     browser, with URI scheme validation.
+/// </summary>
 public static class OpenExternalTargetWebMessageHandler {
     private static readonly ILogger Logger = NullLogger.Instance;
 

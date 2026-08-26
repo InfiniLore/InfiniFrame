@@ -8,6 +8,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Builder feature implementation for configuring the initial window position including location, centering,
+///     and OS default location.
+/// </summary>
 public class PositionInfiniFrameWindowBuilderFeature : IPositionInfiniFrameWindowBuilderFeature {
     /// <inheritdoc cref="IPositionInfiniFrameWindowBuilderFeature.Top" />
     public int Top { get; private set; }

@@ -9,6 +9,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Builder feature implementation for configuring debugging options including dev tools, web inspector,
+///     and remote debugging port.
+/// </summary>
 public sealed class DebuggingInfiniFrameWindowBuilderFeature : IDebuggingInfiniFrameWindowBuilderFeature {
     /// <inheritdoc cref="IDebuggingInfiniFrameWindowBuilderFeature.SupportsRemoteDebuggingEndpoint" />
     public bool SupportsRemoteDebuggingEndpoint => RemoteDebuggingUtility.IsSupportedPlatform();

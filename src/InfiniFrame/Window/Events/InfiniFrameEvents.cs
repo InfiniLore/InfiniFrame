@@ -14,6 +14,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Implementation of <see cref="IInfiniFrameEvents"/> that bridges native window callbacks to managed event handlers,
+///     including lifecycle, messaging, custom schemes, and debug events.
+/// </summary>
 public partial class InfiniFrameEvents : IInfiniFrameEvents {
 
     // Native receives function pointers during construction. Keep their targets alive until the
@@ -71,6 +75,10 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
+    /// <summary>
+    ///     Binds this event handler to a specific window instance, enabling callback routing for native events.
+    /// </summary>
+    /// <param name="window">The window instance to bind to.</param>
     public void AssignToWindow(IInfiniFrameWindow window) {
         ArgumentNullException.ThrowIfNull(window);
         if (CallbackRootId != Guid.Empty) {
@@ -82,10 +90,18 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         NativeCallbackRoots[CallbackRootId] = this;
     }
 
+    /// <summary>
+    ///     Copies event handlers from a builder's event store into this instance's event store.
+    /// </summary>
+    /// <param name="eventStore">The builder event store to copy handlers from.</param>
     public void PopulateFromBuilderEventStore(IInfiniFrameEventsStore eventStore) {
         eventStore.CopyTo(EventsStore);
     }
 
+    /// <summary>
+    ///     Binds all native callback delegates to the native startup parameters for window creation.
+    /// </summary>
+    /// <param name="parameters">The native parameters to populate with callback delegates.</param>
     public void AssignToNativeParameters(ref InfiniFrameNativeParameters parameters) {
         // Rebind callbacks to the per-window event instance that has Sender set via CompleteSetup.
         parameters.ClosedHandler = ClosedHandler;
