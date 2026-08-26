@@ -12,26 +12,49 @@ import {SendToHostMessageIds} from "../Contracts";
 // ---------------------------------------------------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------------------------------------------------
+/**
+ * Configuration for window control button selectors (minimize, maximize, close).
+ */
 export interface WindowChromeControlsConfig {
+    /** CSS selector for the minimize button. */
     minimize?: string;
+    /** CSS selector for the maximize/restore button. */
     maximize?: string;
+    /** CSS selector for the close button. */
     close?: string;
 }
 
+/**
+ * Configuration for window resize zone selectors (8 directions: 4 edges + 4 corners).
+ */
 export interface WindowChromeResizeConfig {
+    /** CSS selector for the top edge resize zone. */
     top?: string;
+    /** CSS selector for the right edge resize zone. */
     right?: string;
+    /** CSS selector for the bottom edge resize zone. */
     bottom?: string;
+    /** CSS selector for the left edge resize zone. */
     left?: string;
+    /** CSS selector for the top-left corner resize zone. */
     topLeft?: string;
+    /** CSS selector for the top-right corner resize zone. */
     topRight?: string;
+    /** CSS selector for the bottom-left corner resize zone. */
     bottomLeft?: string;
+    /** CSS selector for the bottom-right corner resize zone. */
     bottomRight?: string;
 }
 
+/**
+ * Configuration for registering custom window chrome with drag regions, controls, and resize zones.
+ */
 export interface WindowChromeConfig {
+    /** CSS selector for the draggable region (acts as the title bar). */
     dragRegion?: string;
+    /** Configuration for window control button selectors. */
     controls?: WindowChromeControlsConfig;
+    /** Configuration for window resize zone selectors. */
     resize?: WindowChromeResizeConfig;
 }
 
