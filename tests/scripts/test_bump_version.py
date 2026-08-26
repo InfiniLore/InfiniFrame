@@ -5,16 +5,19 @@
 from __future__ import annotations
 
 import json
-import sys
 import tempfile
 from pathlib import Path
 
-import bump_version
 import pytest
 
-SCRIPT_DIR = Path(__file__).resolve().parent.parent.parent / "scripts"
-if str(SCRIPT_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPT_DIR))
+from scripts.bump_version import (
+    bump,
+    update_all_package_json_files,
+    update_cmake_version,
+    update_package_json_version,
+    validate_version,
+    _replace_version_in_string,
+)
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Tests
@@ -56,6 +59,7 @@ def test_bump_unknown_part_raises_value_error() -> None:
         # noinspection PyTypeChecker
         bump("1.2.3", "banana")
 
+
 def test_replace_version_in_string() -> None:
     assert _replace_version_in_string(
         "build --version 1.2.3",
@@ -66,6 +70,7 @@ def test_replace_version_in_string() -> None:
         "tool v1.2.3-preview.4 run",
         "0.0.1",
     ) == "tool v0.0.1 run"
+
 
 def test_update_package_json_version_updates_version_and_scripts() -> None:
     with tempfile.TemporaryDirectory() as tmp:
@@ -101,7 +106,7 @@ def test_update_cmake_version(tmp_path: Path) -> None:
     )
     update_cmake_version(cmake, "2.0.0")
     content = cmake.read_text(encoding="utf-8")
-    assert "VERSION 2.0.0)" in content
+    assert "VERSION 2.0.0" in content
     assert "1.2.3" not in content
 
 

@@ -4,21 +4,17 @@
 # ---------------------------------------------------------------------------------------------------------------------
 from __future__ import annotations
 
-import sys
-from pathlib import Path
 from typing import Any
 
 import pytest
 
-SCRIPT_DIR = Path(__file__).resolve().parent.parent.parent / "scripts"
-if str(SCRIPT_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPT_DIR))
-
-import sync_github_checks as sgc
+from scripts import sync_github_checks as sgc
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------------------------------------------------
+
+
 def make_args(**overrides: Any) -> sgc.Args:
     base = sgc.Args(
         repo="owner/repo",
@@ -38,6 +34,9 @@ def make_args(**overrides: Any) -> sgc.Args:
     return sgc.Args(**{**base.__dict__, **overrides})
 
 
+# ---------------------------------------------------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------------------------------------------------
 def test_post_status_returns_true_on_success(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(sgc, "request_json", lambda method, url, token, payload=None: (201, {}))
     assert sgc.post_status(make_args(), "token") is True
@@ -93,7 +92,8 @@ def test_complete_matching_check_runs_creates_when_no_matches_and_enabled(
     def fake_request(
         method: str,
         url: str,
-        payload: object = None,
+        token: str,
+        payload: dict[str, sgc.JsonValue] | None = None,
     ) -> tuple[int, dict[str, sgc.JsonValue]]:
         calls.append((method, url, payload))
         if method == "GET":
@@ -117,7 +117,8 @@ def test_complete_matching_check_runs_patches_matching_sorted(monkeypatch: pytes
     def fake_request(
         method: str,
         url: str,
-        payload: object = None,
+        token: str,
+        payload: dict[str, sgc.JsonValue] | None = None,
     ) -> tuple[int, dict[str, sgc.JsonValue]]:
         calls.append((method, url, payload))
         if method == "GET":
@@ -163,13 +164,14 @@ def test_complete_matching_check_runs_patches_matching_sorted(monkeypatch: pytes
 def test_complete_matching_check_runs_updates_existing_completed_when_same_target(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    calls: list[tuple[str, str, object]] = []
+    calls: list[tuple[str, str, dict[str, sgc.JsonValue] | None]] = []
 
     # noinspection PyUnusedLocal
     def fake_request(
         method: str,
         url: str,
-        payload: object = None,
+        token: str,
+        payload: dict[str, sgc.JsonValue] | None = None,
     ) -> tuple[int, dict[str, sgc.JsonValue]]:
         calls.append((method, url, payload))
         if method == "GET":
@@ -198,13 +200,14 @@ def test_complete_matching_check_runs_updates_existing_completed_when_same_targe
 def test_complete_matching_check_runs_fallback_create_on_list_404_when_enabled(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    calls: list[tuple[str, str, object]] = []
+    calls: list[tuple[str, str, dict[str, sgc.JsonValue] | None]] = []
 
     # noinspection PyUnusedLocal
     def fake_request(
         method: str,
         url: str,
-        payload: object = None,
+        token: str,
+        payload: dict[str, sgc.JsonValue] | None = None,
     ) -> tuple[int, dict[str, sgc.JsonValue]]:
         calls.append((method, url, payload))
         if method == "GET":
@@ -221,6 +224,9 @@ def test_complete_matching_check_runs_raises_on_create_failure(monkeypatch: pyte
     # noinspection PyUnusedLocal
     def fake_request(
         method: str,
+        url: str,
+        token: str,
+        payload: dict[str, sgc.JsonValue] | None = None,
     ) -> tuple[int, dict[str, sgc.JsonValue]]:
         if method == "GET":
             return 200, {"check_runs": []}

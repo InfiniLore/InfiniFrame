@@ -10,11 +10,7 @@ from pathlib import Path
 
 import pytest
 
-SCRIPT_DIR = Path(__file__).resolve().parent.parent.parent / "scripts"
-if str(SCRIPT_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPT_DIR))
-
-import validate_package_id_prefix as vpp
+from scripts import validate_package_id_prefix as vpp
 
 original_parse_args = vpp.parse_args
 
@@ -48,6 +44,9 @@ def _write_slnf(path: Path, projects: list[str], with_bom: bool = False) -> None
     path.write_text(json.dumps(data), encoding=encoding)
 
 
+# ---------------------------------------------------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------------------------------------------------
 def test_extract_package_ids_reads_single_package_id(tmp_path: Path) -> None:
     project = tmp_path / "App.csproj"
     _write_csproj(project, "InfiniLore.App")

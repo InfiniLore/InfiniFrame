@@ -3,17 +3,12 @@
 # Imports
 # ---------------------------------------------------------------------------------------------------------------------
 import json
-import sys
 from collections import OrderedDict
 from pathlib import Path
 
 import pytest
 
-SCRIPT_DIR = Path(__file__).resolve().parent.parent.parent / "scripts"
-if str(SCRIPT_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPT_DIR))
-
-from coverage_report import (
+from scripts.coverage_report import (
     badge_color,
     build_pr_comment,
     coverage_pct,
@@ -30,100 +25,114 @@ from coverage_report import (
 # ---------------------------------------------------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------------------------------------------------
-class TestCoveragePct:
-    def __init__(self):
-        pass
-
-    def test_basic(self):
-        assert coverage_pct(50, 100) == 50.0
-
-    def test_rounds_to_one_decimal(self):
-        assert coverage_pct(1, 3) == 33.3
-
-    def test_zero_total_returns_zero(self):
-        assert coverage_pct(0, 0) == 0.0
-
-    def test_full_coverage(self):
-        assert coverage_pct(100, 100) == 100.0
-
-    def test_no_coverage(self):
-        assert coverage_pct(0, 100) == 0.0
+# ── coverage_pct ──────────────────────────────────────────────────────────────
 
 
-class TestBadgeColor:
-    def __init__(self):
-        pass
-
-    def test_green_at_90(self):
-        assert badge_color(90.0) == "brightgreen"
-
-    def test_green_above_90(self):
-        assert badge_color(95.5) == "brightgreen"
-
-    def test_yellow_at_75(self):
-        assert badge_color(75.0) == "yellow"
-
-    def test_yellow_between_75_and_90(self):
-        assert badge_color(82.3) == "yellow"
-
-    def test_red_below_75(self):
-        assert badge_color(74.9) == "red"
-
-    def test_red_at_zero(self):
-        assert badge_color(0.0) == "red"
-
-class TestTrend:
-    def __init__(self):
-        pass
-
-    def test_improved(self):
-        assert trend(80.0, 85.0) == ("\U0001f4c8", "improved")
-
-    def test_regressed(self):
-        assert trend(85.0, 80.0) == ("\U0001f4c9", "regressed")
-
-    def test_unchanged(self):
-        assert trend(80.0, 80.0) == ("\u27a1\ufe0f", "unchanged")
+def test_coverage_pct_basic():
+    assert coverage_pct(50, 100) == 50.0
 
 
-class TestFormatDelta:
-    def __init__(self):
-        pass
-
-    def test_positive(self):
-        assert format_delta(2.5) == "+2.5"
-
-    def test_negative(self):
-        assert format_delta(-1.3) == "-1.3"
-
-    def test_zero(self):
-        assert format_delta(0.0) == "0.0"
+def test_coverage_pct_rounds_to_one_decimal():
+    assert coverage_pct(1, 3) == 33.3
 
 
-class TestParseTsCoverage:
-    def __init__(self):
-        pass
+def test_coverage_pct_zero_total_returns_zero():
+    assert coverage_pct(0, 0) == 0.0
 
-    def test_basic(self, tmp_path: Path):
-        lcov = tmp_path / "lcov.info"
-        lcov.write_text("SF:foo.ts\nDA:1,3\nDA:2,0\nend_of_record\nLF:2\nLH:1\n")
-        lines, hit = parse_ts_coverage(lcov)
-        assert lines == 2
-        assert hit == 1
 
-    def test_multiple_files(self, tmp_path: Path):
-        lcov = tmp_path / "lcov.info"
-        lcov.write_text("LF:10\nLH:8\nLF:5\nLH:3\n")
-        lines, hit = parse_ts_coverage(lcov)
-        assert lines == 15
-        assert hit == 11
+def test_coverage_pct_full_coverage():
+    assert coverage_pct(100, 100) == 100.0
 
-    def test_no_lcov(self, tmp_path: Path):
-        lcov = tmp_path / "lcov.info"
-        lcov.write_text("SF:foo.ts\nend_of_record\n")
-        lines, hit = parse_ts_coverage(lcov)
-        assert lines == 0
-        assert hit == 0
+
+def test_coverage_pct_no_coverage():
+    assert coverage_pct(0, 100) == 0.0
+
+
+# ── badge_color ───────────────────────────────────────────────────────────────
+
+
+def test_badge_color_green_at_90():
+    assert badge_color(90.0) == "brightgreen"
+
+
+def test_badge_color_green_above_90():
+    assert badge_color(95.5) == "brightgreen"
+
+
+def test_badge_color_yellow_at_75():
+    assert badge_color(75.0) == "yellow"
+
+
+def test_badge_color_yellow_between_75_and_90():
+    assert badge_color(82.3) == "yellow"
+
+
+def test_badge_color_red_below_75():
+    assert badge_color(74.9) == "red"
+
+
+def test_badge_color_red_at_zero():
+    assert badge_color(0.0) == "red"
+
+
+# ── trend ─────────────────────────────────────────────────────────────────────
+
+
+def test_trend_improved():
+    assert trend(80.0, 85.0) == ("\U0001f4c8", "improved")
+
+
+def test_trend_regressed():
+    assert trend(85.0, 80.0) == ("\U0001f4c9", "regressed")
+
+
+def test_trend_unchanged():
+    assert trend(80.0, 80.0) == ("\u27a1\ufe0f", "unchanged")
+
+
+# ── format_delta ──────────────────────────────────────────────────────────────
+
+
+def test_format_delta_positive():
+    assert format_delta(2.5) == "+2.5"
+
+
+def test_format_delta_negative():
+    assert format_delta(-1.3) == "-1.3"
+
+
+def test_format_delta_zero():
+    assert format_delta(0.0) == "0.0"
+
+
+# ── parse_ts_coverage ─────────────────────────────────────────────────────────
+
+
+def test_parse_ts_coverage_basic(tmp_path: Path):
+    lcov = tmp_path / "lcov.info"
+    lcov.write_text("SF:foo.ts\nDA:1,3\nDA:2,0\nend_of_record\nLF:2\nLH:1\n")
+    lines, hit = parse_ts_coverage(lcov)
+    assert lines == 2
+    assert hit == 1
+
+
+def test_parse_ts_coverage_multiple_files(tmp_path: Path):
+    lcov = tmp_path / "lcov.info"
+    lcov.write_text("LF:10\nLH:8\nLF:5\nLH:3\n")
+    lines, hit = parse_ts_coverage(lcov)
+    assert lines == 15
+    assert hit == 11
+
+
+def test_parse_ts_coverage_no_lcov(tmp_path: Path):
+    lcov = tmp_path / "lcov.info"
+    lcov.write_text("SF:foo.ts\nend_of_record\n")
+    lines, hit = parse_ts_coverage(lcov)
+    assert lines == 0
+    assert hit == 0
+
+
+# ── parse_cs_coverage ─────────────────────────────────────────────────────────
 
 
 COBERTURA_TEMPLATE = """\
@@ -136,11 +145,11 @@ COBERTURA_TEMPLATE = """\
 """
 
 PACKAGE_TEMPLATE = """\
-    <package name="{name}" line-rate="{rate}">
+    <package name="{name}">
       <classes>
         <class name="Cls" filename="a.cs">
           <methods>
-            <method name="M" signature="()" line-rate="1.0" branch-rate="1.0">
+            <method name="M" signature="()">
               <lines>
 {lines}
               </lines>
@@ -160,7 +169,6 @@ def _make_cobertura(
     lines: list[int],
     pkg_name: str = "MyApp.Core",
 ) -> Path:
-    """Write a single Cobertura XML and return its path."""
     xml_dir = tmp_path / "cobertura"
     xml_dir.mkdir(exist_ok=True)
     covered = sum(1 for h in lines if h > 0)
@@ -173,221 +181,222 @@ def _make_cobertura(
     return path
 
 
-class TestParseCsCoverage:
-    def __init__(self):
-        pass
+def test_parse_cs_coverage_basic(tmp_path: Path):
+    _make_cobertura(tmp_path, "a", [3, 0, 1])
+    total, covered, pkg = parse_cs_coverage(tmp_path / "cobertura")
+    assert total == 3
+    assert covered == 2
+    assert "MyApp.Core" in pkg
+    assert pkg["MyApp.Core"]["lines"] == 3
+    assert pkg["MyApp.Core"]["covered"] == 2
 
-    def test_basic(self, tmp_path: Path):
-        _make_cobertura(tmp_path, "a", [3, 0, 1])
-        total, covered, pkg = parse_cs_coverage(tmp_path / "cobertura")
-        assert total == 3
-        assert covered == 2
-        assert "MyApp.Core" in pkg
-        assert pkg["MyApp.Core"]["lines"] == 3
-        assert pkg["MyApp.Core"]["covered"] == 2
 
-    def test_excludes_test_packages(self, tmp_path: Path):
-        _make_cobertura(tmp_path, "a", [1, 1], pkg_name="InfiniTests.Unit")
-        _make_cobertura(tmp_path, "b", [1, 1], pkg_name="InfiniAutomationTests.E2E")
-        _make_cobertura(tmp_path, "c", [1, 1], pkg_name="MyApp.Lib")
-        total, covered, pkg = parse_cs_coverage(tmp_path / "cobertura")
-        assert total == 2
-        assert covered == 2
-        assert list(pkg.keys()) == ["MyApp.Lib"]
+def test_parse_cs_coverage_excludes_test_packages(tmp_path: Path):
+    _make_cobertura(tmp_path, "a", [1, 1], pkg_name="InfiniTests.Unit")
+    _make_cobertura(tmp_path, "b", [1, 1], pkg_name="InfiniAutomationTests.E2E")
+    _make_cobertura(tmp_path, "c", [1, 1], pkg_name="MyApp.Lib")
+    total, covered, pkg = parse_cs_coverage(tmp_path / "cobertura")
+    assert total == 2
+    assert covered == 2
+    assert list(pkg.keys()) == ["MyApp.Lib"]
 
-    def test_multiple_packages_merge(self, tmp_path: Path):
-        cob_dir = tmp_path / "cov"
-        cob_dir.mkdir()
-        xml1 = """\
+
+def test_parse_cs_coverage_multiple_packages_merge(tmp_path: Path):
+    cob_dir = tmp_path / "cov"
+    cob_dir.mkdir()
+    xml1 = """\
 <?xml version="1.0" ?>
 <coverage version="5.0" lines-valid="2" lines-covered="1">
   <packages>
-    <package name="A" line-rate="0.5">
+    <package name="A">
       <classes><class name="C" filename="a.cs">
-        <methods><method name="M" signature="()" line-rate="1" branch-rate="1">
+        <methods><method name="M" signature="()">
           <lines><line number="1" hits="1"/><line number="2" hits="0"/></lines>
         </method></methods>
       </class></classes>
     </package>
   </packages>
 </coverage>"""
-        xml2 = """\
+    xml2 = """\
 <?xml version="1.0" ?>
 <coverage version="5.0" lines-valid="2" lines-covered="2">
   <packages>
-    <package name="A" line-rate="1.0">
+    <package name="A">
       <classes><class name="C" filename="b.cs">
-        <methods><method name="M" signature="()" line-rate="1" branch-rate="1">
+        <methods><method name="M" signature="()">
           <lines><line number="1" hits="2"/><line number="2" hits="1"/></lines>
         </method></methods>
       </class></classes>
     </package>
   </packages>
 </coverage>"""
-        (cob_dir / "1.cobertura.xml").write_text(xml1)
-        (cob_dir / "2.cobertura.xml").write_text(xml2)
-        total, covered, pkg = parse_cs_coverage(cob_dir)
-        assert total == 4
-        assert covered == 3
-        assert pkg["A"]["lines"] == 4
-        assert pkg["A"]["covered"] == 3
-
-    def test_empty_directory(self, tmp_path: Path):
-        empty = tmp_path / "empty"
-        empty.mkdir()
-        total, covered, pkg = parse_cs_coverage(empty)
-        assert total == 0
-        assert covered == 0
-        assert len(pkg) == 0
+    (cob_dir / "1.cobertura.xml").write_text(xml1)
+    (cob_dir / "2.cobertura.xml").write_text(xml2)
+    total, covered, pkg = parse_cs_coverage(cob_dir)
+    assert total == 4
+    assert covered == 3
+    assert pkg["A"]["lines"] == 4
+    assert pkg["A"]["covered"] == 3
 
 
-class TestWriteBadge:
-    def __init__(self):
-        pass
-
-    def test_creates_file(self, tmp_path: Path):
-        path = tmp_path / "badges" / "ts.json"
-        write_badge(path, "coverage", "92.5%", "brightgreen")
-        data = json.loads(path.read_text())
-        assert data["schemaVersion"] == 1
-        assert data["label"] == "coverage"
-        assert data["message"] == "92.5%"
-        assert data["color"] == "brightgreen"
-
-    def test_creates_parent_dirs(self, tmp_path: Path):
-        path = tmp_path / "a" / "b" / "c" / "badge.json"
-        write_badge(path, "cov", "50%", "red")
-        assert path.exists()
+def test_parse_cs_coverage_empty_directory(tmp_path: Path):
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    total, covered, pkg = parse_cs_coverage(empty)
+    assert total == 0
+    assert covered == 0
+    assert len(pkg) == 0
 
 
-class TestReadOldPct:
-    def __init__(self):
-        pass
-
-    def test_reads_existing(self, tmp_path: Path):
-        path = tmp_path / "badge.json"
-        path.write_text(json.dumps({"message": "87.3%"}))
-        assert read_old_pct(path) == 87.3
-
-    def test_missing_file_returns_zero(self, tmp_path: Path):
-        assert read_old_pct(tmp_path / "nope.json") == 0.0
-
-    def test_strips_percent(self, tmp_path: Path):
-        path = tmp_path / "badge.json"
-        path.write_text(json.dumps({"message": "100%"}))
-        assert read_old_pct(path) == 100.0
+# ── write_badge / read_old_pct ────────────────────────────────────────────────
 
 
-class TestBuildPrComment:
-    def __init__(self):
-        pass
-
-    def test_basic_structure(self):
-        body = build_pr_comment(93.6, 85.2, 88.0, 90.0, 80.0, 85.0, {})
-        assert "## \U0001f4ca Code Coverage Report" in body
-        assert "| TypeScript | **93.6%** |" in body
-        assert "| C# | **85.2%** |" in body
-        assert "| Python | **88.0%** |" in body
-
-    def test_improved_trend(self):
-        body = build_pr_comment(90.0, 80.0, 85.0, 85.0, 75.0, 80.0, {})
-        assert "+5.0%" in body
-        assert "\U0001f4c8 improved" in body
-
-    def test_regressed_trend(self):
-        body = build_pr_comment(80.0, 70.0, 75.0, 85.0, 75.0, 80.0, {})
-        assert "-5.0%" in body
-        assert "\U0001f4c9 regressed" in body
-
-    def test_unchanged_trend(self):
-        body = build_pr_comment(85.0, 75.0, 80.0, 85.0, 75.0, 80.0, {})
-        assert "\u27a1\ufe0f unchanged" in body
-
-    def test_includes_project_breakdown(self):
-        pkgs = OrderedDict(
-            [
-                ("Web", {"lines": 100, "covered": 90}),
-                ("Core", {"lines": 50, "covered": 40}),
-            ]
-        )
-        body = build_pr_comment(90.0, 80.0, 85.0, 85.0, 75.0, 80.0, pkgs)
-        assert "### C# Project Breakdown" in body
-        assert "| Web | 90.0% | 100 | 90 |" in body
-        assert "| Core | 80.0% | 50 | 40 |" in body
-
-    def test_breakdown_sorted_by_coverage(self):
-        pkgs = OrderedDict(
-            [
-                ("Low", {"lines": 100, "covered": 10}),
-                ("High", {"lines": 100, "covered": 95}),
-            ]
-        )
-        body = build_pr_comment(50.0, 50.0, 50.0, 50.0, 50.0, 50.0, pkgs)
-        lines = body.split("\n")
-        high_idx = next(i for i, l in enumerate(lines) if "| High |" in l)
-        low_idx = next(i for i, l in enumerate(lines) if "| Low |" in l)
-        assert high_idx < low_idx
+def test_write_badge_creates_file(tmp_path: Path):
+    path = tmp_path / "badges" / "ts.json"
+    write_badge(path, "coverage", "92.5%", "brightgreen")
+    data = json.loads(path.read_text())
+    assert data["schemaVersion"] == 1
+    assert data["label"] == "coverage"
+    assert data["message"] == "92.5%"
+    assert data["color"] == "brightgreen"
 
 
-class TestPostPrComment:
-    def __init__(self):
-        pass
-
-    def test_skips_if_not_a_pr(self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
-        monkeypatch.setattr(
-            "coverage_report.run",
-            lambda cmd, **kw: type("R", (), {"returncode": 1, "stdout": ""})(),
-        )
-        post_pr_comment("1", "owner/repo", 90.0, 80.0, 85.0, 85.0, 75.0, 80.0, {})
-        assert "not a pull request" in capsys.readouterr().out
-
-    def test_deletes_old_comment_and_posts_new(self, monkeypatch: pytest.MonkeyPatch):
-        call_log: list[tuple[str, str]] = []
-
-        def fake_run(cmd):
-            call_log.append((cmd[1] if len(cmd) > 1 else cmd[0], cmd[2] if len(cmd) > 2 else ""))
-            if cmd[0] == "gh" and cmd[1] == "pr":
-                return type("R", (), {"returncode": 0, "stdout": '{"number":1}'})()
-            if cmd[0] == "gh" and cmd[1] == "api" and "comments?per_page" in cmd[2]:
-                comments = [{"id": 42, "body": "## \U0001f4ca Code Coverage Report\nold"}]
-                return type("R", (), {"returncode": 0, "stdout": json.dumps(comments)})()
-            return type("R", (), {"returncode": 0, "stdout": ""})()
-
-        monkeypatch.setattr("coverage_report.run", fake_run)
-        post_pr_comment("1", "owner/repo", 90.0, 80.0, 85.0, 85.0, 75.0, 80.0, {})
-
-        deletes = [c for c in call_log if c[0] == "api" and "DELETE" in str(c)]
-        posts = [c for c in call_log if c[0] == "api" and "POST" in str(c)]
-        assert len(deletes) == 1
-        assert len(posts) == 1
+def test_write_badge_creates_parent_dirs(tmp_path: Path):
+    path = tmp_path / "a" / "b" / "c" / "badge.json"
+    write_badge(path, "cov", "50%", "red")
+    assert path.exists()
 
 
-class TestGitCommitBadges:
-    def __init__(self):
-        pass
+def test_read_old_pct_reads_existing(tmp_path: Path):
+    path = tmp_path / "badge.json"
+    path.write_text(json.dumps({"message": "87.3%"}))
+    assert read_old_pct(path) == 87.3
 
-    def test_commits_when_changes_staged(self, monkeypatch: pytest.MonkeyPatch):
-        calls: list[list[str]] = []
 
-        def fake_run(cmd):
-            calls.append(cmd)
-            if cmd[:3] == ["git", "diff", "--staged", "--quiet"]:
-                return type("R", (), {"returncode": 1})()
-            return type("R", (), {"returncode": 0, "stdout": ""})()
+def test_read_old_pct_missing_file_returns_zero(tmp_path: Path):
+    assert read_old_pct(tmp_path / "nope.json") == 0.0
 
-        monkeypatch.setattr("coverage_report.run", fake_run)
-        git_commit_badges("core", "main")
 
-        cmds = [c[0] for c in calls]
-        assert "commit" in cmds
-        assert "push" in cmds
+def test_read_old_pct_strips_percent(tmp_path: Path):
+    path = tmp_path / "badge.json"
+    path.write_text(json.dumps({"message": "100%"}))
+    assert read_old_pct(path) == 100.0
 
-    def test_skips_when_no_changes(self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
-        def fake_run(cmd):
-            if cmd[:3] == ["git", "diff", "--staged", "--quiet"]:
-                return type("R", (), {"returncode": 0})()
-            return type("R", (), {"returncode": 0, "stdout": ""})()
 
-        monkeypatch.setattr("coverage_report.run", fake_run)
-        git_commit_badges("", "main")
-        assert "No badge changes" in capsys.readouterr().out
+# ── build_pr_comment ──────────────────────────────────────────────────────────
+
+
+def test_build_pr_comment_basic_structure():
+    body = build_pr_comment(93.6, 85.2, 88.0, 90.0, 80.0, 85.0, {})
+    assert "## \U0001f4ca Code Coverage Report" in body
+    assert "| TypeScript | **93.6%** |" in body
+    assert "| C# | **85.2%** |" in body
+    assert "| Python | **88.0%** |" in body
+
+
+def test_build_pr_comment_improved_trend():
+    body = build_pr_comment(90.0, 80.0, 85.0, 85.0, 75.0, 80.0, {})
+    assert "+5.0%" in body
+    assert "\U0001f4c8 improved" in body
+
+
+def test_build_pr_comment_regressed_trend():
+    body = build_pr_comment(80.0, 70.0, 75.0, 85.0, 75.0, 80.0, {})
+    assert "-5.0%" in body
+    assert "\U0001f4c9 regressed" in body
+
+
+def test_build_pr_comment_unchanged_trend():
+    body = build_pr_comment(85.0, 75.0, 80.0, 85.0, 75.0, 80.0, {})
+    assert "\u27a1\ufe0f unchanged" in body
+
+
+def test_build_pr_comment_includes_project_breakdown():
+    pkgs = OrderedDict(
+        [
+            ("Web", {"lines": 100, "covered": 90}),
+            ("Core", {"lines": 50, "covered": 40}),
+        ]
+    )
+    body = build_pr_comment(90.0, 80.0, 85.0, 85.0, 75.0, 80.0, pkgs)
+    assert "### C# Project Breakdown" in body
+    assert "| Web | 90.0% | 100 | 90 |" in body
+    assert "| Core | 80.0% | 50 | 40 |" in body
+
+
+def test_build_pr_comment_breakdown_sorted_by_coverage():
+    pkgs = OrderedDict(
+        [
+            ("Low", {"lines": 100, "covered": 10}),
+            ("High", {"lines": 100, "covered": 95}),
+        ]
+    )
+    body = build_pr_comment(50.0, 50.0, 50.0, 50.0, 50.0, 50.0, pkgs)
+    lines = body.split("\n")
+    high_idx = next(i for i, l in enumerate(lines) if "| High |" in l)
+    low_idx = next(i for i, l in enumerate(lines) if "| Low |" in l)
+    assert high_idx < low_idx
+
+
+# ── post_pr_comment ───────────────────────────────────────────────────────────
+
+
+def test_post_pr_comment_skips_if_not_a_pr(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
+    monkeypatch.setattr(
+        "scripts.coverage_report.run",
+        lambda cmd, **kw: type("R", (), {"returncode": 1, "stdout": ""})(),
+    )
+    post_pr_comment("1", "owner/repo", 90.0, 80.0, 85.0, 85.0, 75.0, 80.0, {})
+    assert "not a pull request" in capsys.readouterr().out
+
+
+def test_post_pr_comment_deletes_old_comment_and_posts_new(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
+    call_log: list[list[str]] = []
+
+    def fake_run(cmd, **kw):
+        call_log.append(cmd)
+        if cmd[0] == "gh" and cmd[1] == "pr":
+            return type("R", (), {"returncode": 0, "stdout": '{"number":1}'})()
+        if cmd[0] == "gh" and cmd[1] == "api" and "comments?per_page" in cmd[2]:
+            comments = [{"id": 42, "body": "## \U0001f4ca Code Coverage Report\nold"}]
+            return type("R", (), {"returncode": 0, "stdout": json.dumps(comments)})()
+        return type("R", (), {"returncode": 0, "stdout": ""})()
+
+    monkeypatch.setattr("scripts.coverage_report.run", fake_run)
+    post_pr_comment("1", "owner/repo", 90.0, 80.0, 85.0, 85.0, 75.0, 80.0, {})
+
+    deletes = [c for c in call_log if "-X" in c and "DELETE" in c]
+    posts = [c for c in call_log if "-X" in c and "POST" in c]
+    assert len(deletes) == 1
+    assert len(posts) == 1
+
+
+# ── git_commit_badges ─────────────────────────────────────────────────────────
+
+
+def test_git_commit_badges_commits_when_changes_staged(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
+    calls: list[list[str]] = []
+
+    def fake_run(cmd, **kw):
+        calls.append(cmd)
+        if cmd[:4] == ["git", "diff", "--staged", "--quiet"]:
+            return type("R", (), {"returncode": 1})()
+        return type("R", (), {"returncode": 0, "stdout": ""})()
+
+    monkeypatch.setattr("scripts.coverage_report.run", fake_run)
+    git_commit_badges("core", "main")
+
+    cmd_names = [c[1] for c in calls if c[0] == "git"]
+    assert "commit" in cmd_names
+    assert "push" in cmd_names
+
+
+def test_git_commit_badges_skips_when_no_changes(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
+    def fake_run(cmd, **kw):
+        if cmd[:4] == ["git", "diff", "--staged", "--quiet"]:
+            return type("R", (), {"returncode": 0})()
+        return type("R", (), {"returncode": 0, "stdout": ""})()
+
+    monkeypatch.setattr("scripts.coverage_report.run", fake_run)
+    git_commit_badges("", "main")
+    assert "No badge changes" in capsys.readouterr().out

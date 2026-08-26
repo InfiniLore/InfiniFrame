@@ -8,13 +8,10 @@ import json
 import sys
 import urllib.error
 from pathlib import Path
-from typing import Any
 
-SCRIPT_DIR = Path(__file__).resolve().parent.parent.parent / "scripts"
-if str(SCRIPT_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPT_DIR))
+import pytest
 
-import update_native_vendor_deps as upd
+from scripts import update_native_vendor_deps as upd
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Helpers
@@ -45,6 +42,9 @@ def write_manifest(path: Path, tag: str) -> None:
     path.write_text(json.dumps(manifest), encoding="utf-8")
 
 
+# ---------------------------------------------------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------------------------------------------------
 def test_check_only_returns_2_when_update_available(monkeypatch, tmp_path: Path) -> None:
     manifest_path = tmp_path / "manifest.json"
     write_manifest(manifest_path, "v1.0.0")
@@ -76,7 +76,7 @@ def test_update_downloads_files_and_updates_manifest(monkeypatch, tmp_path: Path
     monkeypatch.setattr(upd, "REPO_ROOT", tmp_path)
     monkeypatch.setattr(upd, "get_latest_release", lambda repo, token: ("v1.1.0", {"simdjson.h": "https://dl/h"}))
 
-    def fake_download(url: str, destination: Path) -> None:
+    def fake_download(url: str, destination: Path, token: str) -> None:
         downloads.append((url, destination))
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_text("x", encoding="utf-8")
@@ -137,7 +137,7 @@ def test_get_latest_release_parses_tag_and_assets(monkeypatch) -> None:
 
 
 def test_get_latest_release_returns_none_on_404(monkeypatch) -> None:
-    def raise_404(url):
+    def raise_404(url, token):
         raise urllib.error.HTTPError(url, 404, "Not Found", {}, None)
 
     monkeypatch.setattr(upd, "request_json", raise_404)

@@ -57,8 +57,8 @@ def parse_cs_coverage(coverage_dir: Path) -> tuple[int, int, OrderedDict[str, di
             pkg_lines = 0
             pkg_covered = 0
             for cls in pkg.findall(".//class"):
-                for method in cls.findall("method"):
-                    for line in method.findall("line"):
+                for method in cls.findall(".//method"):
+                    for line in method.findall(".//line"):
                         pkg_lines += 1
                         if int(line.get("hits", "0")) > 0:
                             pkg_covered += 1
