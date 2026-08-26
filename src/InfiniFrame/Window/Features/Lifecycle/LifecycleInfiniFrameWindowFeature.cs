@@ -21,7 +21,6 @@ public class LifecycleInfiniFrameWindowFeature(
 ) : ILifecycleInfiniFrameWindowFeature, IDisposable {
     private static readonly InfiniFrameNative.ContextAction ReadyCallback = OnNativeReady;
     private static readonly InfiniFrameNative.ContextAction TeardownCallback = OnNativeTeardown;
-    private readonly object _closeAttemptLock = new();
     private readonly TaskCompletionSource _closed = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly TaskCompletionSource _closedCallbacksDelivered = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly TaskCompletionSource _messageLoopCompleted = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -36,12 +35,23 @@ public class LifecycleInfiniFrameWindowFeature(
     private GCHandle _milestoneRoot;
     private int _milestoneRootReleased;
     private int _nativeCallbackRootReleased;
+    public InfiniFrameWindowLifecycleState State => window.LifecycleState;
+    
+    #if NET9_0_OR_GREATER
+    /// <summary>Synchronization lock for thread-safe access to pending task state.</summary>
+    private readonly Lock _closeAttemptLock = new();
+    #else
+    /// <summary>Synchronization lock for thread-safe access to pending task state.</summary>
+    private readonly object _closeAttemptLock = new();
+    #endif
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     public void Dispose() {
         Dispose(true);
         GC.SuppressFinalize(this);
     }
-    public InfiniFrameWindowLifecycleState State => window.LifecycleState;
 
     /// <inheritdoc cref="ILifecycleInfiniFrameWindowFeature.CleanupNativeHandle" />
     void ILifecycleInfiniFrameWindowFeature.CleanupNativeHandle() {
@@ -289,7 +299,7 @@ public class LifecycleInfiniFrameWindowFeature(
             && Environment.CurrentManagedThreadId == window.ManagedThreadId
             && Volatile.Read(ref _messageLoopStarted) == 0
             && !IsClosed()) {
-            WaitForClose();
+            await WaitForCloseAsync(ct).ConfigureAwait(false);
         }
 
         Task attempt;
@@ -332,9 +342,6 @@ public class LifecycleInfiniFrameWindowFeature(
     /// <inheritdoc cref="ILifecycleInfiniFrameWindowFeature.IsClosedOrClosing" />
     public bool IsClosedOrClosing() => window.LifecycleState >= InfiniFrameWindowLifecycleState.ClosingRequested;
 
-    // -----------------------------------------------------------------------------------------------------------------
-    // Methods
-    // -----------------------------------------------------------------------------------------------------------------
     /// <summary>
     ///     Provides the lifecycle management features for an InfiniFrame window.
     ///     Implements both <see cref="ILifecycleInfiniFrameWindowFeature" /> and <see cref="IDisposable" /> to handle

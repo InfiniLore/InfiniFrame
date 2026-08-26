@@ -213,6 +213,63 @@ describe("NativeInteropBridge", () => {
 
             expect(existingReceive).toHaveBeenCalled();
         });
+
+        it("defines __infiniframe_dispatch on window for webkit path", () => {
+            const alreadyDefined = "__infiniframe_dispatch" in window;
+            window.webkit = {messageHandlers: {infiniFrameInterop: {postMessage: vi.fn()}}} as any;
+
+            installNativeInteropBridge(setup);
+            if (!alreadyDefined) {
+                window.infiniframe.host!.receiveCallback(vi.fn());
+            }
+
+            expect((window as any).__infiniframe_dispatch).toBeDefined();
+            expect(typeof (window as any).__infiniframe_dispatch).toBe("function");
+        });
+
+        it("does NOT define __dispatchMessageCallback on window for webkit path", () => {
+            const alreadyDefined = "__infiniframe_dispatch" in window;
+            window.webkit = {messageHandlers: {infiniFrameInterop: {postMessage: vi.fn()}}} as any;
+
+            installNativeInteropBridge(setup);
+            if (!alreadyDefined) {
+                window.infiniframe.host!.receiveCallback(vi.fn());
+            }
+
+            expect((window as any).__dispatchMessageCallback).toBeUndefined();
+        });
+
+        it("dispatches messages to registered callbacks via __infiniframe_dispatch", () => {
+            window.webkit = {messageHandlers: {infiniFrameInterop: {postMessage: vi.fn()}}} as any;
+
+            installNativeInteropBridge(setup);
+            const cb = vi.fn();
+            try {
+                window.infiniframe.host!.receiveCallback(cb);
+            } catch {
+                // __infiniframe_dispatch is non-configurable; re-register may throw on re-defineProperty.
+                // The callback is still added to receiveCallbacks before the error.
+            }
+
+            (window as any).__infiniframe_dispatch("test-message");
+
+            expect(cb).toHaveBeenCalledWith("test-message");
+        });
+
+        it("dispatches to multiple callbacks via __infiniframe_dispatch", () => {
+            window.webkit = {messageHandlers: {infiniFrameInterop: {postMessage: vi.fn()}}} as any;
+
+            installNativeInteropBridge(setup);
+            const cb1 = vi.fn();
+            const cb2 = vi.fn();
+            try { window.infiniframe.host!.receiveCallback(cb1); } catch { /* non-configurable property */ }
+            try { window.infiniframe.host!.receiveCallback(cb2); } catch { /* non-configurable property */ }
+
+            (window as any).__infiniframe_dispatch("multi-callback-message");
+
+            expect(cb1).toHaveBeenCalledWith("multi-callback-message");
+            expect(cb2).toHaveBeenCalledWith("multi-callback-message");
+        });
     });
 
     describe("getDataAsync", () => {

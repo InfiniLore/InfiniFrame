@@ -227,7 +227,7 @@ static std::string BuildMacWebMessageJs(const char* message) {
             substringFromIndex: 1
         ];
 
-        NSString *javaScriptToEval = [NSString stringWithFormat: @"__dispatchMessageCallback(%@)", nsmessageJson];
+        NSString *javaScriptToEval = [NSString stringWithFormat: @"__infiniframe_dispatch(%@)", nsmessageJson];
         return std::string([javaScriptToEval UTF8String]);
     }
 }
@@ -274,7 +274,7 @@ void InfiniFrameWindow::SendWebMessage(const char* message)
         substringFromIndex: 1
     ];
 
-    NSString *javaScriptToEval = [NSString stringWithFormat: @"__dispatchMessageCallback(%@)", nsmessageJson];
+    NSString *javaScriptToEval = [NSString stringWithFormat: @"__infiniframe_dispatch(%@)", nsmessageJson];
     [m_impl->_webview evaluateJavaScript: javaScriptToEval completionHandler: nil];
 }
 

@@ -209,7 +209,7 @@ void InfiniFrameWindow::SendWebMessage(const char* message) {
     std::string escaped = escapeJsonString(message ? message : "");
 
     std::string js;
-    js.append("__dispatchMessageCallback(\"");
+    js.append("__infiniframe_dispatch(\"");
     js.append(escaped);
     js.append("\")");
 
