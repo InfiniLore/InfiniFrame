@@ -77,7 +77,7 @@ public class Win32SetWebView2PathTests {
             return configuredPath;
         }
 
-        string scriptPath = FindRepositoryFile("tests", "scripts", "ensure-webview2-fixed-runtime.ps1");
+        string scriptPath = FindRepositoryFile("tests", "ensure-webview2-fixed-runtime.ps1");
         return await Task.Run(function: () => RunProvisioningScript(scriptPath), ct);
     }
 

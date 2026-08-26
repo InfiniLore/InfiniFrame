@@ -8,14 +8,16 @@ from pathlib import Path
 
 import pytest
 
-SCRIPT_DIR = Path(__file__).resolve().parent
+SCRIPT_DIR = Path(__file__).resolve().parent.parent.parent / "scripts"
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from bump_version import (
     bump,
-    validate_version,
+    update_all_package_json_files,
+    update_cmake_version,
     update_package_json_version,
+    validate_version,
     _replace_version_in_string,
 )
 
@@ -90,3 +92,42 @@ def test_update_package_json_version_updates_version_and_scripts() -> None:
         assert updated["version"] == "2.3.4"
         assert updated["scripts"]["build"] == "echo 2.3.4"
         assert updated["scripts"]["deploy"] == "echo deploying v2.3.4"
+
+
+def test_update_cmake_version(tmp_path: Path) -> None:
+    cmake = tmp_path / "CMakeLists.txt"
+    cmake.write_text(
+        "cmake_minimum_required(VERSION 3.20)\n"
+        "project(InfiniFrame.Native VERSION 1.2.3)\n"
+        "add_executable(main main.c)\n",
+        encoding="utf-8",
+    )
+    update_cmake_version(cmake, "2.0.0")
+    content = cmake.read_text(encoding="utf-8")
+    assert "VERSION 2.0.0)" in content
+    assert "1.2.3" not in content
+
+
+def test_update_cmake_version_fails_when_pattern_missing(tmp_path: Path) -> None:
+    cmake = tmp_path / "CMakeLists.txt"
+    cmake.write_text("project(Other VERSION 1.0.0)\n", encoding="utf-8")
+    with pytest.raises(SystemExit):
+        update_cmake_version(cmake, "2.0.0")
+
+
+def test_update_all_package_json_files(tmp_path: Path) -> None:
+    (tmp_path / "src").mkdir()
+    pkg1 = tmp_path / "src" / "package.json"
+    pkg1.write_text(json.dumps({"name": "a", "version": "1.0.0"}), encoding="utf-8")
+    pkg2 = tmp_path / "package.json"
+    pkg2.write_text(json.dumps({"name": "b", "version": "0.5.0"}), encoding="utf-8")
+    (tmp_path / "node_modules").mkdir()
+    (tmp_path / "node_modules" / "pkg").mkdir()
+    skipped = tmp_path / "node_modules" / "pkg" / "package.json"
+    skipped.write_text(json.dumps({"name": "skip", "version": "9.9.9"}), encoding="utf-8")
+
+    update_all_package_json_files(tmp_path, "3.0.0")
+
+    assert json.loads(pkg1.read_text())["version"] == "3.0.0"
+    assert json.loads(pkg2.read_text())["version"] == "3.0.0"
+    assert json.loads(skipped.read_text())["version"] == "9.9.9"

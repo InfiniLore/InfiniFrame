@@ -7,11 +7,13 @@ from pathlib import Path
 
 import pytest
 
-SCRIPT_DIR = Path(__file__).resolve().parent
+SCRIPT_DIR = Path(__file__).resolve().parent.parent.parent / "scripts"
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 import validate_package_id_prefix as vpp
+
+original_parse_args = vpp.parse_args
 
 
 def _write_csproj(path: Path, package_id: str | None) -> None:
@@ -147,3 +149,17 @@ def test_main_fails_when_solution_filter_is_missing(
     assert vpp.main() == 1
     captured = capsys.readouterr()
     assert "solution filter not found" in captured.out
+
+
+def test_parse_args_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(sys, "argv", ["prog"])
+    args = original_parse_args()
+    assert args.slnf == "InfiniFrame.GitHubActions.Release.slnf"
+    assert args.prefix == "InfiniLore"
+
+
+def test_parse_args_custom_values(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(sys, "argv", ["prog", "--slnf", "custom.slnf", "--prefix", "MyOrg"])
+    args = original_parse_args()
+    assert args.slnf == "custom.slnf"
+    assert args.prefix == "MyOrg"

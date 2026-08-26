@@ -2,7 +2,14 @@
 from __future__ import annotations
 
 import json
+import sys
+import urllib.error
 from pathlib import Path
+from typing import Any
+
+SCRIPT_DIR = Path(__file__).resolve().parent.parent.parent / "scripts"
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
 
 import update_native_vendor_deps as upd
 
@@ -105,3 +112,72 @@ def test_no_update_returns_0(monkeypatch, tmp_path: Path) -> None:
     assert result == 0
     loaded = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert loaded["libraries"][0]["tag"] == "v1.1.0"
+
+
+# ── get_latest_release ────────────────────────────────────────────────────────
+
+
+def test_get_latest_release_parses_tag_and_assets(monkeypatch) -> None:
+    payload = {
+        "tag_name": "v2.0.0",
+        "assets": [
+            {"name": "lib.h", "browser_download_url": "https://dl/lib.h"},
+            {"name": "lib.c", "browser_download_url": "https://dl/lib.c"},
+        ],
+    }
+    monkeypatch.setattr(upd, "request_json", lambda url, token: payload)
+    tag, assets = upd.get_latest_release("repo/repo", "tok")
+    assert tag == "v2.0.0"
+    assert assets == {"lib.h": "https://dl/lib.h", "lib.c": "https://dl/lib.c"}
+
+
+def test_get_latest_release_returns_none_on_404(monkeypatch) -> None:
+    def raise_404(url, token):
+        raise urllib.error.HTTPError(url, 404, "Not Found", {}, None)
+
+    monkeypatch.setattr(upd, "request_json", raise_404)
+    tag, assets = upd.get_latest_release("repo/repo", "tok")
+    assert tag is None
+    assert assets == {}
+
+
+def test_get_latest_release_returns_none_when_no_tag(monkeypatch) -> None:
+    monkeypatch.setattr(upd, "request_json", lambda url, token: {"assets": []})
+    tag, assets = upd.get_latest_release("repo/repo", "tok")
+    assert tag is None
+
+
+def test_get_latest_release_ignores_malformed_assets(monkeypatch) -> None:
+    payload = {
+        "tag_name": "v1.0.0",
+        "assets": ["not-a-dict", {"name": "ok.h", "browser_download_url": "https://dl/ok.h"}],
+    }
+    monkeypatch.setattr(upd, "request_json", lambda url, token: payload)
+    tag, assets = upd.get_latest_release("repo/repo", "tok")
+    assert tag == "v1.0.0"
+    assert assets == {"ok.h": "https://dl/ok.h"}
+
+
+# ── main ──────────────────────────────────────────────────────────────────────
+
+
+def test_main_returns_0_when_no_updates(monkeypatch, tmp_path: Path) -> None:
+    manifest_path = tmp_path / "manifest.json"
+    write_manifest(manifest_path, "v1.0.0")
+    asset_file = tmp_path / "vendor" / "simdjson.h"
+    asset_file.parent.mkdir(parents=True, exist_ok=True)
+    asset_file.write_text("present", encoding="utf-8")
+    license_file = tmp_path / "vendor" / "LICENSE"
+    license_file.write_text("present", encoding="utf-8")
+
+    monkeypatch.setattr(upd, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(upd, "get_latest_release", lambda repo, token: ("v1.0.0", {"simdjson.h": "https://dl"}))
+    monkeypatch.setattr(sys, "argv", ["prog", "--manifest", str(manifest_path)])
+
+    assert upd.main() == 0
+
+
+def test_main_raises_when_manifest_missing(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setattr(sys, "argv", ["prog", "--manifest", str(tmp_path / "nope.json")])
+    with pytest.raises(RuntimeError, match="Manifest does not exist"):
+        upd.main()

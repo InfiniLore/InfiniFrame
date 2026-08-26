@@ -55,9 +55,9 @@ jobs:
                             echo "Error: custom_version is required when version_bump is 'custom'"
                             exit 1
                         fi
-                        VERSION=$(python .github/scripts/bump_version.py custom "${{ inputs.custom_version }}" | tail -n 1)
+                        VERSION=$(python scripts/bump_version.py custom "${{ inputs.custom_version }}" | tail -n 1)
                     else
-                        VERSION=$(python .github/scripts/bump_version.py ${{ inputs.version_bump }} | tail -n 1)
+                        VERSION=$(python scripts/bump_version.py ${{ inputs.version_bump }} | tail -n 1)
                     fi
                     TAG="v${VERSION}"
 

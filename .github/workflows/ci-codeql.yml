@@ -91,14 +91,6 @@ jobs:
                           - '.github/codeql-config.yml'
                         
                         python:
-                          - '.github/scripts/**/*.py'
-                          - '.github/scripts/**/*.pyi'
-                          - '.github/scripts/**/pyproject.toml'
-                          - '.github/scripts/**/requirements*.txt'
-                          - '.github/scripts/**/Pipfile'
-                          - '.github/scripts/**/Pipfile.lock'
-                          - '.github/scripts/**/tox.ini'
-                          - '.github/scripts/**/setup.cfg'
                           - 'scripts/**/*.py'
                           - 'scripts/**/*.pyi'
                           - 'scripts/**/pyproject.toml'

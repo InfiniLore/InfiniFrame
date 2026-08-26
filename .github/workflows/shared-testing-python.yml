@@ -22,13 +22,25 @@ jobs:
             -   name: Install Test Deps
                 run: |
                     python -m pip install --upgrade pip
-                    python -m pip install pytest
+                    python -m pip install pytest pytest-cov
 
             -   name: Run Pytest
-                run: python -m pytest .github/scripts -q
+                run: |
+                    python -m pytest tests/scripts -q \
+                      --cov=scripts \
+                      --cov-report=lcov:python-coverage/lcov.info
+
+            -   name: Upload Python Coverage
+                if: success()
+                uses: actions/upload-artifact@v7
+                with:
+                    name: python-coverage
+                    path: python-coverage/lcov.info
+                    if-no-files-found: warn
+                    retention-days: 1
 
             -   name: Run Validations
                 run: |
-                    python .github/scripts/validate_package_id_prefix.py \
+                    python scripts/validate_package_id_prefix.py \
                       --slnf InfiniFrame.GitHubActions.Release.slnf \
                       --prefix InfiniLore

@@ -8,7 +8,7 @@ import xml.etree.ElementTree as Et
 from pathlib import Path
 from typing import Final
 
-REPO_ROOT: Final[Path] = Path(__file__).resolve().parent.parent.parent
+REPO_ROOT: Final[Path] = Path(__file__).resolve().parent.parent
 
 
 def _extract_package_ids(project_path: Path) -> list[str]:
