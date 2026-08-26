@@ -6,6 +6,9 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
+/// @brief Centers the window on the primary monitor.
+/// @param instance The window handle.
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_Center(InfiniFrameWindow* instance) {
     return RunWindowExportStatus(
         instance, [](InfiniFrameWindow* window) {
@@ -13,6 +16,9 @@ EXPORTED InteropStatus InfiniFrameNative_Center(InfiniFrameWindow* instance) {
         });
 }
 
+/// @brief Clears browser auto-fill data.
+/// @param instance The window handle.
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_ClearBrowserAutoFill(InfiniFrameWindow* instance) {
     return RunWindowExportStatus(
         instance, [](InfiniFrameWindow* window) {
@@ -20,6 +26,9 @@ EXPORTED InteropStatus InfiniFrameNative_ClearBrowserAutoFill(InfiniFrameWindow*
         });
 }
 
+/// @brief Restores the window from maximized or minimized state.
+/// @param instance The window handle.
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_Restore(InfiniFrameWindow* instance) {
     return RunWindowExportStatus(
         instance, [](InfiniFrameWindow* window) {
@@ -27,6 +36,9 @@ EXPORTED InteropStatus InfiniFrameNative_Restore(InfiniFrameWindow* instance) {
         });
 }
 
+/// @brief Brings the window to the foreground and gives it keyboard focus.
+/// @param instance The window handle.
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_SetFocused(InfiniFrameWindow* instance) {
     return RunWindowExportStatus(
         instance, [](InfiniFrameWindow* window) {
@@ -34,6 +46,11 @@ EXPORTED InteropStatus InfiniFrameNative_SetFocused(InfiniFrameWindow* instance)
         });
 }
 
+/// @brief Shows a simple desktop notification with title and body.
+/// @param instance The window handle.
+/// @param title The notification title.
+/// @param body The notification body text.
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_ShowNotification(
     InfiniFrameWindow* instance,
     const char* title,
@@ -45,6 +62,14 @@ EXPORTED InteropStatus InfiniFrameNative_ShowNotification(
         });
 }
 
+/// @brief Shows a desktop notification with options (icon, urgency, actions).
+/// @param instance The window handle.
+/// @param title The notification title.
+/// @param body The notification body text.
+/// @param iconPath Path to the notification icon file.
+/// @param urgency Notification urgency level (0 = low, 1 = normal, 2 = critical).
+/// @param tag Optional tag to identify or replace the notification.
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_ShowNotificationWithOptions(
     InfiniFrameWindow* instance,
     const char* title,
@@ -61,6 +86,17 @@ EXPORTED InteropStatus InfiniFrameNative_ShowNotificationWithOptions(
         });
 }
 
+/// @brief Begins showing an async notification with a completion callback.
+/// @param instance The window handle.
+/// @param operationId Unique identifier for this async operation.
+/// @param title The notification title.
+/// @param body The notification body text.
+/// @param iconPath Path to the notification icon file.
+/// @param urgency Notification urgency level (0 = low, 1 = normal, 2 = critical).
+/// @param tag Optional tag to identify or replace the notification.
+/// @param completion Callback invoked when the notification action is completed.
+/// @param completionContext User-defined context passed to the completion callback.
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_BeginShowNotification(
     InfiniFrameWindow* instance,
     const uint64_t operationId,
@@ -82,6 +118,11 @@ EXPORTED InteropStatus InfiniFrameNative_BeginShowNotification(
         });
 }
 
+/// @brief Cancels a pending async notification.
+/// @param instance The window handle.
+/// @param operationId The operation identifier of the notification to cancel.
+/// @param canceled Output flag indicating whether the notification was successfully canceled.
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_CancelNotification(
     InfiniFrameWindow* instance,
     const uint64_t operationId,

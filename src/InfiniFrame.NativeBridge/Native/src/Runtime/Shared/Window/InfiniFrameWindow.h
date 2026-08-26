@@ -71,6 +71,15 @@ class InfiniFrameWindow {
          */
     [[nodiscard]] InfiniFrameDialog* GetDialog() const;
 
+    /// Begin showing a native open-file dialog.
+    /// @param operationId Unique identifier for this dialog operation.
+    /// @param title Dialog title text.
+    /// @param defaultPath Initial directory to display.
+    /// @param multiSelect Allow the user to select multiple files.
+    /// @param filters Array of file-type filter strings.
+    /// @param filterCount Number of entries in @p filters.
+    /// @param completion Callback invoked when the dialog closes.
+    /// @param completionContext Opaque context pointer passed to the callback.
     void BeginShowOpenFile(
         uint64_t operationId,
         const char* title,
@@ -81,6 +90,13 @@ class InfiniFrameWindow {
         FileDialogCompletedCallback completion,
         void* completionContext
         );
+    /// Begin showing a native open-folder (directory picker) dialog.
+    /// @param operationId Unique identifier for this dialog operation.
+    /// @param title Dialog title text.
+    /// @param defaultPath Initial directory to display.
+    /// @param multiSelect Allow the user to select multiple folders.
+    /// @param completion Callback invoked when the dialog closes.
+    /// @param completionContext Opaque context pointer passed to the callback.
     void BeginShowOpenFolder(
         uint64_t operationId,
         const char* title,
@@ -89,6 +105,15 @@ class InfiniFrameWindow {
         FileDialogCompletedCallback completion,
         void* completionContext
         );
+    /// Begin showing a native save-file dialog.
+    /// @param operationId Unique identifier for this dialog operation.
+    /// @param title Dialog title text.
+    /// @param defaultPath Initial directory to display.
+    /// @param filters Array of file-type filter strings.
+    /// @param filterCount Number of entries in @p filters.
+    /// @param defaultFileName Pre-filled file name suggestion.
+    /// @param completion Callback invoked when the dialog closes.
+    /// @param completionContext Opaque context pointer passed to the callback.
     void BeginShowSaveFile(
         uint64_t operationId,
         const char* title,
@@ -99,6 +124,14 @@ class InfiniFrameWindow {
         FileDialogCompletedCallback completion,
         void* completionContext
         );
+    /// Begin showing a native message dialog (message box).
+    /// @param operationId Unique identifier for this dialog operation.
+    /// @param title Dialog title text.
+    /// @param text Message body text.
+    /// @param buttons Button layout for the dialog.
+    /// @param icon Icon displayed in the dialog.
+    /// @param completion Callback invoked when the dialog closes.
+    /// @param completionContext Opaque context pointer passed to the callback.
     void BeginShowMessage(
         uint64_t operationId,
         const char* title,
@@ -108,18 +141,33 @@ class InfiniFrameWindow {
         OperationCompletedCallback completion,
         void* completionContext
         );
+    /// Cancel a pending dialog operation.
+    /// @param operationId The dialog operation to cancel.
+    /// @return true if the dialog was successfully cancelled, false if it was already complete or unknown.
     bool CancelDialog(uint64_t operationId);
+    /// Register a file dialog operation so it can be tracked and cancelled.
+    /// @param operationId Unique identifier for this operation.
+    /// @param name Human-readable dialog name.
+    /// @param completion Callback invoked when the dialog closes.
+    /// @param completionContext Opaque context pointer passed to the callback.
+    /// @return Shared pointer to the created DialogOperation.
     std::shared_ptr<DialogOperation> RegisterFileDialogOperation(
         uint64_t operationId,
         const char* name,
         FileDialogCompletedCallback completion,
         void* completionContext
         );
+    /// Register a message dialog operation so it can be tracked and cancelled.
+    /// @param operationId Unique identifier for this operation.
+    /// @param completion Callback invoked when the dialog closes.
+    /// @param completionContext Opaque context pointer passed to the callback.
+    /// @return Shared pointer to the created DialogOperation.
     std::shared_ptr<DialogOperation> RegisterMessageDialogOperation(
         uint64_t operationId,
         OperationCompletedCallback completion,
         void* completionContext
         );
+    /// Complete all pending dialog operations as cancelled, called during window close.
     void CompleteDialogsForClose();
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -345,27 +393,55 @@ class InfiniFrameWindow {
          */
     void NavigateToUrl(const char* url);
 
+    /// Begin navigating to an HTML string, with a completion callback.
+    /// @param operationId Unique identifier for this navigation operation.
+    /// @param content UTF-8 HTML source to display.
+    /// @param completion Callback invoked when the navigation completes.
+    /// @param completionContext Opaque context pointer passed to the callback.
+    /// @return true if navigation was started, false if a conflicting operation is in progress.
     bool BeginNavigateToString(
         uint64_t operationId,
         const char* content,
         OperationCompletedCallback completion,
         void* completionContext
         );
+    /// Begin navigating to a URL, with a completion callback.
+    /// @param operationId Unique identifier for this navigation operation.
+    /// @param url UTF-8 URL to load (http/https or custom scheme).
+    /// @param completion Callback invoked when the navigation completes.
+    /// @param completionContext Opaque context pointer passed to the callback.
+    /// @return true if navigation was started, false if a conflicting operation is in progress.
     bool BeginNavigateToUrl(
         uint64_t operationId,
         const char* url,
         OperationCompletedCallback completion,
         void* completionContext
         );
+    /// Cancel a pending navigation operation.
+    /// @param operationId The navigation operation to cancel.
+    /// @return true if the navigation was successfully cancelled, false if it was already complete or unknown.
     bool CancelNavigation(uint64_t operationId);
+    /// Bind a backend identifier to a navigation operation so it can be completed externally.
+    /// @param backendId The backend-assigned identifier to associate with the next navigation.
     void BindNavigationBackendId(uint64_t backendId);
+    /// Complete a navigation operation by its backend identifier.
+    /// @param backendId The backend identifier of the navigation to complete.
+    /// @param succeeded true if navigation succeeded, false on failure.
+    /// @param nativeCode Platform-specific error code (0 for success).
+    /// @param failureUtf8 Optional human-readable failure description.
     void CompleteNavigation(uint64_t backendId, bool succeeded, int nativeCode, const char* failureUtf8);
+    /// Complete a navigation operation and signal that the window is ready for interaction.
+    /// @param backendId The backend identifier of the navigation to complete.
+    /// @param succeeded true if navigation succeeded, false on failure.
+    /// @param nativeCode Platform-specific error code (0 for success).
+    /// @param failureUtf8 Optional human-readable failure description.
     void CompleteNavigationAndSignalReady(
         uint64_t backendId,
         bool succeeded,
         int nativeCode,
         const char* failureUtf8
         );
+    /// Complete all pending navigation operations as cancelled, called during window close.
     void CompleteNavigationForClose();
 
     /** @brief Restore the window from a minimized or maximized state */
@@ -746,6 +822,7 @@ class InfiniFrameWindow {
 
     /** Cancel a queued operation. Running callbacks cannot be cancelled. */
     bool CancelOperation(uint64_t operationId, NativeOperationResult result);
+    /// Complete all pending operations as cancelled, called during window close.
     void CompleteOperationsForClose();
 
     /** Complete and detach an operation before invoking managed completion. */
@@ -764,6 +841,7 @@ class InfiniFrameWindow {
     void SetTeardownCallback(ContextAction callback, void* context);
     void SignalReady();
     void SignalTeardown();
+    /// Schedule the teardown completion callback to run after pending work finishes.
     void ScheduleTeardownCompletion();
 #ifdef __linux__
     void NotifyWebViewFinalized();
@@ -834,11 +912,22 @@ class InfiniFrameWindow {
     // -----------------------------------------------------------------------------------------------------------------
 
 #ifdef __linux__
+    /// Handle a GTK configure event (window move/resize).
+    /// @param x New window X position.
+    /// @param y New window Y position.
+    /// @param width New window width.
+    /// @param height New window height.
     void OnConfigureEvent(int x, int y, int width, int height);
+    /// Handle a GTK window-state-changed event.
+    /// @param newState The new set of GdkWindowState flags.
     void OnWindowStateEvent(GdkWindowState newState);
+    /// Flush any queued web messages that have not yet been delivered.
     void FlushPendingWebMessages();
+    /// Mark the window as destroyed (called after the GTK widget is finalized).
     void MarkDestroyed();
+    /// Returns true if the native window has been destroyed.
     bool IsDestroyed() const;
+    /// Block the calling thread until the native window is destroyed.
     void WaitUntilDestroyed();
 
     /**
@@ -848,10 +937,22 @@ class InfiniFrameWindow {
     GtkWidget* getGtkWindow();
 
     // ── Native menu bar ──────────────────────────────────────────────────
+    /// Initialize the native GTK menu bar from a JSON description.
+    /// @param menuBarJson JSON string describing the menu bar structure.
     void ApplyInitMenuBar(const char* menuBarJson);
+    /// Replace the native GTK menu bar with a new JSON description.
+    /// @param menuBarJson JSON string describing the menu bar structure.
     void SetMenuBarJson(const char* menuBarJson);
+    /// Enable or disable a GTK menu item by its identifier.
+    /// @param menuItemId The unique identifier of the menu item.
+    /// @param enabled true to enable, false to disable.
     void SetMenuItemEnabledById(const char* menuItemId, bool enabled);
+    /// Show or hide a GTK menu item by its identifier.
+    /// @param menuItemId The unique identifier of the menu item.
+    /// @param visible true to show, false to hide.
     void SetMenuItemVisibleById(const char* menuItemId, bool visible);
+    /// Simulate a click on a GTK menu item by its identifier.
+    /// @param menuItemId The unique identifier of the menu item.
     void ClickMenuItemById(const char* menuItemId);
 #endif
 
@@ -904,11 +1005,25 @@ class InfiniFrameWindow {
     std::string ToUTF8String(const char* source) const;
 
     // ── Native menu bar ──────────────────────────────────────────────────
+    /// Initialize the native Win32 menu bar from a JSON description.
+    /// @param menuBarJson JSON string describing the menu bar structure.
     void ApplyInitMenuBar(const char* menuBarJson);
+    /// Replace the native Win32 menu bar with a new JSON description.
+    /// @param menuBarJson JSON string describing the menu bar structure.
     void SetMenuBarJson(const char* menuBarJson);
+    /// Enable or disable a Win32 menu item by its identifier.
+    /// @param menuItemId The unique identifier of the menu item.
+    /// @param enabled true to enable, false to disable.
     void SetMenuItemEnabledById(const char* menuItemId, bool enabled);
+    /// Show or hide a Win32 menu item by its identifier.
+    /// @param menuItemId The unique identifier of the menu item.
+    /// @param visible true to show, false to hide.
     void SetMenuItemVisibleById(const char* menuItemId, bool visible);
+    /// Simulate a click on a Win32 menu item by its identifier.
+    /// @param menuItemId The unique identifier of the menu item.
     void ClickMenuItemById(const char* menuItemId);
+    /// Handle a Win32 menu command message (WM_COMMAND).
+    /// @param wParam The WPARAM containing the menu item identifier.
     void HandleMenuCommand(WPARAM wParam);
 #elif __APPLE__
     /**
@@ -916,7 +1031,9 @@ class InfiniFrameWindow {
          */
     static void Register();
 
+    /// Flush any queued web messages that have not yet been delivered.
     void FlushPendingWebMessages();
+    /// Apply the current media autoplay configuration to the WKWebView.
     void ApplyMediaAutoplayConfiguration();
 
     /**
@@ -926,10 +1043,22 @@ class InfiniFrameWindow {
     NSWindow* getNSWindow();
 
     // ── Native menu bar ──────────────────────────────────────────────────
+    /// Initialize the native macOS menu bar from a JSON description.
+    /// @param menuBarJson JSON string describing the menu bar structure.
     void ApplyInitMenuBar(const char* menuBarJson);
+    /// Replace the native macOS menu bar with a new JSON description.
+    /// @param menuBarJson JSON string describing the menu bar structure.
     void SetMenuBarJson(const char* menuBarJson);
+    /// Enable or disable a macOS menu item by its identifier.
+    /// @param menuItemId The unique identifier of the menu item.
+    /// @param enabled true to enable, false to disable.
     void SetMenuItemEnabledById(const char* menuItemId, bool enabled);
+    /// Show or hide a macOS menu item by its identifier.
+    /// @param menuItemId The unique identifier of the menu item.
+    /// @param visible true to show, false to hide.
     void SetMenuItemVisibleById(const char* menuItemId, bool visible);
+    /// Simulate a click on a macOS menu item by its identifier.
+    /// @param menuItemId The unique identifier of the menu item.
     void ClickMenuItemById(const char* menuItemId);
 #endif
 

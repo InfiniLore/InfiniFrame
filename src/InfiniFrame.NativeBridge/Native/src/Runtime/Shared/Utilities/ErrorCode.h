@@ -7,21 +7,36 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+
+/// Error codes used throughout the InfiniFrame native layer.
 enum class ErrorCode {
+    /// Operation completed successfully.
     Success = 0,
+    /// A required argument was null or otherwise invalid.
     InvalidArgument,
+    /// The subsystem has not been initialized.
     NotInitialized,
+    /// The current platform does not support this feature.
     PlatformNotSupported,
+    /// An error occurred in the underlying WebView.
     WebViewError,
+    /// A string encoding or conversion error occurred.
     EncodingError,
+    /// A memory allocation or access error occurred.
     MemoryError,
+    /// An I/O or file-system error occurred.
     IoError,
+    /// A null pointer was encountered unexpectedly.
     NullPointer,
+    /// The requested interface is not available on this platform.
     InterfaceNotAvailable,
+    /// A property read or write failed.
     PropertyAccessFailed,
+    /// The target window could not be found.
     WindowNotFound
 };
 
+/// Returns the InfiniFrame error category for use with std::error_code.
 inline const std::error_category& errorCategory() noexcept {
     struct InfiniFrameCategory : std::error_category {
         const char* name() const noexcept override {
@@ -63,6 +78,7 @@ inline const std::error_category& errorCategory() noexcept {
     return category;
 }
 
+/// Create an std::error_code from an ErrorCode value.
 inline std::error_code make_error_code(const ErrorCode e) noexcept {
     return {static_cast<int>(e), errorCategory()};
 }

@@ -6,7 +6,16 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
+/// @brief Shows a native file open dialog (synchronous).
+/// @param inst The window handle.
+/// @param title Dialog title text.
+/// @param defaultPath Initial directory to display.
+/// @param MultiSelect Allow selecting multiple files.
+/// @param filters Array of file-type filter strings.
+/// @param FilterCount Number of elements in the filters array.
+/// @param[out] resultCount Receives the number of selected files.
 /// @param[out] values Owned string array, caller must free with InfiniFrameNative_FreeStringArray(values, resultCount).
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_ShowOpenFile(
     InfiniFrameWindow* inst,
     const char* title,
@@ -36,7 +45,14 @@ EXPORTED InteropStatus InfiniFrameNative_ShowOpenFile(
         });
 }
 
+/// @brief Shows a native folder open dialog (synchronous).
+/// @param inst The window handle.
+/// @param title Dialog title text.
+/// @param defaultPath Initial directory to display.
+/// @param multiSelect Allow selecting multiple folders.
+/// @param[out] resultCount Receives the number of selected folders.
 /// @param[out] values Owned string array, caller must free with InfiniFrameNative_FreeStringArray(values, resultCount).
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_ShowOpenFolder(
     InfiniFrameWindow* inst,
     const char* title,
@@ -61,7 +77,15 @@ EXPORTED InteropStatus InfiniFrameNative_ShowOpenFolder(
         });
 }
 
+/// @brief Shows a native file save dialog (synchronous).
+/// @param inst The window handle.
+/// @param title Dialog title text.
+/// @param defaultPath Initial directory to display.
+/// @param filters Array of file-type filter strings.
+/// @param filterCount Number of elements in the filters array.
+/// @param defaultFileName Default file name to suggest.
 /// @param[out] value Owned string, caller must free with InfiniFrameNative_FreeString.
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_ShowSaveFile(
     InfiniFrameWindow* inst,
     const char* title,
@@ -84,6 +108,14 @@ EXPORTED InteropStatus InfiniFrameNative_ShowSaveFile(
         });
 }
 
+/// @brief Shows a native message box dialog (synchronous).
+/// @param inst The window handle.
+/// @param title Dialog title text.
+/// @param text Message body text.
+/// @param buttons Button configuration (e.g., OK, YesNo).
+/// @param icon Icon to display (e.g., info, warning, error).
+/// @param[out] value Receives the user's dialog result.
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_ShowMessage(
     InfiniFrameWindow* inst,
     const char* title,
@@ -101,6 +133,17 @@ EXPORTED InteropStatus InfiniFrameNative_ShowMessage(
         });
 }
 
+/// @brief Begins an async file open dialog with completion callback.
+/// @param instance The window handle.
+/// @param operationId Non-zero identifier for this async operation.
+/// @param title Dialog title text.
+/// @param defaultPath Initial directory to display.
+/// @param multiSelect Allow selecting multiple files.
+/// @param filters Array of file-type filter strings.
+/// @param filterCount Number of elements in the filters array.
+/// @param completion Callback invoked when the dialog closes.
+/// @param completionContext User-defined context passed to the callback.
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_BeginShowOpenFile(
     InfiniFrameWindow* instance,
     const uint64_t operationId,
@@ -124,6 +167,15 @@ EXPORTED InteropStatus InfiniFrameNative_BeginShowOpenFile(
         });
 }
 
+/// @brief Begins an async folder open dialog with completion callback.
+/// @param instance The window handle.
+/// @param operationId Non-zero identifier for this async operation.
+/// @param title Dialog title text.
+/// @param defaultPath Initial directory to display.
+/// @param multiSelect Allow selecting multiple folders.
+/// @param completion Callback invoked when the dialog closes.
+/// @param completionContext User-defined context passed to the callback.
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_BeginShowOpenFolder(
     InfiniFrameWindow* instance,
     const uint64_t operationId,
@@ -143,6 +195,17 @@ EXPORTED InteropStatus InfiniFrameNative_BeginShowOpenFolder(
         });
 }
 
+/// @brief Begins an async file save dialog with completion callback.
+/// @param instance The window handle.
+/// @param operationId Non-zero identifier for this async operation.
+/// @param title Dialog title text.
+/// @param defaultPath Initial directory to display.
+/// @param filters Array of file-type filter strings.
+/// @param filterCount Number of elements in the filters array.
+/// @param defaultFileName Default file name to suggest.
+/// @param completion Callback invoked when the dialog closes.
+/// @param completionContext User-defined context passed to the callback.
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_BeginShowSaveFile(
     InfiniFrameWindow* instance,
     const uint64_t operationId,
@@ -165,6 +228,16 @@ EXPORTED InteropStatus InfiniFrameNative_BeginShowSaveFile(
         });
 }
 
+/// @brief Begins an async message box with completion callback.
+/// @param instance The window handle.
+/// @param operationId Non-zero identifier for this async operation.
+/// @param title Dialog title text.
+/// @param text Message body text.
+/// @param buttons Button configuration (e.g., OK, YesNo).
+/// @param icon Icon to display (e.g., info, warning, error).
+/// @param completion Callback invoked when the dialog closes.
+/// @param completionContext User-defined context passed to the callback.
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_BeginShowMessage(
     InfiniFrameWindow* instance,
     const uint64_t operationId,
@@ -185,6 +258,11 @@ EXPORTED InteropStatus InfiniFrameNative_BeginShowMessage(
         });
 }
 
+/// @brief Cancels a pending async dialog.
+/// @param instance The window handle.
+/// @param operationId Non-zero identifier of the operation to cancel.
+/// @param[out] cancelled Receives true if the operation was successfully cancelled.
+/// @return InteropStatus
 EXPORTED InteropStatus
 
 InfiniFrameNative_CancelDialog(InfiniFrameWindow* instance, const uint64_t operationId, bool* cancelled) {
