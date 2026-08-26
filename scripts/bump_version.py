@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# ---------------------------------------------------------------------------------------------------------------------
+# Imports
+# ---------------------------------------------------------------------------------------------------------------------
 from __future__ import annotations
 
 import re
@@ -8,13 +11,18 @@ from pathlib import Path
 from typing import Final, Literal, Never
 import json
 
-# Resolve paths from the repository root: .github/scripts -> repo root is three levels up.
-REPO_ROOT: Final[Path] = Path(__file__).parent.parent.parent
+# ---------------------------------------------------------------------------------------------------------------------
+# Constants
+# ---------------------------------------------------------------------------------------------------------------------
+REPO_ROOT: Final[Path] = Path(__file__).parent.parent
 FILE: Final[Path] = REPO_ROOT / "src" / "Directory.Build.props"
 CMAKE_FILE: Final[Path] = REPO_ROOT / "src" / "InfiniFrame.NativeBridge" / "Native" / "CMakeLists.txt"
 VERSION_PATTERN: Final[re.Pattern[str]] = re.compile(r"^\d+\.\d+\.\d+(-preview\.\d+)?$")
 BumpPart = Literal["major", "minor", "patch", "preview"]
 
+# ---------------------------------------------------------------------------------------------------------------------
+# Code
+# ---------------------------------------------------------------------------------------------------------------------
 def fail(message: str) -> Never:
     print(message)
     raise SystemExit(1)

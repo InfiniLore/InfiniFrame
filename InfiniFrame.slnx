@@ -40,8 +40,8 @@
   <Folder Name="/.dev-tools/github/actions/download-native-binaries/">
     <File Path=".github/actions/download-native-binaries/action.yml" />
   </Folder>
-  <Folder Name="/.dev-tools/github/actions/packtool-e2e/">
-    <File Path=".github/actions/packtool-e2e/action.yml" />
+  <Folder Name="/.dev-tools/github/actions/singlefile-e2e/">
+    <File Path=".github/actions/singlefile-e2e/action.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/actions/setup-dependencies-native/">
     <File Path=".github/actions/setup-dependencies-native/action.yml" />
@@ -55,18 +55,6 @@
   <Folder Name="/.dev-tools/github/actions/sync-check/">
     <File Path=".github/actions/sync-check/action.yml" />
   </Folder>
-  <Folder Name="/.dev-tools/github/scripts/">
-    <File Path=".github/scripts/bump_version.py" />
-    <File Path=".github/scripts/sync_github_checks.py" />
-    <File Path=".github/scripts/update_native_vendor_deps.py" />
-    <File Path=".github/scripts/validate_package_id_prefix.py" />
-  </Folder>
-  <Folder Name="/.dev-tools/github/scripts/tests/">
-    <File Path=".github/scripts/test_bump_version.py" />
-    <File Path=".github/scripts/test_sync_github_checks.py" />
-    <File Path=".github/scripts/test_update_native_vendor_deps.py" />
-    <File Path=".github/scripts/test_validate_package_id_prefix.py" />
-  </Folder>
   <Folder Name="/.dev-tools/github/workflows/">
     <File Path=".github/workflows/ci-release-docs.yml" />
     <File Path=".github/workflows/ci-testing.yml" />
@@ -78,28 +66,42 @@
   <Folder Name="/.dev-tools/github/actions/" />
   <Folder Name="/.dev-tools/github/workflows/shared/">
     <File Path=".github/workflows/shared-coverage.yml" />
+  </Folder>
+  <Folder Name="/.dev-tools/github/workflows/shared/release/">
     <File Path=".github/workflows/shared-release-build.yml" />
     <File Path=".github/workflows/shared-release-bump-version.yml" />
     <File Path=".github/workflows/shared-release-publish-docs.yml" />
     <File Path=".github/workflows/shared-release-publish.yml" />
+  </Folder>
+  <Folder Name="/.dev-tools/github/workflows/shared/testing/">
     <File Path=".github/workflows/shared-testing-build.yml" />
     <File Path=".github/workflows/shared-testing-docs.yml" />
-    <File Path=".github/workflows/shared-testing-linux.yml" />
-    <File Path=".github/workflows/shared-testing-macos.yml" />
-    <File Path=".github/workflows/shared-testing-windows.yml" />
     <File Path=".github/workflows/shared-testing-dotnetpack.yml" />
     <File Path=".github/workflows/shared-testing-js.yml" />
-    <File Path=".github/workflows/shared-testing-windows-automation.yml" />
+    <File Path=".github/workflows/shared-testing-linux.yml" />
+    <File Path=".github/workflows/shared-testing-macos.yml" />
     <File Path=".github/workflows/shared-testing-python.yml" />
+    <File Path=".github/workflows/shared-testing-windows-automation.yml" />
     <File Path=".github/workflows/shared-testing-windows-trim-aot.yml" />
+    <File Path=".github/workflows/shared-testing-windows.yml" />
     <File Path=".github/workflows/shared-testing.yml" />
   </Folder>
   <Folder Name="/.dev-tools/scripts/">
-    <File Path="scripts/js-buildfrontend.mjs" />
     <File Path="scripts/clean.ps1" />
     <File Path="scripts/clion-linux-environment.sh" />
-    <File Path="scripts/js-updatedependencies.ps1" />
     <File Path="scripts/nuget-install.sh" />
+  </Folder>
+  <Folder Name="/.dev-tools/scripts/js/">
+    <File Path="scripts/js-buildfrontend.mjs" />
+    <File Path="scripts/js-updatedependencies.ps1" />
+  </Folder>
+  <Folder Name="/.dev-tools/scripts/py/">
+    <File Path="scripts/bump_version.py" />
+    <File Path="scripts/coverage_report.py" />
+    <File Path="scripts/sync_github_checks.py" />
+    <File Path="scripts/update_native_vendor_deps.py" />
+    <File Path="scripts/validate_package_id_prefix.py" />
+    <File Path="scripts/__init__.py" />
   </Folder>
   <Folder Name="/docs/">
     <Project Path="docs/InfiniFrame.Docs.proj" Type="845b7716-6f03-4d02-8e86-79f95485b5d8" />
@@ -138,6 +140,7 @@
   <Folder Name="/tests/">
     <File Path="tests/Directory.Build.props" />
     <File Path="tests/Directory.Build.targets" />
+    <File Path="tests/__init__.py" />
     <Project Path="tests/InfiniTests.InfiniFrame.Blazor/InfiniTests.InfiniFrame.Blazor.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame.BlazorWebView/InfiniTests.InfiniFrame.BlazorWebView.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame.Js/InfiniTests.InfiniFrame.Js.csproj" />
@@ -155,6 +158,14 @@
     <Project Path="tests/InfiniAutomationTests/InfiniAutomationTests.csproj" />
     <Project Path="tests/InfiniAutomationTests.WebApp.React/InfiniAutomationTests.WebApp.React.csproj" />
     <Project Path="tests/InfiniAutomationTests.WebApp.Vue/InfiniAutomationTests.WebApp.Vue.csproj" />
+  </Folder>
+  <Folder Name="/tests/scripts/">
+    <File Path="tests/scripts/test_bump_version.py" />
+    <File Path="tests/scripts/test_coverage_report.py" />
+    <File Path="tests/scripts/test_sync_github_checks.py" />
+    <File Path="tests/scripts/test_update_native_vendor_deps.py" />
+    <File Path="tests/scripts/test_validate_package_id_prefix.py" />
+    <File Path="tests/scripts/__init__.py" />
   </Folder>
   <Folder Name="/tests/testHosts/">
     <File Path="tests/TestHost/MacOsTestingPlatformEntryPoint.cs" />

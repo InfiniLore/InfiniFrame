@@ -62,7 +62,7 @@ runs:
             shell: pwsh
             run: |
                 $argsList = @(
-                  ".github/scripts/sync_github_checks.py",
+                  "scripts/sync_github_checks.py",
                   "--repo", "${{ inputs.repo }}",
                   "--sha", "${{ inputs.sha }}",
                   "--context", "${{ inputs.context }}",

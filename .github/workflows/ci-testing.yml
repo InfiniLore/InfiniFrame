@@ -20,7 +20,7 @@ on:
             enable_coverage:
                 description: 'Enable code coverage'
                 type: boolean
-                default: false
+                default: true
             run_windows:
                 description: 'Run Windows GUI tests'
                 type: boolean
@@ -54,6 +54,8 @@ jobs:
     python-tests:
         name: Python Tests
         uses: ./.github/workflows/shared-testing-python.yml
+        with:
+            enable_coverage: ${{ github.event_name == 'push' || inputs.enable_coverage }}
 
     run:
         name: Full Test Suite
@@ -80,6 +82,8 @@ jobs:
         uses: ./.github/workflows/shared-coverage.yml
         with:
             pr_number: ${{ inputs.pr_number }}
+            target_sha: ${{ github.sha }}
         permissions:
             contents: write
             pull-requests: write
+            checks: write

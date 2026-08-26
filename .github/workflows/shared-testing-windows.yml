@@ -23,7 +23,7 @@ on:
             enable_coverage:
                 type: boolean
                 required: false
-                default: false
+                default: true
 
 jobs:
     windows:
@@ -93,7 +93,7 @@ jobs:
                 if: matrix.arch == 'x64'
                 shell: pwsh
                 run: |
-                    $runtimePath = & ./tests/scripts/ensure-webview2-fixed-runtime.ps1
+                    $runtimePath = & ./tests/ensure-webview2-fixed-runtime.ps1
                     "INFINIFRAME_TEST_WEBVIEW2_RUNTIME_PATH=$runtimePath" >> $env:GITHUB_ENV
 
             -   name: Restore

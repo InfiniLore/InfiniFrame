@@ -46,7 +46,7 @@ jobs:
 
             -   name: Validate PackageId Prefix
                 run: |
-                    python .github/scripts/validate_package_id_prefix.py \
+                    python scripts/validate_package_id_prefix.py \
                       --slnf InfiniFrame.GitHubActions.Release.slnf \
                       --prefix InfiniLore
 

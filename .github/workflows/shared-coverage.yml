@@ -14,10 +14,16 @@ on:
                 type: string
                 required: false
                 default: ''
+            target_sha:
+                description: 'Original commit SHA to sync checks from'
+                type: string
+                required: false
+                default: ''
 
 permissions:
     contents: write
     pull-requests: write
+    checks: write
 
 jobs:
     coverage:
@@ -27,31 +33,18 @@ jobs:
             -   name: Checkout
                 uses: actions/checkout@v7
 
-            # TypeScript Coverage
             -   name: Download TS Coverage Artifact
                 uses: actions/download-artifact@v8
                 with:
                     name: ts-coverage
                     path: ts-coverage
 
-            -   name: Extract TS Coverage
-                id: ts
-                shell: pwsh
-                run: |
-                    $lcov = Get-Content "ts-coverage/lcov.info" -Raw
-                    $totalLines = 0
-                    $totalHit = 0
-                    [regex]::Matches($lcov, 'LF:(\d+)') | ForEach-Object {
-                        $totalLines += [int]$_.Groups[1].Value
-                    }
-                    [regex]::Matches($lcov, 'LH:(\d+)') | ForEach-Object {
-                        $totalHit += [int]$_.Groups[1].Value
-                    }
-                    $pct = if ($totalLines -gt 0) { [math]::Round(($totalHit / $totalLines) * 100, 1) } else { 0 }
-                    "pct=$pct" >> $env:GITHUB_OUTPUT
-                    Write-Host "TS coverage: $pct% ($totalHit / $totalLines lines)"
+            -   name: Download Python Coverage Artifact
+                uses: actions/download-artifact@v8
+                with:
+                    name: python-coverage
+                    path: python-coverage
 
-            # C# Coverage 
             -   name: Download C# Coverage Artifacts
                 uses: actions/download-artifact@v8
                 with:
@@ -59,166 +52,44 @@ jobs:
                     path: cs-coverage
                     merge-multiple: true
 
-            -   name: Aggregate C# Coverage
-                id: cs
+            -   name: Generate Coverage Report
                 shell: pwsh
                 run: |
-                    $totalLines = 0
-                    $totalCovered = 0
-                    $testPackages = @('InfiniTests', 'InfiniAutomationTests')
-                    $pkgData = [ordered]@{}
-                    Get-ChildItem "cs-coverage" -Recurse -Filter "*.cobertura.xml" -ErrorAction SilentlyContinue | ForEach-Object {
-                        [xml]$xml = Get-Content $_.FullName -Raw
-                        if ($xml.coverage.packages.package) {
-                            foreach ($pkg in $xml.coverage.packages.package) {
-                                $pkgName = $pkg.name
-                                $isTest = $false
-                                foreach ($tp in $testPackages) {
-                                    if ($pkgName -like "$tp*") { $isTest = $true; break }
-                                }
-                                if (-not $isTest) {
-                                    $pkgLines = 0
-                                    $pkgCovered = 0
-                                    foreach ($cls in $pkg.classes.class) {
-                                        foreach ($m in $cls.methods.method) {
-                                            foreach ($l in $m.lines.line) {
-                                                $pkgLines++
-                                                if ([int]$l.hits -gt 0) { $pkgCovered++ }
-                                            }
-                                        }
-                                    }
-                                    $totalLines += $pkgLines
-                                    $totalCovered += $pkgCovered
-                                    if (-not $pkgData.ContainsKey($pkgName)) {
-                                        $pkgData[$pkgName] = @{ lines = 0; covered = 0 }
-                                    }
-                                    $pkgData[$pkgName].lines += $pkgLines
-                                    $pkgData[$pkgName].covered += $pkgCovered
-                                }
-                            }
-                        }
-                    }
-                    $pct = if ($totalLines -gt 0) { [math]::Round(($totalCovered / $totalLines) * 100, 1) } else { 0 }
-                    "pct=$pct" >> $env:GITHUB_OUTPUT
-                    Write-Host "C# coverage: $pct% ($totalCovered / $totalLines lines)"
-
-                    # Write per-package breakdown for the comment
-                    $pkgData | ConvertTo-Json -Depth 3 | Set-Content "cs-coverage-breakdown.json"
-
-            # PR Comment (must run BEFORE writing badge files so delta reads old values)
-            -   name: Post Coverage Comment on PR
-                if: ${{ inputs.pr_number != '' && inputs.pr_number != '0' }}
+                    python scripts/coverage_report.py `
+                        --pr-number "${{ inputs.pr_number }}" `
+                        --badge-branch "${{ inputs.badge_branch || github.ref_name }}" `
+                        --repo "${{ github.repository }}" `
+                        --ref-name "${{ github.ref_name }}"
                 env:
                     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                shell: pwsh
+
+            -   name: Sync Checks to Badge Commit
+                if: ${{ inputs.target_sha != '' && inputs.target_sha != '0' }}
+                shell: bash
+                env:
+                    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
-                    $prNumber = "${{ inputs.pr_number }}"
-
-                    # Verify this is an actual pull request, not just an issue or branch
-                    $pr = gh pr view $prNumber --repo "${{ github.repository }}" --json number 2>$null
-                    if (-not $?) {
-                        Write-Host "Skipping comment: #$prNumber is not a pull request"
-                        return
-                    }
-                    $newTs = [double]"${{ steps.ts.outputs.pct }}"
-                    $newCs = [double]"${{ steps.cs.outputs.pct }}"
-
-                    # Read previous badge values from the checked-out repo
-                    $oldTs = 0.0
-                    $oldCs = 0.0
-                    if (Test-Path "badges/ts-coverage.json") {
-                        $old = Get-Content "badges/ts-coverage.json" -Raw | ConvertFrom-Json
-                        $oldTs = [double]($old.message -replace '%','')
-                    }
-                    if (Test-Path "badges/cs-coverage.json") {
-                        $old = Get-Content "badges/cs-coverage.json" -Raw | ConvertFrom-Json
-                        $oldCs = [double]($old.message -replace '%','')
-                    }
-
-                    # Determine styling: green if improved, red if regressed, gray if unchanged
-                    function Get-Trend([double]$old, [double]$new) {
-                        if ($new -gt $old) { return @{ icon = "📈"; color = "green"; label = "improved" } }
-                        if ($new -lt $old) { return @{ icon = "📉"; color = "red"; label = "regressed" } }
-                        return @{ icon = "➡️"; color = "gray"; label = "unchanged" }
-                    }
-
-                    $tsTrend = Get-Trend $oldTs $newTs
-                    $csTrend = Get-Trend $oldCs $newCs
-
-                    $tsDelta = $newTs - $oldTs
-                    $csDelta = $newCs - $oldCs
-                    $tsDeltaStr = if ($tsDelta -gt 0) { "+$tsDelta" } else { "$tsDelta" }
-                    $csDeltaStr = if ($csDelta -gt 0) { "+$csDelta" } else { "$csDelta" }
-
-                    $body = "## 📊 Code Coverage Report`n`n"
-                    $body += "| Language | Coverage | Delta | Trend |`n"
-                    $body += "|----------|----------|-------|-------|`n"
-                    $body += "| TypeScript | **${newTs}%** | ${tsDeltaStr}% | $($tsTrend.icon) $($tsTrend.label) |`n"
-                    $body += "| C# | **${newCs}%** | ${csDeltaStr}% | $($csTrend.icon) $($csTrend.label) |"
-
-                    # Add per-project C# breakdown
-                    if (Test-Path "cs-coverage-breakdown.json") {
-                        $breakdown = Get-Content "cs-coverage-breakdown.json" -Raw | ConvertFrom-Json
-                        if ($breakdown.PSObject.Properties.Count -gt 0) {
-                            $body += "`n`n### C# Project Breakdown`n`n"
-                            $body += "| Project | Coverage | Lines | Covered |`n"
-                            $body += "|---------|----------|-------|---------|`n"
-                            $breakdown.PSObject.Properties | Sort-Object { $_.Value.covered / [math]::Max($_.Value.lines, 1) } -Descending | ForEach-Object {
-                                $name = $_.Name
-                                $lines = [int]$_.Value.lines
-                                $covered = [int]$_.Value.covered
-                                $pct = if ($lines -gt 0) { [math]::Round(($covered / $lines) * 100, 1) } else { 0 }
-                                $body += "| $name | $pct% | $lines | $covered |`n"
-                            }
-                        }
-                    }
-
-                    # Delete previous coverage comment if it exists
-                    $comments = gh api "repos/${{ github.repository }}/issues/${prNumber}/comments?per_page=100" | ConvertFrom-Json
-                    if ($comments) {
-                        $existing = $comments | Where-Object { $_.body -match "## 📊 Code Coverage Report" } | Select-Object -First 1
-                        if ($existing) {
-                            gh api "repos/${{ github.repository }}/issues/comments/$($existing.id)" -X DELETE
-                            Write-Host "Deleted previous coverage comment #$($existing.id)"
-                        }
-                    }
-
-                    gh api "repos/${{ github.repository }}/issues/${prNumber}/comments" -X POST -f body="$body"
-                    Write-Host "Posted new coverage comment on PR #$prNumber"
-
-            # Badge JSON (AFTER comment so old values are read first)
-            -   name: Write Badge JSON
-                shell: pwsh
-                run: |
-                    $ts = "${{ steps.ts.outputs.pct }}%"
-                    $cs = "${{ steps.cs.outputs.pct }}%"
-                    $tsColor = if ([double]"${{ steps.ts.outputs.pct }}" -ge 90) { "brightgreen" }
-                               elseif ([double]"${{ steps.ts.outputs.pct }}" -ge 75) { "yellow" }
-                               else { "red" }
-                    $csColor = if ([double]"${{ steps.cs.outputs.pct }}" -ge 90) { "brightgreen" }
-                               elseif ([double]"${{ steps.cs.outputs.pct }}" -ge 75) { "yellow" }
-                               else { "red" }
-
-                    [ordered]@{
-                        schemaVersion = 1
-                        label         = "coverage"
-                        message       = $ts
-                        color         = $tsColor
-                    } | ConvertTo-Json | Set-Content "badges/ts-coverage.json"
-                      
-                    [ordered]@{
-                        schemaVersion = 1
-                        label         = "coverage"
-                        message       = $cs
-                        color         = $csColor
-                    } | ConvertTo-Json | Set-Content "badges/cs-coverage.json"
-
-                    Write-Host "Badges: TS=$ts ($tsColor), C#=$cs ($csColor)"
-
-            -   name: Commit Badge Updates
-                run: |
-                    git config user.name "github-actions[bot]"
-                    git config user.email "github-actions[bot]@users.noreply.github.com"
-                    git add badges/
-                    git diff --staged --quiet || git commit -m "ci: update coverage badges"
-                    git push origin HEAD:${{ inputs.badge_branch || github.ref_name }} || echo "No changes to push"
+                    NEW_SHA=$(git rev-parse HEAD)
+                    ORIGINAL_SHA="${{ inputs.target_sha }}"
+                    if [ "$NEW_SHA" = "$ORIGINAL_SHA" ]; then
+                      echo "No badge commit pushed, skipping check sync"
+                      exit 0
+                    fi
+                    echo "Syncing checks from $ORIGINAL_SHA to $NEW_SHA"
+                    CHECKS=$(gh api "repos/${{ github.repository }}/commits/$ORIGINAL_SHA/check-runs?per_page=100" --jq '.check_runs[] | "\(.name)|\(.conclusion // "pending")|\(.details_url // "")"')
+                    while IFS='|' read -r name conclusion url; do
+                      if [ -z "$name" ] || [ "$conclusion" = "pending" ] || [ "$conclusion" = "in_progress" ] || [ "$conclusion" = "queued" ]; then
+                        continue
+                      fi
+                      echo "  Creating check: $name -> $conclusion"
+                      gh api "repos/${{ github.repository }}/check-runs" -X POST \
+                        -f name="$name" \
+                        -f head_sha="$NEW_SHA" \
+                        -f status="completed" \
+                        -f conclusion="$conclusion" \
+                        -f details_url="$url" \
+                        -f "output[title]=$name" \
+                        -f "output[summary]=Copied from $ORIGINAL_SHA" \
+                        > /dev/null 2>&1 || echo "  Failed to create check: $name"
+                    done <<< "$CHECKS"
+                    echo "Check sync complete"

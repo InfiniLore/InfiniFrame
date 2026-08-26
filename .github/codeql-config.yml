@@ -4,7 +4,6 @@ name: "InfiniFrame CodeQL Config"
 paths:
   - "src/**"
   - ".github/actions/**"
-  - ".github/scripts/**"
   - ".github/workflows/**"
   - "scripts/**"
 

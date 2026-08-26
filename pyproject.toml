@@ -1,0 +1,11 @@
+[project]
+name = "infiniframe-scripts"
+version = "0.0.0"
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+test = ["pytest", "pytest-cov"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/scripts"]
+pythonpath = ["."]

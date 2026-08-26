@@ -23,7 +23,7 @@ on:
             enable_coverage:
                 type: boolean
                 required: false
-                default: false
+                default: true
 
 jobs:
     linux:
