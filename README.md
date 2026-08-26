@@ -12,8 +12,8 @@ of [Photino.Net](https://github.com/tryphotino/photino.NET), [Photino.Net.Server
 > original Photino authors
 
 [![CI: Platform Tests](https://github.com/InfiniLore/InfiniFrame/actions/workflows/ci-testing.yml/badge.svg)](https://github.com/InfiniLore/InfiniFrame/actions/workflows/ci-testing.yml)
-![TypeScript Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/InfiniLore/InfiniFrame/refs/heads/coverage/badges/ts-coverage.json)
-![C# Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/InfiniLore/InfiniFrame/refs/heads/coverage/badges/cs-coverage.json)
+![TypeScript Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/InfiniLore/InfiniFrame/refs/heads/core/badges/ts-coverage.json)
+![C# Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/InfiniLore/InfiniFrame/refs/heads/core/badges/cs-coverage.json)
 
 ## Packages
 
