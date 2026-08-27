@@ -19,6 +19,7 @@ from pathlib import Path
 # Constants
 # ---------------------------------------------------------------------------------------------------------------------
 TEST_PACKAGES = ("InfiniTests", "InfiniAutomationTests")
+NATIVE_EXTENSIONS = (".cpp", ".h", ".mm", ".c", ".hpp")
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Code
@@ -38,7 +39,7 @@ def parse_ts_coverage(lcov_path: Path) -> tuple[int, int]:
 def parse_cs_coverage(coverage_dir: Path) -> tuple[int, int, OrderedDict[str, dict]]:
     """Parse Cobertura XML files and return (total_lines, total_covered, per_pkg_data).
 
-    Test packages matching TEST_PACKAGES are excluded.
+    Test packages matching TEST_PACKAGES and native source files are excluded.
     """
     total_lines = 0
     total_covered = 0
@@ -57,6 +58,9 @@ def parse_cs_coverage(coverage_dir: Path) -> tuple[int, int, OrderedDict[str, di
             pkg_lines = 0
             pkg_covered = 0
             for cls in pkg.findall(".//class"):
+                filename = cls.get("filename", "")
+                if any(filename.endswith(ext) for ext in NATIVE_EXTENSIONS):
+                    continue
                 for method in cls.findall(".//method"):
                     for line in method.findall(".//line"):
                         pkg_lines += 1

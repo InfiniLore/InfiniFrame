@@ -131,7 +131,7 @@ COBERTURA_TEMPLATE = """\
 PACKAGE_TEMPLATE = """\
     <package name="{name}">
       <classes>
-        <class name="Cls" filename="a.cs">
+        <class name="Cls" filename="{filename}">
           <methods>
             <method name="M" signature="()">
               <lines>
@@ -152,13 +152,14 @@ def _make_cobertura(
     name: str,
     lines: list[int],
     pkg_name: str = "MyApp.Core",
+    filename: str = "a.cs",
 ) -> Path:
     xml_dir = tmp_path / "cobertura"
     xml_dir.mkdir(exist_ok=True)
     covered = sum(1 for h in lines if h > 0)
     valid = len(lines)
     line_xml = "\n".join(LINE_HIT.format(n=i + 1, hits=h) for i, h in enumerate(lines))
-    pkg = PACKAGE_TEMPLATE.format(name=pkg_name, lines=line_xml)
+    pkg = PACKAGE_TEMPLATE.format(name=pkg_name, filename=filename, lines=line_xml)
     xml = COBERTURA_TEMPLATE.format(valid=valid, covered=covered, packages=pkg)
     path = xml_dir / f"{name}.cobertura.xml"
     path.write_text(xml, encoding="utf-8")
@@ -183,6 +184,16 @@ def test_parse_cs_coverage_excludes_test_packages(tmp_path: Path):
     assert total == 2
     assert covered == 2
     assert list(pkg.keys()) == ["MyApp.Lib"]
+
+
+def test_parse_cs_coverage_excludes_native_files(tmp_path: Path):
+    _make_cobertura(tmp_path, "a", [1, 1], pkg_name="InfiniFrame.NativeBridge", filename="a.cpp")
+    _make_cobertura(tmp_path, "b", [1, 1], pkg_name="InfiniFrame.NativeBridge", filename="b.h")
+    _make_cobertura(tmp_path, "c", [1, 1], pkg_name="InfiniFrame.NativeBridge", filename="c.cs")
+    total, covered, pkg = parse_cs_coverage(tmp_path / "cobertura")
+    assert total == 2
+    assert covered == 2
+    assert pkg["InfiniFrame.NativeBridge"]["lines"] == 2
 
 
 def test_parse_cs_coverage_multiple_packages_merge(tmp_path: Path):
