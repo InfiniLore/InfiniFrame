@@ -54,11 +54,13 @@ jobs:
 
             -   name: Setup Git for Push
                 shell: bash
+                env:
+                    BADGE_BRANCH: ${{ inputs.badge_branch || github.ref_name }}
                 run: |
                     git config --global --add safe.directory "$GITHUB_WORKSPACE"
                     git remote set-branches origin '*'
-                    git fetch origin core
-                    git branch --set-upstream-to=origin/core core || true
+                    git fetch origin "$BADGE_BRANCH"
+                    git branch --set-upstream-to="origin/$BADGE_BRANCH" "$BADGE_BRANCH" || true
 
             -   name: Generate Coverage Report
                 shell: pwsh
