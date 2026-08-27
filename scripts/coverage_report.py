@@ -24,7 +24,7 @@ TEST_PACKAGES = ("InfiniTests", "InfiniAutomationTests")
 # Code
 # ---------------------------------------------------------------------------------------------------------------------
 def run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
-    return subprocess.run(cmd, capture_output=True, text=True, **kwargs)
+    return subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", **kwargs)
 
 
 def parse_ts_coverage(lcov_path: Path) -> tuple[int, int]:
@@ -184,7 +184,7 @@ def post_pr_comment(
     result = run(
         ["gh", "api", f"repos/{repo}/issues/{pr_number}/comments?per_page=100"]
     )
-    if result.returncode == 0 and result.stdout.strip():
+    if result.returncode == 0 and result.stdout and result.stdout.strip():
         comments = json.loads(result.stdout)
         for c in comments:
             if "## \U0001f4ca Code Coverage Report" in c.get("body", ""):
