@@ -55,6 +55,7 @@ public class WindowFeatureFilePickerFilterTests {
 
         // Act
         string[] newExtensions = ["png", "jpg"];
+        // ReSharper disable once WithExpressionModifiesAllMembers
         WindowFeatureFilePickerFilter modified = original with { Name = "Images", Extensions = newExtensions };
 
         // Assert

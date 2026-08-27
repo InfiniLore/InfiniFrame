@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Runtime.InteropServices;
 using InfiniFrame.BlazorWebView;
 using InfiniFrame.BlazorWebView.FileProviders;
 using Microsoft.Extensions.DependencyInjection;

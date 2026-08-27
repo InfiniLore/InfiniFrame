@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using FluentValidation;
+using InfiniFrame.Interop;
 using InfiniFrame.NativeBridge.Parameters;
 using Microsoft.Extensions.DependencyInjection;
 

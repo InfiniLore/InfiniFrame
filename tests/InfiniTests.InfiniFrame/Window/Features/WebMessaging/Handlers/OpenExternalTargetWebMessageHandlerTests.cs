@@ -4,7 +4,6 @@
 using System.Diagnostics;
 using InfiniFrame;
 using InfiniFrame.Interop;
-using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniTests.Substitutes;
@@ -324,7 +323,7 @@ public class OpenExternalTargetWebMessageHandlerTests {
     ///     Minimal window stub that provides only the ServiceProvider needed by the handler.
     /// </summary>
     private sealed class WindowWithServiceProviderStub(IServiceProvider serviceProvider) : IInfiniFrameWindow {
-        IServiceProvider? IInfiniFrameWindow.ServiceProvider => serviceProvider;
+        IServiceProvider IInfiniFrameWindow.ServiceProvider => serviceProvider;
         IInfiniFrameEvents IInfiniFrameWindow.Events => throw new NotSupportedException();
         IInfiniFrameEventsStore IHasInfiniFrameEventsStore.EventsStore => throw new NotSupportedException();
         IDebuggingInfiniFrameWindowFeature IInfiniFrameWindow.Debugging => throw new NotSupportedException();

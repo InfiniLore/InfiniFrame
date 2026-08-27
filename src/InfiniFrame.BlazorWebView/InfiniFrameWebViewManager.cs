@@ -56,6 +56,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     /// <param name="fileProvider">The file provider for serving static assets.</param>
     /// <param name="jsComponents">The JavaScript component configuration store.</param>
     /// <param name="config">The Blazor application configuration.</param>
+    /// <param name="logger">The logger</param>
     public InfiniFrameWebViewManager(
         IInfiniFrameWindowBuilder builder,
         IServiceProvider provider,

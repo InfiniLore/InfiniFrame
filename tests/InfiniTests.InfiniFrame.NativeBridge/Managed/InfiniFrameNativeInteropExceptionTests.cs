@@ -72,7 +72,7 @@ public class InfiniFrameNativeInteropExceptionTests {
     [Test]
     public async Task CanBeCaughtAsException(CancellationToken ct = default) {
         // Arrange & Act
-        Exception caught = null!;
+        Exception caught;
         try {
             throw new InfiniFrameNativeInteropException("native error");
         }

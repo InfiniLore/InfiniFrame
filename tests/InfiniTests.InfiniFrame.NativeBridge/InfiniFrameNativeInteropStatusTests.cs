@@ -100,12 +100,10 @@ public class InfiniFrameNativeInteropStatusTests {
     [Test]
     public async Task AllValues_CanBeCastFromInt(CancellationToken ct = default) {
         // Arrange & Act & Assert
-#pragma warning disable TUnitAssertions0005
-        await Assert.That(Enum.IsDefined<InfiniFrameNativeInteropStatus>((InfiniFrameNativeInteropStatus)0)).IsTrue();
-        await Assert.That(Enum.IsDefined<InfiniFrameNativeInteropStatus>((InfiniFrameNativeInteropStatus)22)).IsTrue();
-        await Assert.That(Enum.IsDefined<InfiniFrameNativeInteropStatus>((InfiniFrameNativeInteropStatus)2001)).IsTrue();
-        await Assert.That(Enum.IsDefined<InfiniFrameNativeInteropStatus>((InfiniFrameNativeInteropStatus)14)).IsTrue();
-        await Assert.That(Enum.IsDefined<InfiniFrameNativeInteropStatus>((InfiniFrameNativeInteropStatus)999)).IsFalse();
-#pragma warning restore TUnitAssertions0005
+        await Assert.That(Enum.IsDefined((InfiniFrameNativeInteropStatus)0)).IsTrue();
+        await Assert.That(Enum.IsDefined((InfiniFrameNativeInteropStatus)22)).IsTrue();
+        await Assert.That(Enum.IsDefined((InfiniFrameNativeInteropStatus)2001)).IsTrue();
+        await Assert.That(Enum.IsDefined((InfiniFrameNativeInteropStatus)14)).IsTrue();
+        await Assert.That(Enum.IsDefined((InfiniFrameNativeInteropStatus)999)).IsFalse();
     }
 }
