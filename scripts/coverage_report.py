@@ -222,7 +222,10 @@ def git_commit_badges(badge_branch: str, ref_name: str) -> None:
     diff = run(["git", "diff", "--staged", "--quiet"])
     if diff.returncode != 0:
         run(["git", "commit", "-m", "ci: update coverage badges"])
-        run(["git", "push", "origin", f"HEAD:{target}"])
+        result = run(["git", "push", "origin", f"HEAD:{target}"])
+        if result.returncode != 0:
+            print(f"ERROR: git push failed:\n{result.stderr}", flush=True)
+            raise SystemExit(1)
         print(f"Committed and pushed badge updates to {target}")
     else:
         print("No badge changes to commit")
