@@ -12,7 +12,7 @@ namespace InfiniTests.InfiniFrame.Window.Features.Browser;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class Win32SetWebView2PathTests {
-    private const string FixedRuntimeVersion = "150.0.4078.99";
+    private const string FixedRuntimeVersion = "151.0.4129.107";
     private static readonly HttpClient Client = new() {
         Timeout = TimeSpan.FromMilliseconds(500)
     };
