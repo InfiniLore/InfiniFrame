@@ -52,6 +52,14 @@ jobs:
                     path: cs-coverage
                     merge-multiple: true
 
+            -   name: Setup Git for Push
+                shell: bash
+                run: |
+                    git config --global --add safe.directory "$GITHUB_WORKSPACE"
+                    git remote set-branches origin '*'
+                    git fetch origin core
+                    git branch --set-upstream-to=origin/core core || true
+
             -   name: Generate Coverage Report
                 shell: pwsh
                 run: |
