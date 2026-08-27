@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
@@ -34,7 +35,7 @@ public class InfiniFrameWebViewManagerTests {
             fileProvider,
             new JSComponentConfigurationStore(),
             Options.Create(new InfiniFrameBlazorAppConfiguration()),
-            provider.GetRequiredService<ILogger<InfiniFrameWebViewManager>>()
+            NullLogger<InfiniFrameWebViewManager>.Instance
         );
 
         (Stream? data, string? contentType) = manager.HandleWebRequest(
@@ -63,7 +64,7 @@ public class InfiniFrameWebViewManagerTests {
             fileProvider,
             new JSComponentConfigurationStore(),
             Options.Create(new InfiniFrameBlazorAppConfiguration()),
-            provider.GetRequiredService<ILogger<InfiniFrameWebViewManager>>()
+            NullLogger<InfiniFrameWebViewManager>.Instance
         );
 
         (Stream? data, string? contentType) = manager.HandleWebRequest(null, url);
@@ -97,7 +98,7 @@ public class InfiniFrameWebViewManagerTests {
             new NullFileProvider(),
             new JSComponentConfigurationStore(),
             Options.Create(new InfiniFrameBlazorAppConfiguration()),
-            provider.GetRequiredService<ILogger<InfiniFrameWebViewManager>>());
+            NullLogger<InfiniFrameWebViewManager>.Instance);
 
         await manager.DisposeAsync();
 
@@ -148,7 +149,7 @@ public class InfiniFrameWebViewManagerTests {
             new NullFileProvider(),
             new JSComponentConfigurationStore(),
             Options.Create(new InfiniFrameBlazorAppConfiguration()),
-            provider.GetRequiredService<ILogger<InfiniFrameWebViewManager>>()
+            NullLogger<InfiniFrameWebViewManager>.Instance
         );
 
         // Act
@@ -285,7 +286,7 @@ public class InfiniFrameWebViewManagerTests {
         new NullFileProvider(),
         new JSComponentConfigurationStore(),
         Options.Create(configuration ?? new InfiniFrameBlazorAppConfiguration()),
-        provider.GetRequiredService<ILogger<InfiniFrameWebViewManager>>());
+        NullLogger<InfiniFrameWebViewManager>.Instance);
 
     private sealed class TestableInfiniFrameWebViewManager(
         IInfiniFrameWindowBuilder builder,
