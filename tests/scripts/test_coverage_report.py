@@ -196,6 +196,35 @@ def test_parse_cs_coverage_excludes_native_files(tmp_path: Path):
     assert pkg["InfiniFrame.NativeBridge"]["lines"] == 2
 
 
+def test_parse_cs_coverage_deduplicates_il_lines(tmp_path: Path):
+    cob_dir = tmp_path / "cov"
+    cob_dir.mkdir()
+    xml = """\
+<?xml version="1.0" ?>
+<coverage version="5.0" lines-valid="3" lines-covered="2">
+  <packages>
+    <package name="A">
+      <classes><class name="C" filename="a.cs">
+        <methods>
+          <method name="M1" signature="()">
+            <lines><line number="5" hits="1"/><line number="6" hits="1"/></lines>
+          </method>
+          <method name="M2" signature="()">
+            <lines><line number="5" hits="0"/><line number="7" hits="1"/></lines>
+          </method>
+        </methods>
+      </class></classes>
+    </package>
+  </packages>
+</coverage>"""
+    (cob_dir / "test.cobertura.xml").write_text(xml)
+    total, covered, pkg = parse_cs_coverage(cob_dir)
+    assert total == 3
+    assert covered == 3
+    assert pkg["A"]["lines"] == 3
+    assert pkg["A"]["covered"] == 3
+
+
 def test_parse_cs_coverage_multiple_packages_merge(tmp_path: Path):
     cob_dir = tmp_path / "cov"
     cob_dir.mkdir()
