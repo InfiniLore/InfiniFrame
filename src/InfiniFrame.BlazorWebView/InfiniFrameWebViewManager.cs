@@ -35,6 +35,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
 
     private readonly Channel<string> _channel;
     private readonly CancellationTokenSource _messagePumpShutdown = new();
+    private readonly ILogger<InfiniFrameWebViewManager> _logger;
 
     private readonly Task _messagePumpTask;
     private readonly int _messageQueueCapacity;
@@ -61,9 +62,11 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         Dispatcher dispatcher,
         IFileProvider fileProvider,
         JSComponentConfigurationStore jsComponents,
-        IOptions<InfiniFrameBlazorAppConfiguration> config
+        IOptions<InfiniFrameBlazorAppConfiguration> config,
+        ILogger<InfiniFrameWebViewManager> logger
     )
         : base(provider, dispatcher, config.Value.AppBaseUri, fileProvider, jsComponents, config.Value.HostPage) {
+        _logger = logger;
         InfiniFrameBlazorAppConfiguration configuration = config.Value;
         if (configuration.WebMessageQueueCapacity <= 0) {
             throw new ArgumentOutOfRangeException(
@@ -86,31 +89,28 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
 
         // ReSharper disable once ConvertClosureToMethodGroup
         LazyWindow = new Lazy<IInfiniFrameWindow>(() => provider.GetRequiredService<IInfiniFrameWindow>());
-        // ReSharper disable once ConvertClosureToMethodGroup
-        LazyLogger = new Lazy<ILogger<InfiniFrameWebViewManager>?>(() => provider.GetService<ILogger<InfiniFrameWebViewManager>>());
 
         builder.RegisterWebMessageReceivedHandler((_, message, origin) => {
             if (IsDisposingOrDisposed) return;
 
-            LazyLogger.Value?.LogTrace("Web message callback received from native. Origin: {Origin}, Length: {Length}", origin, message.Length);
+            _logger.LogTrace("Web message callback received from native. Origin: {Origin}, Length: {Length}", origin, message.Length);
 
             try {
                 HandleWebMessage((message, origin));
             }
             catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-                LazyLogger.Value?.LogWarning(ex, "Unhandled exception while handling native web message callback.");
+                _logger.LogWarning(ex, "Unhandled exception while handling native web message callback.");
             }
         });
 
         _messagePumpTask = MessagePump();
-        LazyLogger.Value?.LogDebug(
+        _logger.LogDebug(
             "Started WebView message pump. QueueCapacity: {QueueCapacity}, FullMode: {FullMode}",
             configuration.WebMessageQueueCapacity,
             configuration.WebMessageQueueFullMode);
     }
 
     private Lazy<IInfiniFrameWindow> LazyWindow { get; }
-    private Lazy<ILogger<InfiniFrameWebViewManager>?> LazyLogger { get; }
     private bool IsDisposingOrDisposed => Volatile.Read(ref _disposeStarted) != 0 || Volatile.Read(ref _disposed) != 0;
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     /// <inheritdoc cref="IInfiniFrameWebViewManager.HandleWebRequest" />
     public (Stream? Data, string? ContentType) HandleWebRequest(IInfiniFrameWindow? infiniFrameWindow, string? url) {
         if (string.IsNullOrWhiteSpace(url)) {
-            LazyLogger.Value?.LogWarning(
+            _logger.LogWarning(
                 "Rejected web request because URL is null or empty. Url: {Url}",
                 url
             );
@@ -127,7 +127,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         }
 
         if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? requestUri)) {
-            LazyLogger.Value?.LogWarning(
+            _logger.LogWarning(
                 "Rejected web request because URL parsing failed. Url: {Url}",
                 url
             );
@@ -135,7 +135,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         }
 
         if (!_uriSecurityPolicy.IsNavigationSchemeAllowed(requestUri.Scheme)) {
-            LazyLogger.Value?.LogWarning(
+            _logger.LogWarning(
                 "Rejected web request due to disallowed URI scheme. Scheme: {Scheme}, Url: {Url}",
                 requestUri.Scheme,
                 requestUri);
@@ -143,7 +143,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         }
 
         if (!_uriSecurityPolicy.IsTrustedOrigin(requestUri)) {
-            LazyLogger.Value?.LogWarning(
+            _logger.LogWarning(
                 "Rejected web request due to untrusted origin. RequestOrigin: {RequestOrigin}, TrustedOrigins: {TrustedOrigins}",
                 requestUri,
                 _uriSecurityPolicy.TrustedOrigins);
@@ -172,7 +172,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             return (content2, contentType ?? GetFallbackContentType(resourceUri.LocalPath));
         }
 
-        LazyLogger.Value?.LogWarning(
+        _logger.LogWarning(
             "No web content found for trusted URL. Url: {Url}",
             resourceUri);
 
@@ -189,7 +189,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
 
         if (!string.IsNullOrWhiteSpace(state.Origin)) {
             if (!Uri.TryCreate(state.Origin, UriKind.Absolute, out messageOriginUrl)) {
-                LazyLogger.Value?.LogWarning(
+                _logger.LogWarning(
                     "Rejected web message because origin parsing failed. Origin: {Origin}",
                     state.Origin);
                 return;
@@ -198,18 +198,18 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         else if (Uri.TryCreate(AppBaseUri, UriKind.Absolute, out Uri? fallback)) {
             messageOriginUrl = fallback;
 
-            LazyLogger.Value?.LogDebug(
+            _logger.LogDebug(
                 "Web message origin missing. Falling back to AppBaseUri origin: {FallbackOrigin}",
                 fallback);
         }
         else {
-            LazyLogger.Value?.LogWarning(
+            _logger.LogWarning(
                 "Rejected web message because origin is missing or unknown.");
             return;
         }
 
         if (!_uriSecurityPolicy.IsTrustedOrigin(messageOriginUrl)) {
-            LazyLogger.Value?.LogWarning(
+            _logger.LogWarning(
                 "Rejected web message due to origin mismatch. Origin: {MessageOrigin}, TrustedOrigins: {TrustedOrigins}",
                 messageOriginUrl,
                 _uriSecurityPolicy.TrustedOrigins);
@@ -232,13 +232,13 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
 
     protected override void SendMessage(string message) {
         if (IsDisposingOrDisposed || _messagePumpShutdown.IsCancellationRequested) {
-            LazyLogger.Value?.LogTrace("Discarded outbound WebView message because the manager is shutting down.");
+            _logger.LogTrace("Discarded outbound WebView message because the manager is shutting down.");
             return;
         }
 
         if (_channel.Writer.TryWrite(message)) return;
 
-        LazyLogger.Value?.LogError(
+        _logger.LogError(
             "Discarded outbound WebView message because the bounded queue is unavailable or full. " +
             "This may cause stale UI state. QueueCapacity: {QueueCapacity}, FullMode: {FullMode}",
             _messageQueueCapacity,
@@ -256,16 +256,16 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             }
         }
         catch (ObjectDisposedException ex) {
-            LazyLogger.Value?.LogDebug(ex, "WebView message pump observed disposed dependencies; stopping.");
+            _logger.LogDebug(ex, "WebView message pump observed disposed dependencies; stopping.");
         }
         catch (ChannelClosedException ex) {
-            LazyLogger.Value?.LogDebug(ex, "WebView message channel closed; stopping message pump.");
+            _logger.LogDebug(ex, "WebView message channel closed; stopping message pump.");
         }
         catch (OperationCanceledException) {
-            LazyLogger.Value?.LogDebug("WebView message pump cancellation requested.");
+            _logger.LogDebug("WebView message pump cancellation requested.");
         }
         catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-            LazyLogger.Value?.LogError(ex, "Unhandled exception in WebView message pump.");
+            _logger.LogError(ex, "Unhandled exception in WebView message pump.");
         }
     }
 
@@ -289,12 +289,12 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
                 await _messagePumpTask.ConfigureAwait(false);
             }
             catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-                LazyLogger.Value?.LogWarning(ex, "Message pump faulted during WebView manager shutdown.");
+                _logger.LogWarning(ex, "Message pump faulted during WebView manager shutdown.");
             }
             finally {
                 _messagePumpShutdown.Dispose();
                 Volatile.Write(ref _disposed, 1);
-                LazyLogger.Value?.LogDebug("WebView manager disposal completed after the message pump stopped.");
+                _logger.LogDebug("WebView manager disposal completed after the message pump stopped.");
             }
         }
     }

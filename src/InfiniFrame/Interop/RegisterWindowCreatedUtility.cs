@@ -67,7 +67,7 @@ public static class RegisterWindowCreatedUtility {
                 registrationMessages = state.RegistrationMessageIds.ToArray();
             }
 
-            ILogger? logger = window.ServiceProvider?.GetService<ILoggerFactory>()?.CreateLogger(typeof(RegisterWindowCreatedUtility));
+            ILogger? logger = (ILogger?)window.ServiceProvider?.GetService(typeof(ILogger));
             _ = Task.Run(async () => {
                 try {
                     await SendRegistrationsAndAckAsync(window, state, windowState, registrationMessages).ConfigureAwait(false);

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
@@ -32,7 +33,8 @@ public class InfiniFrameWebViewManagerTests {
             MockFactory.CreateDispatcherMock().Object,
             fileProvider,
             new JSComponentConfigurationStore(),
-            Options.Create(new InfiniFrameBlazorAppConfiguration())
+            Options.Create(new InfiniFrameBlazorAppConfiguration()),
+            provider.GetRequiredService<ILogger<InfiniFrameWebViewManager>>()
         );
 
         (Stream? data, string? contentType) = manager.HandleWebRequest(
@@ -60,7 +62,8 @@ public class InfiniFrameWebViewManagerTests {
             MockFactory.CreateDispatcherMock().Object,
             fileProvider,
             new JSComponentConfigurationStore(),
-            Options.Create(new InfiniFrameBlazorAppConfiguration())
+            Options.Create(new InfiniFrameBlazorAppConfiguration()),
+            provider.GetRequiredService<ILogger<InfiniFrameWebViewManager>>()
         );
 
         (Stream? data, string? contentType) = manager.HandleWebRequest(null, url);
@@ -93,7 +96,8 @@ public class InfiniFrameWebViewManagerTests {
             dispatcher,
             new NullFileProvider(),
             new JSComponentConfigurationStore(),
-            Options.Create(new InfiniFrameBlazorAppConfiguration()));
+            Options.Create(new InfiniFrameBlazorAppConfiguration()),
+            provider.GetRequiredService<ILogger<InfiniFrameWebViewManager>>());
 
         await manager.DisposeAsync();
 
@@ -143,7 +147,8 @@ public class InfiniFrameWebViewManagerTests {
             MockFactory.CreateDispatcherMock().Object,
             new NullFileProvider(),
             new JSComponentConfigurationStore(),
-            Options.Create(new InfiniFrameBlazorAppConfiguration())
+            Options.Create(new InfiniFrameBlazorAppConfiguration()),
+            provider.GetRequiredService<ILogger<InfiniFrameWebViewManager>>()
         );
 
         // Act
@@ -279,7 +284,8 @@ public class InfiniFrameWebViewManagerTests {
         MockFactory.CreateDispatcherMock().Object,
         new NullFileProvider(),
         new JSComponentConfigurationStore(),
-        Options.Create(configuration ?? new InfiniFrameBlazorAppConfiguration()));
+        Options.Create(configuration ?? new InfiniFrameBlazorAppConfiguration()),
+        provider.GetRequiredService<ILogger<InfiniFrameWebViewManager>>());
 
     private sealed class TestableInfiniFrameWebViewManager(
         IInfiniFrameWindowBuilder builder,
@@ -287,8 +293,9 @@ public class InfiniFrameWebViewManagerTests {
         Dispatcher dispatcher,
         IFileProvider fileProvider,
         JSComponentConfigurationStore jsComponents,
-        IOptions<InfiniFrameBlazorAppConfiguration> config
-    ) : InfiniFrameWebViewManager(builder, provider, dispatcher, fileProvider, jsComponents, config) {
+        IOptions<InfiniFrameBlazorAppConfiguration> config,
+        ILogger<InfiniFrameWebViewManager> logger
+    ) : InfiniFrameWebViewManager(builder, provider, dispatcher, fileProvider, jsComponents, config, logger) {
         public void SendMessageForTest(string message) => SendMessage(message);
     }
 

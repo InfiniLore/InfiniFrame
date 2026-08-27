@@ -1,7 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using FluentValidation;
@@ -370,18 +369,17 @@ public class LifecycleInfiniFrameWindowFeature(
             ReleaseMilestoneRootOnce();
             try { window.ReleaseNativeHandle(); }
             catch (Exception ex) {
-                // Best-effort cleanup during disposal; logging may not be available in finalizer context.
-                Debug.WriteLine($"[InfiniFrame] ReleaseNativeHandle failed during disposal: {ex.Message}");
+                logger.LogWarning(ex, "ReleaseNativeHandle failed during disposal");
             }
 
             try { window.MarkNativeHandleReleased(); }
             catch (Exception ex) {
-                Debug.WriteLine($"[InfiniFrame] MarkNativeHandleReleased failed during disposal: {ex.Message}");
+                logger.LogWarning(ex, "MarkNativeHandleReleased failed during disposal");
             }
 
             try { window.MarkDisposed(); }
             catch (Exception ex) {
-                Debug.WriteLine($"[InfiniFrame] MarkDisposed failed during disposal: {ex.Message}");
+                logger.LogWarning(ex, "MarkDisposed failed during disposal");
             }
 
             return;
