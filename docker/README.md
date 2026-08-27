@@ -43,8 +43,8 @@ docker compose run example-blazorwebview-wslg
 Runs the full test suite inside the container. Connects to the host X11 display (for GUI tests) or uses Xvfb.
 
 **Environment variables:**
-- `USE_HOST_X11` — Set to `1` to use the host's X11 display
-- `NATIVE_ARCH` — Target architecture (default: `x64`)
+- `USE_HOST_X11` Set to `1` to use the host's X11 display
+- `NATIVE_ARCH` Target architecture (default: `x64`)
 
 ### `linux-tests-wslg`
 

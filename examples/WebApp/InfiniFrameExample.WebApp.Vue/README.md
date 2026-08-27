@@ -1,19 +1,19 @@
-# Example: WebApp — Vue
+# Example: WebApp Vue
 
 Demonstrates a Vue.js frontend served by ASP.NET Core inside an InfiniFrame window, showcasing all built-in JavaScript message handlers from `InfiniFrame.Js`
 
 ## What it shows
 
-- `RegisterFullScreenWebMessageHandler()` — toggles native fullscreen from JavaScript
-- `RegisterOpenExternalTargetWebMessageHandler()` — opens `target="_blank"` links in the system browser
-- `RegisterTitleChangedWebMessageHandler()` — updates the native window title from JavaScript
-- `RegisterWindowManagementWebMessageHandler()` — minimize, maximize, close from JavaScript
-- `RegisterWebMessageReceivedHandler(...)` — generic message handler for custom app messages
-- `SetBrowserControlInitParameters("--remote-debugging-port=9222")` — enables Chrome DevTools remote debugging
+- `RegisterFullScreenWebMessageHandler()` toggles native fullscreen from JavaScript
+- `RegisterOpenExternalTargetWebMessageHandler()` opens `target="_blank"` links in the system browser
+- `RegisterTitleChangedWebMessageHandler()` updates the native window title from JavaScript
+- `RegisterWindowManagementWebMessageHandler()` minimize, maximize, close from JavaScript
+- `RegisterWebMessageReceivedHandler(...)` generic message handler for custom app messages
+- `SetBrowserControlInitParameters("--remote-debugging-port=9222")` enables Chrome DevTools remote debugging
 
 ## Run
 
-> Requires the Vue frontend to be built first — see `Source/InfiniFrame.Vue/` for the npm project
+> Requires the Vue frontend to be built first see `Source/InfiniFrame.Vue/` for the npm project
 
 ```bash
 # Build the frontend

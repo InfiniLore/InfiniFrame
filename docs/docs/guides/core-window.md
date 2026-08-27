@@ -1,6 +1,6 @@
 # Core Window Guide
 
-This guide covers the `InfiniFrameWindowBuilder` — the foundation for creating all InfiniFrame windows. It walks through the builder pattern, single-file packaging, and provides a complete reference to every window feature.
+This guide covers the `InfiniFrameWindowBuilder` the foundation for creating all InfiniFrame windows. It walks through the builder pattern, single-file packaging, and provides a complete reference to every window feature.
 
 For a conceptual overview of how the feature system works, see [Window Features Architecture](window-features-architecture.md).
 

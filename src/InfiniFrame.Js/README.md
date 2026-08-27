@@ -10,7 +10,7 @@ This is an internal build package (`infinilore.infiniframe.js-build`). It is not
 
 ```
 TypeScript/
-  Index.ts                    # Entry point — exports the InfiniFrame namespace
+  Index.ts                    # Entry point exports the InfiniFrame namespace
   InfiniFrame.ts              # Main InfiniFrame class (window features, messaging, window chrome)
   InfiniFrameHostMessaging.ts # Low-level messaging bridge to the native host
   InfiniFrameUtils.ts         # Utility helpers
@@ -53,8 +53,8 @@ npm run build
 ```
 
 Produces two bundles:
-- `wwwroot/InfiniFrame.js` — production (minified)
-- `wwwroot/InfiniFrame.dev.js` — development (with source maps)
+- `wwwroot/InfiniFrame.js` production (minified)
+- `wwwroot/InfiniFrame.dev.js` development (with source maps)
 
 ### Test
 
@@ -79,7 +79,7 @@ Include the script in your HTML host page:
 ```
 
 The script registers itself on `window.infiniframe` and provides:
-- `window.infiniframe.host` — messaging bridge to C#
-- `window.infiniframe.window.features` — runtime window feature access
-- `window.infiniframe.windowChrome` — custom window chrome registration
-- `window.infiniframe.messaging` — convenience messaging helpers
+- `window.infiniframe.host` messaging bridge to C#
+- `window.infiniframe.window.features` runtime window feature access
+- `window.infiniframe.windowChrome` custom window chrome registration
+- `window.infiniframe.messaging` convenience messaging helpers

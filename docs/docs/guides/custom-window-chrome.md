@@ -1,6 +1,6 @@
 # Custom Window Chrome Guide
 
-`InfiniLore.InfiniFrame.Blazor` provides pre-built Razor components for building custom window title bars and resize handles, typically used together with a chromeless window. Chromeless mode is a [Decorations feature](decorations-feature.md) setting. For non-Blazor apps (React, Vue, plain HTML), a JavaScript API is also available — see [JavaScript Window Chrome API](#javascript-window-chrome-api).
+`InfiniLore.InfiniFrame.Blazor` provides pre-built Razor components for building custom window title bars and resize handles, typically used together with a chromeless window. Chromeless mode is a [Decorations feature](decorations-feature.md) setting. For non-Blazor apps (React, Vue, plain HTML), a JavaScript API is also available see [JavaScript Window Chrome API](#javascript-window-chrome-api).
 
 ## Contents
 
@@ -253,7 +253,7 @@ Instead of the JS API, you can use data attributes directly on HTML elements:
 <div data-infiniframe-resize="bottom-right"></div>
 ```
 
-The API and data attributes can be used together — both are scanned on initialization.
+The API and data attributes can be used together both are scanned on initialization.
 
 ### Plain HTML Example
 
@@ -428,6 +428,6 @@ window.infiniframe.windowChrome.unregister();
 
 ## See Also
 
-- [Decorations Feature](decorations-feature.md) — Chromeless mode and transparency settings
-- [Window Features Architecture](window-features-architecture.md) — How the feature system works
-- [Core Window Guide](core-window.md) — Builder API and feature overview
+- [Decorations Feature](decorations-feature.md) Chromeless mode and transparency settings
+- [Window Features Architecture](window-features-architecture.md) How the feature system works
+- [Core Window Guide](core-window.md) Builder API and feature overview

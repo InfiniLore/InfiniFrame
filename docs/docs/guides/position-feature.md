@@ -110,6 +110,6 @@ On Windows, enabling chromeless mode (`SetChromeless(true)`) automatically disab
 
 ## See Also
 
-- [Monitors Feature](monitors-feature.md) — Display enumeration for multi-monitor positioning
-- [Window Features Architecture](window-features-architecture.md) — How the feature system works
-- [Core Window Guide](core-window.md) — Builder API and feature overview
+- [Monitors Feature](monitors-feature.md) Display enumeration for multi-monitor positioning
+- [Window Features Architecture](window-features-architecture.md) How the feature system works
+- [Core Window Guide](core-window.md) Builder API and feature overview

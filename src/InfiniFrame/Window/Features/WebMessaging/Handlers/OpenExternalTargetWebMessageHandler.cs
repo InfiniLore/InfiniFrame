@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Net;
 using InfiniFrame.Interop;
 using InfiniFrame.Security;
 using Microsoft.Extensions.Logging;
@@ -48,6 +49,14 @@ public static class OpenExternalTargetWebMessageHandler {
             return;
         }
 
+        // Block loopback and private IP addresses for http/https to prevent SSRF attacks.
+        if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps) {
+            if (IsLoopbackOrPrivateIp(uri.Host)) {
+                Logger.LogWarning("Rejected external URI due to loopback/private IP. Uri: {Uri}", uri);
+                return;
+            }
+        }
+
         try {
             // SECURITY NOTE: UseShellExecute = true delegates the URI to the OS shell handler. The security
             // of this call depends entirely on the OS shell correctly interpreting the scheme. The scheme
@@ -72,5 +81,20 @@ public static class OpenExternalTargetWebMessageHandler {
         catch (PlatformNotSupportedException ex) {
             Logger.LogError(ex, "Failed to open external URL: {Uri}", uri);
         }
+    }
+
+    private static bool IsLoopbackOrPrivateIp(string host) {
+        if (string.Equals(host, "localhost", StringComparison.OrdinalIgnoreCase)) return true;
+        if (IPAddress.TryParse(host, out IPAddress? ip)) {
+            return IPAddress.IsLoopback(ip) || IsPrivateIp(ip);
+        }
+        return false;
+    }
+
+    private static bool IsPrivateIp(IPAddress ip) {
+        byte[] bytes = ip.GetAddressBytes();
+        return bytes[0] == 10 // 10.0.0.0/8
+            || (bytes[0] == 172 && bytes[1] >= 16 && bytes[1] <= 31) // 172.16.0.0/12
+            || (bytes[0] == 192 && bytes[1] == 168); // 192.168.0.0/16
     }
 }

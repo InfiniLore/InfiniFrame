@@ -193,7 +193,7 @@ public partial class InfiniFrameNative {
             string?[] values = new string?[count];
             Marshal.Copy(valuesPtr, ptrArray, 0, count);
             for (int i = 0; i < count; i++) {
-                values[i] = MarshalNativeToString(ptrArray[i]);
+                values[i] = ptrArray[i] != IntPtr.Zero ? MarshalNativeToString(ptrArray[i]) : null;
             }
 
             return values;

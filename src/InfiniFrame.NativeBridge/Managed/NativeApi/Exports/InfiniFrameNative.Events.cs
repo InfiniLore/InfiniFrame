@@ -26,7 +26,7 @@ public partial class InfiniFrameNative {
     /// <param name="instance">The native window instance handle.</param>
     /// <param name="callback">The closed delegate.</param>
     /// <returns>A status code indicating success or failure.</returns>
-    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_setClosedCallback", SetLastError = true)]
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetClosedCallback", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus SetClosedCallback(IntPtr instance, CppClosedDelegate callback);
 

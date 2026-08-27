@@ -147,6 +147,6 @@ If `SetBrowserControlInitParameters(...)` contains `--remote-debugging-port=...`
 
 ## See Also
 
-- [Browser Feature](browser-feature.md) — Browser engine settings and web security
-- [Window Features Architecture](window-features-architecture.md) — How the feature system works
-- [Core Window Guide](core-window.md) — Builder API and feature overview
+- [Browser Feature](browser-feature.md) Browser engine settings and web security
+- [Window Features Architecture](window-features-architecture.md) How the feature system works
+- [Core Window Guide](core-window.md) Builder API and feature overview

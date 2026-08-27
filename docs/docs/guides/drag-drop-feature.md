@@ -69,10 +69,10 @@ IReadOnlyList<string> extensions = window.Features.DragDrop.AllowedExtensions;
 ```
 
 :::note
-Drag and drop is a runtime-only feature. There is no builder configuration for it — you must enable it after `Build()`.
+Drag and drop is a runtime-only feature. There is no builder configuration for it you must enable it after `Build()`.
 :::
 
 ## See Also
 
-- [Window Features Architecture](window-features-architecture.md) — How the feature system works
-- [Core Window Guide](core-window.md) — Builder API and feature overview
+- [Window Features Architecture](window-features-architecture.md) How the feature system works
+- [Core Window Guide](core-window.md) Builder API and feature overview

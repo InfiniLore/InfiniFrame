@@ -108,6 +108,6 @@ All file picker methods return `null` if the user cancels the dialog.
 
 ## See Also
 
-- [Notifications](notifications.md) — Native notifications and message boxes
-- [Window Features Architecture](window-features-architecture.md) — How the feature system works
-- [Core Window Guide](core-window.md) — Builder API and feature overview
+- [Notifications](notifications.md) Native notifications and message boxes
+- [Window Features Architecture](window-features-architecture.md) How the feature system works
+- [Core Window Guide](core-window.md) Builder API and feature overview

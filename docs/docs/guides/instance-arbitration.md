@@ -71,5 +71,5 @@ Elevation detection is available for audit and logging purposes. The arbitration
 
 ## See Also
 
-- [Window Features Architecture](window-features-architecture.md) — How the feature system works
-- [Core Window Guide](core-window.md) — Builder API and feature overview
+- [Window Features Architecture](window-features-architecture.md) How the feature system works
+- [Core Window Guide](core-window.md) Builder API and feature overview

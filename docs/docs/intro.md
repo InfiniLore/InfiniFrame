@@ -8,10 +8,10 @@ InfiniFrame is a cross-platform .NET native window framework for building deskto
 
 ## Sections
 
-- [Getting Started](guides/getting-started.md) — Installation and first window
-- [Guides](guides/core-window.md) — Window builder, features, and integrations
-- [API Reference](api.md) — Central API navigation
-- [Migration Notes](migration/photino-breaking-changes.md) — Upgrading from Photino
+- [Getting Started](guides/getting-started.md) Installation and first window
+- [Guides](guides/core-window.md) Window builder, features, and integrations
+- [API Reference](api.md) Central API navigation
+- [Migration Notes](migration/photino-breaking-changes.md) Upgrading from Photino
 
 ## Window Features
 

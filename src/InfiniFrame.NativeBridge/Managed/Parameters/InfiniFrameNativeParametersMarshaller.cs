@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using InfiniFrame.NativeBridge.Delegates;
@@ -75,11 +76,11 @@ internal static class InfiniFrameNativeParametersMarshaller {
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     internal struct Unmanaged {
-        // ── Content strings ────────────────────────────────────────────
+        //  Content strings 
         internal IntPtr StartString;
         internal IntPtr StartUrl;
 
-        // ── Window identity / appearance strings ───────────────────────
+        //  Window identity / appearance strings 
         internal IntPtr Title;
         internal IntPtr WindowIconFile;
         internal IntPtr TemporaryFilesPath;
@@ -90,13 +91,13 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal IntPtr WindowsAppUserModelId;
         internal IntPtr DefaultNotificationIcon;
 
-        // ── Runtime configuration ──────────────────────────────────────
+        //  Runtime configuration 
         internal int RemoteDebuggingPort;
 
-        // ── Parent window ──────────────────────────────────────────────
+        //  Parent window 
         internal IntPtr NativeParent;
 
-        // ── Event callbacks ────────────────────────────────────────────
+        //  Event callbacks 
         internal IntPtr ClosingHandler;
         internal IntPtr ClosedHandler;
         internal IntPtr FocusInHandler;
@@ -109,7 +110,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal IntPtr WebMessageReceivedHandler;
         internal IntPtr DebugEventHandler;
 
-        // ── Custom scheme support ──────────────────────────────────────
+        //  Custom scheme support 
         internal IntPtr CustomSchemeNames0;
         internal IntPtr CustomSchemeNames1;
         internal IntPtr CustomSchemeNames2;
@@ -129,11 +130,11 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal IntPtr CustomSchemeHandler;
         internal IntPtr NavigationStartingHandler;
 
-        // ── Drag-and-drop ──────────────────────────────────────────────
+        //  Drag-and-drop 
         internal IntPtr DragDropHandler;
         internal byte DragDropEnabled;
 
-        // ── Window geometry ────────────────────────────────────────────
+        //  Window geometry 
         internal int Left;
         internal int Top;
         internal int Width;
@@ -144,7 +145,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal int MaxWidth;
         internal int MaxHeight;
 
-        // ── Behavior flags ─────────────────────────────────────────────
+        //  Behavior flags 
         internal byte CenterOnInitialize;
         internal byte Chromeless;
         internal byte Transparent;
@@ -171,30 +172,63 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal byte BrowserShortcutsEnabled;
         internal byte NotificationsEnabled;
 
-        // ── Background color (RGBA) ────────────────────────────────────
+        //  Background color (RGBA) 
         internal byte BackgroundColorR;
         internal byte BackgroundColorG;
         internal byte BackgroundColorB;
         internal byte BackgroundColorA;
 
-        // ── Menu ───────────────────────────────────────────────────────
+        //  Menu 
         internal IntPtr MenuBarJson;
 
-        // ── ABI version ────────────────────────────────────────────────
+        //  ABI version 
         internal int Size;
     }
 
     /// <summary>
     ///     Marshals managed <see cref="InfiniFrameNativeParameters" /> to the native <see cref="Unmanaged" /> layout.
     /// </summary>
+    [SuppressMessage("ReSharper", "NotAccessedField.Local")]
     internal ref struct ManagedToUnmanagedIn {
         private Unmanaged _unmanaged;
+
+        // Retained delegate references to prevent GC during native constructor call.
+        private Delegate? _closingHandler;
+        private Delegate? _closedHandler;
+        private Delegate? _focusInHandler;
+        private Delegate? _focusOutHandler;
+        private Delegate? _resizedHandler;
+        private Delegate? _maximizedHandler;
+        private Delegate? _restoredHandler;
+        private Delegate? _minimizedHandler;
+        private Delegate? _movedHandler;
+        private Delegate? _webMessageReceivedHandler;
+        private Delegate? _debugEventHandler;
+        private Delegate? _webResourceRequestedHandler;
+        private Delegate? _navigationStartingHandler;
+        private Delegate? _fileDroppedHandler;
 
         /// <summary>
         ///     Copies all values from the managed source into the unmanaged representation.
         /// </summary>
         /// <param name="managed">The managed parameters source.</param>
         public void FromManaged(InfiniFrameNativeParameters managed) {
+            // Retain delegate references to prevent GC during native constructor call.
+            _closingHandler = managed.ClosingHandler;
+            _closedHandler = managed.ClosedHandler;
+            _focusInHandler = managed.FocusInHandler;
+            _focusOutHandler = managed.FocusOutHandler;
+            _resizedHandler = managed.ResizedHandler;
+            _maximizedHandler = managed.MaximizedHandler;
+            _restoredHandler = managed.RestoredHandler;
+            _minimizedHandler = managed.MinimizedHandler;
+            _movedHandler = managed.MovedHandler;
+            _webMessageReceivedHandler = managed.WebMessageReceivedHandler;
+            _debugEventHandler = managed.DebugEventHandler;
+            _webResourceRequestedHandler = managed.CustomSchemeHandler;
+            _navigationStartingHandler = managed.NavigationStartingHandler;
+            _fileDroppedHandler = managed.FileDroppedHandler;
+
             _unmanaged = new Unmanaged {
                 // Content strings
                 StartString = ToUtf8Ptr(managed.StartString),
@@ -330,6 +364,22 @@ internal static class InfiniFrameNativeParametersMarshaller {
             Marshal.FreeCoTaskMem(_unmanaged.WindowsAppUserModelId);
             Marshal.FreeCoTaskMem(_unmanaged.DefaultNotificationIcon);
             Marshal.FreeCoTaskMem(_unmanaged.MenuBarJson);
+
+            // Release retained delegate references to allow GC.
+            _closingHandler = null;
+            _closedHandler = null;
+            _focusInHandler = null;
+            _focusOutHandler = null;
+            _resizedHandler = null;
+            _maximizedHandler = null;
+            _restoredHandler = null;
+            _minimizedHandler = null;
+            _movedHandler = null;
+            _webMessageReceivedHandler = null;
+            _debugEventHandler = null;
+            _webResourceRequestedHandler = null;
+            _navigationStartingHandler = null;
+            _fileDroppedHandler = null;
         }
     }
 }

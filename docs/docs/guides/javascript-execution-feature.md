@@ -87,6 +87,6 @@ JavaScript execution requires the window to be ready. Use `await window.WaitForR
 
 ## See Also
 
-- [JavaScript Interop](javascript-interop.md) — Two-way C#/JS messaging (vs one-way JS execution)
-- [Window Features Architecture](window-features-architecture.md) — How the feature system works
-- [Core Window Guide](core-window.md) — Builder API and feature overview
+- [JavaScript Interop](javascript-interop.md) Two-way C#/JS messaging (vs one-way JS execution)
+- [Window Features Architecture](window-features-architecture.md) How the feature system works
+- [Core Window Guide](core-window.md) Builder API and feature overview

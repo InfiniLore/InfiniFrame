@@ -52,7 +52,7 @@ await window.WaitForClosedCallbacksAsync();          // Wait for close callbacks
 await window.WaitForTeardownAsync();                 // Wait for full teardown
 ```
 
-`WaitForClose()` is the most common pattern — it blocks until the native window is fully destroyed and is typically the last call in your entry point:
+`WaitForClose()` is the most common pattern it blocks until the native window is fully destroyed and is typically the last call in your entry point:
 
 ```csharp
 var window = InfiniFrameWindowBuilder.Create()
@@ -178,6 +178,6 @@ builder.Events.WindowClosing.Add((window, cancel) => {
 
 ## See Also
 
-- [Invoke Feature](invoke-feature.md) — Cross-thread dispatch to the window's native thread
-- [Window Features Architecture](window-features-architecture.md) — How the feature system works
-- [Core Window Guide](core-window.md) — Builder API and feature overview
+- [Invoke Feature](invoke-feature.md) Cross-thread dispatch to the window's native thread
+- [Window Features Architecture](window-features-architecture.md) How the feature system works
+- [Core Window Guide](core-window.md) Builder API and feature overview

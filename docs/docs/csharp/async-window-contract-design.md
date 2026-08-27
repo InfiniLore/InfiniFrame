@@ -202,4 +202,4 @@ The following items are deferred and not yet implemented:
 - `BuildAsync` / hosted-STA window construction path (Windows caller-STA only; see lifecycle contract section above).
 - JavaScript reply envelope and `WebMessageReply` protocol (the acknowledgement envelope is shipped; JS-side reply routing is planned).
 - State async waits (`WaitForStateAsync`, `SetFullScreenAsync`, etc.) where native events are not yet reliable.
-- Native operation registry (`NativeOperationRegistry` abstraction) — currently the operation lifecycle is inline within each operation type.
+- Native operation registry (`NativeOperationRegistry` abstraction) currently the operation lifecycle is inline within each operation type.

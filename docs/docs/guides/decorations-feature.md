@@ -148,6 +148,6 @@ string? currentColor = window.Features.Decorations.BackgroundColor;
 
 ## See Also
 
-- [Custom Window Chrome](custom-window-chrome.md) — Blazor components and JS API for chromeless windows
-- [Window Features Architecture](window-features-architecture.md) — How the feature system works
-- [Core Window Guide](core-window.md) — Builder API and feature overview
+- [Custom Window Chrome](custom-window-chrome.md) Blazor components and JS API for chromeless windows
+- [Window Features Architecture](window-features-architecture.md) How the feature system works
+- [Core Window Guide](core-window.md) Builder API and feature overview

@@ -120,7 +120,7 @@ public class BrowserInfiniFrameWindowBuilderFeatureTests {
         await Assert.That(parameters.StatusBarEnabled).IsFalse();
         await Assert.That(parameters.BrowserShortcutsEnabled).IsFalse();
         await Assert.That(parameters.BrowserControlInitParameters).IsEqualTo("init-params");
-        await Assert.That(parameters.TemporaryFilesPath).IsEqualTo("/tmp/test");
-        await Assert.That(parameters.WebView2RuntimePath).IsEqualTo("/runtime/path");
+        await Assert.That(parameters.TemporaryFilesPath).IsEqualTo(Path.GetFullPath("/tmp/test"));
+        await Assert.That(parameters.WebView2RuntimePath).IsEqualTo(Path.GetFullPath("/runtime/path"));
     }
 }

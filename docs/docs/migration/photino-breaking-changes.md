@@ -5,8 +5,8 @@ It's not a drop-in replacement, and some API decisions and general design choice
 This document walks through what changed to help you migrate.
 
 For detailed documentation on the new feature-based API, see:
-- [Window Features Architecture](../guides/window-features-architecture.md) — How the feature system works
-- [Core Window Guide](../guides/core-window.md) — Builder API and feature overview
+- [Window Features Architecture](../guides/window-features-architecture.md) How the feature system works
+- [Core Window Guide](../guides/core-window.md) Builder API and feature overview
 - Individual feature guides under [Guides > Window Features](../guides/core-window.md)
 
 ## Table of Contents
@@ -292,7 +292,7 @@ var window = InfiniFrameWindowBuilder.Create()
     .Build();
 ```
 
-- **Builder-time configuration only** — like Photino's behavior, this is startup-only and cannot be changed at runtime.
+- **Builder-time configuration only** like Photino's behavior, this is startup-only and cannot be changed at runtime.
 - **Default is `true`** in the builder, `false` in the native layer.
 - **Platform-specific behavior**:
   - Windows: Passes `--ignore-certificate-errors` Chromium flag to WebView2
