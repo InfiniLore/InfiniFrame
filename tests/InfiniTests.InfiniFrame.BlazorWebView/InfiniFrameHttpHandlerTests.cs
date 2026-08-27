@@ -47,7 +47,7 @@ public class InfiniFrameHttpHandlerTests {
     public async Task SendAsync_WithHandledRequest_ShouldReturnStreamResponse(CancellationToken ct = default) {
         // Arrange
         Mock<IInfiniFrameWebViewManager> managerMock = MockFactory.CreateWebViewManagerMock();
-        var stream = new MemoryStream(new byte[] { 1, 2, 3 });
+        var stream = new MemoryStream([1, 2, 3]);
         managerMock.HandleWebRequest(Any<IInfiniFrameWindow?>(), Any<string?>()).Returns((stream, "text/plain"));
         var handler = new InfiniFrameHttpHandler(managerMock.Object, new HttpClientHandler());
         var httpClient = new HttpClient(handler);
@@ -81,7 +81,7 @@ public class InfiniFrameHttpHandlerTests {
     public async Task SendAsync_WithCancellationRequested_ShouldThrow(CancellationToken ct = default) {
         // Arrange
         Mock<IInfiniFrameWebViewManager> managerMock = MockFactory.CreateWebViewManagerMock();
-        var stream = new MemoryStream(new byte[] { 1, 2, 3 });
+        var stream = new MemoryStream([1, 2, 3]);
         managerMock.HandleWebRequest(Any<IInfiniFrameWindow?>(), Any<string?>()).Returns((stream, "text/plain"));
         var handler = new InfiniFrameHttpHandler(managerMock.Object, new HttpClientHandler());
         var httpClient = new HttpClient(handler);

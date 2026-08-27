@@ -30,7 +30,7 @@ internal static class WindowFeatureWebMessageRouter {
         = RegisteredDispatchers.ToDictionary(keySelector: dispatcher => dispatcher.FeatureName, StringComparer.OrdinalIgnoreCase);
 
     internal static IReadOnlyList<string> RegisteredFeatureNames
-        => RegisteredDispatchers.Select(dispatcher => dispatcher.FeatureName).ToArray();
+        => [.. RegisteredDispatchers.Select(dispatcher => dispatcher.FeatureName)];
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods

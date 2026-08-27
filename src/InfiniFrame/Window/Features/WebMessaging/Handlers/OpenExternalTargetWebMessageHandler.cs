@@ -37,6 +37,7 @@ public static class OpenExternalTargetWebMessageHandler {
         if (string.IsNullOrWhiteSpace(payload)) return;
 
         ILogger logger = window.ServiceProvider?.GetService(typeof(ILogger)) as ILogger ?? NullLogger.Instance;
+        IExternalProcessLauncher launcher = window.ServiceProvider?.GetService(typeof(IExternalProcessLauncher)) as IExternalProcessLauncher ?? new ExternalProcessLauncher();
 
         if (!Uri.TryCreate(payload, UriKind.Absolute, out Uri? uri) || !uri.IsAbsoluteUri) {
             logger.LogWarning("Rejected external URI due to parsing failure or non-absolute URI. Payload: {Payload}", payload);
@@ -63,7 +64,7 @@ public static class OpenExternalTargetWebMessageHandler {
                 UseShellExecute = true,
                 CreateNoWindow = true
             };
-            Process.Start(psi);
+            launcher.Start(psi);
         }
         catch (Win32Exception ex) {
             logger.LogError(ex, "Failed to open external URL: {Uri}", uri);

@@ -23,7 +23,7 @@ public class InfiniFrameRootComponentListTests {
         list.Add<TestComponent>("#app");
 
         // Assert
-        List<(Type, string)> items = list.ToList();
+        List<(Type, string)> items = [.. list];
         await Assert.That(items.Count).IsEqualTo(1);
         await Assert.That(items[0].Item1).IsEqualTo(typeof(TestComponent));
         await Assert.That(items[0].Item2).IsEqualTo("#app");
@@ -38,7 +38,7 @@ public class InfiniFrameRootComponentListTests {
         };
 
         // Assert
-        List<(Type, string)> items = list.ToList();
+        List<(Type, string)> items = [.. list];
         await Assert.That(items.Count).IsEqualTo(1);
         await Assert.That(items[0].Item1).IsEqualTo(typeof(TestComponent));
         await Assert.That(items[0].Item2).IsEqualTo("#root");
@@ -69,7 +69,7 @@ public class InfiniFrameRootComponentListTests {
         list.Add<OtherComponent>("#second");
 
         // Assert
-        List<(Type, string)> items = list.ToList();
+        List<(Type, string)> items = [.. list];
         await Assert.That(items.Count).IsEqualTo(2);
         await Assert.That(items[0].Item2).IsEqualTo("#first");
         await Assert.That(items[1].Item2).IsEqualTo("#second");

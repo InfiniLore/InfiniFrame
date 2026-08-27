@@ -26,7 +26,7 @@ public partial class InfiniFrameEvents {
         lock (config.ChildWindowsLock) {
             if (config.ChildWindowsInternal.Count <= 0) return;// No child windows to close
 
-            childWindows = config.ChildWindowsInternal.ToArray();
+            childWindows = [.. config.ChildWindowsInternal];
             config.ChildWindowsInternal.Clear();
         }
 

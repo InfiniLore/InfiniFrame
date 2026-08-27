@@ -36,12 +36,13 @@ public static class PlaywrightConnectionUtility {
             DateTimeOffset oldestValidReservation = now.AddHours(-6);
 
             List<(int Port, DateTimeOffset ReservedAt)> activeReservations = File.Exists(reservationFile)
-                ? File.ReadLines(reservationFile)
-                    .Select(ParsePortReservation)
-                    .Where(reservation => reservation.Port > 0 && reservation.ReservedAt >= oldestValidReservation)
-                    .ToList()
+                ? [
+                    .. File.ReadLines(reservationFile)
+                        .Select(ParsePortReservation)
+                        .Where(reservation => reservation.Port > 0 && reservation.ReservedAt >= oldestValidReservation)
+                ]
                 : [];
-            HashSet<int> reservedPorts = activeReservations.Select(static reservation => reservation.Port).ToHashSet();
+            HashSet<int> reservedPorts = [.. activeReservations.Select(static reservation => reservation.Port)];
 
             for (int attempt = 0; attempt < 100; attempt++) {
                 using TcpListener listener = new(IPAddress.Loopback, 0);

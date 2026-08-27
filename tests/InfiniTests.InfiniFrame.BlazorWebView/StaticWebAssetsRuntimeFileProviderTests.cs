@@ -337,10 +337,12 @@ public class StaticWebAssetsRuntimeFileProviderTests {
         IFileProvider? provider = StaticWebAssetsRuntimeFileProvider.TryCreate(fixture.BaseDirectory);
 
         // Act
-        Task<bool>[] tasks = Enumerable.Range(0, 256).Select(i => Task.Run(() => {
-            IFileInfo info = provider!.GetFileInfo($"_content/My.Package/nested/module-{i % 32}.js");
-            return info.Exists;
-        })).ToArray();
+        Task<bool>[] tasks = [
+            .. Enumerable.Range(0, 256).Select(i => Task.Run(() => {
+                IFileInfo info = provider!.GetFileInfo($"_content/My.Package/nested/module-{i % 32}.js");
+                return info.Exists;
+            }))
+        ];
 
         bool[] existsResults = await Task.WhenAll(tasks);
 

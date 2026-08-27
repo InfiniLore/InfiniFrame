@@ -144,7 +144,7 @@ public sealed class InfiniFrameWindow(
         lock (_diagnosticsLock) {
             return (
                 new DateTimeOffset(Volatile.Read(ref _lastLifecycleTransitionUtcTicks), TimeSpan.Zero),
-                _outstandingOperations.Values.OrderBy(value => value.StartedUtc).ToArray(),
+                [.. _outstandingOperations.Values.OrderBy(value => value.StartedUtc)],
                 _lastOperation
             );
         }

@@ -20,7 +20,7 @@ public class FileDroppedEventTests {
 
         eventsStore.FileDropped.Add((_, args) => receivedArgs = args);
 
-        string[] files = new[] { "/test/file.txt" };
+        string[] files = ["/test/file.txt"];
         var location = new Point(10, 20);
         var args = new FileDroppedEventArgs(files, location);
 

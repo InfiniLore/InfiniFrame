@@ -16,7 +16,7 @@ public class DragDropInfiniFrameWindowFeature(
     IInfiniFrameWindow window,
     ILogger<DragDropInfiniFrameWindowFeature> logger
 ) : IDragDropInfiniFrameWindowFeature {
-    private List<string> _allowedExtensions = new();
+    private List<string> _allowedExtensions = [];
 
     /// <inheritdoc cref="IDragDropInfiniFrameWindowFeature.IsEnabled" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -45,6 +45,6 @@ public class DragDropInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IDragDropInfiniFrameWindowFeature.SetAllowedExtensions" />
     public void SetAllowedExtensions(IReadOnlyList<string> extensions) {
-        _allowedExtensions = new List<string>(extensions);
+        _allowedExtensions = [.. extensions];
     }
 }

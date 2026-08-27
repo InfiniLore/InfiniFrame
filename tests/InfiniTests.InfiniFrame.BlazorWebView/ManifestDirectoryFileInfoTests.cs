@@ -84,7 +84,7 @@ public class ManifestDirectoryContentsTests {
 
         // Act
         var contents = new ManifestDirectoryContents(entries);
-        List<IFileInfo> result = contents.ToList();
+        List<IFileInfo> result = [.. contents];
 
         // Assert
         await Assert.That(result.Count).IsEqualTo(2);

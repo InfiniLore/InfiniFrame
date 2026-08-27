@@ -17,26 +17,27 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, s
     private const RegexOptions PatternRegexOptions = RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase;
     private readonly ConcurrentDictionary<string, Regex> _patternRegexCache = new(StringComparer.Ordinal);
 
-    private IFileProvider[] ContentRootProviders { get; } = contentRoots
-        .Select(IFileProvider (rootPath) => {
-            string normalizedRoot = rootPath;
-            if (!Path.IsPathRooted(normalizedRoot)) {
-                normalizedRoot = Path.GetFullPath(normalizedRoot);
-            }
-
-            if (!Directory.Exists(normalizedRoot) && Path.IsPathRooted(rootPath)) {
-                string? fallback = TryResolveRelativeContentRoot(baseDirectory, rootPath);
-                if (fallback is not null) {
-                    normalizedRoot = fallback;
+    private IFileProvider[] ContentRootProviders { get; } = [
+        .. contentRoots
+            .Select(IFileProvider (rootPath) => {
+                string normalizedRoot = rootPath;
+                if (!Path.IsPathRooted(normalizedRoot)) {
+                    normalizedRoot = Path.GetFullPath(normalizedRoot);
                 }
-            }
 
-            if (Directory.Exists(normalizedRoot)) return new PhysicalFileProvider(normalizedRoot);
-            if (embeddedAssembly is not null) return new EmbeddedFileProvider(embeddedAssembly, "publish");
+                if (!Directory.Exists(normalizedRoot) && Path.IsPathRooted(rootPath)) {
+                    string? fallback = TryResolveRelativeContentRoot(baseDirectory, rootPath);
+                    if (fallback is not null) {
+                        normalizedRoot = fallback;
+                    }
+                }
 
-            return new NullFileProvider();
-        })
-        .ToArray();
+                if (Directory.Exists(normalizedRoot)) return new PhysicalFileProvider(normalizedRoot);
+                if (embeddedAssembly is not null) return new EmbeddedFileProvider(embeddedAssembly, "publish");
+
+                return new NullFileProvider();
+            })
+    ];
 
     private StaticWebAssetNode Root { get; } = root;
 
@@ -126,9 +127,10 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, s
     public static IFileProvider? TryCreate(string baseDirectory, Assembly? embeddedAssembly = null) {
         if (string.IsNullOrWhiteSpace(baseDirectory)) return null;
 
-        ManifestCandidate[] candidates = GetManifestCandidates(baseDirectory)
-            .Concat(GetManifestCandidatesFromResources(embeddedAssembly))
-            .ToArray();
+        ManifestCandidate[] candidates = [
+            .. GetManifestCandidates(baseDirectory),
+            .. GetManifestCandidatesFromResources(embeddedAssembly)
+        ];
         if (candidates.Length == 0) return null;
 
         ScoredManifestCandidate? bestCandidate = null;
@@ -152,11 +154,12 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, s
         if (bestCandidate is null) return null;
 
         try {
-            string[] contentRoots = bestCandidate.Manifest.ContentRoots!
-                .Select(contentRoot => Path.IsPathRooted(contentRoot)
-                    ? contentRoot
-                    : Path.GetFullPath(Path.Join(baseDirectory, contentRoot)))
-                .ToArray();
+            string[] contentRoots = [
+                .. bestCandidate.Manifest.ContentRoots!
+                    .Select(contentRoot => Path.IsPathRooted(contentRoot)
+                        ? contentRoot
+                        : Path.GetFullPath(Path.Join(baseDirectory, contentRoot)))
+            ];
 
             return new StaticWebAssetsRuntimeFileProvider(baseDirectory, contentRoots, bestCandidate.Manifest.Root!, embeddedAssembly);
         }
@@ -292,7 +295,7 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, s
     private IDirectoryContents BuildDirectoryContents(StaticWebAssetNode node) {
         if (node.Children is null || node.Children.Count == 0) {
             if (node.Patterns is not null && node.Patterns.Count > 0) {
-                return new ManifestDirectoryContents(Array.Empty<IFileInfo>());
+                return new ManifestDirectoryContents([]);
             }
 
             return NotFoundDirectoryContents.Singleton;

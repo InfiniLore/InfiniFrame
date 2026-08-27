@@ -24,7 +24,7 @@ public class InfiniFrameWebViewManagerTests {
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
     public async Task HandleWebRequest_FragmentAndQueryAreExcludedFromLookup(CancellationToken ct = default) {
-        byte[] expected = "settings-page"u8.ToArray();
+        byte[] expected = [.. "settings-page"u8];
         var fileProvider = new RecordingFileProvider("index.html", expected);
         var builder = InfiniFrameWindowBuilder.Create();
         await using ServiceProvider provider = new ServiceCollection().AddLogging().BuildServiceProvider();
@@ -55,7 +55,7 @@ public class InfiniFrameWebViewManagerTests {
     [Arguments("app://other/index.html")]
     [Arguments("app://localhost:4242/index.html")]
     public async Task HandleWebRequest_MalformedOrUntrustedUrlIsRejected(string url, CancellationToken ct = default) {
-        var fileProvider = new RecordingFileProvider("index.html", "blocked"u8.ToArray());
+        var fileProvider = new RecordingFileProvider("index.html", [.. "blocked"u8]);
         await using ServiceProvider provider = new ServiceCollection().AddLogging().BuildServiceProvider();
         await using var manager = new TestableInfiniFrameWebViewManager(
             InfiniFrameWindowBuilder.Create(),
@@ -257,13 +257,14 @@ public class InfiniFrameWebViewManagerTests {
         TestableInfiniFrameWebViewManager manager = CreateManager(provider, new InfiniFrameBlazorAppConfiguration { WebMessageQueueCapacity = 8 });
 
         // Act
-        Task[] producers = Enumerable.Range(0, 8)
-            .Select(producer => Task.Run(action: () => {
-                for (int message = 0; message < 250; message++) {
-                    manager.SendMessageForTest($"{producer}-{message}");
-                }
-            }, ct))
-            .ToArray();
+        Task[] producers = [
+            .. Enumerable.Range(0, 8)
+                .Select(producer => Task.Run(action: () => {
+                    for (int message = 0; message < 250; message++) {
+                        manager.SendMessageForTest($"{producer}-{message}");
+                    }
+                }, ct))
+        ];
         Task disposeTask = manager.DisposeAsync().AsTask();
         await Task.WhenAll(producers);
         await disposeTask.WaitAsync(TimeSpan.FromSeconds(2), ct);

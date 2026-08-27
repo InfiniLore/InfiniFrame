@@ -76,7 +76,7 @@ public class CustomSchemeNameMemoryTests {
     [Test]
     public async Task Allocate_SixteenNames_AllPointersAreNonZero(CancellationToken ct = default) {
         // Arrange
-        string[] names = Enumerable.Range(0, 16).Select(i => $"scheme{i}").ToArray();
+        string[] names = [.. Enumerable.Range(0, 16).Select(i => $"scheme{i}")];
         IntPtr[] pointers = CustomSchemeNameMemory.Allocate(names);
 
         try {
@@ -95,7 +95,7 @@ public class CustomSchemeNameMemoryTests {
     [Test]
     public async Task Allocate_SixteenNames_EachPointerContainsCorrectAnsiString(CancellationToken ct = default) {
         // Arrange
-        string[] names = Enumerable.Range(0, 16).Select(i => $"scheme{i}").ToArray();
+        string[] names = [.. Enumerable.Range(0, 16).Select(i => $"scheme{i}")];
         IntPtr[] pointers = CustomSchemeNameMemory.Allocate(names);
 
         try {
@@ -113,7 +113,7 @@ public class CustomSchemeNameMemoryTests {
     [Test]
     public async Task Allocate_SeventeenNames_ThrowsInvalidOperationException(CancellationToken ct = default) {
         // Arrange
-        string[] names = Enumerable.Range(0, 17).Select(i => $"scheme{i}").ToArray();
+        string[] names = [.. Enumerable.Range(0, 17).Select(i => $"scheme{i}")];
 
         // Act & Assert
         await Assert.That(() => CustomSchemeNameMemory.Allocate(names))
@@ -123,7 +123,7 @@ public class CustomSchemeNameMemoryTests {
     [Test]
     public async Task Allocate_SeventeenNames_ExceptionMessageMentionsLimit(CancellationToken ct = default) {
         // Arrange
-        string[] names = Enumerable.Range(0, 17).Select(i => $"scheme{i}").ToArray();
+        string[] names = [.. Enumerable.Range(0, 17).Select(i => $"scheme{i}")];
 
         // Act & Assert
         await Assert.That(() => CustomSchemeNameMemory.Allocate(names))

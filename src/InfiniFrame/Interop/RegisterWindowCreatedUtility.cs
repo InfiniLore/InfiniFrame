@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.CompilerServices;
 using InfiniFrame.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame.Interop;
@@ -64,7 +63,7 @@ public static class RegisterWindowCreatedUtility {
                 windowState = state.Windows.GetOrCreateValue(window);
                 if (!windowState.StateMachine.TryBeginRegistrationSendOnReady()) return;
 
-                registrationMessages = state.RegistrationMessageIds.ToArray();
+                registrationMessages = [.. state.RegistrationMessageIds];
             }
 
             ILogger? logger = (ILogger?)window.ServiceProvider?.GetService(typeof(ILogger));

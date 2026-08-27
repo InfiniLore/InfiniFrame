@@ -21,21 +21,23 @@ public class NativeWindowHandleTests {
         using var owner = new TestOwner(value);
         int successfulAcquisitions = 0;
 
-        Task[] workers = Enumerable.Range(0, ConcurrentWorkerCount)
-            .Select(_ => Task.Run(action: () => {
-                for (int i = 0; i < 2_000; i++) {
-                    try {
-                        using NativeHandleLease lease = owner.AcquireNativeHandle();
-                        if (lease.Handle != value) throw new InvalidOperationException("Stale handle acquired.");
+        Task[] workers = [
+            .. Enumerable.Range(0, ConcurrentWorkerCount)
+                .Select(_ => Task.Run(action: () => {
+                    for (int i = 0; i < 2_000; i++) {
+                        try {
+                            using NativeHandleLease lease = owner.AcquireNativeHandle();
+                            if (lease.Handle != value) throw new InvalidOperationException("Stale handle acquired.");
 
-                        Interlocked.Increment(ref successfulAcquisitions);
-                        Thread.Yield();
+                            Interlocked.Increment(ref successfulAcquisitions);
+                            Thread.Yield();
+                        }
+                        catch (ObjectDisposedException) {
+                            return;
+                        }
                     }
-                    catch (ObjectDisposedException) {
-                        return;
-                    }
-                }
-            }, ct)).ToArray();
+                }, ct))
+        ];
 
         // Act
         await Task.Yield();

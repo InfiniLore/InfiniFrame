@@ -181,7 +181,7 @@ public class OrderedResultEventTests {
         var evt = new OrderedResultEvent<int, string>();
 
         // Assert
-        await Assert.That(evt.Snapshot.ToArray()).IsEmpty();
+        await Assert.That([.. evt.Snapshot]).IsEmpty();
     }
 
     [Test]

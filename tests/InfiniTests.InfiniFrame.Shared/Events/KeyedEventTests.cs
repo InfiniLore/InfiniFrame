@@ -223,7 +223,7 @@ public class KeyedEventTests {
         evt.Add("b", handler: (_, _) => {});
 
         // Act
-        List<KeyValuePair<string, Action<IInfiniFrameWindow, int>>> snapshot = evt.Snapshot.ToList();
+        List<KeyValuePair<string, Action<IInfiniFrameWindow, int>>> snapshot = [.. evt.Snapshot];
 
         // Assert
         await Assert.That(snapshot.Count).IsEqualTo(2);

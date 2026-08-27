@@ -18,7 +18,7 @@ public sealed class NativeWindowHandle : SafeHandleZeroOrMinusOneIsInvalid {
     }
 
     protected override bool ReleaseHandle() {
-        InfiniFrameNativeInteropStatus status = InfiniFrameNative.Destructor(handle);
+        InfiniFrameNative.Destructor(handle);
 
         // Always return true to prevent SafeHandle finalizer from retrying a doomed destructor.
         // Logging is not available in finalizer context; the destructor status is observable

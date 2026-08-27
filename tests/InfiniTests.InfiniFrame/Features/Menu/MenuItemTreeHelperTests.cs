@@ -49,10 +49,10 @@ public class MenuItemTreeHelperTests {
                 "menu",
                 "Menu",
                 InfiniFrameMenuItemType.Submenu,
-                Children: ImmutableArray.Create(
+                Children: [
                     new InfiniFrameMenuItem("item-a", "A"),
                     new InfiniFrameMenuItem("item-b", "B")
-                )
+                ]
             )
         );
 
