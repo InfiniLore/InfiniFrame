@@ -13,6 +13,10 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 namespace infiniframe::exports {
+    /// Execute a callable, catching all exceptions and translating them to an InteropStatus.
+    /// @tparam Fn Callable type.
+    /// @param fn The callable to execute.
+    /// @return InteropStatus::Success on success, or an error status on failure.
     template <typename Fn> InteropStatus RunExportStatus(Fn&& fn) noexcept {
         try {
             SetSuccess();
@@ -30,6 +34,11 @@ namespace infiniframe::exports {
         }
     }
 
+    /// Execute a callable that requires a valid window instance, with null-check and exception safety.
+    /// @tparam Fn Callable type.
+    /// @param instance Pointer to the window (must be non-null).
+    /// @param fn The callable receiving the validated window pointer.
+    /// @return InteropStatus::Success on success, or an error status on failure.
     template <typename Fn> InteropStatus RunWindowExportStatus(InfiniFrameWindow* instance, Fn&& fn) noexcept {
         return RunExportStatus(
             [&] {
@@ -41,6 +50,13 @@ namespace infiniframe::exports {
             });
     }
 
+    /// Execute a callable that returns a value, with window null-check and exception safety.
+    /// @tparam T Return type.
+    /// @tparam Fn Callable type.
+    /// @param instance Pointer to the window (must be non-null).
+    /// @param fallback Value returned on error.
+    /// @param fn The callable receiving the validated window pointer and returning T.
+    /// @return The value returned by @p fn, or @p fallback on error.
     template <typename T, typename Fn>
     T RunWindowReturnExport(InfiniFrameWindow* instance, T fallback, Fn&& fn) noexcept {
         try {
@@ -60,6 +76,12 @@ namespace infiniframe::exports {
         }
     }
 
+    /// Execute a callable that returns a value, with exception safety.
+    /// @tparam T Return type.
+    /// @tparam Fn Callable type.
+    /// @param fallback Value returned on error.
+    /// @param fn The callable returning T.
+    /// @return The value returned by @p fn, or @p fallback on error.
     template <typename T, typename Fn> T RunReturnExport(T fallback, Fn&& fn) noexcept {
         try {
             T value = std::forward<Fn>(fn)();

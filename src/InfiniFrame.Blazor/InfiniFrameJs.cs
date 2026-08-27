@@ -9,6 +9,9 @@ namespace InfiniFrame.Blazor;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Implementation of <see cref="IInfiniFrameJs"/> providing pointer capture interop for Blazor components.
+/// </summary>
 public class InfiniFrameJs(IJSRuntime jsRuntime, ILogger<InfiniFrameJs> logger) : IInfiniFrameJs {
     /// <inheritdoc cref="IInfiniFrameJs.SetPointerCaptureAsync" />
     public async Task SetPointerCaptureAsync(ElementReference elementReference, long pointerId, CancellationToken ct = default) {

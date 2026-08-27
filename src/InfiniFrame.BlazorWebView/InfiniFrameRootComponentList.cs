@@ -9,8 +9,14 @@ namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Manages the list of root Blazor components to render in the application.
+/// </summary>
 public class InfiniFrameRootComponentList : IInfiniFrameRootComponentList {
     private readonly List<(Type componentType, string domElementSelector)> _components = [];
+    /// <summary>
+    ///     Gets the JavaScript component configuration for the root component list.
+    /// </summary>
     public JSComponentConfigurationStore JSComponents { get; } = new();
 
     // -----------------------------------------------------------------------------------------------------------------

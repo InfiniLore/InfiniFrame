@@ -7,6 +7,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides native desktop notification and message box dialog capabilities.
+/// </summary>
 public interface INotificationsInfiniFrameWindowFeature {
     /// <summary>
     ///     Displays a notification with the specified title and body text.

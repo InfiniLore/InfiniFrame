@@ -9,6 +9,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Runtime feature implementation for dispatching callbacks to the native window thread, supporting both synchronous
+///     and asynchronous invocation with timeout and cancellation.
+/// </summary>
 public class InvokeInfiniFrameWindowFeature(
     IInfiniFrameWindow window,
     ILogger<InvokeInfiniFrameWindowFeature> logger

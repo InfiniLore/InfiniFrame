@@ -8,6 +8,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Configures developer tools and remote debugging settings before window creation.
+/// </summary>
 public interface IDebuggingInfiniFrameWindowBuilderFeature {
     /// <summary>
     ///     Gets whether the platform supports a remote debugging endpoint.

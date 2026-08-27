@@ -8,6 +8,9 @@ namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Manages the Blazor web view lifecycle and resource serving.
+/// </summary>
 public interface IInfiniFrameWebViewManager {
     /// <summary>
     ///     Gets the dispatcher associated with the WebView manager.

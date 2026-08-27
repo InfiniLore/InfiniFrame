@@ -1,3 +1,6 @@
+/**
+ * @file Blazor external bridge. Registers external link handling to open target='_blank' links in the default browser.
+ */
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
@@ -6,6 +9,14 @@ import type {BlazorCallback, InfiniFrameExternal, InfiniFrameSetup} from "../../
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Initializes the `window.external` bridge, wiring up Blazor message callbacks, send/receive helpers,
+ * and dispatching incoming host messages to all registered Blazor callbacks.
+ *
+ * @param setup - The setup guard that tracks which initializations have already been performed.
+ * @returns {void}
+ */
 export function initWindowExternalBridge(setup: InfiniFrameSetup): void {
     if (setup.windowExternalBridgeInitialized) return;
     setup.windowExternalBridgeInitialized = true;
@@ -47,6 +58,11 @@ export function initWindowExternalBridge(setup: InfiniFrameSetup): void {
     }
 }
 
+/**
+ * Ensures `window.external` exists, creating an empty object on it if it does not.
+ *
+ * @returns The {@link InfiniFrameExternal} object attached to `window.external`.
+ */
 function ensureWindowExternal(): InfiniFrameExternal {
     if (window.external) {
         return window.external as InfiniFrameExternal;

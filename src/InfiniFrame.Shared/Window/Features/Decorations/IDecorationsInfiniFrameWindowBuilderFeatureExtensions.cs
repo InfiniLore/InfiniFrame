@@ -5,6 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Fluent extension methods for <see cref="IDecorationsInfiniFrameWindowBuilderFeature"/> on <see cref="IInfiniFrameWindowBuilder"/>.
+/// </summary>
 public static class IDecorationsInfiniFrameWindowBuilderFeatureExtensions {
     /// <summary>
     ///     Sets whether the window should be chromeless.

@@ -267,7 +267,7 @@ app.Run();
 
 Combine with `InfiniLore.InfiniFrame.Blazor` for a fully custom title bar.
 
-See the [Custom Window Chrome Guide](custom-window-chrome.md) for details.
+See the [Custom Window Chrome Guide](custom-window-chrome.md) for details. For JavaScript interop and built-in message handlers, see the [JavaScript Interop Guide](javascript-interop.md).
 
 ## Examples
 

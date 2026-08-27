@@ -2,6 +2,8 @@
 
 This guide covers single-instance enforcement and elevation-aware arbitration for InfiniFrame applications.
 
+Instance arbitration is a builder-only window feature. For an overview of the feature system, see [Window Features Architecture](window-features-architecture.md).
+
 ## Contents
 
 - [Overview](#overview)
@@ -26,7 +28,7 @@ using InfiniFrame;
 IInfiniFrameWindow window = InfiniFrameWindowBuilder.Create()
     .SetInstanceArbitrationMode(InstanceArbitrationMode.PrimaryOnly)
     .SetInstanceArbitrationMutexName("MyApp.SingleInstance")
-    .SetStartUrl("https://example.com")
+    .SetStartPageUrl("https://example.com")
     .Build();
 window.WaitForClose();
 ```
@@ -66,3 +68,8 @@ Elevation detection is available for audit and logging purposes. The arbitration
 > **Linux:** Named mutexes are supported via file-based synchronization. Elevation detection checks `getuid() == 0`.
 
 > **macOS:** Named mutexes are supported via file-based synchronization. Elevation detection checks `getuid() == 0`.
+
+## See Also
+
+- [Window Features Architecture](window-features-architecture.md) — How the feature system works
+- [Core Window Guide](core-window.md) — Builder API and feature overview

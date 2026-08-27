@@ -6,9 +6,15 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+
+/// Icon displayed in a native message dialog.
 enum class DialogIcon {
+    /// Informational icon.
     Info,
+    /// Warning icon.
     Warning,
+    /// Error / critical icon.
     Error,
+    /// Question icon.
     Question,
 };

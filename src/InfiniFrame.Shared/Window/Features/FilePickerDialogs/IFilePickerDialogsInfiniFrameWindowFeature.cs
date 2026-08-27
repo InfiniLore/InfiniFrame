@@ -5,6 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides native OS file and folder picker dialogs.
+/// </summary>
 public interface IFilePickerDialogsInfiniFrameWindowFeature {
     /// <summary>
     ///     Shows an open file dialog and returns the selected file paths.

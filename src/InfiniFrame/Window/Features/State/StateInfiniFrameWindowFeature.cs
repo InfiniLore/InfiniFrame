@@ -12,6 +12,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Runtime feature implementation for querying and modifying window state including full screen, maximize,
+///     minimize, topmost, focus, and zoom.
+/// </summary>
 public class StateInfiniFrameWindowFeature(
     IInfiniFrameWindow window,
     ILogger<StateInfiniFrameWindowFeature> logger

@@ -1,3 +1,10 @@
+/**
+ * JavaScript execution feature. Allows the C# host to request evaluation of
+ * arbitrary JavaScript expressions in the browser context and receive the result.
+ *
+ * @module JavaScriptInfiniFrameWindowFeature
+ */
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
@@ -9,6 +16,12 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 const pendingEvals = new Map<string, { resolve: (value: string | null) => void, reject: (reason: Error) => void }>();
 let evalCounter = 0;
 
+/**
+ * Handles an incoming JavaScript eval request from the C# host. Executes the script
+ * using `new Function` and sends the result back via the messaging bridge.
+ *
+ * @param payload - The eval request payload containing `requestId` and `script`.
+ */
 export function handleJavaScriptEvalRequest(payload: unknown) {
     if (!payload || typeof payload !== "object") return;
     const {requestId, script} = payload as { requestId?: string, script?: string };
@@ -30,6 +43,12 @@ export function handleJavaScriptEvalRequest(payload: unknown) {
     }
 }
 
+/**
+ * Handles the response to a previously issued JavaScript eval request. Resolves or
+ * rejects the pending promise associated with the request ID.
+ *
+ * @param payload - The eval response payload containing `requestId`, `result`, and optionally `error`.
+ */
 export function handleJavaScriptEvalResponse(payload: unknown) {
     if (!payload || typeof payload !== "object") return;
     const {requestId, result, error} = payload as { requestId?: string, result?: string | null, error?: string };
@@ -44,11 +63,25 @@ export function handleJavaScriptEvalResponse(payload: unknown) {
     }
 }
 
+/**
+ * Provides JavaScript execution capabilities in the browser context, enabling the
+ * C# host to evaluate arbitrary scripts and retrieve results.
+ */
 export class JavaScriptInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
+    /**
+     * Creates a new JavaScript feature instance.
+     */
     constructor() {
         super("javaScript");
     }
 
+    /**
+     * Evaluates a JavaScript expression in the browser context and returns the result.
+     *
+     * @param script - The JavaScript expression to evaluate.
+     * @returns A promise that resolves to the JSON-serialized result string, or `null`
+     * if the expression returns `undefined`.
+     */
     evalAsync(script: string): Promise<string | null> {
         return new Promise<string | null>((resolve, reject) => {
             const requestId = `ts_eval_${++evalCounter}`;

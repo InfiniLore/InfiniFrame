@@ -8,6 +8,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+
+/// Allocate a new null-terminated C string copy of @p str. Caller owns the result.
+/// @param str The source string to copy.
+/// @return Pointer to the newly allocated string, or nullptr if empty on some platforms.
 inline char* AllocateStringCopy(const std::string& str) {
     const size_t len = str.length();
     auto* copy = new char[len + 1];

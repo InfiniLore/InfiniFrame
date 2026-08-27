@@ -5,6 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides information about connected displays including work area, DPI, and monitor enumeration.
+/// </summary>
 public interface IMonitorsInfiniFrameWindowFeature {
     /// <summary>
     ///     Gets all available monitors.

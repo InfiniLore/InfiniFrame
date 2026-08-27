@@ -1,3 +1,8 @@
+/**
+ * Low-level messaging bridge between JavaScript and the native host window. Handles sending/receiving messages via the WebView2/WebKit postMessage API.
+ * @module InfiniFrameHostMessaging
+ */
+
 // ---------------------------------------------------------------------------------------------------------------------
 import type {
     InfiniFrameHostMessaging as InfiniFrameHostMessagingContract,
@@ -23,9 +28,20 @@ import {
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Provides the messaging transport layer for communicating with the C# host.
+ *
+ * Wraps the WebView2/WebKit postMessage API and exposes a typed request/response
+ * pattern on top of it. Incoming messages are dispatched to registered handlers
+ * keyed by message ID.
+ */
 class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
     private static readonly BlazorWebViewMessagePrefix = "__bwv:";
+
+    /** Resolves when the host acknowledges the ready handshake. */
     public readonly ready: Promise<void>;
+
     private messageHandlers: Map<string, MessageCallback> = new Map();
     private openExternalRegistered = false;
     private fullscreenRegistered = false;
@@ -34,6 +50,13 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
     private readyHandshakeAcknowledged = false;
     private resolveReady!: () => void;
 
+    /**
+     * Initialises the messaging layer.
+     *
+     * Sets up the web-message receiver, registers built-in message handlers
+     * for host-initiated features (open-external, fullscreen, title, window-close),
+     * and fires the ready handshake.
+     */
     constructor() {
         this.ready = new Promise<void>(resolve => {
             this.resolveReady = resolve;
@@ -94,10 +117,19 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
         this.sendReadyHandshake();
     }
 
+    /**
+     * Whether the ready handshake with the host has been acknowledged.
+     * @returns `true` if the host has responded with a readyAck message.
+     */
     public get isReady(): boolean {
         return this.readyHandshakeAcknowledged;
     }
 
+    /**
+     * Sends a message to the host window via the postMessage bridge.
+     * @param id - The message identifier (one of {@link SendToHostMessageIds} or an arbitrary string).
+     * @param data - Optional payload to include with the message.
+     */
     public sendMessageToHost(id: SendToHostMessageId | string, data?: unknown) {
         const envelope = createEnvelope(id, data);
 
@@ -109,6 +141,12 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
         }
     }
 
+    /**
+     * Retrieves a raw response string from the host for a given interop envelope.
+     * @param message - An {@link InteropEnvelopeV1} envelope or a message-id string.
+     * @returns A promise that resolves with the raw response string from the host.
+     * @throws If the host `getDataAsync` API is not initialised.
+     */
     public async getMessageFromHostRawAsync(message: InteropEnvelopeV1 | string): Promise<string> {
         const host = window.infiniframe?.host;
         if (!host?.getDataAsync) throw new Error("Message to host failed. Host getDataAsync API is not initialized.");
@@ -120,6 +158,13 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
         return await host.getDataAsync(envelope);
     }
 
+    /**
+     * Convenience wrapper that builds a GET envelope from a command name and
+     * optional arguments, then retrieves the response from the host.
+     * @param command - The interop command identifier.
+     * @param args - Optional arguments serialised into the request envelope.
+     * @returns A promise that resolves with the response string from the host.
+     */
     public async getMessageFromHostAsync(command: string, args?: any): Promise<string> {
         try {
             return await window.infiniframe.messaging.getMessageFromHostRawAsync(
@@ -131,10 +176,20 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
         }
     }
 
+    /**
+     * Registers a callback that will be invoked when a message with the given
+     * identifier arrives from the host.
+     * @param messageId - The message identifier to listen for.
+     * @param callback - Handler that receives the optional message payload.
+     */
     public assignMessageReceivedHandler(messageId: string, callback: MessageCallback) {
         this.messageHandlers.set(messageId, callback);
     }
 
+    /**
+     * Removes a previously registered message handler.
+     * @param messageId - The message identifier whose handler should be removed.
+     */
     public unregisterMessageReceivedHandler(messageId: string) {
         this.messageHandlers.delete(messageId);
     }

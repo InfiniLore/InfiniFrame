@@ -29,11 +29,17 @@ public sealed class NativeHandleLease : IDisposable {
         }
     }
 
+    /// <summary>
+    ///     Gets the raw native window handle pointer.
+    /// </summary>
     public IntPtr Handle { get; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
+    /// <summary>
+    ///     Releases the reference to the underlying native handle.
+    /// </summary>
     public void Dispose() {
         NativeWindowHandle? handle = Interlocked.Exchange(ref _handle, null);
         handle?.DangerousRelease();

@@ -5,6 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Fluent extension methods for <see cref="IBrowserInfiniFrameWindowFeature" /> on <see cref="IInfiniFrameWindow" />.
+/// </summary>
 public static class IBrowserInfiniFrameWindowFeatureExtensions {
     /// <summary>
     ///     Enables or disables the status bar (URL hover indicator) for the window.

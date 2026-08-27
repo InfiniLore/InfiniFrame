@@ -7,6 +7,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides runtime control over window dimensions, minimum/maximum constraints, and resizability.
+/// </summary>
 public interface ISizeInfiniFrameWindowFeature {
     /// <summary>
     ///     Gets the current size of the window.

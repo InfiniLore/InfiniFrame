@@ -12,6 +12,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     The concrete implementation of <see cref="IInfiniFrameWindow"/> that wraps the native window handle.
+/// </summary>
 public sealed class InfiniFrameWindow(
     ILogger<InfiniFrameWindow> logger,
     IInfiniFrameEvents events,
@@ -38,6 +41,9 @@ public sealed class InfiniFrameWindow(
     /// <inheritdoc cref="IInfiniFrameWindow.MainProgramHandle" />
     public IntPtr MainProgramHandle => LazyMainProgramHandle.Value;
 
+    /// <summary>
+    ///     Gets the current lifecycle state of the window.
+    /// </summary>
     public InfiniFrameWindowLifecycleState LifecycleState
         => (InfiniFrameWindowLifecycleState)Volatile.Read(ref _lifecycleState);
 

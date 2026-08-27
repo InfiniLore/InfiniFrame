@@ -10,6 +10,10 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
+/// @brief Synchronously dispatches a callback to the window's native thread.
+/// @param instance The window handle.
+/// @param callback Action to execute on the native thread.
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_Invoke(InfiniFrameWindow* instance, const ACTION callback) {
 #ifdef __linux__
     (void)instance;
@@ -33,6 +37,14 @@ EXPORTED InteropStatus InfiniFrameNative_Invoke(InfiniFrameWindow* instance, con
 #endif
 }
 
+/// @brief Begins an async dispatch to the window's native thread with completion callback.
+/// @param instance The window handle.
+/// @param operationId Non-zero identifier for this async operation.
+/// @param callback Context action to execute on the native thread.
+/// @param callbackContext User-defined context passed to the callback.
+/// @param completion Callback invoked when the dispatch completes.
+/// @param completionContext User-defined context passed to the completion callback.
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_BeginInvoke(
     InfiniFrameWindow* instance,
     const uint64_t operationId,
@@ -54,6 +66,11 @@ EXPORTED InteropStatus InfiniFrameNative_BeginInvoke(
         });
 }
 
+/// @brief Cancels a pending async operation.
+/// @param instance The window handle.
+/// @param operationId Non-zero identifier of the operation to cancel.
+/// @param result Cancellation result code (TimedOut, Cancelled, or WindowClosed).
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_CancelOperation(
     InfiniFrameWindow* instance,
     const uint64_t operationId,

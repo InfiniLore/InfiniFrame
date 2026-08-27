@@ -8,6 +8,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Builder feature implementation for configuring initial window dimensions including size, min/max constraints,
+///     and resizability.
+/// </summary>
 public class SizeInfiniFrameWindowBuilderFeature : ISizeInfiniFrameWindowBuilderFeature {
     /// <inheritdoc cref="ISizeInfiniFrameWindowBuilderFeature.Height" />
     public int Height { get; private set; }

@@ -5,6 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides runtime control over browser engine settings including context menu, media autoplay, web security, clipboard access, user agent, and status bar.
+/// </summary>
 public interface IBrowserInfiniFrameWindowFeature {
     /// <summary>
     ///     Gets whether the context menu is enabled.

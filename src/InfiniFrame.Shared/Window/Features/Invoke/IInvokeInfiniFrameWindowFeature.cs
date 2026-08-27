@@ -5,6 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Dispatches work to the native window thread for cross-thread invocation.
+/// </summary>
 public interface IInvokeInfiniFrameWindowFeature {
     /// <summary>
     ///     Invokes the specified callback on the native window thread.

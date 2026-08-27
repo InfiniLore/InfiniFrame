@@ -5,6 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Fluent extension methods for <see cref="INotificationsInfiniFrameWindowBuilderFeature"/> on <see cref="IInfiniFrameWindowBuilder"/>.
+/// </summary>
 public static class INotificationsInfiniFrameWindowBuilderFeatureExtensions {
     /// <summary>
     ///     Enables or disables notifications for the window and returns the builder for chaining.

@@ -12,6 +12,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Runtime feature implementation for querying and modifying window position, including centering, offsetting,
+///     and constraining within monitor work areas.
+/// </summary>
 public class PositionInfiniFrameWindowFeature(
     IInfiniFrameWindow window,
     ILogger<PositionInfiniFrameWindowFeature> logger

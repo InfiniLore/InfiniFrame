@@ -6,6 +6,9 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
+/// @brief Frees a string allocated by the native layer.
+/// @param value Pointer to the string to free.
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_FreeString(const char* value) {
     return RunExportStatus(
         [&] {
@@ -15,6 +18,10 @@ EXPORTED InteropStatus InfiniFrameNative_FreeString(const char* value) {
         });
 }
 
+/// @brief Frees a string array allocated by the native layer.
+/// @param values Pointer to the string array to free.
+/// @param count Number of elements in the array.
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_FreeStringArray(const char** values, const int count) {
     return RunExportStatus(
         [&] {
@@ -31,7 +38,9 @@ EXPORTED InteropStatus InfiniFrameNative_FreeStringArray(const char** values, co
         });
 }
 
+/// @brief Gets the last error message.
 /// @param[out] value Owned string, caller must free with InfiniFrameNative_FreeString.
+/// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_GetLastErrorMessage(const char** value) {
     // Must NOT go through RunExportStatus, that helper calls SetSuccess() first, which would wipe g_lastErrorMessage 
     // before we can read it.

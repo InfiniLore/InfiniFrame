@@ -12,6 +12,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Runtime feature implementation for querying and controlling debug settings, remote debugging endpoints,
+///     and diagnostic information.
+/// </summary>
 public sealed class DebuggingInfiniFrameWindowFeature(
     IInfiniFrameWindow window,
     ILogger<DebuggingInfiniFrameWindowFeature> logger

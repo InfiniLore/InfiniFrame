@@ -7,6 +7,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Fluent extension methods for <see cref="IPositionInfiniFrameWindowBuilderFeature"/> on <see cref="IInfiniFrameWindowBuilder"/>.
+/// </summary>
 public static class IPositionInfiniFrameWindowBuilderFeatureExtensions {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods

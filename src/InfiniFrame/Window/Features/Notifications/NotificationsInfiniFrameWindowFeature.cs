@@ -11,13 +11,23 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Runtime feature implementation for showing desktop notifications and native message dialogs, including synchronous
+///     and asynchronous variants.
+/// </summary>
 public class NotificationsInfiniFrameWindowFeature(
     IInfiniFrameWindow window,
     ILogger<NotificationsInfiniFrameWindowFeature> logger
 ) : INotificationsInfiniFrameWindowFeature {
 
+    /// <summary>
+    ///     Gets the notification registration identifier from the window's startup parameters.
+    /// </summary>
     public string? NotificationRegistrationId => window.Configuration.StartupParameters.NotificationRegistrationId;
 
+    /// <summary>
+    ///     Gets whether desktop notifications are enabled for this window.
+    /// </summary>
     [SupportedOSPlatform("windows")]
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool NotificationsEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(

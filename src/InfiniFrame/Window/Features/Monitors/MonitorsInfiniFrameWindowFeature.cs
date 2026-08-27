@@ -9,6 +9,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Runtime feature implementation for querying connected monitors, retrieving the main monitor, and obtaining
+///     screen DPI information.
+/// </summary>
 public class MonitorsInfiniFrameWindowFeature(
     IInfiniFrameWindow window,
     ILogger<MonitorsInfiniFrameWindowFeature> logger

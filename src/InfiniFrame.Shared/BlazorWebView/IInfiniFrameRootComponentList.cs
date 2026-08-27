@@ -8,6 +8,9 @@ namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Manages the list of root Blazor components to render.
+/// </summary>
 public interface IInfiniFrameRootComponentList : IEnumerable<(Type, string)>, IJSComponentConfiguration {
     /// <summary>
     ///     Adds a root component of type <typeparamref name="TComponent" /> at the specified CSS selector.

@@ -1,3 +1,6 @@
+/**
+ * @file Blazor fetch patch. Intercepts fetch() calls to route Blazor framework requests through the native host.
+ */
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
@@ -15,6 +18,13 @@ const BLAZOR_MODULES_URLS = new Set([
     "app://localhost/_framework/blazor.modules.json/",
 ]);
 
+/**
+ * Patches the global `fetch` function so that requests for `blazor.modules.json` (used by the Blazor module loader)
+ * are short-circuited with an empty JSON array response, preventing the browser from attempting a real network fetch.
+ *
+ * @param setup - The setup guard that tracks which initializations have already been performed.
+ * @returns {void}
+ */
 export function initBlazorModulesFetchPatch(setup: InfiniFrameSetup): void {
     if (setup.blazorModulesFetchPatchInitialized) return;
     setup.blazorModulesFetchPatchInitialized = true;

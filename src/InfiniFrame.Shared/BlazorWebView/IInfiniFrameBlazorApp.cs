@@ -5,6 +5,9 @@ namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Represents a running Blazor application hosted in an InfiniFrame native window.
+/// </summary>
 public interface IInfiniFrameBlazorApp : IAsyncDisposable {
     /// <summary>
     ///     Asynchronously runs the Blazor application and waits for the window to close.

@@ -11,12 +11,21 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Runtime feature implementation for executing JavaScript in the native WebView, supporting both fire-and-forget
+///     evaluation and request/response patterns with result deserialization.
+/// </summary>
 public class JavaScriptInfiniFrameWindowFeature : IJavaScriptInfiniFrameWindowFeature {
     private readonly ConcurrentDictionary<string, TaskCompletionSource<string?>> _pendingEvals = new();
     private readonly ILogger<JavaScriptInfiniFrameWindowFeature> logger;
     private readonly IInfiniFrameWindow window;
     private long _nextRequestId;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="JavaScriptInfiniFrameWindowFeature"/> class.
+    /// </summary>
+    /// <param name="window">The window instance to execute JavaScript in.</param>
+    /// <param name="logger">The logger instance.</param>
     public JavaScriptInfiniFrameWindowFeature(
         IInfiniFrameWindow window,
         ILogger<JavaScriptInfiniFrameWindowFeature> logger

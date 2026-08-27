@@ -8,6 +8,9 @@ namespace InfiniFrame.WebServer;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Builder for creating an ASP.NET Core web application with a native InfiniFrame window.
+/// </summary>
 public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilder {
     /// <inheritdoc cref="IInfiniFrameWebApplicationBuilder.WebApp" />
     public required WebApplicationBuilder WebApp { get; init; }
@@ -44,6 +47,10 @@ public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilde
         return this;
     }
 
+    /// <summary>
+    ///     Builds the web application and native window, returning an <see cref="InfiniFrameWebApplication"/>.
+    /// </summary>
+    /// <returns>The built <see cref="InfiniFrameWebApplication"/>.</returns>
     public InfiniFrameWebApplication Build() {
         WebApplication webApp = WebApp.Build();
 

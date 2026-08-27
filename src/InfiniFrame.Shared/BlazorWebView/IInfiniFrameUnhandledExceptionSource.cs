@@ -5,6 +5,9 @@ namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides a channel for unhandled exceptions from the Blazor web view.
+/// </summary>
 public interface IInfiniFrameUnhandledExceptionSource {
     /// <summary>
     ///     Registers a handler for unhandled exceptions.

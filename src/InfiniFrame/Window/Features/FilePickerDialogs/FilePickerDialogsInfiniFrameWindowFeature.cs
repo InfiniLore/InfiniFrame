@@ -8,6 +8,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Runtime feature implementation for showing native file and folder open/save dialogs, including synchronous and
+///     asynchronous variants with cancellation support.
+/// </summary>
 public class FilePickerDialogsInfiniFrameWindowFeature(
     IInfiniFrameWindow window,
     ILogger<FilePickerDialogsInfiniFrameWindowFeature> logger

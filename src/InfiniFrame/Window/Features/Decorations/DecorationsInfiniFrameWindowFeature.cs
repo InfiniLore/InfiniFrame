@@ -10,6 +10,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Runtime feature implementation for querying and modifying window decorations including title, transparency,
+///     background color, and icon at runtime.
+/// </summary>
 public class DecorationsInfiniFrameWindowFeature(
     IInfiniFrameWindow window,
     IInfiniFrameWindowBuilder originalBuilder,

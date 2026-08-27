@@ -10,6 +10,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Runtime feature implementation for querying and controlling browser settings such as context menu, media autoplay,
+///     user agent, and WebView2 options.
+/// </summary>
 public class BrowserInfiniFrameWindowFeature(
     IInfiniFrameWindow window,
     ILogger<BrowserInfiniFrameWindowFeature> logger

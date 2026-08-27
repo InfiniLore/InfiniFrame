@@ -5,6 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Fluent extension methods for <see cref="IBrowserInfiniFrameWindowBuilderFeature"/> on <see cref="IInfiniFrameWindowBuilder"/>.
+/// </summary>
 public static class IBrowserInfiniFrameWindowBuilderFeatureExtensions {
     /// <summary>
     ///     Enables or disables the context menu for the builder.

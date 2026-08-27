@@ -123,9 +123,9 @@ they are independent integration paths
 | Example                                                     | What it demonstrates                                        |
 |-------------------------------------------------------------|-------------------------------------------------------------|
 | [BlazorWebView](examples/InfiniFrameExample.BlazorWebView/) | Basic Blazor app in a native window                         |
-| [WebApp.Blazor](examples/InfiniFrameExample.WebApp.Blazor/) | Blazor Server hosted via ASP.NET Core                       |
-| [WebApp.React](examples/InfiniFrameExample.WebApp.React/)   | React frontend with custom scheme handler and web messaging |
-| [WebApp.Vue](examples/InfiniFrameExample.WebApp.Vue/)       | Vue.js frontend with all built-in JS message handlers       |
+| [WebApp.Blazor](examples/WebApp/InfiniFrameExample.WebApp.Blazor/) | Blazor Server hosted via ASP.NET Core                       |
+| [WebApp.React](examples/WebApp/InfiniFrameExample.WebApp.React/)   | React frontend with custom scheme handler and web messaging |
+| [WebApp.Vue](examples/WebApp/InfiniFrameExample.WebApp.Vue/)       | Vue.js frontend with all built-in JS message handlers       |
 
 ## Single-File Executable Packing
 

@@ -5,6 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides runtime control over window decorations including title, icon, chromeless mode, transparency, and background color.
+/// </summary>
 public interface IDecorationsInfiniFrameWindowFeature {
     /// <summary>
     ///     Gets whether the window is chromeless (no title bar or borders).

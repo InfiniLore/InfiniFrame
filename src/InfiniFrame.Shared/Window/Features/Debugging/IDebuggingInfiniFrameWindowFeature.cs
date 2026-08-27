@@ -8,6 +8,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides runtime diagnostics, dev tools control, and remote debugging endpoint management.
+/// </summary>
 public interface IDebuggingInfiniFrameWindowFeature {
     /// <summary>
     ///     Gets whether developer tools are enabled.

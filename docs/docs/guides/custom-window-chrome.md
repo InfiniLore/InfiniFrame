@@ -1,6 +1,6 @@
 # Custom Window Chrome Guide
 
-`InfiniLore.InfiniFrame.Blazor` provides pre-built Razor components for building custom window title bars and resize handles, typically used together with a chromeless window. For non-Blazor apps (React, Vue, plain HTML), a JavaScript API is also available — see [JavaScript Window Chrome API](#javascript-window-chrome-api).
+`InfiniLore.InfiniFrame.Blazor` provides pre-built Razor components for building custom window title bars and resize handles, typically used together with a chromeless window. Chromeless mode is a [Decorations feature](decorations-feature.md) setting. For non-Blazor apps (React, Vue, plain HTML), a JavaScript API is also available — see [JavaScript Window Chrome API](#javascript-window-chrome-api).
 
 ## Contents
 
@@ -425,3 +425,9 @@ window.infiniframe.windowChrome.unregister();
 - **macOS**: Traffic light-style buttons are supported via CSS (see Blazor component styles for reference).
 - **Linux**: Uses Unicode symbols. Title length may be limited by the window manager.
 - **All platforms**: The JS API uses the same native window management APIs as the Blazor components, ensuring consistent behavior across platforms.
+
+## See Also
+
+- [Decorations Feature](decorations-feature.md) — Chromeless mode and transparency settings
+- [Window Features Architecture](window-features-architecture.md) — How the feature system works
+- [Core Window Guide](core-window.md) — Builder API and feature overview

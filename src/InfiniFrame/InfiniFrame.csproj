@@ -3,6 +3,7 @@
     <PropertyGroup>
         <PackageId>InfiniLore.InfiniFrame</PackageId>
         <OutputType>Library</OutputType>
+        <Description>Cross-platform .NET native window framework. Create desktop applications with web technologies (HTML/CSS/JS) using WebView2 on Windows, WebKitGTK on Linux, and WKWebView on macOS.</Description>
     </PropertyGroup>
 
     <ItemGroup>

@@ -5,6 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides the web messaging channel for sending and receiving messages between C# and JavaScript.
+/// </summary>
 public interface IWebMessagingInfiniFrameWindowFeature {
     /// <summary>
     ///     Sends a message to the native window's browser control JavaScript context.
@@ -23,5 +26,8 @@ public interface IWebMessagingInfiniFrameWindowFeature {
     /// <summary>
     ///     Sends an InfiniFrame envelope and waits until the JavaScript message router acknowledges receipt.
     /// </summary>
+    /// <param name="message">The message to send as a string.</param>
+    /// <param name="ct">A cancellation token to cancel the operation.</param>
+    /// <returns>A <see cref="Task" /> that completes when the message has been acknowledged.</returns>
     Task SendWebMessageWithAcknowledgementAsync(string message, CancellationToken ct = default);
 }

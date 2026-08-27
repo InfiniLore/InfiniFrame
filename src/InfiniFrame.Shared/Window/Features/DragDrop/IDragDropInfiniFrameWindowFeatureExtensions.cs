@@ -7,6 +7,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Fluent extension methods for <see cref="IDragDropInfiniFrameWindowFeature"/> on <see cref="IInfiniFrameWindow"/>.
+/// </summary>
 public static class IDragDropInfiniFrameWindowFeatureExtensions {
     /// <summary>
     ///     Enables drag and drop with default settings and returns the window for chaining.

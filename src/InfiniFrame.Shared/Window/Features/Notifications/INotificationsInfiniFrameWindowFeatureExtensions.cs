@@ -7,6 +7,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Fluent extension methods for <see cref="INotificationsInfiniFrameWindowFeature" /> on <see cref="IInfiniFrameWindow" />.
+/// </summary>
 public static class INotificationsInfiniFrameWindowFeatureExtensions {
     /// <summary>
     ///     Displays a notification with the specified title and body text and returns the window for chaining.

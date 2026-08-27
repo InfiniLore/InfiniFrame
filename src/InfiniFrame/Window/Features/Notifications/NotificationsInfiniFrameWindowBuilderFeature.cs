@@ -7,6 +7,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Builder feature implementation for configuring desktop notification settings including enable/disable and
+///     default icon path.
+/// </summary>
 public class NotificationsInfiniFrameWindowBuilderFeature : INotificationsInfiniFrameWindowBuilderFeature {
     /// <inheritdoc cref="INotificationsInfiniFrameWindowBuilderFeature.IsNotificationsEnabled" />
     public bool IsNotificationsEnabled { get; private set; } = true;

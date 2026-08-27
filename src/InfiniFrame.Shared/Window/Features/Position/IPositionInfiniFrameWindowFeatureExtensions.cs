@@ -7,6 +7,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Fluent extension methods for <see cref="IPositionInfiniFrameWindowFeature"/> on <see cref="IInfiniFrameWindow"/>.
+/// </summary>
 public static class IPositionInfiniFrameWindowFeatureExtensions {
     /// <summary>
     ///     Sets the position of the window using pixel coordinates and returns the window for chaining.

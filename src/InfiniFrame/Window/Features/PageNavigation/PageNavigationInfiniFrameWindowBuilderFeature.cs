@@ -7,6 +7,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Builder feature implementation for configuring the initial page navigation including start URL and start page content.
+/// </summary>
 public class PageNavigationInfiniFrameWindowBuilderFeature : IPageNavigationInfiniFrameWindowBuilderFeature {
     /// <inheritdoc cref="IPageNavigationInfiniFrameWindowBuilderFeature.StartString" />
     public string? StartString { get; private set; }

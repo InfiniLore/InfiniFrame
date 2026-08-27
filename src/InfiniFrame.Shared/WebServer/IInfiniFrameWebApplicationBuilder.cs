@@ -8,6 +8,9 @@ namespace InfiniFrame.WebServer;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Defines the builder for creating an InfiniFrame web application with a native window.
+/// </summary>
 public interface IInfiniFrameWebApplicationBuilder {
     /// <summary>
     ///     Gets the underlying <see cref="WebApplicationBuilder" /> used to configure the ASP.NET Core application.

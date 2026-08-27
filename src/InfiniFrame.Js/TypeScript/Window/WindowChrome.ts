@@ -1,3 +1,10 @@
+/**
+ * Custom window chrome registration. Provides the JavaScript API for drag regions,
+ * window control buttons, and resize handles.
+ *
+ * @module WindowChrome
+ */
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
@@ -5,26 +12,49 @@ import {SendToHostMessageIds} from "../Contracts";
 // ---------------------------------------------------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------------------------------------------------
+/**
+ * Configuration for window control button selectors (minimize, maximize, close).
+ */
 export interface WindowChromeControlsConfig {
+    /** CSS selector for the minimize button. */
     minimize?: string;
+    /** CSS selector for the maximize/restore button. */
     maximize?: string;
+    /** CSS selector for the close button. */
     close?: string;
 }
 
+/**
+ * Configuration for window resize zone selectors (8 directions: 4 edges + 4 corners).
+ */
 export interface WindowChromeResizeConfig {
+    /** CSS selector for the top edge resize zone. */
     top?: string;
+    /** CSS selector for the right edge resize zone. */
     right?: string;
+    /** CSS selector for the bottom edge resize zone. */
     bottom?: string;
+    /** CSS selector for the left edge resize zone. */
     left?: string;
+    /** CSS selector for the top-left corner resize zone. */
     topLeft?: string;
+    /** CSS selector for the top-right corner resize zone. */
     topRight?: string;
+    /** CSS selector for the bottom-left corner resize zone. */
     bottomLeft?: string;
+    /** CSS selector for the bottom-right corner resize zone. */
     bottomRight?: string;
 }
 
+/**
+ * Configuration for registering custom window chrome with drag regions, controls, and resize zones.
+ */
 export interface WindowChromeConfig {
+    /** CSS selector for the draggable region (acts as the title bar). */
     dragRegion?: string;
+    /** Configuration for window control button selectors. */
     controls?: WindowChromeControlsConfig;
+    /** Configuration for window resize zone selectors. */
     resize?: WindowChromeResizeConfig;
 }
 
@@ -53,6 +83,10 @@ const RESIZE_ORIGIN_MAP: Record<string, string> = {
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/**
+ * Manages custom window chrome by registering drag regions, window controls
+ * (minimize/maximize/close), and resize zones.
+ */
 export class WindowChrome {
     private config: WindowChromeConfig | null = null;
     private isRegistered = false;
@@ -79,6 +113,9 @@ export class WindowChrome {
 
     private mutationObserver: MutationObserver | null = null;
 
+    /**
+     * Creates a new {@link WindowChrome} instance and binds internal event handlers.
+     */
     constructor() {
         this.boundPointerDown = this.onPointerDown.bind(this) as EventListener;
         this.boundPointerUp = this.onPointerUp.bind(this) as EventListener;
@@ -87,6 +124,15 @@ export class WindowChrome {
         this.boundClick = this.onClick.bind(this) as EventListener;
     }
 
+    /**
+     * Registers drag regions, window controls, and resize zones from the provided configuration.
+     *
+     * If already registered, the previous configuration is torn down first.
+     *
+     * @param config - The chrome configuration specifying CSS selectors for drag regions,
+     * control buttons, and resize handles.
+     * @throws {Error} If `config` is not provided.
+     */
     public register(config: WindowChromeConfig): void {
         if (this.isRegistered) this.unregister();
         if (!config) throw new Error("WindowChrome.register: config is required.");
@@ -101,6 +147,10 @@ export class WindowChrome {
         }
     }
 
+    /**
+     * Tears down all event listeners, disconnects the mutation observer, and clears the
+     * current configuration.
+     */
     public unregister(): void {
         if (!this.isRegistered) return;
 

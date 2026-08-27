@@ -3,6 +3,8 @@
 `InfiniLore.InfiniFrame.WebServer` runs a standard ASP.NET Core web application in a background thread while opening a native window pointed at it.
 This approach gives you the full ASP.NET Core pipeline (middleware, controllers, SignalR, minimal APIs, Blazor Server) without any browser overhead.
 
+For cross-thread dispatch from ASP.NET Core to the window thread, see the [Invoke feature](invoke-feature.md). For an overview of the feature system, see [Window Features Architecture](window-features-architecture.md).
+
 ## Contents
 
 - [How It Works](#how-it-works)
@@ -86,7 +88,7 @@ The window's start URL is automatically resolved from configuration in this prio
 
 1. `ASPNETCORE_URLS` environment variable
 2. `urls` configuration key (e.g. in `appsettings.json`)
-3. Manual override via `builder.Window.SetStartUrl(...)`
+3. Manual override via `builder.Window.SetStartPageUrl(...)`
 
 ```json
 {
@@ -190,3 +192,9 @@ Web server calls from window event handlers can be made directly since ASP.NET C
 - `InfiniFrameExample.WebApp.Blazor` (`examples/InfiniFrameExample.WebApp.Blazor`) - Blazor Server with InteractiveServerComponents, HttpClient factory, and InfiniFrameJs
 - `InfiniFrameExample.WebApp.React` (`examples/InfiniFrameExample.WebApp.React`) - React frontend with custom scheme handler and two-way messaging
 - `InfiniFrameExample.WebApp.Vue` (`examples/InfiniFrameExample.WebApp.Vue`) - Vue.js frontend with all built-in JS message handlers
+
+## See Also
+
+- [Invoke Feature](invoke-feature.md) — Cross-thread dispatch to the window's native thread
+- [Window Features Architecture](window-features-architecture.md) — How the feature system works
+- [Core Window Guide](core-window.md) — Builder API and feature overview

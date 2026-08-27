@@ -2,6 +2,8 @@
 
 This guide covers native menu bar support in InfiniFrame: configuring menu bars at build time, managing menu items at runtime, and platform-specific behavior.
 
+The native menu is implemented as a window feature. For an overview of the feature system, see [Window Features Architecture](window-features-architecture.md).
+
 ## Contents
 
 - [Quick Start](#quick-start)
@@ -33,7 +35,7 @@ var window = InfiniFrameWindowBuilder.Create()
             new InfiniFrameMenuItem("help", "Help")
         )
     ))
-    .SetStartUrl("https://myapp.local")
+    .SetStartPageUrl("https://myapp.local")
     .Build();
 
 window.WaitForClose();
@@ -168,3 +170,8 @@ var menuBar = new InfiniFrameMenuBar(
 );
 window.SetMenuBar(menuBar);
 ```
+
+## See Also
+
+- [Window Features Architecture](window-features-architecture.md) — How the feature system works
+- [Core Window Guide](core-window.md) — Builder API and feature overview

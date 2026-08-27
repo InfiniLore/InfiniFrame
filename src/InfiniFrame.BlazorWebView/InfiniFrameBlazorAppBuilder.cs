@@ -15,6 +15,9 @@ namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Builder for creating a Blazor application hosted in an InfiniFrame native window.
+/// </summary>
 public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -28,12 +31,25 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
     /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.WindowBuilder" />
     public IInfiniFrameWindowBuilder WindowBuilder { get; } = InfiniFrameWindowBuilder.Create();
 
+    /// <summary>
+    ///     Creates a default builder with standard configuration, command-line args, and window builder action.
+    /// </summary>
+    /// <param name="args">Optional command-line arguments.</param>
+    /// <param name="windowBuilder">An optional action to configure the window builder.</param>
+    /// <returns>A new <see cref="InfiniFrameBlazorAppBuilder"/> instance.</returns>
     public static InfiniFrameBlazorAppBuilder CreateDefault(
         string[]? args = null,
         Action<IInfiniFrameWindowBuilder>? windowBuilder = null
     )
         => CreateDefault(null, args, windowBuilder);
 
+    /// <summary>
+    ///     Creates a default builder with standard configuration and command-line args.
+    /// </summary>
+    /// <param name="fileProvider">An optional file provider for static assets.</param>
+    /// <param name="args">Optional command-line arguments.</param>
+    /// <param name="windowBuilder">An optional action to configure the window builder.</param>
+    /// <returns>A new <see cref="InfiniFrameBlazorAppBuilder"/> instance.</returns>
     public static InfiniFrameBlazorAppBuilder CreateDefault(IFileProvider? fileProvider, string[]? args = null, Action<IInfiniFrameWindowBuilder>? windowBuilder = null) {
         // We don't use the args for anything right now, but we want to accept them
         // here so that it shows up this way in the project templates.
@@ -118,6 +134,11 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
 
     }
 
+    /// <summary>
+    ///     Configures the InfiniFrame window builder action.
+    /// </summary>
+    /// <param name="windowBuilder">The action to configure the window builder.</param>
+    /// <returns>The <see cref="InfiniFrameBlazorAppBuilder"/> for chaining.</returns>
     public InfiniFrameBlazorAppBuilder WithInfiniFrameWindowBuilder(Action<IInfiniFrameWindowBuilder> windowBuilder) {
         windowBuilder.Invoke(WindowBuilder);
         return this;
