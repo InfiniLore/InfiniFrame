@@ -167,6 +167,6 @@ public record NavigationResult(
 
 ## See Also
 
-- [JavaScript Interop](javascript-interop.md) — Two-way C#/JS messaging
-- [Window Features Architecture](window-features-architecture.md) — How the feature system works
-- [Core Window Guide](core-window.md) — Builder API and feature overview
+- [JavaScript Interop](javascript-interop.md) Two-way C#/JS messaging
+- [Window Features Architecture](window-features-architecture.md) How the feature system works
+- [Core Window Guide](core-window.md) Builder API and feature overview

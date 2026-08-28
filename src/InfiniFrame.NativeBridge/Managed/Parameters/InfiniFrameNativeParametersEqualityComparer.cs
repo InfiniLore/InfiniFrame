@@ -1,8 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Runtime.InteropServices;
-
 namespace InfiniFrame.NativeBridge.Parameters;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -64,14 +62,12 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         // Parent window
         if (x.NativeParent != y.NativeParent) return false;
 
-        // Custom scheme support - compare string content rather than raw pointer addresses
+        // Custom scheme support - compare raw pointer addresses to avoid dereferencing potentially freed memory
         if (x.CustomSchemeNames is not null && y.CustomSchemeNames is not null) {
             if (x.CustomSchemeNames.Length != y.CustomSchemeNames.Length) return false;
 
             for (int i = 0; i < x.CustomSchemeNames.Length; i++) {
-                string? xStr = Marshal.PtrToStringUTF8(x.CustomSchemeNames[i]);
-                string? yStr = Marshal.PtrToStringUTF8(y.CustomSchemeNames[i]);
-                if (xStr != yStr) return false;
+                if (x.CustomSchemeNames[i] != y.CustomSchemeNames[i]) return false;
             }
         }
         else if (x.CustomSchemeNames != y.CustomSchemeNames) return false;

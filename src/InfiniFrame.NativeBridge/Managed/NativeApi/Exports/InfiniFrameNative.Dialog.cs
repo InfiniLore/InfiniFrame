@@ -30,7 +30,7 @@ public partial class InfiniFrameNative {
     internal static InfiniFrameNativeInteropStatus ShowOpenFile(IntPtr instance, string title, string defaultPath, bool multiSelect, string[] filters, int filtersCount, out string?[] values) {
         InfiniFrameNativeInteropStatus status = ShowOpenFilePtr(instance, title, defaultPath, multiSelect, filters, filtersCount, out int resultCount, out IntPtr ptrValues);
         if (status != InfiniFrameNativeInteropStatus.Success) {
-            values = Array.Empty<string?>();
+            values = [];
             return status;
         }
 
@@ -56,7 +56,7 @@ public partial class InfiniFrameNative {
     internal static InfiniFrameNativeInteropStatus ShowOpenFolder(IntPtr instance, string title, string defaultPath, bool multiSelect, out string?[] values) {
         InfiniFrameNativeInteropStatus status = ShowOpenFolderPtr(instance, title, defaultPath, multiSelect, out int resultCount, out IntPtr ptrValues);
         if (status != InfiniFrameNativeInteropStatus.Success) {
-            values = Array.Empty<string?>();
+            values = [];
             return status;
         }
 
@@ -180,7 +180,7 @@ public partial class InfiniFrameNative {
     /// <returns>A managed array of strings.</returns>
     private static string?[] PtrToNativeStringArray(IntPtr valuesPtr, int count) {
         if (valuesPtr == IntPtr.Zero || count <= 0) {
-            return Array.Empty<string?>();
+            return [];
         }
 
         const int maxCount = 10000;
@@ -193,7 +193,7 @@ public partial class InfiniFrameNative {
             string?[] values = new string?[count];
             Marshal.Copy(valuesPtr, ptrArray, 0, count);
             for (int i = 0; i < count; i++) {
-                values[i] = MarshalNativeToString(ptrArray[i]);
+                values[i] = ptrArray[i] != IntPtr.Zero ? MarshalNativeToString(ptrArray[i]) : null;
             }
 
             return values;

@@ -119,5 +119,5 @@ window.Features.State.EnableZoom(false);      // Disable/enable zoom at runtime
 
 ## See Also
 
-- [Window Features Architecture](window-features-architecture.md) — How the feature system works
-- [Core Window Guide](core-window.md) — Builder API and feature overview
+- [Window Features Architecture](window-features-architecture.md) How the feature system works
+- [Core Window Guide](core-window.md) Builder API and feature overview

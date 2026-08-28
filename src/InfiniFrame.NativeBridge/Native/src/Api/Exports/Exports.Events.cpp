@@ -23,7 +23,7 @@ EXPORTED InteropStatus InfiniFrameNative_SetClosingCallback(
 /// @param instance The window handle.
 /// @param callback Callback invoked when the window is closed.
 /// @return InteropStatus
-EXPORTED InteropStatus InfiniFrameNative_setClosedCallback(InfiniFrameWindow* instance, const ClosedCallback callback) {
+EXPORTED InteropStatus InfiniFrameNative_SetClosedCallback(InfiniFrameWindow* instance, const ClosedCallback callback) {
     return RunWindowExportStatus(
         instance, [&](InfiniFrameWindow* window) {
             window->SetClosedCallback(callback);

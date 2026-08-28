@@ -8,6 +8,7 @@ import argparse
 import json
 import os
 import ssl
+import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -87,6 +88,8 @@ def request_json(
     token: str,
     payload: dict[str, JsonValue] | None = None,
     _ssl_ctx: ssl.SSLContext | None = None,
+    _max_retries: int = 3,
+    _retry_delay: float = 2.0,
 ) -> tuple[int, dict[str, JsonValue]]:
     if _ssl_ctx is None:
         _ssl_ctx = _build_ssl_context()
@@ -100,42 +103,60 @@ def request_json(
     if payload is not None:
         data = json.dumps(payload).encode("utf-8")
 
-    req = urllib.request.Request(url, data=data, headers=headers, method=method)
-    try:
-        with urllib.request.urlopen(req, timeout=30, context=_ssl_ctx) as resp:
-            body = resp.read().decode("utf-8")
-            parsed: dict[str, JsonValue]
+    last_error: tuple[int, dict[str, JsonValue]] | None = None
+    for attempt in range(_max_retries):
+        if attempt > 0:
+            delay = _retry_delay * (2 ** (attempt - 1))
+            print(f"Retrying {method} {url} in {delay:.1f}s (attempt {attempt + 1}/{_max_retries})...")
+            time.sleep(delay)
+
+        req = urllib.request.Request(url, data=data, headers=headers, method=method)
+        try:
+            with urllib.request.urlopen(req, timeout=30, context=_ssl_ctx) as resp:
+                body = resp.read().decode("utf-8")
+                parsed: dict[str, JsonValue]
+                if body:
+                    loaded = json.loads(body)
+                    parsed = loaded if isinstance(loaded, dict) else {"raw": loaded}
+                else:
+                    parsed = {}
+                return int(resp.status), parsed
+        except ssl.SSLError:
+            # Retry once with an unverified context for CI environments with
+            # self-signed certificates (e.g. corporate proxies, custom runners).
+            fallback_ctx = _build_ssl_context_fallback()
+            with urllib.request.urlopen(req, timeout=30, context=fallback_ctx) as resp:
+                body = resp.read().decode("utf-8")
+                parsed_f: dict[str, JsonValue]
+                if body:
+                    loaded = json.loads(body)
+                    parsed_f = loaded if isinstance(loaded, dict) else {"raw": loaded}
+                else:
+                    parsed_f = {}
+                return int(resp.status), parsed_f
+        except urllib.error.HTTPError as exc:
+            body = exc.read().decode("utf-8", errors="replace")
+            parsed_e: dict[str, JsonValue]
             if body:
-                loaded = json.loads(body)
-                parsed = loaded if isinstance(loaded, dict) else {"raw": loaded}
+                try:
+                    loaded = json.loads(body)
+                    parsed_e = loaded if isinstance(loaded, dict) else {"raw": loaded}
+                except json.JSONDecodeError:
+                    parsed_e = {"raw": body}
             else:
-                parsed = {}
-            return int(resp.status), parsed
-    except ssl.SSLError:
-        # Retry once with an unverified context for CI environments with
-        # self-signed certificates (e.g. corporate proxies, custom runners).
-        fallback_ctx = _build_ssl_context_fallback()
-        with urllib.request.urlopen(req, timeout=30, context=fallback_ctx) as resp:
-            body = resp.read().decode("utf-8")
-            parsed_f: dict[str, JsonValue]
-            if body:
-                loaded = json.loads(body)
-                parsed_f = loaded if isinstance(loaded, dict) else {"raw": loaded}
-            else:
-                parsed_f = {}
-            return int(resp.status), parsed_f
-    except urllib.error.HTTPError as exc:
-        body = exc.read().decode("utf-8", errors="replace")
-        parsed: dict[str, JsonValue]
-        if body:
-            try:
-                loaded = json.loads(body)
-                parsed = loaded if isinstance(loaded, dict) else {"raw": loaded}
-            except json.JSONDecodeError:
-                parsed = {"raw": body}
-        else:
-            parsed = {}
-        return int(exc.code), parsed
+                parsed_e = {}
+            last_error = (int(exc.code), parsed_e)
+            # Retry on transient server errors (5xx)
+            if 500 <= exc.code < 600:
+                print(f"HTTP {exc.code} from {method} {url} (transient error).")
+                continue
+            return last_error
+
+    # All retries exhausted for 5xx errors
+    if last_error is not None:
+        return last_error
+    # Should not reach here, but handle gracefully
+    return 500, {"raw": "All retries exhausted without response"}
 
 
 def post_status(args: Args, token: str) -> bool:

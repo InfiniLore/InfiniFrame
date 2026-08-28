@@ -18,7 +18,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     [Test]
     public async Task Handler_HtmlExtension_ReturnsHtmlContentType(CancellationToken ct = default) {
         // Arrange
-        var provider = new TestFileProvider("index.html", "<html></html>"u8.ToArray());
+        var provider = new TestFileProvider("index.html", [.. "<html></html>"u8]);
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
@@ -32,7 +32,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     [Test]
     public async Task Handler_CssExtension_ReturnsCssContentType(CancellationToken ct = default) {
         // Arrange
-        var provider = new TestFileProvider("style.css", "body{}"u8.ToArray());
+        var provider = new TestFileProvider("style.css", [.. "body{}"u8]);
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
@@ -46,7 +46,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     [Test]
     public async Task Handler_JsExtension_ReturnsJavaScriptContentType(CancellationToken ct = default) {
         // Arrange
-        var provider = new TestFileProvider("app.js", "console.log()"u8.ToArray());
+        var provider = new TestFileProvider("app.js", [.. "console.log()"u8]);
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
@@ -60,7 +60,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     [Test]
     public async Task Handler_JsonExtension_ReturnsJsonContentType(CancellationToken ct = default) {
         // Arrange
-        var provider = new TestFileProvider("data.json", "{}"u8.ToArray());
+        var provider = new TestFileProvider("data.json", [.. "{}"u8]);
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
@@ -74,7 +74,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     [Test]
     public async Task Handler_SvgExtension_ReturnsSvgContentType(CancellationToken ct = default) {
         // Arrange
-        var provider = new TestFileProvider("icon.svg", "<svg/>"u8.ToArray());
+        var provider = new TestFileProvider("icon.svg", [.. "<svg/>"u8]);
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
@@ -200,7 +200,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     [Test]
     public async Task Handler_MapExtension_ReturnsJsonContentType(CancellationToken ct = default) {
         // Arrange
-        var provider = new TestFileProvider("app.js.map", "{}"u8.ToArray());
+        var provider = new TestFileProvider("app.js.map", [.. "{}"u8]);
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
@@ -259,7 +259,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     [Test]
     public async Task Handler_EmptyPath_ReturnsDefaultDocument(CancellationToken ct = default) {
         // Arrange
-        var provider = new TestFileProvider("index.html", "<html></html>"u8.ToArray());
+        var provider = new TestFileProvider("index.html", [.. "<html></html>"u8]);
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
@@ -273,7 +273,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     [Test]
     public async Task Handler_NullPath_ReturnsDefaultDocument(CancellationToken ct = default) {
         // Arrange
-        var provider = new TestFileProvider("index.html", "<html></html>"u8.ToArray());
+        var provider = new TestFileProvider("index.html", [.. "<html></html>"u8]);
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
@@ -287,7 +287,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     [Test]
     public async Task Handler_NonExistentFile_ReturnsDefault(CancellationToken ct = default) {
         // Arrange
-        var provider = new TestFileProvider("index.html", "<html></html>"u8.ToArray());
+        var provider = new TestFileProvider("index.html", [.. "<html></html>"u8]);
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
@@ -300,7 +300,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     [Test]
     public async Task Handler_PathWithTrailingSlash_AppendsDefaultDocument(CancellationToken ct = default) {
         // Arrange
-        var provider = new TestFileProvider("subdir/index.html", "<html></html>"u8.ToArray());
+        var provider = new TestFileProvider("subdir/index.html", [.. "<html></html>"u8]);
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
@@ -317,7 +317,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     [Test]
     public async Task Handler_DoubleDotTraversal_ReturnsDefault(CancellationToken ct = default) {
         // Arrange
-        var provider = new TestFileProvider("secret.txt", "secret"u8.ToArray());
+        var provider = new TestFileProvider("secret.txt", [.. "secret"u8]);
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
@@ -330,7 +330,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     [Test]
     public async Task Handler_PercentEncodedDoubleDot_ReturnsDefault(CancellationToken ct = default) {
         // Arrange
-        var provider = new TestFileProvider("secret.txt", "secret"u8.ToArray());
+        var provider = new TestFileProvider("secret.txt", [.. "secret"u8]);
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
@@ -343,7 +343,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     [Test]
     public async Task Handler_PercentEncodedSlash_ReturnsDefault(CancellationToken ct = default) {
         // Arrange
-        var provider = new TestFileProvider("secret.txt", "secret"u8.ToArray());
+        var provider = new TestFileProvider("secret.txt", [.. "secret"u8]);
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
@@ -356,7 +356,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     [Test]
     public async Task Handler_DoubleEncodedTraversal_ReturnsDefault(CancellationToken ct = default) {
         // Arrange
-        var provider = new TestFileProvider("secret.txt", "secret"u8.ToArray());
+        var provider = new TestFileProvider("secret.txt", [.. "secret"u8]);
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
@@ -372,7 +372,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     [Test]
     public async Task Handler_AbsoluteUri_ExtractsLocalPath(CancellationToken ct = default) {
         // Arrange
-        var provider = new TestFileProvider("assets/data.txt", "content"u8.ToArray());
+        var provider = new TestFileProvider("assets/data.txt", [.. "content"u8]);
         Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler = StaticAssetSchemeHandler.Create(provider, "index.html");
 
         // Act
@@ -389,7 +389,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     [Test]
     public async Task TryResolveUri_EmptyPath_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
-        var provider = new TestFileProvider("index.html", "<html></html>"u8.ToArray());
+        var provider = new TestFileProvider("index.html", [.. "<html></html>"u8]);
 
         // Act
         bool resolved = StaticAssetSchemeHandler.TryResolveUri(
@@ -403,7 +403,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     [Test]
     public async Task TryResolveUri_NonExistentFile_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
-        var provider = new TestFileProvider("index.html", "<html></html>"u8.ToArray());
+        var provider = new TestFileProvider("index.html", [.. "<html></html>"u8]);
 
         // Act
         bool resolved = StaticAssetSchemeHandler.TryResolveUri(
@@ -429,7 +429,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     [Test]
     public async Task TryResolveUri_WithQueryString_PreservesQueryStringInUri(CancellationToken ct = default) {
         // Arrange
-        var provider = new TestFileProvider("page.html", "<html></html>"u8.ToArray());
+        var provider = new TestFileProvider("page.html", [.. "<html></html>"u8]);
 
         // Act
         bool resolved = StaticAssetSchemeHandler.TryResolveUri(
@@ -443,7 +443,7 @@ public class StaticAssetSchemeHandlerAdditionalTests {
     [Test]
     public async Task TryResolveUri_WithFragment_PreservesFragmentInUri(CancellationToken ct = default) {
         // Arrange
-        var provider = new TestFileProvider("page.html", "<html></html>"u8.ToArray());
+        var provider = new TestFileProvider("page.html", [.. "<html></html>"u8]);
 
         // Act
         bool resolved = StaticAssetSchemeHandler.TryResolveUri(

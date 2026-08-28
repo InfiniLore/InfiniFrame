@@ -76,8 +76,14 @@ public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowB
 
     /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.SetUserAgent" />
     public void SetUserAgent(string? userAgent) {
-        if (string.IsNullOrWhiteSpace(userAgent)) userAgent = string.Empty;
-        UserAgent = userAgent;
+        if (string.IsNullOrWhiteSpace(userAgent)) {
+            UserAgent = string.Empty;
+            return;
+        }
+
+        // Strip control characters and limit length to prevent header injection.
+        string sanitized = new string(userAgent.Where(static c => !char.IsControl(c)).ToArray());
+        UserAgent = sanitized.Length > 1024 ? sanitized[..1024] : sanitized;
     }
 
     /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.EnableFileSystemAccess" />
@@ -127,17 +133,29 @@ public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowB
 
     /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.SetBrowserControlInitParameters" />
     public void SetBrowserControlInitParameters(string? parameters) {
+        if (string.IsNullOrWhiteSpace(parameters)) {
+            BrowserControlInitParameters = null;
+            return;
+        }
+
+        if (parameters.Any(static c => char.IsControl(c)))
+            throw new ArgumentException("Browser control init parameters must not contain control characters.", nameof(parameters));
+        if (parameters.Length > 4096)
+            throw new ArgumentException("Browser control init parameters must not exceed 4096 characters.", nameof(parameters));
+
         BrowserControlInitParameters = parameters;
     }
 
     /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.SetTemporaryFilesPath" />
     public void SetTemporaryFilesPath(string path) {
-        TemporaryFilesPath = path;
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+        TemporaryFilesPath = Path.GetFullPath(path);
     }
 
     /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.SetWebView2RuntimePath" />
     public void SetWebView2RuntimePath(string path) {
-        WebView2RuntimePath = path;
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+        WebView2RuntimePath = Path.GetFullPath(path);
     }
 
     /// <summary>

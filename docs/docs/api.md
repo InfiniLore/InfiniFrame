@@ -8,8 +8,8 @@ InfiniFrame API documentation is currently maintained inline in Docusaurus.
 
 ## Managed API
 
-- [Core Window Guide](guides/core-window.md) — Builder pattern and feature overview
-- [Window Features Architecture](guides/window-features-architecture.md) — Feature system concepts
+- [Core Window Guide](guides/core-window.md) Builder pattern and feature overview
+- [Window Features Architecture](guides/window-features-architecture.md) Feature system concepts
 
 ### Feature Guides
 
@@ -25,14 +25,14 @@ InfiniFrame API documentation is currently maintained inline in Docusaurus.
 | [Notifications](guides/notifications.md) | `INotificationsInfiniFrameWindowBuilderFeature` | `INotificationsInfiniFrameWindowFeature` |
 | [Menu](guides/native-menu.md) | `IMenuInfiniFrameWindowBuilderFeature` | `IMenuInfiniFrameWindowFeature` |
 | [Taskbar](guides/core-window.md#taskbar-progress-and-flash) | `ITaskbarInfiniFrameWindowBuilderFeature` | `ITaskbarInfiniFrameWindowFeature` |
-| [Instance Arbitration](guides/instance-arbitration.md) | `IInstanceArbitrationInfiniFrameWindowBuilderFeature` | — |
-| [Drag and Drop](guides/drag-drop-feature.md) | — | `IDragDropInfiniFrameWindowFeature` |
-| [JavaScript Execution](guides/javascript-execution-feature.md) | — | `IJavaScriptInfiniFrameWindowFeature` |
-| [Invoke](guides/invoke-feature.md) | — | `IInvokeInfiniFrameWindowFeature` |
-| [Lifecycle](guides/lifecycle-feature.md) | — | `ILifecycleInfiniFrameWindowFeature` |
-| [Monitors](guides/monitors-feature.md) | — | `IMonitorsInfiniFrameWindowFeature` |
-| [File Dialogs](guides/file-dialogs-feature.md) | — | `IFilePickerDialogsInfiniFrameWindowFeature` |
-| [Web Messaging](guides/javascript-interop.md) | — | `IWebMessagingInfiniFrameWindowFeature` |
+| [Instance Arbitration](guides/instance-arbitration.md) | `IInstanceArbitrationInfiniFrameWindowBuilderFeature` | |
+| [Drag and Drop](guides/drag-drop-feature.md) | | `IDragDropInfiniFrameWindowFeature` |
+| [JavaScript Execution](guides/javascript-execution-feature.md) | | `IJavaScriptInfiniFrameWindowFeature` |
+| [Invoke](guides/invoke-feature.md) | | `IInvokeInfiniFrameWindowFeature` |
+| [Lifecycle](guides/lifecycle-feature.md) | | `ILifecycleInfiniFrameWindowFeature` |
+| [Monitors](guides/monitors-feature.md) | | `IMonitorsInfiniFrameWindowFeature` |
+| [File Dialogs](guides/file-dialogs-feature.md) | | `IFilePickerDialogsInfiniFrameWindowFeature` |
+| [Web Messaging](guides/javascript-interop.md) | | `IWebMessagingInfiniFrameWindowFeature` |
 
 ### Integration Guides
 

@@ -27,5 +27,5 @@ public struct NativeMonitor {
     /// <summary>
     ///     The display scale factor of the monitor (e.g. 1.0 for 100%, 1.25 for 125%).
     /// </summary>
-    public float Scale { get; set; }
+    public double Scale { get; set; }
 }

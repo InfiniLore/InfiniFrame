@@ -19,12 +19,13 @@ from pathlib import Path
 # Constants
 # ---------------------------------------------------------------------------------------------------------------------
 TEST_PACKAGES = ("InfiniTests", "InfiniAutomationTests")
+NATIVE_EXTENSIONS = (".cpp", ".h", ".mm", ".c", ".hpp")
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Code
 # ---------------------------------------------------------------------------------------------------------------------
 def run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
-    return subprocess.run(cmd, capture_output=True, text=True, **kwargs)
+    return subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", **kwargs)
 
 
 def parse_ts_coverage(lcov_path: Path) -> tuple[int, int]:
@@ -38,7 +39,8 @@ def parse_ts_coverage(lcov_path: Path) -> tuple[int, int]:
 def parse_cs_coverage(coverage_dir: Path) -> tuple[int, int, OrderedDict[str, dict]]:
     """Parse Cobertura XML files and return (total_lines, total_covered, per_pkg_data).
 
-    Test packages matching TEST_PACKAGES are excluded.
+    Test packages matching TEST_PACKAGES and native source files are excluded.
+    Deduplicates by source line number per class to avoid IL inflation.
     """
     total_lines = 0
     total_covered = 0
@@ -57,11 +59,20 @@ def parse_cs_coverage(coverage_dir: Path) -> tuple[int, int, OrderedDict[str, di
             pkg_lines = 0
             pkg_covered = 0
             for cls in pkg.findall(".//class"):
+                filename = cls.get("filename", "")
+                if any(filename.endswith(ext) for ext in NATIVE_EXTENSIONS):
+                    continue
+                seen: dict[int, bool] = {}
                 for method in cls.findall(".//method"):
                     for line in method.findall(".//line"):
-                        pkg_lines += 1
-                        if int(line.get("hits", "0")) > 0:
-                            pkg_covered += 1
+                        line_num = int(line.get("number", "0"))
+                        hits = int(line.get("hits", "0")) > 0
+                        if line_num not in seen:
+                            seen[line_num] = hits
+                        elif hits:
+                            seen[line_num] = True
+                pkg_lines += len(seen)
+                pkg_covered += sum(1 for h in seen.values() if h)
             total_lines += pkg_lines
             total_covered += pkg_covered
             if pkg_name not in pkg_data:
@@ -184,7 +195,7 @@ def post_pr_comment(
     result = run(
         ["gh", "api", f"repos/{repo}/issues/{pr_number}/comments?per_page=100"]
     )
-    if result.returncode == 0 and result.stdout.strip():
+    if result.returncode == 0 and result.stdout and result.stdout.strip():
         comments = json.loads(result.stdout)
         for c in comments:
             if "## \U0001f4ca Code Coverage Report" in c.get("body", ""):

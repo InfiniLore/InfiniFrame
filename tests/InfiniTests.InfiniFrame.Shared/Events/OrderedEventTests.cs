@@ -190,6 +190,6 @@ public class OrderedEventTests {
         var orderedEvent = new OrderedEvent();
 
         // Assert
-        await Assert.That(orderedEvent.Snapshot.ToArray()).IsEmpty();
+        await Assert.That([.. orderedEvent.Snapshot]).IsEmpty();
     }
 }

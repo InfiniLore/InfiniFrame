@@ -1,4 +1,4 @@
-# Example: WebApp — Blazor Server
+# Example: WebApp Blazor Server
 
 Demonstrates hosting a full ASP.NET Core Blazor Server application inside a native InfiniFrame window using `InfiniLore.InfiniFrame.WebServer`
 
@@ -8,8 +8,8 @@ Demonstrates hosting a full ASP.NET Core Blazor Server application inside a nati
 - Blazor Server with `AddRazorComponents()` + `AddInteractiveServerComponents()`
 - `HttpClient` factory configured to point at the local Kestrel server
 - `AddInfiniFrameJs()` service registration for Blazor component interop
-- `RegisterOpenExternalTargetWebMessageHandler()` — links with `target="_blank"` open in the default browser
-- `UseAutoServerClose()` — server stops when the window is closed
+- `RegisterOpenExternalTargetWebMessageHandler()` links with `target="_blank"` open in the default browser
+- `UseAutoServerClose()` server stops when the window is closed
 - Serilog with async console sink
 
 ## Run

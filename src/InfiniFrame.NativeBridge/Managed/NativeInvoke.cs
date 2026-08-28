@@ -23,8 +23,11 @@ internal static partial class NativeInvoke {
     private static readonly Regex UserHomeRegex = GeneratedUserHomeRegex();
     private static readonly Regex SecretPairRegex = GeneratedSecretPairRegex();
 
+    [ThreadStatic]
+    private static string? _lastCrossThreadErrorMessage;
+
     /// <summary>
-    ///     Executes a synchronous native invoke, marshalling to the window thread if necessary.
+    ///     Executes a synchronous native invoking, marshaling to the window thread if necessary.
     /// </summary>
     /// <typeparam name="TResult">The return type of the callback.</typeparam>
     /// <param name="logger">The logger instance.</param>
@@ -69,6 +72,7 @@ internal static partial class NativeInvoke {
         // Otherwise, we need to execute it on the window thread.
         else {
             logger.LogTrace("Executing callback on window thread. Marshalling to C++ native cobebase.");
+            string? nativeErrorMessage = null;
             InfiniFrameNative.Invoke(nativeHandle, callback: () => {
                 try {
                     result = callback(nativeHandle);
@@ -77,9 +81,15 @@ internal static partial class NativeInvoke {
                     callbackException = ex;
                 }
                 finally {
+                    // Capture the native error message on the UI thread before it's lost.
+                    nativeErrorMessage = InfiniFrameNative.GetLastErrorMessage();
                     completed = true;
                 }
             });
+            // Propagate the captured error message to the calling thread's context.
+            if (nativeErrorMessage is not null) {
+                _lastCrossThreadErrorMessage = nativeErrorMessage;
+            }
         }
 
         if (!completed) throw new InvalidOperationException("InfiniFrameNative.Invoke must execute synchronously. The callback did not complete before Invoke returned.");
@@ -102,7 +112,7 @@ internal static partial class NativeInvoke {
             logger,
             windowHandleOwner,
             managedThreadId,
-            callback: handle => callback(handle),
+            callback: callback,
             access);
         EnsureSuccess(logger, status);
     }
@@ -141,7 +151,13 @@ internal static partial class NativeInvoke {
         logger.LogCritical("Native interop call failed with unknown status state. Fallback last error {FallbackLastError} whilst the received status is {FallbackStatus}", fallbackLastError, sanitizedStatus);
 
         string message;
+        // First, try the thread-local error message (for same-thread calls).
         string? foundMessage = InfiniFrameNative.GetLastErrorMessage();
+        // If empty, try the cross-thread captured message (for dispatched calls).
+        if (string.IsNullOrEmpty(foundMessage)) {
+            foundMessage = Interlocked.Exchange(ref _lastCrossThreadErrorMessage, null);
+        }
+
         if (foundMessage is not null) {
             logger.LogTrace("Native interop call failed with error: {FoundMessage}", foundMessage);
             message = foundMessage;
@@ -314,7 +330,7 @@ internal static partial class NativeInvoke {
             logger,
             windowHandleOwner,
             managedThreadId,
-            callback: handle => callback(handle)
+            callback: callback
         );
 
         EnsureSuccess(logger, status);

@@ -1,7 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Diagnostics;
 using Microsoft.Win32.SafeHandles;
 
 namespace InfiniFrame.NativeBridge.Handles;
@@ -19,11 +18,11 @@ public sealed class NativeWindowHandle : SafeHandleZeroOrMinusOneIsInvalid {
     }
 
     protected override bool ReleaseHandle() {
-        InfiniFrameNativeInteropStatus status = InfiniFrameNative.Destructor(handle);
-        if (status != InfiniFrameNativeInteropStatus.Success) {
-            Debug.WriteLine($"[InfiniFrame] Native window destructor failed with status {status}. Handle: {handle}");
-        }
+        InfiniFrameNative.Destructor(handle);
 
-        return status == InfiniFrameNativeInteropStatus.Success;
+        // Always return true to prevent SafeHandle finalizer from retrying a doomed destructor.
+        // Logging is not available in finalizer context; the destructor status is observable
+        // via the window lifecycle state if needed.
+        return true;
     }
 }

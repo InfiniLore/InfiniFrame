@@ -4,6 +4,7 @@
 using System.Drawing;
 using InfiniFrame.DragDrop;
 using InfiniFrame.NativeBridge;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniFrame;
@@ -272,8 +273,10 @@ public static class HasInfiniFrameEventsStoreExtensions {
 
         string schemeLower = scheme.ToLower();
 
+        ILogger logger = window.ServiceProvider?.GetService(typeof(ILogger)) as ILogger ?? NullLogger.Instance;
+
         NativeInvoke.InvokeSyncWithValidation(
-            NullLogger.Instance,
+            logger,
             window,
             window.ManagedThreadId,
             InfiniFrameNative.AddCustomSchemeName,

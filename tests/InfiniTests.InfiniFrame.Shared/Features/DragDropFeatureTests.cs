@@ -37,7 +37,7 @@ public class DragDropFeatureTests {
     public async Task SetAllowedExtensions_StoresExtensions(CancellationToken ct = default) {
         // Arrange
         Mock<IDragDropInfiniFrameWindowFeature> feature = MockFactory.CreateDragDropMock();
-        string[] extensions = new[] { ".txt", ".png" };
+        string[] extensions = [".txt", ".png"];
 
         // Act
         feature.Object.SetAllowedExtensions(extensions);

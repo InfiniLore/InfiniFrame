@@ -243,6 +243,6 @@ window.MessageHandlers.RegisterMessageHandler("log", (_, payload) => {
 
 ## See Also
 
-- [JavaScript Execution Feature](javascript-execution-feature.md) — Execute arbitrary JS from C#
-- [Window Features Architecture](window-features-architecture.md) — How the feature system works
-- [Core Window Guide](core-window.md) — Builder API and feature overview
+- [JavaScript Execution Feature](javascript-execution-feature.md) Execute arbitrary JS from C#
+- [Window Features Architecture](window-features-architecture.md) How the feature system works
+- [Core Window Guide](core-window.md) Builder API and feature overview

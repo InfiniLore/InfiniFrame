@@ -1,7 +1,7 @@
 <img src="https://raw.githubusercontent.com/InfiniLore/InfiniFrame/refs/heads/core/assets/badge.png" alt="logo" height="76"/> 
 
 *A modern and cross-platform native window framework for .NET that lets you build desktop applications using web
-technologies — load any URL, render HTML strings, or embed a full Blazor application inside a native window*
+technologies load any URL, render HTML strings, or embed a full Blazor application inside a native window*
 
 Supports **Windows** (WebView2), **Linux** (WebKit2GTK), and **macOS** (WKWebView)
 
@@ -143,19 +143,19 @@ dotnet publish src/MyApp/MyApp.csproj -t:InfiniFrameSingleFile -r win-x64 -c Rel
 ## Documentation
 
 - [Docs Home](https://docs.infiniframe.dev/)
-- [Getting Started](https://docs.infiniframe.dev/guides/getting-started) — Installation, first app, platform
+- [Getting Started](https://docs.infiniframe.dev/guides/getting-started) Installation, first app, platform
   requirements
 
 ### Guides
 
-- [Core Window](https://docs.infiniframe.dev/guides/core-window) — Builder pattern, configuration, events, messaging
-- [Trim/AOT Compatibility](https://docs.infiniframe.dev/guides/trim-aot-compatibility) — Trimming and NativeAOT
+- [Core Window](https://docs.infiniframe.dev/guides/core-window) Builder pattern, configuration, events, messaging
+- [Trim/AOT Compatibility](https://docs.infiniframe.dev/guides/trim-aot-compatibility) Trimming and NativeAOT
   guarantees and consumer guidance
-- [Blazor WebView](https://docs.infiniframe.dev/guides/blazor-webview) — Hosting a full Blazor app in a native window
-- [Web Server](https://docs.infiniframe.dev/guides/web-server) — ASP.NET Core + native window integration
-- [Custom Window Chrome](https://docs.infiniframe.dev/guides/custom-window-chrome) — Chromeless windows with Blazor
+- [Blazor WebView](https://docs.infiniframe.dev/guides/blazor-webview) Hosting a full Blazor app in a native window
+- [Web Server](https://docs.infiniframe.dev/guides/web-server) ASP.NET Core + native window integration
+- [Custom Window Chrome](https://docs.infiniframe.dev/guides/custom-window-chrome) Chromeless windows with Blazor
   components
-- [JavaScript Interop](https://docs.infiniframe.dev/guides/javascript-interop) — Communicating between JS and C#
+- [JavaScript Interop](https://docs.infiniframe.dev/guides/javascript-interop) Communicating between JS and C#
 
 ### API Reference
 
@@ -164,7 +164,7 @@ dotnet publish src/MyApp/MyApp.csproj -t:InfiniFrameSingleFile -r win-x64 -c Rel
 
 ### Migration
 
-- [Breaking Changes vs Photino.NET](https://docs.infiniframe.dev/migration/photino-breaking-changes) — API, namespace,
+- [Breaking Changes vs Photino.NET](https://docs.infiniframe.dev/migration/photino-breaking-changes) API, namespace,
   event system, and behavioral differences from the original Photino projects
 
 ### Build Docs Locally

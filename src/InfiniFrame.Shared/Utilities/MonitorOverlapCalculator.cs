@@ -62,7 +62,7 @@ public static class MonitorOverlapCalculator {
             if (distSq >= bestDistSq) continue;
 
             bestDistSq = distSq;
-            bestIndex = Array.IndexOf(monitors.ToArray(), m);
+            bestIndex = Array.IndexOf([.. monitors], m);
         }
 
         return true;

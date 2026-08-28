@@ -26,7 +26,7 @@ public sealed class InfiniFrameUriSecurityPolicyBuilder {
         IInfiniFrameUriSecurityPolicy initialPolicy = basePolicy ?? InfiniFrameUriSecurityPolicy.Default;
         _allowedNavigationSchemes = new HashSet<string>(initialPolicy.AllowedNavigationSchemes, StringComparer.OrdinalIgnoreCase);
         _allowedExternalSchemes = new HashSet<string>(initialPolicy.AllowedExternalSchemes, StringComparer.OrdinalIgnoreCase);
-        _trustedOrigins = new HashSet<Uri>();
+        _trustedOrigins = [];
         _trustAllOrigins = initialPolicy.TrustAllOrigins;
         foreach (Uri trustedOrigin in initialPolicy.TrustedOrigins) {
             AddTrustedOrigin(trustedOrigin);

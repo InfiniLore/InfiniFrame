@@ -263,6 +263,6 @@ var result = await window.ShowMessageAsync(
 
 ## See Also
 
-- [Window Features Architecture](window-features-architecture.md) — How the feature system works
-- [File Dialogs](file-dialogs-feature.md) — Open/save file and folder dialogs
-- [Core Window Guide](core-window.md) — Builder API and feature overview
+- [Window Features Architecture](window-features-architecture.md) How the feature system works
+- [File Dialogs](file-dialogs-feature.md) Open/save file and folder dialogs
+- [Core Window Guide](core-window.md) Builder API and feature overview

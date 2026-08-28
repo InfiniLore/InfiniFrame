@@ -87,7 +87,5 @@ public class DecorationsInfiniFrameWindowBuilderFeature : IDecorationsInfiniFram
         parameters.BackgroundColorG = g;
         parameters.BackgroundColorB = b;
         parameters.BackgroundColorA = a;
-
-        // parameters.LimitLinuxWindowTitleLength = LimitLinuxWindowTitleLength; // Not a C++ parameter.
     }
 }

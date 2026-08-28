@@ -66,6 +66,6 @@ Console.WriteLine($"Window is on monitor: {current.MonitorArea}");
 
 ## See Also
 
-- [Position Feature](position-feature.md) — Window placement and centering
-- [Window Features Architecture](window-features-architecture.md) — How the feature system works
-- [Core Window Guide](core-window.md) — Builder API and feature overview
+- [Position Feature](position-feature.md) Window placement and centering
+- [Window Features Architecture](window-features-architecture.md) How the feature system works
+- [Core Window Guide](core-window.md) Builder API and feature overview

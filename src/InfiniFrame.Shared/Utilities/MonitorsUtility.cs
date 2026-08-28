@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Drawing;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Delegates;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniFrame.Utilities;
@@ -23,8 +24,10 @@ internal static class MonitorsUtility {
     public static ImmutableArray<InfiniMonitor> GetMonitors(IInfiniFrameWindow window) {
         ImmutableArray<InfiniMonitor>.Builder builder = ImmutableArray.CreateBuilder<InfiniMonitor>();
 
+        ILogger logger = window.ServiceProvider?.GetService(typeof(ILogger)) as ILogger ?? NullLogger.Instance;
+
         NativeInvoke.InvokeSyncWithValidation(
-            NullLogger<IInfiniFrameWindow>.Instance,
+            logger,
             window,
             window.ManagedThreadId,
             InfiniFrameNative.GetAllMonitors,
@@ -113,15 +116,17 @@ internal static class MonitorsUtility {
     public static bool TryGetCurrentWindowAndMonitor(IInfiniFrameWindow window, out Rectangle windowRect, out InfiniMonitor monitor) {
         ImmutableArray<InfiniMonitor> monitors = GetMonitors(window);
 
+        ILogger logger = window.ServiceProvider?.GetService(typeof(ILogger)) as ILogger ?? NullLogger.Instance;
+
         (int x, int y) = NativeInvoke.InvokeSyncWithValidation<int, int>(
-            NullLogger<IInfiniFrameWindow>.Instance,
+            logger,
             window,
             window.ManagedThreadId,
             InfiniFrameNative.GetPosition
         );
 
         (int width, int height) = NativeInvoke.InvokeSyncWithValidation<int, int>(
-            NullLogger<IInfiniFrameWindow>.Instance,
+            logger,
             window,
             window.ManagedThreadId,
             InfiniFrameNative.GetSize

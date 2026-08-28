@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.CompilerServices;
 using InfiniFrame.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame.Interop;
@@ -64,10 +63,10 @@ public static class RegisterWindowCreatedUtility {
                 windowState = state.Windows.GetOrCreateValue(window);
                 if (!windowState.StateMachine.TryBeginRegistrationSendOnReady()) return;
 
-                registrationMessages = state.RegistrationMessageIds.ToArray();
+                registrationMessages = [.. state.RegistrationMessageIds];
             }
 
-            ILogger? logger = window.ServiceProvider?.GetService<ILoggerFactory>()?.CreateLogger(typeof(RegisterWindowCreatedUtility));
+            ILogger? logger = (ILogger?)window.ServiceProvider?.GetService(typeof(ILogger));
             _ = Task.Run(async () => {
                 try {
                     await SendRegistrationsAndAckAsync(window, state, windowState, registrationMessages).ConfigureAwait(false);
@@ -90,7 +89,7 @@ public static class RegisterWindowCreatedUtility {
             allMessagesSent = await SendRegistrationsAndAckAsync(window, registrationMessages).ConfigureAwait(false);
         }
         catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-            // window.Logger.LogError(ex, "Unhandled error while sending window-created registration messages.");
+            // Non-fatal: registration messages may fail if the window is closing.
         }
         finally {
             lock (state.Lock) {
@@ -106,7 +105,6 @@ public static class RegisterWindowCreatedUtility {
         }
 
         await window.SendWebMessageAsync(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.WindowReadyAck)).ConfigureAwait(false);
-        // window.Logger.LogDebug("Sent '{ReadyAckMessageId}' handshake acknowledgement.", JsHandlerNames.WindowReadyAck);
         return true;
     }
 }

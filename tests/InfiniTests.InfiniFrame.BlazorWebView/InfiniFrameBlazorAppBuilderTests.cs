@@ -171,7 +171,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [NotInParallelInfiniTests]
     public async Task SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWork(CancellationToken ct = default) {
         // Arrange
-        string[] args = Array.Empty<string>();
+        string[] args = [];
         const string initParameters = "--force-device-scale-factor=1";
 
         // Act
@@ -197,7 +197,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [NotInParallelInfiniTests]
     public async Task SetBrowserControlInitParameters_ThroughAppBuilder_ShouldWork(CancellationToken ct = default) {
         // Arrange
-        string[] args = Array.Empty<string>();
+        string[] args = [];
         const string initParameters = "--force-device-scale-factor=1";
 
         // Act
@@ -224,7 +224,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [SkipOnLinux("Given init parameters are not supported on Linux")]
     public async Task SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWorkOnWindow(CancellationToken ct = default) {
         // Arrange
-        string[] args = Array.Empty<string>();
+        string[] args = [];
         string initParameters = OperatingSystem.IsMacOS()
             ? """{"developerExtrasEnabled":true}"""
             : "--force-device-scale-factor=1";
@@ -257,7 +257,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [SkipOnLinux("Given init parameters are not supported on Linux")]
     public async Task SetBrowserControlInitParameters_ThroughAppBuilder_ShouldWorkOnWindow(CancellationToken ct = default) {
         // Arrange
-        string[] args = Array.Empty<string>();
+        string[] args = [];
         string initParameters = OperatingSystem.IsMacOS()
             ? """{"developerExtrasEnabled":true}"""
             : "--force-device-scale-factor=1";

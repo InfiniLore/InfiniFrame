@@ -18,10 +18,10 @@ Every window capability in InfiniFrame is encapsulated into a **feature**. Featu
 
 This design gives you:
 
-- **Discoverability** — browse `window.Features.<Name>` to find available capabilities
-- **Consistency** — every feature follows the same builder/runtime pattern
-- **Fluent API** — extension methods let you chain configuration on both builder and window
-- **Testability** — features are interfaces, so they can be mocked in unit tests
+- **Discoverability** browse `window.Features.<Name>` to find available capabilities
+- **Consistency** every feature follows the same builder/runtime pattern
+- **Fluent API** extension methods let you chain configuration on both builder and window
+- **Testability** features are interfaces, so they can be mocked in unit tests
 
 ## Builder Features vs Runtime Features
 
@@ -69,7 +69,7 @@ These features have a builder configuration phase **and** a runtime mutation pha
 | [Position](position-feature.md) | Initial location, centering | Runtime move/center | Full runtime control |
 | [Size](size-feature.md) | Initial size, min/max, resizable | Runtime resize | Full runtime control |
 | [State](state-feature.md) | Initial state (maximized, fullscreen, etc.) | Runtime state changes | Full runtime control |
-| [Taskbar](#taskbar-progress-and-flash) | (empty — pattern consistency) | Progress indicators, flash | Builder exists for pattern consistency |
+| [Taskbar](#taskbar-progress-and-flash) | (empty pattern consistency) | Progress indicators, flash | Builder exists for pattern consistency |
 
 ### Builder-only features
 
@@ -145,7 +145,7 @@ builder.Features.InstanceArbitration // IInstanceArbitrationInfiniFrameWindowBui
 Every feature provides fluent extension methods on both `IInfiniFrameWindowBuilder` and `IInfiniFrameWindow`. These let you chain configuration without touching `Features` directly:
 
 ```csharp
-// Builder — extension methods on IInfiniFrameWindowBuilder
+// Builder extension methods on IInfiniFrameWindowBuilder
 var window = InfiniFrameWindowBuilder.Create()
     .SetTitle("My App")              // Decorations feature
     .SetSize(1280, 720)              // Size feature
@@ -155,7 +155,7 @@ var window = InfiniFrameWindowBuilder.Create()
     .SetStartPageUrl("https://app.com")  // PageNavigation feature
     .Build();
 
-// Runtime — extension methods on IInfiniFrameWindow
+// Runtime extension methods on IInfiniFrameWindow
 window.SetSize(800, 600);
 window.SetTitle("New Title");
 window.SetMaximized(false);

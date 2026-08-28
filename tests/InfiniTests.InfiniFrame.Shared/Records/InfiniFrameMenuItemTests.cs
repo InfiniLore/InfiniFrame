@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Collections.Immutable;
 using InfiniFrame;
 
 namespace InfiniTests.InfiniFrame.Shared.Records;
@@ -68,7 +67,7 @@ public class InfiniFrameMenuItemTests {
             "parent",
             "Parent",
             InfiniFrameMenuItemType.Submenu,
-            Children: ImmutableArray.Create(child)
+            Children: [child]
         );
 
         // Assert

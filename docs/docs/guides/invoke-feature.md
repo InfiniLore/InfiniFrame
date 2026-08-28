@@ -11,15 +11,15 @@ The Invoke feature dispatches work to the window's native thread. All UI operati
 
 ## Why Cross-Thread Dispatch Is Needed
 
-InfiniFrame windows are single-threaded. The native window (WebView2 on Windows, WebKitGTK on Linux, WKWebView on macOS) runs on a specific thread. Any call that modifies the window — changing the title, resizing, navigating, closing — must happen on that thread.
+InfiniFrame windows are single-threaded. The native window (WebView2 on Windows, WebKitGTK on Linux, WKWebView on macOS) runs on a specific thread. Any call that modifies the window changing the title, resizing, navigating, closing must happen on that thread.
 
 If you're on a background thread (e.g., from `Task.Run` or an async continuation), use `Invoke` or `DispatchAsync` to marshal the work:
 
 ```csharp
 Task.Run(() => {
-    // Background thread — cannot call window methods directly
+    // Background thread cannot call window methods directly
     window.Invoke(() => {
-        // Now on the window thread — safe to call window methods
+        // Now on the window thread safe to call window methods
         window.SetTitle("Updated from background");
         window.Close();
     });
@@ -91,6 +91,6 @@ switch (result) {
 
 ## See Also
 
-- [Lifecycle Feature](lifecycle-feature.md) — Window close, ready wait, and teardown
-- [Window Features Architecture](window-features-architecture.md) — How the feature system works
-- [Core Window Guide](core-window.md) — Builder API and feature overview
+- [Lifecycle Feature](lifecycle-feature.md) Window close, ready wait, and teardown
+- [Window Features Architecture](window-features-architecture.md) How the feature system works
+- [Core Window Guide](core-window.md) Builder API and feature overview

@@ -117,15 +117,16 @@ public class CustomSchemeResponseAbiTests {
         CppWebResourceRequestedDelegate responseDelegate = Response;
         IntPtr callback = Marshal.GetFunctionPointerForDelegate(responseDelegate);
 
-        Task[] requests = Enumerable.Range(0, requestCount)
-            .Select(_ => Task.Run(action: () => {
-                ct.ThrowIfCancellationRequested();
-                InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.ConsumeCustomSchemeResponse(
-                    callback, out ulong length, out uint byteSum, out int valid);
-                if (status != InfiniFrameNativeInteropStatus.Success || valid != 1 || length != 4 || byteSum != 10)
-                    throw new InvalidOperationException("Concurrent native ABI validation failed.");
-            }, ct))
-            .ToArray();
+        Task[] requests = [
+            .. Enumerable.Range(0, requestCount)
+                .Select(_ => Task.Run(action: () => {
+                    ct.ThrowIfCancellationRequested();
+                    InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.ConsumeCustomSchemeResponse(
+                        callback, out ulong length, out uint byteSum, out int valid);
+                    if (status != InfiniFrameNativeInteropStatus.Success || valid != 1 || length != 4 || byteSum != 10)
+                        throw new InvalidOperationException("Concurrent native ABI validation failed.");
+                }, ct))
+        ];
 
         // Act
         await Task.WhenAll(requests);
@@ -144,7 +145,7 @@ public class CustomSchemeResponseAbiTests {
 
     // ReSharper disable once RedundantAssignment
     private static int CreateResponse(IntPtr releaseCallback, ref CustomSchemeResponse response) {
-        byte[] contentType = "application/test\0"u8.ToArray();
+        byte[] contentType = [.. "application/test\0"u8];
         const int bodyLength = 4;
         IntPtr storage = Marshal.AllocCoTaskMem(bodyLength + contentType.Length);
         Marshal.Copy(new byte[] { 1, 2, 3, 4 }, 0, storage, bodyLength);

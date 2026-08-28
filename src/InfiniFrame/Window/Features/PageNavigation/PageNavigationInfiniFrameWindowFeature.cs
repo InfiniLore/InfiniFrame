@@ -111,7 +111,11 @@ public class PageNavigationInfiniFrameWindowFeature(
     }
 
     /// <inheritdoc cref="IPageNavigationInfiniFrameWindowFeature.LoadRawString" />
-    public void LoadRawString(string content) {
+    /// <remarks>
+    /// ⚠️ Security Warning: This method passes raw HTML directly to the WebView without sanitization.
+    /// Callers must ensure the content is trusted or properly sanitized to prevent XSS attacks.
+    /// </remarks>
+    public void LoadRawString([StringSyntax("Html")] string content) {
         if (window.IsClosedOrClosing()) {
             logger.LogDebug("Skipping navigation because window is closing");
             return;
@@ -127,7 +131,7 @@ public class PageNavigationInfiniFrameWindowFeature(
 
     }
 
-    public Task<NavigationResult> LoadRawStringAsync(string content, CancellationToken ct = default) {
+    public Task<NavigationResult> LoadRawStringAsync([StringSyntax("Html")] string content, CancellationToken ct = default) {
         ArgumentNullException.ThrowIfNull(content);
         var operation = new InfiniNavigationOperation(window, logger, content, null, true, ct);
         _ = operation.StartAsync();

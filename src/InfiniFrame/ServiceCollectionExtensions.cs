@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using FluentValidation;
+using InfiniFrame.Interop;
 using InfiniFrame.NativeBridge.Parameters;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,6 +27,7 @@ public static class ServiceCollectionExtensions {
         services.AddSingleton<IValidator<InfiniFrameNativeParameters>, InfiniFrameNativeParametersValidator>();
 
         services.AddSingleton<InfiniFrameWindowFeaturesFactory>();
+        services.AddSingleton<IExternalProcessLauncher, ExternalProcessLauncher>();
 
         return services;
     }

@@ -195,6 +195,6 @@ Web server calls from window event handlers can be made directly since ASP.NET C
 
 ## See Also
 
-- [Invoke Feature](invoke-feature.md) — Cross-thread dispatch to the window's native thread
-- [Window Features Architecture](window-features-architecture.md) — How the feature system works
-- [Core Window Guide](core-window.md) — Builder API and feature overview
+- [Invoke Feature](invoke-feature.md) Cross-thread dispatch to the window's native thread
+- [Window Features Architecture](window-features-architecture.md) How the feature system works
+- [Core Window Guide](core-window.md) Builder API and feature overview

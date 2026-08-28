@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Collections.Immutable;
 using InfiniFrame;
 
 namespace InfiniTests.InfiniFrame.Shared.Records;
@@ -25,7 +24,7 @@ public class InfiniFrameMenuBarTests {
         var item = new InfiniFrameMenuItem("menu-1", "Menu 1");
 
         // Act
-        var menuBar = new InfiniFrameMenuBar(ImmutableArray.Create(item));
+        var menuBar = new InfiniFrameMenuBar([item]);
 
         // Assert
         await Assert.That(menuBar.Items.Length).IsEqualTo(1);

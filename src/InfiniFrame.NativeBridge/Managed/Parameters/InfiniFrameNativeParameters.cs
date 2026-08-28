@@ -17,7 +17,7 @@ namespace InfiniFrame.NativeBridge.Parameters;
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
 public struct InfiniFrameNativeParameters() {
-    // ── Content strings ────────────────────────────────────────────────────
+    //  Content strings 
 
     /// <summary>
     ///     EITHER StartString or StartUrl Must be specified: Browser control will render this HTML string when
@@ -33,7 +33,7 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     internal string? StartUrl;
 
-    // ── Window identity / appearance strings ───────────────────────────────
+    //  Window identity / appearance strings 
 
     ///<summary>OPTIONAL: Appears on the title bar of the native window. Default is none.</summary>
     [MarshalAs(UnmanagedType.LPUTF8Str)]
@@ -90,20 +90,20 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     internal string? DefaultNotificationIcon;
 
-    // ── Runtime configuration ──────────────────────────────────────────────
+    //  Runtime configuration 
 
     ///<summary>OPTIONAL: Windows-only remote debugging port for loopback endpoint. 0 disables remote debugging.</summary>
     [MarshalAs(UnmanagedType.I4)]
     internal int RemoteDebuggingPort;
 
-    // ── Parent window ──────────────────────────────────────────────────────
+    //  Parent window 
 
     /// <summary>
     ///     OPTIONAL: If the native window is created from another native window, this is the pointer to the parent window.
     /// </summary>
     internal IntPtr NativeParent;
 
-    // ── Event callbacks ────────────────────────────────────────────────────
+    //  Event callbacks 
 
     ///<summary>Set by InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
@@ -149,7 +149,7 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.FunctionPtr)]
     internal CppDebugEventDelegate? DebugEventHandler;
 
-    // ── Custom scheme support ──────────────────────────────────────────────
+    //  Custom scheme support 
 
     ///<summary>OPTIONAL: Names of custom URL Schemes. E.g. 'app', 'custom'. Array length must be 16. Default is none.</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
@@ -163,7 +163,7 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.FunctionPtr)]
     internal CppNavigationStartingDelegate? NavigationStartingHandler;
 
-    // ── Drag-and-drop ──────────────────────────────────────────────────────
+    //  Drag-and-drop 
 
     ///<summary>Set by InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
@@ -173,7 +173,7 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.I1)]
     internal bool DragDropEnabled;
 
-    // ── Window geometry ────────────────────────────────────────────────────
+    //  Window geometry 
 
     ///<summary>OPTIONAL: Initial window position in pixels. Default is 0. Can be overridden with UseOsDefaultLocation.</summary>
     [MarshalAs(UnmanagedType.I4)]
@@ -211,7 +211,7 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.I4)]
     internal int MaxHeight;
 
-    // ── Behavior flags ─────────────────────────────────────────────────────
+    //  Behavior flags 
 
     /// <summary>
     ///     OPTIONAL: If true, the native window appears in centered on screen. Left and Top properties are ignored. Default
@@ -367,7 +367,7 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.I1)]
     internal bool NotificationsEnabled;
 
-    // ── Background color (RGBA) ────────────────────────────────────────────
+    //  Background color (RGBA) 
 
     ///<summary>OPTIONAL: Background color of the webview as RGBA bytes. Default is (0, 0, 0, 0).</summary>
     [MarshalAs(UnmanagedType.U1)]
@@ -385,7 +385,7 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.U1)]
     internal byte BackgroundColorA;
 
-    // ── Menu ───────────────────────────────────────────────────────────────
+    //  Menu 
 
     /// <summary>
     ///     OPTIONAL: JSON-serialized menu bar structure. Passed to the native layer at window creation.
@@ -393,7 +393,7 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     internal string? MenuBarJson;
 
-    // ── ABI version (must remain last) ─────────────────────────────────────
+    //  ABI version (must remain last) 
 
     /// <summary>
     ///     Set when GetParamErrors() is called before initializing the native window. It is a check to make sure the

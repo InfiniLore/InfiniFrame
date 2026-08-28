@@ -8,7 +8,7 @@ Build, CI/CD, and developer tooling scripts for the InfiniFrame repository.
 |--------|-------------|
 | `clean.ps1` | Cleans all `bin/` and `obj/` directories plus native build artifacts. Use `-KillProcesses` to stop dotnet/MSBuild/node processes first. |
 | `js-buildfrontend.mjs` | Node.js build orchestrator for JS frontends. Handles file locking, stale build detection, `npm ci`/`npm install`, and stamp files. |
-| `js-updatedependencies.ps1` | Updates all `package.json` projects — runs `npm update`, optionally `npm-check-updates` for major bumps, and `npm audit fix`. Supports `-WhatIf` for dry runs. |
+| `js-updatedependencies.ps1` | Updates all `package.json` projects runs `npm update`, optionally `npm-check-updates` for major bumps, and `npm audit fix`. Supports `-WhatIf` for dry runs. |
 | `clion-linux-environment.sh` | Provisions a full Linux dev environment for CLion: .NET SDKs 8/9/10, Node.js 24, CMake, GCC 13, Clang/libc++, GDB, and GTK/WebKit dependencies. |
 | `nuget-install.sh` | Cross-platform NuGet CLI installer. Uses PowerShell on Windows/WSL, mono on Linux/macOS. |
 

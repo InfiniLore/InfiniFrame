@@ -82,6 +82,20 @@ public class NativeInvokeTests {
     }
 
     // -----------------------------------------------------------------------------------------------------------------
+    // Sanitize - User Home Directory Redaction
+    // -----------------------------------------------------------------------------------------------------------------
+    [Test]
+    [Arguments("home/user", "/<user>")]
+    [Arguments("users/test", "/<user>")]
+    public async Task Sanitize_RedactsUserHomeDirectories(string input, string expected, CancellationToken ct = default) {
+        // Arrange & Act
+        string result = Sanitize(input);
+
+        // Assert
+        await Assert.That(result).IsEqualTo(expected);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
     // Sanitize - Edge Cases
     // -----------------------------------------------------------------------------------------------------------------
     [Test]

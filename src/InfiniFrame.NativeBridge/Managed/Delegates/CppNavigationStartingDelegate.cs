@@ -16,7 +16,7 @@ namespace InfiniFrame.NativeBridge.Delegates;
 /// <param name="isMainFrame">Non-zero if the navigation is in the main frame.</param>
 /// <returns>0 to allow, 1 to cancel.</returns>
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-internal delegate byte CppNavigationStartingDelegate(
+internal delegate int CppNavigationStartingDelegate(
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     string url,
     int isUserInitiated,

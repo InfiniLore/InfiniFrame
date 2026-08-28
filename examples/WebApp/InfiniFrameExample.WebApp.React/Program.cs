@@ -28,13 +28,15 @@ public static class Program {
             .SetTitle("InfiniLore InfiniFrame.NET REACT Sample")
             .SetSize(new Size(800, 600))
             .RegisterCustomSchemeHandler("app", handler: (_, _) => (
-                new MemoryStream("""
+                new MemoryStream([
+                    .. """
                     (() =>{
                         window.setTimeout(() => {
                             alert(`🎉 Dynamically inserted JavaScript.`);
                         }, 1000);
                     })();
-                    """u8.ToArray())
+                    """u8
+                ])
                 , "text/javascript")
             )
             .RegisterWebMessageReceivedHandler((IInfiniFrameWindow window, string message, WebMessageCounter counter) => {

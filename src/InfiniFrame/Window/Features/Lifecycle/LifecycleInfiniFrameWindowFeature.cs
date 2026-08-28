@@ -368,18 +368,18 @@ public class LifecycleInfiniFrameWindowFeature(
             ReleaseNativeCallbackRootOnce();
             ReleaseMilestoneRootOnce();
             try { window.ReleaseNativeHandle(); }
-            catch {
-                // ignored
+            catch (Exception ex) {
+                logger.LogWarning(ex, "ReleaseNativeHandle failed during disposal");
             }
 
             try { window.MarkNativeHandleReleased(); }
-            catch {
-                // ignored
+            catch (Exception ex) {
+                logger.LogWarning(ex, "MarkNativeHandleReleased failed during disposal");
             }
 
             try { window.MarkDisposed(); }
-            catch {
-                // ignored
+            catch (Exception ex) {
+                logger.LogWarning(ex, "MarkDisposed failed during disposal");
             }
 
             return;

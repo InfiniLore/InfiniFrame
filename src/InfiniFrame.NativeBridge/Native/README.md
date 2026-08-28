@@ -45,7 +45,7 @@ Native/
       MacOs/                  # WKWebView implementation
 
   include/
-    InfiniFrameWindow.h       # Main public header — InfiniFrameWindow class
+    InfiniFrameWindow.h       # Main public header InfiniFrameWindow class
     Types/                    # Shared ABI types (enums, structs)
 ```
 
@@ -62,10 +62,10 @@ The public API is defined in `src/Api/Exports/` and consists of `extern "C"` fun
 ### Error Handling
 
 All exported functions return `InteropStatus` (defined in `Types/InteropStatus.h`):
-- `Success` — Operation completed successfully
-- `ErrorNullParameter` — A required parameter was null
-- `ErrorInvalidState` — The window is not in a valid state for this operation
-- `ErrorPlatformUnsupported` — The operation is not supported on this platform
+- `Success` Operation completed successfully
+- `ErrorNullParameter` A required parameter was null
+- `ErrorInvalidState` The window is not in a valid state for this operation
+- `ErrorPlatformUnsupported` The operation is not supported on this platform
 
 Last error messages can be retrieved with `InfiniFrameNative_GetLastErrorMessage`.
 

@@ -27,7 +27,6 @@ public static class TitleChangedWebMessageHandler {
     private static void HandleWebMessage(IInfiniFrameWindow window, string? payload) {
         if (string.IsNullOrWhiteSpace(payload)) return;
 
-        // window.Logger.LogInformation("title:change {payload}", payload);
         window.Features.Decorations.SetTitle(payload);
     }
 }
