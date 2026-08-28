@@ -27,38 +27,11 @@ permissions:
     checks: write
     statuses: write
 
-jobs:
-    windows-playwright-pending:
-        name: CI Testing - Windows Playwright (Pending)
-        runs-on: windows-latest
-        timeout-minutes: 10
-
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v7
-                with:
-                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
-                    fetch-depth: 1
-
-            -   name: Set Playwright Check Pending
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows Playwright
-                    state: pending
-                    status-description: Windows Playwright tests in progress
-                    target-url: ${{ inputs.workflow_url }}
-                    allow-status-422: 'true'
-    
-    windows-playwright:
-        name: CI Testing - Windows Playwright ${{ matrix.project.name }}
+jobs:    
+    windows-automation:
+        name: CI Testing - Windows Automation ${{ matrix.project.name }}
         runs-on: windows-latest
         timeout-minutes: 75
-        
-        needs: windows-playwright-pending
         
         strategy:
             fail-fast: false
@@ -100,19 +73,6 @@ jobs:
 
             -   name: Setup dependencies
                 uses: ./.github/actions/setup-dependencies-native
-
-            -   name: Set Playwright Check Pending
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows Playwright ${{ matrix.project.name }}
-                    state: pending
-                    status-description: Windows Playwright tests in progress
-                    target-url: ${{ inputs.workflow_url }}
-                    allow-status-422: 'true'
 
             -   name: Download Testing Native Build Artifacts
                 uses: ./.github/actions/download-native-binaries
@@ -218,45 +178,3 @@ jobs:
                       --framework net10.0 `
                       /p:InfiniFrameSkipNativeBuild=true `
                       /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
-
-            -   name: Update Playwright Check
-                if: always()
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check-finalize
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows Playwright ${{ matrix.project.name }}
-                    target-url: ${{ inputs.workflow_url }}
-                    job-status: ${{ job.status }}
-                    success-description: Windows Playwright tests passed
-                    failure-description: Windows Playwright tests failed
-    
-    windows-playwright-finalize:
-        name: CI Testing - Windows Playwright (Finalize)
-        runs-on: windows-latest
-        timeout-minutes: 10
-
-        needs: windows-playwright
-        if: always()
-
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v7
-                with:
-                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
-                    fetch-depth: 1
-
-            -   name: Set Playwright Check Final Status
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check-finalize
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows Playwright
-                    target-url: ${{ inputs.workflow_url }}
-                    job-status: ${{ needs.windows-playwright.result == 'success' && 'success' || 'failure' }}
-                    success-description: Windows Playwright tests passed
-                    failure-description: Windows Playwright tests failed

@@ -26,7 +26,7 @@ permissions:
 
 jobs:
     js-validation:
-        name: CI Testing - JS
+        name: CI Testing - JS/TS
         runs-on: ubuntu-latest
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -70,17 +70,3 @@ jobs:
                     path: src/InfiniFrame.Js/coverage/lcov.info
                     if-no-files-found: warn
                     retention-days: 1
-
-            -   name: Complete Js Check
-                if: always()
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check-finalize
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ env.TARGET_SHA }}
-                    context: CI Testing - Js
-                    target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
-                    job-status: ${{ job.status }}
-                    success-description: Js validation finished successfully
-                    failure-description: Js validation failed

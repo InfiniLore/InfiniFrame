@@ -49,12 +49,6 @@
   <Folder Name="/.dev-tools/github/actions/setup-dependencies/">
     <File Path=".github/actions/setup-dependencies/action.yml" />
   </Folder>
-  <Folder Name="/.dev-tools/github/actions/sync-check-finalize/">
-    <File Path=".github/actions/sync-check-finalize/action.yml" />
-  </Folder>
-  <Folder Name="/.dev-tools/github/actions/sync-check/">
-    <File Path=".github/actions/sync-check/action.yml" />
-  </Folder>
   <Folder Name="/.dev-tools/github/workflows/">
     <File Path=".github/workflows/ci-release-docs.yml" />
     <File Path=".github/workflows/ci-testing.yml" />

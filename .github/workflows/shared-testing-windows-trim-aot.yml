@@ -45,19 +45,6 @@ jobs:
             -   name: Setup dependencies
                 uses: ./.github/actions/setup-dependencies-native
 
-            -   name: Set Trim/AOT Check Pending
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ env.TARGET_SHA }}
-                    context: CI Testing - Trim/AOT
-                    state: pending
-                    status-description: Trim and AOT validation in progress
-                    target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
-                    allow-status-422: 'true'
-
             -   name: Setup Native dependencies
                 uses: ./.github/actions/setup-dependencies-native
                 with:
@@ -146,17 +133,3 @@ jobs:
                       }
                     }
                     Exit 1
-
-            -   name: Complete Trim/AOT Check
-                if: always()
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check-finalize
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ env.TARGET_SHA }}
-                    context: CI Testing - Trim/AOT
-                    target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
-                    job-status: ${{ job.status }}
-                    success-description: Trim and AOT validation finished successfully
-                    failure-description: Trim and AOT validation failed
