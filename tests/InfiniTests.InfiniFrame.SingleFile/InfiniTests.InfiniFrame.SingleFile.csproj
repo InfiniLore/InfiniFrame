@@ -2,10 +2,13 @@
 
     <ItemGroup>
         <PackageReference Include="TUnit"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="../InfiniTests/InfiniTests.csproj"/>
         <ProjectReference Include="../../src/InfiniFrame.SingleFile/InfiniFrame.SingleFile.csproj"/>
+        <ProjectReference Include="../../src/InfiniFrame.BlazorWebView/InfiniFrame.BlazorWebView.csproj"/>
+        <ProjectReference Include="../../src/InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
     </ItemGroup>
 </Project>
