@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: Linux Tests"
+name: "Shared: linux"
 on:
     workflow_call:
         inputs:
@@ -27,7 +27,7 @@ on:
 
 jobs:
     linux:
-        name: CI Testing - Linux (${{ matrix.arch }}/${{ matrix.display_server }})
+        name: "CI: linux-${{ matrix.arch }}/${{ matrix.display_server }}"
         runs-on: ${{ matrix.os }}
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -71,9 +71,6 @@ jobs:
                 with:
                     cache-dotnet: false
 
-            -   name: Setup dependencies
-                uses: ./.github/actions/setup-dependencies-native
-
             -   name: Set Linux Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -81,7 +78,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Linux/${{ matrix.arch }}/${{ matrix.display_server }}
+                    context: "CI: linux-${{ matrix.arch }}/${{ matrix.display_server }}"
                     state: pending
                     status-description: Linux tests in progress
                     target-url: ${{ inputs.workflow_url }}
@@ -338,20 +335,6 @@ jobs:
                         core*
                     if-no-files-found: ignore
 
-            -   name: SingleFile E2E
-                uses: ./.github/actions/singlefile-e2e
-                with:
-                    project: examples/SingleFileExe/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
-                    rid: ${{ matrix.rid }}
-                    output: artifacts/pack-e2e/InfiniFrameExample.SingleFileExe
-                    main-output-name: InfiniFrameExample.SingleFileExe
-                    forbidden-entries: |
-                        wwwroot
-                        InfiniFrame.Native.dll
-                        WebView2Loader.dll
-                        InfiniFrame.Native.so
-                        InfiniFrame.Native.dylib
-
             -   name: Upload C# Coverage
                 if: ${{ inputs.enable_coverage == true && success() }}
                 uses: actions/upload-artifact@v7
@@ -365,11 +348,11 @@ jobs:
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check-finalize
+                uses: ./.github/actions/sync-check
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Linux/${{ matrix.arch }}/${{ matrix.display_server }}
+                    context: "CI: linux-${{ matrix.arch }}/${{ matrix.display_server }}"
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
                     success-description: Linux tests passed

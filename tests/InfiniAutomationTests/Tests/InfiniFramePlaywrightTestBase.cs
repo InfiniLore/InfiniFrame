@@ -144,7 +144,9 @@ public abstract class InfiniFramePlaywrightTestBase {
     protected static async Task WaitForInfiniFrameReadyAsync(IPage page) {
         for (int attempt = 1; attempt <= NavigationRetryCount; attempt++) {
             try {
-                await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+                await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded, new PageWaitForLoadStateOptions {
+                    Timeout = InfiniFrameReadyTimeoutMs
+                });
                 await page.WaitForFunctionAsync(
                     // lang=javascript
                     """
@@ -155,6 +157,9 @@ public abstract class InfiniFramePlaywrightTestBase {
                     }
                 );
                 return;
+            }
+            catch (TimeoutException) when (attempt < NavigationRetryCount) {
+                await page.WaitForTimeoutAsync(NavigationRetryDelayMs);
             }
             catch (PlaywrightException exception) when (
                 attempt < NavigationRetryCount &&

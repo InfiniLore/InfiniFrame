@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: Docs Tests"
+name: "Shared: docs"
 
 on:
     workflow_call:
@@ -21,7 +21,7 @@ permissions:
 
 jobs:
     docs-validation:
-        name: CI Testing - Docs
+        name: "CI: docs"
         runs-on: ubuntu-latest
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -51,7 +51,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ env.TARGET_SHA }}
-                    context: CI Testing - Docs
+                    context: "CI: docs"
                     state: pending
                     status-description: Docs validation in progress
                     target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
@@ -65,11 +65,11 @@ jobs:
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check-finalize
+                uses: ./.github/actions/sync-check
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ env.TARGET_SHA }}
-                    context: CI Testing - Docs
+                    context: "CI: docs"
                     target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
                     job-status: ${{ job.status }}
                     success-description: Docs validation finished successfully

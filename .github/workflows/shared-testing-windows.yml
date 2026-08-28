@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: Windows Tests"
+name: "Shared: win"
 on:
     workflow_call:
         inputs:
@@ -27,7 +27,7 @@ on:
 
 jobs:
     windows:
-        name: CI Testing - Windows (${{ matrix.arch }})
+        name: "CI: win-${{ matrix.arch }}"
         runs-on: ${{ matrix.os }}
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -61,9 +61,6 @@ jobs:
                 with:
                     cache-dotnet: false
 
-            -   name: Setup dependencies
-                uses: ./.github/actions/setup-dependencies-native
-
             -   name: Set Windows Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -71,7 +68,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows/${{ matrix.arch }}
+                    context: "CI: win-${{ matrix.arch }}"
                     state: pending
                     status-description: Windows tests in progress
                     target-url: ${{ inputs.workflow_url }}
@@ -265,29 +262,15 @@ jobs:
                         artifacts/windows-event-log.txt
                         TestResults
 
-            -   name: SingleFile E2E
-                uses: ./.github/actions/singlefile-e2e
-                with:
-                    project: examples/SingleFileExe/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
-                    rid: ${{ matrix.rid }}
-                    output: artifacts/pack-e2e/InfiniFrameExample.SingleFileExe
-                    main-output-name: InfiniFrameExample.SingleFileExe.exe
-                    forbidden-entries: |
-                        wwwroot
-                        InfiniFrame.Native.dll
-                        WebView2Loader.dll
-                        InfiniFrame.Native.so
-                        InfiniFrame.Native.dylib
-
             -   name: Update Windows Check
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check-finalize
+                uses: ./.github/actions/sync-check
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows/${{ matrix.arch }}
+                    context: "CI: win-${{ matrix.arch }}"
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
                     success-description: Windows tests passed

@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "CodeQL Advanced"
+name: "CI: codeql"
 
 concurrency:
     group: codeql-${{ github.workflow }}-${{ github.ref }}
@@ -68,7 +68,7 @@ jobs:
                           - 'src/InfiniFrame.NativeBridge/Native/**'
                           - 'native-vendor-deps.json'
                           - 'global.json'
-                          - '.github/actions/setup-dependencies-native/**'
+                          - '.github/actions/setup-dependencies/**'
                           - '.github/workflows/ci-codeql.yml'
                           - '.github/codeql-config.yml'
                         
@@ -171,11 +171,7 @@ jobs:
                 uses: ./.github/actions/setup-dependencies
                 with:
                     cache-dotnet: false
-            
-            -   name: Setup Native Dependencies
-                uses: ./.github/actions/setup-dependencies-native
-                with:
-                    brew-cache-key: ${{ runner.os }}-brew-codeql-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
+                    brew-cache-key: ${{ runner.os }}-brew-codeql-${{ hashFiles('.github/actions/setup-dependencies/action.yml', '.github/workflows/shared-testing-macos.yml') }}
                     brew-restore-key: ${{ runner.os }}-brew-codeql-
                     restore-nativebridge-packages: 'true'
 
@@ -247,11 +243,7 @@ jobs:
                 uses: ./.github/actions/setup-dependencies
                 with:
                     cache-dotnet: false
-
-            -   name: Setup Native Dependencies
-                uses: ./.github/actions/setup-dependencies-native
-                with:
-                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-codeql-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/ci-codeql.yml') }}
+                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-codeql-${{ hashFiles('.github/actions/setup-dependencies/action.yml', '.github/workflows/ci-codeql.yml') }}
                     brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-codeql-
                     restore-nativebridge-packages: 'true'
 

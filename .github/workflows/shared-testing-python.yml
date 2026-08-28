@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: Python Tests"
+name: "Shared: python"
 
 on:
     workflow_call:
@@ -9,18 +9,39 @@ on:
                 type: boolean
                 required: false
                 default: true
+            target_sha:
+                type: string
+                required: true
+            workflow_url:
+                type: string
+                required: true
 
 permissions:
     contents: read
+    statuses: write
+    checks: write
 
 jobs:
     python-tests:
-        name: Python Tests
+        name: "CI: python"
         runs-on: ubuntu-latest
 
         steps:
             -   name: Checkout
                 uses: actions/checkout@v7
+
+            -   name: Set Python Check Pending
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                uses: ./.github/actions/sync-check
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: "CI: python"
+                    state: pending
+                    status-description: Python tests in progress
+                    target-url: ${{ inputs.workflow_url }}
+                    allow-status-422: 'true'
 
             -   name: Setup Python
                 uses: actions/setup-python@v7
@@ -57,3 +78,17 @@ jobs:
                     python scripts/validate_package_id_prefix.py \
                       --slnf InfiniFrame.GitHubActions.Release.slnf \
                       --prefix InfiniLore
+
+            -   name: Update Python Check
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                uses: ./.github/actions/sync-check
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: "CI: python"
+                    target-url: ${{ inputs.workflow_url }}
+                    job-status: ${{ job.status }}
+                    success-description: Python tests passed
+                    failure-description: Python tests failed

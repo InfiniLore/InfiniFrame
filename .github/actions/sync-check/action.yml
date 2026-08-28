@@ -12,14 +12,28 @@ inputs:
         description: Status/check context name
         required: true
     state:
-        description: pending|success|failure|error
-        required: true
+        description: pending|success|failure|error — used directly when job-status is not provided
+        required: false
+        default: ''
     status-description:
-        description: Short status description
-        required: true
+        description: Short status description — used directly when job-status is not provided
+        required: false
+        default: ''
     target-url:
         description: URL to link from the status/check
         required: true
+    job-status:
+        description: Job status (success/failure/cancelled) — when provided, computes state/conclusion/description automatically
+        required: false
+        default: ''
+    success-description:
+        description: Description used when job-status is success
+        required: false
+        default: ''
+    failure-description:
+        description: Description used when job-status is not success
+        required: false
+        default: ''
     token-env:
         description: Environment variable that contains a GitHub token
         required: false
@@ -57,26 +71,67 @@ runs:
             shell: bash
             run: echo "LOCAL_GHA_SKIP_STATUS=1, skipping GitHub status/check sync."
 
+        -   name: Compute result from job-status
+            if: ${{ env.LOCAL_GHA_SKIP_STATUS != '1' && inputs['job-status'] != '' }}
+            id: computed
+            shell: pwsh
+            run: |
+                if ("${{ inputs['job-status'] }}" -eq "success") {
+                  "state=success" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+                  "conclusion=success" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+                  "description=${{ inputs['success-description'] }}" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+                } else {
+                  "state=failure" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+                  "conclusion=failure" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+                  "description=${{ inputs['failure-description'] }}" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+                }
+
         -   name: Sync status/check
             if: ${{ env.LOCAL_GHA_SKIP_STATUS != '1' }}
             shell: pwsh
             run: |
+                $jobStatus = "${{ inputs['job-status'] }}"
+
+                if ($jobStatus -ne "") {
+                  # Finalize mode: use computed values
+                  if ("$jobStatus" -eq "success") {
+                    $state = "success"
+                    $conclusion = "success"
+                    $description = "${{ inputs['success-description'] }}"
+                  } else {
+                    $state = "failure"
+                    $conclusion = "failure"
+                    $description = "${{ inputs['failure-description'] }}"
+                  }
+                  $completeCheckRuns = "true"
+                  $requireUpdate = "true"
+                  $createIfMissing = "true"
+                } else {
+                  # Direct mode: use provided values
+                  $state = "${{ inputs.state }}"
+                  $conclusion = "${{ inputs['check-conclusion'] }}"
+                  $description = "${{ inputs['status-description'] }}"
+                  $completeCheckRuns = "${{ inputs['complete-check-runs'] }}"
+                  $requireUpdate = "${{ inputs['require-update'] }}"
+                  $createIfMissing = "${{ inputs['create-check-run-if-missing'] }}"
+                }
+
                 $argsList = @(
                   "scripts/sync_github_checks.py",
                   "--repo", "${{ inputs.repo }}",
                   "--sha", "${{ inputs.sha }}",
                   "--context", "${{ inputs.context }}",
-                  "--state", "${{ inputs.state }}",
-                  "--description", "${{ inputs['status-description'] }}",
+                  "--state", $state,
+                  "--description", $description,
                   "--target-url", "${{ inputs['target-url'] }}",
                   "--token-env", "${{ inputs['token-env'] }}",
-                  "--check-conclusion", "${{ inputs['check-conclusion'] }}",
-                  "--check-summary", "${{ inputs['check-summary'] }}"
+                  "--check-conclusion", $conclusion,
+                  "--check-summary", $description
                 )
-                
+
                 if ("${{ inputs['allow-status-422'] }}" -eq "true") { $argsList += "--allow-status-422" }
-                if ("${{ inputs['complete-check-runs'] }}" -eq "true") { $argsList += "--complete-check-runs" }
-                if ("${{ inputs['require-update'] }}" -eq "true") { $argsList += "--require-update" }
-                if ("${{ inputs['create-check-run-if-missing'] }}" -eq "true") { $argsList += "--create-check-run-if-missing" }
-                
+                if ($completeCheckRuns -eq "true") { $argsList += "--complete-check-runs" }
+                if ($requireUpdate -eq "true") { $argsList += "--require-update" }
+                if ($createIfMissing -eq "true") { $argsList += "--create-check-run-if-missing" }
+
                 python @argsList

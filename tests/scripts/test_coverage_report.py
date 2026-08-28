@@ -10,6 +10,8 @@ from pathlib import Path
 import pytest
 
 from scripts.coverage_report import (
+    BADGE_THRESHOLD_GREEN,
+    BADGE_THRESHOLD_YELLOW,
     badge_color,
     build_pr_comment,
     coverage_pct,
@@ -47,24 +49,25 @@ def test_coverage_pct_no_coverage():
     assert coverage_pct(0, 100) == 0.0
 
 
-def test_badge_color_green_at_90():
-    assert badge_color(90.0) == "brightgreen"
+def test_badge_color_green_at_threshold():
+    assert badge_color(float(BADGE_THRESHOLD_GREEN)) == "brightgreen"
 
 
-def test_badge_color_green_above_90():
-    assert badge_color(95.5) == "brightgreen"
+def test_badge_color_green_above_threshold():
+    assert badge_color(BADGE_THRESHOLD_GREEN + 5.5) == "brightgreen"
 
 
-def test_badge_color_yellow_at_75():
-    assert badge_color(75.0) == "yellow"
+def test_badge_color_yellow_at_threshold():
+    assert badge_color(float(BADGE_THRESHOLD_YELLOW)) == "yellow"
 
 
-def test_badge_color_yellow_between_75_and_90():
-    assert badge_color(82.3) == "yellow"
+def test_badge_color_yellow_between_thresholds():
+    mid = (BADGE_THRESHOLD_GREEN + BADGE_THRESHOLD_YELLOW) / 2
+    assert badge_color(mid) == "yellow"
 
 
-def test_badge_color_red_below_75():
-    assert badge_color(74.9) == "red"
+def test_badge_color_red_below_yellow_threshold():
+    assert badge_color(BADGE_THRESHOLD_YELLOW - 0.1) == "red"
 
 
 def test_badge_color_red_at_zero():
@@ -246,9 +249,9 @@ def test_parse_cs_coverage_multiple_packages_merge(tmp_path: Path):
 <coverage version="5.0" lines-valid="2" lines-covered="2">
   <packages>
     <package name="A">
-      <classes><class name="C" filename="b.cs">
-        <methods><method name="M" signature="()">
-          <lines><line number="1" hits="2"/><line number="2" hits="1"/></lines>
+      <classes><class name="D" filename="b.cs">
+        <methods><method name="N" signature="()">
+          <lines><line number="3" hits="2"/><line number="4" hits="1"/></lines>
         </method></methods>
       </class></classes>
     </package>
@@ -464,7 +467,8 @@ def test_parse_cs_coverage_none_covered(tmp_path: Path):
     assert covered == 0
 
 
-def test_parse_cs_coverage_multiple_files(tmp_path: Path):
+def test_parse_cs_coverage_deduplicates_across_xml_files(tmp_path: Path):
+    """Same class in two XML files (e.g. from two platforms) must not double-count lines."""
     cob_dir = tmp_path / "cov"
     cob_dir.mkdir()
     xml1 = """\
@@ -474,7 +478,7 @@ def test_parse_cs_coverage_multiple_files(tmp_path: Path):
     <package name="A">
       <classes><class name="C" filename="a.cs">
         <methods><method name="M" signature="()">
-          <lines><line number="1" hits="1"/></lines>
+          <lines><line number="1" hits="1"/><line number="2" hits="0"/></lines>
         </method></methods>
       </class></classes>
     </package>
@@ -484,10 +488,49 @@ def test_parse_cs_coverage_multiple_files(tmp_path: Path):
 <?xml version="1.0" ?>
 <coverage version="5.0">
   <packages>
-    <package name="B">
-      <classes><class name="D" filename="b.cs">
+    <package name="A">
+      <classes><class name="C" filename="a.cs">
+        <methods><method name="M" signature="()">
+          <lines><line number="1" hits="1"/><line number="2" hits="1"/></lines>
+        </method></methods>
+      </class></classes>
+    </package>
+  </packages>
+</coverage>"""
+    (cob_dir / "windows.cobertura.xml").write_text(xml1)
+    (cob_dir / "linux.cobertura.xml").write_text(xml2)
+    total, covered, pkg = parse_cs_coverage(cob_dir)
+    assert total == 2
+    assert covered == 2
+    assert pkg["A"]["lines"] == 2
+    assert pkg["A"]["covered"] == 2
+
+
+def test_parse_cs_coverage_different_files_same_package(tmp_path: Path):
+    """Different source files in the same package are counted separately."""
+    cob_dir = tmp_path / "cov"
+    cob_dir.mkdir()
+    xml1 = """\
+<?xml version="1.0" ?>
+<coverage version="5.0">
+  <packages>
+    <package name="A">
+      <classes><class name="C1" filename="a.cs">
+        <methods><method name="M" signature="()">
+          <lines><line number="1" hits="1"/><line number="2" hits="0"/></lines>
+        </method></methods>
+      </class></classes>
+    </package>
+  </packages>
+</coverage>"""
+    xml2 = """\
+<?xml version="1.0" ?>
+<coverage version="5.0">
+  <packages>
+    <package name="A">
+      <classes><class name="C2" filename="b.cs">
         <methods><method name="N" signature="()">
-          <lines><line number="1" hits="0"/><line number="2" hits="1"/></lines>
+          <lines><line number="1" hits="1"/><line number="2" hits="1"/></lines>
         </method></methods>
       </class></classes>
     </package>
@@ -496,10 +539,10 @@ def test_parse_cs_coverage_multiple_files(tmp_path: Path):
     (cob_dir / "1.cobertura.xml").write_text(xml1)
     (cob_dir / "2.cobertura.xml").write_text(xml2)
     total, covered, pkg = parse_cs_coverage(cob_dir)
-    assert total == 3
-    assert covered == 2
-    assert pkg["A"]["lines"] == 1
-    assert pkg["B"]["lines"] == 2
+    assert total == 4
+    assert covered == 3
+    assert pkg["A"]["lines"] == 4
+    assert pkg["A"]["covered"] == 3
 
 
 def test_main_writes_badges(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):

@@ -37,11 +37,11 @@ permissions:
 
 jobs:
     tests-python:
-        name: Python Tests
+        name: "CI: python"
         uses: ./.github/workflows/shared-testing-python.yml
 
     tests-platform:
-        name: Platform Tests
+        name: "CI: tests"
         needs: tests-python
         uses: ./.github/workflows/shared-testing.yml
         with:
@@ -60,7 +60,7 @@ jobs:
     # Bump version, commit, and tag
     # ------------------------------------------------------------------------------------------------------------------
     bump-version:
-        name: Bump Version
+        name: "CI: bump-version"
         needs: tests-platform
         if: ${{ github.ref == 'refs/heads/core' }}
         uses: ./.github/workflows/shared-release-bump-version.yml
@@ -70,7 +70,7 @@ jobs:
         secrets: inherit
 
     build:
-        name: Build Native
+        name: "CI: build"
         needs: bump-version
         uses: ./.github/workflows/shared-release-build.yml
         with:
@@ -78,7 +78,7 @@ jobs:
         secrets: inherit
 
     publish:
-        name: Publish Release
+        name: "CI: publish"
         needs: [ build, bump-version ]
         uses: ./.github/workflows/shared-release-publish.yml
         with:
@@ -88,7 +88,7 @@ jobs:
         secrets: inherit
 
     publish-docs:
-        name: Publish Docs
+        name: "CI: publish-docs"
         needs: [ publish, bump-version ]
         if: inputs.publish_docs
         uses: ./.github/workflows/shared-release-publish-docs.yml

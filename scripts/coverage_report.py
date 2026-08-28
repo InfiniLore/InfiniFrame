@@ -20,6 +20,8 @@ from pathlib import Path
 # ---------------------------------------------------------------------------------------------------------------------
 TEST_PACKAGES = ("InfiniTests", "InfiniAutomationTests")
 NATIVE_EXTENSIONS = (".cpp", ".h", ".mm", ".c", ".hpp")
+BADGE_THRESHOLD_GREEN = 85
+BADGE_THRESHOLD_YELLOW = 60
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Code
@@ -40,11 +42,11 @@ def parse_cs_coverage(coverage_dir: Path) -> tuple[int, int, OrderedDict[str, di
     """Parse Cobertura XML files and return (total_lines, total_covered, per_pkg_data).
 
     Test packages matching TEST_PACKAGES and native source files are excluded.
-    Deduplicates by source line number per class to avoid IL inflation.
+    Deduplicates by (filename, line_number) across all XML files so the same
+    source file compiled on multiple platforms is only counted once, while
+    different source files within the same package are counted separately.
     """
-    total_lines = 0
-    total_covered = 0
-    pkg_data: OrderedDict[str, dict] = OrderedDict()
+    pkg_seen: OrderedDict[str, dict[tuple[str, int], bool]] = OrderedDict()
 
     for xml_file in coverage_dir.rglob("*.cobertura.xml"):
         tree = ET.parse(xml_file)
@@ -56,29 +58,32 @@ def parse_cs_coverage(coverage_dir: Path) -> tuple[int, int, OrderedDict[str, di
             pkg_name = pkg.get("name", "")
             if any(pkg_name.startswith(tp) for tp in TEST_PACKAGES):
                 continue
-            pkg_lines = 0
-            pkg_covered = 0
+            if pkg_name not in pkg_seen:
+                pkg_seen[pkg_name] = {}
+            seen = pkg_seen[pkg_name]
             for cls in pkg.findall(".//class"):
                 filename = cls.get("filename", "")
                 if any(filename.endswith(ext) for ext in NATIVE_EXTENSIONS):
                     continue
-                seen: dict[int, bool] = {}
                 for method in cls.findall(".//method"):
                     for line in method.findall(".//line"):
                         line_num = int(line.get("number", "0"))
                         hits = int(line.get("hits", "0")) > 0
-                        if line_num not in seen:
-                            seen[line_num] = hits
+                        key = (filename, line_num)
+                        if key not in seen:
+                            seen[key] = hits
                         elif hits:
-                            seen[line_num] = True
-                pkg_lines += len(seen)
-                pkg_covered += sum(1 for h in seen.values() if h)
-            total_lines += pkg_lines
-            total_covered += pkg_covered
-            if pkg_name not in pkg_data:
-                pkg_data[pkg_name] = {"lines": 0, "covered": 0}
-            pkg_data[pkg_name]["lines"] += pkg_lines
-            pkg_data[pkg_name]["covered"] += pkg_covered
+                            seen[key] = True
+
+    total_lines = 0
+    total_covered = 0
+    pkg_data: OrderedDict[str, dict] = OrderedDict()
+    for pkg_name, seen in pkg_seen.items():
+        lines = len(seen)
+        covered = sum(1 for h in seen.values() if h)
+        total_lines += lines
+        total_covered += covered
+        pkg_data[pkg_name] = {"lines": lines, "covered": covered}
 
     return total_lines, total_covered, pkg_data
 
@@ -88,9 +93,9 @@ def coverage_pct(covered: int, total: int) -> float:
 
 
 def badge_color(pct: float) -> str:
-    if pct >= 90:
+    if pct >= BADGE_THRESHOLD_GREEN:
         return "brightgreen"
-    if pct >= 75:
+    if pct >= BADGE_THRESHOLD_YELLOW:
         return "yellow"
     return "red"
 

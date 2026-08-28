@@ -12,6 +12,7 @@ permissions:
 
 jobs:
     update-native-vendor-deps:
+        name: "CI: update-native-deps"
         runs-on: ubuntu-latest
         
         steps:

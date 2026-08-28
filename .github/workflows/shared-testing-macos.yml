@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: macOS Tests"
+name: "Shared: osx"
 on:
     workflow_call:
         inputs:
@@ -27,7 +27,7 @@ on:
 
 jobs:
     macos:
-        name: CI Testing - macOS (${{ matrix.arch }})
+        name: "CI: osx-${{ matrix.arch }}"
         runs-on: ${{ matrix.os }}
         timeout-minutes: 120
         env:
@@ -63,11 +63,7 @@ jobs:
                 uses: ./.github/actions/setup-dependencies
                 with:
                     cache-dotnet: false
-
-            -   name: Setup dependencies
-                uses: ./.github/actions/setup-dependencies-native
-                with:
-                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
+                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies/action.yml', '.github/workflows/shared-testing-macos.yml') }}
                     brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
 
             -   name: Set macOS Check Pending
@@ -77,7 +73,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - macOS/${{ matrix.arch }}
+                    context: "CI: osx-${{ matrix.arch }}"
                     state: pending
                     status-description: macOS tests in progress
                     target-url: ${{ inputs.workflow_url }}
@@ -193,36 +189,22 @@ jobs:
                     if-no-files-found: warn
                     retention-days: 1
 
-            -   name: SingleFile E2E
-                uses: ./.github/actions/singlefile-e2e
-                with:
-                    project: examples/SingleFileExe/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
-                    rid: ${{ matrix.rid }}
-                    output: artifacts/pack-e2e/InfiniFrameExample.SingleFileExe
-                    main-output-name: InfiniFrameExample.SingleFileExe
-                    forbidden-entries: |
-                        wwwroot
-                        InfiniFrame.Native.dll
-                        WebView2Loader.dll
-                        InfiniFrame.Native.so
-                        InfiniFrame.Native.dylib
-
             -   name: Update macOS Check
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check-finalize
+                uses: ./.github/actions/sync-check
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - macOS/${{ matrix.arch }}
+                    context: "CI: osx-${{ matrix.arch }}"
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
                     success-description: macOS tests passed
                     failure-description: macOS tests failed
 
     macos-sanitizers:
-        name: CI Testing - macOS (ASan + UBSan)
+        name: "CI: osx-arm64/sanitizers"
         runs-on: macos-latest
         timeout-minutes: 90
         permissions:
@@ -245,11 +227,7 @@ jobs:
                 uses: ./.github/actions/setup-dependencies
                 with:
                     cache-dotnet: false
-
-            -   name: Setup native dependencies
-                uses: ./.github/actions/setup-dependencies-native
-                with:
-                    brew-cache-key: macos-sanitizers-arm64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
+                    brew-cache-key: macos-sanitizers-arm64-brew-native-${{ hashFiles('.github/actions/setup-dependencies/action.yml', '.github/workflows/shared-testing-macos.yml') }}
                     brew-restore-key: macos-sanitizers-arm64-brew-native-
                     restore-nativebridge-packages: 'true'
 

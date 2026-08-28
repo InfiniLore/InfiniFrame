@@ -1,0 +1,163 @@
+#file: noinspection UndefinedAction,UndefinedParamsPresent
+name: "Shared: singlefile"
+on:
+    workflow_call:
+        inputs:
+            pr_number:
+                type: string
+                required: true
+            checkout_ref:
+                type: string
+                default: ''
+                required: false
+            target_sha:
+                type: string
+                required: true
+            workflow_url:
+                type: string
+                required: true
+
+jobs:
+    singlefile-e2e:
+        name: "CI: ${{ matrix.rid }}/singlefile"
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    -   os: ubuntu-latest
+                        arch: x64
+                        rid: linux-x64
+                    -   os: ubuntu-24.04-arm
+                        arch: arm64
+                        rid: linux-arm64
+                    -   os: macos-15-intel
+                        arch: x64
+                        rid: osx-x64
+                    -   os: macos-latest
+                        arch: arm64
+                        rid: osx-arm64
+                    -   os: windows-latest
+                        arch: x64
+                        rid: win-x64
+                        main-output-name: InfiniFrameExample.SingleFileExe.exe
+                    -   os: windows-11-arm
+                        arch: arm64
+                        rid: win-arm64
+                        main-output-name: InfiniFrameExample.SingleFileExe.exe
+        permissions:
+            contents: read
+            statuses: write
+            checks: write
+
+        steps:
+            -   uses: actions/checkout@v7
+                with:
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
+                    fetch-depth: 1
+
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies
+                with:
+                    cache-dotnet: false
+                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies/action.yml', '.github/workflows/shared-testing-singlefile-e2e.yml') }}
+                    brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
+
+            -   name: Download Testing Native Build Artifacts
+                uses: ./.github/actions/download-native-binaries
+                with:
+                    artifact-type: testing
+
+            -   name: Set SingleFile E2E Check Pending
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                uses: ./.github/actions/sync-check
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: "CI: ${{ matrix.rid }}/singlefile"
+                    state: pending
+                    status-description: SingleFile E2E tests in progress
+                    target-url: ${{ inputs.workflow_url }}
+                    allow-status-422: 'true'
+
+            -   name: Publish single-file via MSBuild target
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    dotnet publish examples/SingleFileExe/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj \
+                      -t:InfiniFrameSingleFile \
+                      -r "${{ matrix.rid }}" \
+                      -c Release \
+                      -p:InfiniFrameSingleFileActive=true \
+                      -p:InfiniFrameSingleFileRid="${{ matrix.rid }}" \
+                      -p:InfiniFrameSingleFileSelfContained=true
+
+            -   name: Locate publish output
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    project_dir="examples/SingleFileExe/InfiniFrameExample.SingleFileExe"
+                    output_dir="artifacts/pack-e2e/InfiniFrameExample.SingleFileExe"
+                    mkdir -p "$output_dir"
+
+                    publish_dir=$(find "$project_dir/bin" -type d -name "publish" -path "*${{ matrix.rid }}*" | head -1)
+                    if [ -z "$publish_dir" ]; then
+                      echo "Could not find publish directory under $project_dir/bin"
+                      exit 1
+                    fi
+
+                    cp -r "$publish_dir"/* "$output_dir/"
+                    echo "Copied publish output to $output_dir"
+
+            -   name: Validate output shape
+                shell: bash
+                run: |
+                    set -euo pipefail
+
+                    output_dir="artifacts/pack-e2e/InfiniFrameExample.SingleFileExe"
+                    main_output_name="${{ matrix.main-output-name || 'InfiniFrameExample.SingleFileExe' }}"
+                    main_output="${output_dir}/${main_output_name}"
+
+                    if [ ! -f "$main_output" ]; then
+                      echo "Expected single-file output is missing: $main_output"
+                      echo "Contents of output directory:"
+                      ls -la "$output_dir/"
+                      exit 1
+                    fi
+
+                    unexpected="$(find "$output_dir" -mindepth 1 -maxdepth 1 ! -name "$main_output_name" | sed 's|.*/||')"
+                    if [ -n "$unexpected" ]; then
+                      echo "Publish output shape invalid. Unexpected entries:"
+                      echo "$unexpected"
+                      exit 1
+                    fi
+
+                    while IFS= read -r forbidden; do
+                      forbidden="$(echo "$forbidden" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+                      [ -z "$forbidden" ] && continue
+                      if [ -e "${output_dir}/${forbidden}" ]; then
+                        echo "Found unpacked payload in publish output: $forbidden"
+                        exit 1
+                      fi
+                    done <<< "wwwroot
+                    InfiniFrame.Native.dll
+                    WebView2Loader.dll
+                    InfiniFrame.Native.so
+                    InfiniFrame.Native.dylib"
+
+                    echo "Pack output validated successfully."
+
+            -   name: Update SingleFile E2E Check
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                uses: ./.github/actions/sync-check
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: "CI: ${{ matrix.rid }}/singlefile"
+                    target-url: ${{ inputs.workflow_url }}
+                    job-status: ${{ job.status }}
+                    success-description: SingleFile E2E tests passed
+                    failure-description: SingleFile E2E tests failed

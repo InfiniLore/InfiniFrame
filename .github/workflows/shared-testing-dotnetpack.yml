@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: Dotnet Pack Tests"
+name: "Shared: linux/dotnet-pack"
 
 on:
     workflow_call:
@@ -26,7 +26,7 @@ permissions:
 
 jobs:
     dotnet-pack-validation:
-        name: CI Testing - Dotnet Pack
+        name: "CI: linux-x64/dotnet-pack"
         runs-on: ubuntu-latest
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -43,9 +43,6 @@ jobs:
                 with:
                     cache-dotnet: false
 
-            -   name: Setup dependencies
-                uses: ./.github/actions/setup-dependencies-native
-
             -   name: Set Dotnet Pack Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -53,7 +50,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Dotnet Pack
+                    context: "CI: linux-x64/dotnet-pack"
                     state: pending
                     status-description: Dotnet Pack tests in progress
                     target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
@@ -181,12 +178,12 @@ jobs:
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 # noinspection UndefinedAction, UndefinedParamsPresent
-                uses: ./.github/actions/sync-check-finalize
+                uses: ./.github/actions/sync-check
                 # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ env.TARGET_SHA }}
-                    context: CI Testing - Dotnet Pack
+                    context: "CI: linux-x64/dotnet-pack"
                     target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
                     job-status: ${{ job.status }}
                     success-description: Dotnet Pack finished successfully

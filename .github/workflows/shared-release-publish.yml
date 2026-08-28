@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: Release Publish"
+name: "Shared: release-publish"
 on:
     workflow_call:
         inputs:
@@ -18,7 +18,7 @@ on:
 
 jobs:
     release:
-        name: Publish Release
+        name: "CI: publish"
         runs-on: ubuntu-latest
         permissions:
             contents: write
@@ -50,10 +50,10 @@ jobs:
                       --slnf InfiniFrame.GitHubActions.Release.slnf \
                       --prefix InfiniLore
 
-            -   name: Setup Native dependencies
-                uses: ./.github/actions/setup-dependencies-native
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies
                 with:
-                    brew-cache-key: ${{ runner.os }}-release-publish-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-release-publish.yml') }}
+                    brew-cache-key: ${{ runner.os }}-release-publish-brew-native-${{ hashFiles('.github/actions/setup-dependencies/action.yml', '.github/workflows/shared-release-publish.yml') }}
                     brew-restore-key: ${{ runner.os }}-release-publish-brew-native-
 
             -   name: Download Release Native Build Artifacts

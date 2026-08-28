@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: Release Build"
+name: "Shared: release-build"
 
 on:
     workflow_call:
@@ -14,7 +14,7 @@ permissions:
 
 jobs:
     build:
-        name: Build Native (${{ matrix.os }}/${{ matrix.arch }})
+        name: "CI: ${{ matrix.os }}-${{ matrix.arch }}/build"
         runs-on: ${{ matrix.os }}
         
         strategy:
@@ -56,11 +56,7 @@ jobs:
               uses: ./.github/actions/setup-dependencies
               with:
                   cache-dotnet: false
-
-            - name: Setup Native dependencies
-              uses: ./.github/actions/setup-dependencies-native
-              with:
-                  brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-release-build.yml') }}
+                  brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies/action.yml', '.github/workflows/shared-release-build.yml') }}
                   brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
                   restore-nativebridge-packages: "true"
 

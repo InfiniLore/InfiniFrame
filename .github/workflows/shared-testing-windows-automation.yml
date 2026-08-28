@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: Windows Playwright Tests"
+name: "Shared: win/automation"
 
 on:
     workflow_call:
@@ -28,38 +28,11 @@ permissions:
     statuses: write
 
 jobs:
-    windows-playwright-pending:
-        name: CI Testing - Windows Playwright (Pending)
-        runs-on: windows-latest
-        timeout-minutes: 10
-
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v7
-                with:
-                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
-                    fetch-depth: 1
-
-            -   name: Set Playwright Check Pending
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows Playwright
-                    state: pending
-                    status-description: Windows Playwright tests in progress
-                    target-url: ${{ inputs.workflow_url }}
-                    allow-status-422: 'true'
-    
     windows-playwright:
-        name: CI Testing - Windows Playwright ${{ matrix.project.name }}
+        name: "CI: win-x64/automation/${{ matrix.project.check-slug }}"
         runs-on: windows-latest
         timeout-minutes: 75
-        
-        needs: windows-playwright-pending
-        
+
         strategy:
             fail-fast: false
             matrix:
@@ -67,15 +40,19 @@ jobs:
                     -   name: WebApp Angular
                         path: InfiniAutomationTests.WebApp.Angular
                         sourceFolder: tests/InfiniAutomationTests.WebApp.Angular
+                        check-slug: angular
                     -   name: WebApp Vue
                         path: InfiniAutomationTests.WebApp.Vue
                         sourceFolder: tests/InfiniAutomationTests.WebApp.Vue
+                        check-slug: vue
                     -   name: WebApp React
                         path: InfiniAutomationTests.WebApp.React
                         sourceFolder: tests/InfiniAutomationTests.WebApp.React
+                        check-slug: react
                     -   name: Blazor MudBlazor
                         path: InfiniAutomationTests.BlazorWebView.MudBlazor
                         sourceFolder: ""
+                        check-slug: blazor-mudblazor
         
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -98,9 +75,6 @@ jobs:
                 with:
                     cache-dotnet: false
 
-            -   name: Setup dependencies
-                uses: ./.github/actions/setup-dependencies-native
-
             -   name: Set Playwright Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -108,9 +82,9 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows Playwright ${{ matrix.project.name }}
+                    context: "CI: win-x64/automation/${{ matrix.project.check-slug }}"
                     state: pending
-                    status-description: Windows Playwright tests in progress
+                    status-description: Windows Automation Tests tests in progress
                     target-url: ${{ inputs.workflow_url }}
                     allow-status-422: 'true'
 
@@ -223,40 +197,12 @@ jobs:
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check-finalize
+                uses: ./.github/actions/sync-check
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows Playwright ${{ matrix.project.name }}
+                    context: "CI: win-x64/automation/${{ matrix.project.check-slug }}"
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
-                    success-description: Windows Playwright tests passed
-                    failure-description: Windows Playwright tests failed
-    
-    windows-playwright-finalize:
-        name: CI Testing - Windows Playwright (Finalize)
-        runs-on: windows-latest
-        timeout-minutes: 10
-
-        needs: windows-playwright
-        if: always()
-
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v7
-                with:
-                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
-                    fetch-depth: 1
-
-            -   name: Set Playwright Check Final Status
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check-finalize
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows Playwright
-                    target-url: ${{ inputs.workflow_url }}
-                    job-status: ${{ needs.windows-playwright.result == 'success' && 'success' || 'failure' }}
-                    success-description: Windows Playwright tests passed
-                    failure-description: Windows Playwright tests failed
+                    success-description: Windows Automation Tests tests passed
+                    failure-description: Windows Automation Tests tests failed
