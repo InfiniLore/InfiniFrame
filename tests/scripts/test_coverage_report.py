@@ -246,9 +246,9 @@ def test_parse_cs_coverage_multiple_packages_merge(tmp_path: Path):
 <coverage version="5.0" lines-valid="2" lines-covered="2">
   <packages>
     <package name="A">
-      <classes><class name="C" filename="b.cs">
-        <methods><method name="M" signature="()">
-          <lines><line number="1" hits="2"/><line number="2" hits="1"/></lines>
+      <classes><class name="D" filename="b.cs">
+        <methods><method name="N" signature="()">
+          <lines><line number="3" hits="2"/><line number="4" hits="1"/></lines>
         </method></methods>
       </class></classes>
     </package>
@@ -464,7 +464,8 @@ def test_parse_cs_coverage_none_covered(tmp_path: Path):
     assert covered == 0
 
 
-def test_parse_cs_coverage_multiple_files(tmp_path: Path):
+def test_parse_cs_coverage_deduplicates_across_xml_files(tmp_path: Path):
+    """Same class in two XML files (e.g. from two platforms) must not double-count lines."""
     cob_dir = tmp_path / "cov"
     cob_dir.mkdir()
     xml1 = """\
@@ -474,7 +475,7 @@ def test_parse_cs_coverage_multiple_files(tmp_path: Path):
     <package name="A">
       <classes><class name="C" filename="a.cs">
         <methods><method name="M" signature="()">
-          <lines><line number="1" hits="1"/></lines>
+          <lines><line number="1" hits="1"/><line number="2" hits="0"/></lines>
         </method></methods>
       </class></classes>
     </package>
@@ -484,22 +485,22 @@ def test_parse_cs_coverage_multiple_files(tmp_path: Path):
 <?xml version="1.0" ?>
 <coverage version="5.0">
   <packages>
-    <package name="B">
-      <classes><class name="D" filename="b.cs">
-        <methods><method name="N" signature="()">
-          <lines><line number="1" hits="0"/><line number="2" hits="1"/></lines>
+    <package name="A">
+      <classes><class name="C" filename="a.cs">
+        <methods><method name="M" signature="()">
+          <lines><line number="1" hits="1"/><line number="2" hits="1"/></lines>
         </method></methods>
       </class></classes>
     </package>
   </packages>
 </coverage>"""
-    (cob_dir / "1.cobertura.xml").write_text(xml1)
-    (cob_dir / "2.cobertura.xml").write_text(xml2)
+    (cob_dir / "windows.cobertura.xml").write_text(xml1)
+    (cob_dir / "linux.cobertura.xml").write_text(xml2)
     total, covered, pkg = parse_cs_coverage(cob_dir)
-    assert total == 3
+    assert total == 2
     assert covered == 2
-    assert pkg["A"]["lines"] == 1
-    assert pkg["B"]["lines"] == 2
+    assert pkg["A"]["lines"] == 2
+    assert pkg["A"]["covered"] == 2
 
 
 def test_main_writes_badges(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
