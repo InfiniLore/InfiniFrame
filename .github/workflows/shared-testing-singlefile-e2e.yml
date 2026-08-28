@@ -60,6 +60,8 @@ jobs:
                 uses: ./.github/actions/setup-dependencies
                 with:
                     cache-dotnet: false
+                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies/action.yml', '.github/workflows/shared-testing-singlefile-e2e.yml') }}
+                    brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
 
             -   name: Download Testing Native Build Artifacts
                 uses: ./.github/actions/download-native-binaries
