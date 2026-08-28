@@ -41,9 +41,8 @@ jobs:
                 uses: ./.github/actions/setup-dependencies
                 with:
                     cache-dotnet: false
-
-            -   name: Setup dependencies
-                uses: ./.github/actions/setup-dependencies-native
+                    brew-cache-key: ${{ runner.os }}-x64-brew-native-${{ hashFiles('.github/actions/setup-dependencies/action.yml', '.github/workflows/shared-testing-windows-trim-aot.yml') }}
+                    brew-restore-key: ${{ runner.os }}-x64-brew-native-
 
             -   name: Set Trim/AOT Check Pending
                 env:
@@ -59,9 +58,9 @@ jobs:
                     allow-status-422: 'true'
 
             -   name: Setup Native dependencies
-                uses: ./.github/actions/setup-dependencies-native
+                uses: ./.github/actions/setup-dependencies
                 with:
-                    brew-cache-key: ${{ runner.os }}-x64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-windows-trim-aot.yml') }}
+                    brew-cache-key: ${{ runner.os }}-x64-brew-native-${{ hashFiles('.github/actions/setup-dependencies/action.yml', '.github/workflows/shared-testing-windows-trim-aot.yml') }}
                     brew-restore-key: ${{ runner.os }}-x64-brew-native-
 
             -   name: Download Testing Native Build Artifacts
