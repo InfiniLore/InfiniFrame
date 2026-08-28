@@ -43,9 +43,6 @@
   <Folder Name="/.dev-tools/github/actions/singlefile-e2e/">
     <File Path=".github/actions/singlefile-e2e/action.yml" />
   </Folder>
-  <Folder Name="/.dev-tools/github/actions/setup-dependencies-native/">
-    <File Path=".github/actions/setup-dependencies-native/action.yml" />
-  </Folder>
   <Folder Name="/.dev-tools/github/actions/setup-dependencies/">
     <File Path=".github/actions/setup-dependencies/action.yml" />
   </Folder>

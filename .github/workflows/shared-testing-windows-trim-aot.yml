@@ -41,14 +41,7 @@ jobs:
                 uses: ./.github/actions/setup-dependencies
                 with:
                     cache-dotnet: false
-
-            -   name: Setup dependencies
-                uses: ./.github/actions/setup-dependencies-native
-
-            -   name: Setup Native dependencies
-                uses: ./.github/actions/setup-dependencies-native
-                with:
-                    brew-cache-key: ${{ runner.os }}-x64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-windows-trim-aot.yml') }}
+                    brew-cache-key: ${{ runner.os }}-x64-brew-native-${{ hashFiles('.github/actions/setup-dependencies/action.yml', '.github/workflows/shared-testing-windows-trim-aot.yml') }}
                     brew-restore-key: ${{ runner.os }}-x64-brew-native-
 
             -   name: Download Testing Native Build Artifacts

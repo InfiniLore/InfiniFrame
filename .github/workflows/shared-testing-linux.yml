@@ -71,9 +71,6 @@ jobs:
                 with:
                     cache-dotnet: false
 
-            -   name: Setup dependencies
-                uses: ./.github/actions/setup-dependencies-native
-
             -   name: Download Testing Native Build Artifacts
                 uses: ./.github/actions/download-native-binaries
                 with:
