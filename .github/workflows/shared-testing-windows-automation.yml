@@ -29,7 +29,7 @@ permissions:
 
 jobs:
     windows-playwright:
-        name: CI Testing - Windows Automation Tests ${{ matrix.project.name }}
+        name: "CI: win-x64/automation/${{ matrix.project.check-slug }}"
         runs-on: windows-latest
         timeout-minutes: 75
 
