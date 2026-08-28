@@ -75,7 +75,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - SingleFile E2E/${{ matrix.rid }}
+                    context: "CI: ${{ matrix.rid }}/singlefile"
                     state: pending
                     status-description: SingleFile E2E tests in progress
                     target-url: ${{ inputs.workflow_url }}
@@ -156,7 +156,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - SingleFile E2E/${{ matrix.rid }}
+                    context: "CI: ${{ matrix.rid }}/singlefile"
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
                     success-description: SingleFile E2E tests passed

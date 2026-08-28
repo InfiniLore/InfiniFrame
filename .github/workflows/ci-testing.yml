@@ -56,6 +56,8 @@ jobs:
         uses: ./.github/workflows/shared-testing-python.yml
         with:
             enable_coverage: ${{ github.event_name == 'push' || inputs.enable_coverage }}
+            target_sha: ${{ github.sha }}
+            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
 
     run:
         name: Full Test Suite

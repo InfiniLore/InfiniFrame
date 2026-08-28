@@ -51,7 +51,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ env.TARGET_SHA }}
-                    context: CI Testing - Trim/AOT
+                    context: "CI: win-x64/trim-aot"
                     state: pending
                     status-description: Trim and AOT validation in progress
                     target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
@@ -154,7 +154,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ env.TARGET_SHA }}
-                    context: CI Testing - Trim/AOT
+                    context: "CI: win-x64/trim-aot"
                     target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
                     job-status: ${{ job.status }}
                     success-description: Trim and AOT validation finished successfully
