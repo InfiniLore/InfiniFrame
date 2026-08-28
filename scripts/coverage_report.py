@@ -20,6 +20,8 @@ from pathlib import Path
 # ---------------------------------------------------------------------------------------------------------------------
 TEST_PACKAGES = ("InfiniTests", "InfiniAutomationTests")
 NATIVE_EXTENSIONS = (".cpp", ".h", ".mm", ".c", ".hpp")
+BADGE_THRESHOLD_GREEN = 85
+BADGE_THRESHOLD_YELLOW = 60
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Code
@@ -91,9 +93,9 @@ def coverage_pct(covered: int, total: int) -> float:
 
 
 def badge_color(pct: float) -> str:
-    if pct >= 90:
+    if pct >= BADGE_THRESHOLD_GREEN:
         return "brightgreen"
-    if pct >= 75:
+    if pct >= BADGE_THRESHOLD_YELLOW:
         return "yellow"
     return "red"
 

@@ -10,6 +10,8 @@ from pathlib import Path
 import pytest
 
 from scripts.coverage_report import (
+    BADGE_THRESHOLD_GREEN,
+    BADGE_THRESHOLD_YELLOW,
     badge_color,
     build_pr_comment,
     coverage_pct,
@@ -47,24 +49,25 @@ def test_coverage_pct_no_coverage():
     assert coverage_pct(0, 100) == 0.0
 
 
-def test_badge_color_green_at_90():
-    assert badge_color(90.0) == "brightgreen"
+def test_badge_color_green_at_threshold():
+    assert badge_color(float(BADGE_THRESHOLD_GREEN)) == "brightgreen"
 
 
-def test_badge_color_green_above_90():
-    assert badge_color(95.5) == "brightgreen"
+def test_badge_color_green_above_threshold():
+    assert badge_color(BADGE_THRESHOLD_GREEN + 5.5) == "brightgreen"
 
 
-def test_badge_color_yellow_at_75():
-    assert badge_color(75.0) == "yellow"
+def test_badge_color_yellow_at_threshold():
+    assert badge_color(float(BADGE_THRESHOLD_YELLOW)) == "yellow"
 
 
-def test_badge_color_yellow_between_75_and_90():
-    assert badge_color(82.3) == "yellow"
+def test_badge_color_yellow_between_thresholds():
+    mid = (BADGE_THRESHOLD_GREEN + BADGE_THRESHOLD_YELLOW) / 2
+    assert badge_color(mid) == "yellow"
 
 
-def test_badge_color_red_below_75():
-    assert badge_color(74.9) == "red"
+def test_badge_color_red_below_yellow_threshold():
+    assert badge_color(BADGE_THRESHOLD_YELLOW - 0.1) == "red"
 
 
 def test_badge_color_red_at_zero():
