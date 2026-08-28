@@ -1,6 +1,6 @@
 {
     "schemaVersion": 1,
     "label": "C# coverage",
-    "message": "71.7%",
-    "color": "red"
+    "message": "71.2%",
+    "color": "yellow"
 }
