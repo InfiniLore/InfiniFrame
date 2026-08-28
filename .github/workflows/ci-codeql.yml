@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "CodeQL Advanced"
+name: "CI: codeql"
 
 concurrency:
     group: codeql-${{ github.workflow }}-${{ github.ref }}

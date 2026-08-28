@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: Dotnet Pack Tests"
+name: "Shared: linux/dotnet-pack"
 
 on:
     workflow_call:

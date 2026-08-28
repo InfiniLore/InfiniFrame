@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: macOS Tests"
+name: "Shared: osx"
 on:
     workflow_call:
         inputs:

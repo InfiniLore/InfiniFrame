@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: Release Publish"
+name: "Shared: release-publish"
 on:
     workflow_call:
         inputs:
@@ -18,7 +18,7 @@ on:
 
 jobs:
     release:
-        name: Publish Release
+        name: "CI: publish"
         runs-on: ubuntu-latest
         permissions:
             contents: write

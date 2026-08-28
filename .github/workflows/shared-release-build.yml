@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: Release Build"
+name: "Shared: release-build"
 
 on:
     workflow_call:
@@ -14,7 +14,7 @@ permissions:
 
 jobs:
     build:
-        name: Build Native (${{ matrix.os }}/${{ matrix.arch }})
+        name: "CI: ${{ matrix.os }}-${{ matrix.arch }}/build"
         runs-on: ${{ matrix.os }}
         
         strategy:

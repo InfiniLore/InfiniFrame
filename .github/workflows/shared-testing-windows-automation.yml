@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: Windows Automation Tests"
+name: "Shared: win/automation"
 
 on:
     workflow_call:

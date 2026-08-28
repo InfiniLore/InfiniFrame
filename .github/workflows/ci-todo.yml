@@ -9,7 +9,7 @@ on:
 
 jobs:
     todo-to-issue:
-        name: Sync Todo Issues
+        name: "CI: todo-sync"
         runs-on: ubuntu-latest
         permissions:
             contents: read

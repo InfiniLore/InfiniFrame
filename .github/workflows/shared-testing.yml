@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: Platform Tests"
+name: "Shared: tests"
 permissions:
     contents: read
     statuses: write
@@ -83,7 +83,7 @@ jobs:
                     echo "sha=$SHA" >> $GITHUB_OUTPUT
 
     docs-validation:
-        name: Validate Docs
+        name: "CI: docs"
         if: ${{ inputs.run_docs == true }}
         needs: [ prepare ]
         uses: ./.github/workflows/shared-testing-docs.yml
@@ -93,7 +93,7 @@ jobs:
         secrets: inherit
 
     js-validation:
-        name: Validate JS
+        name: "CI: js"
         needs: [ prepare ]
         uses: ./.github/workflows/shared-testing-js.yml
         with:
@@ -112,7 +112,7 @@ jobs:
             enable_test_exports: ${{ inputs.enable_test_exports }}
 
     dotnetpack-validation:
-        name: Validate Dotnet Pack
+        name: "CI: linux-x64/dotnet-pack"
         needs: [ prepare, native-build ]
         uses: ./.github/workflows/shared-testing-dotnetpack.yml
         with:
@@ -121,7 +121,7 @@ jobs:
             enable_test_exports: ${{ inputs.enable_test_exports }}
 
     linux:
-        name: Linux Tests
+        name: "CI: linux"
         if: ${{ inputs.run_linux == true }}
         needs: [ prepare, native-build ]
         uses: ./.github/workflows/shared-testing-linux.yml
@@ -135,7 +135,7 @@ jobs:
         secrets: inherit
 
     macos:
-        name: macOS Tests
+        name: "CI: osx"
         if: ${{ inputs.run_macos == true }}
         needs: [ prepare, native-build ]
         uses: ./.github/workflows/shared-testing-macos.yml
@@ -149,7 +149,7 @@ jobs:
         secrets: inherit
 
     windows:
-        name: Windows Tests
+        name: "CI: win"
         if: ${{ inputs.run_windows == true }}
         needs: [ prepare, native-build ]
         uses: ./.github/workflows/shared-testing-windows.yml
@@ -163,7 +163,7 @@ jobs:
         secrets: inherit
 
     windows-playwright:
-        name: Windows Playwright Tests
+        name: "CI: win/automation"
         if: ${{ inputs.run_windows_playwright == true }}
         needs: [ prepare, native-build ]
         uses: ./.github/workflows/shared-testing-windows-automation.yml
@@ -176,7 +176,7 @@ jobs:
         secrets: inherit
 
     singlefile-e2e:
-        name: SingleFile E2E
+        name: "CI: singlefile"
         needs: [ prepare, native-build ]
         uses: ./.github/workflows/shared-testing-singlefile-e2e.yml
         with:
@@ -186,7 +186,7 @@ jobs:
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
 
     windows-trim-aot:
-        name: Validate Trim/AOT
+        name: "CI: win/trim-aot"
         if: ${{ inputs.run_trim_aot == true }}
         needs: [ prepare, native-build ]
         uses: ./.github/workflows/shared-testing-windows-trim-aot.yml

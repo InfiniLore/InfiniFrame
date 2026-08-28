@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: Js Tests"
+name: "Shared: js"
 
 on:
     workflow_call:

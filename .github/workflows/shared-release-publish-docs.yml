@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: Release Docs"
+name: "Shared: release-docs"
 on:
     workflow_call:
         inputs:
@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
     build:
-        name: Build Docs
+        name: "CI: docs/build"
         runs-on: ubuntu-latest
 
         steps:
@@ -51,7 +51,7 @@ jobs:
                     path: docs/build
 
     deploy:
-        name: Deploy Docs
+        name: "CI: docs/deploy"
         needs: build
         runs-on: ubuntu-latest
         environment:

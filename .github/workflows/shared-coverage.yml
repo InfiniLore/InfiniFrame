@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: Coverage Badges"
+name: "Shared: coverage"
 
 on:
     workflow_call:
@@ -27,7 +27,7 @@ permissions:
 
 jobs:
     coverage:
-        name: Generate Coverage Badges
+        name: "CI: coverage"
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout

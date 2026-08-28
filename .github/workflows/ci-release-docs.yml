@@ -10,7 +10,7 @@ permissions:
 
 jobs:
     deploy-docs:
-        name: Publish Docs
+        name: "CI: publish-docs"
         uses: ./.github/workflows/shared-release-publish-docs.yml
         secrets: inherit
 

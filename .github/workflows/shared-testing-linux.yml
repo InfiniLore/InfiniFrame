@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: Linux Tests"
+name: "Shared: linux"
 on:
     workflow_call:
         inputs:

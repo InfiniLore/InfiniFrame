@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: Windows Trim/AOT Validation"
+name: "Shared: win/trim-aot"
 
 on:
     workflow_call:

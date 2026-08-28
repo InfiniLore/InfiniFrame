@@ -1,5 +1,5 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: Release Bump Version"
+name: "Shared: release-bump-version"
 on:
     workflow_call:
         inputs:
@@ -22,7 +22,7 @@ on:
 
 jobs:
     bump-version:
-        name: Bump Version
+        name: "CI: bump-version"
         runs-on: ubuntu-latest
         permissions:
             contents: read
