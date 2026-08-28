@@ -183,6 +183,7 @@ jobs:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
+            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
 
     windows-trim-aot:
         name: Validate Trim/AOT

@@ -13,6 +13,9 @@ on:
             target_sha:
                 type: string
                 required: true
+            workflow_url:
+                type: string
+                required: true
 
 jobs:
     singlefile-e2e:
@@ -44,6 +47,8 @@ jobs:
                         main-output-name: InfiniFrameExample.SingleFileExe.exe
         permissions:
             contents: read
+            statuses: write
+            checks: write
 
         steps:
             -   uses: actions/checkout@v7
@@ -60,6 +65,19 @@ jobs:
                 uses: ./.github/actions/download-native-binaries
                 with:
                     artifact-type: testing
+
+            -   name: Set SingleFile E2E Check Pending
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                uses: ./.github/actions/sync-check
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - SingleFile E2E/${{ matrix.rid }}
+                    state: pending
+                    status-description: SingleFile E2E tests in progress
+                    target-url: ${{ inputs.workflow_url }}
+                    allow-status-422: 'true'
 
             -   name: Publish single-file via MSBuild target
                 shell: bash
@@ -127,3 +145,17 @@ jobs:
                     InfiniFrame.Native.dylib"
 
                     echo "Pack output validated successfully."
+
+            -   name: Update SingleFile E2E Check
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                uses: ./.github/actions/sync-check-finalize
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - SingleFile E2E/${{ matrix.rid }}
+                    target-url: ${{ inputs.workflow_url }}
+                    job-status: ${{ job.status }}
+                    success-description: SingleFile E2E tests passed
+                    failure-description: SingleFile E2E tests failed
