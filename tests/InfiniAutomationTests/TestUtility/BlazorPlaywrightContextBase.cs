@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
+using InfiniFrame.Utilities;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,6 +34,19 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
         _appThread.Start();
 
         await ready.Task.WaitAsync(startupCancellation.Token);
+
+        Uri cdpEndpoint = PlaywrightConnectionUtility.CreateCdpConnectionUrl(_playwrightDevtoolsPort);
+        Console.WriteLine($"[PlaywrightSetup] Waiting for CDP endpoint at {cdpEndpoint}...");
+        using var probeCancellation = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+        while (!probeCancellation.Token.IsCancellationRequested) {
+            if (RemoteDebuggingUtility.TryProbeEndpoint(cdpEndpoint, out _)) {
+                Console.WriteLine($"[PlaywrightSetup] CDP endpoint at {cdpEndpoint} is reachable.");
+                return;
+            }
+            await Task.Delay(500, probeCancellation.Token).ConfigureAwait(false);
+        }
+        Console.WriteLine($"[PlaywrightSetup] WARNING: CDP endpoint at {cdpEndpoint} not reachable after 60s. " +
+            "Proceeding anyway — Playwright connection will retry.");
     }
 
     protected void AfterAll() {
