@@ -189,20 +189,6 @@ jobs:
                     if-no-files-found: warn
                     retention-days: 1
 
-            -   name: SingleFile E2E
-                uses: ./.github/actions/singlefile-e2e
-                with:
-                    project: examples/SingleFileExe/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
-                    rid: ${{ matrix.rid }}
-                    output: artifacts/pack-e2e/InfiniFrameExample.SingleFileExe
-                    main-output-name: InfiniFrameExample.SingleFileExe
-                    forbidden-entries: |
-                        wwwroot
-                        InfiniFrame.Native.dll
-                        WebView2Loader.dll
-                        InfiniFrame.Native.so
-                        InfiniFrame.Native.dylib
-
             -   name: Update macOS Check
                 if: always()
                 env:

@@ -335,20 +335,6 @@ jobs:
                         core*
                     if-no-files-found: ignore
 
-            -   name: SingleFile E2E
-                uses: ./.github/actions/singlefile-e2e
-                with:
-                    project: examples/SingleFileExe/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
-                    rid: ${{ matrix.rid }}
-                    output: artifacts/pack-e2e/InfiniFrameExample.SingleFileExe
-                    main-output-name: InfiniFrameExample.SingleFileExe
-                    forbidden-entries: |
-                        wwwroot
-                        InfiniFrame.Native.dll
-                        WebView2Loader.dll
-                        InfiniFrame.Native.so
-                        InfiniFrame.Native.dylib
-
             -   name: Upload C# Coverage
                 if: ${{ inputs.enable_coverage == true && success() }}
                 uses: actions/upload-artifact@v7

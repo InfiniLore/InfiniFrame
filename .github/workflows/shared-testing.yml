@@ -175,6 +175,15 @@ jobs:
             enable_test_exports: ${{ inputs.enable_test_exports }}
         secrets: inherit
 
+    singlefile-e2e:
+        name: SingleFile E2E
+        needs: [ prepare, native-build ]
+        uses: ./.github/workflows/shared-testing-singlefile-e2e.yml
+        with:
+            pr_number: ${{ inputs.pr_number }}
+            checkout_ref: ${{ inputs.checkout_ref }}
+            target_sha: ${{ needs.prepare.outputs.sha }}
+
     windows-trim-aot:
         name: Validate Trim/AOT
         if: ${{ inputs.run_trim_aot == true }}
