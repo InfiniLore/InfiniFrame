@@ -27,7 +27,7 @@ on:
 
 jobs:
     windows:
-        name: CI Testing - Windows (${{ matrix.arch }})
+        name: "CI: win-${{ matrix.arch }}"
         runs-on: ${{ matrix.os }}
         env:
             TARGET_SHA: ${{ inputs.target_sha }}

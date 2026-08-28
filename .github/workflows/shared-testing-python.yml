@@ -23,7 +23,7 @@ permissions:
 
 jobs:
     python-tests:
-        name: Python Tests
+        name: "CI: python"
         runs-on: ubuntu-latest
 
         steps:

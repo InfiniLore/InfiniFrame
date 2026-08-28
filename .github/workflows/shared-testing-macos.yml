@@ -27,7 +27,7 @@ on:
 
 jobs:
     macos:
-        name: CI Testing - macOS (${{ matrix.arch }})
+        name: "CI: osx-${{ matrix.arch }}"
         runs-on: ${{ matrix.os }}
         timeout-minutes: 120
         env:
@@ -204,7 +204,7 @@ jobs:
                     failure-description: macOS tests failed
 
     macos-sanitizers:
-        name: CI Testing - macOS (ASan + UBSan)
+        name: "CI: osx-arm64/sanitizers"
         runs-on: macos-latest
         timeout-minutes: 90
         permissions:

@@ -26,7 +26,7 @@ permissions:
 
 jobs:
     windows-trim-aot:
-        name: CI Testing - Windows Trim/AOT
+        name: "CI: win-x64/trim-aot"
         runs-on: windows-latest
         env:
             TARGET_SHA: ${{ inputs.target_sha }}

@@ -19,7 +19,7 @@ on:
 
 jobs:
     singlefile-e2e:
-        name: SingleFile E2E (${{ matrix.rid }})
+        name: "CI: ${{ matrix.rid }}/singlefile"
         runs-on: ${{ matrix.os }}
         strategy:
             fail-fast: false

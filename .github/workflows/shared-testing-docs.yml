@@ -21,7 +21,7 @@ permissions:
 
 jobs:
     docs-validation:
-        name: CI Testing - Docs
+        name: "CI: docs"
         runs-on: ubuntu-latest
         env:
             TARGET_SHA: ${{ inputs.target_sha }}

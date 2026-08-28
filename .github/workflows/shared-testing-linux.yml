@@ -27,7 +27,7 @@ on:
 
 jobs:
     linux:
-        name: CI Testing - Linux (${{ matrix.arch }}/${{ matrix.display_server }})
+        name: "CI: linux-${{ matrix.arch }}/${{ matrix.display_server }}"
         runs-on: ${{ matrix.os }}
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
