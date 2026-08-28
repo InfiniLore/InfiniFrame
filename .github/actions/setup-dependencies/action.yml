@@ -5,7 +5,7 @@ inputs:
     cache-dotnet:
         description: Whether to cache .NET dependencies
         required: false
-        default: true
+        default: "true"
     brew-cache-key:
         description: Full Homebrew cache key for macOS runners
         required: false
