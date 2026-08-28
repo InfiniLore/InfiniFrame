@@ -40,10 +40,11 @@ def parse_cs_coverage(coverage_dir: Path) -> tuple[int, int, OrderedDict[str, di
     """Parse Cobertura XML files and return (total_lines, total_covered, per_pkg_data).
 
     Test packages matching TEST_PACKAGES and native source files are excluded.
-    Deduplicates by source line number per package across all XML files so the
-    same class compiled on multiple platforms is only counted once.
+    Deduplicates by (filename, line_number) across all XML files so the same
+    source file compiled on multiple platforms is only counted once, while
+    different source files within the same package are counted separately.
     """
-    pkg_seen: OrderedDict[str, dict[int, bool]] = OrderedDict()
+    pkg_seen: OrderedDict[str, dict[tuple[str, int], bool]] = OrderedDict()
 
     for xml_file in coverage_dir.rglob("*.cobertura.xml"):
         tree = ET.parse(xml_file)
@@ -66,10 +67,11 @@ def parse_cs_coverage(coverage_dir: Path) -> tuple[int, int, OrderedDict[str, di
                     for line in method.findall(".//line"):
                         line_num = int(line.get("number", "0"))
                         hits = int(line.get("hits", "0")) > 0
-                        if line_num not in seen:
-                            seen[line_num] = hits
+                        key = (filename, line_num)
+                        if key not in seen:
+                            seen[key] = hits
                         elif hits:
-                            seen[line_num] = True
+                            seen[key] = True
 
     total_lines = 0
     total_covered = 0

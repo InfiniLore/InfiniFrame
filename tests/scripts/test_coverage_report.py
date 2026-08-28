@@ -503,6 +503,45 @@ def test_parse_cs_coverage_deduplicates_across_xml_files(tmp_path: Path):
     assert pkg["A"]["covered"] == 2
 
 
+def test_parse_cs_coverage_different_files_same_package(tmp_path: Path):
+    """Different source files in the same package are counted separately."""
+    cob_dir = tmp_path / "cov"
+    cob_dir.mkdir()
+    xml1 = """\
+<?xml version="1.0" ?>
+<coverage version="5.0">
+  <packages>
+    <package name="A">
+      <classes><class name="C1" filename="a.cs">
+        <methods><method name="M" signature="()">
+          <lines><line number="1" hits="1"/><line number="2" hits="0"/></lines>
+        </method></methods>
+      </class></classes>
+    </package>
+  </packages>
+</coverage>"""
+    xml2 = """\
+<?xml version="1.0" ?>
+<coverage version="5.0">
+  <packages>
+    <package name="A">
+      <classes><class name="C2" filename="b.cs">
+        <methods><method name="N" signature="()">
+          <lines><line number="1" hits="1"/><line number="2" hits="1"/></lines>
+        </method></methods>
+      </class></classes>
+    </package>
+  </packages>
+</coverage>"""
+    (cob_dir / "1.cobertura.xml").write_text(xml1)
+    (cob_dir / "2.cobertura.xml").write_text(xml2)
+    total, covered, pkg = parse_cs_coverage(cob_dir)
+    assert total == 4
+    assert covered == 3
+    assert pkg["A"]["lines"] == 4
+    assert pkg["A"]["covered"] == 3
+
+
 def test_main_writes_badges(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
     monkeypatch.setattr(cr, "Path", lambda p: tmp_path / p if not isinstance(p, Path) else p)
     monkeypatch.setattr(sys, "argv", ["coverage_report.py"])
