@@ -51,11 +51,9 @@ public static class OpenExternalTargetWebMessageHandler {
         }
 
         // Block loopback and private IP addresses for http/https to prevent SSRF attacks.
-        if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps) {
-            if (IsLoopbackOrPrivateIp(uri.Host)) {
-                logger.LogWarning("Rejected external URI due to loopback/private IP. Uri: {Uri}", uri);
-                return;
-            }
+        if ((uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps) && IsLoopbackOrPrivateIp(uri.Host)) {
+            logger.LogWarning("Rejected external URI due to loopback/private IP. Uri: {Uri}", uri);
+            return;
         }
 
         try {
