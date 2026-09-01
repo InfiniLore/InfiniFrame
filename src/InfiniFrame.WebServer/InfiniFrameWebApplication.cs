@@ -27,6 +27,8 @@ public class InfiniFrameWebApplication {
     public required Lazy<IInfiniFrameWindow> LazyWindow { private get; init; }
     /// <summary>Gets the associated InfiniFrame window instance.</summary>
     public IInfiniFrameWindow Window => LazyWindow.Value;
+    /// <summary>Gets the associated InfiniFrame application instance.</summary>
+    public IInfiniFrameApplication Application => WebApp.Services.GetRequiredService<IInfiniFrameApplication>();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -61,8 +63,8 @@ public class InfiniFrameWebApplication {
 
         try {
             // Wait until the host is accepting requests before creating the window. On Windows,
-            // WaitForClose owns the native message loop required by WebView2 initialization and
-            // navigation; WaitForCloseAsync only observes the closed signal.
+            // the application message loop is required by WebView2 initialization and navigation;
+            // WaitForCloseAsync only observes the closed signal.
             WebApp.StartAsync().GetAwaiter().GetResult();
             Window.WaitForClose();
         }

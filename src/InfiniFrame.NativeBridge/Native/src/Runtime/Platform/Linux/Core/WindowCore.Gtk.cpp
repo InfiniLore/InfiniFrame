@@ -6,18 +6,29 @@
 
 #include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
+#include "Runtime/Shared/Application/InfiniFrameApplication.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
     m_impl(std::make_unique<Impl>()) {
-    infiniframe::linux_gtk::ui_thread::EnsureInitialized();
+    // GTK UI thread initialization is now handled by InfiniFrameApplication.
+    // Only initialize if no application is provided (legacy path).
+    if (initParams->ApplicationHandle == nullptr) {
+        infiniframe::linux_gtk::ui_thread::EnsureInitialized();
+    }
 
     if (initParams->StructSize != sizeof(InfiniFrameInitParams)) {
         throw std::invalid_argument(
             "Initial parameters passed are " + std::to_string(initParams->StructSize) +
             " bytes, but expected " + std::to_string(sizeof(InfiniFrameInitParams)) + " bytes."
             );
+    }
+
+    // Store application reference if provided.
+    if (initParams->ApplicationHandle != nullptr) {
+        m_impl->_application = static_cast<InfiniFrameApplication*>(initParams->ApplicationHandle);
+        m_impl->_application->TrackWindow(this);
     }
 
     infiniframe::linux_gtk::ui_thread::InvokeSync(
@@ -49,6 +60,11 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
 }
 
 InfiniFrameWindow::~InfiniFrameWindow() {
+    // Untrack from application before destroying.
+    if (m_impl->_application != nullptr) {
+        m_impl->_application->UntrackWindow(this);
+    }
+
     infiniframe::linux_gtk::ui_thread::InvokeSync(
         [this] {
             if (m_impl->_window != nullptr) {

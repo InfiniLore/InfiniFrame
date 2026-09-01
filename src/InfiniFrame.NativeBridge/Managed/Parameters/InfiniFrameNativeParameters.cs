@@ -393,6 +393,14 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     internal string? MenuBarJson;
 
+    //  Application handle (new in v2) 
+
+    /// <summary>
+    ///     OPTIONAL: Pointer to the native InfiniFrameApplication instance. When provided, the window
+    ///     uses the application's platform registration and message loop instead of managing its own.
+    /// </summary>
+    internal IntPtr ApplicationHandle;
+
     //  ABI version (must remain last) 
 
     /// <summary>

@@ -27,6 +27,7 @@
 #include "../MacDiagnostics.h"
 #include "../Window.Cocoa.Internal.h"
 #include "../Delegates/WindowDelegate.h"
+#include "Runtime/Shared/Application/InfiniFrameApplication.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -216,6 +217,13 @@ void InfiniFrameWindow::Register()
 InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl(std::make_unique<Impl>())
 {
     infiniframe::macos::LogLifecycle("window-construct-begin", this);
+
+    // Store application reference if provided.
+    if (initParams->ApplicationHandle != nullptr) {
+        m_impl->_application = static_cast<InfiniFrameApplication*>(initParams->ApplicationHandle);
+        m_impl->_application->TrackWindow(this);
+    }
+
     const bool traceTimings = std::getenv("INFINIFRAME_MACOS_TRACE_TIMINGS") != nullptr;
     const auto constructionStartedAt = std::chrono::steady_clock::now();
     __block std::chrono::steady_clock::time_point webViewStartedAt;
@@ -591,6 +599,12 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
 InfiniFrameWindow::~InfiniFrameWindow()
 {
     infiniframe::macos::LogLifecycle("window-destruct-begin", this);
+
+    // Untrack from application before destroying.
+    if (m_impl->_application != nullptr) {
+        m_impl->_application->UntrackWindow(this);
+    }
+
     // SafeHandle finalization and managed disposal can release the native window from a
     // non-AppKit thread. All Cocoa/WebKit teardown must therefore occur on the main queue.
     DispatchToMainSync(^{

@@ -18,8 +18,12 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 class InfiniFrameWindow;
+class InfiniFrameApplication;
 
 struct InfiniFrameWindowImpl {
+    // ── Application ownership ──────────────────────────────────────────────
+    InfiniFrameApplication* _application = nullptr;
+
     std::mutex _operationMutex;
     std::unordered_map<uint64_t, std::shared_ptr<NativeOperation>> _operations;
     std::mutex _navigationMutex;

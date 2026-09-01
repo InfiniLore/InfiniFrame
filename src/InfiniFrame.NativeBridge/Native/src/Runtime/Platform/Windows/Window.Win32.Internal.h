@@ -3,6 +3,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include <atomic>
+#include <condition_variable>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -39,6 +41,11 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     bool _useOsDefaultLocation = false;
     bool _useOsDefaultSize = false;
     bool _hasSavedRect = false;
+
+    // ── Lifecycle state (for WaitForExit when application owns message loop) ──
+    std::mutex _lifecycleMutex;
+    std::condition_variable _lifecycleClosed;
+    bool _destroyed = false;
 
     RECT _savedRect = {};
 

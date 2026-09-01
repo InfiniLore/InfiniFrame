@@ -15,11 +15,12 @@ namespace InfiniFrame;
 /// </summary>
 public static class ServiceCollectionExtensions {
     /// <summary>
-    ///     Registers the core InfiniFrame services required for window management, events, and native interop.
+    ///     Registers the core InfiniFrame services required for application management, window management, events, and native interop.
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
     /// <returns>The same service collection so calls can be chained.</returns>
     public static IServiceCollection AddInfiniFrame(this IServiceCollection services) {
+        services.AddSingleton<IInfiniFrameApplication, InfiniFrameApplication>();
         services.AddSingleton<IInfiniFrameEvents, InfiniFrameEvents>();
         services.AddSingleton<IInfiniFrameEventsStore, InfiniFrameEventsStore>();
         services.AddSingleton<IInfiniFrameWindowConfiguration, InfiniFrameWindowConfiguration>();

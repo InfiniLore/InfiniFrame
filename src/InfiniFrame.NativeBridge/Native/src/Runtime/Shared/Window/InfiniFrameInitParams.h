@@ -108,6 +108,9 @@ struct InfiniFrameInitParams {
     // ── Menu ───────────────────────────────────────────────────────────────
     const char* MenuBarJson;
 
+    // ── Application handle (new in v2) ─────────────────────────────────────
+    void* ApplicationHandle;
+
     // ── ABI version (must remain last) ─────────────────────────────────────
     int StructSize;
 };

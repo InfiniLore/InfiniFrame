@@ -170,8 +170,11 @@ namespace {
         TraceTeardown(L"WM_DESTROY begin hwnd=%p instance=%p", hwnd, instance);
         instance->CloseWebView();
         instance->InvokeClosed();
+        instance->MarkDestroyed();
         TraceTeardown(L"WM_DESTROY end hwnd=%p instance=%p", hwnd, instance);
-        if (hwnd == messageLoopRootWindowHandle)
+        // Only post quit if this window owns the message loop (legacy path).
+        // When an application owns the loop, UntrackWindow handles shutdown.
+        if (impl->_application == nullptr && hwnd == messageLoopRootWindowHandle)
             PostQuitMessage(0);
 
         return 0;
@@ -307,6 +310,8 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
         case WM_DESTROY: {
             if (auto* instance = LookupWindowInstance(hwnd))
                 return handle_window_destruction(hwnd, instance, instance->m_impl.get());
+            // Fallback: no instance found, but this is the root window.
+            // Only post quit for legacy path (no application).
             if (hwnd == messageLoopRootWindowHandle)
                 PostQuitMessage(0);
             return 0;

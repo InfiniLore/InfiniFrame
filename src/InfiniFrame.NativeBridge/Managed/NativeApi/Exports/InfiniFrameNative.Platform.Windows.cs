@@ -12,9 +12,11 @@ namespace InfiniFrame.NativeBridge;
 public partial class InfiniFrameNative {
     /// <summary>
     ///     Registers the Win32 window class (Windows only).
+    ///     This is a legacy method. Use InfiniFrameApplication.Initialize() and ApplicationRegisterWin32() instead.
     /// </summary>
     /// <param name="hInstance">The HINSTANCE for the application.</param>
     /// <returns>A status code indicating success or failure.</returns>
+    [Obsolete("Use InfiniFrameApplication.Initialize() with ApplicationConfiguration.HInstance instead.")]
     [SupportedOSPlatform("windows")]
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_register_win32", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]

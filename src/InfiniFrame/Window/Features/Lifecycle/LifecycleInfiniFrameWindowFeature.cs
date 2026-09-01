@@ -20,6 +20,7 @@ namespace InfiniFrame;
 /// </summary>
 public class LifecycleInfiniFrameWindowFeature(
     IInfiniFrameWindow window,
+    IInfiniFrameApplication application,
     ILogger<LifecycleInfiniFrameWindowFeature> logger,
     IValidator<InfiniFrameNativeParameters> validator
 ) : ILifecycleInfiniFrameWindowFeature, IDisposable {
@@ -108,18 +109,9 @@ public class LifecycleInfiniFrameWindowFeature(
             window.Events.OnWindowCreating();
 
             try {
-                if (OperatingSystem.IsWindows()) InfiniFrameNative.RegisterWin32(window.MainProgramHandle);
-                else if (OperatingSystem.IsMacOS()) {
-                    InfiniFrameNativeInteropStatus registerStatus = InfiniFrameNative.RegisterMac();
-                    if (registerStatus != InfiniFrameNativeInteropStatus.Success) {
-                        int lastError = Marshal.GetLastPInvokeError();
-                        string nativeMessage = InfiniFrameNative.GetLastErrorMessage() ?? "No native error message provided.";
-                        throw new InfiniFrameNativeInteropException(
-                            $"Native registration failed with status {registerStatus}. Error #{lastError}. {nativeMessage}");
-                    }
-                }
-                else if (OperatingSystem.IsLinux()) {}// No specific implementation for Linux
-                else throw new PlatformNotSupportedException();
+                // Platform registration is now handled by the application.
+                // Pass the application handle to the native window constructor.
+                startupParameters.ApplicationHandle = application.ApplicationHandle;
 
                 using NativeHandleLease? parentLease = window.Configuration.ParentWindow is {} parent
                     ? parent.AcquireNativeHandle()

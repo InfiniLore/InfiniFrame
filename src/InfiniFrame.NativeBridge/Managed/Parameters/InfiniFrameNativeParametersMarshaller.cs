@@ -181,6 +181,9 @@ internal static class InfiniFrameNativeParametersMarshaller {
         //  Menu 
         internal IntPtr MenuBarJson;
 
+        //  Application handle (new in v2) 
+        internal IntPtr ApplicationHandle;
+
         //  ABI version 
         internal int Size;
     }
@@ -334,6 +337,9 @@ internal static class InfiniFrameNativeParametersMarshaller {
 
                 // Menu
                 MenuBarJson = ToUtf8Ptr(managed.MenuBarJson),
+
+                // Application handle
+                ApplicationHandle = managed.ApplicationHandle,
 
                 // ABI version
                 Size = managed.Size

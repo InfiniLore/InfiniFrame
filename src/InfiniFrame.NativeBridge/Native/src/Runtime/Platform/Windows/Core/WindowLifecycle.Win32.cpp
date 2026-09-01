@@ -25,7 +25,32 @@ void InfiniFrameWindow::Close() {
     PostMessage(m_impl->_hWnd, WM_CLOSE, 0, 0);
 }
 
+void InfiniFrameWindow::MarkDestroyed() {
+    {
+        std::lock_guard lock(m_impl->_lifecycleMutex);
+        m_impl->_destroyed = true;
+    }
+    m_impl->_lifecycleClosed.notify_all();
+}
+
+bool InfiniFrameWindow::IsDestroyed() const {
+    std::lock_guard lock(m_impl->_lifecycleMutex);
+    return m_impl->_destroyed;
+}
+
 void InfiniFrameWindow::WaitForExit() {
+    // If an application owns the message loop, block on the destroyed signal.
+    // If no application (legacy path), run our own message loop.
+    if (m_impl->_application != nullptr) {
+        std::unique_lock lock(m_impl->_lifecycleMutex);
+        m_impl->_lifecycleClosed.wait(
+            lock, [&] {
+                return m_impl->_destroyed;
+            });
+        return;
+    }
+
+    // Legacy path: run the Win32 message loop directly.
     auto* impl = m_impl.get();
     ApplyPendingOwnerWindow(impl, L"wait_for_exit");
 

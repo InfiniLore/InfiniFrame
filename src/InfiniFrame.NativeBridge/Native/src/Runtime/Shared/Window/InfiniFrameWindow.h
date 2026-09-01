@@ -908,6 +908,16 @@ class InfiniFrameWindow {
     void InvokeFileDropped(const char** paths, int count, int x, int y) const noexcept;
 
     // -----------------------------------------------------------------------------------------------------------------
+    // Cross-platform lifecycle (for WaitForExit when application owns message loop)
+    // -----------------------------------------------------------------------------------------------------------------
+    /// Mark the window as destroyed (called from platform-specific destroy handlers).
+    void MarkDestroyed();
+    /// Returns true if the native window has been destroyed.
+    [[nodiscard]] bool IsDestroyed() const;
+    /// Block the calling thread until the native window is destroyed.
+    void WaitUntilDestroyed();
+
+    // -----------------------------------------------------------------------------------------------------------------
     // Platform-specific
     // -----------------------------------------------------------------------------------------------------------------
 
@@ -923,12 +933,6 @@ class InfiniFrameWindow {
     void OnWindowStateEvent(GdkWindowState newState);
     /// Flush any queued web messages that have not yet been delivered.
     void FlushPendingWebMessages();
-    /// Mark the window as destroyed (called after the GTK widget is finalized).
-    void MarkDestroyed();
-    /// Returns true if the native window has been destroyed.
-    bool IsDestroyed() const;
-    /// Block the calling thread until the native window is destroyed.
-    void WaitUntilDestroyed();
 
     /**
          * @brief Get the native GTK toplevel window widget
