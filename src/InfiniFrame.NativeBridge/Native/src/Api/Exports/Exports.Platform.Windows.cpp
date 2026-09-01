@@ -10,19 +10,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
 #ifdef _WIN32
-/// @brief Registers the Win32 window class.
-/// @param hInstance The application instance handle.
-/// @return InteropStatus
-/// @deprecated Use InfiniFrameNative_Application_register_win32() with InfiniFrameApplication instead.
-EXPORTED InteropStatus InfiniFrameNative_register_win32(const HINSTANCE hInstance) {
-    return RunExportStatus(
-        [&] {
-            if (hInstance == nullptr)
-                throw std::invalid_argument("Argument 'hInstance' is null.");
-            InfiniFrameWindow::Register(hInstance);
-        });
-}
-
 /// @brief Gets the Win32 HWND handle for the window.
 /// @param instance The window handle.
 /// @param[out] value Receives the HWND handle.

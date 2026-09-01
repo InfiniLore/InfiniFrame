@@ -140,89 +140,14 @@ void InfiniFrameWindow::Impl::ReturnPooledMacHost() {
     else DestroyMacHost(host);
 }
 
-void InfiniFrameWindow::Register()
-{
-    infiniframe::macos::InstallDiagnostics();
-    infiniframe::macos::LogLifecycle("register", nullptr);
-    DispatchToMainSync(^{
-        static dispatch_once_t registerOnceToken;
-        dispatch_once(&registerOnceToken, ^{
-            @autoreleasepool {
-                NSApplication *application = [NSApplication sharedApplication];
-                // NSApplication's delegate is not an ownership boundary on every supported
-                // SDK. Keep our delegate alive for the process lifetime, and do not replace an
-                // embedding application's delegate.
-                static AppDelegate *appDelegate = [[AppDelegate alloc] init];
-                if ([application delegate] == nil)
-                    [application setDelegate: appDelegate];
-                [application setActivationPolicy: NSApplicationActivationPolicyRegular];
-
-                NSString *appName = [[NSProcessInfo processInfo] processName];
-
-                NSMenu *mainMenu = [[NSMenu new] autorelease];
-                NSMenuItem *mainMenuItem = [[NSMenuItem new] autorelease];
-                [mainMenu addItem: mainMenuItem];
-
-                NSMenu *mainSubMenu = [[NSMenu new] autorelease];
-                [mainMenuItem setSubmenu: mainSubMenu];
-
-                NSMenuItem *selectMenuItem = [[
-                    [NSMenuItem alloc]
-                    initWithTitle: @"Select All"
-                    action: @selector(selectAll:)
-                    keyEquivalent: @"a"
-                ] autorelease];
-                [mainSubMenu addItem: selectMenuItem];
-
-                NSMenuItem *cutMenuItem = [[
-                    [NSMenuItem alloc]
-                    initWithTitle: @"Cut"
-                    action: @selector(cut:)
-                    keyEquivalent: @"x"
-                ] autorelease];
-                [mainSubMenu addItem: cutMenuItem];
-
-                NSMenuItem *copyMenuItem = [[
-                    [NSMenuItem alloc]
-                    initWithTitle: @"Copy"
-                    action: @selector(copy:)
-                    keyEquivalent: @"c"
-                ] autorelease];
-                [mainSubMenu addItem: copyMenuItem];
-
-                NSMenuItem *pasteMenuItem = [[
-                    [NSMenuItem alloc]
-                    initWithTitle: @"Paste"
-                    action: @selector(paste:)
-                    keyEquivalent: @"v"
-                ] autorelease];
-                [mainSubMenu addItem: pasteMenuItem];
-
-                NSMenuItem *quitMenuItem = [[
-                    [NSMenuItem alloc]
-                    initWithTitle: [@"Quit " stringByAppendingString: appName]
-                    action: @selector(terminate:)
-                    keyEquivalent: @"q"
-                ] autorelease];
-                [mainSubMenu addItem: quitMenuItem];
-
-                [NSApp setMainMenu: mainMenu];
-                if (![application isRunning])
-                    [application finishLaunching];
-            }
-        });
-    });
-}
-
 InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl(std::make_unique<Impl>())
 {
     infiniframe::macos::LogLifecycle("window-construct-begin", this);
 
-    // Store application reference if provided.
-    if (initParams->ApplicationHandle != nullptr) {
-        m_impl->_application = static_cast<InfiniFrameApplication*>(initParams->ApplicationHandle);
-        m_impl->_application->TrackWindow(this);
-    }
+    if (initParams->ApplicationHandle == nullptr)
+        throw std::invalid_argument("ApplicationHandle is required. Create an InfiniFrameApplication first.");
+    m_impl->_application = static_cast<InfiniFrameApplication*>(initParams->ApplicationHandle);
+    m_impl->_application->TrackWindow(this);
 
     const bool traceTimings = std::getenv("INFINIFRAME_MACOS_TRACE_TIMINGS") != nullptr;
     const auto constructionStartedAt = std::chrono::steady_clock::now();
@@ -600,10 +525,7 @@ InfiniFrameWindow::~InfiniFrameWindow()
 {
     infiniframe::macos::LogLifecycle("window-destruct-begin", this);
 
-    // Untrack from application before destroying.
-    if (m_impl->_application != nullptr) {
-        m_impl->_application->UntrackWindow(this);
-    }
+    m_impl->_application->UntrackWindow(this);
 
     // SafeHandle finalization and managed disposal can release the native window from a
     // non-AppKit thread. All Cocoa/WebKit teardown must therefore occur on the main queue.

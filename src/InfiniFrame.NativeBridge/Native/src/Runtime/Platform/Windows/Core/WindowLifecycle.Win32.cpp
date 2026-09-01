@@ -39,40 +39,11 @@ bool InfiniFrameWindow::IsDestroyed() const {
 }
 
 void InfiniFrameWindow::WaitForExit() {
-    // If an application owns the message loop, block on the destroyed signal.
-    // If no application (legacy path), run our own message loop.
-    if (m_impl->_application != nullptr) {
-        std::unique_lock lock(m_impl->_lifecycleMutex);
-        m_impl->_lifecycleClosed.wait(
-            lock, [&] {
-                return m_impl->_destroyed;
-            });
-        return;
-    }
-
-    // Legacy path: run the Win32 message loop directly.
-    auto* impl = m_impl.get();
-    ApplyPendingOwnerWindow(impl, L"wait_for_exit");
-
-    messageLoopRootWindowHandle = impl->_hWnd;
-    TraceTeardown(L"WaitForExit start instance=%p hwnd=%p", this, impl->_hWnd);
-
-    MSG msg = {};
-    while (true) {
-        const int getMessageResult = GetMessage(&msg, nullptr, 0, 0);
-        if (getMessageResult == -1) {
-            TraceTeardown(L"WaitForExit GetMessage failed err=%lu", GetLastError());
-            break;
-        }
-        if (getMessageResult == 0)
-            break;
-
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
-
-    messageLoopRootWindowHandle = nullptr;
-    TraceTeardown(L"WaitForExit end instance=%p hwnd=%p", this, impl->_hWnd);
+    std::unique_lock lock(m_impl->_lifecycleMutex);
+    m_impl->_lifecycleClosed.wait(
+        lock, [&] {
+            return m_impl->_destroyed;
+        });
 }
 
 namespace {

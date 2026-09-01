@@ -74,13 +74,4 @@ public partial class InfiniFrameNative {
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetTeardownCallback", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus SetTeardownCallback(IntPtr instance, ContextAction callback, IntPtr context);
-
-    /// <summary>
-    ///     Shuts down the native UI thread and releases all global resources.
-    ///     Must be called before process exit on Linux to prevent GLib assertion failures.
-    /// </summary>
-    /// <returns>A status code indicating success or failure.</returns>
-    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_Shutdown")]
-    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial InfiniFrameNativeInteropStatus Shutdown();
 }

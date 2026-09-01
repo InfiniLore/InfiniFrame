@@ -962,14 +962,6 @@ class InfiniFrameWindow {
 
 #ifdef _WIN32
     /**
-         * @brief Register the Win32 window class; must be called once before creating any window
-         * @param hInstance Application instance handle
-         * @deprecated Use InfiniFrameApplication::Register() instead.
-         */
-    [[deprecated("Use InfiniFrameApplication::Register() instead")]]
-    static void Register(HINSTANCE hInstance);
-
-    /**
          * @brief Override the WebView2 fixed-version runtime path
          * @param pathToWebView2 UTF-8 path to the WebView2 runtime directory
          */
@@ -1032,13 +1024,6 @@ class InfiniFrameWindow {
     /// @param wParam The WPARAM containing the menu item identifier.
     void HandleMenuCommand(WPARAM wParam);
 #elif __APPLE__
-    /**
-         * @brief Initialise the NSApplication shared instance; must be called once before creating any window
-         * @deprecated Use InfiniFrameApplication::Register() instead.
-         */
-    [[deprecated("Use InfiniFrameApplication::Register() instead")]]
-    static void Register();
-
     /// Flush any queued web messages that have not yet been delivered.
     void FlushPendingWebMessages();
     /// Apply the current media autoplay configuration to the WKWebView.

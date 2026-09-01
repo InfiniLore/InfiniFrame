@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.InteropServices;
+using System.Text;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
 using InfiniFrame.NativeBridge.Parameters;
@@ -53,17 +54,17 @@ public sealed class InfiniFrameApplication(
 
         try {
             if (config.WindowsAppUserModelId is not null) {
-                appUserModelIdPtr = Marshal.StringToHGlobalAnsi(config.WindowsAppUserModelId);
+                appUserModelIdPtr = MarshalStringUtf8(config.WindowsAppUserModelId);
                 parameters.WindowsAppUserModelId = appUserModelIdPtr;
             }
 
             if (config.NotificationRegistrationId is not null) {
-                notificationRegIdPtr = Marshal.StringToHGlobalAnsi(config.NotificationRegistrationId);
+                notificationRegIdPtr = MarshalStringUtf8(config.NotificationRegistrationId);
                 parameters.NotificationRegistrationId = notificationRegIdPtr;
             }
 
             if (config.WebView2RuntimePath is not null) {
-                webView2RuntimePathPtr = Marshal.StringToHGlobalAnsi(config.WebView2RuntimePath);
+                webView2RuntimePathPtr = MarshalStringUtf8(config.WebView2RuntimePath);
                 parameters.WebView2RuntimePath = webView2RuntimePathPtr;
             }
 
@@ -196,5 +197,13 @@ public sealed class InfiniFrameApplication(
             _handle = null;
             logger.LogDebug("Application disposed.");
         }
+    }
+
+    private static IntPtr MarshalStringUtf8(string? value) {
+        if (value is null) return IntPtr.Zero;
+        byte[] utf8 = Encoding.UTF8.GetBytes(value + '\0');
+        IntPtr ptr = Marshal.AllocHGlobal(utf8.Length);
+        Marshal.Copy(utf8, 0, ptr, utf8.Length);
+        return ptr;
     }
 }

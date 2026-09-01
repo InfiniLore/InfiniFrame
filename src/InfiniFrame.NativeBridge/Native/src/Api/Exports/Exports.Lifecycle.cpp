@@ -2,9 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Api/Exports/Exports.h"
-#ifdef __linux__
-#include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
-#endif
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -103,16 +100,4 @@ EXPORTED InteropStatus InfiniFrameNative_SetTeardownCallback(
             window->SetTeardownCallback(callback, context);
         });
 }
-
-#ifdef __linux__
-/// @brief Forces immediate shutdown of the native window (Linux only).
-/// @return InteropStatus
-/// @deprecated Use InfiniFrameNative_Application_Shutdown() with InfiniFrameApplication instead.
-EXPORTED InteropStatus InfiniFrameNative_Shutdown() {
-    return RunExportStatus(
-        [] {
-            infiniframe::linux_gtk::ui_thread::Shutdown();
-        });
-}
-#endif
 }

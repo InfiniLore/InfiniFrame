@@ -16,8 +16,6 @@
 static_assert(sizeof(wchar_t) == sizeof(char16_t));
 
 auto CLASS_NAME = L"InfiniFrame";
-std::atomic<HINSTANCE> _hInstance{nullptr};
-thread_local HWND messageLoopRootWindowHandle = nullptr;
 
 using namespace WinToastLib;
 
@@ -67,32 +65,6 @@ HBRUSH GetLightBrush() {
     return BrushManager::instance().light();
 }
 
-void InfiniFrameWindow::Register(const HINSTANCE hInstance) {
-    InitDarkModeSupport();
-
-    _hInstance.store(hInstance, std::memory_order_release);
-
-    WNDCLASSEX wcx{};
-    wcx.cbSize = sizeof(WNDCLASSEX);
-    wcx.style = CS_HREDRAW | CS_VREDRAW;
-    wcx.lpfnWndProc = WindowProc;
-    wcx.cbClsExtra = 0;
-    wcx.cbWndExtra = 0;
-    wcx.hInstance = hInstance;
-    wcx.hIcon = LoadIcon(hInstance, IDI_APPLICATION);
-    wcx.hCursor = LoadCursor(nullptr, IDC_ARROW);
-    wcx.hbrBackground = IsDarkModeEnabled() ? GetDarkBrush() : GetLightBrush();
-    wcx.lpszMenuName = nullptr;
-    wcx.lpszClassName = CLASS_NAME;
-    wcx.hIconSm = LoadIcon(hInstance, IDI_APPLICATION);
-
-    if (RegisterClassEx(&wcx) == 0) {
-        throw std::runtime_error("RegisterClassEx failed for window class 'InfiniFrame'.");
-    }
-
-    SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
-}
-
 // Initializes native window lifecycle state from host-provided startup parameters.
 // Flow:
 //  1) Allocate implementation storage.
@@ -111,11 +83,11 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
             );
     }
 
-    // Store application reference if provided.
-    if (initParams->ApplicationHandle != nullptr) {
-        m_impl->_application = static_cast<InfiniFrameApplication*>(initParams->ApplicationHandle);
-        m_impl->_application->TrackWindow(this);
-    }
+    // Store application reference — required for the window to function.
+    if (initParams->ApplicationHandle == nullptr)
+        throw std::invalid_argument("ApplicationHandle is required. Create an InfiniFrameApplication first.");
+    m_impl->_application = static_cast<InfiniFrameApplication*>(initParams->ApplicationHandle);
+    m_impl->_application->TrackWindow(this);
 
     // Initialize window title and optional toast notification identity.
     if (initParams->Title != nullptr) {
@@ -252,10 +224,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     const HWND parentWindowHandle = ResolveParentWindowHandle(m_impl->_parent);
     m_impl->_pendingOwnerHwnd = parentWindowHandle;
 
-    // Use application's HINSTANCE if available, otherwise fall back to global.
-    const HINSTANCE windowInstance = m_impl->_application != nullptr
-        ? m_impl->_application->GetHInstance()
-        : _hInstance.load(std::memory_order_acquire);
+    const HINSTANCE windowInstance = m_impl->_application->GetHInstance();
     m_impl->_hWnd = CreateWindowEx(
         initParams->Transparent ? WS_EX_LAYERED : 0, CLASS_NAME, m_impl->_windowTitle.c_str(),
         initParams->Chromeless || initParams->FullScreen ? WS_POPUP : WS_OVERLAPPEDWINDOW, normalizedLeft,
@@ -287,16 +256,10 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         SetTopmost(true);
 
     if (initParams->NotificationsEnabled) {
-        // Use AppUserModelId from application if available, otherwise fall back to notification registration or title.
-        if (m_impl->_application != nullptr) {
-            const auto& appModelId = m_impl->_application->GetAppUserModelId();
-            if (!appModelId.empty())
-                WinToast::instance()->setAppUserModelId(appModelId.c_str());
-            else if (!m_impl->_notificationRegistrationId.empty())
-                WinToast::instance()->setAppUserModelId(m_impl->_notificationRegistrationId.c_str());
-            else
-                WinToast::instance()->setAppUserModelId(m_impl->_windowTitle.c_str());
-        } else if (!m_impl->_notificationRegistrationId.empty())
+        const auto& appModelId = m_impl->_application->GetAppUserModelId();
+        if (!appModelId.empty())
+            WinToast::instance()->setAppUserModelId(appModelId.c_str());
+        else if (!m_impl->_notificationRegistrationId.empty())
             WinToast::instance()->setAppUserModelId(m_impl->_notificationRegistrationId.c_str());
         else
             WinToast::instance()->setAppUserModelId(m_impl->_windowTitle.c_str());
@@ -320,10 +283,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
 }
 
 InfiniFrameWindow::~InfiniFrameWindow() {
-    // Untrack from application before destroying.
-    if (m_impl->_application != nullptr) {
-        m_impl->_application->UntrackWindow(this);
-    }
+    m_impl->_application->UntrackWindow(this);
 }
 
 InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() noexcept {

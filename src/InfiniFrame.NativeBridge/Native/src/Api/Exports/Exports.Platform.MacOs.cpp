@@ -7,16 +7,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
 #ifdef __APPLE__
-/// @brief Registers the macOS window class.
-/// @return InteropStatus
-/// @deprecated Use InfiniFrameNative_Application_register_mac() with InfiniFrameApplication instead.
-EXPORTED InteropStatus InfiniFrameNative_register_mac() {
-    return RunExportStatus(
-        [] {
-            InfiniFrameWindow::Register();
-        });
-}
-
 /// @brief Gets the NSWindow handle for the window.
 /// @param instance The window handle.
 /// @param[out] value Receives the NSWindow pointer as void*.

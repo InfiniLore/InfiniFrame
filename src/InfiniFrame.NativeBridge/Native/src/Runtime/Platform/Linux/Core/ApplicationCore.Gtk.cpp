@@ -5,11 +5,19 @@
 #include "Runtime/Shared/Application/InfiniFrameApplicationImpl.h"
 #include "Runtime/Shared/Application/ApplicationInitParams.h"
 #include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
+#include <stdexcept>
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 InfiniFrameApplication::InfiniFrameApplication(ApplicationInitParams* params) {
     m_impl = std::make_unique<Impl>();
+
+    if (params == nullptr)
+        throw std::invalid_argument("Argument 'params' is null.");
+
+    if (params->StructSize != sizeof(ApplicationInitParams))
+        throw std::invalid_argument("ApplicationInitParams size mismatch.");
+
     infiniframe::linux_gtk::ui_thread::EnsureInitialized();
 }
 
