@@ -39,6 +39,9 @@ jobs:
     tests-python:
         name: "CI: python"
         uses: ./.github/workflows/shared-testing-python.yml
+        with:
+            target_sha: ${{ github.sha }}
+            workflow_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
     tests-platform:
         name: "CI: tests"
