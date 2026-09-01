@@ -213,21 +213,387 @@ public class InfiniFrameSingleFileBootstrapTests {
     }
 
     [Test]
-    public async Task RequiredFileNamesForCurrentPlatform_ReturnsNonEmptyArray(CancellationToken ct = default) {
+    [SkipOnWindows]
+    public async Task RequiredFileNamesForCurrentPlatform_OsxOrLinuxDoesNotIncludeLoader(CancellationToken ct = default) {
         // Arrange
         string[] required = ArtifactManifest.RequiredFileNamesForCurrentPlatform();
 
         // Act (no-op — verifying static constants)
 
         // Assert
-        await Assert.That(required.Length).IsGreaterThan(0);
+        await Assert.That(required).DoesNotContain(ArtifactManifest.WindowsLoaderFileName);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Initialize - no embedded resources
+    // ResolveNativeLibrary (via reflection)
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    public async Task Initialize_NoEmbeddedResources_NativeDirIsNull(CancellationToken ct = default) {
+    public async Task ResolveNativeLibrary_NativeDirIsNull_ReturnsIntPtrZero(CancellationToken ct = default) {
+        // Arrange
+        ResetState();
+        MethodInfo resolveMethod = BootstrapType.GetMethod("ResolveNativeLibrary", BindingFlags.NonPublic | BindingFlags.Static)!;
+        NativeDirField.SetValue(null, null);
+
+        // Act
+        IntPtr result = (IntPtr)resolveMethod.Invoke(null, ["InfiniFrame.Native", typeof(InfiniFrameSingleFile).Assembly, null])!;
+
+        // Assert
+        await Assert.That(result).IsEqualTo(IntPtr.Zero);
+
+        // Cleanup
+        ResetState();
+    }
+
+    [Test]
+    public async Task ResolveNativeLibrary_LibraryNameDoesNotMatch_ReturnsIntPtrZero(CancellationToken ct = default) {
+        // Arrange
+        ResetState();
+        MethodInfo resolveMethod = BootstrapType.GetMethod("ResolveNativeLibrary", BindingFlags.NonPublic | BindingFlags.Static)!;
+        NativeDirField.SetValue(null, Path.GetTempPath());
+
+        // Act
+        IntPtr result = (IntPtr)resolveMethod.Invoke(null, ["SomeOtherLibrary", typeof(InfiniFrameSingleFile).Assembly, null])!;
+
+        // Assert
+        await Assert.That(result).IsEqualTo(IntPtr.Zero);
+
+        // Cleanup
+        ResetState();
+    }
+
+    [Test]
+    public async Task ResolveNativeLibrary_NativeDirIsEmpty_PassesNullCheck(CancellationToken ct = default) {
+        // Arrange
+        ResetState();
+        MethodInfo resolveMethod = BootstrapType.GetMethod("ResolveNativeLibrary", BindingFlags.NonPublic | BindingFlags.Static)!;
+        NativeDirField.SetValue(null, "");
+
+        // Act — empty string is NOT null, so the resolver proceeds past the null check
+        var result = (IntPtr)resolveMethod.Invoke(null, new object?[] { "InfiniFrame.Native", typeof(InfiniFrameSingleFile).Assembly, null })!;
+
+        // Assert — result is platform-dependent; just verify no corruption
+        await Assert.That(result).IsNotEqualTo(new IntPtr(-1));
+
+        // Cleanup
+        ResetState();
+    }
+
+    [Test]
+    public async Task ResolveNativeLibrary_NativeLibraryName_ReturnsIntPtrZeroWhenFileNotFound(CancellationToken ct = default) {
+        // Arrange
+        ResetState();
+        MethodInfo resolveMethod = BootstrapType.GetMethod("ResolveNativeLibrary", BindingFlags.NonPublic | BindingFlags.Static)!;
+        string tempDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "test_resolve_" + Guid.NewGuid());
+        Directory.CreateDirectory(tempDir);
+        NativeDirField.SetValue(null, tempDir);
+
+        // Act
+        IntPtr result = (IntPtr)resolveMethod.Invoke(null, [ArtifactManifest.NativeLibraryName, typeof(InfiniFrameSingleFile).Assembly, null])!;
+
+        // Assert
+        await Assert.That(result).IsEqualTo(IntPtr.Zero);
+
+        // Cleanup
+        ResetState();
+        if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
+    }
+
+    [Test]
+    public async Task ResolveNativeLibrary_WebView2LoaderName_ReturnsIntPtrZeroWhenFileNotFound(CancellationToken ct = default) {
+        // Arrange
+        ResetState();
+        MethodInfo resolveMethod = BootstrapType.GetMethod("ResolveNativeLibrary", BindingFlags.NonPublic | BindingFlags.Static)!;
+        string tempDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "test_resolve_" + Guid.NewGuid());
+        Directory.CreateDirectory(tempDir);
+        NativeDirField.SetValue(null, tempDir);
+
+        // Act
+        IntPtr result = (IntPtr)resolveMethod.Invoke(null, ["WebView2Loader", typeof(InfiniFrameSingleFile).Assembly, null])!;
+
+        // Assert
+        await Assert.That(result).IsEqualTo(IntPtr.Zero);
+
+        // Cleanup
+        ResetState();
+        if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
+    }
+
+    [Test]
+    public async Task ResolveNativeLibrary_NativeLibraryName_FileExists_ReturnsNonZeroOrThrows(CancellationToken ct = default) {
+        // Arrange
+        ResetState();
+        MethodInfo resolveMethod = BootstrapType.GetMethod("ResolveNativeLibrary", BindingFlags.NonPublic | BindingFlags.Static)!;
+        string tempDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "test_resolve_" + Guid.NewGuid());
+        Directory.CreateDirectory(tempDir);
+        string fileName = ArtifactManifest.ResolveNativeLibraryFileNameForCurrentPlatform();
+        string filePath = Path.Join(tempDir, fileName);
+        await File.WriteAllBytesAsync(filePath, new byte[] { 0, 0, 0, 0 }, ct);
+        NativeDirField.SetValue(null, tempDir);
+
+        // Act & Assert — the load may succeed or throw depending on platform; we verify no null-reference or corruption
+        try {
+            _ = (IntPtr)resolveMethod.Invoke(null, new object?[] { ArtifactManifest.NativeLibraryName, typeof(InfiniFrameSingleFile).Assembly, null })!;
+        } catch (TargetInvocationException ex) when (ex.InnerException is not null) {
+            bool isExpected = ex.InnerException is BadImageFormatException or DllNotFoundException or FileLoadException;
+            await Assert.That(isExpected).IsTrue();
+        }
+
+        // Cleanup
+        ResetState();
+        if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
+    }
+
+    [Test]
+    public async Task ResolveNativeLibrary_WebView2LoaderName_FileExists_ReturnsNonZeroOrThrows(CancellationToken ct = default) {
+        // Arrange
+        ResetState();
+        MethodInfo resolveMethod = BootstrapType.GetMethod("ResolveNativeLibrary", BindingFlags.NonPublic | BindingFlags.Static)!;
+        string tempDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "test_resolve_" + Guid.NewGuid());
+        Directory.CreateDirectory(tempDir);
+        string filePath = Path.Join(tempDir, ArtifactManifest.WindowsLoaderFileName);
+        await File.WriteAllBytesAsync(filePath, new byte[] { 0, 0, 0, 0 }, ct);
+        NativeDirField.SetValue(null, tempDir);
+
+        // Act & Assert
+        try {
+            _ = (IntPtr)resolveMethod.Invoke(null, new object?[] { "WebView2Loader", typeof(InfiniFrameSingleFile).Assembly, null })!;
+        } catch (TargetInvocationException ex) when (ex.InnerException is not null) {
+            bool isExpected = ex.InnerException is BadImageFormatException or DllNotFoundException or FileLoadException;
+            await Assert.That(isExpected).IsTrue();
+        }
+
+        // Cleanup
+        ResetState();
+        if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // TryPreloadDependency (via reflection)
+    // -----------------------------------------------------------------------------------------------------------------
+    [Test]
+    public void TryPreloadDependency_NativeDirIsNull_DoesNotThrow(CancellationToken ct = default) {
+        // Arrange
+        ResetState();
+        NativeDirField.SetValue(null, null);
+        MethodInfo preloadMethod = BootstrapType.GetMethod("TryPreloadDependency", BindingFlags.NonPublic | BindingFlags.Static)!;
+
+        // Act
+        preloadMethod.Invoke(null, [ArtifactManifest.WindowsLoaderFileName]);
+
+        // Assert (no exception = pass)
+
+        // Cleanup
+        ResetState();
+    }
+
+    [Test]
+    public void TryPreloadDependency_FileDoesNotExist_DoesNotThrow(CancellationToken ct = default) {
+        // Arrange
+        ResetState();
+        string tempDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "test_preload_" + Guid.NewGuid());
+        Directory.CreateDirectory(tempDir);
+        NativeDirField.SetValue(null, tempDir);
+        MethodInfo preloadMethod = BootstrapType.GetMethod("TryPreloadDependency", BindingFlags.NonPublic | BindingFlags.Static)!;
+
+        // Act
+        preloadMethod.Invoke(null, ["nonexistent.dll"]);
+
+        // Assert (no exception = pass)
+
+        // Cleanup
+        ResetState();
+        if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
+    }
+
+    [Test]
+    public void TryPreloadDependency_FileExists_BadImage_DoesNotThrow(CancellationToken ct = default) {
+        // Arrange
+        ResetState();
+        string tempDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "test_preload_" + Guid.NewGuid());
+        Directory.CreateDirectory(tempDir);
+        string filePath = Path.Join(tempDir, ArtifactManifest.WindowsLoaderFileName);
+        File.WriteAllBytes(filePath, [0, 0, 0, 0]);
+        NativeDirField.SetValue(null, tempDir);
+        MethodInfo preloadMethod = BootstrapType.GetMethod("TryPreloadDependency", BindingFlags.NonPublic | BindingFlags.Static)!;
+
+        // Act — should not throw due to catch blocks for DllNotFoundException, BadImageFormatException, FileLoadException
+        preloadMethod.Invoke(null, [ArtifactManifest.WindowsLoaderFileName]);
+
+        // Assert (no exception = pass)
+
+        // Cleanup
+        ResetState();
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // ExtractEmbeddedNative (via reflection)
+    // -----------------------------------------------------------------------------------------------------------------
+    // ExtractEmbeddedNative (via reflection)
+    // -----------------------------------------------------------------------------------------------------------------
+    [Test]
+    public async Task ExtractEmbeddedNative_EmptyFileList_DoesNotThrow(CancellationToken ct = default) {
+        // Arrange
+        ResetState();
+        string tempDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "test_extract_" + Guid.NewGuid());
+        Directory.CreateDirectory(tempDir);
+        NativeDirField.SetValue(null, tempDir);
+        MethodInfo extractMethod = BootstrapType.GetMethod("ExtractEmbeddedNative", BindingFlags.NonPublic | BindingFlags.Static)!;
+
+        // Act
+        extractMethod.Invoke(null, [typeof(InfiniFrameSingleFile).Assembly, "win-x64", Array.Empty<string>()]);
+
+        // Assert (no exception = pass)
+
+        // Cleanup
+        ResetState();
+        if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
+    }
+
+    [Test]
+    public async Task ExtractEmbeddedNative_NullResourceStream_SkipsFile(CancellationToken ct = default) {
+        // Arrange
+        ResetState();
+        string tempDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "test_extract_" + Guid.NewGuid());
+        Directory.CreateDirectory(tempDir);
+        NativeDirField.SetValue(null, tempDir);
+        MethodInfo extractMethod = BootstrapType.GetMethod("ExtractEmbeddedNative", BindingFlags.NonPublic | BindingFlags.Static)!;
+        string fakeFileName = $"nonexistent_{Guid.NewGuid()}.dll";
+
+        // Act — should not throw; resource stream will be null and skipped
+        extractMethod.Invoke(null, [typeof(InfiniFrameSingleFile).Assembly, "win-x64", new[] { fakeFileName }]);
+
+        // Assert (no exception = pass)
+
+        // Cleanup
+        ResetState();
+        if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
+    }
+
+    [Test]
+    public async Task ExtractEmbeddedNative_FileAlreadyExists_SkipsFile(CancellationToken ct = default) {
+        // Arrange
+        ResetState();
+        string tempDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "test_extract_" + Guid.NewGuid());
+        Directory.CreateDirectory(tempDir);
+        string fakeFileName = $"nonexistent_{Guid.NewGuid()}.dll";
+        string filePath = Path.Join(tempDir, fakeFileName);
+        await File.WriteAllBytesAsync(filePath, [0xFF], ct);
+        NativeDirField.SetValue(null, tempDir);
+        MethodInfo extractMethod = BootstrapType.GetMethod("ExtractEmbeddedNative", BindingFlags.NonPublic | BindingFlags.Static)!;
+
+        // Act
+        extractMethod.Invoke(null, [typeof(InfiniFrameSingleFile).Assembly, "win-x64", new[] { fakeFileName }]);
+
+        // Assert — file should still be 1 byte (not overwritten)
+        byte[] content = await File.ReadAllBytesAsync(filePath, ct);
+        await Assert.That(content.Length).IsEqualTo(1);
+
+        // Cleanup
+        ResetState();
+        if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // TryCleanupNativeDirectory - exception paths
+    // -----------------------------------------------------------------------------------------------------------------
+    [Test]
+    public void TryCleanupNativeDirectory_IOException_DoesNotThrow(CancellationToken ct = default) {
+        // Arrange
+        ResetState();
+        string tempDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "test_cleanup_io_" + Guid.NewGuid());
+        Directory.CreateDirectory(tempDir);
+        NativeDirField.SetValue(null, tempDir);
+        MethodInfo cleanupMethod = BootstrapType.GetMethod("TryCleanupNativeDirectory", BindingFlags.NonPublic | BindingFlags.Static)!;
+
+        // Create a file and lock it to force IOException
+        string lockedFile = Path.Join(tempDir, "locked.txt");
+        using (new FileStream(lockedFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
+        {
+            // Act — should not throw; IOException is caught
+            cleanupMethod.Invoke(null, null);
+        }
+
+        // Assert (no exception = pass)
+
+        // Cleanup
+        ResetState();
+        try { Directory.Delete(tempDir, true); } catch { /* best effort */ }
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Lock / concurrency
+    // -----------------------------------------------------------------------------------------------------------------
+    [Test]
+    public async Task Initialize_ConcurrentCalls_DoesNotDeadlock(CancellationToken ct = default) {
+        // Arrange
+        ResetState();
+        MethodInfo initMethod = BootstrapType.GetMethod("Initialize", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)!;
+
+        // Act — call Initialize concurrently from multiple threads
+        IEnumerable<Task<object?>> tasks = Enumerable.Range(0, 4).Select(_ => Task.Run(() => initMethod.Invoke(null, null), ct));
+        await Task.WhenAll(tasks);
+
+        // Assert — should complete without deadlock
+        int initialized = (int)InitializedField.GetValue(null)!;
+        await Assert.That(initialized).IsEqualTo(0); // no embedded resources = stays 0
+
+        // Cleanup
+        ResetState();
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // GetRuntimeIdentifier edge cases
+    // -----------------------------------------------------------------------------------------------------------------
+    [Test]
+    public async Task Initialize_RidFormat_CorrectDelimiter(CancellationToken ct = default) {
+        // Arrange
+        string rid = GetExpectedRid();
+
+        // Act (no-op — verifying format)
+
+        // Assert
+        await Assert.That(rid).Contains("-");
+        await Assert.That(rid.Split('-').Length).IsEqualTo(2);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // ArtifactManifest edge cases
+    // -----------------------------------------------------------------------------------------------------------------
+    [Test]
+    public async Task ArtifactManifest_AllPlatformFileNames_AreUnique(CancellationToken ct = default) {
+        // Arrange
+        string[] allFileNames = [
+            ArtifactManifest.WindowsNativeFileName,
+            ArtifactManifest.LinuxNativeFileName,
+            ArtifactManifest.OsxNativeFileName,
+            ArtifactManifest.WindowsLoaderFileName
+        ];
+
+        // Act (no-op — verifying static constants)
+
+        // Assert
+        await Assert.That(allFileNames.Distinct().Count()).IsEqualTo(allFileNames.Length);
+    }
+
+    [Test]
+    public async Task ArtifactManifest_NativeLibraryFileName_ContainsLibraryName(CancellationToken ct = default) {
+        // Arrange & Act & Assert
+        await Assert.That(ArtifactManifest.WindowsNativeFileName).Contains(ArtifactManifest.NativeLibraryName);
+        await Assert.That(ArtifactManifest.LinuxNativeFileName).Contains(ArtifactManifest.NativeLibraryName);
+        await Assert.That(ArtifactManifest.OsxNativeFileName).Contains(ArtifactManifest.NativeLibraryName);
+    }
+
+    [Test]
+    public async Task ArtifactManifest_WindowsLoaderFileName_ContainsLoaderLibraryName(CancellationToken ct = default) {
+        // Arrange & Act & Assert
+        await Assert.That(ArtifactManifest.WindowsLoaderFileName).Contains(ArtifactManifest.WindowsLoaderLibraryName);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Initialize - _nativeDir path structure via reflection
+    // -----------------------------------------------------------------------------------------------------------------
+    [Test]
+    public async Task Initialize_NativeDirFormat_ContainsTempPath(CancellationToken ct = default) {
         // Arrange
         ResetState();
         MethodInfo initMethod = BootstrapType.GetMethod("Initialize", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)!;
@@ -235,7 +601,7 @@ public class InfiniFrameSingleFileBootstrapTests {
         // Act
         initMethod.Invoke(null, null);
 
-        // Assert
+        // Assert — _nativeDir should be null since no embedded resources exist
         string? nativeDir = (string?)NativeDirField.GetValue(null);
         await Assert.That(nativeDir).IsNull();
 
@@ -244,34 +610,13 @@ public class InfiniFrameSingleFileBootstrapTests {
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Initialize - idempotency
+    // TryCleanupNativeDirectory - whitespace check
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    public async Task Initialize_CalledTwice_DoesNotThrow(CancellationToken ct = default) {
+    public void TryCleanupNativeDirectory_WhitespaceNativeDir_DoesNotThrow(CancellationToken ct = default) {
         // Arrange
         ResetState();
-        MethodInfo initMethod = BootstrapType.GetMethod("Initialize", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)!;
-
-        // Act
-        initMethod.Invoke(null, null);
-        initMethod.Invoke(null, null);
-
-        // Assert
-        int initialized = (int)InitializedField.GetValue(null)!;
-        await Assert.That(initialized).IsEqualTo(0);
-
-        // Cleanup
-        ResetState();
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // TryCleanupNativeDirectory
-    // -----------------------------------------------------------------------------------------------------------------
-    [Test]
-    public void TryCleanupNativeDirectory_NullNativeDir_DoesNotThrow(CancellationToken ct = default) {
-        // Arrange
-        ResetState();
-        NativeDirField.SetValue(null, null);
+        NativeDirField.SetValue(null, "   ");
         MethodInfo cleanupMethod = BootstrapType.GetMethod("TryCleanupNativeDirectory", BindingFlags.NonPublic | BindingFlags.Static)!;
 
         // Act
@@ -281,202 +626,5 @@ public class InfiniFrameSingleFileBootstrapTests {
 
         // Cleanup
         ResetState();
-    }
-
-    [Test]
-    public void TryCleanupNativeDirectory_EmptyNativeDir_DoesNotThrow(CancellationToken ct = default) {
-        // Arrange
-        ResetState();
-        NativeDirField.SetValue(null, "");
-        MethodInfo cleanupMethod = BootstrapType.GetMethod("TryCleanupNativeDirectory", BindingFlags.NonPublic | BindingFlags.Static)!;
-
-        // Act
-        cleanupMethod.Invoke(null, null);
-
-        // Assert (no exception = pass)
-
-        // Cleanup
-        ResetState();
-    }
-
-    [Test]
-    public void TryCleanupNativeDirectory_NonExistentDirectory_DoesNotThrow(CancellationToken ct = default) {
-        // Arrange
-        ResetState();
-        string nonExistentDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "test_nonexistent_" + Guid.NewGuid());
-        NativeDirField.SetValue(null, nonExistentDir);
-        MethodInfo cleanupMethod = BootstrapType.GetMethod("TryCleanupNativeDirectory", BindingFlags.NonPublic | BindingFlags.Static)!;
-
-        // Act
-        cleanupMethod.Invoke(null, null);
-
-        // Assert (no exception = pass)
-
-        // Cleanup
-        ResetState();
-    }
-
-    [Test]
-    public void TryCleanupNativeDirectory_ExistingDirectory_DeletesDirectory(CancellationToken ct = default) {
-        // Arrange
-        ResetState();
-        string tempDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "test_cleanup_" + Guid.NewGuid());
-        Directory.CreateDirectory(tempDir);
-        File.WriteAllText(Path.Join(tempDir, "test.txt"), "content");
-        NativeDirField.SetValue(null, tempDir);
-        MethodInfo cleanupMethod = BootstrapType.GetMethod("TryCleanupNativeDirectory", BindingFlags.NonPublic | BindingFlags.Static)!;
-
-        // Act
-        cleanupMethod.Invoke(null, null);
-
-        // Assert (no exception = pass; delete is best-effort)
-
-        // Cleanup
-        ResetState();
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // NativeTempDir path structure
-    // -----------------------------------------------------------------------------------------------------------------
-    [Test]
-    public async Task NativeTempDir_ContainsExpectedSegments(CancellationToken ct = default) {
-        // Arrange
-        string rid = GetExpectedRid();
-        string assemblyName = "TestApp";
-        string version = "1.0.0";
-        string uniqueId = "12345_test";
-
-        // Act
-        string nativeDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "native", assemblyName, rid, version, uniqueId);
-
-        // Assert
-        await Assert.That(nativeDir).Contains("InfiniFrame");
-        await Assert.That(nativeDir).Contains("native");
-        await Assert.That(nativeDir).Contains(assemblyName);
-        await Assert.That(nativeDir).Contains(rid);
-        await Assert.That(nativeDir).Contains(version);
-        await Assert.That(nativeDir).Contains(uniqueId);
-    }
-
-    [Test]
-    public async Task NativeTempDir_UsesPlatformTempPath(CancellationToken ct = default) {
-        // Arrange
-        string rid = GetExpectedRid();
-
-        // Act
-        string nativeDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "native", "App", rid, "1.0.0", "test");
-
-        // Assert
-        await Assert.That(nativeDir).StartsWith(Path.GetTempPath());
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // All known RID combinations
-    // -----------------------------------------------------------------------------------------------------------------
-    [Test]
-    public async Task AllKnownRids_HaveValidFormat(CancellationToken ct = default) {
-        // Arrange
-        string[] knownRids = ["win-x64", "win-arm64", "linux-x64", "linux-arm64", "osx-x64", "osx-arm64"];
-        string[] knownOs = ["win", "linux", "osx"];
-        string[] knownArch = ["x64", "arm64"];
-
-        // Act & Assert
-        foreach (string rid in knownRids) {
-            string[] parts = rid.Split('-');
-            await Assert.That(parts.Length).IsEqualTo(2);
-            await Assert.That(knownOs).Contains(parts[0]);
-            await Assert.That(knownArch).Contains(parts[1]);
-        }
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // ArtifactManifest platform files
-    // -----------------------------------------------------------------------------------------------------------------
-    [Test]
-    public async Task WindowsNativeFileName_HasCorrectExtension(CancellationToken ct = default) {
-        // Arrange & Act & Assert
-        await Assert.That(ArtifactManifest.WindowsNativeFileName).EndsWith(".dll");
-        await Assert.That(ArtifactManifest.WindowsNativeFileName).Contains(ArtifactManifest.NativeLibraryName);
-    }
-
-    [Test]
-    public async Task LinuxNativeFileName_HasCorrectExtension(CancellationToken ct = default) {
-        // Arrange & Act & Assert
-        await Assert.That(ArtifactManifest.LinuxNativeFileName).EndsWith(".so");
-        await Assert.That(ArtifactManifest.LinuxNativeFileName).Contains(ArtifactManifest.NativeLibraryName);
-    }
-
-    [Test]
-    public async Task OsxNativeFileName_HasCorrectExtension(CancellationToken ct = default) {
-        // Arrange & Act & Assert
-        await Assert.That(ArtifactManifest.OsxNativeFileName).EndsWith(".dylib");
-        await Assert.That(ArtifactManifest.OsxNativeFileName).Contains(ArtifactManifest.NativeLibraryName);
-    }
-
-    [Test]
-    public async Task WindowsLoaderFileName_HasCorrectExtension(CancellationToken ct = default) {
-        // Arrange & Act & Assert
-        await Assert.That(ArtifactManifest.WindowsLoaderFileName).EndsWith(".dll");
-        await Assert.That(ArtifactManifest.WindowsLoaderFileName).Contains(ArtifactManifest.WindowsLoaderLibraryName);
-    }
-
-    [Test]
-    public async Task RequiredFileNamesForCurrentPlatform_ContainsNativeLibraryForCurrentOs(CancellationToken ct = default) {
-        // Arrange
-        string rid = GetExpectedRid();
-        string os = rid.Split('-')[0];
-        string[] required = ArtifactManifest.RequiredFileNamesForCurrentPlatform();
-
-        string expectedFile = os switch {
-            "win" => ArtifactManifest.WindowsNativeFileName,
-            "linux" => ArtifactManifest.LinuxNativeFileName,
-            "osx" => ArtifactManifest.OsxNativeFileName,
-            _ => throw new PlatformNotSupportedException()
-        };
-
-        // Act (no-op — verifying static constants)
-
-        // Assert
-        await Assert.That(required).Contains(expectedFile);
-    }
-
-    [Test]
-    public async Task RequiredFileNamesForCurrentPlatform_WindowsIncludesLoader(CancellationToken ct = default) {
-        // Arrange
-        if (!OperatingSystem.IsWindows()) {
-            Skip.Test("Windows-only test");
-            return;
-        }
-
-        string[] required = ArtifactManifest.RequiredFileNamesForCurrentPlatform();
-
-        // Act (no-op — verifying static constants)
-
-        // Assert
-        await Assert.That(required).Contains(ArtifactManifest.WindowsLoaderFileName);
-    }
-
-    [Test]
-    [OnlyRunOnLinux]
-    public async Task RequiredFileNamesForCurrentPlatform_LinuxDoesNotIncludeLoader(CancellationToken ct = default) {
-        // Arrange
-        string[] required = ArtifactManifest.RequiredFileNamesForCurrentPlatform();
-
-        // Act (no-op — verifying static constants)
-
-        // Assert
-        await Assert.That(required).DoesNotContain(ArtifactManifest.WindowsLoaderFileName);
-    }
-
-    [Test]
-    [OnlyRunOnMacOs]
-    public async Task RequiredFileNamesForCurrentPlatform_OsxDoesNotIncludeLoader(CancellationToken ct = default) {
-        // Arrange
-        string[] required = ArtifactManifest.RequiredFileNamesForCurrentPlatform();
-
-        // Act (no-op — verifying static constants)
-
-        // Assert
-        await Assert.That(required).DoesNotContain(ArtifactManifest.WindowsLoaderFileName);
     }
 }

@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Reflection;
 using InfiniFrame.SingleFile;
 
 namespace InfiniTests.InfiniFrame.SingleFile;
@@ -58,7 +59,7 @@ public class InfiniFramePackModeTests {
     [Test]
     public async Task IsActive_IsPublicField(CancellationToken ct = default) {
         // Arrange
-        var field = typeof(InfiniFramePackMode).GetField("IsActive");
+        FieldInfo? field = typeof(InfiniFramePackMode).GetField("IsActive");
 
         // Act (no-op — verifying reflection metadata)
 
