@@ -140,8 +140,9 @@ public class InfiniFrameUriSecurityPolicyBuilderExtensionsTests {
         // Arrange
         IInfiniFrameWindowBuilder builder = MockFactory.CreateWindowBuilderMock().Object;
 
-        // Act & Assert
-        await Assert.That(() => builder.AddTrustedOrigin("/relative/path"))
+        // Act & Assert — use "://invalid" which has no scheme and is invalid on all platforms
+        // ("/relative/path" is a valid file URI on Linux)
+        await Assert.That(() => builder.AddTrustedOrigin("://invalid"))
             .Throws<ArgumentException>();
     }
 

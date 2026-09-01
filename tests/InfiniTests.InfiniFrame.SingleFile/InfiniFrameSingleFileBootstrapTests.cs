@@ -262,6 +262,7 @@ public class InfiniFrameSingleFileBootstrapTests {
     }
 
     [Test]
+    [SkipOnLinux("InfiniFrame.Native.so is not available in SingleFile test output on Linux")]
     public async Task ResolveNativeLibrary_NativeDirIsEmpty_PassesNullCheck(CancellationToken ct = default) {
         // Arrange
         ResetState();

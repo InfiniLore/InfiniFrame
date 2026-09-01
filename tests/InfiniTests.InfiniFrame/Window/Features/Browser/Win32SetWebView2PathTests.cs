@@ -11,6 +11,7 @@ namespace InfiniTests.InfiniFrame.Window.Features.Browser;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+[OnlyRunOnWindows]
 public class Win32SetWebView2PathTests {
     private static readonly HttpClient Client = new() {
         Timeout = TimeSpan.FromMilliseconds(500)
