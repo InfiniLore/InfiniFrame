@@ -24,7 +24,6 @@
 struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     std::wstring _temporaryFilesPath;
     std::wstring _notificationRegistrationId;
-    std::wstring _windowsAppUserModelId;
 
     bool _notificationsEnabled = false;
     std::string _defaultNotificationIcon;
