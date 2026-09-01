@@ -964,7 +964,9 @@ class InfiniFrameWindow {
     /**
          * @brief Register the Win32 window class; must be called once before creating any window
          * @param hInstance Application instance handle
+         * @deprecated Use InfiniFrameApplication::Register() instead.
          */
+    [[deprecated("Use InfiniFrameApplication::Register() instead")]]
     static void Register(HINSTANCE hInstance);
 
     /**
@@ -1032,7 +1034,9 @@ class InfiniFrameWindow {
 #elif __APPLE__
     /**
          * @brief Initialise the NSApplication shared instance; must be called once before creating any window
+         * @deprecated Use InfiniFrameApplication::Register() instead.
          */
+    [[deprecated("Use InfiniFrameApplication::Register() instead")]]
     static void Register();
 
     /// Flush any queued web messages that have not yet been delivered.

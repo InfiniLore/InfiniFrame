@@ -24,8 +24,6 @@
 }
 @end
 
-struct InfiniFrameApplication::Impl : InfiniFrameApplicationImpl {};
-
 InfiniFrameApplication::InfiniFrameApplication(ApplicationInitParams* params) {
     m_impl = std::make_unique<Impl>();
 

@@ -13,9 +13,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-using namespace WinToastLib;
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-struct InfiniFrameApplication::Impl : InfiniFrameApplicationImpl {};
+using namespace WinToastLib;
 
 InfiniFrameApplication::InfiniFrameApplication(ApplicationInitParams* params) {
     m_impl = std::make_unique<Impl>();
@@ -70,8 +70,11 @@ void InfiniFrameApplication::Register(const HINSTANCE hInstance) {
     wcx.lpszClassName = CLASS_NAME;
     wcx.hIconSm = LoadIcon(hInstance, IDI_APPLICATION);
 
-    if (RegisterClassEx(&wcx) == 0)
-        throw std::runtime_error("RegisterClassEx failed for window class 'InfiniFrame'.");
+    if (RegisterClassEx(&wcx) == 0) {
+        const DWORD error = GetLastError();
+        if (error != ERROR_CLASS_ALREADY_EXISTS)
+            throw std::runtime_error("RegisterClassEx failed for window class 'InfiniFrame'.");
+    }
 
     SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 }

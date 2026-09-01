@@ -296,9 +296,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
                 WinToast::instance()->setAppUserModelId(m_impl->_notificationRegistrationId.c_str());
             else
                 WinToast::instance()->setAppUserModelId(m_impl->_windowTitle.c_str());
-        } else if (!m_impl->_windowsAppUserModelId.empty())
-            WinToast::instance()->setAppUserModelId(m_impl->_windowsAppUserModelId.c_str());
-        else if (!m_impl->_notificationRegistrationId.empty())
+        } else if (!m_impl->_notificationRegistrationId.empty())
             WinToast::instance()->setAppUserModelId(m_impl->_notificationRegistrationId.c_str());
         else
             WinToast::instance()->setAppUserModelId(m_impl->_windowTitle.c_str());

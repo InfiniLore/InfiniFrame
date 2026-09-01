@@ -44,4 +44,5 @@ public static class MockFactory {
     public static Mock<IServiceProvider> CreateServiceProviderMock() => Mock.Of<IServiceProvider>();
     public static Mock<IDisposable> CreateDisposableMock() => Mock.Of<IDisposable>();
     public static Mock<IValidator<InfiniFrameNativeParameters>> CreateValidatorMock() => Mock.Of<IValidator<InfiniFrameNativeParameters>>();
+    public static Mock<IInfiniFrameApplication> CreateApplicationMock() => Mock.Of<IInfiniFrameApplication>();
 }

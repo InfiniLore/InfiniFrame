@@ -12,7 +12,9 @@ namespace InfiniFrame.NativeBridge.Handles;
 ///     Safe handle for a native InfiniFrameApplication instance.
 /// </summary>
 internal sealed class NativeApplicationHandle : SafeHandleZeroOrMinusOneIsInvalid {
-    private NativeApplicationHandle() : base(ownsHandle: true) { }
+    internal NativeApplicationHandle(IntPtr handle) : base(ownsHandle: true) {
+        SetHandle(handle);
+    }
 
     /// <inheritdoc />
     protected override bool ReleaseHandle() {

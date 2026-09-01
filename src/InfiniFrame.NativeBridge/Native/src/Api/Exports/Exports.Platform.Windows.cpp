@@ -13,6 +13,7 @@ extern "C" {
 /// @brief Registers the Win32 window class.
 /// @param hInstance The application instance handle.
 /// @return InteropStatus
+/// @deprecated Use InfiniFrameNative_Application_register_win32() with InfiniFrameApplication instead.
 EXPORTED InteropStatus InfiniFrameNative_register_win32(const HINSTANCE hInstance) {
     return RunExportStatus(
         [&] {

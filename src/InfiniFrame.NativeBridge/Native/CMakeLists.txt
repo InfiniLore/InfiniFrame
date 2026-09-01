@@ -61,6 +61,7 @@ set(COMMON_SOURCES
         src/Api/Exports/Exports.Window.Setters.cpp
         src/Api/Exports/Exports.Window.Taskbar.cpp
         src/Api/Exports/Exports.Menu.cpp
+        src/Api/Exports/Exports.Application.cpp
 )
 
 set(TEST_SOURCES
@@ -84,6 +85,8 @@ set(WINDOWS_SOURCES
         src/Runtime/Platform/Windows/Core/WindowState.Win32.cpp
         src/Runtime/Platform/Windows/Core/WindowStorage.Win32.cpp
         src/Runtime/Platform/Windows/Core/WindowTracing.Win32.cpp
+        src/Runtime/Platform/Windows/Core/ApplicationCore.Win32.cpp
+        src/Runtime/Platform/Windows/Core/ApplicationLifecycle.Win32.cpp
         src/Runtime/Platform/Windows/DarkMode.cpp
         src/Runtime/Platform/Windows/Dialog.cpp
         src/Runtime/Platform/Windows/Dpi.Win32.cpp
@@ -114,6 +117,8 @@ set(LINUX_SOURCES
         src/Runtime/Platform/Linux/Core/WindowLifecycle.Gtk.cpp
         src/Runtime/Platform/Linux/Core/WindowSignals.Gtk.cpp
         src/Runtime/Platform/Linux/Core/WindowState.Gtk.cpp
+        src/Runtime/Platform/Linux/Core/ApplicationCore.Gtk.cpp
+        src/Runtime/Platform/Linux/Core/ApplicationLifecycle.Gtk.cpp
         src/Runtime/Platform/Linux/Dialog.cpp
         src/Runtime/Platform/Linux/Menu.Gtk.cpp
         src/Runtime/Platform/Linux/Monitors.Gtk.cpp
@@ -143,6 +148,8 @@ set(MAC_SOURCES
         src/Runtime/Platform/Mac/Core/WindowEvents.Cocoa.mm
         src/Runtime/Platform/Mac/Core/WindowLifecycle.Cocoa.mm
         src/Runtime/Platform/Mac/Core/WindowState.Cocoa.mm
+        src/Runtime/Platform/Mac/Core/ApplicationCore.Cocoa.mm
+        src/Runtime/Platform/Mac/Core/ApplicationLifecycle.Cocoa.mm
         src/Runtime/Platform/Mac/Delegates/AppDelegate.mm
         src/Runtime/Platform/Mac/Delegates/NavigationDelegate.mm
         src/Runtime/Platform/Mac/Delegates/UiDelegate.mm
@@ -176,6 +183,9 @@ set(HEADER_FILES
         src/Runtime/Shared/Window/InfiniFrameDialog.h
         src/Runtime/Shared/Window/InfiniFrameInitParams.h
         src/Runtime/Shared/Window/InfiniFrameWindow.h
+        src/Runtime/Shared/Application/InfiniFrameApplication.h
+        src/Runtime/Shared/Application/InfiniFrameApplicationImpl.h
+        src/Runtime/Shared/Application/ApplicationInitParams.h
         src/Runtime/Shared/Types/Basic.h
         src/Runtime/Shared/Types/Callbacks.h
         src/Runtime/Shared/Types/DialogButtons.h

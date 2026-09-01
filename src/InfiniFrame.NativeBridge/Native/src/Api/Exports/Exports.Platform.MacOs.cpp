@@ -9,6 +9,7 @@ extern "C" {
 #ifdef __APPLE__
 /// @brief Registers the macOS window class.
 /// @return InteropStatus
+/// @deprecated Use InfiniFrameNative_Application_register_mac() with InfiniFrameApplication instead.
 EXPORTED InteropStatus InfiniFrameNative_register_mac() {
     return RunExportStatus(
         [] {

@@ -107,6 +107,7 @@ EXPORTED InteropStatus InfiniFrameNative_SetTeardownCallback(
 #ifdef __linux__
 /// @brief Forces immediate shutdown of the native window (Linux only).
 /// @return InteropStatus
+/// @deprecated Use InfiniFrameNative_Application_Shutdown() with InfiniFrameApplication instead.
 EXPORTED InteropStatus InfiniFrameNative_Shutdown() {
     return RunExportStatus(
         [] {

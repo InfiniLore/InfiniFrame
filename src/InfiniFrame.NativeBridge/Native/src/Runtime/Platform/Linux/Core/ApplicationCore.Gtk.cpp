@@ -8,8 +8,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-struct InfiniFrameApplication::Impl : InfiniFrameApplicationImpl {};
-
 InfiniFrameApplication::InfiniFrameApplication(ApplicationInitParams* params) {
     m_impl = std::make_unique<Impl>();
     infiniframe::linux_gtk::ui_thread::EnsureInitialized();

@@ -13,6 +13,7 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 class InfiniFrameWindow;
+class InfiniFrameApplication;
 
 struct InfiniFrameApplicationImpl {
     std::atomic<bool> _shutdownRequested{false};
@@ -27,3 +28,5 @@ struct InfiniFrameApplicationImpl {
     DWORD _messageLoopThreadId = 0;
 #endif
 };
+
+struct InfiniFrameApplication::Impl : InfiniFrameApplicationImpl {};

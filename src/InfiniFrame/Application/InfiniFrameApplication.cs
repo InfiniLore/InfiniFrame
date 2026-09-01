@@ -37,7 +37,7 @@ public sealed class InfiniFrameApplication(
 
     /// <inheritdoc />
     public void Initialize(ApplicationConfiguration config) {
-        ObjectDisposedException.ThrowIf(_disposed, this);
+        ObjectDisposedException.ThrowIf(_disposed != 0, this);
         ArgumentNullException.ThrowIfNull(config);
 
         _configuration = config;
@@ -82,8 +82,7 @@ public sealed class InfiniFrameApplication(
 
                 ArgumentOutOfRangeException.ThrowIfZero(handle);
 
-                _handle = new NativeApplicationHandle();
-                _handle.SetHandle(new IntPtr(handle));
+                _handle = new NativeApplicationHandle(new IntPtr(handle));
 
                 logger.LogInformation("Native application initialized successfully.");
             }
@@ -135,7 +134,7 @@ public sealed class InfiniFrameApplication(
 
     /// <inheritdoc />
     public void Run() {
-        ObjectDisposedException.ThrowIf(_disposed, this);
+        ObjectDisposedException.ThrowIf(_disposed != 0, this);
         if (_handle is null)
             throw new InvalidOperationException("Application has not been initialized. Call Initialize() first.");
 
@@ -160,7 +159,7 @@ public sealed class InfiniFrameApplication(
 
     /// <inheritdoc />
     public void Shutdown() {
-        if (_disposed || _handle is null) return;
+        if (_disposed != 0 || _handle is null) return;
 
         IsShutdownRequested = true;
 
