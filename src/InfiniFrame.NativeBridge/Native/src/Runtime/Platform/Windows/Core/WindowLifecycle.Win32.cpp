@@ -2,6 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
+#include "Runtime/Shared/Application/InfiniFrameApplication.h"
+#include "Runtime/Shared/Application/InfiniFrameApplicationImpl.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -39,11 +41,44 @@ bool InfiniFrameWindow::IsDestroyed() const {
 }
 
 void InfiniFrameWindow::WaitForExit() {
-    std::unique_lock lock(m_impl->_lifecycleMutex);
-    m_impl->_lifecycleClosed.wait(
-        lock, [&] {
-            return m_impl->_destroyed;
-        });
+    // If the application owns the message loop (Run() is active), just wait for _destroyed.
+    // The application's message loop processes WM_USER_INVOKE and other messages.
+    // If no application message loop is active, pump messages ourselves so that
+    // Invoke() from other threads can complete.
+    if (m_impl->_application != nullptr && m_impl->_application->IsMessageLoopRunning()) {
+        std::unique_lock lock(m_impl->_lifecycleMutex);
+        m_impl->_lifecycleClosed.wait(lock, [&] { return m_impl->_destroyed; });
+        return;
+    }
+
+    // No application message loop — pump messages while waiting for destroy.
+    MSG msg = {};
+    while (true) {
+        {
+            std::lock_guard lock(m_impl->_lifecycleMutex);
+            if (m_impl->_destroyed)
+                return;
+        }
+
+        // PeekMessage with nullptr hwnd retrieves ALL messages for this thread,
+        // including WM_USER_INVOKE posted to our window.
+        while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+            if (msg.message == WM_QUIT)
+                return;
+            // Only dispatch messages intended for our window or thread messages.
+            if (msg.hwnd == nullptr || msg.hwnd == m_impl->_hWnd) {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
+            {
+                std::lock_guard lock(m_impl->_lifecycleMutex);
+                if (m_impl->_destroyed)
+                    return;
+            }
+        }
+
+        MsgWaitForMultipleObjects(0, nullptr, FALSE, 50, QS_ALLINPUT);
+    }
 }
 
 namespace {

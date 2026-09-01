@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using System.Text;
 using InfiniFrame.NativeBridge;
@@ -15,6 +16,7 @@ namespace InfiniFrame;
 /// <summary>
 ///     Runtime implementation managing the native InfiniFrame application lifecycle including platform registration,
 ///     message loop execution, and window collection tracking.
+///     Access the singleton via <see cref="Instance"/> after calling <see cref="AddInfiniFrame()"/>.
 /// </summary>
 public sealed class InfiniFrameApplication(
     ILogger<InfiniFrameApplication> logger
@@ -22,6 +24,12 @@ public sealed class InfiniFrameApplication(
     private NativeApplicationHandle? _handle;
     private ApplicationConfiguration? _configuration;
     private int _disposed;
+    private readonly ConcurrentDictionary<Guid, IInfiniFrameWindow> _windows = new();
+
+    /// <summary>
+    ///     Gets the current application instance. Only available after <see cref="AddInfiniFrame"/> has been called.
+    /// </summary>
+    public static InfiniFrameApplication? Instance { get; internal set; }
 
     /// <inheritdoc />
     public Guid Id { get; } = Guid.NewGuid();
@@ -31,6 +39,15 @@ public sealed class InfiniFrameApplication(
 
     /// <inheritdoc />
     public bool IsShutdownRequested { get; private set; }
+
+    /// <inheritdoc />
+    public int WindowCount => _windows.Count;
+
+    /// <inheritdoc />
+    public event Action<IInfiniFrameWindow>? WindowCreated;
+
+    /// <inheritdoc />
+    public event Action<IInfiniFrameWindow>? WindowDestroyed;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -131,6 +148,8 @@ public sealed class InfiniFrameApplication(
             if (notificationRegIdPtr != IntPtr.Zero) Marshal.FreeHGlobal(notificationRegIdPtr);
             if (webView2RuntimePathPtr != IntPtr.Zero) Marshal.FreeHGlobal(webView2RuntimePathPtr);
         }
+
+        Instance = this;
     }
 
     /// <inheritdoc />
@@ -178,6 +197,39 @@ public sealed class InfiniFrameApplication(
     }
 
     /// <inheritdoc />
+    public void CloseAll() {
+        ObjectDisposedException.ThrowIf(_disposed != 0, this);
+
+        logger.LogDebug("Closing all {WindowCount} tracked windows.", _windows.Count);
+
+        foreach (var kvp in _windows) {
+            var window = kvp.Value;
+            try {
+                window.Features.Lifecycle.Close();
+            }
+            catch (Exception ex) {
+                logger.LogWarning(ex, "Failed to close window {WindowId}.", window.Id);
+            }
+        }
+    }
+
+    /// <inheritdoc />
+    public void TrackWindow(IInfiniFrameWindow window) {
+        if (_windows.TryAdd(window.Id, window)) {
+            logger.LogDebug("Window {WindowId} tracked. Total windows: {Count}.", window.Id, _windows.Count);
+            WindowCreated?.Invoke(window);
+        }
+    }
+
+    /// <inheritdoc />
+    public void UntrackWindow(IInfiniFrameWindow window) {
+        if (_windows.TryRemove(window.Id, out _)) {
+            logger.LogDebug("Window {WindowId} untracked. Total windows: {Count}.", window.Id, _windows.Count);
+            WindowDestroyed?.Invoke(window);
+        }
+    }
+
+    /// <inheritdoc />
     public void Dispose() {
         Dispose(true);
         GC.SuppressFinalize(this);
@@ -195,6 +247,7 @@ public sealed class InfiniFrameApplication(
         if (disposing) {
             _handle?.Dispose();
             _handle = null;
+            if (Instance == this) Instance = null;
             logger.LogDebug("Application disposed.");
         }
     }

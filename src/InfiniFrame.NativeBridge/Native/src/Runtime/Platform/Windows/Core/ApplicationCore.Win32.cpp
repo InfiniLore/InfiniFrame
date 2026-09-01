@@ -107,6 +107,10 @@ bool InfiniFrameApplication::IsShutdownRequested() const {
     return m_impl->_shutdownRequested.load(std::memory_order_acquire);
 }
 
+bool InfiniFrameApplication::IsMessageLoopRunning() const {
+    return m_impl->_messageLoopThreadId != 0;
+}
+
 const std::wstring& InfiniFrameApplication::GetAppUserModelId() const {
     return m_impl->_appUserModelId;
 }

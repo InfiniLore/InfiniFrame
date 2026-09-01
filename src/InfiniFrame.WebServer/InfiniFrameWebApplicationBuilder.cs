@@ -69,12 +69,9 @@ public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilde
         }
 
         // Initialize the application singleton so it's ready before any windows are created.
-        // The application will use the legacy path (ApplicationHandle=null in window initParams)
-        // unless explicitly configured with ApplicationConfiguration before Build().
         var application = webApp.Services.GetRequiredService<IInfiniFrameApplication>();
         if (application.ApplicationHandle == IntPtr.Zero && !application.IsShutdownRequested) {
             var appConfig = new ApplicationConfiguration();
-            // On Windows, try to resolve HInstance from the process module.
             if (OperatingSystem.IsWindows()) {
                 appConfig.HInstance = System.Diagnostics.Process.GetCurrentProcess().MainModule?.BaseAddress ?? IntPtr.Zero;
             }

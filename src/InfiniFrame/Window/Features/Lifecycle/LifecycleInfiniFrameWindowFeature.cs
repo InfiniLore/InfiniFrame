@@ -132,6 +132,8 @@ public class LifecycleInfiniFrameWindowFeature(
                 window.AssignNativeHandle(handle);
                 RegisterNativeMilestoneCallbacks(handle);
 
+                application.TrackWindow(window);
+
                 if (OperatingSystem.IsLinux()) {
                     NativeInvoke.InvokeSyncWithValidation(logger, window, window.ManagedThreadId, callback: () => {
                         window.SetManagedThreadId(Environment.CurrentManagedThreadId);
@@ -446,6 +448,7 @@ public class LifecycleInfiniFrameWindowFeature(
     }
 
     private void CompleteTeardown() {
+        application.UntrackWindow(window);
         window.MarkTeardownComplete();
         _teardown.TrySetResult();
         if (Volatile.Read(ref _disposed) != 0)

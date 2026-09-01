@@ -16,7 +16,7 @@ namespace InfiniFrame;
 /// </summary>
 public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
-    private IServiceCollection Services { get; init; } = new ServiceCollection().AddInfiniFrame();
+    private IServiceCollection Services { get; init; } = new ServiceCollection().AddInfiniFrame().AddTransient<InfiniFrameWindow>();
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.Configuration" />
     public IInfiniFrameWindowBuilderConfiguration Configuration { get; } = new InfiniFrameWindowBuilderConfiguration();
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.Features" />
@@ -38,6 +38,16 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         IServiceProvider actualProvider = provider ?? Services.BuildServiceProvider();
         var featureFactory = actualProvider.GetRequiredService<InfiniFrameWindowFeaturesFactory>();
         var validator = actualProvider.GetRequiredService<IValidator<InfiniFrameNativeParameters>>();
+
+        // Ensure the application is initialized before creating any windows.
+        var application = actualProvider.GetRequiredService<IInfiniFrameApplication>();
+        if (application.ApplicationHandle == IntPtr.Zero && !application.IsShutdownRequested) {
+            var appConfig = new ApplicationConfiguration();
+            if (OperatingSystem.IsWindows()) {
+                appConfig.HInstance = System.Diagnostics.Process.GetCurrentProcess().MainModule?.BaseAddress ?? IntPtr.Zero;
+            }
+            application.Initialize(appConfig);
+        }
 
         InfiniFrameNativeParameters nativeParameters = CollectNativeParameters();
 
@@ -89,6 +99,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             Services = (collection ?? new ServiceCollection())
                 .AddLogging()
                 .AddInfiniFrame()
+                .AddTransient<InfiniFrameWindow>()
         };
 
         return builder;

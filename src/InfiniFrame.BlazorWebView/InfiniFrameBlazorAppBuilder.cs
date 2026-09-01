@@ -60,6 +60,7 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
 
         appBuilder.Services
             .AddInfiniFrame()
+            .AddTransient<InfiniFrameWindow>()
             .AddScoped(static sp => {
                 var handler = sp.GetRequiredService<InfiniFrameHttpHandler>();
                 return new HttpClient(handler) { BaseAddress = new Uri(InfiniFrameWebViewManager.AppBaseUri) };
