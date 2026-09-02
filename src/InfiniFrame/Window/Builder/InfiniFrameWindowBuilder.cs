@@ -16,7 +16,7 @@ namespace InfiniFrame;
 /// </summary>
 public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
-    internal IServiceCollection Services { get; init; } = new ServiceCollection().AddLogging().AddInfiniFrame().AddTransient<InfiniFrameWindow>().AddTransient<IInfiniFrameWindow>(sp => sp.GetRequiredService<InfiniFrameWindow>());
+    internal IServiceCollection Services { get; init; } = new ServiceCollection().AddLogging().AddInfiniFrame().AddTransient<IInfiniFrameWindow, InfiniFrameWindow>();
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.Configuration" />
     public IInfiniFrameWindowBuilderConfiguration Configuration { get; } = new InfiniFrameWindowBuilderConfiguration();
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.Features" />
@@ -58,7 +58,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             throw new InstanceAlreadyRunningException();
         }
 
-        var window = actualProvider.GetRequiredService<InfiniFrameWindow>();
+        var window = (InfiniFrameWindow)actualProvider.GetRequiredService<IInfiniFrameWindow>();
         window.SetOwnsServiceProvider(ownsServiceProvider);
 
         window.AssignFeatures(featureFactory.Create(window, this));

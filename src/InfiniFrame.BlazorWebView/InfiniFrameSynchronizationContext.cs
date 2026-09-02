@@ -287,14 +287,16 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
         }
 
         InfiniFrameDispatchResult result = LazyWindow.Value.Features.Invoke.Invoke(ExecuteCallback);
-        if (result == InfiniFrameDispatchResult.WindowClosed) {
-            // Renderer disposal is scheduled after the native window has closed. There is no UI thread left to
-            // dispatch to, but the serialized callback must still run or Blazor's DisposeAsync never completes.
-            ExecuteCallback();
-            return;
+        switch (result)
+        {
+            case InfiniFrameDispatchResult.WindowClosed:
+                // Renderer disposal is scheduled after the native window has closed. There is no UI thread left to
+                // dispatch to, but the serialized callback must still run or Blazor's DisposeAsync never completes.
+                ExecuteCallback();
+                return;
+            case InfiniFrameDispatchResult.Completed:
+                return;
         }
-
-        if (result == InfiniFrameDispatchResult.Completed) return;
 
         Exception dispatchException = callbackException ?? new InvalidOperationException(
             $"Could not execute an InfiniFrame synchronization callback. Dispatch result: {result}."

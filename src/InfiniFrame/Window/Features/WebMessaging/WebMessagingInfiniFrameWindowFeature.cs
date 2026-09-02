@@ -121,10 +121,13 @@ public class WebMessagingInfiniFrameWindowFeature : IWebMessagingInfiniFrameWind
             cancellationToken: ct
         ).ConfigureAwait(false);
 
-        if (result == InfiniFrameDispatchResult.Cancelled)
-            throw new OperationCanceledException(ct);
-        if (result is InfiniFrameDispatchResult.Failed or InfiniFrameDispatchResult.TimedOut)
-            throw new InvalidOperationException($"Web-message submission ended with {result}.");
+        switch (result)
+        {
+            case InfiniFrameDispatchResult.Cancelled:
+                throw new OperationCanceledException(ct);
+            case InfiniFrameDispatchResult.Failed or InfiniFrameDispatchResult.TimedOut:
+                throw new InvalidOperationException($"Web-message submission ended with {result}.");
+        }
     }
 
     private static string CreateAcknowledgementPayload(ulong id, string message) {

@@ -177,14 +177,18 @@ public sealed class InfiniFrameWindow(
             safeHandle?.Dispose();
         }
 
-        if (LifecycleState == InfiniFrameWindowLifecycleState.Creating) return;
+        switch (LifecycleState)
+        {
+            case InfiniFrameWindowLifecycleState.Creating:
+            // A very early native closed callback won the transition. Keep ownership
+            // for deferred teardown but never resurrect the window back to Running.
+            case >= InfiniFrameWindowLifecycleState.NativeClosed:
+                return;
+            default:
+                Interlocked.Exchange(ref _instanceHandle, null).Dispose();
+                throw new InvalidOperationException($"Cannot assign a native handle in state {LifecycleState}.");
+        }
 
-        // A very early native closed callback won the transition. Keep ownership
-        // for deferred teardown but never resurrect the window back to Running.
-        if (LifecycleState >= InfiniFrameWindowLifecycleState.NativeClosed) return;
-
-        Interlocked.Exchange(ref _instanceHandle, null).Dispose();
-        throw new InvalidOperationException($"Cannot assign a native handle in state {LifecycleState}.");
     }
 
     void IInfiniFrameWindow.MarkReady() {

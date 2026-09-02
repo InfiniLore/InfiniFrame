@@ -108,19 +108,36 @@ public class WindowFeatureDispatcherCommandTests {
     }
 
     private static bool WasMethodCalled(object mockObj, string methodName) {
-        if (mockObj is Mock<IBrowserInfiniFrameWindowFeature> m1) return Mock.Invocations(m1).Any(c => c.MemberName == methodName);
-        if (mockObj is Mock<IDebuggingInfiniFrameWindowFeature> m2) return Mock.Invocations(m2).Any(c => c.MemberName == methodName);
-        if (mockObj is Mock<IDecorationsInfiniFrameWindowFeature> m3) return Mock.Invocations(m3).Any(c => c.MemberName == methodName);
-        if (mockObj is Mock<IFilePickerDialogsInfiniFrameWindowFeature> m4) return Mock.Invocations(m4).Any(c => c.MemberName == methodName);
-        if (mockObj is Mock<ILifecycleInfiniFrameWindowFeature> m5) return Mock.Invocations(m5).Any(c => c.MemberName == methodName);
-        if (mockObj is Mock<IMonitorsInfiniFrameWindowFeature> m6) return Mock.Invocations(m6).Any(c => c.MemberName == methodName);
-        if (mockObj is Mock<INotificationsInfiniFrameWindowFeature> m7) return Mock.Invocations(m7).Any(c => c.MemberName == methodName);
-        if (mockObj is Mock<IPageNavigationInfiniFrameWindowFeature> m8) return Mock.Invocations(m8).Any(c => c.MemberName == methodName);
-        if (mockObj is Mock<IPositionInfiniFrameWindowFeature> m9) return Mock.Invocations(m9).Any(c => c.MemberName == methodName);
-        if (mockObj is Mock<ISizeInfiniFrameWindowFeature> m10) return Mock.Invocations(m10).Any(c => c.MemberName == methodName);
-        if (mockObj is Mock<IStateInfiniFrameWindowFeature> m11) return Mock.Invocations(m11).Any(c => c.MemberName == methodName);
-        if (mockObj is Mock<IWebMessagingInfiniFrameWindowFeature> m12) return Mock.Invocations(m12).Any(c => c.MemberName == methodName);
-        return false;
+        switch (mockObj)
+        {
+            case Mock<IBrowserInfiniFrameWindowFeature> m1:
+                return Mock.Invocations(m1).Any(c => c.MemberName == methodName);
+            case Mock<IDebuggingInfiniFrameWindowFeature> m2:
+                return Mock.Invocations(m2).Any(c => c.MemberName == methodName);
+            case Mock<IDecorationsInfiniFrameWindowFeature> m3:
+                return Mock.Invocations(m3).Any(c => c.MemberName == methodName);
+            case Mock<IFilePickerDialogsInfiniFrameWindowFeature> m4:
+                return Mock.Invocations(m4).Any(c => c.MemberName == methodName);
+            case Mock<ILifecycleInfiniFrameWindowFeature> m5:
+                return Mock.Invocations(m5).Any(c => c.MemberName == methodName);
+            case Mock<IMonitorsInfiniFrameWindowFeature> m6:
+                return Mock.Invocations(m6).Any(c => c.MemberName == methodName);
+            case Mock<INotificationsInfiniFrameWindowFeature> m7:
+                return Mock.Invocations(m7).Any(c => c.MemberName == methodName);
+            case Mock<IPageNavigationInfiniFrameWindowFeature> m8:
+                return Mock.Invocations(m8).Any(c => c.MemberName == methodName);
+            case Mock<IPositionInfiniFrameWindowFeature> m9:
+                return Mock.Invocations(m9).Any(c => c.MemberName == methodName);
+            case Mock<ISizeInfiniFrameWindowFeature> m10:
+                return Mock.Invocations(m10).Any(c => c.MemberName == methodName);
+            case Mock<IStateInfiniFrameWindowFeature> m11:
+                return Mock.Invocations(m11).Any(c => c.MemberName == methodName);
+            case Mock<IWebMessagingInfiniFrameWindowFeature> m12:
+                return Mock.Invocations(m12).Any(c => c.MemberName == methodName);
+            default:
+                return false;
+        }
+
     }
 
     private static (IInfiniFrameWindow Window, object Feature) CreateWindow(string featureName) {

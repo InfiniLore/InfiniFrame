@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Threading.Channels;
@@ -183,8 +183,15 @@ public class InfiniFrameWebViewManagerTests {
         webMessagingMock.SendWebMessageAsync(Any<string>(), Any<CancellationToken>())
             .Callback((message, _) => {
                 sentMessages.Add(message);
-                if (message == "first") firstStarted.TrySetResult(true);
-                if (message == "second") secondDelivered.TrySetResult(true);
+                switch (message)
+                {
+                    case "first":
+                        firstStarted.TrySetResult(true);
+                        break;
+                    case "second":
+                        secondDelivered.TrySetResult(true);
+                        break;
+                }
             }).Returns(() => backpressureReturnValue);
 
         await using ServiceProvider provider = new ServiceCollection()
