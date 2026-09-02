@@ -1,6 +1,7 @@
 {
     "name": "infinilore.infiniframe.js-build",
     "version": "0.1.0",
+    "type": "module",
     "description": "JavaScript/TypeScript interop library for InfiniFrame Blazor applications. Provides the client-side bridge between C# and the browser.",
     "author": "InfiniLore",
     "license": "Apache-2.0",

@@ -17,7 +17,7 @@ public static class ArtifactManifest {
     public const string WindowsNativeFileName = $"{NativeLibraryName}.dll";
     /// <summary>The logical name of the WebView2 loader library used on Windows.</summary>
     public const string WindowsLoaderLibraryName = "WebView2Loader";
-    /// <summary>The Windows filename for the WebView2 loader library.</summary>
+    /// <summary>The Windows filename for the WebView2 loader library.</summary> 
     public const string WindowsLoaderFileName = $"{WindowsLoaderLibraryName}.dll";
     /// <summary>The Linux filename for the native library (e.g., <c>InfiniFrame.Native.so</c>).</summary>
     public const string LinuxNativeFileName = $"{NativeLibraryName}.so";
