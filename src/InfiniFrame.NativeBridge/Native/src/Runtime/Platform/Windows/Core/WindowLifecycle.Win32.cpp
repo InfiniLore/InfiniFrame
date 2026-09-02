@@ -2,8 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
-#include "Runtime/Shared/Application/InfiniFrameApplication.h"
-#include "Runtime/Shared/Application/InfiniFrameApplicationImpl.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -41,43 +39,31 @@ bool InfiniFrameWindow::IsDestroyed() const {
 }
 
 void InfiniFrameWindow::WaitForExit() {
-    // If the application owns the message loop (Run() is active), just wait for _destroyed.
-    // The application's message loop processes WM_USER_INVOKE and other messages.
-    // If no application message loop is active, pump messages ourselves so that
-    // Invoke() from other threads can complete.
-    if (m_impl->_application != nullptr && m_impl->_application->IsMessageLoopRunning()) {
-        std::unique_lock lock(m_impl->_lifecycleMutex);
-        m_impl->_lifecycleClosed.wait(lock, [&] { return m_impl->_destroyed; });
-        return;
-    }
-
-    // No application message loop — pump messages while waiting for destroy.
-    MSG msg = {};
+    // Block until _destroyed is set. Use a timed wait so we can periodically
+    // yield to the OS scheduler, allowing WM_USER_INVOKE messages posted by
+    // other threads to be dispatched by the application's message loop or
+    // by our own message pump below.
     while (true) {
         {
-            std::lock_guard lock(m_impl->_lifecycleMutex);
+            std::unique_lock lock(m_impl->_lifecycleMutex);
             if (m_impl->_destroyed)
                 return;
+            m_impl->_lifecycleClosed.wait_for(lock, std::chrono::milliseconds(50), [this] {
+                return m_impl->_destroyed;
+            });
         }
-
-        // PeekMessage with nullptr hwnd retrieves ALL messages for this thread,
-        // including WM_USER_INVOKE posted to our window.
+        // Dispatch any pending messages for this thread to keep the
+        // message queue alive (needed for Invoke from other threads).
+        MSG msg;
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
-            if (msg.message == WM_QUIT)
+            if (msg.message == WM_QUIT) {
+                // Post WM_QUIT back so application loops can see it.
+                PostThreadMessage(GetCurrentThreadId(), WM_QUIT, 0, 0);
                 return;
-            // Only dispatch messages intended for our window or thread messages.
-            if (msg.hwnd == nullptr || msg.hwnd == m_impl->_hWnd) {
-                TranslateMessage(&msg);
-                DispatchMessage(&msg);
             }
-            {
-                std::lock_guard lock(m_impl->_lifecycleMutex);
-                if (m_impl->_destroyed)
-                    return;
-            }
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
         }
-
-        MsgWaitForMultipleObjects(0, nullptr, FALSE, 50, QS_ALLINPUT);
     }
 }
 

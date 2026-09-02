@@ -76,9 +76,6 @@ class InfiniFrameApplication {
     [[nodiscard]] bool IsShutdownRequested() const;
 
 #ifdef _WIN32
-    /// Check if the application message loop is active (Run() has been called and not yet returned).
-    [[nodiscard]] bool IsMessageLoopRunning() const;
-
     /// Get the AppUserModelId set during construction.
     [[nodiscard]] const std::wstring& GetAppUserModelId() const;
 #endif
