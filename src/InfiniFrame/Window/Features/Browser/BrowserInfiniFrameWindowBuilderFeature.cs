@@ -59,6 +59,7 @@ public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowB
     );
 
     /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.WebView2RuntimePath" />
+    [Obsolete("WebView2RuntimePath is now an application-level setting. Use InfiniFrameApplication.Initialize(config => config.WebView2RuntimePath = ...) instead.")]
     public string? WebView2RuntimePath { get; private set; }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -153,6 +154,7 @@ public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowB
     }
 
     /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.SetWebView2RuntimePath" />
+    [Obsolete("WebView2RuntimePath is now an application-level setting. Use InfiniFrameApplication.Initialize(config => config.WebView2RuntimePath = ...) instead.")]
     public void SetWebView2RuntimePath(string path) {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
         WebView2RuntimePath = Path.GetFullPath(path);
@@ -177,6 +179,5 @@ public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowB
         parameters.BrowserShortcutsEnabled = IsBrowserShortcutsEnabled;
         parameters.BrowserControlInitParameters = BrowserControlInitParameters;
         parameters.TemporaryFilesPath = TemporaryFilesPath;
-        parameters.WebView2RuntimePath = WebView2RuntimePath;
     }
 }

@@ -28,9 +28,6 @@ struct InfiniFrameInitParams {
     const char* TemporaryFilesPath;
     const char* UserAgent;
     const char* BrowserControlInitParameters;
-    const char* WebView2RuntimePath;
-    const char* NotificationRegistrationId;
-    const char* WindowsAppUserModelId;
     const char* DefaultNotificationIcon;
 
     // ── Runtime configuration ──────────────────────────────────────────────

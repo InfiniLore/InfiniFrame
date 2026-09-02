@@ -71,20 +71,6 @@ public struct InfiniFrameNativeParameters() {
     internal string? BrowserControlInitParameters;
 
     /// <summary>
-    ///     WINDOWS ONLY: OPTIONAL: Path to an extracted fixed-version WebView2 runtime used when the window is created.
-    /// </summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string? WebView2RuntimePath;
-
-    ///<summary>WINDOWS: OPTIONAL: Registers the application for toast notifications. If not provided, use Window Title.</summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string? NotificationRegistrationId;
-
-    ///<summary>WINDOWS: OPTIONAL: Explicit application identity used by the taskbar for grouping and pinning.</summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string? WindowsAppUserModelId;
-
-    /// <summary>
     ///     OPTIONAL: Default icon path applied to notifications when IconPath is not specified.
     /// </summary>
     [MarshalAs(UnmanagedType.LPUTF8Str)]

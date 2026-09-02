@@ -114,11 +114,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     if (initParams->BrowserControlInitParameters != nullptr)
         m_impl->_browserControlInitParameters = ToUTF16String(initParams->BrowserControlInitParameters);
 
-    if (initParams->WebView2RuntimePath != nullptr)
-        m_impl->_webView2RuntimePath = ToUTF16String(initParams->WebView2RuntimePath);
+    // Read application-level config from the application instance instead of initParams.
+    m_impl->_webView2RuntimePath = m_impl->_application->GetWebView2RuntimePath();
 
-    if (initParams->NotificationRegistrationId != nullptr)
-        m_impl->_notificationRegistrationId = ToUTF16String(initParams->NotificationRegistrationId);
     m_impl->_remoteDebuggingPort = initParams->RemoteDebuggingPort;
 
     m_impl->_transparentEnabled = initParams->Transparent;
@@ -256,16 +254,10 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         SetTopmost(true);
 
     if (initParams->NotificationsEnabled) {
-        const auto& appModelId = m_impl->_application->GetAppUserModelId();
-        if (!appModelId.empty())
-            WinToast::instance()->setAppUserModelId(appModelId.c_str());
-        else if (!m_impl->_notificationRegistrationId.empty())
-            WinToast::instance()->setAppUserModelId(m_impl->_notificationRegistrationId.c_str());
-        else
-            WinToast::instance()->setAppUserModelId(m_impl->_windowTitle.c_str());
+        // WinToast is initialized at the application level. Only set the per-window app name.
+        WinToast::instance()->setAppName(m_impl->_windowTitle.c_str());
 
         m_impl->_toastHandler = std::make_unique<WinToastHandler>(this);
-        WinToast::instance()->initialize();
     }
 
     m_impl->_dialog = std::make_unique<InfiniFrameDialog>(this);

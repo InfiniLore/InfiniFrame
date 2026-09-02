@@ -66,16 +66,37 @@ public interface IInfiniFrameApplication : IDisposable, IAsyncDisposable {
     void CloseAll();
 
     /// <summary>
-    ///     Tracks a window as owned by this application and raises the WindowCreated event.
-    ///     Called by the lifecycle feature after native window creation.
+    ///     Registers a window to be built when Run() or RunAsync() is called.
+    ///     The window is not created immediately — it is lazily built on the first Run/RunAsync call.
     /// </summary>
-    /// <param name="window">The window to track.</param>
-    void TrackWindow(IInfiniFrameWindow window);
+    /// <param name="id">A unique string identifier for the window.</param>
+    /// <param name="configure">A callback to configure the window builder.</param>
+    void RegisterWindow(string id, Action<IInfiniFrameWindowBuilder> configure);
 
     /// <summary>
-    ///     Untracks a window and raises the WindowDestroyed event.
-    ///     Called by the lifecycle feature during teardown.
+    ///     Registers a window with an auto-generated GUID identifier.
     /// </summary>
-    /// <param name="window">The window to untrack.</param>
-    void UntrackWindow(IInfiniFrameWindow window);
+    /// <param name="configure">A callback to configure the window builder.</param>
+    void RegisterWindow(Action<IInfiniFrameWindowBuilder> configure);
+
+    /// <summary>
+    ///     Gets a previously registered window by its identifier.
+    ///     Throws if Run() has not been called yet, or if the id is not found.
+    /// </summary>
+    /// <param name="id">The window identifier.</param>
+    /// <returns>The window instance.</returns>
+    IInfiniFrameWindow GetWindow(string id);
+
+    /// <summary>
+    ///     Tries to get a previously registered window by its identifier.
+    ///     Returns null if Run() has not been called, or if the id is not found.
+    /// </summary>
+    /// <param name="id">The window identifier.</param>
+    /// <returns>The window instance, or null.</returns>
+    IInfiniFrameWindow? TryGetWindow(string id);
+
+    /// <summary>
+    ///     Gets all built windows. Empty until Run() is called.
+    /// </summary>
+    IReadOnlyList<IInfiniFrameWindow> Windows { get; }
 }

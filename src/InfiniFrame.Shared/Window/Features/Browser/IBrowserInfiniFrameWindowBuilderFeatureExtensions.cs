@@ -179,6 +179,7 @@ public static class IBrowserInfiniFrameWindowBuilderFeatureExtensions {
     /// <param name="builder">The builder instance.</param>
     /// <param name="path">The path to the extracted WebView2 runtime directory.</param>
     /// <returns>The builder instance for chaining.</returns>
+    [Obsolete("WebView2RuntimePath is now an application-level setting. Use InfiniFrameApplication.Initialize(config => config.WebView2RuntimePath = ...) instead.")]
     public static IInfiniFrameWindowBuilder SetWebView2RuntimePath(this IInfiniFrameWindowBuilder builder, string path) {
         builder.Features.Browser.SetWebView2RuntimePath(path);
         return builder;

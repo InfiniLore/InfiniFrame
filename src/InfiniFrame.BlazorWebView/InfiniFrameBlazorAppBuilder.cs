@@ -37,6 +37,7 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
     /// <param name="args">Optional command-line arguments.</param>
     /// <param name="windowBuilder">An optional action to configure the window builder.</param>
     /// <returns>A new <see cref="InfiniFrameBlazorAppBuilder"/> instance.</returns>
+    [Obsolete("Use InfiniFrameApplication.Initialize().WithBlazor() instead.")]
     public static InfiniFrameBlazorAppBuilder CreateDefault(
         string[]? args = null,
         Action<IInfiniFrameWindowBuilder>? windowBuilder = null
@@ -50,6 +51,7 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
     /// <param name="args">Optional command-line arguments.</param>
     /// <param name="windowBuilder">An optional action to configure the window builder.</param>
     /// <returns>A new <see cref="InfiniFrameBlazorAppBuilder"/> instance.</returns>
+    [Obsolete("Use InfiniFrameApplication.Initialize().WithBlazor() instead.")]
     public static InfiniFrameBlazorAppBuilder CreateDefault(IFileProvider? fileProvider, string[]? args = null, Action<IInfiniFrameWindowBuilder>? windowBuilder = null) {
         // We don't use the args for anything right now, but we want to accept them
         // here so that it shows up this way in the project templates.

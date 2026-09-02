@@ -71,48 +71,49 @@ public static class Program {
             ]
         );
 
-        IInfiniFrameWindow window = InfiniFrameWindowBuilder.Create()
-            .SetTitle("InfiniFrame Native Menu Example")
-            .SetSize(new Size(960, 640))
-            .CenteredOnMainMonitor()
-            .SetMenuBar(menuBar)
-            .UseEmbeddedWwwrootAssets(
-                scheme: "app",
-                includePhysicalFallback: true,
-                physicalWwwrootPath: Path.Join(AppContext.BaseDirectory, "wwwroot"),
-                setStartUrl: true
-            )
-            .RegisterWebMessageReceivedHandler((win, message) => {
-                string? action = ExtractAction(message);
-                if (action == null) return;
+        var app = InfiniFrameApplication.Initialize()
+            .WithWindow(builder => builder
+                .SetTitle("InfiniFrame Native Menu Example")
+                .SetSize(new Size(960, 640))
+                .CenteredOnMainMonitor()
+                .SetMenuBar(menuBar)
+                .UseEmbeddedWwwrootAssets(
+                    scheme: "app",
+                    includePhysicalFallback: true,
+                    physicalWwwrootPath: Path.Join(AppContext.BaseDirectory, "wwwroot"),
+                    setStartUrl: true
+                )
+                .RegisterWebMessageReceivedHandler((win, message) => {
+                    string? action = ExtractAction(message);
+                    if (action == null) return;
 
-                switch (action) {
-                    case "enable-save":
-                        win.Features.Menu.SetMenuItemEnabled("file-save", true);
-                        win.SendWebMessage("status:Save enabled");
-                        break;
+                    switch (action) {
+                        case "enable-save":
+                            win.Features.Menu.SetMenuItemEnabled("file-save", true);
+                            win.SendWebMessage("status:Save enabled");
+                            break;
 
-                    case "disable-save":
-                        win.Features.Menu.SetMenuItemEnabled("file-save", false);
-                        win.SendWebMessage("status:Save disabled");
-                        break;
+                        case "disable-save":
+                            win.Features.Menu.SetMenuItemEnabled("file-save", false);
+                            win.SendWebMessage("status:Save disabled");
+                            break;
 
-                    case "toggle-undo":
-                        bool undoVisible = win.Features.Menu.MenuBar.Items
-                            .First(i => i.Id == "edit").Children
-                            .First(i => i.Id == "edit-undo").IsVisible;
-                        win.Features.Menu.SetMenuItemVisible("edit-undo", !undoVisible);
-                        win.SendWebMessage($"status:Undo {(undoVisible ? "hidden" : "shown")}");
-                        break;
+                        case "toggle-undo":
+                            bool undoVisible = win.Features.Menu.MenuBar.Items
+                                .First(i => i.Id == "edit").Children
+                                .First(i => i.Id == "edit-undo").IsVisible;
+                            win.Features.Menu.SetMenuItemVisible("edit-undo", !undoVisible);
+                            win.SendWebMessage($"status:Undo {(undoVisible ? "hidden" : "shown")}");
+                            break;
 
-                    default:
-                        win.SendWebMessage($"status:Action: {action}");
-                        break;
-                }
-            })
-            .Build();
+                        default:
+                            win.SendWebMessage($"status:Action: {action}");
+                            break;
+                    }
+                })
+            );
 
-        window.WaitForClose();
+        app.Run();
     }
 
     private static string? ExtractAction(string rawMessage) {

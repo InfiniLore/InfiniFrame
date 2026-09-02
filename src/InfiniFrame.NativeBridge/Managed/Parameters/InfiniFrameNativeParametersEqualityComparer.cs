@@ -51,9 +51,6 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         if (x.TemporaryFilesPath != y.TemporaryFilesPath) return false;
         if (x.UserAgent != y.UserAgent) return false;
         if (x.BrowserControlInitParameters != y.BrowserControlInitParameters) return false;
-        if (x.WebView2RuntimePath != y.WebView2RuntimePath) return false;
-        if (x.NotificationRegistrationId != y.NotificationRegistrationId) return false;
-        if (x.WindowsAppUserModelId != y.WindowsAppUserModelId) return false;
         if (x.DefaultNotificationIcon != y.DefaultNotificationIcon) return false;
 
         // Runtime configuration
@@ -144,9 +141,6 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         hashCode.Add(obj.TemporaryFilesPath);
         hashCode.Add(obj.UserAgent);
         hashCode.Add(obj.BrowserControlInitParameters);
-        hashCode.Add(obj.WebView2RuntimePath);
-        hashCode.Add(obj.NotificationRegistrationId);
-        hashCode.Add(obj.WindowsAppUserModelId);
         hashCode.Add(obj.DefaultNotificationIcon);
 
         // Runtime configuration

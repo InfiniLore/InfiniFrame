@@ -9,8 +9,15 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+InfiniFrameApplication* InfiniFrameApplication::s_instance = nullptr;
+
+InfiniFrameApplication* InfiniFrameApplication::GetInstance() {
+    return s_instance;
+}
+
 InfiniFrameApplication::InfiniFrameApplication(ApplicationInitParams* params) {
     m_impl = std::make_unique<Impl>();
+    s_instance = this;
 
     if (params == nullptr)
         throw std::invalid_argument("Argument 'params' is null.");
@@ -22,6 +29,7 @@ InfiniFrameApplication::InfiniFrameApplication(ApplicationInitParams* params) {
 }
 
 InfiniFrameApplication::~InfiniFrameApplication() {
+    s_instance = nullptr;
     infiniframe::linux_gtk::ui_thread::Shutdown();
 }
 

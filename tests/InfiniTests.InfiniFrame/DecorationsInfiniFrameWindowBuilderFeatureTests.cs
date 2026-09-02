@@ -21,7 +21,9 @@ public class DecorationsInfiniFrameWindowBuilderFeatureTests {
         await Assert.That(feature.BackgroundColor).IsNull();
         await Assert.That(feature.Title).IsEqualTo("InfiniFrame");
         await Assert.That(feature.IconFilePath).IsNull();
+#pragma warning disable CS0618 // Type or member is obsolete
         await Assert.That(feature.WindowsAppUserModelId).IsNull();
+#pragma warning restore CS0618
         await Assert.That(feature.LimitLinuxWindowTitleLength).IsFalse();
     }
 
@@ -91,7 +93,9 @@ public class DecorationsInfiniFrameWindowBuilderFeatureTests {
         var feature = new DecorationsInfiniFrameWindowBuilderFeature();
 
         // Act
+#pragma warning disable CS0618 // Type or member is obsolete
         feature.SetWindowsAppUserModelId("com.myapp");
+#pragma warning restore CS0618
 
         // Assert
         await Assert.That(feature.WindowsAppUserModelId).IsEqualTo("com.myapp");
@@ -132,14 +136,15 @@ public class DecorationsInfiniFrameWindowBuilderFeatureTests {
     public async Task ApplyToNativeParameters_SetsWindowsAppUserModelId(CancellationToken ct = default) {
         // Arrange
         var feature = new DecorationsInfiniFrameWindowBuilderFeature();
+#pragma warning disable CS0618 // Type or member is obsolete
         feature.SetWindowsAppUserModelId("my.app.id");
+#pragma warning restore CS0618
 
         var parameters = new InfiniFrameNativeParameters();
 
         // Act
         feature.ApplyToNativeParameters(ref parameters);
 
-        // Assert
-        await Assert.That(parameters.WindowsAppUserModelId).IsEqualTo("my.app.id");
+        // Assert — WindowsAppUserModelId is now an application-level setting, no longer set on window parameters.
     }
 }

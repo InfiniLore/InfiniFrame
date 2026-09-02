@@ -82,6 +82,7 @@ public interface IBrowserInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBui
     /// <summary>
     ///     Gets the fixed-version WebView2 runtime path used on Windows.
     /// </summary>
+    [Obsolete("WebView2RuntimePath is now an application-level setting. Use InfiniFrameApplication.Initialize(config => config.WebView2RuntimePath = ...) instead.")]
     string? WebView2RuntimePath { get; }
 
     /// <summary>
@@ -182,5 +183,6 @@ public interface IBrowserInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBui
     ///     Sets the fixed-version WebView2 runtime path used when creating the window on Windows.
     /// </summary>
     /// <param name="path">The path to the extracted WebView2 runtime directory.</param>
+    [Obsolete("WebView2RuntimePath is now an application-level setting. Use InfiniFrameApplication.Initialize(config => config.WebView2RuntimePath = ...) instead.")]
     void SetWebView2RuntimePath(string path);
 }

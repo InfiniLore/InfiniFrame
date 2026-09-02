@@ -39,6 +39,7 @@ public class InfiniFrameWebApplication {
     /// </summary>
     /// <param name="args">Command-line arguments passed to the ASP.NET Core host builder.</param>
     /// <returns>An <see cref="InfiniFrameWebApplicationBuilder" /> for further configuration.</returns>
+    [Obsolete("Use InfiniFrameApplication.Initialize().WithWebServer() instead.")]
     public static InfiniFrameWebApplicationBuilder CreateBuilder(params string[] args)
         => new InfiniFrameWebApplicationBuilder {
             WebApp = WebApplication.CreateBuilder(args),

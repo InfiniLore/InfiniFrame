@@ -22,16 +22,21 @@ public static class ServiceCollectionExtensions {
     /// <param name="configure">Optional callback to configure the application settings.</param>
     /// <returns>The same service collection so calls can be chained.</returns>
     public static IServiceCollection AddInfiniFrame(this IServiceCollection services, Action<ApplicationConfiguration>? configure = null) {
-        services.AddSingleton<IInfiniFrameApplication>(sp => {
-            var logger = sp.GetRequiredService<ILogger<InfiniFrameApplication>>();
-            var app = new InfiniFrameApplication(logger);
-            if (configure is not null) {
-                var config = new ApplicationConfiguration();
-                configure(config);
-                app.Initialize(config);
-            }
-            return app;
-        });
+        // Only register IInfiniFrameApplication if not already registered.
+        // When using InfiniFrameApplication.Initialize().WithWebServer(), the application
+        // is created externally and added to DI before AddInfiniFrame() is called.
+        if (!services.Any(s => s.ServiceType == typeof(IInfiniFrameApplication))) {
+            services.AddSingleton<IInfiniFrameApplication>(sp => {
+                var logger = sp.GetRequiredService<ILogger<InfiniFrameApplication>>();
+                var app = new InfiniFrameApplication(logger);
+                if (configure is not null) {
+                    var config = new ApplicationConfiguration();
+                    configure(config);
+                    app.Initialize(config);
+                }
+                return app;
+            });
+        }
         services.AddSingleton<IInfiniFrameEvents, InfiniFrameEvents>();
         services.AddSingleton<IInfiniFrameEventsStore, InfiniFrameEventsStore>();
         services.AddSingleton<IInfiniFrameWindowConfiguration, InfiniFrameWindowConfiguration>();

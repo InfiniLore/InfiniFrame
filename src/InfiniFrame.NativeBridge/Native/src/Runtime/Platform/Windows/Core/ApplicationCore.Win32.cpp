@@ -17,8 +17,15 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 using namespace WinToastLib;
 
+InfiniFrameApplication* InfiniFrameApplication::s_instance = nullptr;
+
+InfiniFrameApplication* InfiniFrameApplication::GetInstance() {
+    return s_instance;
+}
+
 InfiniFrameApplication::InfiniFrameApplication(ApplicationInitParams* params) {
     m_impl = std::make_unique<Impl>();
+    s_instance = this;
 
     if (params == nullptr)
         throw std::invalid_argument("Argument 'params' is null.");
@@ -51,7 +58,9 @@ InfiniFrameApplication::InfiniFrameApplication(ApplicationInitParams* params) {
         m_impl->_webView2RuntimePath = Utf8ToWide(params->WebView2RuntimePath);
 }
 
-InfiniFrameApplication::~InfiniFrameApplication() = default;
+InfiniFrameApplication::~InfiniFrameApplication() {
+    s_instance = nullptr;
+}
 
 void InfiniFrameApplication::Register(const HINSTANCE hInstance) {
     InitDarkModeSupport();
@@ -77,6 +86,13 @@ void InfiniFrameApplication::Register(const HINSTANCE hInstance) {
     }
 
     SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+
+    // Initialize WinToast once at the application level.
+    if (!m_impl->_appUserModelId.empty())
+        WinToast::instance()->setAppUserModelId(m_impl->_appUserModelId.c_str());
+    else if (!m_impl->_notificationRegistrationId.empty())
+        WinToast::instance()->setAppUserModelId(m_impl->_notificationRegistrationId.c_str());
+    WinToast::instance()->initialize();
 }
 
 HINSTANCE InfiniFrameApplication::GetHInstance() const {
@@ -109,4 +125,12 @@ bool InfiniFrameApplication::IsShutdownRequested() const {
 
 const std::wstring& InfiniFrameApplication::GetAppUserModelId() const {
     return m_impl->_appUserModelId;
+}
+
+const std::wstring& InfiniFrameApplication::GetNotificationRegistrationId() const {
+    return m_impl->_notificationRegistrationId;
+}
+
+const std::wstring& InfiniFrameApplication::GetWebView2RuntimePath() const {
+    return m_impl->_webView2RuntimePath;
 }

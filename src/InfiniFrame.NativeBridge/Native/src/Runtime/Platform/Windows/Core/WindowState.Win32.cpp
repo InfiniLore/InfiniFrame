@@ -281,14 +281,6 @@ void InfiniFrameWindow::SetTitle(const char* title) {
     SetWindowText(m_impl->_hWnd, wideTitle.c_str());
     if (m_impl->_notificationsEnabled) {
         WinToastLib::WinToast::instance()->setAppName(wideTitle.c_str());
-        // Only override AppUserModelId if neither the application nor the window has an explicit ID.
-        bool hasExplicitAppModelId = false;
-        if (m_impl->_application != nullptr) {
-            const auto& appModelId = m_impl->_application->GetAppUserModelId();
-            hasExplicitAppModelId = !appModelId.empty();
-        }
-        if (!hasExplicitAppModelId && m_impl->_notificationRegistrationId.empty())
-            WinToastLib::WinToast::instance()->setAppUserModelId(wideTitle.c_str());
     }
 }
 

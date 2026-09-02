@@ -23,11 +23,14 @@ public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilde
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    internal InfiniFrameWebApplicationBuilder Initialize() {
+    internal InfiniFrameWebApplicationBuilder Initialize(IInfiniFrameApplication? application = null) {
         Services
             .AddInfiniFrame()
             .AddSingleton(WindowBuilder)
             .AddSingleton<IInfiniFrameWindow>(static provider => provider.GetRequiredService<IInfiniFrameWindowBuilder>().Build(provider));
+
+        if (application is not null)
+            Services.AddSingleton(application);
 
         WebApp.WebHost.UseStaticWebAssets();
 

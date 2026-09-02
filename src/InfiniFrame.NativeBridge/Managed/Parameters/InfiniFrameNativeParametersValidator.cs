@@ -87,12 +87,7 @@ public sealed class InfiniFrameNativeParametersValidator
             .NotNull().WithMessage("CustomSchemeNames must be specified.")
             .Must(names => names.Length <= 16).WithMessage("CustomSchemeNames must contain at most 16 names.");
 
-        RuleFor(p => p.WindowsAppUserModelId)
-            .NotEmpty()
-            .MaximumLength(128)
-            .Must(value => value is null || !value.Any(char.IsWhiteSpace))
-            .When(p => p.WindowsAppUserModelId is not null)
-            .WithMessage("WindowsAppUserModelId must contain 1 to 128 characters and cannot contain whitespace.");
+
     }
 
     // -----------------------------------------------------------------------------------------------------------------

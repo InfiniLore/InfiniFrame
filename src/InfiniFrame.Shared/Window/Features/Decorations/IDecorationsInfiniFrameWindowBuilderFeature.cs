@@ -37,6 +37,7 @@ public interface IDecorationsInfiniFrameWindowBuilderFeature : IInfiniFrameWindo
     /// <summary>
     ///     Gets the explicit Windows application user model ID used for taskbar grouping and identity.
     /// </summary>
+    [Obsolete("WindowsAppUserModelId is now an application-level setting. Use InfiniFrameApplication.Initialize(config => config.WindowsAppUserModelId = ...) instead.")]
     string? WindowsAppUserModelId { get; }
 
     /// <summary>
@@ -79,6 +80,7 @@ public interface IDecorationsInfiniFrameWindowBuilderFeature : IInfiniFrameWindo
     ///     All windows in a process should use the same ID.
     /// </summary>
     /// <param name="appUserModelId">The application user model ID, or <c>null</c> to use Windows' default identity.</param>
+    [Obsolete("WindowsAppUserModelId is now an application-level setting. Use InfiniFrameApplication.Initialize(config => config.WindowsAppUserModelId = ...) instead.")]
     void SetWindowsAppUserModelId(string? appUserModelId);
 
     /// <summary>

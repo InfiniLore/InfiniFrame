@@ -29,6 +29,7 @@ public class DecorationsInfiniFrameWindowBuilderFeature : IDecorationsInfiniFram
     public string? IconFilePath { get; private set; }
 
     /// <inheritdoc cref="IDecorationsInfiniFrameWindowBuilderFeature.WindowsAppUserModelId" />
+    [Obsolete("WindowsAppUserModelId is now an application-level setting. Use InfiniFrameApplication.Initialize(config => config.WindowsAppUserModelId = ...) instead.")]
     public string? WindowsAppUserModelId { get; private set; }
 
     /// <inheritdoc cref="IDecorationsInfiniFrameWindowBuilderFeature.LimitLinuxWindowTitleLength" />
@@ -63,6 +64,7 @@ public class DecorationsInfiniFrameWindowBuilderFeature : IDecorationsInfiniFram
     }
 
     /// <inheritdoc cref="IDecorationsInfiniFrameWindowBuilderFeature.SetWindowsAppUserModelId" />
+    [Obsolete("WindowsAppUserModelId is now an application-level setting. Use InfiniFrameApplication.Initialize(config => config.WindowsAppUserModelId = ...) instead.")]
     public void SetWindowsAppUserModelId(string? appUserModelId) {
         WindowsAppUserModelId = appUserModelId;
     }
@@ -79,8 +81,6 @@ public class DecorationsInfiniFrameWindowBuilderFeature : IDecorationsInfiniFram
         parameters.WindowIconFile = IconFileUtility.TryResolveIconFilePath(IconFilePath, out string? resolvedIconFilePath)
             ? resolvedIconFilePath
             : null;
-        parameters.WindowsAppUserModelId = WindowsAppUserModelId;
-
         ColorUtility.ParseBackgroundColor(
             BackgroundColor, out byte r, out byte g, out byte b, out byte a);
         parameters.BackgroundColorR = r;

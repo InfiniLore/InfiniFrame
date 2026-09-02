@@ -16,7 +16,9 @@ namespace InfiniFrameExample.BlazorWebView;
 public static class Program {
     [STAThread]
     private static void Main(string[] args) {
+#pragma warning disable CS0618 // Type or member is obsolete
         var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
+#pragma warning restore CS0618
 
         appBuilder.Services.AddLogging(config => {
             config.ClearProviders();

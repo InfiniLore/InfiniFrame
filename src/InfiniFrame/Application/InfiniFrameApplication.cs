@@ -8,6 +8,7 @@ using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
 using InfiniFrame.NativeBridge.Parameters;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -25,6 +26,10 @@ public sealed class InfiniFrameApplication(
     private ApplicationConfiguration? _configuration;
     private int _disposed;
     private readonly ConcurrentDictionary<Guid, IInfiniFrameWindow> _windows = new();
+    private readonly List<(string? Id, Action<IInfiniFrameWindowBuilder> Configure)> _windowRegistrations = new();
+    private readonly Dictionary<string, IInfiniFrameWindow> _builtWindows = new();
+    private bool _built;
+    private Action? _onBeforeRun;
 
     /// <summary>
     ///     Gets the current application instance. Only available after <see cref="AddInfiniFrame"/> has been called.
@@ -48,6 +53,86 @@ public sealed class InfiniFrameApplication(
 
     /// <inheritdoc />
     public event Action<IInfiniFrameWindow>? WindowDestroyed;
+
+    /// <inheritdoc />
+    public IReadOnlyList<IInfiniFrameWindow> Windows => _builtWindows.Values.ToList().AsReadOnly();
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Static factory
+    // -----------------------------------------------------------------------------------------------------------------
+
+    /// <summary>
+    ///     Creates and optionally initializes a new InfiniFrame application.
+    /// </summary>
+    /// <param name="configure">Optional callback to configure application-level settings.</param>
+    /// <returns>The application instance for fluent chaining with <see cref="WithWindow"/>.</returns>
+    public static InfiniFrameApplication Initialize(Action<ApplicationConfiguration>? configure = null) {
+        var logger = NullLogger<InfiniFrameApplication>.Instance;
+        var app = new InfiniFrameApplication(logger);
+        if (configure is not null) {
+            var config = new ApplicationConfiguration();
+            configure(config);
+            app.Initialize(config);
+        }
+        return app;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Fluent window registration
+    // -----------------------------------------------------------------------------------------------------------------
+
+    /// <inheritdoc />
+    public InfiniFrameApplication WithWindow(Action<IInfiniFrameWindowBuilder> configure) {
+        RegisterWindow(configure);
+        return this;
+    }
+
+    /// <summary>
+    ///     Registers a window with a unique string identifier.
+    ///     The window is lazily built on the first Run() or RunAsync() call.
+    /// </summary>
+    /// <param name="id">A unique string identifier for the window.</param>
+    /// <param name="configure">A callback to configure the window builder.</param>
+    /// <returns>The application instance for chaining.</returns>
+    public InfiniFrameApplication WithWindow(string id, Action<IInfiniFrameWindowBuilder> configure) {
+        RegisterWindow(id, configure);
+        return this;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Window management
+    // -----------------------------------------------------------------------------------------------------------------
+
+    /// <inheritdoc />
+    public void RegisterWindow(string id, Action<IInfiniFrameWindowBuilder> configure) {
+        ArgumentNullException.ThrowIfNull(configure);
+        ArgumentException.ThrowIfNullOrWhiteSpace(id);
+        ObjectDisposedException.ThrowIf(_disposed != 0, this);
+        if (_built) throw new InvalidOperationException("Cannot register windows after Run() has been called.");
+        _windowRegistrations.Add((id, configure));
+    }
+
+    /// <inheritdoc />
+    public void RegisterWindow(Action<IInfiniFrameWindowBuilder> configure) {
+        ArgumentNullException.ThrowIfNull(configure);
+        ObjectDisposedException.ThrowIf(_disposed != 0, this);
+        if (_built) throw new InvalidOperationException("Cannot register windows after Run() has been called.");
+        _windowRegistrations.Add((null, configure));
+    }
+
+    /// <inheritdoc />
+    public IInfiniFrameWindow GetWindow(string id) {
+        if (!_built) throw new InvalidOperationException("Windows have not been built yet. Call Run() or RunAsync() first.");
+        return _builtWindows.TryGetValue(id, out IInfiniFrameWindow? window)
+            ? window
+            : throw new KeyNotFoundException($"Window with id '{id}' was not found.");
+    }
+
+    /// <inheritdoc />
+    public IInfiniFrameWindow? TryGetWindow(string id) {
+        if (!_built) return null;
+        return _builtWindows.TryGetValue(id, out IInfiniFrameWindow? window) ? window : null;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -158,6 +243,9 @@ public sealed class InfiniFrameApplication(
         if (_handle is null)
             throw new InvalidOperationException("Application has not been initialized. Call Initialize() first.");
 
+        _onBeforeRun?.Invoke();
+        BuildAllWindows();
+
         logger.LogDebug("Starting application message loop.");
 
         InfiniFrameNativeInteropStatus status =
@@ -174,7 +262,29 @@ public sealed class InfiniFrameApplication(
 
     /// <inheritdoc />
     public async Task RunAsync(CancellationToken ct = default) {
-        await Task.Run(() => Run(), ct).ConfigureAwait(false);
+        ObjectDisposedException.ThrowIf(_disposed != 0, this);
+        if (_handle is null)
+            throw new InvalidOperationException("Application has not been initialized. Call Initialize() first.");
+
+        _onBeforeRun?.Invoke();
+        BuildAllWindows();
+
+        logger.LogDebug("Starting application message loop (async).");
+
+        await using var registration = ct.Register(() => Shutdown());
+
+        await Task.Run(() => {
+            InfiniFrameNativeInteropStatus status =
+                InfiniFrameNative.ApplicationRun(_handle.DangerousGetHandle());
+            if (status != InfiniFrameNativeInteropStatus.Success) {
+                int lastError = Marshal.GetLastPInvokeError();
+                string nativeMessage = InfiniFrameNative.GetLastErrorMessage() ?? "No native error message provided.";
+                throw new InfiniFrameNativeInteropException(
+                    $"Application run failed with status {status}. Error #{lastError}. {nativeMessage}");
+            }
+        }, ct).ConfigureAwait(false);
+
+        logger.LogDebug("Application message loop exited (async).");
     }
 
     /// <inheritdoc />
@@ -237,19 +347,78 @@ public sealed class InfiniFrameApplication(
 
     /// <inheritdoc />
     public async ValueTask DisposeAsync() {
-        Dispose();
-        await ValueTask.CompletedTask;
+        if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
+
+        // Dispose all owned windows asynchronously
+        foreach (var window in _builtWindows.Values) {
+            try { await window.DisposeAsync().ConfigureAwait(false); }
+            catch (Exception ex) {
+                logger.LogWarning(ex, "Failed to dispose window during application shutdown.");
+            }
+        }
+        _builtWindows.Clear();
+
+        // Also dispose tracked windows (from old API path)
+        foreach (var window in _windows.Values) {
+            try { window.Dispose(); }
+            catch (Exception ex) {
+                logger.LogWarning(ex, "Failed to dispose tracked window during application shutdown.");
+            }
+        }
+        _windows.Clear();
+
+        _handle?.Dispose();
+        _handle = null;
+        if (Instance == this) Instance = null;
+        logger.LogDebug("Application disposed (async).");
     }
 
     private void Dispose(bool disposing) {
         if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
 
         if (disposing) {
+            // Dispose all owned windows
+            foreach (var window in _builtWindows.Values) {
+                try { window.Dispose(); }
+                catch (Exception ex) {
+                    logger.LogWarning(ex, "Failed to dispose window during application shutdown.");
+                }
+            }
+            _builtWindows.Clear();
+
+            // Also dispose tracked windows (from old API path)
+            foreach (var window in _windows.Values) {
+                try { window.Dispose(); }
+                catch (Exception ex) {
+                    logger.LogWarning(ex, "Failed to dispose tracked window during application shutdown.");
+                }
+            }
+            _windows.Clear();
+
             _handle?.Dispose();
             _handle = null;
             if (Instance == this) Instance = null;
             logger.LogDebug("Application disposed.");
         }
+    }
+
+    private void BuildAllWindows() {
+        if (_built) return;
+        _built = true;
+
+        foreach (var (id, configure) in _windowRegistrations) {
+            string windowId = id ?? Guid.NewGuid().ToString();
+            var builder = new InfiniFrameWindowBuilder();
+            configure(builder);
+            IInfiniFrameWindow window = builder.Build();
+            _builtWindows[windowId] = window;
+        }
+
+        _windowRegistrations.Clear();
+    }
+
+    internal void SetOnBeforeRun(Action action) {
+        _onBeforeRun = action;
     }
 
     private static IntPtr MarshalStringUtf8(string? value) {

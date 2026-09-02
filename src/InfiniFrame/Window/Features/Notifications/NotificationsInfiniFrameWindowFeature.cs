@@ -21,11 +21,6 @@ public class NotificationsInfiniFrameWindowFeature(
 ) : INotificationsInfiniFrameWindowFeature {
 
     /// <summary>
-    ///     Gets the notification registration identifier from the window's startup parameters.
-    /// </summary>
-    public string? NotificationRegistrationId => window.Configuration.StartupParameters.NotificationRegistrationId;
-
-    /// <summary>
     ///     Gets whether desktop notifications are enabled for this window.
     /// </summary>
     [SupportedOSPlatform("windows")]

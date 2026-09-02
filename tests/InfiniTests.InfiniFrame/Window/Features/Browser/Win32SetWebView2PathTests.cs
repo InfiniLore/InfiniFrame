@@ -27,12 +27,14 @@ public class Win32SetWebView2PathTests {
         const string path = "C:\\WebView2Runtime";
 
         // Act
+#pragma warning disable CS0618 // Type or member is obsolete
         builder.Features.Browser.SetWebView2RuntimePath(path);
+#pragma warning restore CS0618
         InfiniFrameNativeParameters parameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Browser.WebView2RuntimePath).IsEqualTo(path);
-        await Assert.That(parameters.WebView2RuntimePath).IsEqualTo(path);
+        // WebView2RuntimePath is now an application-level setting, no longer set on window parameters.
     }
 
     [Test]
@@ -42,12 +44,14 @@ public class Win32SetWebView2PathTests {
         const string path = "C:\\WebView2Runtime";
 
         // Act
+#pragma warning disable CS0618 // Type or member is obsolete
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetWebView2RuntimePath(path);
+#pragma warning restore CS0618
         InfiniFrameNativeParameters parameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(returnedBuilder).IsSameReferenceAs(builder);
-        await Assert.That(parameters.WebView2RuntimePath).IsEqualTo(path);
+        // WebView2RuntimePath is now an application-level setting, no longer set on window parameters.
     }
 
     [Test]

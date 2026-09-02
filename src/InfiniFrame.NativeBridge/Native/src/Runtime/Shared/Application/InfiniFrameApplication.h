@@ -38,6 +38,10 @@ class InfiniFrameApplication {
          */
     ~InfiniFrameApplication();
 
+    // ── Singleton access ───────────────────────────────────────────────
+    /// Get the global application instance (null if none exists).
+    [[nodiscard]] static InfiniFrameApplication* GetInstance();
+
     // ── Platform registration (one-time, called before any windows) ──────
 #ifdef _WIN32
     /// Register the Win32 window class and set DPI awareness.
@@ -47,6 +51,15 @@ class InfiniFrameApplication {
     /// Get the stored HINSTANCE.
     /// @return The HINSTANCE passed to Register().
     [[nodiscard]] HINSTANCE GetHInstance() const;
+
+    /// Get the AppUserModelId set during construction.
+    [[nodiscard]] const std::wstring& GetAppUserModelId() const;
+
+    /// Get the notification registration ID set during construction.
+    [[nodiscard]] const std::wstring& GetNotificationRegistrationId() const;
+
+    /// Get the WebView2 runtime path set during construction.
+    [[nodiscard]] const std::wstring& GetWebView2RuntimePath() const;
 #endif
 
 #ifdef __APPLE__
@@ -75,14 +88,10 @@ class InfiniFrameApplication {
     /// Check if Shutdown() has been called.
     [[nodiscard]] bool IsShutdownRequested() const;
 
-#ifdef _WIN32
-    /// Get the AppUserModelId set during construction.
-    [[nodiscard]] const std::wstring& GetAppUserModelId() const;
-#endif
-
     private:
     struct Impl;
     std::unique_ptr<Impl> m_impl;
+    static InfiniFrameApplication* s_instance;
 
     friend class InfiniFrameWindow;
 };
