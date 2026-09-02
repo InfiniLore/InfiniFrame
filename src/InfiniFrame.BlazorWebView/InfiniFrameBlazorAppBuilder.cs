@@ -23,7 +23,46 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    public InfiniFrameBlazorAppBuilder() {}
+    public InfiniFrameBlazorAppBuilder() {
+        IFileProvider resolvedFileProvider = ConfigureFileProvider(null);
+
+        Services.AddOptions<InfiniFrameBlazorAppConfiguration>();
+
+        Services
+            .AddInfiniFrame()
+            .AddTransient<InfiniFrameWindow>()
+            .AddScoped(static sp => {
+                var handler = sp.GetRequiredService<InfiniFrameHttpHandler>();
+                return new HttpClient(handler) { BaseAddress = new Uri(InfiniFrameWebViewManager.AppBaseUri) };
+            })
+            .AddSingleton<IInfiniFrameWebViewManager, InfiniFrameWebViewManager>()
+            .AddSingleton<IInfiniFrameJsComponentConfiguration, InfiniFrameJsComponentConfiguration>()
+            .AddSingleton<Dispatcher, InfiniFrameDispatcher>()
+            .AddSingleton<InfiniFrameBlazorApp>()
+            .AddSingleton<InfiniFrameHttpHandler>()
+            .AddSingleton<InfiniFrameSynchronizationContext>()
+            .AddSingleton<IInfiniFrameWindow>(static provider => provider.GetRequiredService<IInfiniFrameWindowBuilder>().Build(provider))
+            .AddSingleton<IInfiniFrameWindowBuilder>(WindowBuilder)
+            .AddBlazorWebView()
+            .AddSingleton(resolvedFileProvider)
+            .AddSingleton<IInfiniFrameStaticAssets>(static provider => {
+                InfiniFrameBlazorAppConfiguration config = provider.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?.Value
+                    ?? new InfiniFrameBlazorAppConfiguration();
+
+                return new InfiniFrameStaticAssets {
+                    FileProvider = provider.GetRequiredService<IFileProvider>(),
+                    BaseUri = config.AppBaseUri.ToString(),
+                    DefaultDocument = NormalizeHostPage(config.HostPage)
+                };
+            })
+            .AddSingleton(RootComponents)
+            .AddSingleton(RootComponents.JSComponents);
+
+        Services.TryAddSingleton<IInfiniFrameUnhandledExceptionSource, AppDomainUnhandledExceptionSource>();
+
+        Services.AddInfiniFrameJs();
+        WindowBuilder.RegisterGetWebMessageHandler();
+    }
     /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.RootComponents" />
     public IInfiniFrameRootComponentList RootComponents { get; } = new InfiniFrameRootComponentList();
     /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.Services" />

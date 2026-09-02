@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.BlazorWebView;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -26,12 +27,19 @@ public static class InfiniFrameApplicationBlazorExtensions {
         InfiniFrameBlazorAppBuilder blazorBuilder = new InfiniFrameBlazorAppBuilder();
         configure?.Invoke(blazorBuilder);
 
+        // Merge Blazor-specific services into the application's service collection.
+        // This ensures all services (including IInfiniFrameApplication) resolve from
+        // the same provider when windows are built.
+        foreach (ServiceDescriptor descriptor in blazorBuilder.Services) {
+            app.ServiceCollection.Add(descriptor);
+        }
+
         // Register the window with the application.
         string windowId = $"blazor-{app.Id}";
         app.WithWindow(windowId, blazorBuilder.WindowBuilder);
 
-        // Build the Blazor app using the builder's service provider.
-        // The window is resolved from the application's built windows.
-        return blazorBuilder.Build();
+        // Build the Blazor app using the application's shared service provider.
+        IServiceProvider sharedProvider = app.ServiceProvider;
+        return blazorBuilder.Build(sharedProvider);
     }
 }

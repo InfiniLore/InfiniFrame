@@ -3,9 +3,11 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.InteropServices;
 using System.Text;
+using FluentValidation;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
 using InfiniFrame.NativeBridge.Parameters;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -29,6 +31,8 @@ public sealed class InfiniFrameApplication(
     private readonly Dictionary<string, IInfiniFrameWindow> _builtWindows = new();
     private bool _built;
     private Action? _onBeforeRun;
+    private IServiceProvider? _serviceProvider;
+    private readonly ServiceCollection _serviceCollection = new();
 
     /// <summary>
     ///     Gets the current application instance. Only available after <see cref="AddInfiniFrame"/> has been called.
@@ -46,6 +50,13 @@ public sealed class InfiniFrameApplication(
 
     /// <inheritdoc />
     public IReadOnlyList<IInfiniFrameWindow> Windows => _builtWindows.Values.ToList().AsReadOnly();
+
+    /// <summary>
+    ///     Gets the service provider used by windows built by this application.
+    ///     The provider is built on first access. Must be accessed after all services are registered.
+    /// </summary>
+    public IServiceProvider ServiceProvider => _serviceProvider ?? throw new InvalidOperationException(
+        "Service provider has not been built. Call Run() or access after window registration.");
 
     // -----------------------------------------------------------------------------------------------------------------
     // Static factory
@@ -257,7 +268,22 @@ public sealed class InfiniFrameApplication(
         }
 
         Instance = this;
+
+        // Set up the shared service collection for windows built by this application.
+        // AddInfiniFrame() registers core services (events, configuration, validators, etc.)
+        // but skips IInfiniFrameApplication since it's already registered as 'this'.
+        _serviceCollection.AddInfiniFrame();
+        _serviceCollection.AddSingleton<IInfiniFrameApplication>(this);
+        _serviceCollection.AddTransient<InfiniFrameWindow>();
+        _serviceCollection.AddTransient<IInfiniFrameWindow>(sp => sp.GetRequiredService<InfiniFrameWindow>());
     }
+
+    /// <summary>
+    ///     Gets the service collection for this application.
+    ///     Extensions (e.g., BlazorWebView) can add services here before Run() is called.
+    ///     The service provider is built lazily on the first Run()/RunAsync() call.
+    /// </summary>
+    internal IServiceCollection ServiceCollection => _serviceCollection;
 
     /// <inheritdoc />
     public void Run() {
@@ -400,17 +426,40 @@ public sealed class InfiniFrameApplication(
         if (_built) return;
         _built = true;
 
+        // Merge builder services into the application's collection, then build the provider.
+        // Skip IInfiniFrameApplication registration — the application itself is the singleton.
+        ICollection<ServiceDescriptor> serviceCollection = _serviceCollection;
+        foreach (var (id, configure) in _windowRegistrations) {
+            var builder = new InfiniFrameWindowBuilder();
+            configure(builder);
+            foreach (ServiceDescriptor descriptor in builder.Services) {
+                if (descriptor.ServiceType != typeof(IInfiniFrameApplication))
+                    serviceCollection.Add(descriptor);
+            }
+        }
+        foreach (var (id, builder) in _directBuilders) {
+            if (builder is InfiniFrameWindowBuilder concreteBuilder) {
+                foreach (ServiceDescriptor descriptor in concreteBuilder.Services) {
+                    if (descriptor.ServiceType != typeof(IInfiniFrameApplication))
+                        serviceCollection.Add(descriptor);
+                }
+            }
+        }
+
+        // Build the shared provider now that all services are registered.
+        _serviceProvider = _serviceCollection.BuildServiceProvider();
+
+        // Now build the windows using the shared provider.
         foreach (var (id, configure) in _windowRegistrations) {
             string windowId = id ?? Guid.NewGuid().ToString();
             var builder = new InfiniFrameWindowBuilder();
             configure(builder);
-            IInfiniFrameWindow window = builder.Build();
+            IInfiniFrameWindow window = builder.Build(ServiceProvider);
             _builtWindows[windowId] = window;
         }
-
         foreach (var (id, builder) in _directBuilders) {
             string windowId = id ?? Guid.NewGuid().ToString();
-            IInfiniFrameWindow window = builder.Build();
+            IInfiniFrameWindow window = builder.Build(ServiceProvider);
             _builtWindows[windowId] = window;
         }
 
