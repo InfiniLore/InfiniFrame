@@ -18,17 +18,20 @@ public static class InfiniFrameApplicationBlazorExtensions {
     /// </summary>
     /// <param name="app">The application instance.</param>
     /// <param name="configure">Optional callback to configure the <see cref="InfiniFrameBlazorAppBuilder"/>.</param>
-    /// <returns>The application instance for chaining.</returns>
-    public static InfiniFrameApplication WithBlazor(
+    /// <returns>The <see cref="InfiniFrameBlazorApp"/> for further configuration.</returns>
+    public static InfiniFrameBlazorApp WithBlazorWebView(
         this InfiniFrameApplication app,
         Action<InfiniFrameBlazorAppBuilder>? configure = null
     ) {
-        InfiniFrameBlazorAppBuilder blazorBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        InfiniFrameBlazorAppBuilder blazorBuilder = new InfiniFrameBlazorAppBuilder();
         configure?.Invoke(blazorBuilder);
 
         // Register the window with the application.
-        app.WithWindow(blazorBuilder.WindowBuilder);
+        string windowId = $"blazor-{app.Id}";
+        app.WithWindow(windowId, blazorBuilder.WindowBuilder);
 
-        return app;
+        // Build the Blazor app using the builder's service provider.
+        // The window is resolved from the application's built windows.
+        return blazorBuilder.Build();
     }
 }

@@ -22,7 +22,7 @@ public class InfiniFrameUriSecurityPolicyRegistryTests {
     [Test]
     public async Task GetForBuilder_NewBuilder_ReturnsDefaultPolicy(CancellationToken ct = default) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         IInfiniFrameUriSecurityPolicy policy = InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(builder);
@@ -43,7 +43,7 @@ public class InfiniFrameUriSecurityPolicyRegistryTests {
     [Test]
     public async Task ConfigureForBuilder_NullConfigure_ThrowsArgumentNullException(CancellationToken ct = default) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act & Assert
         await Assert.That(
@@ -131,7 +131,7 @@ public class InfiniFrameUriSecurityPolicyRegistryTests {
     [Test]
     public async Task ConfigureForBuilder_MultipleCalls_ApplyCumulatively(CancellationToken ct = default) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(builder, configure: b => b
@@ -148,7 +148,7 @@ public class InfiniFrameUriSecurityPolicyRegistryTests {
     [Test]
     public async Task GetForBuilder_ReturnsSameInstanceForSameBuilder(CancellationToken ct = default) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         IInfiniFrameUriSecurityPolicy policy1 = InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(builder);

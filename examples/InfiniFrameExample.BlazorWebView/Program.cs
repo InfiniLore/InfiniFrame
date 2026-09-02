@@ -16,25 +16,21 @@ namespace InfiniFrameExample.BlazorWebView;
 public static class Program {
     [STAThread]
     private static void Main(string[] args) {
-#pragma warning disable CS0618 // Type or member is obsolete
-        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
-#pragma warning restore CS0618
+        InfiniFrameApplication app = InfiniFrameApplication.Initialize();
+        app.WithBlazorWebView(blazorBuilder => {
+            blazorBuilder.Services.AddLogging(config => {
+                config.ClearProviders();
+                config.AddSerilog();
+            });
 
-        appBuilder.Services.AddLogging(config => {
-            config.ClearProviders();
-            config.AddSerilog();
-        });
+            blazorBuilder.Services.AddSerilog(config => {
+                config.WriteTo.Async(static c => c.Console())
+                    .MinimumLevel.Debug();
+            });
 
-        appBuilder.Services.AddSerilog(config => {
-            config.WriteTo.Async(static c => c.Console())
-                .MinimumLevel.Debug();
-        });
+            blazorBuilder.RootComponents.Add<App>("app");
 
-        // register the root component and selector
-        appBuilder.RootComponents.Add<App>("app");
-
-        appBuilder.WithInfiniFrameWindowBuilder(builder => {
-            builder
+            blazorBuilder.WindowBuilder
                 // .SetTransparent(true)
                 // .SetChromeless(true)
                 // .SetResizable(true)
@@ -50,8 +46,6 @@ public static class Program {
                 // .SetMinSize(new Size(600, 400))
                 ;
         });
-
-        InfiniFrameBlazorApp app = appBuilder.Build();
 
         app.Run();
     }

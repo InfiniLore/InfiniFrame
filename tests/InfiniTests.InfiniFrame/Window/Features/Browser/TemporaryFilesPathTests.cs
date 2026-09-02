@@ -13,7 +13,7 @@ public class TemporaryFilesPathTests {
     [Test]
     public async Task AtBuilderStage_DefaultValueIsAppliedToNativeParameters(CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
@@ -27,7 +27,7 @@ public class TemporaryFilesPathTests {
     [Test]
     public async Task AtBuilderStage_ExtensionAssignmentIsAppliedToNativeParameters(CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         const string inputPath = "C:/temp/infiniframe-test";
         string expectedPath = Path.GetFullPath(inputPath);
 

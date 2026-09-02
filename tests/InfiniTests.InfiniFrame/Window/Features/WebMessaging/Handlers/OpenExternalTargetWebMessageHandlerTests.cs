@@ -128,7 +128,7 @@ public class OpenExternalTargetWebMessageHandlerTests {
         // Arrange
         RecordingExternalProcessLauncher launcher = new();
         IServiceProvider serviceProvider = CreateServiceProvider(launcher);
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         builder.RegisterOpenExternalTargetWebMessageHandler();
         var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
         var events = new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance);
@@ -154,7 +154,7 @@ public class OpenExternalTargetWebMessageHandlerTests {
         // Arrange
         RecordingExternalProcessLauncher launcher = new();
         IServiceProvider serviceProvider = CreateServiceProvider(launcher);
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         builder.RegisterOpenExternalTargetWebMessageHandler();
         var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
 
@@ -177,7 +177,7 @@ public class OpenExternalTargetWebMessageHandlerTests {
         // Arrange
         RecordingExternalProcessLauncher launcher = new();
         IServiceProvider serviceProvider = CreateServiceProvider(launcher);
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         builder.RegisterOpenExternalTargetWebMessageHandler();
         var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
 
@@ -222,7 +222,7 @@ public class OpenExternalTargetWebMessageHandlerTests {
         // Arrange: 172.15.x.x is NOT in the 172.16.0.0/12 private range
         RecordingExternalProcessLauncher launcher = new();
         IServiceProvider serviceProvider = CreateServiceProvider(launcher);
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         builder.RegisterOpenExternalTargetWebMessageHandler();
         var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
 
@@ -243,7 +243,7 @@ public class OpenExternalTargetWebMessageHandlerTests {
         // Arrange: 172.32.x.x is NOT in the 172.16.0.0/12 private range
         RecordingExternalProcessLauncher launcher = new();
         IServiceProvider serviceProvider = CreateServiceProvider(launcher);
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         builder.RegisterOpenExternalTargetWebMessageHandler();
         var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
 
@@ -264,7 +264,7 @@ public class OpenExternalTargetWebMessageHandlerTests {
         // Arrange: 9.x.x.x is not in any private range
         RecordingExternalProcessLauncher launcher = new();
         IServiceProvider serviceProvider = CreateServiceProvider(launcher);
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         builder.RegisterOpenExternalTargetWebMessageHandler();
         var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
 
@@ -291,7 +291,7 @@ public class OpenExternalTargetWebMessageHandlerTests {
     }
 
     private static (InfiniFrameWindowBuilder Builder, InfiniFrameEvents Events, RecordingInfiniFrameWindowSubstitute Window) CreateWindowHarness() {
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
 
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()

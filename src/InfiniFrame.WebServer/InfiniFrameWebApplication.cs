@@ -27,25 +27,12 @@ public class InfiniFrameWebApplication {
     public required Lazy<IInfiniFrameWindow> LazyWindow { private get; init; }
     /// <summary>Gets the associated InfiniFrame window instance.</summary>
     public IInfiniFrameWindow Window => LazyWindow.Value;
-    /// <summary>Gets the associated InfiniFrame application instance.</summary>
-    public IInfiniFrameApplication Application => WebApp.Services.GetRequiredService<IInfiniFrameApplication>();
+    /// <summary>Gets or sets the InfiniFrame application instance.</summary>
+    public IInfiniFrameApplication? Application { get; init; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    /// <summary>
-    ///     Creates a new <see cref="InfiniFrameWebApplicationBuilder" /> with default ASP.NET Core and InfiniFrame
-    ///     window builder services.
-    /// </summary>
-    /// <param name="args">Command-line arguments passed to the ASP.NET Core host builder.</param>
-    /// <returns>An <see cref="InfiniFrameWebApplicationBuilder" /> for further configuration.</returns>
-    [Obsolete("Use InfiniFrameApplication.Initialize().WithWebServer() instead.")]
-    public static InfiniFrameWebApplicationBuilder CreateBuilder(params string[] args)
-        => new InfiniFrameWebApplicationBuilder {
-            WebApp = WebApplication.CreateBuilder(args),
-            WindowBuilder = InfiniFrameWindowBuilder.Create()
-        }.Initialize();
-
     /// <summary>
     ///     Runs the web application and window, blocking until the window is closed.
     /// </summary>
@@ -116,9 +103,11 @@ public class InfiniFrameWebApplication {
             return this;
         }
 
-        var builder = WebApp.Services.GetRequiredService<IInfiniFrameWindowBuilder>();
-        builder.RegisterWindowClosingHandler((_, _) => ClosingHandler());
-        builder.RegisterWindowClosingRequestedHandler(_ => ClosingHandler());
+        var builder = WebApp.Services.GetService<IInfiniFrameWindowBuilder>();
+        if (builder is not null) {
+            builder.RegisterWindowClosingHandler((_, _) => ClosingHandler());
+            builder.RegisterWindowClosingRequestedHandler(_ => ClosingHandler());
+        }
         return this;
 
         WindowClosingResult ClosingHandler() {

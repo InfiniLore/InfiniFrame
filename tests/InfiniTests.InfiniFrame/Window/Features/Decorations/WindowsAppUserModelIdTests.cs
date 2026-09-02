@@ -14,13 +14,11 @@ public sealed class WindowsAppUserModelIdTests {
     [Test]
     public async Task DirectAssignment_PassesValueToNativeParameters() {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         const string value = "InfiniLore.InfiniFrame.Tests";
 
         // Act
-#pragma warning disable CS0618 // Type or member is obsolete
         builder.Features.Decorations.SetWindowsAppUserModelId(value);
-#pragma warning restore CS0618
         InfiniFrameNativeParameters parameters = builder.CollectNativeParameters();
 
         // Assert — WindowsAppUserModelId is now an application-level setting, no longer set on window parameters.
@@ -30,18 +28,14 @@ public sealed class WindowsAppUserModelIdTests {
     [Test]
     public async Task ExtensionAssignment_ReturnsSameBuilderAndPassesValueToNativeParameters() {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         const string value = "InfiniLore.InfiniFrame.Tests";
 
         // Act
-#pragma warning disable CS0618 // Type or member is obsolete
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetWindowsAppUserModelId(value);
-#pragma warning restore CS0618
-        InfiniFrameNativeParameters parameters = builder.CollectNativeParameters();
 
         // Assert — WindowsAppUserModelId is now an application-level setting, no longer set on window parameters.
         await Assert.That(returnedBuilder).IsSameReferenceAs(builder);
-        await Assert.That(parameters.WindowsAppUserModelId).IsNull();
     }
 
     [Test]
@@ -51,9 +45,7 @@ public sealed class WindowsAppUserModelIdTests {
         const string value = "InfiniLore.InfiniFrame.Tests";
 
         using var window = InfiniFrameTestWindow.Create(builder: builder => {
-#pragma warning disable CS0618 // Type or member is obsolete
             builder.SetWindowsAppUserModelId(value);
-#pragma warning restore CS0618
         }, ct);
 
         int result = WindowsNative.GetCurrentProcessAppUserModelId(out IntPtr appUserModelId);

@@ -23,82 +23,13 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    private InfiniFrameBlazorAppBuilder() {}
+    public InfiniFrameBlazorAppBuilder() {}
     /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.RootComponents" />
     public IInfiniFrameRootComponentList RootComponents { get; } = new InfiniFrameRootComponentList();
     /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.Services" />
     public IServiceCollection Services { get; } = new ServiceCollection();
     /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.WindowBuilder" />
-    public IInfiniFrameWindowBuilder WindowBuilder { get; } = InfiniFrameWindowBuilder.Create();
-
-    /// <summary>
-    ///     Creates a default builder with standard configuration, command-line args, and window builder action.
-    /// </summary>
-    /// <param name="args">Optional command-line arguments.</param>
-    /// <param name="windowBuilder">An optional action to configure the window builder.</param>
-    /// <returns>A new <see cref="InfiniFrameBlazorAppBuilder"/> instance.</returns>
-    [Obsolete("Use InfiniFrameApplication.Initialize().WithBlazor() instead.")]
-    public static InfiniFrameBlazorAppBuilder CreateDefault(
-        string[]? args = null,
-        Action<IInfiniFrameWindowBuilder>? windowBuilder = null
-    )
-        => CreateDefault(null, args, windowBuilder);
-
-    /// <summary>
-    ///     Creates a default builder with standard configuration and command-line args.
-    /// </summary>
-    /// <param name="fileProvider">An optional file provider for static assets.</param>
-    /// <param name="args">Optional command-line arguments.</param>
-    /// <param name="windowBuilder">An optional action to configure the window builder.</param>
-    /// <returns>A new <see cref="InfiniFrameBlazorAppBuilder"/> instance.</returns>
-    [Obsolete("Use InfiniFrameApplication.Initialize().WithBlazor() instead.")]
-    public static InfiniFrameBlazorAppBuilder CreateDefault(IFileProvider? fileProvider, string[]? args = null, Action<IInfiniFrameWindowBuilder>? windowBuilder = null) {
-        // We don't use the args for anything right now, but we want to accept them
-        // here so that it shows up this way in the project templates.
-        var appBuilder = new InfiniFrameBlazorAppBuilder();
-        IFileProvider resolvedFileProvider = ConfigureFileProvider(fileProvider);
-
-        appBuilder.Services.AddOptions<InfiniFrameBlazorAppConfiguration>();
-
-        appBuilder.Services
-            .AddInfiniFrame()
-            .AddTransient<InfiniFrameWindow>()
-            .AddScoped(static sp => {
-                var handler = sp.GetRequiredService<InfiniFrameHttpHandler>();
-                return new HttpClient(handler) { BaseAddress = new Uri(InfiniFrameWebViewManager.AppBaseUri) };
-            })
-            .AddSingleton<IInfiniFrameWebViewManager, InfiniFrameWebViewManager>()
-            .AddSingleton<IInfiniFrameJsComponentConfiguration, InfiniFrameJsComponentConfiguration>()
-            .AddSingleton<Dispatcher, InfiniFrameDispatcher>()
-            .AddSingleton<InfiniFrameBlazorApp>()
-            .AddSingleton<InfiniFrameHttpHandler>()
-            .AddSingleton<InfiniFrameSynchronizationContext>()
-            .AddSingleton<IInfiniFrameWindow>(static provider => provider.GetRequiredService<IInfiniFrameWindowBuilder>().Build(provider))
-            .AddBlazorWebView()
-            .AddSingleton(resolvedFileProvider)
-            .AddSingleton<IInfiniFrameStaticAssets>(static provider => {
-                InfiniFrameBlazorAppConfiguration config = provider.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?.Value
-                    ?? new InfiniFrameBlazorAppConfiguration();
-
-                return new InfiniFrameStaticAssets {
-                    FileProvider = provider.GetRequiredService<IFileProvider>(),
-                    BaseUri = config.AppBaseUri.ToString(),
-                    DefaultDocument = NormalizeHostPage(config.HostPage)
-                };
-            })
-            .AddSingleton(appBuilder.WindowBuilder)
-            .AddSingleton(appBuilder.RootComponents)
-            .AddSingleton(appBuilder.RootComponents.JSComponents);
-
-        appBuilder.Services.TryAddSingleton<IInfiniFrameUnhandledExceptionSource, AppDomainUnhandledExceptionSource>();
-
-        appBuilder.Services.AddInfiniFrameJs();
-        appBuilder.WindowBuilder.RegisterGetWebMessageHandler();
-
-        windowBuilder?.Invoke(appBuilder.WindowBuilder);
-
-        return appBuilder;
-    }
+    public IInfiniFrameWindowBuilder WindowBuilder { get; } = new InfiniFrameWindowBuilder();
 
     /// <summary>
     ///     Configures the file provider to be used by the application.

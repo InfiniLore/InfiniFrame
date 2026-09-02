@@ -54,9 +54,6 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
             (*new_params)->TemporaryFilesPath = DuplicateString(params->TemporaryFilesPath);
             (*new_params)->UserAgent = DuplicateString(params->UserAgent);
             (*new_params)->BrowserControlInitParameters = DuplicateString(params->BrowserControlInitParameters);
-            (*new_params)->WebView2RuntimePath = DuplicateString(params->WebView2RuntimePath);
-            (*new_params)->NotificationRegistrationId = DuplicateString(params->NotificationRegistrationId);
-            (*new_params)->WindowsAppUserModelId = DuplicateString(params->WindowsAppUserModelId);
             (*new_params)->DefaultNotificationIcon = DuplicateString(params->DefaultNotificationIcon);
 
             // Runtime configuration
@@ -158,9 +155,6 @@ EXPORTED InteropStatus InfiniFrameNativeTests_FreeInitParams(InfiniFrameInitPara
             delete[] params->TemporaryFilesPath;
             delete[] params->UserAgent;
             delete[] params->BrowserControlInitParameters;
-            delete[] params->WebView2RuntimePath;
-            delete[] params->NotificationRegistrationId;
-            delete[] params->WindowsAppUserModelId;
             delete[] params->DefaultNotificationIcon;
             for (size_t i = 0; i < InfiniFrameInitParams::MaxCustomSchemeNames; ++i) {
                 delete[] params->CustomSchemeNames[i];

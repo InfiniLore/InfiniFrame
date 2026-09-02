@@ -12,37 +12,38 @@ namespace InfiniFrameExample.WebApp.Vue;
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
-        InfiniFrameWebApplicationBuilder appBuilder = InfiniFrameWebApplication.CreateBuilder(args);
-        // WebApplicationBuilder appBuilder = builder.WebApp;
+        InfiniFrameApplication app = InfiniFrameApplication.Initialize();
+        InfiniFrameWebApplication webApp = app.WithWebServer(
+            _ => { },
+            windowBuilder => {
+                if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) windowBuilder.Debugging.SetRemoteDebuggingPort(9222);
 
-        if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) appBuilder.WindowBuilder.Debugging.SetRemoteDebuggingPort(9222);
+                windowBuilder
+                    .CenteredOnMainMonitor()
+                    // .SetTransparent(true)
+                    // .SetUseOsDefaultSize(false)
+                    .SetTitle("InfiniLore InfiniFrame.NET VUE Sample")
+                    .SetSize(new Size(800, 600))
+                    .SetLocation(1000, 0)
+                    .RegisterFullScreenWebMessageHandler()
+                    .RegisterOpenExternalTargetWebMessageHandler()
+                    .RegisterTitleChangedWebMessageHandler()
+                    .RegisterWindowManagementWebMessageHandler()
+                    .RegisterWebMessageReceivedHandler((_, message) => {
+                        // ReSharper disable twice UnusedVariable
+                        string response = $"Received message: \"{message}\"";
 
-        appBuilder.WindowBuilder
-            .CenteredOnMainMonitor()
-            // .SetTransparent(true)
-            // .SetUseOsDefaultSize(false)
-            .SetTitle("InfiniLore InfiniFrame.NET VUE Sample")
-            .SetSize(new Size(800, 600))
-            .SetLocation(1000, 0)
-            .RegisterFullScreenWebMessageHandler()
-            .RegisterOpenExternalTargetWebMessageHandler()
-            .RegisterTitleChangedWebMessageHandler()
-            .RegisterWindowManagementWebMessageHandler()
-            .RegisterWebMessageReceivedHandler((_, message) => {
-                // ReSharper disable twice UnusedVariable
-                string response = $"Received message: \"{message}\"";
+                        // ... do something with the message
+                    })
+                    ;
+            }
+        );
 
-                // ... do something with the message
-            })
-            ;
+        webApp.UseAutoServerClose();
 
-        InfiniFrameWebApplication application = appBuilder.Build();
+        webApp.WebApp.UseStaticFiles();
+        webApp.WebApp.MapStaticAssets();
 
-        application.UseAutoServerClose();
-
-        application.WebApp.UseStaticFiles();
-        application.WebApp.MapStaticAssets();
-
-        application.Run();
+        app.Run();
     }
 }

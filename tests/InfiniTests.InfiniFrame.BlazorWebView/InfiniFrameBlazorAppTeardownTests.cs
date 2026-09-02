@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.Versioning;
@@ -23,7 +23,7 @@ public sealed class InfiniFrameBlazorAppTeardownTests {
 
         var thread = new Thread(() => {
             try {
-                var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+                var appBuilder = new InfiniFrameBlazorAppBuilder();
                 appBuilder.RootComponents.Add<TestComponent>("app");
 
                 InfiniFrameBlazorApp app = appBuilder.Build();

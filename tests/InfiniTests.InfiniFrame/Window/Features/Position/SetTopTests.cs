@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -14,7 +14,7 @@ public class SetTopTests {
     [Arguments(420)]
     public async Task AtBuilderStage_DirectAssignment(int value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.Position.SetTop(value);
@@ -32,7 +32,7 @@ public class SetTopTests {
     [Arguments(440)]
     public async Task AtBuilderStage_ExtensionAssignment(int value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetTop(value);

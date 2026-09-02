@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -13,7 +13,7 @@ public class SupportsRemoteDebuggingEndpointTests {
     [Test]
     public async Task AtBuilderStage_DirectAssignment(CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         bool foundValue = builder.Features.Debugging.SupportsRemoteDebuggingEndpoint;
@@ -25,7 +25,7 @@ public class SupportsRemoteDebuggingEndpointTests {
     [Test]
     public async Task AtBuilderStage_ExtensionAssignment(CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         bool foundValue = builder.SupportsRemoteDebuggingEndpoint();

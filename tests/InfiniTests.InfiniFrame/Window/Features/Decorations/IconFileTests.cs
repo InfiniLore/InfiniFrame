@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -12,7 +12,7 @@ public class IconFileTests {
     [Test]
     public async Task AtBuilderStage_DirectAssignment_ResolvesIconForNativeParameters(CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         string value = Path.Join(Path.GetTempPath(), $"{Guid.NewGuid():N}.ico");
 
         // Act
@@ -34,7 +34,7 @@ public class IconFileTests {
     [Test]
     public async Task AtBuilderStage_ExtensionAssignment_InvalidPath_DoesNotPassIconToNativeParameters(CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         const string value = "missing.ico";
 
         // Act

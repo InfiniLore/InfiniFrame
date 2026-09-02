@@ -11,7 +11,7 @@ public class RegisterWebMessageReceivedHandlerTests {
     public async Task AtBuilderStage_HandlerWithService_ResolvesServiceFromWindowServiceProvider(CancellationToken ct = default) {
         // Arrange
         var eventsStore = new InfiniFrameEventsStore();
-        var builder = InfiniFrameWindowBuilder.Create(events: eventsStore);
+        var builder = new InfiniFrameWindowBuilder { EventsStore = eventsStore };
         var service = new TestService();
         Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
         window.ServiceProvider.Returns(new TestServiceProvider(service));
@@ -34,7 +34,7 @@ public class RegisterWebMessageReceivedHandlerTests {
     public async Task AtBuilderStage_HandlerWithOrigin_ReceivesOriginFromEventPayload(CancellationToken ct = default) {
         // Arrange
         var eventsStore = new InfiniFrameEventsStore();
-        var builder = InfiniFrameWindowBuilder.Create(events: eventsStore);
+        var builder = new InfiniFrameWindowBuilder { EventsStore = eventsStore };
         Mock<IInfiniFrameWindow> window = MockFactory.CreateWindowMock();
 
         var tcs = new TaskCompletionSource<string?>();

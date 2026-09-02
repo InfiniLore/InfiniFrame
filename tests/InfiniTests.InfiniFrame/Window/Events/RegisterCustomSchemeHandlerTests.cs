@@ -16,7 +16,7 @@ public class RegisterCustomSchemeHandlerTests {
     [Test]
     public async Task AtBuilderStage_RegistersSchemeInEventsStoreAndNativeParameters(CancellationToken ct = default) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.RegisterCustomSchemeHandler("app", EmptyHandler);
@@ -35,7 +35,7 @@ public class RegisterCustomSchemeHandlerTests {
     [Test]
     public async Task AtBuilderStage_ReRegisteringSameScheme_DoesNotDuplicateNativeParameterEntries(CancellationToken ct = default) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         for (int i = 0; i < 100; i++) {

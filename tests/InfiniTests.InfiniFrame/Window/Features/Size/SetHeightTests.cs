@@ -14,7 +14,7 @@ public class SetHeightTests {
     [Arguments(620)]
     public async Task AtBuilderStage_DirectAssignment(int value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.Size.SetHeight(value);
@@ -32,7 +32,7 @@ public class SetHeightTests {
     [Arguments(640)]
     public async Task AtBuilderStage_ExtensionAssignment(int value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetHeight(value);

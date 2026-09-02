@@ -24,7 +24,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.Debugging" />
     public IDebuggingInfiniFrameWindowBuilderFeature Debugging => Features.Debugging;
     /// <inheritdoc cref="IHasInfiniFrameEventsStore.EventsStore" />
-    public IInfiniFrameEventsStore EventsStore { get; private init; } = new InfiniFrameEventsStore();
+    public IInfiniFrameEventsStore EventsStore { get; set; } = new InfiniFrameEventsStore();
 
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.StaticAssets" />
     public IInfiniFrameStaticAssets? StaticAssets { get; set; }
@@ -82,28 +82,6 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
         return window;
 
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Constructors
-    // -----------------------------------------------------------------------------------------------------------------
-    /// <summary>
-    ///     Creates a new <see cref="InfiniFrameWindowBuilder"/> with optional DI and event store overrides.
-    /// </summary>
-    /// <param name="collection">Optional service collection. If <c>null</c>, a default collection with logging and InfiniFrame core services is created.</param>
-    /// <param name="events">Optional pre-configured event store. If <c>null</c>, a new empty store is created.</param>
-    /// <returns>A configured <see cref="InfiniFrameWindowBuilder"/> ready for feature configuration.</returns>
-    [Obsolete("Use InfiniFrameApplication.Initialize().WithWindow() instead.")]
-    public static InfiniFrameWindowBuilder Create(IServiceCollection? collection = null, InfiniFrameEventsStore? events = null) {
-        var builder = new InfiniFrameWindowBuilder {
-            EventsStore = events ?? new InfiniFrameEventsStore(),
-            Services = (collection ?? new ServiceCollection())
-                .AddLogging()
-                .AddInfiniFrame()
-                .AddTransient<InfiniFrameWindow>()
-        };
-
-        return builder;
     }
 
     internal InfiniFrameNativeParameters CollectNativeParameters() {

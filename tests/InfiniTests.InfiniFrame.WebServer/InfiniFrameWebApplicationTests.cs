@@ -24,10 +24,16 @@ public class InfiniFrameWebApplicationTests {
         return (mockWindow, mockWindow.Object);
     }
 
+    private static InfiniFrameWebApplicationBuilder CreateBuilder()
+        => new() {
+            WebApp = WebApplication.CreateBuilder(),
+            WindowBuilder = new InfiniFrameWindowBuilder()
+        };
+
     [Test]
     public async Task CreateBuilder_ShouldReturnValidBuilder() {
         // Arrange & Act
-        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+        InfiniFrameWebApplicationBuilder builder = CreateBuilder();
 
         // Assert
         await Assert.That(builder).IsNotNull();
@@ -38,7 +44,7 @@ public class InfiniFrameWebApplicationTests {
     [Test]
     public async Task Build_DefaultWebMessageHandlersWithoutBlazorJsRuntime_ShouldPassServiceValidation() {
         // Arrange
-        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+        InfiniFrameWebApplicationBuilder builder = CreateBuilder();
         builder.WebApp.Host.UseDefaultServiceProvider(static options => {
             options.ValidateOnBuild = true;
             options.ValidateScopes = true;

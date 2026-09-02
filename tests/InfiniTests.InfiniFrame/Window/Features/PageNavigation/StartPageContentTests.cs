@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -14,7 +14,7 @@ public class StartPageContentTests {
     [Arguments("<html><body>Beta</body></html>")]
     public async Task AtBuilderStage_DirectAssignment(string value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.PageNavigation.SetStartPageContent(value);
@@ -30,7 +30,7 @@ public class StartPageContentTests {
     [Arguments("<html><body>Delta</body></html>")]
     public async Task AtBuilderStage_ExtensionAssignment(string value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetStartPageContent(value);

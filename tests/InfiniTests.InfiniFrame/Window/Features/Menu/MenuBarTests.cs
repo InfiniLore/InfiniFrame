@@ -14,7 +14,7 @@ public class MenuBarTests {
     [Test]
     public async Task AtBuilderStage_DirectAssignment(CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         var menuBar = new InfiniFrameMenuBar(
             Items: [
                 new InfiniFrameMenuItem("file", "File", InfiniFrameMenuItemType.Submenu,
@@ -39,7 +39,7 @@ public class MenuBarTests {
     [Test]
     public async Task AtBuilderStage_ExtensionAssignment(CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         var menuBar = new InfiniFrameMenuBar(
             Items: [
                 new InfiniFrameMenuItem("help", "Help")
@@ -59,7 +59,7 @@ public class MenuBarTests {
     [Test]
     public async Task AtBuilderStage_DefaultIsEmpty(CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
@@ -72,7 +72,7 @@ public class MenuBarTests {
     [Test]
     public async Task AtBuilderStage_NullMenuBar(CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.Menu.SetMenuBar(null!);
@@ -86,7 +86,7 @@ public class MenuBarTests {
     [Test]
     public async Task AtBuilderStage_MenuBarJson_SerializesCorrectly(CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         var menuBar = new InfiniFrameMenuBar(
             Items: [
                 new InfiniFrameMenuItem("file", "File", InfiniFrameMenuItemType.Submenu,
@@ -115,7 +115,7 @@ public class MenuBarTests {
     [Test]
     public async Task AtBuilderStage_SetMenuBar_EmptyItems_JsonIsNull(CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
             Items: [
                 new InfiniFrameMenuItem("file", "File")
@@ -134,7 +134,7 @@ public class MenuBarTests {
     [Test]
     public async Task AtBuilderStage_SetMenuBar_ReplacesExisting(CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar(
             Items: [
                 new InfiniFrameMenuItem("old", "Old")
@@ -158,7 +158,7 @@ public class MenuBarTests {
     [Test]
     public async Task AtBuilderStage_ExtensionReturnsBuilder_ForChaining(CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         IInfiniFrameWindowBuilder result = builder

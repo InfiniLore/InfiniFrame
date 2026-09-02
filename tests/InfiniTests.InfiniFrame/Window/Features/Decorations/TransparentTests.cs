@@ -14,7 +14,7 @@ public class TransparentTests {
     [Arguments(false)]
     public async Task AtBuilderStage_DirectAssignment(bool value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.Decorations.SetTransparent(value);
@@ -30,7 +30,7 @@ public class TransparentTests {
     [Arguments(false)]
     public async Task AtBuilderStage_ExtensionAssignment(bool value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetTransparent(value);

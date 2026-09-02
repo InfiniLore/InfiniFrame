@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -14,7 +14,7 @@ public class SetSizeTests {
     [Arguments(900, 540)]
     public async Task AtBuilderStage_DirectAssignment(int width, int height, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.Size.SetSize(width, height);
@@ -34,7 +34,7 @@ public class SetSizeTests {
     [Arguments(1024, 768)]
     public async Task AtBuilderStage_ExtensionAssignment(int width, int height, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         System.Drawing.Size value = new(width, height);
 
         // Act

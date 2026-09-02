@@ -1,22 +1,28 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using System.Drawing;
 using InfiniFrame.SingleFile;
 
 namespace InfiniFrameExample.SingleFileExe.React;
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
         InfiniFrameSingleFile.Initialize();
 
-        IInfiniFrameWindowBuilder builder = InfiniFrameWindowBuilder.Create()
-            .SetTitle("InfiniFrame + React")
-            .SetSize(new Size(960, 640))
-            .CenteredOnMainMonitor();
+        InfiniFrameApplication app = InfiniFrameApplication.Initialize()
+            .WithWindow(builder => {
+                builder
+                    .SetTitle("InfiniFrame + React")
+                    .SetSize(new Size(960, 640))
+                    .CenteredOnMainMonitor()
+                    .AddSingleFileRequirements();
+            });
 
-        builder.AddSingleFileRequirements();
-
-        IInfiniFrameWindow window = builder.Build();
-        window.WaitForClose();
+        app.Run();
     }
 }

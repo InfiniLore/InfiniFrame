@@ -30,9 +30,7 @@ public class BrowserInfiniFrameWindowBuilderFeatureTests {
         await Assert.That(feature.IsBrowserShortcutsEnabled).IsTrue();
         await Assert.That(feature.BrowserControlInitParameters).IsNull();
         await Assert.That(feature.TemporaryFilesPath).IsNotEmpty();
-#pragma warning disable CS0618 // Type or member is obsolete
         await Assert.That(feature.WebView2RuntimePath).IsNull();
-#pragma warning restore CS0618
     }
 
     [Test]
@@ -101,9 +99,7 @@ public class BrowserInfiniFrameWindowBuilderFeatureTests {
         feature.EnableBrowserShortcuts(false);
         feature.SetBrowserControlInitParameters("init-params");
         feature.SetTemporaryFilesPath("/tmp/test");
-#pragma warning disable CS0618 // Type or member is obsolete
         feature.SetWebView2RuntimePath("/runtime/path");
-#pragma warning restore CS0618
 
         var parameters = new InfiniFrameNativeParameters();
 

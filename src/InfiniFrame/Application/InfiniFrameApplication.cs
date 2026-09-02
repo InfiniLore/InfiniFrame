@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using System.Text;
 using InfiniFrame.NativeBridge;
@@ -25,8 +24,8 @@ public sealed class InfiniFrameApplication(
     private NativeApplicationHandle? _handle;
     private ApplicationConfiguration? _configuration;
     private int _disposed;
-    private readonly ConcurrentDictionary<Guid, IInfiniFrameWindow> _windows = new();
     private readonly List<(string? Id, Action<IInfiniFrameWindowBuilder> Configure)> _windowRegistrations = new();
+    private readonly List<(string? Id, IInfiniFrameWindowBuilder Builder)> _directBuilders = new();
     private readonly Dictionary<string, IInfiniFrameWindow> _builtWindows = new();
     private bool _built;
     private Action? _onBeforeRun;
@@ -44,15 +43,6 @@ public sealed class InfiniFrameApplication(
 
     /// <inheritdoc />
     public bool IsShutdownRequested { get; private set; }
-
-    /// <inheritdoc />
-    public int WindowCount => _windows.Count;
-
-    /// <inheritdoc />
-    public event Action<IInfiniFrameWindow>? WindowCreated;
-
-    /// <inheritdoc />
-    public event Action<IInfiniFrameWindow>? WindowDestroyed;
 
     /// <inheritdoc />
     public IReadOnlyList<IInfiniFrameWindow> Windows => _builtWindows.Values.ToList().AsReadOnly();
@@ -96,6 +86,35 @@ public sealed class InfiniFrameApplication(
     /// <returns>The application instance for chaining.</returns>
     public InfiniFrameApplication WithWindow(string id, Action<IInfiniFrameWindowBuilder> configure) {
         RegisterWindow(id, configure);
+        return this;
+    }
+
+    /// <summary>
+    ///     Registers a window with a unique string identifier using an existing builder.
+    ///     The window is lazily built on the first Run() or RunAsync() call.
+    /// </summary>
+    /// <param name="id">A unique string identifier for the window.</param>
+    /// <param name="builder">The window builder to use.</param>
+    /// <returns>The application instance for chaining.</returns>
+    public InfiniFrameApplication WithWindow(string id, IInfiniFrameWindowBuilder builder) {
+        ArgumentNullException.ThrowIfNull(builder);
+        ArgumentException.ThrowIfNullOrWhiteSpace(id);
+        ObjectDisposedException.ThrowIf(_disposed != 0, this);
+        if (_built) throw new InvalidOperationException("Cannot register windows after Run() has been called.");
+        _directBuilders.Add((id, builder));
+        return this;
+    }
+
+    /// <summary>
+    ///     Registers a window using an existing builder with an auto-generated GUID identifier.
+    /// </summary>
+    /// <param name="builder">The window builder to use.</param>
+    /// <returns>The application instance for chaining.</returns>
+    public InfiniFrameApplication WithWindow(IInfiniFrameWindowBuilder builder) {
+        ArgumentNullException.ThrowIfNull(builder);
+        ObjectDisposedException.ThrowIf(_disposed != 0, this);
+        if (_built) throw new InvalidOperationException("Cannot register windows after Run() has been called.");
+        _directBuilders.Add((null, builder));
         return this;
     }
 
@@ -310,9 +329,9 @@ public sealed class InfiniFrameApplication(
     public void CloseAll() {
         ObjectDisposedException.ThrowIf(_disposed != 0, this);
 
-        logger.LogDebug("Closing all {WindowCount} tracked windows.", _windows.Count);
+        logger.LogDebug("Closing all {WindowCount} windows.", _builtWindows.Count);
 
-        foreach (var kvp in _windows) {
+        foreach (var kvp in _builtWindows) {
             var window = kvp.Value;
             try {
                 window.Features.Lifecycle.Close();
@@ -320,22 +339,6 @@ public sealed class InfiniFrameApplication(
             catch (Exception ex) {
                 logger.LogWarning(ex, "Failed to close window {WindowId}.", window.Id);
             }
-        }
-    }
-
-    /// <inheritdoc />
-    public void TrackWindow(IInfiniFrameWindow window) {
-        if (_windows.TryAdd(window.Id, window)) {
-            logger.LogDebug("Window {WindowId} tracked. Total windows: {Count}.", window.Id, _windows.Count);
-            WindowCreated?.Invoke(window);
-        }
-    }
-
-    /// <inheritdoc />
-    public void UntrackWindow(IInfiniFrameWindow window) {
-        if (_windows.TryRemove(window.Id, out _)) {
-            logger.LogDebug("Window {WindowId} untracked. Total windows: {Count}.", window.Id, _windows.Count);
-            WindowDestroyed?.Invoke(window);
         }
     }
 
@@ -349,23 +352,18 @@ public sealed class InfiniFrameApplication(
     public async ValueTask DisposeAsync() {
         if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
 
-        // Dispose all owned windows asynchronously
         foreach (var window in _builtWindows.Values) {
-            try { await window.DisposeAsync().ConfigureAwait(false); }
+            try {
+                if (window is IAsyncDisposable asyncDisposable)
+                    await asyncDisposable.DisposeAsync().ConfigureAwait(false);
+                else if (window is IDisposable disposable)
+                    disposable.Dispose();
+            }
             catch (Exception ex) {
                 logger.LogWarning(ex, "Failed to dispose window during application shutdown.");
             }
         }
         _builtWindows.Clear();
-
-        // Also dispose tracked windows (from old API path)
-        foreach (var window in _windows.Values) {
-            try { window.Dispose(); }
-            catch (Exception ex) {
-                logger.LogWarning(ex, "Failed to dispose tracked window during application shutdown.");
-            }
-        }
-        _windows.Clear();
 
         _handle?.Dispose();
         _handle = null;
@@ -377,23 +375,16 @@ public sealed class InfiniFrameApplication(
         if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
 
         if (disposing) {
-            // Dispose all owned windows
             foreach (var window in _builtWindows.Values) {
-                try { window.Dispose(); }
+                try {
+                    if (window is IDisposable disposable)
+                        disposable.Dispose();
+                }
                 catch (Exception ex) {
                     logger.LogWarning(ex, "Failed to dispose window during application shutdown.");
                 }
             }
             _builtWindows.Clear();
-
-            // Also dispose tracked windows (from old API path)
-            foreach (var window in _windows.Values) {
-                try { window.Dispose(); }
-                catch (Exception ex) {
-                    logger.LogWarning(ex, "Failed to dispose tracked window during application shutdown.");
-                }
-            }
-            _windows.Clear();
 
             _handle?.Dispose();
             _handle = null;
@@ -414,7 +405,14 @@ public sealed class InfiniFrameApplication(
             _builtWindows[windowId] = window;
         }
 
+        foreach (var (id, builder) in _directBuilders) {
+            string windowId = id ?? Guid.NewGuid().ToString();
+            IInfiniFrameWindow window = builder.Build();
+            _builtWindows[windowId] = window;
+        }
+
         _windowRegistrations.Clear();
+        _directBuilders.Clear();
     }
 
     internal void SetOnBeforeRun(Action action) {

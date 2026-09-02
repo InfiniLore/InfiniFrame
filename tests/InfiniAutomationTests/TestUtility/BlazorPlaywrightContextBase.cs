@@ -99,7 +99,7 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
 
     private void RunAppOnThread(TaskCompletionSource<object?> ready) {
         try {
-            var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+            var builder = new InfiniFrameBlazorAppBuilder();
 
             ConfigureServices(builder.Services);
             ConfigureRootComponents(builder.RootComponents);

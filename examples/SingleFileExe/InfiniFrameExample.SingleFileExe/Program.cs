@@ -14,15 +14,15 @@ public static class Program {
     public static void Main(string[] args) {
         InfiniFrameSingleFile.Initialize();
 
-        IInfiniFrameWindowBuilder builder = InfiniFrameWindowBuilder.Create()
-            .SetTitle("InfiniFrame Embedded wwwroot")
-            .SetSize(new Size(960, 640))
-            .CenteredOnMainMonitor();
-        
-        builder.AddSingleFileRequirements();
-            
-        IInfiniFrameWindow window = builder.Build();
+        InfiniFrameApplication app = InfiniFrameApplication.Initialize()
+            .WithWindow(builder => {
+                builder
+                    .SetTitle("InfiniFrame Embedded wwwroot")
+                    .SetSize(new Size(960, 640))
+                    .CenteredOnMainMonitor()
+                    .AddSingleFileRequirements();
+            });
 
-        window.WaitForClose();
+        app.Run();
     }
 }

@@ -19,21 +19,6 @@ public interface IInfiniFrameApplication : IDisposable, IAsyncDisposable {
     /// <summary>Gets whether Shutdown() has been called.</summary>
     bool IsShutdownRequested { get; }
 
-    /// <summary>Gets the number of windows currently tracked by this application.</summary>
-    int WindowCount { get; }
-
-    /// <summary>
-    ///     Raised when a window is tracked by this application.
-    ///     The handler receives the window that was created.
-    /// </summary>
-    event Action<IInfiniFrameWindow>? WindowCreated;
-
-    /// <summary>
-    ///     Raised when a window is untracked by this application.
-    ///     The handler receives the window that was destroyed.
-    /// </summary>
-    event Action<IInfiniFrameWindow>? WindowDestroyed;
-
     /// <summary>
     ///     Initializes the application with the specified configuration.
     ///     Must be called before any windows are created.

@@ -15,7 +15,7 @@ public class ZoomFactorBoundaryTests {
     [Arguments(500)]
     public async Task Builder_StoresValidZoomRange(int value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.State.SetZoomFactor(value);
@@ -31,7 +31,7 @@ public class ZoomFactorBoundaryTests {
     [Arguments(999)]
     public async Task Builder_StoresOutOfRangeZoom(int value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.State.SetZoomFactor(value);

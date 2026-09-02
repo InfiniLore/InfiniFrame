@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Reflection;
@@ -25,7 +25,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [Test]
     public async Task Build_WithExternalProvider_ShouldUseProvidedServiceProvider(CancellationToken ct = default) {
         // Arrange
-        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        var builder = new InfiniFrameBlazorAppBuilder();
         ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
 
         // Act
@@ -39,7 +39,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [Test]
     public async Task Build_WithoutProvider_ShouldCreateServiceProvider(CancellationToken ct = default) {
         // Arrange
-        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        var builder = new InfiniFrameBlazorAppBuilder();
 
         // Act
         InfiniFrameBlazorApp app = builder.Build();
@@ -52,7 +52,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [Test]
     public async Task CreateDefault_RootComponents_ImplementsIJsComponentConfiguration(CancellationToken ct = default) {
         // Arrange
-        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        var builder = new InfiniFrameBlazorAppBuilder();
 
         // Act
         IJSComponentConfiguration configuration = builder.RootComponents;
@@ -64,7 +64,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [Test]
     public async Task CreateDefault_RootComponents_RegisterForJavaScript_WritesToSharedStore(CancellationToken ct = default) {
         // Arrange
-        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        var builder = new InfiniFrameBlazorAppBuilder();
 
         // Act
         builder.RootComponents.RegisterForJavaScript<TestJsComponent>("test-js-component");
@@ -82,7 +82,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     public async Task GlobalUnhandledExceptionHandler_IsRemovedOnDispose(CancellationToken ct = default) {
         // Arrange
         var recordingSource = new RecordingUnhandledExceptionSource();
-        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        var builder = new InfiniFrameBlazorAppBuilder();
         builder.Services.RemoveAll<IInfiniFrameUnhandledExceptionSource>();
         builder.Services.AddSingleton<IInfiniFrameUnhandledExceptionSource>(recordingSource);
 
@@ -99,7 +99,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     public async Task GlobalUnhandledExceptionHandler_RepeatedBuildDispose_DoesNotAccumulate(CancellationToken ct = default) {
         // Arrange
         var recordingSource = new RecordingUnhandledExceptionSource();
-        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        var builder = new InfiniFrameBlazorAppBuilder();
         builder.Services.RemoveAll<IInfiniFrameUnhandledExceptionSource>();
         builder.Services.AddSingleton<IInfiniFrameUnhandledExceptionSource>(recordingSource);
         var activeBeforeDispose = new List<int>();
@@ -123,7 +123,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     public async Task GlobalUnhandledExceptionHandler_CanBeDisabled(CancellationToken ct = default) {
         // Arrange
         var recordingSource = new RecordingUnhandledExceptionSource();
-        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        var builder = new InfiniFrameBlazorAppBuilder();
         builder.Services.RemoveAll<IInfiniFrameUnhandledExceptionSource>();
         builder.Services.AddSingleton<IInfiniFrameUnhandledExceptionSource>(recordingSource);
         builder.Services.Configure<InfiniFrameBlazorAppConfiguration>(options => options.EnableGlobalUnhandledExceptionHandler = false);
@@ -140,7 +140,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [Test]
     public async Task CreateDefault_RegistersUnhandledExceptionSourceByDefault(CancellationToken ct = default) {
         // Arrange
-        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        var builder = new InfiniFrameBlazorAppBuilder();
         ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
 
         // Act
@@ -153,7 +153,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [Test]
     public async Task CreateDefault_ExceptionSourceRejectsNullHandler(CancellationToken ct = default) {
         // Arrange
-        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        var builder = new InfiniFrameBlazorAppBuilder();
         ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
         var source = serviceProvider.GetRequiredService<IInfiniFrameUnhandledExceptionSource>();
 
@@ -175,7 +175,8 @@ public class InfiniFrameBlazorAppBuilderTests {
         const string initParameters = "--force-device-scale-factor=1";
 
         // Act
-        var appbuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args, windowBuilder: builder => builder
+        var appbuilder = new InfiniFrameBlazorAppBuilder();
+        appbuilder.WindowBuilder
             .SetTitle("Test")
             .SetBrowserControlInitParameters(initParameters)
             .SetLeft(0)
@@ -183,8 +184,7 @@ public class InfiniFrameBlazorAppBuilderTests {
             .SetSize(100, 100)
             .SetResizable(false)
             .SetChromeless()
-            .EnableSmoothScrolling(false)
-        );
+            .EnableSmoothScrolling(false);
 
         // Assert
         await Assert.That(appbuilder).IsNotNull();
@@ -201,7 +201,7 @@ public class InfiniFrameBlazorAppBuilderTests {
         const string initParameters = "--force-device-scale-factor=1";
 
         // Act
-        var appbuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
+        var appbuilder = new InfiniFrameBlazorAppBuilder();
         appbuilder.WindowBuilder
             .SetTitle("Test")
             .SetBrowserControlInitParameters(initParameters)
@@ -230,7 +230,8 @@ public class InfiniFrameBlazorAppBuilderTests {
             : "--force-device-scale-factor=1";
 
         // Act
-        var appbuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args, windowBuilder: builder => builder
+        var appbuilder = new InfiniFrameBlazorAppBuilder();
+        appbuilder.WindowBuilder
             .SetTitle("Test")
             .SetBrowserControlInitParameters(initParameters)
             .SetLeft(0)
@@ -238,8 +239,7 @@ public class InfiniFrameBlazorAppBuilderTests {
             .SetSize(100, 100)
             .SetResizable(false)
             .SetChromeless()
-            .EnableSmoothScrolling(false)
-        );
+            .EnableSmoothScrolling(false);
 
         InfiniFrameBlazorApp app = appbuilder.Build();
         var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
@@ -263,7 +263,7 @@ public class InfiniFrameBlazorAppBuilderTests {
             : "--force-device-scale-factor=1";
 
         // Act
-        var appbuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
+        var appbuilder = new InfiniFrameBlazorAppBuilder();
         appbuilder.WindowBuilder
             .SetTitle("Test")
             .SetBrowserControlInitParameters(initParameters)
@@ -289,7 +289,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [NotInParallelInfiniTests]
     public async Task Build_SetsStartupUrlToAppBaseForDefaultHostPage(CancellationToken ct = default) {
         // Arrange
-        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        var appBuilder = new InfiniFrameBlazorAppBuilder();
 
         // Act
         InfiniFrameBlazorApp app = appBuilder.Build();
@@ -303,7 +303,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [Test]
     [NotInParallelInfiniTests]
     public async Task Build_TrustsAppOriginForFragmentNavigation(CancellationToken ct = default) {
-        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        var appBuilder = new InfiniFrameBlazorAppBuilder();
 
         await using InfiniFrameBlazorApp app = appBuilder.Build();
         IInfiniFrameUriSecurityPolicy policy = InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(appBuilder.WindowBuilder);
@@ -316,7 +316,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [NotInParallelInfiniTests]
     public async Task Build_SetsStartupUrlToConfiguredNonDefaultHostPage(CancellationToken ct = default) {
         // Arrange
-        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        var appBuilder = new InfiniFrameBlazorAppBuilder();
         appBuilder.Services.Configure<InfiniFrameBlazorAppConfiguration>(options => {
             options.HostPage = "shell/host.html";
         });
@@ -334,7 +334,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [NotInParallelInfiniTests]
     public async Task Build_SetsWindowBuilderStaticAssets(CancellationToken ct = default) {
         // Arrange
-        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        var appBuilder = new InfiniFrameBlazorAppBuilder();
 
         // Act
         InfiniFrameBlazorApp app = appBuilder.Build();
@@ -350,7 +350,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [NotInParallelInfiniTests]
     public async Task Build_PopulatesNativeStartupCustomSchemeCallback(CancellationToken ct = default) {
         // Arrange
-        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        var appBuilder = new InfiniFrameBlazorAppBuilder();
 
         // Act
         InfiniFrameBlazorApp app = appBuilder.Build();
@@ -377,7 +377,7 @@ public class InfiniFrameBlazorAppBuilderTests {
         window.Features.Returns(features.Object);
         window.Debugging.Returns(debuggingFeature.Object);
 
-        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        var appBuilder = new InfiniFrameBlazorAppBuilder();
         appBuilder.Services.RemoveAll<IInfiniFrameWindow>();
         appBuilder.Services.AddSingleton(window.Object);
 

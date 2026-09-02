@@ -28,7 +28,7 @@ public class RemoteDebuggingPortTests {
         }
 
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.Debugging.SetRemoteDebuggingPort(value);
@@ -49,7 +49,7 @@ public class RemoteDebuggingPortTests {
         }
 
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetRemoteDebuggingPort(value);
@@ -95,7 +95,7 @@ public class RemoteDebuggingPortTests {
     [Arguments(65536)]
     public async Task AtBuilderStage_DirectAssignment_InvalidPort_ThrowsArgumentOutOfRangeException(int value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
 #pragma warning disable CA1416

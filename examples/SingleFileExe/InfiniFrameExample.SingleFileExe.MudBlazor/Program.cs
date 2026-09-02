@@ -25,32 +25,30 @@ public static class Program {
         try {
             Log.Information("Starting InfiniFrame MudBlazor example...");
 
-            var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
+            InfiniFrameApplication app = InfiniFrameApplication.Initialize();
+            app.WithBlazorWebView(blazorBuilder => {
+                blazorBuilder.Services
+                    .AddLogging(config => {
+                        config.ClearProviders();
+                        config.AddSerilog();
+                    })
+                    .AddSerilog(config => {
+                        config.WriteTo.Async(static c => c.Console())
+                            .MinimumLevel.Debug();
+                    })
+                    .AddMudServices();
 
-            appBuilder.Services
-                .AddLogging(config => {
-                    config.ClearProviders();
-                    config.AddSerilog();
-                })
-                .AddSerilog(config => {
-                    config.WriteTo.Async(static c => c.Console())
-                        .MinimumLevel.Debug();
-                })
-                .AddMudServices();
+                blazorBuilder.RootComponents.Add<App>("app");
 
-            appBuilder.RootComponents.Add<App>("app");
+                blazorBuilder.WindowBuilder
+                    .SetIconFile("wwwroot/favicon.ico")
+                    .RegisterOpenExternalTargetWebMessageHandler();
 
-            appBuilder.WindowBuilder
-                .SetIconFile("wwwroot/favicon.ico")
-                .RegisterOpenExternalTargetWebMessageHandler();
-            
-            InfiniFrameSingleFile.AddSingleFileRequirements(appBuilder);
-
-            Log.Information("Building InfiniFrame application...");
-            InfiniFrameBlazorApp application = appBuilder.Build();
+                blazorBuilder.AddSingleFileRequirements();
+            });
 
             Log.Information("Running application...");
-            application.Run();
+            app.Run();
         }
         catch (Exception ex) {
             Log.Fatal(ex, "Application terminated unexpectedly");

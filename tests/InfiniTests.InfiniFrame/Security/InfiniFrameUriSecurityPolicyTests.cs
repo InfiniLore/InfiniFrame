@@ -169,7 +169,7 @@ public class InfiniFrameUriSecurityPolicyTests {
     [Test]
     public async Task Registry_ConfigureForBuilder_UpdatesBuilderPolicy(CancellationToken ct = default) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(builder, configure: policyBuilder => policyBuilder
@@ -188,7 +188,7 @@ public class InfiniFrameUriSecurityPolicyTests {
     [Test]
     public async Task BuilderExtensions_SetTrustedOriginsWithStrings_UpdatesBuilderPolicy(CancellationToken ct = default) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder
@@ -203,7 +203,7 @@ public class InfiniFrameUriSecurityPolicyTests {
     [Test]
     public async Task BuilderExtensions_SetTrustedOriginsWithInvalidString_ThrowsArgumentException(CancellationToken ct = default) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         var exception = await Assert.ThrowsAsync<ArgumentException>(() => Task.Run(() => {
@@ -218,7 +218,7 @@ public class InfiniFrameUriSecurityPolicyTests {
     [Test]
     public async Task Registry_ConfigureForBuilder_CanAppendTrustedOriginsAcrossCalls(CancellationToken ct = default) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(builder, configure: policyBuilder => policyBuilder
@@ -236,7 +236,7 @@ public class InfiniFrameUriSecurityPolicyTests {
     [Test]
     public async Task BuilderExtensions_SetTrustAllOrigins_UpdatesBuilderPolicy(CancellationToken ct = default) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder

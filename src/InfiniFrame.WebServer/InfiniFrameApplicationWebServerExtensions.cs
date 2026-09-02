@@ -4,6 +4,8 @@
 using InfiniFrame.WebServer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -21,8 +23,8 @@ public static class InfiniFrameApplicationWebServerExtensions {
     /// <param name="app">The application instance.</param>
     /// <param name="configureWebApp">Callback to configure the <see cref="WebApplicationBuilder"/>.</param>
     /// <param name="configureWindow">Optional callback to configure the window builder.</param>
-    /// <returns>The application instance for chaining.</returns>
-    public static InfiniFrameApplication WithWebServer(
+    /// <returns>The <see cref="InfiniFrameWebApplication"/> for further configuration (e.g. <c>UseAutoServerClose()</c>).</returns>
+    public static InfiniFrameWebApplication WithWebServer(
         this InfiniFrameApplication app,
         Action<WebApplicationBuilder> configureWebApp,
         Action<IInfiniFrameWindowBuilder>? configureWindow = null
@@ -30,39 +32,36 @@ public static class InfiniFrameApplicationWebServerExtensions {
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
         configureWebApp(webAppBuilder);
 
-        // Store the web app so it can be started before window creation.
-        WebApplication? webApp = null;
+        // Build and start the web server before window creation.
+        WebApplication webApp = webAppBuilder.Build();
+        webApp.UseDefaultFiles();
+        webApp.Start();
 
-        app.SetOnBeforeRun(() => {
-            webApp = webAppBuilder.Build();
-            webApp.UseDefaultFiles();
-            webApp.Start();
-        });
+        // Create window builder and register with application.
+        var windowBuilder = new InfiniFrameWindowBuilder();
+        configureWindow?.Invoke(windowBuilder);
 
-        // Register window with the application.
-        app.WithWindow(windowBuilder => {
-            configureWindow?.Invoke(windowBuilder);
+        // Use a stable string key for the window so we can retrieve it later.
+        string windowId = $"webapp-{app.Id}";
+        app.WithWindow(windowId, windowBuilder);
 
-            // Auto-close the web server when the window closes.
-            windowBuilder.RegisterWindowClosingHandler((_, _) => {
-                _ = StopWebAppAsync();
-                return WindowClosingResult.Close;
-            });
-            windowBuilder.RegisterWindowClosingRequestedHandler(_ => {
-                _ = StopWebAppAsync();
-            });
-        });
+        // Build the wrapper.
+        var wrapper = new InfiniFrameWebApplication {
+            Logger = NullLogger<InfiniFrameWebApplication>.Instance,
+            WebApp = webApp,
+            LazyWindow = new Lazy<IInfiniFrameWindow>(() => app.GetWindow(windowId)),
+            Application = app
+        };
 
-        return app;
+        // Auto-close the web server when the window closes.
+        windowBuilder.RegisterWindowClosingHandler((_, _) => StopWebApp(webApp));
+        windowBuilder.RegisterWindowClosingRequestedHandler(_ => StopWebApp(webApp));
 
-        async Task StopWebAppAsync() {
-            if (webApp is null) return;
-            try {
-                await webApp.StopAsync(CancellationToken.None).ConfigureAwait(false);
-            }
-            catch {
-                // Best effort during shutdown.
-            }
-        }
+        return wrapper;
+    }
+
+    private static WindowClosingResult StopWebApp(WebApplication webApp) {
+        _ = webApp.StopAsync(CancellationToken.None);
+        return WindowClosingResult.Close;
     }
 }

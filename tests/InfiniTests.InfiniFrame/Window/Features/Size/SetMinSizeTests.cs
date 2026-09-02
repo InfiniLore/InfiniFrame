@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -14,7 +14,7 @@ public class SetMinSizeTests {
     [Arguments(500, 300)]
     public async Task AtBuilderStage_DirectAssignment(int width, int height, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.Size.SetMinSize(width, height);
@@ -32,7 +32,7 @@ public class SetMinSizeTests {
     [Arguments(520, 320)]
     public async Task AtBuilderStage_ExtensionAssignment(int width, int height, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetMinSize(width, height);

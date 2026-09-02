@@ -21,7 +21,7 @@ public class WebInspectorTests {
         }
 
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.Debugging.EnableWebInspector(value);
@@ -38,7 +38,7 @@ public class WebInspectorTests {
     [SkipOnMacOs("This test verifies the non-macOS unsupported-platform behavior")]
     public async Task AtBuilderStage_DirectAssignment_UnhappyFlow(bool value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act & Assert
         Assert.Throws<PlatformNotSupportedException>(() => {
@@ -64,7 +64,7 @@ public class WebInspectorTests {
         }
 
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.EnableWebInspector(value);
@@ -82,7 +82,7 @@ public class WebInspectorTests {
     [SkipOnMacOs("This test verifies the non-macOS unsupported-platform behavior")]
     public async Task AtBuilderStage_ExtensionAssignment_UnhappyFlow(bool value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act & Assert
         Assert.Throws<PlatformNotSupportedException>(() => {

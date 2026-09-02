@@ -18,7 +18,7 @@ public class BackgroundColorTests {
     [Arguments("transparent")]
     public async Task AtBuilderStage_DirectAssignment(string? value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.Decorations.SetBackgroundColor(value);
@@ -35,7 +35,7 @@ public class BackgroundColorTests {
     [Arguments("transparent")]
     public async Task AtBuilderStage_ExtensionAssignment(string? value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetBackgroundColor(value);

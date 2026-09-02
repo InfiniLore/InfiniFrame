@@ -14,7 +14,7 @@ public class BrowserControlInitParametersTests {
     [Arguments("--disable-web-security")]
     public async Task AtBuilderStage_DirectAssignment(string value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.Browser.SetBrowserControlInitParameters(value);
@@ -30,7 +30,7 @@ public class BrowserControlInitParametersTests {
     [Arguments("--disable-features=IsolateOrigins")]
     public async Task AtBuilderStage_ExtensionAssignment(string value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetBrowserControlInitParameters(value);

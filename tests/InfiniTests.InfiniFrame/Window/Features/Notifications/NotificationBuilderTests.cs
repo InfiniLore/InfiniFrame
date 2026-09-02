@@ -12,7 +12,7 @@ public class NotificationBuilderTests {
     [Test]
     public async Task AtBuilderStage_DefaultNotificationIcon(CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.Notifications.SetDefaultNotificationIcon("/path/to/icon.png");
@@ -26,7 +26,7 @@ public class NotificationBuilderTests {
     [Test]
     public async Task AtBuilderStage_ClearDefaultNotificationIcon(CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.Notifications.SetDefaultNotificationIcon("/path/to/icon.png");
@@ -41,7 +41,7 @@ public class NotificationBuilderTests {
     [Test]
     public async Task AtBuilderStage_ExtensionAssignment_DefaultNotificationIcon(CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetDefaultNotificationIcon("/path/to/icon.png");
@@ -58,7 +58,7 @@ public class NotificationBuilderTests {
     [Arguments(false)]
     public async Task AtBuilderStage_EnableNotifications_WithDefaultIcon(bool enable, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.Notifications.EnableNotifications(enable);

@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Drawing;
@@ -15,7 +15,7 @@ public class SetLocationTests {
     [Arguments(300, 400)]
     public async Task AtBuilderStage_DirectAssignment(int left, int top, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.Position.SetLocation(left, top);
@@ -35,7 +35,7 @@ public class SetLocationTests {
     [Arguments(700, 800)]
     public async Task AtBuilderStage_ExtensionAssignment(int left, int top, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         Point value = new(left, top);
 
         // Act

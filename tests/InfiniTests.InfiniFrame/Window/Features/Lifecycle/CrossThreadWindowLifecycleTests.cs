@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -53,7 +53,7 @@ public class CrossThreadWindowLifecycleTests {
     private static void CreateCloseAndWaitWindow(CancellationToken ct) {
         ct.ThrowIfCancellationRequested();
 
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         builder
             .SetIconFile("wwwroot/favicon.ico")
             .SetStartPageContent(StartString);

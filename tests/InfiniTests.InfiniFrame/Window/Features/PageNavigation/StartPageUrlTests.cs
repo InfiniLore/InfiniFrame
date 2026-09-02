@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -14,7 +14,7 @@ public class StartPageUrlTests {
     [Arguments("https://example.com/b")]
     public async Task AtBuilderStage_DirectAssignment(string value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.PageNavigation.SetStartPageUrl(value);
@@ -30,7 +30,7 @@ public class StartPageUrlTests {
     [Arguments("https://example.com/d")]
     public async Task AtBuilderStage_ExtensionAssignment(string value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetStartPageUrl(value);
@@ -47,7 +47,7 @@ public class StartPageUrlTests {
     [Arguments("https://example.com/f")]
     public async Task AtBuilderStage_UriAssignment(string value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         Uri uri = new(value);
 
         // Act

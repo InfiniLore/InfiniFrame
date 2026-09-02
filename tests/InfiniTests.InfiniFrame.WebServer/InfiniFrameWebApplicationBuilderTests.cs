@@ -4,6 +4,7 @@
 using InfiniFrame;
 using InfiniFrame.Security;
 using InfiniFrame.WebServer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InfiniTests.InfiniFrame.WebServer;
@@ -12,10 +13,16 @@ namespace InfiniTests.InfiniFrame.WebServer;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWebApplicationBuilderTests {
 
+    private static InfiniFrameWebApplicationBuilder CreateBuilder()
+        => new() {
+            WebApp = WebApplication.CreateBuilder(),
+            WindowBuilder = new InfiniFrameWindowBuilder()
+        };
+
     [Test]
     public async Task CreateBuilder_ShouldReturnBuilderWithWebAppAndWindowBuilder(CancellationToken ct = default) {
         // Arrange & Act
-        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+        InfiniFrameWebApplicationBuilder builder = CreateBuilder();
 
         // Assert
         await Assert.That(builder).IsNotNull();
@@ -26,7 +33,7 @@ public class InfiniFrameWebApplicationBuilderTests {
     [Test]
     public async Task Initialize_RegistersInfiniFrameServices(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+        InfiniFrameWebApplicationBuilder builder = CreateBuilder();
 
         // Act
         InfiniFrameWebApplicationBuilder result = builder.Initialize();
@@ -39,7 +46,7 @@ public class InfiniFrameWebApplicationBuilderTests {
     [Test]
     public async Task Initialize_RegistersIInfiniFrameWindowAsSingleton(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+        InfiniFrameWebApplicationBuilder builder = CreateBuilder();
 
         // Act
         builder.Initialize();
@@ -53,7 +60,7 @@ public class InfiniFrameWebApplicationBuilderTests {
     [Test]
     public async Task Initialize_RegistersGetWebMessageHandler(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+        InfiniFrameWebApplicationBuilder builder = CreateBuilder();
 
         // Act
         builder.Initialize();
@@ -65,7 +72,7 @@ public class InfiniFrameWebApplicationBuilderTests {
     [Test]
     public async Task Initialize_WithUrlsConfig_SetsStartPageUrl(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+        InfiniFrameWebApplicationBuilder builder = CreateBuilder();
         builder.WebApp.Configuration["ASPNETCORE_URLS"] = "https://localhost:7210";
 
         // Act
@@ -78,7 +85,7 @@ public class InfiniFrameWebApplicationBuilderTests {
     [Test]
     public async Task Initialize_WithMultipleUrls_PicksFirstUrl(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+        InfiniFrameWebApplicationBuilder builder = CreateBuilder();
         builder.WebApp.Configuration["ASPNETCORE_URLS"] = "https://localhost:7210;http://localhost:5210";
 
         // Act
@@ -91,7 +98,7 @@ public class InfiniFrameWebApplicationBuilderTests {
     [Test]
     public async Task Initialize_WithNoUrls_DoesNotConfigureStartPage(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+        InfiniFrameWebApplicationBuilder builder = CreateBuilder();
 
         // Act
         builder.Initialize();
@@ -103,7 +110,7 @@ public class InfiniFrameWebApplicationBuilderTests {
     [Test]
     public async Task Build_CreatesWebApplication(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+        InfiniFrameWebApplicationBuilder builder = CreateBuilder();
 
         // Act
         InfiniFrameWebApplication app = builder.Build();
@@ -118,7 +125,7 @@ public class InfiniFrameWebApplicationBuilderTests {
     [Test]
     public async Task Build_WithUrlConfig_ConfiguresSecurityPolicy(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+        InfiniFrameWebApplicationBuilder builder = CreateBuilder();
         builder.WebApp.Configuration["ASPNETCORE_URLS"] = "https://localhost:7210";
 
         // Act
@@ -134,7 +141,7 @@ public class InfiniFrameWebApplicationBuilderTests {
     [Test]
     public async Task Build_WithNoUrl_DoesNotConfigureSecurityPolicyOrigin(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+        InfiniFrameWebApplicationBuilder builder = CreateBuilder();
 
         // Act
         InfiniFrameWebApplication app = builder.Build();
@@ -149,7 +156,7 @@ public class InfiniFrameWebApplicationBuilderTests {
     [Test]
     public async Task Build_ReturnsValidInfiniFrameWebApplication(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+        InfiniFrameWebApplicationBuilder builder = CreateBuilder();
 
         // Act
         InfiniFrameWebApplication app = builder.Build();
@@ -164,7 +171,7 @@ public class InfiniFrameWebApplicationBuilderTests {
     [Test]
     public async Task Services_ReturnsWebAppServices(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+        InfiniFrameWebApplicationBuilder builder = CreateBuilder();
 
         // Act
         IServiceCollection services = builder.Services;
@@ -176,7 +183,7 @@ public class InfiniFrameWebApplicationBuilderTests {
     [Test]
     public async Task Initialize_PrefersAspNetCoreUrlsOverUrlsConfig(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+        InfiniFrameWebApplicationBuilder builder = CreateBuilder();
         builder.WebApp.Configuration["ASPNETCORE_URLS"] = "https://localhost:7210";
         builder.WebApp.Configuration["urls"] = "http://localhost:5210";
 
@@ -190,7 +197,7 @@ public class InfiniFrameWebApplicationBuilderTests {
     [Test]
     public async Task Initialize_WithUrlsConfigOnly_UsesUrlsConfig(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+        InfiniFrameWebApplicationBuilder builder = CreateBuilder();
         builder.WebApp.Configuration["urls"] = "http://localhost:5210";
 
         // Act
@@ -203,8 +210,8 @@ public class InfiniFrameWebApplicationBuilderTests {
     [Test]
     public async Task Build_Calls_ReturnsConsistentApplication(CancellationToken ct = default) {
         // Arrange & Act
-        InfiniFrameWebApplication app1 = InfiniFrameWebApplication.CreateBuilder().Build();
-        InfiniFrameWebApplication app2 = InfiniFrameWebApplication.CreateBuilder().Build();
+        InfiniFrameWebApplication app1 = CreateBuilder().Build();
+        InfiniFrameWebApplication app2 = CreateBuilder().Build();
 
         // Assert - Each CreateBuilder().Build() produces a distinct instance
         await Assert.That(app1).IsNotSameReferenceAs(app2);

@@ -14,7 +14,7 @@ public class TitleTests {
     [Arguments("InfiniFrame Title B")]
     public async Task AtBuilderStage_DirectAssignment(string value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.Decorations.SetTitle(value);
@@ -30,7 +30,7 @@ public class TitleTests {
     [Arguments("InfiniFrame Title D")]
     public async Task AtBuilderStage_ExtensionAssignment(string value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetTitle(value);

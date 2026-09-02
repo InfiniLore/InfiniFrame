@@ -71,7 +71,6 @@ public static class IDecorationsInfiniFrameWindowBuilderFeatureExtensions {
     /// <param name="builder">The builder instance.</param>
     /// <param name="appUserModelId">The application user model ID, or <c>null</c> to use Windows' default identity.</param>
     /// <returns>The builder instance for chaining.</returns>
-    [Obsolete("WindowsAppUserModelId is now an application-level setting. Use InfiniFrameApplication.Initialize(config => config.WindowsAppUserModelId = ...) instead.")]
     public static IInfiniFrameWindowBuilder SetWindowsAppUserModelId(
         this IInfiniFrameWindowBuilder builder,
         string? appUserModelId

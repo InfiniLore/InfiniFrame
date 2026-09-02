@@ -14,7 +14,7 @@ public class SetMinHeightTests {
     [Arguments(360)]
     public async Task AtBuilderStage_DirectAssignment(int value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.Size.SetMinHeight(value);
@@ -30,7 +30,7 @@ public class SetMinHeightTests {
     [Arguments(380)]
     public async Task AtBuilderStage_ExtensionAssignment(int value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetMinHeight(value);

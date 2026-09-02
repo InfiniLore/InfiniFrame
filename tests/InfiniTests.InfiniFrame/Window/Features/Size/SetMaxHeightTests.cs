@@ -14,7 +14,7 @@ public class SetMaxHeightTests {
     [Arguments(1000)]
     public async Task AtBuilderStage_DirectAssignment(int value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.Size.SetMaxHeight(value);
@@ -30,7 +30,7 @@ public class SetMaxHeightTests {
     [Arguments(1080)]
     public async Task AtBuilderStage_ExtensionAssignment(int value, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetMaxHeight(value);

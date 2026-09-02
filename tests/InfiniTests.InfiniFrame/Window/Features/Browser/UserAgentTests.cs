@@ -17,7 +17,7 @@ public class UserAgentTests {
     [Arguments(" ", "")]
     public async Task AtBuilderStage_DirectAssignment(string? value, string? expected, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.Browser.SetUserAgent(value);
@@ -35,7 +35,7 @@ public class UserAgentTests {
     [Arguments(" ", "")]
     public async Task AtBuilderStage_ExtensionAssignment(string? value, string? expected, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetUserAgent(value);

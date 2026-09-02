@@ -14,14 +14,15 @@ public static class Program {
     public static void Main(string[] args) {
         InfiniFrameSingleFile.Initialize();
 
-        IInfiniFrameWindowBuilder builder = InfiniFrameWindowBuilder.Create()
-            .SetTitle("InfiniFrame + Vue")
-            .SetSize(new Size(960, 640))
-            .CenteredOnMainMonitor();
+        InfiniFrameApplication app = InfiniFrameApplication.Initialize()
+            .WithWindow(builder => {
+                builder
+                    .SetTitle("InfiniFrame + Vue")
+                    .SetSize(new Size(960, 640))
+                    .CenteredOnMainMonitor()
+                    .AddSingleFileRequirements();
+            });
 
-        builder.AddSingleFileRequirements();
-
-        IInfiniFrameWindow window = builder.Build();
-        window.WaitForClose();
+        app.Run();
     }
 }

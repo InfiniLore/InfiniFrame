@@ -17,41 +17,43 @@ public static class Program {
 
     [STAThread]
     public static void Main(string[] args) {
-        InfiniFrameWebApplicationBuilder appBuilder = InfiniFrameWebApplication.CreateBuilder(args);
-        // WebApplicationBuilder appBuilder = builder.WebApp;
-        appBuilder.WebApp.Services.AddSingleton<WebMessageCounter>();
+        InfiniFrameApplication app = InfiniFrameApplication.Initialize();
+        InfiniFrameWebApplication webApp = app.WithWebServer(
+            webAppBuilder => {
+                webAppBuilder.Services.AddSingleton<WebMessageCounter>();
+            },
+            windowBuilder => {
+                windowBuilder
+                    .UseOsDefaultSize(false)
+                    .SetResizable()
+                    .CenteredOnMainMonitor()
+                    .SetTitle("InfiniLore InfiniFrame.NET REACT Sample")
+                    .SetSize(new Size(800, 600))
+                    .RegisterCustomSchemeHandler("app", handler: (_, _) => (
+                        new MemoryStream([
+                            .. """
+                            (() =>{
+                                window.setTimeout(() => {
+                                    alert(`🎉 Dynamically inserted JavaScript.`);
+                                }, 1000);
+                            })();
+                            """u8
+                        ])
+                        , "text/javascript")
+                    )
+                    .RegisterWebMessageReceivedHandler((IInfiniFrameWindow window, string message, WebMessageCounter counter) => {
+                        int count = counter.Increment();
+                        string response = $"[{count}] Received message: \"{message}\"";
+                        window.SendWebMessage(response);
+                    });
+            }
+        );
 
-        appBuilder.WindowBuilder
-            .UseOsDefaultSize(false)
-            .SetResizable()
-            .CenteredOnMainMonitor()
-            .SetTitle("InfiniLore InfiniFrame.NET REACT Sample")
-            .SetSize(new Size(800, 600))
-            .RegisterCustomSchemeHandler("app", handler: (_, _) => (
-                new MemoryStream([
-                    .. """
-                    (() =>{
-                        window.setTimeout(() => {
-                            alert(`🎉 Dynamically inserted JavaScript.`);
-                        }, 1000);
-                    })();
-                    """u8
-                ])
-                , "text/javascript")
-            )
-            .RegisterWebMessageReceivedHandler((IInfiniFrameWindow window, string message, WebMessageCounter counter) => {
-                int count = counter.Increment();
-                string response = $"[{count}] Received message: \"{message}\"";
-                window.SendWebMessage(response);
-            });
+        webApp.UseAutoServerClose();
 
-        InfiniFrameWebApplication application = appBuilder.Build();
+        webApp.WebApp.UseStaticFiles();
+        webApp.WebApp.MapStaticAssets();
 
-        application.UseAutoServerClose();
-
-        application.WebApp.UseStaticFiles();
-        application.WebApp.MapStaticAssets();
-
-        application.Run();
+        app.Run();
     }
 }

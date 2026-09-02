@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -14,7 +14,7 @@ public class SetMaxSizeTests {
     [Arguments(1920, 1080)]
     public async Task AtBuilderStage_DirectAssignment(int width, int height, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Features.Size.SetMaxSize(width, height);
@@ -32,7 +32,7 @@ public class SetMaxSizeTests {
     [Arguments(2000, 1120)]
     public async Task AtBuilderStage_ExtensionAssignment(int width, int height, CancellationToken ct) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetMaxSize(width, height);

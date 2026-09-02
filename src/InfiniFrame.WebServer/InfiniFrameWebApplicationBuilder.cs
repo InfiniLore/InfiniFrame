@@ -23,7 +23,7 @@ public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilde
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    internal InfiniFrameWebApplicationBuilder Initialize(IInfiniFrameApplication? application = null) {
+    public InfiniFrameWebApplicationBuilder Initialize(IInfiniFrameApplication? application = null) {
         Services
             .AddInfiniFrame()
             .AddSingleton(WindowBuilder)

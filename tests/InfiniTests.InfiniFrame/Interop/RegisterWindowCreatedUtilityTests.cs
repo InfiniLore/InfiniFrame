@@ -17,7 +17,7 @@ public class RegisterWindowCreatedUtilityTests {
         // Arrange
         const string registrationMessageId = "__infiniframe:register:test";
         string readyEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("__infiniframe:ready");
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
         var events = new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance);
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
@@ -54,7 +54,7 @@ public class RegisterWindowCreatedUtilityTests {
         // Arrange
         const string registrationMessageId = "__infiniframe:register:test";
         string readyEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("__infiniframe:ready");
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
         var events = new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance);
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
@@ -81,7 +81,7 @@ public class RegisterWindowCreatedUtilityTests {
         // Arrange
         const string registrationMessageId = "__infiniframe:register:test";
         string readyEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("__infiniframe:ready");
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
         var events = new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance);
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()

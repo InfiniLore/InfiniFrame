@@ -12,7 +12,7 @@ public class DebuggingStartupParametersTests {
     [Test]
     public async Task Builder_DebuggingProperty_UsesDebuggingFeatureInstance(CancellationToken ct = default) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Assert
         await Assert.That(builder.Debugging).IsSameReferenceAs(builder.Features.Debugging);
@@ -28,7 +28,7 @@ public class DebuggingStartupParametersTests {
         CancellationToken ct
     ) {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
 
         // Act
         builder.Debugging.EnableDevTools(devToolsEnabled);
