@@ -162,6 +162,9 @@ public sealed class InfiniFrameApplication(
         ObjectDisposedException.ThrowIf(_disposed != 0, this);
         ArgumentNullException.ThrowIfNull(config);
 
+        // Skip if already initialized — the first config wins.
+        if (_handle is not null) return;
+
         _configuration = config;
 
         var parameters = new ApplicationInitParameters {

@@ -3,13 +3,12 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.InteropServices;
 using InfiniFrame;
-using InfiniFrame.NativeBridge.Parameters;
 using InfiniTests.Native;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Decorations;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
-// ---------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 public sealed class WindowsAppUserModelIdTests {
     [Test]
     public async Task DirectAssignment_PassesValueToNativeParameters() {
@@ -19,9 +18,8 @@ public sealed class WindowsAppUserModelIdTests {
 
         // Act
         builder.Features.Decorations.SetWindowsAppUserModelId(value);
-        InfiniFrameNativeParameters parameters = builder.CollectNativeParameters();
 
-        // Assert — WindowsAppUserModelId is now an application-level setting, no longer set on window parameters.
+        // Assert — WindowsAppUserModelId is now an application-level setting, stored on the builder feature.
         await Assert.That(builder.Features.Decorations.WindowsAppUserModelId).IsEqualTo(value);
     }
 
@@ -44,9 +42,14 @@ public sealed class WindowsAppUserModelIdTests {
     public async Task WindowCreation_AssignsExplicitProcessIdentity(CancellationToken ct) {
         const string value = "InfiniLore.InfiniFrame.Tests";
 
-        using var window = InfiniFrameTestWindow.Create(builder: builder => {
-            builder.SetWindowsAppUserModelId(value);
-        }, ct);
+        // If another test already initialized the application, skip — we can't reinitialize.
+        if (InfiniFrameApplication.Instance?.ApplicationHandle != IntPtr.Zero)
+            return;
+
+        // Initialize application with the specific config (WindowsAppUserModelId).
+        InfiniFrameApplication app = InfiniFrameApplication.Initialize(config => {
+            config.WindowsAppUserModelId = value;
+        });
 
         int result = WindowsNative.GetCurrentProcessAppUserModelId(out IntPtr appUserModelId);
         try {

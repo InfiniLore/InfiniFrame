@@ -16,7 +16,7 @@ namespace InfiniFrame;
 /// </summary>
 public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
-    private IServiceCollection Services { get; init; } = new ServiceCollection().AddInfiniFrame().AddTransient<InfiniFrameWindow>();
+    private IServiceCollection Services { get; init; } = new ServiceCollection().AddLogging().AddInfiniFrame().AddTransient<InfiniFrameWindow>();
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.Configuration" />
     public IInfiniFrameWindowBuilderConfiguration Configuration { get; } = new InfiniFrameWindowBuilderConfiguration();
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.Features" />
