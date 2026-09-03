@@ -115,13 +115,7 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
 
             RunApp(app);
         }
-        catch (InvalidOperationException ex) {
-            ready.TrySetException(ex);
-        }
-        catch (TimeoutException ex) {
-            ready.TrySetException(ex);
-        }
-        catch (PlaywrightException ex) {
+        catch (Exception ex) {
             ready.TrySetException(ex);
         }
     }

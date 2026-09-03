@@ -222,6 +222,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [Test]
     [NotInParallelInfiniTests]
     [SkipOnLinux("Given init parameters are not supported on Linux")]
+    [Timeout(30_000)]
     public async Task SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWorkOnWindow(CancellationToken ct = default) {
         // Arrange
         string[] args = [];
@@ -255,6 +256,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [Test]
     [NotInParallelInfiniTests]
     [SkipOnLinux("Given init parameters are not supported on Linux")]
+    [Timeout(30_000)]
     public async Task SetBrowserControlInitParameters_ThroughAppBuilder_ShouldWorkOnWindow(CancellationToken ct = default) {
         // Arrange
         string[] args = [];
@@ -287,6 +289,7 @@ public class InfiniFrameBlazorAppBuilderTests {
 
     [Test]
     [NotInParallelInfiniTests]
+    [Timeout(30_000)]
     public async Task Build_SetsStartupUrlToAppBaseForDefaultHostPage(CancellationToken ct = default) {
         // Arrange
         var appBuilder = new InfiniFrameBlazorAppBuilder();
@@ -302,6 +305,7 @@ public class InfiniFrameBlazorAppBuilderTests {
 
     [Test]
     [NotInParallelInfiniTests]
+    [Timeout(30_000)]
     public async Task Build_TrustsAppOriginForFragmentNavigation(CancellationToken ct = default) {
         var appBuilder = new InfiniFrameBlazorAppBuilder();
 
@@ -314,6 +318,7 @@ public class InfiniFrameBlazorAppBuilderTests {
 
     [Test]
     [NotInParallelInfiniTests]
+    [Timeout(30_000)]
     public async Task Build_SetsStartupUrlToConfiguredNonDefaultHostPage(CancellationToken ct = default) {
         // Arrange
         var appBuilder = new InfiniFrameBlazorAppBuilder();
@@ -332,6 +337,7 @@ public class InfiniFrameBlazorAppBuilderTests {
 
     [Test]
     [NotInParallelInfiniTests]
+    [Timeout(30_000)]
     public async Task Build_SetsWindowBuilderStaticAssets(CancellationToken ct = default) {
         // Arrange
         var appBuilder = new InfiniFrameBlazorAppBuilder();
@@ -348,6 +354,7 @@ public class InfiniFrameBlazorAppBuilderTests {
 
     [Test]
     [NotInParallelInfiniTests]
+    [Timeout(30_000)]
     public async Task Build_PopulatesNativeStartupCustomSchemeCallback(CancellationToken ct = default) {
         // Arrange
         var appBuilder = new InfiniFrameBlazorAppBuilder();

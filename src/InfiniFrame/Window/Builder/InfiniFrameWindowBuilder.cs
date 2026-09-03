@@ -58,7 +58,13 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             throw new InstanceAlreadyRunningException();
         }
 
-        var window = (InfiniFrameWindow)actualProvider.GetRequiredService<IInfiniFrameWindow>();
+        // Create the window directly using ActivatorUtilities instead of resolving
+        // from the provider. This breaks the circular dependency where the lazy
+        // IInfiniFrameWindow factory (from InfiniFrameBlazorAppBuilder) calls
+        // Build(provider), which resolves IInfiniFrameWindow from the same provider.
+        var window = (InfiniFrameWindow)ActivatorUtilities.CreateInstance(
+            actualProvider,
+            typeof(InfiniFrameWindow));
         window.SetOwnsServiceProvider(ownsServiceProvider);
 
         window.AssignFeatures(featureFactory.Create(window, this));
