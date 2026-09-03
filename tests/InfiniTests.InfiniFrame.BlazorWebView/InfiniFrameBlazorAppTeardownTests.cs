@@ -16,6 +16,7 @@ public sealed class InfiniFrameBlazorAppTeardownTests {
     [OnlyRunOnWindowsX64]
     [NotInParallelInfiniTests]
     [SupportedOSPlatform("windows")]
+    [Timeout(45_000)]
     public async Task Run_WindowClosed_CompletesRendererDisposal(CancellationToken ct = default) {
         // Arrange
         var windowReady = new TaskCompletionSource<IInfiniFrameWindow>(TaskCreationOptions.RunContinuationsAsynchronously);

@@ -84,6 +84,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
 
     [Test]
     [NotInParallelInfiniAutomationTests]
+    [Timeout(30_000)]
     public async Task JsComponent_WithoutInitializer_AutoRegisters_AsCustomElement_ByDefault(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
 
