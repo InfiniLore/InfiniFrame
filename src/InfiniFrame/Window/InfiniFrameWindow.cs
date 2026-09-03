@@ -291,6 +291,10 @@ public sealed class InfiniFrameWindow(
         handle?.Dispose();
     }
 
+    void IInfiniFrameWindow.MarkNativeHandleSafeToDestroy() {
+        Volatile.Read(ref _instanceHandle)?.MarkSafeToDestroy();
+    }
+
     public NativeHandleLease AcquireNativeHandle(NativeHandleAccess access = NativeHandleAccess.Feature) {
         InfiniFrameWindowLifecycleState state = LifecycleState;
         bool allowed = access switch {

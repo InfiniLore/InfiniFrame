@@ -346,6 +346,7 @@ public class OpenExternalTargetWebMessageHandlerTests {
         void IInfiniFrameWindow.MarkNativeHandleReleased() => throw new NotSupportedException();
         void IInfiniFrameWindow.MarkDisposed() => throw new NotSupportedException();
         void IInfiniFrameWindow.ReleaseNativeHandle() => throw new NotSupportedException();
+        void IInfiniFrameWindow.MarkNativeHandleSafeToDestroy() => throw new NotSupportedException();
         void IInfiniFrameWindow.SetManagedThreadId(int managedThreadId) => throw new NotSupportedException();
     }
 }

@@ -70,6 +70,7 @@ public interface IInfiniFrameWindow : IHasInfiniFrameEventsStore, INativeWindowH
     internal void MarkNativeHandleReleased();
     internal void MarkDisposed();
     internal void ReleaseNativeHandle();
+    internal void MarkNativeHandleSafeToDestroy();
 
     /// <summary>
     ///     Updates the managed thread ID used for invoke dispatching.

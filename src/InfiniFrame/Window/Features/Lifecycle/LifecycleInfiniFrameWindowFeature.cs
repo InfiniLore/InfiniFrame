@@ -354,9 +354,42 @@ public class LifecycleInfiniFrameWindowFeature(
 
         if (window.LifecycleState < InfiniFrameWindowLifecycleState.TeardownComplete
             && window.LifecycleState != InfiniFrameWindowLifecycleState.Disposed) {
-            // The normal teardown path hasn't completed yet. Still release callback roots
-            // and milestones to avoid leaks, and release the native handle so .NET 10's
-            // runtime doesn't abort during shutdown over unreleased SafeHandles.
+            // The normal teardown path hasn't completed yet. The native
+            // ScheduleTeardownCompletion (WM_NCDESTROY) queued a thread pool
+            // work item that accesses the C++ object via a raw this pointer.
+            // We must not free the C++ object until that work item finishes.
+            //
+            // Finalizer path (disposing == false): The GC finalizer runs on a
+            // dedicated thread and must not block waiting for the thread pool.
+            // Release only managed callback roots/markers here; the native
+            // handle itself is released by the explicit Dispose(true) path
+            // after waiting for _teardown, or by the NativeWindowHandle
+            // finalizer as a last resort.
+            if (!disposing) {
+                ReleaseNativeCallbackRootOnce();
+                ReleaseMilestoneRootOnce();
+                try { window.MarkDisposed(); }
+                catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
+                    logger.LogWarning(ex, "MarkDisposed failed during finalization");
+                }
+
+                return;
+            }
+
+            // Explicit Dispose path: wait for the teardown thread pool work
+            // item to complete before releasing the native handle, preventing
+            // use-after-free of the C++ object. Safe to block when the message
+            // loop has already exited or we are not on the owning STA thread.
+            if (Volatile.Read(ref _messageLoopExited) != 0
+                || Environment.CurrentManagedThreadId != window.ManagedThreadId) {
+                try {
+                    _teardown.Task.GetAwaiter().GetResult();
+                }
+                catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
+                    logger.LogTrace(ex, "Teardown wait failed during emergency disposal.");
+                }
+            }
+
             ReleaseNativeCallbackRootOnce();
             ReleaseMilestoneRootOnce();
             try { window.ReleaseNativeHandle(); }
@@ -447,6 +480,7 @@ public class LifecycleInfiniFrameWindowFeature(
 
     private void CompleteTeardown() {
         window.MarkTeardownComplete();
+        window.MarkNativeHandleSafeToDestroy();
         _teardown.TrySetResult();
         if (Volatile.Read(ref _disposed) != 0)
             CleanupClosedHandleAndCallbacks(true);
