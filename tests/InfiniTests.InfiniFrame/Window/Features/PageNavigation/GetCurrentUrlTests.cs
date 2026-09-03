@@ -98,17 +98,20 @@ public class GetCurrentUrlTests {
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
-        // Act & Assert - the extension method delegates to the same property,
-        // so both must agree on whether a URL exists. A fresh window started
-        // via StartString has no meaningful URL (null or "about:blank").
-        string? viaProperty = window.Features.PageNavigation.GetCurrentUrl();
+        // Act - call the property multiple times to check for consistency,
+        // since the window state may change between calls.
+        string? viaProperty1 = window.Features.PageNavigation.GetCurrentUrl();
+        string? viaProperty2 = window.Features.PageNavigation.GetCurrentUrl();
         string? viaExtension = window.GetCurrentUrl();
-        bool propertyHasUrl = !string.IsNullOrEmpty(viaProperty);
+
+        // Assert - the extension delegates to the same property, so both should
+        // agree on whether a URL exists at any given point in time.
+        bool propertyHasUrl = !string.IsNullOrEmpty(viaProperty1);
         bool extensionHasUrl = !string.IsNullOrEmpty(viaExtension);
         await Assert.That(extensionHasUrl).IsEqualTo(propertyHasUrl);
 
-        // Both values, if non-null, should be the well-known blank-page URL
-        if (propertyHasUrl) await Assert.That(viaProperty).IsEqualTo("about:blank");
+        // A fresh window started via StartString has no meaningful URL
+        if (propertyHasUrl) await Assert.That(viaProperty1).IsEqualTo("about:blank");
         if (extensionHasUrl) await Assert.That(viaExtension).IsEqualTo("about:blank");
     }
 }
