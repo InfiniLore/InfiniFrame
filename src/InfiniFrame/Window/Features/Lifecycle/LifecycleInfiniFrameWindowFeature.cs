@@ -392,7 +392,10 @@ public class LifecycleInfiniFrameWindowFeature(
 
             ReleaseNativeCallbackRootOnce();
             ReleaseMilestoneRootOnce();
-            try { window.ReleaseNativeHandle(); }
+            try {
+                window.MarkNativeHandleSafeToDestroy();
+                window.ReleaseNativeHandle();
+            }
             catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
                 logger.LogWarning(ex, "ReleaseNativeHandle failed during disposal");
             }
@@ -417,6 +420,7 @@ public class LifecycleInfiniFrameWindowFeature(
         if (Interlocked.Exchange(ref _cleanupCompleted, 1) != 0) return;
 
         try {
+            window.MarkNativeHandleSafeToDestroy();
             window.ReleaseNativeHandle();
             window.MarkNativeHandleReleased();
             window.MarkDisposed();
@@ -480,7 +484,6 @@ public class LifecycleInfiniFrameWindowFeature(
 
     private void CompleteTeardown() {
         window.MarkTeardownComplete();
-        window.MarkNativeHandleSafeToDestroy();
         _teardown.TrySetResult();
         if (Volatile.Read(ref _disposed) != 0)
             CleanupClosedHandleAndCallbacks(true);

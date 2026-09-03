@@ -55,6 +55,12 @@ public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilde
     /// </summary>
     /// <returns>The built <see cref="InfiniFrameWebApplication"/>.</returns>
     public InfiniFrameWebApplication Build() {
+        // Ensure core InfiniFrame services are registered even when Initialize() was not called.
+        if (!Services.Any(static s => s.ServiceType == typeof(IInfiniFrameApplication))) {
+            Services.AddInfiniFrame();
+            WindowBuilder.RegisterGetWebMessageHandler();
+        }
+
         WebApplication webApp = WebApp.Build();
 
         webApp.UseDefaultFiles();
