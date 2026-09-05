@@ -2,6 +2,9 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Api/Exports/Exports.h"
+#ifdef __APPLE__
+#include "Runtime/Platform/Mac/MacDiagnostics.h"
+#endif
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -11,6 +14,9 @@ extern "C" {
 /// @param[out] value Receives the newly created window handle.
 /// @return InteropStatus
 EXPORTED InteropStatus InfiniFrameNative_ctor(InfiniFrameInitParams* initParams, InfiniFrameWindow** value) {
+#ifdef __APPLE__
+    infiniframe::macos::InstallDiagnostics();
+#endif
     ResetOut(value, static_cast<InfiniFrameWindow*>(nullptr));
     return RunExportStatus(
         [&] {
