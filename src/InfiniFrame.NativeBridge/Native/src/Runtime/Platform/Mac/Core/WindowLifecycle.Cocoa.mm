@@ -122,34 +122,24 @@ void InfiniFrameWindow::CloseWebView()
 void InfiniFrameWindow::CompleteCloseAfterWebKitTeardown()
 {
     infiniframe::macos::LogLifecycle("window-webkit-teardown-complete", this);
+
+    // Complete all synchronous teardown BEFORE firing the managed callback.
+    // InvokeClosed() fires a managed callback that may synchronously dispose
+    // the window (triggering ~InfiniFrameWindow on the main thread).  If that
+    // happens, `this` and m_impl are destroyed and any subsequent member
+    // access is undefined behaviour — the mutex-lock crashes observed on macOS.
+    SignalWindowClosed();
+    ScheduleTeardownCompletion();
+
     {
         infiniframe::macos::NativeCallbackScope callbackScope;
         InvokeClosed();
     }
 
-    // InvokeClosed() fires a managed callback that may synchronously dispose the window
-    // (triggering ~InfiniFrameWindow on the main thread).  If that happened, m_impl has
-    // been destroyed and we must not touch it again — the destructor already handled
-    // SignalWindowClosed / teardown.
-    if (_destroying.load(std::memory_order_acquire))
-        return;
-
-    SignalWindowClosed();
-    ScheduleTeardownCompletion();
-
-    // Defer one main-queue turn so SafeHandle disposal from a reverse P/Invoke callback never
-    // deletes the C++ session while AppKit is unwinding through that callback.
-    // Use an atomic compare-exchange to guarantee only one dispatch_async(delete this) is queued,
-    // even when ScheduleDeferredDestruction and CloseWebView race from different threads.
-    if (m_impl->_nativeDestructionScheduled.load(std::memory_order_acquire)) {
-        bool expected = false;
-        if (m_impl->_deletionQueued.compare_exchange_strong(expected, true,
-                std::memory_order_acq_rel, std::memory_order_relaxed)) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                delete this;
-            });
-        }
-    }
+    // After InvokeClosed() the object may already be destroyed — do NOT touch
+    // `this` or `m_impl` here.  If _nativeDestructionScheduled was set before
+    // we reached this point, ScheduleDeferredDestruction already queued
+    // dispatch_async(delete this) on the main queue.
 }
 
 void InfiniFrameWindow::ScheduleTeardownCompletion()
