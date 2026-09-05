@@ -316,10 +316,11 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         ApplyInitMenuBar(initParams->MenuBarJson);
     }
 
-    bool isAlreadyShown = initParams->Minimized || initParams->Maximized;
-    Show(isAlreadyShown);
     if (InfiniFrameApplication* application = InfiniFrameApplication::GetInstance())
         application->TrackWindow(this);
+
+    bool isAlreadyShown = initParams->Minimized || initParams->Maximized;
+    Show(isAlreadyShown);
 }
 
 InfiniFrameWindow::~InfiniFrameWindow() {

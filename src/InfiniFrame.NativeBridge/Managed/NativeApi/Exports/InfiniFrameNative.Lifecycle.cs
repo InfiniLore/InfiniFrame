@@ -10,6 +10,44 @@ namespace InfiniFrame.NativeBridge;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public partial class InfiniFrameNative {
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeApplication_ctor", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial InfiniFrameNativeInteropStatus ApplicationConstructorNative(out IntPtr value);
+
+    internal static InfiniFrameNativeInteropStatus ApplicationConstructor(out IntPtr value)
+        => ApplicationConstructorNative(out value);
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeApplication_Register", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus ApplicationRegister(IntPtr instance);
+
+    [LibraryImport(
+        ArtifactManifest.NativeLibraryName,
+        EntryPoint = "InfiniFrameNativeApplication_Configure",
+        SetLastError = true,
+        StringMarshalling = StringMarshalling.Utf8
+    )]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus ApplicationConfigure(
+        IntPtr instance,
+        string? webView2RuntimePath,
+        string? notificationRegistrationId,
+        string? appUserModelId,
+        string? defaultNotificationIcon
+    );
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeApplication_Run", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus ApplicationRun(IntPtr instance);
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeApplication_Shutdown", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus ApplicationShutdown(IntPtr instance);
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeApplication_dtor")]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus ApplicationDestructor(IntPtr instance);
+
     /// <summary>
     ///     Creates a new native window instance with the specified parameters.
     /// </summary>

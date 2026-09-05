@@ -22,7 +22,14 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
     private string ServerUrl => $"http://127.0.0.1:{_serverPort}";
 
     protected void BeforeAll()
-        => StartUtilityWithFreshPorts();
+    {
+        StartUtilityWithFreshPorts();
+
+        // Warm the CDP connection during assembly setup. WebView2 startup can be
+        // delayed under the full parallel solution workload; deferring the first
+        // connection to a test subjects it to the short per-test timeout.
+        GetOrCreateBrowserAsync().GetAwaiter().GetResult();
+    }
 
     protected async ValueTask AfterAllAsync() {
         BeforeAssemblyTeardown();

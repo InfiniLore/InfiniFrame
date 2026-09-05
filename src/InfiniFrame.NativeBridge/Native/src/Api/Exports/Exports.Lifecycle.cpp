@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Api/Exports/Exports.h"
+#include "Runtime/Shared/Application/InfiniFrameApplication.h"
 #ifdef __linux__
 #include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
 #endif
@@ -9,6 +10,85 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
+/// @brief Creates a native application instance.
+EXPORTED InteropStatus InfiniFrameNativeApplication_ctor(InfiniFrameApplication** value) {
+    ResetOut(value, static_cast<InfiniFrameApplication*>(nullptr));
+    return RunExportStatus(
+        [&] {
+            if (!EnsureOutNotNull(value, "value")) return;
+            auto instance = std::make_unique<InfiniFrameApplication>();
+            *value = instance.release();
+        });
+}
+
+/// @brief Registers process-wide native application state.
+EXPORTED InteropStatus InfiniFrameNativeApplication_Register(InfiniFrameApplication* instance) {
+    return RunExportStatus(
+        [&] {
+            if (!EnsureNotNull(instance, "instance")) return;
+            instance->Register();
+        });
+}
+
+EXPORTED InteropStatus InfiniFrameNativeApplication_Configure(
+    InfiniFrameApplication* instance,
+    const char* webView2RuntimePath,
+    const char* notificationRegistrationId,
+    const char* appUserModelId,
+    const char* defaultNotificationIcon
+) {
+    return RunExportStatus(
+        [&] {
+            if (!EnsureNotNull(instance, "instance")) return;
+            instance->Configure(
+                webView2RuntimePath,
+                notificationRegistrationId,
+                appUserModelId,
+                defaultNotificationIcon
+            );
+        });
+}
+
+/// @brief Runs the native application loop.
+EXPORTED InteropStatus InfiniFrameNativeApplication_Run(InfiniFrameApplication* instance) {
+    return RunExportStatus(
+        [&] {
+            if (!EnsureNotNull(instance, "instance")) return;
+            instance->Run();
+        });
+}
+
+/// @brief Requests native application shutdown.
+EXPORTED InteropStatus InfiniFrameNativeApplication_Shutdown(InfiniFrameApplication* instance) {
+    return RunExportStatus(
+        [&] {
+            if (!EnsureNotNull(instance, "instance")) return;
+            instance->Shutdown();
+        });
+}
+
+/// @brief Destroys a native application instance.
+EXPORTED InteropStatus InfiniFrameNativeApplication_dtor(InfiniFrameApplication* instance) {
+    return RunExportStatus(
+        [&] {
+            if (!EnsureNotNull(instance, "instance")) return;
+            std::unique_ptr<InfiniFrameApplication> guard{instance};
+        });
+}
+
+/// @brief Returns the number of native windows tracked by the application.
+EXPORTED InteropStatus InfiniFrameNativeApplication_GetWindowCount(
+    InfiniFrameApplication* instance,
+    std::size_t* value
+) {
+    ResetOut(value, static_cast<std::size_t>(0));
+    return RunExportStatus(
+        [&] {
+            if (!EnsureNotNull(instance, "instance") || !EnsureOutNotNull(value, "value")) return;
+            *value = instance->GetWindowCount();
+        });
+}
+
 /// @brief Creates a new native window with the given parameters.
 /// @param initParams Initialization parameters for the window.
 /// @param[out] value Receives the newly created window handle.

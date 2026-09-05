@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Runtime/Platform/Windows/DarkMode.h"
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
+#include "Runtime/Shared/Application/InfiniFrameApplication.h"
 #include "Runtime/Shared/Operations/NativeOperation.h"
 #include "Runtime/Shared/Window/InfiniFrameWindow.h"
 #include <shellapi.h>
@@ -171,7 +172,9 @@ namespace {
         instance->CloseWebView();
         instance->InvokeClosed();
         TraceTeardown(L"WM_DESTROY end hwnd=%p instance=%p", hwnd, instance);
-        if (hwnd == messageLoopRootWindowHandle)
+        if (InfiniFrameApplication* application = InfiniFrameApplication::GetInstance())
+            application->NotifyWindowClosed(instance);
+        else if (hwnd == messageLoopRootWindowHandle)
             PostQuitMessage(0);
 
         return 0;
@@ -307,7 +310,9 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
         case WM_DESTROY: {
             if (auto* instance = LookupWindowInstance(hwnd))
                 return handle_window_destruction(hwnd, instance, instance->m_impl.get());
-            if (hwnd == messageLoopRootWindowHandle)
+            if (InfiniFrameApplication* application = InfiniFrameApplication::GetInstance())
+                application->NotifyWindowClosed(nullptr);
+            else if (hwnd == messageLoopRootWindowHandle)
                 PostQuitMessage(0);
             return 0;
         }
