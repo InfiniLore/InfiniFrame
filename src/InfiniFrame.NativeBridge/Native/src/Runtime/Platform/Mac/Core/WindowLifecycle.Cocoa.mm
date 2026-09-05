@@ -129,9 +129,10 @@ void InfiniFrameWindow::CompleteCloseAfterWebKitTeardown()
     // happens, `this` and m_impl are destroyed and any subsequent member
     // access is undefined behaviour — the mutex-lock crashes observed on macOS.
     //
-    // ScheduleTeardownCompletion() must call SignalTeardown() synchronously
-    // (not via CFRunLoopPerformBlock) so that it completes before any
-    // dispatch_async(delete this) queued by InvokeClosed() can run.
+    // ScheduleTeardownCompletion() dispatches SignalTeardown() to the main
+    // queue via dispatch_async (not CFRunLoopPerformBlock) so that FIFO
+    // ordering on the serial main queue guarantees it runs before any
+    // dispatch_async(delete this) queued by InvokeClosed().
     SignalWindowClosed();
     ScheduleTeardownCompletion();
 
@@ -148,25 +149,29 @@ void InfiniFrameWindow::CompleteCloseAfterWebKitTeardown()
 
 void InfiniFrameWindow::ScheduleTeardownCompletion()
 {
+    // Dispatch SignalTeardown() to the main queue FIRST, before the
+    // Complete*ForClose() calls.  Those calls fire managed callbacks that
+    // may synchronously trigger Dispose() → ScheduleDeferredDestruction() →
+    // dispatch_async(delete this) on the main queue.  By dispatching
+    // SignalTeardown() ahead of them, FIFO ordering on the serial main
+    // queue guarantees SignalTeardown() runs before delete this.
+    //
+    // The previous CFRunLoopPerformBlock approach raced with dispatch_async:
+    // GCD dispatch sources fire BEFORE CFRunLoopPerformBlock blocks in the
+    // same run-loop iteration, so delete this could destroy m_impl before
+    // SignalTeardown() locked _milestoneMutex → EINVAL → SIGABRT.
+    //
+    // SignalTeardown() only fires the managed OnNativeTeardown callback
+    // which queues CompleteTeardown() on the ThreadPool — no blocking, no
+    // reentrancy.  Firing it before operations/navigation/dialogs are
+    // completed is safe because CompleteTeardown() merely sets state on
+    // the managed lifecycle feature.
+    dispatch_async(dispatch_get_main_queue(), ^{
+        this->SignalTeardown();
+    });
     CompleteOperationsForClose();
     CompleteNavigationForClose();
     CompleteDialogsForClose();
-    // Call SignalTeardown() synchronously rather than deferring it via
-    // CFRunLoopPerformBlock.  The previous deferral raced with
-    // ScheduleDeferredDestruction(): both schedule blocks on the main run
-    // loop, but dispatch_async (used by ScheduleDeferredDestruction) is
-    // serviced by the GCD main-queue dispatch source which fires before
-    // CFRunLoopPerformBlock blocks.  When InvokeClosed() triggered
-    // synchronous managed disposal, dispatch_async(delete this) ran first,
-    // destroying m_impl (and its mutexes), and then SignalTeardown() tried
-    // to lock the already-destroyed _milestoneMutex → EINVAL → SIGABRT.
-    //
-    // Running synchronously here ensures SignalTeardown() completes before
-    // InvokeClosed() fires.  The managed OnNativeTeardown callback just
-    // queues CompleteTeardown() on the ThreadPool, so there is no
-    // re-entrancy risk.  This mirrors the synchronous fallback path used
-    // on Windows (QueueUserWorkItem failure) and Linux (InvokeIdle failure).
-    SignalTeardown();
 }
 
 void InfiniFrameWindow::ScheduleDeferredDestruction()
