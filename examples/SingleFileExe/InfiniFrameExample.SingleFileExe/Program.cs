@@ -14,7 +14,7 @@ public static class Program {
     public static void Main(string[] args) {
         InfiniFrameSingleFile.Initialize();
 
-        IInfiniFrameWindowBuilder builder = InfiniFrameWindowBuilder.Create()
+        IInfiniFrameWindowBuilder builder = new InfiniFrameWindowBuilder()
             .SetTitle("InfiniFrame Embedded wwwroot")
             .SetSize(new Size(960, 640))
             .CenteredOnMainMonitor();

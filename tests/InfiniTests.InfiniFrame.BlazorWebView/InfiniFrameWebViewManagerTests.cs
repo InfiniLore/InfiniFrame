@@ -26,7 +26,7 @@ public class InfiniFrameWebViewManagerTests {
     public async Task HandleWebRequest_FragmentAndQueryAreExcludedFromLookup(CancellationToken ct = default) {
         byte[] expected = [.. "settings-page"u8];
         var fileProvider = new RecordingFileProvider("index.html", expected);
-        var builder = InfiniFrameWindowBuilder.Create();
+        var builder = new InfiniFrameWindowBuilder();
         await using ServiceProvider provider = new ServiceCollection().AddLogging().BuildServiceProvider();
         await using var manager = new TestableInfiniFrameWebViewManager(
             builder,
@@ -58,7 +58,7 @@ public class InfiniFrameWebViewManagerTests {
         var fileProvider = new RecordingFileProvider("index.html", [.. "blocked"u8]);
         await using ServiceProvider provider = new ServiceCollection().AddLogging().BuildServiceProvider();
         await using var manager = new TestableInfiniFrameWebViewManager(
-            InfiniFrameWindowBuilder.Create(),
+            new InfiniFrameWindowBuilder(),
             provider,
             MockFactory.CreateDispatcherMock().Object,
             fileProvider,
@@ -92,7 +92,7 @@ public class InfiniFrameWebViewManagerTests {
 
         Dispatcher dispatcher = MockFactory.CreateDispatcherMock().Object;
         var manager = new TestableInfiniFrameWebViewManager(
-            InfiniFrameWindowBuilder.Create(),
+            new InfiniFrameWindowBuilder(),
             provider,
             dispatcher,
             new NullFileProvider(),
@@ -143,7 +143,7 @@ public class InfiniFrameWebViewManagerTests {
             .BuildServiceProvider();
 
         var manager = new TestableInfiniFrameWebViewManager(
-            InfiniFrameWindowBuilder.Create(),
+            new InfiniFrameWindowBuilder(),
             provider,
             MockFactory.CreateDispatcherMock().Object,
             new NullFileProvider(),
@@ -281,7 +281,7 @@ public class InfiniFrameWebViewManagerTests {
         IServiceProvider provider,
         InfiniFrameBlazorAppConfiguration? configuration = null
     ) => new(
-        InfiniFrameWindowBuilder.Create(),
+        new InfiniFrameWindowBuilder(),
         provider,
         MockFactory.CreateDispatcherMock().Object,
         new NullFileProvider(),

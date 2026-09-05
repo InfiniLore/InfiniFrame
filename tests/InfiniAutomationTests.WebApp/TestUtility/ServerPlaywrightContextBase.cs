@@ -23,12 +23,25 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
 
     protected void BeforeAll()
     {
-        StartUtilityWithFreshPorts();
+        using var startupMutex = new Mutex(false, "InfiniFrameDesktopStartup");
+        try {
+            startupMutex.WaitOne();
+        }
+        catch (AbandonedMutexException) {
+            // The previous test process exited during desktop startup.
+        }
 
-        // Warm the CDP connection during assembly setup. WebView2 startup can be
-        // delayed under the full parallel solution workload; deferring the first
-        // connection to a test subjects it to the short per-test timeout.
-        GetOrCreateBrowserAsync().GetAwaiter().GetResult();
+        try {
+            StartUtilityWithFreshPorts();
+
+            // Warm the CDP connection during assembly setup. WebView2 startup can be
+            // delayed under the full parallel solution workload; deferring the first
+            // connection to a test subjects it to the short per-test timeout.
+            GetOrCreateBrowserAsync().GetAwaiter().GetResult();
+        }
+        finally {
+            startupMutex.ReleaseMutex();
+        }
     }
 
     protected async ValueTask AfterAllAsync() {

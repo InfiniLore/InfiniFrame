@@ -29,6 +29,13 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.StaticAssets" />
     public IInfiniFrameStaticAssets? StaticAssets { get; set; }
 
+    public InfiniFrameWindowBuilder(IServiceCollection? collection = null, InfiniFrameEventsStore? events = null) {
+        EventsStore = events ?? new InfiniFrameEventsStore();
+        Services = (collection ?? new ServiceCollection())
+            .AddLogging()
+            .AddInfiniFrame();
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -83,16 +90,8 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     /// <param name="collection">Optional service collection. If <c>null</c>, a default collection with logging and InfiniFrame core services is created.</param>
     /// <param name="events">Optional pre-configured event store. If <c>null</c>, a new empty store is created.</param>
     /// <returns>A configured <see cref="InfiniFrameWindowBuilder"/> ready for feature configuration.</returns>
-    public static InfiniFrameWindowBuilder Create(IServiceCollection? collection = null, InfiniFrameEventsStore? events = null) {
-        var builder = new InfiniFrameWindowBuilder {
-            EventsStore = events ?? new InfiniFrameEventsStore(),
-            Services = (collection ?? new ServiceCollection())
-                .AddLogging()
-                .AddInfiniFrame()
-        };
-
-        return builder;
-    }
+    internal static InfiniFrameWindowBuilder Create(IServiceCollection? collection = null, InfiniFrameEventsStore? events = null)
+        => new(collection, events);
 
     internal InfiniFrameNativeParameters CollectNativeParameters() {
         var parameters = new InfiniFrameNativeParameters();

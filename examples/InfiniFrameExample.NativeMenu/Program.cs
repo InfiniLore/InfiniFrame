@@ -71,7 +71,7 @@ public static class Program {
             ]
         );
 
-        IInfiniFrameWindow window = InfiniFrameWindowBuilder.Create()
+        IInfiniFrameWindow window = new InfiniFrameWindowBuilder()
             .SetTitle("InfiniFrame Native Menu Example")
             .SetSize(new Size(960, 640))
             .CenteredOnMainMonitor()

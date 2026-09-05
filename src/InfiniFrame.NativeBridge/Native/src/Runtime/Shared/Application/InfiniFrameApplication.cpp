@@ -19,8 +19,9 @@ namespace {
         if (value == nullptr || value[0] == '\0') return {};
         const int length = MultiByteToWideChar(CP_UTF8, 0, value, -1, nullptr, 0);
         if (length <= 1) return {};
-        std::wstring result(static_cast<std::size_t>(length - 1), L'\0');
+        std::wstring result(static_cast<std::size_t>(length), L'\0');
         MultiByteToWideChar(CP_UTF8, 0, value, -1, result.data(), length);
+        result.resize(static_cast<std::size_t>(length - 1));
         return result;
     }
 }
@@ -44,9 +45,9 @@ InfiniFrameApplication* InfiniFrameApplication::GetInstance() noexcept {
 
 void InfiniFrameApplication::Register() {
     std::lock_guard lock(_mutex);
-    if (_registered) return;
 #ifdef _WIN32
     InfiniFrameWindow::Register(GetModuleHandle(nullptr));
+    if (_registered) return;
     if (!_appUserModelId.empty()) {
         const std::wstring appUserModelId = ToWindowsString(_appUserModelId.c_str());
         const HRESULT result = SetCurrentProcessExplicitAppUserModelID(appUserModelId.c_str());
@@ -69,13 +70,27 @@ void InfiniFrameApplication::Configure(
     _notificationRegistrationId = notificationRegistrationId == nullptr ? "" : notificationRegistrationId;
     _appUserModelId = appUserModelId == nullptr ? "" : appUserModelId;
     _defaultNotificationIcon = defaultNotificationIcon == nullptr ? "" : defaultNotificationIcon;
-#ifdef _WIN32
-    if (_registered && !_appUserModelId.empty()) {
-        const std::wstring identity = ToWindowsString(_appUserModelId.c_str());
-        SetCurrentProcessExplicitAppUserModelID(identity.c_str());
-    }
-#endif
 }
+
+#ifdef _WIN32
+void InfiniFrameApplication::EnsureNotificationsInitialized(const char* appName) {
+    std::lock_guard lock(_mutex);
+    if (_notificationsRegistered) return;
+    const std::string& identity = !_notificationRegistrationId.empty()
+        ? _notificationRegistrationId
+        : _appUserModelId;
+    if (identity.empty()) return;
+
+    const char* effectiveAppName = appName != nullptr && appName[0] != '\0' ? appName : identity.c_str();
+    const std::wstring windowsAppName = ToWindowsString(effectiveAppName);
+    const std::wstring windowsIdentity = ToWindowsString(identity.c_str());
+    WinToastLib::WinToast::instance()->setAppName(windowsAppName);
+    WinToastLib::WinToast::instance()->setAppUserModelId(windowsIdentity);
+    if (!WinToastLib::WinToast::instance()->initialize())
+        throw std::runtime_error("Could not initialize application notifications.");
+    _notificationsRegistered = true;
+}
+#endif
 
 void InfiniFrameApplication::Run() noexcept {
 #ifdef _WIN32
@@ -155,4 +170,8 @@ const char* InfiniFrameApplication::GetAppUserModelId() const noexcept {
 
 const char* InfiniFrameApplication::GetDefaultNotificationIcon() const noexcept {
     return _defaultNotificationIcon.c_str();
+}
+
+bool InfiniFrameApplication::HasNotificationRegistration() const noexcept {
+    return _notificationsRegistered;
 }

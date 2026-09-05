@@ -11,7 +11,7 @@ namespace InfiniFrameExample.TrimAotSmoke;
 public static class Program {
     [STAThread]
     public static void Main() {
-        IInfiniFrameWindow window = InfiniFrameWindowBuilder.Create()
+        IInfiniFrameWindow window = new InfiniFrameWindowBuilder()
             .SetTitle("InfiniFrame Trim/AOT Smoke")
             .SetSize(800, 600)
             .CenteredOnMainMonitor()

@@ -40,7 +40,7 @@ public class InfiniFrameWebApplication {
     public static InfiniFrameWebApplicationBuilder CreateBuilder(params string[] args)
         => new InfiniFrameWebApplicationBuilder {
             WebApp = WebApplication.CreateBuilder(args),
-            WindowBuilder = InfiniFrameWindowBuilder.Create()
+            WindowBuilder = new InfiniFrameWindowBuilder()
         }.Initialize();
 
     /// <summary>
@@ -134,6 +134,11 @@ public class InfiniFrameWebApplication {
     /// </summary>
     public void Stop() {
         StopAsync().GetAwaiter().GetResult();
+    }
+
+    internal async Task StopServerAsync() {
+        await StopWebAppAsync(CancellationToken.None).ConfigureAwait(false);
+        await WebApp.DisposeAsync().ConfigureAwait(false);
     }
 
     /// <summary>

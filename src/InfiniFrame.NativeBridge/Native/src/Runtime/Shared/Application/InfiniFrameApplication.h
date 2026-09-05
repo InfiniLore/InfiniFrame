@@ -44,6 +44,8 @@ class InfiniFrameApplication {
     [[nodiscard]] const char* GetNotificationRegistrationId() const noexcept;
     [[nodiscard]] const char* GetAppUserModelId() const noexcept;
     [[nodiscard]] const char* GetDefaultNotificationIcon() const noexcept;
+    [[nodiscard]] bool HasNotificationRegistration() const noexcept;
+    void EnsureNotificationsInitialized(const char* appName);
 
     private:
     static InfiniFrameApplication* s_instance;
@@ -55,8 +57,10 @@ class InfiniFrameApplication {
     std::string _notificationRegistrationId;
     std::string _appUserModelId;
     std::string _defaultNotificationIcon;
+    bool _notificationsRegistered = false;
 #ifdef _WIN32
     unsigned long _runThreadId = 0;
     bool _running = false;
+
 #endif
 };

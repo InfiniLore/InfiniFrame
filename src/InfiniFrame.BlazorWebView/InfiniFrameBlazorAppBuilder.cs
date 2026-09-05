@@ -29,7 +29,7 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
     /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.Services" />
     public IServiceCollection Services { get; } = new ServiceCollection();
     /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.WindowBuilder" />
-    public IInfiniFrameWindowBuilder WindowBuilder { get; } = InfiniFrameWindowBuilder.Create();
+    public IInfiniFrameWindowBuilder WindowBuilder { get; } = new InfiniFrameWindowBuilder();
 
     /// <summary>
     ///     Creates a default builder with standard configuration, command-line args, and window builder action.

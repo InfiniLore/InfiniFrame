@@ -17,6 +17,7 @@
 
     <ItemGroup>
         <InternalsVisibleTo Include="InfiniTests.InfiniFrame"/>
+        <InternalsVisibleTo Include="InfiniFrame.WebServer"/>
     </ItemGroup>
 
     <ItemGroup>

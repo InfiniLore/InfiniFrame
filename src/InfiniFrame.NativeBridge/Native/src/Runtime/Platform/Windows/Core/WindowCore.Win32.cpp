@@ -85,7 +85,7 @@ void InfiniFrameWindow::Register(const HINSTANCE hInstance) {
     wcx.lpszClassName = CLASS_NAME;
     wcx.hIconSm = LoadIcon(hInstance, IDI_APPLICATION);
 
-    if (RegisterClassEx(&wcx) == 0) {
+    if (RegisterClassEx(&wcx) == 0 && GetLastError() != ERROR_CLASS_ALREADY_EXISTS) {
         throw std::runtime_error("RegisterClassEx failed for window class 'InfiniFrame'.");
     }
 
@@ -114,8 +114,13 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
             );
     }
 
-    if (initParams->WindowsAppUserModelId != nullptr && initParams->WindowsAppUserModelId[0] != '\0') {
-        const std::wstring appUserModelId = ToUTF16String(initParams->WindowsAppUserModelId);
+    InfiniFrameApplication* application = InfiniFrameApplication::GetInstance();
+    const char* appUserModelIdValue = initParams->WindowsAppUserModelId;
+    if ((appUserModelIdValue == nullptr || appUserModelIdValue[0] == '\0') && application != nullptr)
+        appUserModelIdValue = application->GetAppUserModelId();
+
+    if (appUserModelIdValue != nullptr && appUserModelIdValue[0] != '\0') {
+        const std::wstring appUserModelId = ToUTF16String(appUserModelIdValue);
         m_impl->_windowsAppUserModelId = appUserModelId;
         const HRESULT result = SetCurrentProcessExplicitAppUserModelID(appUserModelId.c_str());
         if (FAILED(result)) {
@@ -153,11 +158,17 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     if (initParams->BrowserControlInitParameters != nullptr)
         m_impl->_browserControlInitParameters = ToUTF16String(initParams->BrowserControlInitParameters);
 
-    if (initParams->WebView2RuntimePath != nullptr)
-        m_impl->_webView2RuntimePath = ToUTF16String(initParams->WebView2RuntimePath);
+    const char* webView2RuntimePath = initParams->WebView2RuntimePath;
+    if ((webView2RuntimePath == nullptr || webView2RuntimePath[0] == '\0') && application != nullptr)
+        webView2RuntimePath = application->GetWebView2RuntimePath();
+    if (webView2RuntimePath != nullptr && webView2RuntimePath[0] != '\0')
+        m_impl->_webView2RuntimePath = ToUTF16String(webView2RuntimePath);
 
-    if (initParams->NotificationRegistrationId != nullptr)
-        m_impl->_notificationRegistrationId = ToUTF16String(initParams->NotificationRegistrationId);
+    const char* notificationRegistrationId = initParams->NotificationRegistrationId;
+    if ((notificationRegistrationId == nullptr || notificationRegistrationId[0] == '\0') && application != nullptr)
+        notificationRegistrationId = application->GetNotificationRegistrationId();
+    if (notificationRegistrationId != nullptr && notificationRegistrationId[0] != '\0')
+        m_impl->_notificationRegistrationId = ToUTF16String(notificationRegistrationId);
     m_impl->_remoteDebuggingPort = initParams->RemoteDebuggingPort;
 
     m_impl->_transparentEnabled = initParams->Transparent;
@@ -179,7 +190,10 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     m_impl->_statusBarEnabled = initParams->StatusBarEnabled;
     m_impl->_browserShortcutsEnabled = initParams->BrowserShortcutsEnabled;
     m_impl->_notificationsEnabled = initParams->NotificationsEnabled;
-    m_impl->_defaultNotificationIcon = ToUTF8String(initParams->DefaultNotificationIcon);
+    const char* defaultNotificationIcon = initParams->DefaultNotificationIcon;
+    if ((defaultNotificationIcon == nullptr || defaultNotificationIcon[0] == '\0') && application != nullptr)
+        defaultNotificationIcon = application->GetDefaultNotificationIcon();
+    m_impl->_defaultNotificationIcon = ToUTF8String(defaultNotificationIcon);
 
     m_impl->_zoom = initParams->Zoom;
     m_impl->_minWidth = initParams->MinWidth;
@@ -295,7 +309,12 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         SetTopmost(true);
 
     if (initParams->NotificationsEnabled) {
-        if (!m_impl->_windowsAppUserModelId.empty())
+        if (application != nullptr && !application->HasNotificationRegistration())
+            application->EnsureNotificationsInitialized(initParams->Title);
+        if (application != nullptr && application->HasNotificationRegistration()) {
+            // Notification identity and WinToast initialization are application-owned.
+        }
+        else if (!m_impl->_windowsAppUserModelId.empty())
             WinToast::instance()->setAppUserModelId(m_impl->_windowsAppUserModelId.c_str());
         else if (!m_impl->_notificationRegistrationId.empty())
             WinToast::instance()->setAppUserModelId(m_impl->_notificationRegistrationId.c_str());
@@ -303,7 +322,8 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
             WinToast::instance()->setAppUserModelId(m_impl->_windowTitle.c_str());
 
         m_impl->_toastHandler = std::make_unique<WinToastHandler>(this);
-        WinToast::instance()->initialize();
+        if (application == nullptr || !application->HasNotificationRegistration())
+            WinToast::instance()->initialize();
     }
 
     m_impl->_dialog = std::make_unique<InfiniFrameDialog>(this);
@@ -316,8 +336,8 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         ApplyInitMenuBar(initParams->MenuBarJson);
     }
 
-    if (InfiniFrameApplication* application = InfiniFrameApplication::GetInstance())
-        application->TrackWindow(this);
+    if (InfiniFrameApplication* trackedApplication = InfiniFrameApplication::GetInstance())
+        trackedApplication->TrackWindow(this);
 
     bool isAlreadyShown = initParams->Minimized || initParams->Maximized;
     Show(isAlreadyShown);

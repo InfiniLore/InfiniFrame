@@ -15,18 +15,6 @@ public interface IInfiniFrameApplication : IDisposable, IAsyncDisposable {
     /// <summary>Registers a named window to be built when the application runs.</summary>
     void RegisterWindow(string id, Action<IInfiniFrameWindowBuilder> configure);
 
-    /// <summary>Sets the process-wide fixed WebView2 runtime path.</summary>
-    IInfiniFrameApplication WithWebView2RuntimePath(string path);
-
-    /// <summary>Sets the process-wide toast notification registration identifier.</summary>
-    IInfiniFrameApplication WithNotificationRegistrationId(string id);
-
-    /// <summary>Sets the process-wide Windows AppUserModelId.</summary>
-    IInfiniFrameApplication WithAppUserModelId(string id);
-
-    /// <summary>Sets the process-wide default notification icon.</summary>
-    IInfiniFrameApplication WithDefaultNotificationIcon(string path);
-
     /// <summary>Gets a built window by its application-local identifier.</summary>
     IInfiniFrameWindow GetWindow(string id);
 
