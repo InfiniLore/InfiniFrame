@@ -256,7 +256,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         var files = new List<string>(count);
         for (int i = 0; i < count; i++) {
             IntPtr pathPtr = Marshal.ReadIntPtr(pathsPtr, i * IntPtr.Size);
-            files.Add(Marshal.PtrToStringAuto(pathPtr) ?? string.Empty);
+            files.Add(Marshal.PtrToStringUTF8(pathPtr) ?? string.Empty);
         }
 
         var args = new FileDroppedEventArgs(files, new Point(x, y));

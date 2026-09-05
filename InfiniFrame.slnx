@@ -101,6 +101,7 @@
   <Folder Name="/examples/">
     <File Path="examples/README.md" />
     <Project Path="examples/InfiniFrameExample.BlazorWebView/InfiniFrameExample.BlazorWebView.csproj" />
+    <Project Path="examples/InfiniFrameExample.BlazorWebView.MudBlazor/InfiniFrameExample.BlazorWebView.MudBlazor.csproj" />
     <Project Path="examples/InfiniFrameExample.NativeMenu/InfiniFrameExample.NativeMenu.csproj" />
     <Project Path="examples/InfiniFrameExample.TrimAotSmoke/InfiniFrameExample.TrimAotSmoke.csproj" />
   </Folder>

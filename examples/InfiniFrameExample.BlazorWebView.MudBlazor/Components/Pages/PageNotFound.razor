@@ -1,0 +1,16 @@
+@page "/PageNotFound"
+@using global::MudBlazor
+@layout MainLayout
+
+<PageTitle>Page Not Found</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-16 text-center">
+    <MudIcon Icon="@Icons.Material.Filled.Warning" Size="Size.Large" Color="Color.Error" Class="mb-4" />
+    <MudText Typo="Typo.h4" GutterBottom="true">404</MudText>
+    <MudText Typo="Typo.body1" Class="mb-4">
+        Sorry, there's nothing at this address.
+    </MudText>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/">
+        Go Home
+    </MudButton>
+</MudContainer>
