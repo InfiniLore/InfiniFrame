@@ -124,30 +124,12 @@ void InfiniFrameWindow::CompleteCloseAfterWebKitTeardown()
     infiniframe::macos::LogLifecycle("window-webkit-teardown-complete", this);
 
     SignalWindowClosed();
-    CompleteOperationsForClose();
-    CompleteNavigationForClose();
-    CompleteDialogsForClose();
+    ScheduleTeardownCompletion();
 
     {
         infiniframe::macos::NativeCallbackScope callbackScope;
         InvokeClosed();
     }
-
-    // InvokeClosed() fires the managed ClosedCallback which may synchronously
-    // trigger Dispose() → ScheduleDeferredDestruction() → dispatch_async(delete
-    // this).  That dispatch is deferred to the NEXT main-queue iteration, so
-    // m_impl is still alive right now.  Call SignalTeardown() synchronously to
-    // lock _milestoneMutex while m_impl is guaranteed to be valid.
-    //
-    // Previous approaches failed because:
-    // - CFRunLoopPerformBlock: GCD dispatch sources (used by delete this)
-    //   fire BEFORE CFRunLoopPerformBlock blocks → use-after-free.
-    // - dispatch_async(SignalTeardown): FIFO ordering between dispatch_async
-    //   calls from DIFFERENT threads is not guaranteed → may still race.
-    //
-    // This approach is safe because SignalTeardown() runs inline before the
-    // function returns, and delete this is always deferred via dispatch_async.
-    SignalTeardown();
 }
 
 void InfiniFrameWindow::ScheduleTeardownCompletion()
@@ -155,7 +137,11 @@ void InfiniFrameWindow::ScheduleTeardownCompletion()
     CompleteOperationsForClose();
     CompleteNavigationForClose();
     CompleteDialogsForClose();
-    SignalTeardown();
+    CFRunLoopRef mainRunLoop = CFRunLoopGetMain();
+    CFRunLoopPerformBlock(mainRunLoop, kCFRunLoopCommonModes, ^{
+        SignalTeardown();
+    });
+    CFRunLoopWakeUp(mainRunLoop);
 }
 
 void InfiniFrameWindow::ScheduleDeferredDestruction()

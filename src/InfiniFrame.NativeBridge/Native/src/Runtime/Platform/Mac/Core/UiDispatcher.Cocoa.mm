@@ -51,19 +51,18 @@ void InfiniFrameWindow::Invoke(ACTION callback) {
 }
 
 bool InfiniFrameWindow::ScheduleOperation(const std::shared_ptr<NativeOperation>& operation) {
-    CFRunLoopRef mainRunLoop = CFRunLoopGetMain();
-    if (mainRunLoop == nullptr)
-        return false;
-
-    // `operation` is a reference parameter. Capturing it directly in an Objective-C block
-    // retains the reference variable rather than creating a new shared_ptr owner. The
-    // operation map may release its owner while this block is still queued (for example,
-    // during window teardown), leaving the run-loop callback with a dangling reference.
-    // Materialize an owning local copy before the block is formed.
+    // Use dispatch_async instead of CFRunLoopPerformBlock.  On macOS, GCD dispatch
+    // sources (used by ScheduleDeferredDestruction → dispatch_async(delete this))
+    // are drained BEFORE CFRunLoopPerformBlock blocks in the same run-loop
+    // iteration.  This caused a race: delete this could destroy m_impl before a
+    // pending Execute() block ran, causing use-after-free on the operation mutex.
+    //
+    // By using dispatch_async, both operation execution and delete this are on the
+    // same serial main queue.  FIFO ordering guarantees that an operation enqueued
+    // before delete this will execute first, while m_impl is still alive.
     const std::shared_ptr<NativeOperation> retainedOperation = operation;
-    CFRunLoopPerformBlock(mainRunLoop, kCFRunLoopCommonModes, ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
         retainedOperation->Execute();
     });
-    CFRunLoopWakeUp(mainRunLoop);
     return true;
 }
