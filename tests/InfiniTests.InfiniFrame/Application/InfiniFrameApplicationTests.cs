@@ -82,14 +82,21 @@ public sealed class InfiniFrameApplicationTests {
 
         Console.WriteLine("[ApplicationMultiWindow] starting RunAsync");
         Task runTask = application.RunAsync(ct);
-        for (int attempt = 0; attempt < 100 && application.Windows.Count < 2; attempt++) {
-            if (runTask.IsFaulted) await runTask;
-            await Task.Delay(100, ct);
+        try {
+            for (int attempt = 0; attempt < 100 && application.Windows.Count < 2; attempt++) {
+                if (runTask.IsFaulted) await runTask;
+                await Task.Delay(100, ct);
         }
         Console.WriteLine($"[ApplicationMultiWindow] windows={application.Windows.Count} completed={runTask.IsCompleted}");
         await Assert.That(application.Windows).Count().IsEqualTo(2);
+        application.Shutdown();
         foreach (IInfiniFrameWindow window in application.Windows) window.Close();
         await runTask.WaitAsync(TimeSpan.FromSeconds(30), ct);
+        }
+        finally {
+            application.Shutdown();
+            await runTask.WaitAsync(TimeSpan.FromSeconds(30), CancellationToken.None);
+        }
     }
 
 }
