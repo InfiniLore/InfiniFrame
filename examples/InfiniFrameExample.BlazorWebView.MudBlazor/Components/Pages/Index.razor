@@ -1,0 +1,211 @@
+@page "/"
+@using global::MudBlazor
+@inject IInfiniFrameWindow Window
+
+<PageTitle>File Dialogs</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-6">
+    <MudText Typo="Typo.h4" GutterBottom="true">File Dialog Demo</MudText>
+    <MudText Typo="Typo.body1" Class="mb-6">
+        Test the native file/folder picker dialogs. Results are displayed below each button.
+    </MudText>
+
+    <MudPaper Class="pa-4 mb-4" Elevation="2">
+        <MudText Typo="Typo.h6" GutterBottom="true">Save File (Async)</MudText>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Save"
+                       OnClick="OnSaveFileAsync"
+                       Disabled="_saveFileLoading">
+                @if (_saveFileLoading) {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                }
+                Choose Save Location
+            </MudButton>
+        </MudStack>
+        @if (_saveFileResult is not null) {
+            <MudTextField T="string"
+                          Value="@_saveFileResult"
+                          Label="Result"
+                          ReadOnly="true"
+                          Variant="Variant.Outlined"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.CheckCircle"
+                          AdornmentColor="Color.Success"
+                          Class="mt-3" />
+        }
+    </MudPaper>
+
+    <MudPaper Class="pa-4 mb-4" Elevation="2">
+        <MudText Typo="Typo.h6" GutterBottom="true">Open File (Async)</MudText>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Secondary"
+                       StartIcon="@Icons.Material.Filled.FileOpen"
+                       OnClick="OnOpenFileAsync"
+                       Disabled="_openFileLoading">
+                @if (_openFileLoading) {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                }
+                Choose File(s)
+            </MudButton>
+        </MudStack>
+        @if (_openFileResult is not null) {
+            <MudTextField T="string"
+                          Value="@_openFileResult"
+                          Label="Result"
+                          ReadOnly="true"
+                          Variant="Variant.Outlined"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.CheckCircle"
+                          AdornmentColor="Color.Success"
+                          Class="mt-3" />
+        }
+    </MudPaper>
+
+    <MudPaper Class="pa-4 mb-4" Elevation="2">
+        <MudText Typo="Typo.h6" GutterBottom="true">Open Folder (Async)</MudText>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Tertiary"
+                       StartIcon="@Icons.Material.Filled.FolderOpen"
+                       OnClick="OnOpenFolderAsync"
+                       Disabled="_openFolderLoading">
+                @if (_openFolderLoading) {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                }
+                Choose Folder
+            </MudButton>
+        </MudStack>
+        @if (_openFolderResult is not null) {
+            <MudTextField T="string"
+                          Value="@_openFolderResult"
+                          Label="Result"
+                          ReadOnly="true"
+                          Variant="Variant.Outlined"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.CheckCircle"
+                          AdornmentColor="Color.Success"
+                          Class="mt-3" />
+        }
+    </MudPaper>
+
+    <MudDivider Class="my-4" />
+
+    <MudText Typo="Typo.h6" GutterBottom="true">Event Log</MudText>
+    <MudPaper Class="pa-4" Elevation="2" Style="max-height: 300px; overflow-y: auto;">
+        @if (_eventLog.Count == 0) {
+            <MudText Typo="Typo.body2" Class="mud-text-secondary">No events yet. Click a button above.</MudText>
+        }
+        @foreach (var entry in _eventLog) {
+            <MudText Typo="Typo.body2" Class="mb-1">
+                <MudIcon Icon="@Icons.Material.Filled.Info" Size="Size.Small" Class="mr-1" />
+                @entry
+            </MudText>
+        }
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private bool _saveFileLoading;
+    private bool _openFileLoading;
+    private bool _openFolderLoading;
+
+    private string? _saveFileResult;
+    private string? _openFileResult;
+    private string? _openFolderResult;
+
+    private readonly List<string> _eventLog = [];
+
+    private async Task OnSaveFileAsync() {
+        _saveFileLoading = true;
+        StateHasChanged();
+
+        try {
+            LogEvent("Opening Save File dialog...");
+            string? result = await Window.ShowSaveFileAsync(
+                title: "Save File As",
+                filters: [
+                    ("Excel Files", ["xlsx", "xls"]),
+                    ("All Files", ["*"])
+                ],
+                defaultFileName: "document.xlsx"
+            );
+
+            _saveFileResult = result ?? "(canceled)";
+            LogEvent($"Save File result: {result ?? "(canceled)"}");
+        }
+        catch (Exception ex) {
+            _saveFileResult = $"Error: {ex.Message}";
+            LogEvent($"Save File error: {ex.Message}");
+        }
+        finally {
+            _saveFileLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnOpenFileAsync() {
+        _openFileLoading = true;
+        StateHasChanged();
+
+        try {
+            LogEvent("Opening Open File dialog...");
+            string?[] results = await Window.ShowOpenFileAsync(
+                title: "Open File",
+                multiSelect: true,
+                filters: [
+                    ("Image Files", ["png", "jpg", "jpeg", "gif", "bmp"]),
+                    ("Text Files", ["txt", "md"]),
+                    ("All Files", ["*"])
+                ]
+            );
+
+            _openFileResult = results.Length > 0
+                ? string.Join(Environment.NewLine, results)
+                : "(canceled)";
+            LogEvent($"Open File result: {results.Length} file(s) selected");
+        }
+        catch (Exception ex) {
+            _openFileResult = $"Error: {ex.Message}";
+            LogEvent($"Open File error: {ex.Message}");
+        }
+        finally {
+            _openFileLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnOpenFolderAsync() {
+        _openFolderLoading = true;
+        StateHasChanged();
+
+        try {
+            LogEvent("Opening Open Folder dialog...");
+            string?[] results = await Window.ShowOpenFolderAsync(
+                title: "Select Folder",
+                multiSelect: false
+            );
+
+            _openFolderResult = results.Length > 0
+                ? results[0]
+                : "(canceled)";
+            LogEvent($"Open Folder result: {_openFolderResult}");
+        }
+        catch (Exception ex) {
+            _openFolderResult = $"Error: {ex.Message}";
+            LogEvent($"Open Folder error: {ex.Message}");
+        }
+        finally {
+            _openFolderLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void LogEvent(string message) {
+        _eventLog.Add($"[{DateTime.Now:HH:mm:ss}] {message}");
+        if (_eventLog.Count > 50)
+            _eventLog.RemoveAt(0);
+    }
+}

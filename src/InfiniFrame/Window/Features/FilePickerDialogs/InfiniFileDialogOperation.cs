@@ -150,9 +150,7 @@ internal sealed class InfiniFileDialogOperation {
             IntPtr[] pointers = new IntPtr[valueCount];
             Marshal.Copy(values, pointers, 0, valueCount);
             resultValues = [
-                .. pointers.Select(pointer => OperatingSystem.IsWindows()
-                    ? Marshal.PtrToStringUni(pointer)
-                    : Marshal.PtrToStringUTF8(pointer))
+                .. pointers.Select(pointer => Marshal.PtrToStringUTF8(pointer))
             ];
         }
 
