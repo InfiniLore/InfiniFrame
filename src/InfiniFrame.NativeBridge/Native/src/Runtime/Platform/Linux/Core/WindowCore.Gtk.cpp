@@ -6,6 +6,7 @@
 
 #include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
+#include "Runtime/Shared/Application/InfiniFrameApplication.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -43,12 +44,17 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
                     m_impl->_backgroundColorR, m_impl->_backgroundColorG, m_impl->_backgroundColorB,
                     m_impl->_backgroundColorA);
 
-            if (m_impl->_zoom != 100.0)
-                SetZoom(m_impl->_zoom);
-        });
+             if (m_impl->_zoom != 100.0)
+                 SetZoom(m_impl->_zoom);
+
+             if (InfiniFrameApplication* application = InfiniFrameApplication::GetInstance())
+                 application->TrackWindow(this);
+         });
 }
 
 InfiniFrameWindow::~InfiniFrameWindow() {
+    if (InfiniFrameApplication* application = InfiniFrameApplication::GetInstance())
+        application->UntrackWindow(this);
     infiniframe::linux_gtk::ui_thread::InvokeSync(
         [this] {
             if (m_impl->_window != nullptr) {

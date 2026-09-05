@@ -8,6 +8,7 @@
 
 #include "Runtime/Platform/Windows/DarkMode.h"
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
+#include "Runtime/Shared/Application/InfiniFrameApplication.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -317,9 +318,14 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
 
     bool isAlreadyShown = initParams->Minimized || initParams->Maximized;
     Show(isAlreadyShown);
+    if (InfiniFrameApplication* application = InfiniFrameApplication::GetInstance())
+        application->TrackWindow(this);
 }
 
-InfiniFrameWindow::~InfiniFrameWindow() {}
+InfiniFrameWindow::~InfiniFrameWindow() {
+    if (InfiniFrameApplication* application = InfiniFrameApplication::GetInstance())
+        application->UntrackWindow(this);
+}
 
 InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() noexcept {
     return m_impl.get();

@@ -41,6 +41,7 @@ infiniframe_setup_dependencies()
 set(COMMON_SOURCES
         src/Embedded/Embedded.cpp
         src/Api/Utilities/ExportErrorState.cpp
+        src/Runtime/Shared/Application/InfiniFrameApplication.cpp
         src/Runtime/Shared/Window/WindowEvents.cpp
         src/Runtime/Shared/Window/WindowState.cpp
         src/Runtime/Shared/Operations/NativeOperation.cpp
@@ -176,6 +177,7 @@ set(HEADER_FILES
         src/Runtime/Shared/Window/InfiniFrameDialog.h
         src/Runtime/Shared/Window/InfiniFrameInitParams.h
         src/Runtime/Shared/Window/InfiniFrameWindow.h
+        src/Runtime/Shared/Application/InfiniFrameApplication.h
         src/Runtime/Shared/Types/Basic.h
         src/Runtime/Shared/Types/Callbacks.h
         src/Runtime/Shared/Types/DialogButtons.h

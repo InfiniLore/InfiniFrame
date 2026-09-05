@@ -23,6 +23,7 @@
 #include "../Delegates/UrlSchemeHandler.h"
 #include "Runtime/Shared/Window/InfiniFrameDialog.h"
 #include "Runtime/Shared/Window/InfiniFrameWindow.h"
+#include "Runtime/Shared/Application/InfiniFrameApplication.h"
 #include "../NSWindowBorderless.h"
 #include "../MacDiagnostics.h"
 #include "../Window.Cocoa.Internal.h"
@@ -586,11 +587,15 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
         );
     }
     infiniframe::macos::LogLifecycle("window-construct-complete", this);
+    if (InfiniFrameApplication* application = InfiniFrameApplication::GetInstance())
+        application->TrackWindow(this);
 }
 
 InfiniFrameWindow::~InfiniFrameWindow()
 {
     infiniframe::macos::LogLifecycle("window-destruct-begin", this);
+    if (InfiniFrameApplication* application = InfiniFrameApplication::GetInstance())
+        application->UntrackWindow(this);
     // SafeHandle finalization and managed disposal can release the native window from a
     // non-AppKit thread. All Cocoa/WebKit teardown must therefore occur on the main queue.
     DispatchToMainSync(^{
