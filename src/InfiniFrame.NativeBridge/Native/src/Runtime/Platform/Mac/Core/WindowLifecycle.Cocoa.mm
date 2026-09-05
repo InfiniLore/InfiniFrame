@@ -123,11 +123,15 @@ void InfiniFrameWindow::CompleteCloseAfterWebKitTeardown()
 {
     infiniframe::macos::LogLifecycle("window-webkit-teardown-complete", this);
 
-    // Complete all synchronous teardown BEFORE firing the managed callback.
+    // Complete all teardown BEFORE firing the managed callback.
     // InvokeClosed() fires a managed callback that may synchronously dispose
     // the window (triggering ~InfiniFrameWindow on the main thread).  If that
     // happens, `this` and m_impl are destroyed and any subsequent member
     // access is undefined behaviour — the mutex-lock crashes observed on macOS.
+    //
+    // ScheduleTeardownCompletion() must call SignalTeardown() synchronously
+    // (not via CFRunLoopPerformBlock) so that it completes before any
+    // dispatch_async(delete this) queued by InvokeClosed() can run.
     SignalWindowClosed();
     ScheduleTeardownCompletion();
 
@@ -147,11 +151,22 @@ void InfiniFrameWindow::ScheduleTeardownCompletion()
     CompleteOperationsForClose();
     CompleteNavigationForClose();
     CompleteDialogsForClose();
-    CFRunLoopRef mainRunLoop = CFRunLoopGetMain();
-    CFRunLoopPerformBlock(mainRunLoop, kCFRunLoopCommonModes, ^{
-        SignalTeardown();
-    });
-    CFRunLoopWakeUp(mainRunLoop);
+    // Call SignalTeardown() synchronously rather than deferring it via
+    // CFRunLoopPerformBlock.  The previous deferral raced with
+    // ScheduleDeferredDestruction(): both schedule blocks on the main run
+    // loop, but dispatch_async (used by ScheduleDeferredDestruction) is
+    // serviced by the GCD main-queue dispatch source which fires before
+    // CFRunLoopPerformBlock blocks.  When InvokeClosed() triggered
+    // synchronous managed disposal, dispatch_async(delete this) ran first,
+    // destroying m_impl (and its mutexes), and then SignalTeardown() tried
+    // to lock the already-destroyed _milestoneMutex → EINVAL → SIGABRT.
+    //
+    // Running synchronously here ensures SignalTeardown() completes before
+    // InvokeClosed() fires.  The managed OnNativeTeardown callback just
+    // queues CompleteTeardown() on the ThreadPool, so there is no
+    // re-entrancy risk.  This mirrors the synchronous fallback path used
+    // on Windows (QueueUserWorkItem failure) and Linux (InvokeIdle failure).
+    SignalTeardown();
 }
 
 void InfiniFrameWindow::ScheduleDeferredDestruction()
