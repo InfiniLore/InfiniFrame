@@ -131,10 +131,16 @@ void InfiniFrameWindow::CompleteCloseAfterWebKitTeardown()
 
     // Defer one main-queue turn so SafeHandle disposal from a reverse P/Invoke callback never
     // deletes the C++ session while AppKit is unwinding through that callback.
-    if (m_impl->_nativeDestructionScheduled) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            delete this;
-        });
+    // Use an atomic compare-exchange to guarantee only one dispatch_async(delete this) is queued,
+    // even when ScheduleDeferredDestruction and CloseWebView race from different threads.
+    if (m_impl->_nativeDestructionScheduled.load(std::memory_order_acquire)) {
+        bool expected = false;
+        if (m_impl->_deletionQueued.compare_exchange_strong(expected, true,
+                std::memory_order_acq_rel, std::memory_order_relaxed)) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                delete this;
+            });
+        }
     }
 }
 
@@ -153,11 +159,12 @@ void InfiniFrameWindow::ScheduleTeardownCompletion()
 void InfiniFrameWindow::ScheduleDeferredDestruction()
 {
     void (^requestDestruction)() = ^{
-        if (this->m_impl->_nativeDestructionScheduled)
+        bool expected = false;
+        if (!this->m_impl->_nativeDestructionScheduled.compare_exchange_strong(expected, true,
+                std::memory_order_acq_rel, std::memory_order_relaxed))
             return;
 
         infiniframe::macos::LogLifecycle("window-destruction-request", this);
-        this->m_impl->_nativeDestructionScheduled = true;
         if (!this->m_impl->_isClosingOrClosed) {
             this->CloseWebView();
             this->PrepareForDeferredDestruction();
@@ -168,9 +175,13 @@ void InfiniFrameWindow::ScheduleDeferredDestruction()
 
         // Still defer one main-queue turn so disposal from
         // an AppKit delegate cannot delete the instance while that delegate is executing.
-        dispatch_async(dispatch_get_main_queue(), ^{
-            delete this;
-        });
+        bool deletionExpected = false;
+        if (this->m_impl->_deletionQueued.compare_exchange_strong(deletionExpected, true,
+                std::memory_order_acq_rel, std::memory_order_relaxed)) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                delete this;
+            });
+        }
     };
 
     if ([NSThread isMainThread]) {

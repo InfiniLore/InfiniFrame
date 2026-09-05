@@ -58,13 +58,16 @@ namespace {
                 continue;
 
             int64_t type = 0;
-            (void)obj["type"].get_int64().get(type);
+            if (obj["type"].get_int64().get(type) != simdjson::SUCCESS)
+                type = 0;
 
             bool isEnabled = true;
-            (void)obj["isEnabled"].get_bool().get(isEnabled);
+            if (obj["isEnabled"].get_bool().get(isEnabled) != simdjson::SUCCESS)
+                isEnabled = true;
 
             bool isVisible = true;
-            (void)obj["isVisible"].get_bool().get(isVisible);
+            if (obj["isVisible"].get_bool().get(isVisible) != simdjson::SUCCESS)
+                isVisible = true;
 
             if (!isVisible)
                 continue;
@@ -76,7 +79,8 @@ namespace {
             }
 
             std::string label;
-            (void)obj["label"].get_string().get(label);
+            if (obj["label"].get_string().get(label) != simdjson::SUCCESS)
+                label.clear();
 
             guint commandId = nextId++;
             idToCommand[id] = commandId;
