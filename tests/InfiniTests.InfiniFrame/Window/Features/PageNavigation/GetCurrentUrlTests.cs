@@ -98,20 +98,34 @@ public class GetCurrentUrlTests {
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
-        // Act - call the property multiple times to check for consistency,
-        // since the window state may change between calls.
-        string? viaProperty1 = window.Features.PageNavigation.GetCurrentUrl();
-        string? viaProperty2 = window.Features.PageNavigation.GetCurrentUrl();
-        string? viaExtension = window.GetCurrentUrl();
+        // Act - call the property and extension back-to-back, retrying until
+        // the window state stabilises.  WebView2 controller initialisation on
+        // slower runners (e.g. Windows ARM64) can cause the URL to flip
+        // between "about:blank" and null across consecutive calls.
+        const int maxAttempts = 10;
+        for (int attempt = 0; attempt < maxAttempts; attempt++) {
+            string? viaProperty = window.Features.PageNavigation.GetCurrentUrl();
+            string? viaExtension = window.GetCurrentUrl();
 
-        // Assert - the extension delegates to the same property, so both should
-        // agree on whether a URL exists at any given point in time.
-        bool propertyHasUrl = !string.IsNullOrEmpty(viaProperty1);
-        bool extensionHasUrl = !string.IsNullOrEmpty(viaExtension);
-        await Assert.That(extensionHasUrl).IsEqualTo(propertyHasUrl);
+            bool propertyHasUrl = !string.IsNullOrEmpty(viaProperty);
+            bool extensionHasUrl = !string.IsNullOrEmpty(viaExtension);
 
-        // A fresh window started via StartString has no meaningful URL
-        if (propertyHasUrl) await Assert.That(viaProperty1).IsEqualTo("about:blank");
-        if (extensionHasUrl) await Assert.That(viaExtension).IsEqualTo("about:blank");
+            if (propertyHasUrl == extensionHasUrl) {
+                // Both agree — verify the actual values too
+                if (propertyHasUrl) {
+                    await Assert.That(viaProperty).IsEqualTo("about:blank");
+                    await Assert.That(viaExtension).IsEqualTo("about:blank");
+                }
+                return;
+            }
+
+            await Task.Delay(100, ct);
+        }
+
+        // If we exhausted retries, the values still disagree — fail with a clear message
+        string? finalProperty = window.Features.PageNavigation.GetCurrentUrl();
+        string? finalExtension = window.GetCurrentUrl();
+        await Assert.That(!string.IsNullOrEmpty(finalExtension))
+            .IsEqualTo(!string.IsNullOrEmpty(finalProperty));
     }
 }

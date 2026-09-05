@@ -126,6 +126,14 @@ void InfiniFrameWindow::CompleteCloseAfterWebKitTeardown()
         infiniframe::macos::NativeCallbackScope callbackScope;
         InvokeClosed();
     }
+
+    // InvokeClosed() fires a managed callback that may synchronously dispose the window
+    // (triggering ~InfiniFrameWindow on the main thread).  If that happened, m_impl has
+    // been destroyed and we must not touch it again — the destructor already handled
+    // SignalWindowClosed / teardown.
+    if (_destroying.load(std::memory_order_acquire))
+        return;
+
     SignalWindowClosed();
     ScheduleTeardownCompletion();
 

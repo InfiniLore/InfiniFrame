@@ -524,6 +524,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
 InfiniFrameWindow::~InfiniFrameWindow()
 {
     infiniframe::macos::LogLifecycle("window-destruct-begin", this);
+    _destroying.store(true, std::memory_order_release);
 
     m_impl->_application->UntrackWindow(this);
 

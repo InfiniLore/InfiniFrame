@@ -23,6 +23,7 @@
 #include <webkit2/webkit2.h>
 #endif
 
+#include <atomic>
 #include <map>
 #include <memory>
 #include <vector>
@@ -1080,6 +1081,10 @@ class InfiniFrameWindow {
     const InfiniFrameWindowImpl* ImplBase() const noexcept;
 
     std::unique_ptr<Impl> m_impl;
+    // Guard flag set at the start of ~InfiniFrameWindow so that managed callbacks
+    // triggered during teardown can detect that destruction is in progress and
+    // avoid accessing m_impl after it has been destroyed.
+    std::atomic<bool> _destroying{false};
 };
 
 #include "InfiniFrameInitParams.h"
