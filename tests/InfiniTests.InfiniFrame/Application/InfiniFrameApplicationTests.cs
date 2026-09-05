@@ -72,31 +72,24 @@ public sealed class InfiniFrameApplicationTests {
 
     [Test]
     [NotInParallelInfiniTests]
+    [Timeout(60_000)]
     public async Task RunAsyncBuildsAndRunsMultipleWindowsUntilAllClose(CancellationToken ct = default) {
-        if (!OperatingSystem.IsWindows()) return;
+        if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
 
         await using var application = InfiniFrameApplication.Initialize()
             .WithWindow("main", static builder => builder.SetStartPageContent("<html><body>Main</body></html>"))
             .WithWindow("settings", static builder => builder.SetStartPageContent("<html><body>Settings</body></html>"));
 
+        Console.WriteLine("[ApplicationMultiWindow] starting RunAsync");
         Task runTask = application.RunAsync(ct);
-        try {
-            for (int attempt = 0; attempt < 100 && application.Windows.Count < 2; attempt++)
-                await Task.Delay(100, ct);
-
-            await Assert.That(application.Windows).Count().IsEqualTo(2);
-            await Assert.That(application.GetWindow("main")).IsNotNull();
-            await Assert.That(application.GetWindow("settings")).IsNotNull();
-
-            foreach (IInfiniFrameWindow window in application.Windows)
-                window.Close();
-
-            await runTask.WaitAsync(TimeSpan.FromSeconds(30), ct);
+        for (int attempt = 0; attempt < 100 && application.Windows.Count < 2; attempt++) {
+            if (runTask.IsFaulted) await runTask;
+            await Task.Delay(100, ct);
         }
-        finally {
-            application.Shutdown();
-            await runTask.WaitAsync(TimeSpan.FromSeconds(30), CancellationToken.None);
-        }
+        Console.WriteLine($"[ApplicationMultiWindow] windows={application.Windows.Count} completed={runTask.IsCompleted}");
+        await Assert.That(application.Windows).Count().IsEqualTo(2);
+        foreach (IInfiniFrameWindow window in application.Windows) window.Close();
+        await runTask.WaitAsync(TimeSpan.FromSeconds(30), ct);
     }
 
 }

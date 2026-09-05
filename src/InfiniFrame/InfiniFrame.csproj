@@ -18,6 +18,7 @@
     <ItemGroup>
         <InternalsVisibleTo Include="InfiniTests.InfiniFrame"/>
         <InternalsVisibleTo Include="InfiniFrame.WebServer"/>
+        <InternalsVisibleTo Include="InfiniFrame.BlazorWebView"/>
     </ItemGroup>
 
     <ItemGroup>

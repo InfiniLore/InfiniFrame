@@ -12,6 +12,7 @@ namespace InfiniFrame.WebServer;
 ///     Builder for creating an ASP.NET Core web application with a native InfiniFrame window.
 /// </summary>
 public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilder {
+    private readonly List<Action<WebApplication>> _webApplicationConfiguration = [];
     /// <inheritdoc cref="IInfiniFrameWebApplicationBuilder.WebApp" />
     public required WebApplicationBuilder WebApp { get; init; }
     /// <inheritdoc cref="IInfiniFrameWebApplicationBuilder.WindowBuilder" />
@@ -19,6 +20,13 @@ public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilde
 
     /// <inheritdoc cref="IInfiniFrameWebApplicationBuilder.Services" />
     public IServiceCollection Services => WebApp.Services;
+
+    /// <summary>Registers configuration that runs after the web application is built.</summary>
+    public InfiniFrameWebApplicationBuilder ConfigureWebApplication(Action<WebApplication> configure) {
+        ArgumentNullException.ThrowIfNull(configure);
+        _webApplicationConfiguration.Add(configure);
+        return this;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -53,6 +61,9 @@ public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilde
     /// <returns>The built <see cref="InfiniFrameWebApplication"/>.</returns>
     public InfiniFrameWebApplication Build() {
         WebApplication webApp = WebApp.Build();
+
+        foreach (Action<WebApplication> configure in _webApplicationConfiguration)
+            configure(webApp);
 
         webApp.UseDefaultFiles();
 

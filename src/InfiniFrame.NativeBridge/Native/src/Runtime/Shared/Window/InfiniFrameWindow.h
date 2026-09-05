@@ -39,6 +39,7 @@
 class WinToastHandler;
 #endif
 class InfiniFrameDialog;
+class InfiniFrameApplication;
 struct InfiniFrameInitParams;
 
 struct InfiniFrameWindowImpl;
@@ -696,6 +697,7 @@ class InfiniFrameWindow {
 
     /** @brief Tear down the WebView control while keeping the native window alive */
     void CloseWebView();
+    [[nodiscard]] InfiniFrameApplication* GetApplication() const noexcept { return _application; }
 
 #ifdef __APPLE__
     /**
@@ -1087,6 +1089,7 @@ class InfiniFrameWindow {
     const InfiniFrameWindowImpl* ImplBase() const noexcept;
 
     std::unique_ptr<Impl> m_impl;
+    InfiniFrameApplication* _application = nullptr;
 };
 
 #include "InfiniFrameInitParams.h"

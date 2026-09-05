@@ -114,4 +114,6 @@ public class InfiniFrameBlazorApp(
             RootComponentConfiguration.Add(component.Item1, component.Item2);
         }
     }
+
+    internal void InitializeForApplication() => RegisterRootComponents();
 }

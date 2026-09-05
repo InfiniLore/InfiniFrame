@@ -114,10 +114,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
             );
     }
 
-    InfiniFrameApplication* application = InfiniFrameApplication::GetInstance();
-    const char* appUserModelIdValue = initParams->WindowsAppUserModelId;
-    if ((appUserModelIdValue == nullptr || appUserModelIdValue[0] == '\0') && application != nullptr)
-        appUserModelIdValue = application->GetAppUserModelId();
+    _application = initParams->ApplicationInstance;
+    InfiniFrameApplication* application = _application;
+    const char* appUserModelIdValue = application == nullptr ? nullptr : application->GetAppUserModelId();
 
     if (appUserModelIdValue != nullptr && appUserModelIdValue[0] != '\0') {
         const std::wstring appUserModelId = ToUTF16String(appUserModelIdValue);
@@ -158,15 +157,11 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     if (initParams->BrowserControlInitParameters != nullptr)
         m_impl->_browserControlInitParameters = ToUTF16String(initParams->BrowserControlInitParameters);
 
-    const char* webView2RuntimePath = initParams->WebView2RuntimePath;
-    if ((webView2RuntimePath == nullptr || webView2RuntimePath[0] == '\0') && application != nullptr)
-        webView2RuntimePath = application->GetWebView2RuntimePath();
+    const char* webView2RuntimePath = application == nullptr ? nullptr : application->GetWebView2RuntimePath();
     if (webView2RuntimePath != nullptr && webView2RuntimePath[0] != '\0')
         m_impl->_webView2RuntimePath = ToUTF16String(webView2RuntimePath);
 
-    const char* notificationRegistrationId = initParams->NotificationRegistrationId;
-    if ((notificationRegistrationId == nullptr || notificationRegistrationId[0] == '\0') && application != nullptr)
-        notificationRegistrationId = application->GetNotificationRegistrationId();
+    const char* notificationRegistrationId = application == nullptr ? nullptr : application->GetNotificationRegistrationId();
     if (notificationRegistrationId != nullptr && notificationRegistrationId[0] != '\0')
         m_impl->_notificationRegistrationId = ToUTF16String(notificationRegistrationId);
     m_impl->_remoteDebuggingPort = initParams->RemoteDebuggingPort;
@@ -190,9 +185,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     m_impl->_statusBarEnabled = initParams->StatusBarEnabled;
     m_impl->_browserShortcutsEnabled = initParams->BrowserShortcutsEnabled;
     m_impl->_notificationsEnabled = initParams->NotificationsEnabled;
-    const char* defaultNotificationIcon = initParams->DefaultNotificationIcon;
-    if ((defaultNotificationIcon == nullptr || defaultNotificationIcon[0] == '\0') && application != nullptr)
-        defaultNotificationIcon = application->GetDefaultNotificationIcon();
+    const char* defaultNotificationIcon = application == nullptr
+        ? initParams->DefaultNotificationIcon
+        : application->GetDefaultNotificationIcon();
     m_impl->_defaultNotificationIcon = ToUTF8String(defaultNotificationIcon);
 
     m_impl->_zoom = initParams->Zoom;
@@ -336,16 +331,16 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         ApplyInitMenuBar(initParams->MenuBarJson);
     }
 
-    if (InfiniFrameApplication* trackedApplication = InfiniFrameApplication::GetInstance())
-        trackedApplication->TrackWindow(this);
+    if (_application != nullptr)
+        _application->TrackWindow(this);
 
     bool isAlreadyShown = initParams->Minimized || initParams->Maximized;
     Show(isAlreadyShown);
 }
 
 InfiniFrameWindow::~InfiniFrameWindow() {
-    if (InfiniFrameApplication* application = InfiniFrameApplication::GetInstance())
-        application->UntrackWindow(this);
+    if (_application != nullptr)
+        _application->UntrackWindow(this);
 }
 
 InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() noexcept {

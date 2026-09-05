@@ -8,6 +8,7 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 class InfiniFrameWindow; // Forward declaration
+class InfiniFrameApplication; // Forward declaration
 
 /**
  * @brief Initialization parameters for InfiniFrame window.
@@ -28,9 +29,6 @@ struct InfiniFrameInitParams {
     const char* TemporaryFilesPath;
     const char* UserAgent;
     const char* BrowserControlInitParameters;
-    const char* WebView2RuntimePath;
-    const char* NotificationRegistrationId;
-    const char* WindowsAppUserModelId;
     const char* DefaultNotificationIcon;
 
     // ── Runtime configuration ──────────────────────────────────────────────
@@ -38,6 +36,7 @@ struct InfiniFrameInitParams {
 
     // ── Parent window ──────────────────────────────────────────────────────
     InfiniFrameWindow* ParentInstance;
+    InfiniFrameApplication* ApplicationInstance;
 
     // ── Event callbacks ────────────────────────────────────────────────────
     ClosingCallback ClosingHandler;

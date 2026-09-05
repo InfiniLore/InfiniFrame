@@ -21,6 +21,8 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
             );
     }
 
+    _application = initParams->ApplicationInstance;
+
     infiniframe::linux_gtk::ui_thread::InvokeSync(
         [this, initParams] {
             m_impl->InitializeFromParams(initParams);
@@ -47,14 +49,14 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
              if (m_impl->_zoom != 100.0)
                  SetZoom(m_impl->_zoom);
 
-             if (InfiniFrameApplication* application = InfiniFrameApplication::GetInstance())
-                 application->TrackWindow(this);
+              if (_application != nullptr)
+                  _application->TrackWindow(this);
          });
 }
 
 InfiniFrameWindow::~InfiniFrameWindow() {
-    if (InfiniFrameApplication* application = InfiniFrameApplication::GetInstance())
-        application->UntrackWindow(this);
+    if (_application != nullptr)
+        _application->UntrackWindow(this);
     infiniframe::linux_gtk::ui_thread::InvokeSync(
         [this] {
             if (m_impl->_window != nullptr) {

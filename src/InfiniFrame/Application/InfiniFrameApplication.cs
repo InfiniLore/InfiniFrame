@@ -18,8 +18,14 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     private readonly ILogger<InfiniFrameApplication> logger;
     private readonly NativeApplicationHandle _nativeHandle;
     private readonly object _gate = new();
-    private readonly List<(string? Id, Action<IInfiniFrameWindowBuilder>? Configure, InfiniFrameWindowBuilder? Builder)> _registrations = [];
+    private readonly List<(
+        string? Id,
+        Action<IInfiniFrameWindowBuilder>? Configure,
+        InfiniFrameWindowBuilder? Builder,
+        IServiceProvider? Provider
+    )> _registrations = [];
     private readonly List<Func<Task>> _shutdownActions = [];
+    private readonly List<Func<Task>> _startupActions = [];
     private readonly Dictionary<string, IInfiniFrameWindow> _windows = [];
     private int _disposed;
     private bool _built;
@@ -105,11 +111,12 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     public void Run() {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
         try {
+            StartRegisteredComponents();
             BuildAllWindows();
             RunNativeLoop();
         }
         finally {
-            StopRegisteredComponents();
+            Dispose();
         }
     }
 
@@ -153,6 +160,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     public async Task RunAsync(CancellationToken ct = default) {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
         using CancellationTokenRegistration registration = ct.Register(Shutdown);
+        await StartRegisteredComponentsAsync().ConfigureAwait(false);
         var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var uiThread = new Thread(() => {
             try {
@@ -181,7 +189,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             await completion.Task.ConfigureAwait(false);
         }
         finally {
-            StopRegisteredComponents();
+            await DisposeAsync().ConfigureAwait(false);
         }
     }
 
@@ -203,8 +211,6 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     public void Dispose() {
         if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
 
-        StopRegisteredComponents();
-
         IInfiniFrameWindow[] windows;
         lock (_gate) {
             windows = _windows.Values.ToArray();
@@ -218,14 +224,13 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 logger.LogWarning(ex, "Failed to dispose an application window.");
             }
         }
+        StopRegisteredComponents();
         _nativeHandle.Dispose();
     }
 
     /// <inheritdoc />
     public async ValueTask DisposeAsync() {
         if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
-
-        await StopRegisteredComponentsAsync().ConfigureAwait(false);
 
         IInfiniFrameWindow[] windows;
         lock (_gate) {
@@ -244,13 +249,14 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 logger.LogWarning(ex, "Failed to asynchronously dispose an application window.");
             }
         }
+        await StopRegisteredComponentsAsync().ConfigureAwait(false);
         _nativeHandle.Dispose();
     }
 
-    internal void RegisterWindowBuilder(string id, InfiniFrameWindowBuilder builder) {
+    internal void RegisterWindowBuilder(string id, InfiniFrameWindowBuilder builder, IServiceProvider? provider = null) {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         ArgumentNullException.ThrowIfNull(builder);
-        RegisterWindowCore(id, null, builder);
+        RegisterWindowCore(id, null, builder, provider);
     }
 
     internal void RegisterShutdownAction(Func<Task> action) {
@@ -258,17 +264,23 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         lock (_gate) _shutdownActions.Add(action);
     }
 
+    internal void RegisterStartupAction(Func<Task> action) {
+        ArgumentNullException.ThrowIfNull(action);
+        lock (_gate) _startupActions.Add(action);
+    }
+
     private void RegisterWindowCore(
         string? id,
         Action<IInfiniFrameWindowBuilder>? configure,
-        InfiniFrameWindowBuilder? builder
+        InfiniFrameWindowBuilder? builder,
+        IServiceProvider? provider = null
     ) {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
         lock (_gate) {
             if (_built) throw new InvalidOperationException("Cannot register windows after the application has run.");
             if (id is not null && _registrations.Any(registration => registration.Id == id))
                 throw new ArgumentException($"A window with id '{id}' is already registered.", nameof(id));
-            _registrations.Add((id, configure, builder));
+            _registrations.Add((id, configure, builder, provider));
         }
     }
 
@@ -279,11 +291,12 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
 
             var built = new List<(string Id, IInfiniFrameWindow Window)>();
             try {
-                foreach ((string? id, Action<IInfiniFrameWindowBuilder>? configure, InfiniFrameWindowBuilder? registeredBuilder) in _registrations) {
+                foreach ((string? id, Action<IInfiniFrameWindowBuilder>? configure, InfiniFrameWindowBuilder? registeredBuilder, IServiceProvider? provider) in _registrations) {
                     InfiniFrameWindowBuilder builder = registeredBuilder ?? new InfiniFrameWindowBuilder();
                     configure?.Invoke(builder);
+                    builder.SetApplicationHandle(_nativeHandle.DangerousGetHandle());
                     string windowId = id ?? Guid.NewGuid().ToString("N");
-                    built.Add((windowId, builder.Build()));
+                    built.Add((windowId, builder.Build(provider)));
                 }
 
                 foreach ((string id, IInfiniFrameWindow window) in built) _windows.Add(id, window);
@@ -346,6 +359,18 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 logger.LogWarning(ex, "Failed to stop an application component.");
             }
         }
+    }
+
+    private void StartRegisteredComponents() {
+        Func<Task>[] actions;
+        lock (_gate) actions = _startupActions.ToArray();
+        foreach (Func<Task> action in actions) action().GetAwaiter().GetResult();
+    }
+
+    private async Task StartRegisteredComponentsAsync() {
+        Func<Task>[] actions;
+        lock (_gate) actions = _startupActions.ToArray();
+        foreach (Func<Task> action in actions) await action().ConfigureAwait(false);
     }
 
     private async Task StopRegisteredComponentsAsync() {

@@ -17,9 +17,10 @@ public static class Program {
         // -------------------------------------------------------------------------------------------------------------
         // Builder
         // -------------------------------------------------------------------------------------------------------------
-        InfiniFrameWebApplicationBuilder appBuilder = InfiniFrameWebApplication.CreateBuilder(args);
+        InfiniFrameApplication application = InfiniFrameApplication.Initialize()
+            .WithWebServer(builder => {
 
-        appBuilder.Services
+        builder.Services
             .AddLogging(config => {
                 config.ClearProviders();
                 config.AddSerilog();
@@ -31,7 +32,7 @@ public static class Program {
             .AddRazorComponents()
             .AddInteractiveServerComponents();
 
-        appBuilder.Services.AddHttpClient("ServerApi", (sp, client) => {
+        builder.Services.AddHttpClient("ServerApi", (sp, client) => {
             var config = sp.GetRequiredService<IConfiguration>();
 
             // Prefer ASPNETCORE_URLS, then "urls", then a fallback
@@ -45,13 +46,13 @@ public static class Program {
 
             client.BaseAddress = new Uri(baseUrl);
         });
-        appBuilder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ServerApi"));
+        builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ServerApi"));
 
-        appBuilder.Services.AddInfiniFrameJs();
+        builder.Services.AddInfiniFrameJs();
 
-        appBuilder.WebApp.WebHost.UseStaticWebAssets();
+        builder.WebApp.WebHost.UseStaticWebAssets();
 
-        appBuilder.WindowBuilder
+        builder.WindowBuilder
             // .SetTransparent(true)
             // .SetChromeless(true)
             // .SetResizable(true)
@@ -67,21 +68,14 @@ public static class Program {
             // .SetMinSize(new Size(600, 400))
             ;
 
-        // -------------------------------------------------------------------------------------------------------------
-        // App
-        // -------------------------------------------------------------------------------------------------------------
-        InfiniFrameWebApplication application = appBuilder.Build();
-        application.UseAutoServerClose();
-
-        WebApplication webApp = application.WebApp;
-
-        webApp.UseRouting();
-
-        webApp.UseAntiforgery();
-        webApp.MapStaticAssets();
-
-        webApp.MapRazorComponents<App>()
-            .AddInteractiveServerRenderMode();
+        builder.ConfigureWebApplication(webApp => {
+            webApp.UseRouting();
+            webApp.UseAntiforgery();
+            webApp.MapStaticAssets();
+            webApp.MapRazorComponents<App>()
+                .AddInteractiveServerRenderMode();
+        });
+    });
 
         application.Run();
     }

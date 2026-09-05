@@ -172,7 +172,7 @@ namespace {
         instance->CloseWebView();
         instance->InvokeClosed();
         TraceTeardown(L"WM_DESTROY end hwnd=%p instance=%p", hwnd, instance);
-        if (InfiniFrameApplication* application = InfiniFrameApplication::GetInstance())
+        if (InfiniFrameApplication* application = instance->GetApplication())
             application->NotifyWindowClosed(instance);
         else if (hwnd == messageLoopRootWindowHandle)
             PostQuitMessage(0);

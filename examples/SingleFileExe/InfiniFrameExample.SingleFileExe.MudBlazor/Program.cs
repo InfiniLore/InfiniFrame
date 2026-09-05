@@ -25,7 +25,8 @@ public static class Program {
         try {
             Log.Information("Starting InfiniFrame MudBlazor example...");
 
-            var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
+            InfiniFrameApplication application = InfiniFrameApplication.Initialize()
+                .WithBlazorWebView(appBuilder => {
 
             appBuilder.Services
                 .AddLogging(config => {
@@ -46,8 +47,7 @@ public static class Program {
             
             InfiniFrameSingleFile.AddSingleFileRequirements(appBuilder);
 
-            Log.Information("Building InfiniFrame application...");
-            InfiniFrameBlazorApp application = appBuilder.Build();
+                });
 
             Log.Information("Running application...");
             application.Run();

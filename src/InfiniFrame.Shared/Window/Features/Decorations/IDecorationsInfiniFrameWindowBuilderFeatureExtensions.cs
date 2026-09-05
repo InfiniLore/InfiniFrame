@@ -71,13 +71,6 @@ public static class IDecorationsInfiniFrameWindowBuilderFeatureExtensions {
     /// <param name="builder">The builder instance.</param>
     /// <param name="appUserModelId">The application user model ID, or <c>null</c> to use Windows' default identity.</param>
     /// <returns>The builder instance for chaining.</returns>
-    public static IInfiniFrameWindowBuilder SetWindowsAppUserModelId(
-        this IInfiniFrameWindowBuilder builder,
-        string? appUserModelId
-    ) {
-        builder.Features.Decorations.SetWindowsAppUserModelId(appUserModelId);
-        return builder;
-    }
 
     /// <summary>
     ///     Sets whether the Linux window title length should be limited.

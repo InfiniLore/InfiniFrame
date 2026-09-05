@@ -36,8 +36,12 @@ public static class InfiniFrameApplicationWebServerExtensions {
         configure(builder);
 
         InfiniFrameWebApplication webApplication = builder.Build();
-        webApplication.WebApp.StartAsync().GetAwaiter().GetResult();
-        application.RegisterWindowBuilder(windowId, (InfiniFrameWindowBuilder)builder.WindowBuilder);
+        application.RegisterWindowBuilder(
+            windowId,
+            (InfiniFrameWindowBuilder)builder.WindowBuilder,
+            webApplication.WebApp.Services
+        );
+        application.RegisterStartupAction(() => webApplication.WebApp.StartAsync());
         application.RegisterShutdownAction(webApplication.StopServerAsync);
         return application;
     }

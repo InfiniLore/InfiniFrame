@@ -21,7 +21,6 @@ public class DecorationsInfiniFrameWindowBuilderFeatureTests {
         await Assert.That(feature.BackgroundColor).IsNull();
         await Assert.That(feature.Title).IsEqualTo("InfiniFrame");
         await Assert.That(feature.IconFilePath).IsNull();
-        await Assert.That(feature.WindowsAppUserModelId).IsNull();
         await Assert.That(feature.LimitLinuxWindowTitleLength).IsFalse();
     }
 
@@ -86,18 +85,6 @@ public class DecorationsInfiniFrameWindowBuilderFeatureTests {
     }
 
     [Test]
-    public async Task SetWindowsAppUserModelId_SetsValue(CancellationToken ct = default) {
-        // Arrange
-        var feature = new DecorationsInfiniFrameWindowBuilderFeature();
-
-        // Act
-        feature.SetWindowsAppUserModelId("com.myapp");
-
-        // Assert
-        await Assert.That(feature.WindowsAppUserModelId).IsEqualTo("com.myapp");
-    }
-
-    [Test]
     public async Task SetLimitLinuxWindowTitleLength_TogglesValue(CancellationToken ct = default) {
         // Arrange
         var feature = new DecorationsInfiniFrameWindowBuilderFeature();
@@ -128,18 +115,4 @@ public class DecorationsInfiniFrameWindowBuilderFeatureTests {
         await Assert.That(parameters.Title).IsEqualTo("Test Title");
     }
 
-    [Test]
-    public async Task ApplyToNativeParameters_SetsWindowsAppUserModelId(CancellationToken ct = default) {
-        // Arrange
-        var feature = new DecorationsInfiniFrameWindowBuilderFeature();
-        feature.SetWindowsAppUserModelId("my.app.id");
-
-        var parameters = new InfiniFrameNativeParameters();
-
-        // Act
-        feature.ApplyToNativeParameters(ref parameters);
-
-        // Assert
-        await Assert.That(parameters.WindowsAppUserModelId).IsEqualTo("my.app.id");
-    }
 }

@@ -30,7 +30,6 @@ public class BrowserInfiniFrameWindowBuilderFeatureTests {
         await Assert.That(feature.IsBrowserShortcutsEnabled).IsTrue();
         await Assert.That(feature.BrowserControlInitParameters).IsNull();
         await Assert.That(feature.TemporaryFilesPath).IsNotEmpty();
-        await Assert.That(feature.WebView2RuntimePath).IsNull();
     }
 
     [Test]
@@ -99,7 +98,6 @@ public class BrowserInfiniFrameWindowBuilderFeatureTests {
         feature.EnableBrowserShortcuts(false);
         feature.SetBrowserControlInitParameters("init-params");
         feature.SetTemporaryFilesPath("/tmp/test");
-        feature.SetWebView2RuntimePath("/runtime/path");
 
         var parameters = new InfiniFrameNativeParameters();
 
@@ -121,6 +119,5 @@ public class BrowserInfiniFrameWindowBuilderFeatureTests {
         await Assert.That(parameters.BrowserShortcutsEnabled).IsFalse();
         await Assert.That(parameters.BrowserControlInitParameters).IsEqualTo("init-params");
         await Assert.That(parameters.TemporaryFilesPath).IsEqualTo(Path.GetFullPath("/tmp/test"));
-        await Assert.That(parameters.WebView2RuntimePath).IsEqualTo(Path.GetFullPath("/runtime/path"));
     }
 }

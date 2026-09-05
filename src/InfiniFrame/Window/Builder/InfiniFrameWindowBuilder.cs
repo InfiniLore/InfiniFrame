@@ -15,6 +15,7 @@ namespace InfiniFrame;
 ///     features, and event handlers to construct an <see cref="IInfiniFrameWindow"/>.
 /// </summary>
 public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
+    internal IntPtr ApplicationHandle { get; private set; }
 
     private IServiceCollection Services { get; init; } = new ServiceCollection().AddInfiniFrame();
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.Configuration" />
@@ -35,6 +36,8 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             .AddLogging()
             .AddInfiniFrame();
     }
+
+    internal void SetApplicationHandle(IntPtr handle) => ApplicationHandle = handle;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -98,6 +101,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
         Configuration.ApplyToNativeParameters(ref parameters);
         Features.ApplyToNativeParameters(ref parameters);
+        parameters.ApplicationInstance = ApplicationHandle;
 
         return parameters;
     }

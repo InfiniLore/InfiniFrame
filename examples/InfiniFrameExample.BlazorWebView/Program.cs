@@ -16,8 +16,8 @@ namespace InfiniFrameExample.BlazorWebView;
 public static class Program {
     [STAThread]
     private static void Main(string[] args) {
-        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
-
+        InfiniFrameApplication app = InfiniFrameApplication.Initialize()
+            .WithBlazorWebView(appBuilder => {
         appBuilder.Services.AddLogging(config => {
             config.ClearProviders();
             config.AddSerilog();
@@ -49,7 +49,7 @@ public static class Program {
                 ;
         });
 
-        InfiniFrameBlazorApp app = appBuilder.Build();
+            });
 
         app.Run();
     }

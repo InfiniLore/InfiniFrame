@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.WebServer"/>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
     </ItemGroup>
 

@@ -35,11 +35,6 @@ public interface IDecorationsInfiniFrameWindowBuilderFeature : IInfiniFrameWindo
     string? IconFilePath { get; }
 
     /// <summary>
-    ///     Gets the explicit Windows application user model ID used for taskbar grouping and identity.
-    /// </summary>
-    string? WindowsAppUserModelId { get; }
-
-    /// <summary>
     ///     Gets whether Linux window title length is limited.
     /// </summary>
     bool LimitLinuxWindowTitleLength { get; }
@@ -73,13 +68,6 @@ public interface IDecorationsInfiniFrameWindowBuilderFeature : IInfiniFrameWindo
     /// </summary>
     /// <param name="iconFilePath">The path to the icon file.</param>
     void SetIconFile(string iconFilePath);
-
-    /// <summary>
-    ///     Sets the explicit Windows application user model ID for the current process.
-    ///     All windows in a process should use the same ID.
-    /// </summary>
-    /// <param name="appUserModelId">The application user model ID, or <c>null</c> to use Windows' default identity.</param>
-    void SetWindowsAppUserModelId(string? appUserModelId);
 
     /// <summary>
     ///     Sets whether the Linux window title length should be limited.
