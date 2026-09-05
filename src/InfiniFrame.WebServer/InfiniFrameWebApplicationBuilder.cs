@@ -57,7 +57,9 @@ public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilde
     public InfiniFrameWebApplication Build() {
         // Ensure core InfiniFrame services are registered even when Initialize() was not called.
         if (!Services.Any(static s => s.ServiceType == typeof(IInfiniFrameApplication))) {
-            Services.AddInfiniFrame();
+            Services.AddInfiniFrame()
+                .AddSingleton(WindowBuilder)
+                .AddSingleton<IInfiniFrameWindow>(static provider => provider.GetRequiredService<IInfiniFrameWindowBuilder>().Build(provider));
             WindowBuilder.RegisterGetWebMessageHandler();
         }
 
