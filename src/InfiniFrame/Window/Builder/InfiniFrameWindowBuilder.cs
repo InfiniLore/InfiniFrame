@@ -17,7 +17,7 @@ namespace InfiniFrame;
 public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     internal IntPtr ApplicationHandle { get; private set; }
 
-    private IServiceCollection Services { get; init; } = new ServiceCollection().AddInfiniFrame();
+    private IServiceCollection Services { get; }
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.Configuration" />
     public IInfiniFrameWindowBuilderConfiguration Configuration { get; } = new InfiniFrameWindowBuilderConfiguration();
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.Features" />
@@ -25,7 +25,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.Debugging" />
     public IDebuggingInfiniFrameWindowBuilderFeature Debugging => Features.Debugging;
     /// <inheritdoc cref="IHasInfiniFrameEventsStore.EventsStore" />
-    public IInfiniFrameEventsStore EventsStore { get; private init; } = new InfiniFrameEventsStore();
+    public IInfiniFrameEventsStore EventsStore { get; }
 
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.StaticAssets" />
     public IInfiniFrameStaticAssets? StaticAssets { get; set; }
@@ -50,6 +50,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         var validator = actualProvider.GetRequiredService<IValidator<InfiniFrameNativeParameters>>();
 
         InfiniFrameNativeParameters nativeParameters = CollectNativeParameters();
+        validator.ValidateAndThrow(nativeParameters);
 
         // Instance arbitration check
         IInstanceArbitrationInfiniFrameWindowBuilderFeature arbitration = Features.InstanceArbitration;
@@ -75,8 +76,6 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             window,
             InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(this)
         );
-
-        validator.ValidateAndThrow(nativeParameters);
 
         window.Features.Lifecycle.Initialize();
 

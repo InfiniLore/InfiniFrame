@@ -180,7 +180,9 @@ public static class InfiniFrameApplicationBlazorWebViewExtensions {
         ArgumentException.ThrowIfNullOrWhiteSpace(windowId);
         ArgumentNullException.ThrowIfNull(configure);
 
+        Action<IInfiniFrameWindowBuilder>? configureWindow = builder.TakeWindowConfiguration(windowId);
         var configuration = new InfiniFrameBlazorWebViewConfiguration(builder.Services);
+        if (configureWindow is not null) configuration.ConfigureWindow(configureWindow);
         configure(configuration);
         builder.Services.AddSingleton<IInfiniFrameWindow>(provider =>
             provider.GetRequiredService<IInfiniFrameApplication>().GetWindow(windowId));

@@ -28,11 +28,13 @@ public static class Program {
                     .MinimumLevel.Debug();
         });
 
+        builder.WithWindow(window => window
+            .SetIconFile("wwwroot/favicon.ico")
+            .SetLocation(new Point(100, 100))
+            .SetSize(new Size(800, 600)));
+        
+
         builder.UseBlazorWebView(configuration => {
-            configuration.ConfigureWindow(window => window
-                .SetIconFile("wwwroot/favicon.ico")
-                .SetLocation(new Point(100, 100))
-                .SetSize(new Size(800, 600)));
             // register the root component and selector
             configuration.RootComponents.Add<App>("app");
 
