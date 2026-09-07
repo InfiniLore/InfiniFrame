@@ -304,20 +304,8 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         SetTopmost(true);
 
     if (initParams->NotificationsEnabled) {
-        if (application != nullptr && !application->HasNotificationRegistration())
-            application->EnsureNotificationsInitialized(initParams->Title);
-        if (application != nullptr && application->HasNotificationRegistration()) {
-            // Notification identity and WinToast initialization are application-owned.
-        }
-        else if (!m_impl->_windowsAppUserModelId.empty())
-            WinToast::instance()->setAppUserModelId(m_impl->_windowsAppUserModelId.c_str());
-        else if (!m_impl->_notificationRegistrationId.empty())
-            WinToast::instance()->setAppUserModelId(m_impl->_notificationRegistrationId.c_str());
-        else
-            WinToast::instance()->setAppUserModelId(m_impl->_windowTitle.c_str());
-
         m_impl->_toastHandler = std::make_unique<WinToastHandler>(this);
-        if (application == nullptr || !application->HasNotificationRegistration())
+        if (application == nullptr)
             WinToast::instance()->initialize();
     }
 

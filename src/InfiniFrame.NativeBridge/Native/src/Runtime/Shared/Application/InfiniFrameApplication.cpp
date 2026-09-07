@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <shobjidl_core.h>
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
+#include "Dependencies/wintoastlib/wintoastlib.h"
 #endif
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -28,8 +29,6 @@ namespace {
 #endif
 
 InfiniFrameApplication::InfiniFrameApplication() {
-    if (s_instance != nullptr)
-        throw std::logic_error("Only one InfiniFrameApplication may exist at a time.");
     s_instance = this;
 }
 
@@ -54,6 +53,18 @@ void InfiniFrameApplication::Register() {
         if (FAILED(result))
             throw std::runtime_error("Could not set the application Windows AppUserModelID.");
     }
+
+    WinToastLib::setDebugOutputEnabled(false);
+    const std::wstring defaultIdentity = L"InfiniFrame";
+    if (!_notificationRegistrationId.empty())
+        WinToastLib::WinToast::instance()->setAppUserModelId(ToWindowsString(_notificationRegistrationId.c_str()));
+    else if (!_appUserModelId.empty())
+        WinToastLib::WinToast::instance()->setAppUserModelId(ToWindowsString(_appUserModelId.c_str()));
+    else
+        WinToastLib::WinToast::instance()->setAppUserModelId(defaultIdentity);
+    WinToastLib::WinToast::instance()->setAppName(defaultIdentity);
+    if (!WinToastLib::WinToast::instance()->initialize())
+        throw std::runtime_error("Could not initialize application notifications.");
 #endif
     _registered = true;
     _shutdownRequested = false;
@@ -105,9 +116,22 @@ void InfiniFrameApplication::Run() noexcept {
     }
 
     MSG message = {};
-    while (GetMessage(&message, nullptr, 0, 0) > 0) {
-        TranslateMessage(&message);
-        DispatchMessage(&message);
+    while (true) {
+        {
+            std::lock_guard lock(_mutex);
+            if (_shutdownRequested) break;
+        }
+
+        MsgWaitForMultipleObjectsEx(0, nullptr, 50, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
+        while (PeekMessage(&message, nullptr, 0, 0, PM_REMOVE)) {
+            if (message.message == WM_QUIT) {
+                std::lock_guard lock(_mutex);
+                _shutdownRequested = true;
+                break;
+            }
+            TranslateMessage(&message);
+            DispatchMessage(&message);
+        }
     }
 
     std::lock_guard lock(_mutex);

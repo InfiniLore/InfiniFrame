@@ -9,6 +9,11 @@ namespace InfiniFrame;
 ///     Owns the windows registered for an InfiniFrame application.
 /// </summary>
 public interface IInfiniFrameApplication : IDisposable, IAsyncDisposable {
+    Guid Id { get; }
+    IntPtr ApplicationHandle { get; }
+    bool IsShutdownRequested { get; }
+    event Action<IInfiniFrameWindow>? WindowCreated;
+    event Action<IInfiniFrameWindow>? WindowDestroyed;
     /// <summary>Registers an unnamed window to be built when the application runs.</summary>
     void RegisterWindow(Action<IInfiniFrameWindowBuilder> configure);
 
@@ -32,4 +37,7 @@ public interface IInfiniFrameApplication : IDisposable, IAsyncDisposable {
 
     /// <summary>Requests all owned windows to close.</summary>
     void Shutdown();
+
+    /// <summary>Requests all owned windows to close.</summary>
+    void CloseAll();
 }

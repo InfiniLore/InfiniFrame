@@ -11,13 +11,12 @@ namespace InfiniFrameExample.TrimAotSmoke;
 public static class Program {
     [STAThread]
     public static void Main() {
-        IInfiniFrameWindow window = new InfiniFrameWindowBuilder()
-            .SetTitle("InfiniFrame Trim/AOT Smoke")
-            .SetSize(800, 600)
-            .CenteredOnMainMonitor()
-            .UseEmbeddedWwwrootAssets()
-            .Build();
-
-        window.WaitForClose();
+        InfiniFrameApplication.Initialize()
+            .WithWindow(builder => builder
+                .SetTitle("InfiniFrame Trim/AOT Smoke")
+                .SetSize(800, 600)
+                .CenteredOnMainMonitor()
+                .UseEmbeddedWwwrootAssets())
+            .Run();
     }
 }

@@ -71,18 +71,19 @@ public static class Program {
             ]
         );
 
-        IInfiniFrameWindow window = new InfiniFrameWindowBuilder()
-            .SetTitle("InfiniFrame Native Menu Example")
-            .SetSize(new Size(960, 640))
-            .CenteredOnMainMonitor()
-            .SetMenuBar(menuBar)
-            .UseEmbeddedWwwrootAssets(
-                scheme: "app",
-                includePhysicalFallback: true,
-                physicalWwwrootPath: Path.Join(AppContext.BaseDirectory, "wwwroot"),
-                setStartUrl: true
-            )
-            .RegisterWebMessageReceivedHandler((win, message) => {
+        InfiniFrameApplication.Initialize()
+            .WithWindow(builder => builder
+                .SetTitle("InfiniFrame Native Menu Example")
+                .SetSize(new Size(960, 640))
+                .CenteredOnMainMonitor()
+                .SetMenuBar(menuBar)
+                .UseEmbeddedWwwrootAssets(
+                    scheme: "app",
+                    includePhysicalFallback: true,
+                    physicalWwwrootPath: Path.Join(AppContext.BaseDirectory, "wwwroot"),
+                    setStartUrl: true
+                )
+                .RegisterWebMessageReceivedHandler((win, message) => {
                 string? action = ExtractAction(message);
                 if (action == null) return;
 
@@ -109,10 +110,8 @@ public static class Program {
                         win.SendWebMessage($"status:Action: {action}");
                         break;
                 }
-            })
-            .Build();
-
-        window.WaitForClose();
+                }))
+            .Run();
     }
 
     private static string? ExtractAction(string rawMessage) {

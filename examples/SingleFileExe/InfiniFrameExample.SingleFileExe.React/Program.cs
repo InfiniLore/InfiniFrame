@@ -9,14 +9,14 @@ public static class Program {
     public static void Main(string[] args) {
         InfiniFrameSingleFile.Initialize();
 
-        IInfiniFrameWindowBuilder builder = new InfiniFrameWindowBuilder()
-            .SetTitle("InfiniFrame + React")
-            .SetSize(new Size(960, 640))
-            .CenteredOnMainMonitor();
-
-        builder.AddSingleFileRequirements();
-
-        IInfiniFrameWindow window = builder.Build();
-        window.WaitForClose();
+        InfiniFrameApplication.Initialize()
+            .WithWindow(builder => {
+                builder
+                    .SetTitle("InfiniFrame + React")
+                    .SetSize(new Size(960, 640))
+                    .CenteredOnMainMonitor();
+                builder.AddSingleFileRequirements();
+            })
+            .Run();
     }
 }
