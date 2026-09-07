@@ -293,11 +293,12 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     }
 
     private void BuildAllWindows() {
+        (string Id, IInfiniFrameWindow Window)[] built;
         lock (_gate) {
             ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
             if (_built) return;
 
-            var built = new List<(string Id, IInfiniFrameWindow Window)>();
+            var windows = new List<(string Id, IInfiniFrameWindow Window)>();
             try {
                 foreach ((string? id, Action<IInfiniFrameWindowBuilder>? configure, InfiniFrameWindowBuilder? registeredBuilder, IServiceProvider? provider) in _registrations) {
                     InfiniFrameWindowBuilder builder = registeredBuilder ?? new InfiniFrameWindowBuilder();
@@ -306,21 +307,24 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                     configure?.Invoke(builder);
                     builder.SetApplicationHandle(_nativeHandle.DangerousGetHandle());
                     string windowId = id ?? Guid.NewGuid().ToString("N");
-                    built.Add((windowId, builder.Build(provider ?? _serviceProvider)));
+                    windows.Add((windowId, builder.Build(provider ?? _serviceProvider)));
                 }
 
-                foreach ((string id, IInfiniFrameWindow window) in built) {
+                foreach ((string id, IInfiniFrameWindow window) in windows) {
                     _windows.Add(id, window);
-                    WindowCreated?.Invoke(window);
                 }
                 _registrations.Clear();
                 _built = true;
+                built = [.. windows];
             }
             catch {
-                foreach ((_, IInfiniFrameWindow window) in built) (window as IDisposable)?.Dispose();
+                foreach ((_, IInfiniFrameWindow window) in windows) (window as IDisposable)?.Dispose();
                 throw;
             }
         }
+
+        foreach ((_, IInfiniFrameWindow window) in built)
+            WindowCreated?.Invoke(window);
     }
 
     private void EnsureBuilt()

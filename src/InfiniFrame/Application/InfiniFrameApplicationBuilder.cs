@@ -65,7 +65,8 @@ public sealed class InfiniFrameApplicationBuilder {
 
     public InfiniFrameApplication Build() {
         InfiniFrameApplication? application = null;
-        IServiceProvider serviceProvider = Services.BuildServiceProvider();
+        IServiceProvider? serviceProvider = null;
+        bool serviceProviderAttached = false;
         try {
             application = InfiniFrameApplication.Initialize(new ApplicationConfiguration(
                 _webView2RuntimePath,
@@ -74,17 +75,23 @@ public sealed class InfiniFrameApplicationBuilder {
                 _defaultNotificationIcon
             ));
 
+            Services.AddSingleton<IInfiniFrameApplication>(application);
+            serviceProvider = Services.BuildServiceProvider();
+
             foreach ((string? id, Action<IInfiniFrameWindowBuilder> configure) in _windows) {
                 if (id is null) application.RegisterWindow(configure);
                 else application.RegisterWindow(id, configure);
             }
             application.AttachServiceProvider(serviceProvider);
+            serviceProviderAttached = true;
             foreach (Action<InfiniFrameApplication> integration in _integrations)
                 integration(application);
             return application!;
         }
         catch {
             application?.Dispose();
+            if (!serviceProviderAttached && serviceProvider is IDisposable disposableServiceProvider)
+                disposableServiceProvider.Dispose();
             throw;
         }
     }

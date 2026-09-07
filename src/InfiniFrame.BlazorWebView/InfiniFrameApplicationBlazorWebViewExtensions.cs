@@ -55,9 +55,12 @@ public sealed class InfiniFrameBlazorWebViewConfiguration {
 
         IInfiniFrameJsComponentConfiguration? jsConfiguration =
             services.GetService<IInfiniFrameJsComponentConfiguration>();
-        if (jsConfiguration is not null)
-            foreach ((Type componentType, string selector) in RootComponents)
-                jsConfiguration.Add(componentType, selector);
+        if (jsConfiguration is not null) {
+            application.WindowCreated += _ => {
+                foreach ((Type componentType, string selector) in RootComponents)
+                    jsConfiguration.Add(componentType, selector);
+            };
+        }
 
         IDisposable? exceptionRegistration = TryRegisterUnhandledExceptionHandler(services);
         application.RegisterWindowBuilder(windowId, _windowBuilder);
@@ -82,8 +85,6 @@ public sealed class InfiniFrameBlazorWebViewConfiguration {
             .AddSingleton<Dispatcher, InfiniFrameDispatcher>()
             .AddSingleton<InfiniFrameHttpHandler>()
             .AddSingleton<InfiniFrameSynchronizationContext>()
-            .AddSingleton<IInfiniFrameWindow>(static provider =>
-                provider.GetRequiredService<IInfiniFrameWindowBuilder>().Build(provider))
             .AddBlazorWebView()
             .AddSingleton(fileProvider)
             .AddSingleton<IInfiniFrameStaticAssets>(static provider => {
@@ -175,6 +176,8 @@ public static class InfiniFrameApplicationBlazorWebViewExtensions {
 
         var configuration = new InfiniFrameBlazorWebViewConfiguration(builder.Services);
         configure(configuration);
+        builder.Services.AddSingleton<IInfiniFrameWindow>(provider =>
+            provider.GetRequiredService<IInfiniFrameApplication>().GetWindow(windowId));
         builder.AddIntegration(application => {
             configuration.Apply(application, windowId);
         });

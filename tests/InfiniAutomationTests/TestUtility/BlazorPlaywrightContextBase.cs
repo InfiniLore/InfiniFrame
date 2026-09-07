@@ -26,26 +26,36 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     protected async Task BeforeAllAsync() {
-        using var startupCancellation = new CancellationTokenSource(TimeSpan.FromSeconds(90));
+        TimeSpan startupTimeout = TimeSpan.FromSeconds(90);
+        using var startupCancellation = new CancellationTokenSource(startupTimeout);
         var ready = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         _appThread = CreateAppThread(ready);
         _appThread.Start();
 
-        await ready.Task.WaitAsync(startupCancellation.Token);
+        try {
+            await ready.Task.WaitAsync(startupCancellation.Token);
+        }
+        catch (OperationCanceledException) {
+            throw new TimeoutException(
+                $"The Blazor application did not create its window within {startupTimeout.TotalSeconds:0} seconds.");
+        }
 
         Uri cdpEndpoint = PlaywrightConnectionUtility.CreateCdpConnectionUrl(_playwrightDevtoolsPort);
-        Console.WriteLine($"[PlaywrightSetup] Waiting for CDP endpoint at {cdpEndpoint}...");
-        using var probeCancellation = new CancellationTokenSource(TimeSpan.FromSeconds(60));
-        while (!probeCancellation.Token.IsCancellationRequested) {
+        using var probeCancellation = CancellationTokenSource.CreateLinkedTokenSource(startupCancellation.Token);
+        while (true) {
             if (RemoteDebuggingUtility.TryProbeEndpoint(cdpEndpoint, out _)) {
-                Console.WriteLine($"[PlaywrightSetup] CDP endpoint at {cdpEndpoint} is reachable.");
                 return;
             }
-            await Task.Delay(500, probeCancellation.Token).ConfigureAwait(false);
+            try {
+                await Task.Delay(500, probeCancellation.Token).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) {
+                throw new TimeoutException(
+                    $"The Blazor CDP endpoint '{cdpEndpoint}' was not reachable within " +
+                    $"{startupTimeout.TotalSeconds:0} seconds.");
+            }
         }
-        Console.WriteLine($"[PlaywrightSetup] WARNING: CDP endpoint at {cdpEndpoint} not reachable after 60s. " +
-            "Proceeding anyway — Playwright connection will retry.");
     }
 
     protected void AfterAll() {
@@ -111,7 +121,7 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
                 _window = window;
                 ready.TrySetResult(null);
             };
-            application.Run();
+            RunApp(application);
         }
         catch (InvalidOperationException ex) {
             ready.TrySetException(ex);
