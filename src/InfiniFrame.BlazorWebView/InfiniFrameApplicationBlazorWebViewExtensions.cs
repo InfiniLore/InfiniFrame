@@ -1,3 +1,6 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 using System.Reflection;
 using InfiniFrame.BlazorWebView.FileProviders;
 using InfiniFrame.Security;
@@ -9,6 +12,9 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 
 namespace InfiniFrame.BlazorWebView;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 
 public sealed class InfiniFrameBlazorWebViewConfiguration {
     private readonly IServiceCollection _services;
