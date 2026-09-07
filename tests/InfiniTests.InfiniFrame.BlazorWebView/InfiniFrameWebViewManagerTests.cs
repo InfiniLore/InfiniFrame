@@ -26,10 +26,8 @@ public class InfiniFrameWebViewManagerTests {
     public async Task HandleWebRequest_FragmentAndQueryAreExcludedFromLookup(CancellationToken ct = default) {
         byte[] expected = [.. "settings-page"u8];
         var fileProvider = new RecordingFileProvider("index.html", expected);
-        var builder = new InfiniFrameWindowBuilder();
         await using ServiceProvider provider = new ServiceCollection().AddLogging().BuildServiceProvider();
         await using var manager = new TestableInfiniFrameWebViewManager(
-            builder,
             provider,
             MockFactory.CreateDispatcherMock().Object,
             fileProvider,
@@ -58,7 +56,6 @@ public class InfiniFrameWebViewManagerTests {
         var fileProvider = new RecordingFileProvider("index.html", [.. "blocked"u8]);
         await using ServiceProvider provider = new ServiceCollection().AddLogging().BuildServiceProvider();
         await using var manager = new TestableInfiniFrameWebViewManager(
-            new InfiniFrameWindowBuilder(),
             provider,
             MockFactory.CreateDispatcherMock().Object,
             fileProvider,
@@ -92,7 +89,6 @@ public class InfiniFrameWebViewManagerTests {
 
         Dispatcher dispatcher = MockFactory.CreateDispatcherMock().Object;
         var manager = new TestableInfiniFrameWebViewManager(
-            new InfiniFrameWindowBuilder(),
             provider,
             dispatcher,
             new NullFileProvider(),
@@ -143,7 +139,6 @@ public class InfiniFrameWebViewManagerTests {
             .BuildServiceProvider();
 
         var manager = new TestableInfiniFrameWebViewManager(
-            new InfiniFrameWindowBuilder(),
             provider,
             MockFactory.CreateDispatcherMock().Object,
             new NullFileProvider(),
@@ -281,7 +276,6 @@ public class InfiniFrameWebViewManagerTests {
         IServiceProvider provider,
         InfiniFrameBlazorAppConfiguration? configuration = null
     ) => new(
-        new InfiniFrameWindowBuilder(),
         provider,
         MockFactory.CreateDispatcherMock().Object,
         new NullFileProvider(),
@@ -290,14 +284,13 @@ public class InfiniFrameWebViewManagerTests {
         NullLogger<InfiniFrameWebViewManager>.Instance);
 
     private sealed class TestableInfiniFrameWebViewManager(
-        IInfiniFrameWindowBuilder builder,
         IServiceProvider provider,
         Dispatcher dispatcher,
         IFileProvider fileProvider,
         JSComponentConfigurationStore jsComponents,
         IOptions<InfiniFrameBlazorAppConfiguration> config,
         ILogger<InfiniFrameWebViewManager> logger
-    ) : InfiniFrameWebViewManager(builder, provider, dispatcher, fileProvider, jsComponents, config, logger) {
+    ) : InfiniFrameWebViewManager(provider, dispatcher, fileProvider, jsComponents, config, logger) {
         public void SendMessageForTest(string message) => SendMessage(message);
     }
 

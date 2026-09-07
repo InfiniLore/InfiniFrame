@@ -90,9 +90,9 @@ public sealed class InfiniFrameTestServer : IAsyncDisposable {
                 });
 
                 InfiniFrameApplication application = builder.Build();
-                application.WindowCreated += window => {
+                application.WindowCreated += infiniFrameWindow => {
                     if (webApplicationReady.Task.IsCompletedSuccessfully)
-                        ready.TrySetResult((window, webApplicationReady.Task.Result));
+                        ready.TrySetResult((infiniFrameWindow, webApplicationReady.Task.Result));
                 };
                 application.Run();
             }

@@ -47,6 +47,14 @@ public interface IInfiniFrameWebViewManager {
     Task<bool> TryDispatchAsync(Action<IServiceProvider> workItem);
 
     /// <summary>
+    ///     Handles a web message received from a native window.
+    /// </summary>
+    /// <param name="window">The native window that received the message.</param>
+    /// <param name="message">The message payload.</param>
+    /// <param name="origin">The message origin, if supplied by the native web view.</param>
+    void HandleWebMessage(IInfiniFrameWindow window, string message, string? origin);
+
+    /// <summary>
     ///     Handles a web request from the native window, returning the response stream and content type.
     /// </summary>
     /// <param name="infiniFrameWindow">The native window that initiated the request.</param>

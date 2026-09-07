@@ -143,7 +143,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     /// <inheritdoc />
     public async Task RunAsync(CancellationToken ct = default) {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
-        using CancellationTokenRegistration registration = ct.Register(Shutdown);
+        await using CancellationTokenRegistration registration = ct.Register(Shutdown);
         try {
             await StartRegisteredComponentsAsync().ConfigureAwait(false);
             var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);

@@ -172,11 +172,4 @@ public static class IBrowserInfiniFrameWindowBuilderFeatureExtensions {
         builder.Features.Browser.SetTemporaryFilesPath(parameters);
         return builder;
     }
-
-    /// <summary>
-    ///     Sets the fixed-version WebView2 runtime path used when creating the window on Windows.
-    /// </summary>
-    /// <param name="builder">The builder instance.</param>
-    /// <param name="path">The path to the extracted WebView2 runtime directory.</param>
-    /// <returns>The builder instance for chaining.</returns>
 }

@@ -177,7 +177,7 @@ public class ManifestCandidateTests {
         var tempFile = Path.GetTempFileName();
         try {
             await File.WriteAllTextAsync(tempFile, "test content");
-            using var stream = File.OpenRead(tempFile);
+            await using var stream = File.OpenRead(tempFile);
 
             // Act
             var candidate = new ManifestCandidate("/path", 10, stream);

@@ -86,7 +86,7 @@ public sealed class InfiniFrameApplicationBuilder {
             serviceProviderAttached = true;
             foreach (Action<InfiniFrameApplication> integration in _integrations)
                 integration(application);
-            return application!;
+            return application;
         }
         catch {
             application?.Dispose();

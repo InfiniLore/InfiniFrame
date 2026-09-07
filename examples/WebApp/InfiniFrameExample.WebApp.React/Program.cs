@@ -38,16 +38,16 @@ public static class Program {
                 ])
                 , "text/javascript")
             )
-            .RegisterWebMessageReceivedHandler((IInfiniFrameWindow window, string message, WebMessageCounter counter) => {
+            .RegisterWebMessageReceivedHandler((IInfiniFrameWindow infiniFrameWindow, string message, WebMessageCounter counter) => {
                 int count = counter.Increment();
                 string response = $"[{count}] Received message: \"{message}\"";
-                window.SendWebMessage(response);
+                infiniFrameWindow.SendWebMessage(response);
             }))
-            .WithWebServer(builder => {
-        builder.ConfigureWebApplication(webApp => {
-            webApp.UseStaticFiles();
-            webApp.MapStaticAssets();
-        });
+            .UseWebServer(builder => {
+                builder.ConfigureWebApplication(webApp => {
+                    webApp.UseStaticFiles();
+                    webApp.MapStaticAssets();
+                });
             })
             .Build();
 

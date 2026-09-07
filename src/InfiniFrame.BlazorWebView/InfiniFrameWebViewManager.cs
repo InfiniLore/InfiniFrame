@@ -40,7 +40,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     private readonly Task _messagePumpTask;
     private readonly int _messageQueueCapacity;
     private readonly BoundedChannelFullMode _messageQueueFullMode;
-    private readonly IInfiniFrameUriSecurityPolicy _uriSecurityPolicy;
+    private readonly IInfiniFrameUriSecurityPolicy _fallbackUriSecurityPolicy;
     private int _disposeStarted;
     private int _disposed;
 
@@ -50,7 +50,6 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     /// <summary>
     ///     Initializes a new instance of the <see cref="InfiniFrameWebViewManager"/> class.
     /// </summary>
-    /// <param name="builder">The window builder for configuring the native window.</param>
     /// <param name="provider">The service provider for dependency injection.</param>
     /// <param name="dispatcher">The Blazor dispatcher for thread marshalling.</param>
     /// <param name="fileProvider">The file provider for serving static assets.</param>
@@ -58,7 +57,6 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     /// <param name="config">The Blazor application configuration.</param>
     /// <param name="logger">The logger</param>
     public InfiniFrameWebViewManager(
-        IInfiniFrameWindowBuilder builder,
         IServiceProvider provider,
         Dispatcher dispatcher,
         IFileProvider fileProvider,
@@ -84,25 +82,11 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         });
         _messageQueueCapacity = configuration.WebMessageQueueCapacity;
         _messageQueueFullMode = configuration.WebMessageQueueFullMode;
-        _uriSecurityPolicy = InfiniFrameUriSecurityPolicyRegistry
-            .GetForBuilder(builder)
+        _fallbackUriSecurityPolicy = InfiniFrameUriSecurityPolicy.Default
             .WithTrustedOrigin(configuration.AppBaseUri);
 
         // ReSharper disable once ConvertClosureToMethodGroup
         LazyWindow = new Lazy<IInfiniFrameWindow>(() => provider.GetRequiredService<IInfiniFrameWindow>());
-
-        builder.RegisterWebMessageReceivedHandler((_, message, origin) => {
-            if (IsDisposingOrDisposed) return;
-
-            _logger.LogTrace("Web message callback received from native. Origin: {Origin}, Length: {Length}", origin, message.Length);
-
-            try {
-                HandleWebMessage((message, origin));
-            }
-            catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-                _logger.LogWarning(ex, "Unhandled exception while handling native web message callback.");
-            }
-        });
 
         _messagePumpTask = MessagePump();
         _logger.LogDebug(
@@ -135,7 +119,8 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             return default;
         }
 
-        if (!_uriSecurityPolicy.IsNavigationSchemeAllowed(requestUri.Scheme)) {
+        IInfiniFrameUriSecurityPolicy uriSecurityPolicy = GetUriSecurityPolicy(infiniFrameWindow);
+        if (!uriSecurityPolicy.IsNavigationSchemeAllowed(requestUri.Scheme)) {
             _logger.LogWarning(
                 "Rejected web request due to disallowed URI scheme. Scheme: {Scheme}, Url: {Url}",
                 requestUri.Scheme,
@@ -143,11 +128,11 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             return default;
         }
 
-        if (!_uriSecurityPolicy.IsTrustedOrigin(requestUri)) {
+        if (!uriSecurityPolicy.IsTrustedOrigin(requestUri)) {
             _logger.LogWarning(
                 "Rejected web request due to untrusted origin. RequestOrigin: {RequestOrigin}, TrustedOrigins: {TrustedOrigins}",
                 requestUri,
-                _uriSecurityPolicy.TrustedOrigins);
+                uriSecurityPolicy.TrustedOrigins);
             return default;
         }
 
@@ -183,16 +168,33 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     // -----------------------------------------------------------------------------------------------------------------
     // Web message handling
     // -----------------------------------------------------------------------------------------------------------------
-    private void HandleWebMessage((string Message, string? Origin) state) {
+    /// <inheritdoc cref="IInfiniFrameWebViewManager.HandleWebMessage" />
+    public void HandleWebMessage(IInfiniFrameWindow window, string message, string? origin) {
+        ArgumentNullException.ThrowIfNull(window);
+        ArgumentNullException.ThrowIfNull(message);
+
+        if (IsDisposingOrDisposed) return;
+
+        _logger.LogTrace("Web message callback received from native. Origin: {Origin}, Length: {Length}", origin, message.Length);
+
+        try {
+            HandleWebMessageCore(window, message, origin);
+        }
+        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
+            _logger.LogWarning(ex, "Unhandled exception while handling native web message callback.");
+        }
+    }
+
+    private void HandleWebMessageCore(IInfiniFrameWindow window, string message, string? origin) {
         if (IsDisposingOrDisposed) return;
 
         Uri? messageOriginUrl;
 
-        if (!string.IsNullOrWhiteSpace(state.Origin)) {
-            if (!Uri.TryCreate(state.Origin, UriKind.Absolute, out messageOriginUrl)) {
+        if (!string.IsNullOrWhiteSpace(origin)) {
+            if (!Uri.TryCreate(origin, UriKind.Absolute, out messageOriginUrl)) {
                 _logger.LogWarning(
                     "Rejected web message because origin parsing failed. Origin: {Origin}",
-                    state.Origin);
+                    origin);
                 return;
             }
         }
@@ -209,11 +211,12 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             return;
         }
 
-        if (!_uriSecurityPolicy.IsTrustedOrigin(messageOriginUrl)) {
+        IInfiniFrameUriSecurityPolicy uriSecurityPolicy = GetUriSecurityPolicy(window);
+        if (!uriSecurityPolicy.IsTrustedOrigin(messageOriginUrl)) {
             _logger.LogWarning(
                 "Rejected web message due to origin mismatch. Origin: {MessageOrigin}, TrustedOrigins: {TrustedOrigins}",
                 messageOriginUrl,
-                _uriSecurityPolicy.TrustedOrigins);
+                uriSecurityPolicy.TrustedOrigins);
             return;
         }
 
@@ -221,8 +224,13 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         // messages because the pump synchronously invokes that same thread to send responses.
         if (IsDisposingOrDisposed) return;
 
-        MessageReceived(messageOriginUrl, state.Message);
+        MessageReceived(messageOriginUrl, message);
     }
+
+    private IInfiniFrameUriSecurityPolicy GetUriSecurityPolicy(IInfiniFrameWindow? window) =>
+        window is null
+            ? _fallbackUriSecurityPolicy
+            : InfiniFrameUriSecurityPolicyRegistry.GetForWindow(window);
 
     // -----------------------------------------------------------------------------------------------------------------
     // Navigation

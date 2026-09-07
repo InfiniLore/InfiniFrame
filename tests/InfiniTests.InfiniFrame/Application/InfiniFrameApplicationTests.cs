@@ -8,7 +8,7 @@ public sealed class InfiniFrameApplicationTests {
     public async Task Initialize_CreatesApplicationWithNoWindows(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        using var application = InfiniFrameApplication.Initialize();
+        await using var application = InfiniFrameApplication.Initialize();
 
         await Assert.That(application.Windows).IsEmpty();
     }
@@ -17,7 +17,7 @@ public sealed class InfiniFrameApplicationTests {
     public async Task CreateBuilder_RegistersUnnamedWindowWithoutIntegrationId(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        using var application = InfiniFrameApplication.CreateBuilder()
+        await using var application = InfiniFrameApplication.CreateBuilder()
             .WithWindow(static window => window.SetStartPageContent("<html><body>App</body></html>"))
             .Build();
 
@@ -28,9 +28,10 @@ public sealed class InfiniFrameApplicationTests {
     public async Task RegisterWindow_DuplicateIdThrows(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        using var application = InfiniFrameApplication.Initialize();
+        await using var application = InfiniFrameApplication.Initialize();
         application.RegisterWindow("main", static _ => { });
 
+        // ReSharper disable once AccessToDisposedClosure
         await Assert.That(() => application.RegisterWindow("main", static _ => { }))
             .Throws<ArgumentException>();
     }
@@ -39,9 +40,10 @@ public sealed class InfiniFrameApplicationTests {
     public async Task LookupBeforeRunFailsClearly(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        using var application = InfiniFrameApplication.Initialize();
+        await using var application = InfiniFrameApplication.Initialize();
         application.RegisterWindow("main", static _ => { });
 
+        // ReSharper disable once AccessToDisposedClosure
         await Assert.That(() => application.GetWindow("main"))
             .Throws<InvalidOperationException>();
         await Assert.That(application.TryGetWindow("main")).IsNull();
@@ -51,7 +53,7 @@ public sealed class InfiniFrameApplicationTests {
     public async Task WebView2RuntimeConfigurationCanBeSetBeforeRun(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        using var application = InfiniFrameApplication.CreateBuilder()
+        await using var application = InfiniFrameApplication.CreateBuilder()
             .WithWebView2RuntimePath(Environment.SystemDirectory)
             .Build();
 
@@ -62,7 +64,7 @@ public sealed class InfiniFrameApplicationTests {
     public async Task ProcessWideConfigurationCanBeSetBeforeRun(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        using var application = InfiniFrameApplication.CreateBuilder()
+        await using var application = InfiniFrameApplication.CreateBuilder()
             .WithWebView2RuntimePath(Environment.SystemDirectory)
             .WithNotificationRegistrationId("InfiniFrame.Tests")
             .WithAppUserModelId("InfiniFrame.Tests")
@@ -76,9 +78,10 @@ public sealed class InfiniFrameApplicationTests {
     public async Task RegistrationAfterRunFails(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        using var application = InfiniFrameApplication.Initialize();
+        await using var application = InfiniFrameApplication.Initialize();
         application.Run();
 
+        // ReSharper disable once AccessToDisposedClosure
         await Assert.That(() => application.RegisterWindow(static _ => { }))
             .Throws<InvalidOperationException>();
     }

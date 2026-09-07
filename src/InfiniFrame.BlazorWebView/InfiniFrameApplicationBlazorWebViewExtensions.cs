@@ -51,6 +51,7 @@ public sealed class InfiniFrameBlazorWebViewConfiguration {
         _windowBuilder.StaticAssets = services.GetRequiredService<IInfiniFrameStaticAssets>().DeepCopy();
         if (!_windowBuilder.EventsStore.CustomScheme.ContainsKey(InfiniFrameWebViewManager.BlazorAppScheme))
             _windowBuilder.RegisterCustomSchemeHandler(InfiniFrameWebViewManager.BlazorAppScheme, manager.HandleWebRequest);
+        _windowBuilder.RegisterWebMessageReceivedHandler(manager.HandleWebMessage);
         _windowBuilder.SetStartPageUrl(BuildStartupUrl(appConfig));
 
         IInfiniFrameJsComponentConfiguration? jsConfiguration =
@@ -96,8 +97,7 @@ public sealed class InfiniFrameBlazorWebViewConfiguration {
                     DefaultDocument = NormalizeHostPage(config.HostPage)
                 };
             })
-            .AddSingleton<IInfiniFrameWindowBuilder>(_windowBuilder)
-            .AddSingleton<IInfiniFrameRootComponentList>(RootComponents)
+            .AddSingleton(RootComponents)
             .AddSingleton(RootComponents.JSComponents);
 
         _services.TryAddSingleton<IInfiniFrameUnhandledExceptionSource, AppDomainUnhandledExceptionSource>();
