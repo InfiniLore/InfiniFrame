@@ -18,7 +18,6 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
     private readonly int _playwrightDevtoolsPort = PlaywrightConnectionUtility.GetAvailablePort();
 
     [UsedImplicitly]
-    private InfiniFrameBlazorApp? _app;// kept for future reference
     private Thread? _appThread;
     private IInfiniFrameWindow? _window;
     public override IInfiniFrameWindow Window => _window!;
@@ -55,7 +54,6 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
 
         JoinAppThreadSafely();
 
-        _app = null;
         _window = null;
         _appThread = null;
     }
@@ -82,7 +80,7 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
             });
     }
 
-    protected virtual void RunApp(InfiniFrameBlazorApp app)
+    protected virtual void RunApp(InfiniFrameApplication app)
         => app.Run();
 
     private Thread CreateAppThread(TaskCompletionSource<object?> ready) {
@@ -99,21 +97,21 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
 
     private void RunAppOnThread(TaskCompletionSource<object?> ready) {
         try {
-            var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+            var builder = InfiniFrameApplication.CreateBuilder();
 
             ConfigureServices(builder.Services);
-            ConfigureRootComponents(builder.RootComponents);
-            builder.RootComponents.Add<TRootComponent>("app");
-            builder.WithInfiniFrameWindowBuilder(windowBuilder => ConfigureWindowBuilder(windowBuilder, _playwrightDevtoolsPort));
+            builder.UseBlazorWebView(configuration => {
+                ConfigureRootComponents(configuration.RootComponents);
+                configuration.RootComponents.Add<TRootComponent>("app");
+                configuration.ConfigureWindow(windowBuilder => ConfigureWindowBuilder(windowBuilder, _playwrightDevtoolsPort));
+            });
 
-            InfiniFrameBlazorApp app = builder.Build();
-            var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
-
-            _app = app;
-            _window = window;
-            ready.SetResult(null);
-
-            RunApp(app);
+            InfiniFrameApplication application = builder.Build();
+            application.WindowCreated += window => {
+                _window = window;
+                ready.TrySetResult(null);
+            };
+            application.Run();
         }
         catch (InvalidOperationException ex) {
             ready.TrySetException(ex);
@@ -122,6 +120,9 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
             ready.TrySetException(ex);
         }
         catch (PlaywrightException ex) {
+            ready.TrySetException(ex);
+        }
+        catch (Exception ex) {
             ready.TrySetException(ex);
         }
     }

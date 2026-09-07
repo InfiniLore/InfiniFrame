@@ -12,13 +12,10 @@ namespace InfiniFrameExample.WebApp.Vue;
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
-        InfiniFrameApplication application = InfiniFrameApplication.Initialize()
-            .WithWebServer(builder => {
-        // WebApplicationBuilder appBuilder = builder.WebApp;
-
-        if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) builder.WindowBuilder.Debugging.SetRemoteDebuggingPort(9222);
-
-        builder.WindowBuilder
+        InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder(args)
+            .WithWindow(window => {
+                if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) window.Debugging.SetRemoteDebuggingPort(9222);
+                window
             .CenteredOnMainMonitor()
             // .SetTransparent(true)
             // .SetUseOsDefaultSize(false)
@@ -36,12 +33,14 @@ public static class Program {
                 // ... do something with the message
             })
             ;
-
+            })
+            .WithWebServer(builder => {
         builder.ConfigureWebApplication(webApp => {
             webApp.UseStaticFiles();
             webApp.MapStaticAssets();
         });
-    });
+    })
+            .Build();
 
         application.Run();
     }

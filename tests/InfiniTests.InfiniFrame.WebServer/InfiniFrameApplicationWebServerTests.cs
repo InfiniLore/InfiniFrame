@@ -10,8 +10,10 @@ public sealed class InfiniFrameApplicationWebServerTests {
     public async Task WithWebServer_ReturnsApplicationAndDefersWindowBuild(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        using var application = InfiniFrameApplication.Initialize()
-            .WithWebServer(builder => builder.WebApp.WebHost.UseUrls("http://127.0.0.1:0"));
+        using var application = InfiniFrameApplication.CreateBuilder()
+            .WithWindow(window => window.SetStartPageContent("<html><body>Web</body></html>"))
+            .UseWebServer(builder => builder.WebHost.UseUrls("http://127.0.0.1:0"))
+            .Build();
 
         await Assert.That(application.Windows).IsEmpty();
     }

@@ -64,7 +64,7 @@ public sealed class InfiniFrameTestServer : IAsyncDisposable {
     }
 
     public static InfiniFrameTestServer Create(
-        Action<WebApplicationBuilder>? appBuilder = null,
+        Action<IWebHostBuilder>? appBuilder = null,
         Action<IInfiniFrameWindowBuilder>? windowBuilder = null,
         CancellationToken cancellationToken = default
     ) {
@@ -72,30 +72,29 @@ public sealed class InfiniFrameTestServer : IAsyncDisposable {
             TaskCreationOptions.RunContinuationsAsynchronously);
         var thread = new Thread(() => {
             try {
-                InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
-                builder.WebApp.WebHost.UseStaticWebAssets();
+                var builder = InfiniFrameApplication.CreateBuilder();
+                builder.WithWindow(windowBuilder ??= static _ => { });
+                var webApplicationReady = new TaskCompletionSource<WebApplication>(
+                    TaskCreationOptions.RunContinuationsAsynchronously);
 
-                appBuilder?.Invoke(builder.WebApp);
-                windowBuilder?.Invoke(builder.WindowBuilder);
-
-                InfiniFrameWebApplication app = builder.Build();
-
-                app.WebApp.UseDefaultFiles();
-                app.WebApp.UseStaticFiles();
-
-                #if !NET8_0
-                app.WebApp.MapStaticAssets();
-                #endif
-
-                // Exercise the documented WebServer lifecycle in automation tests. Run() starts
-                // Kestrel before creating the window, and the created callback runs on this STA
-                // thread immediately before WaitForClose() enters the native message loop.
-                app.UseAutoServerClose();
-                builder.WindowBuilder.EventsStore.WindowCreated.Add(w => {
-                    ready.SetResult((w, app.WebApp));
+                builder.UseWebServer(web => {
+                    appBuilder?.Invoke(web.WebHost);
+                    web.ConfigureWebApplication(webApp => {
+                        webApp.UseDefaultFiles();
+                        webApp.UseStaticFiles();
+                        #if !NET8_0
+                        webApp.MapStaticAssets();
+                        #endif
+                        webApplicationReady.TrySetResult(webApp);
+                    });
                 });
 
-                app.Run();
+                InfiniFrameApplication application = builder.Build();
+                application.WindowCreated += window => {
+                    if (webApplicationReady.Task.IsCompletedSuccessfully)
+                        ready.TrySetResult((window, webApplicationReady.Task.Result));
+                };
+                application.Run();
             }
             catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
                 if (!ready.TrySetException(ex))

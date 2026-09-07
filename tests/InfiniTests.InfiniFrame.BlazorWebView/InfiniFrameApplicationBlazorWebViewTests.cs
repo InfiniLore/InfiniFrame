@@ -9,9 +9,10 @@ public sealed class InfiniFrameApplicationBlazorWebViewTests {
     public async Task WithBlazorWebView_ReturnsApplicationAndDefersWindowBuild(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        using var application = InfiniFrameApplication.Initialize()
-            .WithBlazorWebView(builder => builder.WithInfiniFrameWindowBuilder(window =>
-                window.SetStartPageContent("<html><body>Blazor</body></html>")));
+        using var application = InfiniFrameApplication.CreateBuilder()
+            .WithWindow(window => window.SetStartPageContent("<html><body>Blazor</body></html>"))
+            .UseBlazorWebView(static _ => { })
+            .Build();
 
         await Assert.That(application.Windows).IsEmpty();
     }

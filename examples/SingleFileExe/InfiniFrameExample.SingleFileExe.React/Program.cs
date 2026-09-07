@@ -9,7 +9,7 @@ public static class Program {
     public static void Main(string[] args) {
         InfiniFrameSingleFile.Initialize();
 
-        InfiniFrameApplication.Initialize()
+        InfiniFrameApplication.CreateBuilder(args)
             .WithWindow(builder => {
                 builder
                     .SetTitle("InfiniFrame + React")
@@ -17,6 +17,7 @@ public static class Program {
                     .CenteredOnMainMonitor();
                 builder.AddSingleFileRequirements();
             })
+            .Build()
             .Run();
     }
 }

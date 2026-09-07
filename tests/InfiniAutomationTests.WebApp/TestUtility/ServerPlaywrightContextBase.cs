@@ -84,7 +84,7 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
 
         using var startupCancellation = new CancellationTokenSource(TimeSpan.FromSeconds(90));
         _utility = InfiniFrameTestServer.Create(
-            appBuilder: serverBuilder => serverBuilder.WebHost.UseUrls(ServerUrl),
+            appBuilder: serverBuilder => serverBuilder.UseUrls(ServerUrl),
             windowBuilder: windowBuilder => {
                 if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux())
                     windowBuilder.Debugging.SetRemoteDebuggingPort(_playwrightDevtoolsPort);

@@ -17,12 +17,10 @@ public static class Program {
 
     [STAThread]
     public static void Main(string[] args) {
-        InfiniFrameApplication application = InfiniFrameApplication.Initialize()
-            .WithWebServer(builder => {
-        // WebApplicationBuilder appBuilder = builder.WebApp;
-        builder.WebApp.Services.AddSingleton<WebMessageCounter>();
-
-        builder.WindowBuilder
+        InfiniFrameApplicationBuilder rootBuilder = InfiniFrameApplication.CreateBuilder(args);
+        rootBuilder.Services.AddSingleton<WebMessageCounter>();
+        InfiniFrameApplication application = rootBuilder
+            .WithWindow(window => window
             .UseOsDefaultSize(false)
             .SetResizable()
             .CenteredOnMainMonitor()
@@ -44,13 +42,14 @@ public static class Program {
                 int count = counter.Increment();
                 string response = $"[{count}] Received message: \"{message}\"";
                 window.SendWebMessage(response);
-            });
-
+            }))
+            .WithWebServer(builder => {
         builder.ConfigureWebApplication(webApp => {
             webApp.UseStaticFiles();
             webApp.MapStaticAssets();
         });
-    });
+            })
+            .Build();
 
         application.Run();
     }

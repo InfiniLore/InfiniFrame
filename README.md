@@ -54,14 +54,15 @@ Install: `dotnet add package InfiniLore.InfiniFrame.BlazorWebView`
 ```csharp
 using InfiniFrame.BlazorWebView;
 
-var builder = InfiniFrameBlazorAppBuilder.CreateDefault(args, w => w
-    .SetTitle("My Blazor App")
-    .SetSize(1280, 720)
-    .Center()
-);
-
-builder.RootComponents.Add<App>("#app");
-builder.RootComponents.Add<HeadOutlet>("head::after");
+var builder = InfiniFrameApplication.CreateBuilder(args);
+builder.UseBlazorWebView(config => {
+    config.ConfigureWindow(w => w
+        .SetTitle("My Blazor App")
+        .SetSize(1280, 720)
+        .Center());
+    config.RootComponents.Add<App>("#app");
+    config.RootComponents.Add<HeadOutlet>("head::after");
+});
 
 builder.Build().Run();
 ```
@@ -71,18 +72,18 @@ builder.Build().Run();
 When loading external module origins, explicitly trust them via window builder policy:
 
 ```csharp
-var app = InfiniFrameBlazorAppBuilder.CreateDefault(windowBuilder: wb => {
+var app = InfiniFrameApplication.CreateBuilder().UseBlazorWebView(config => config.ConfigureWindow(wb => {
     wb.AddTrustedOrigin("https://xyz");
     // add redirects too if needed (e.g. cdn.jsdelivr.net, unpkg.com, etc.)
-});
+})).Build();
 ```
 
 If you must allow every origin (not recommended outside local/dev scenarios):
 
 ```csharp
-var app = InfiniFrameBlazorAppBuilder.CreateDefault(windowBuilder: wb => {
+var app = InfiniFrameApplication.CreateBuilder().UseBlazorWebView(config => config.ConfigureWindow(wb => {
     wb.SetTrustAllOrigins(true);
-});
+})).Build();
 ```
 
 ### Host an ASP.NET Core web app

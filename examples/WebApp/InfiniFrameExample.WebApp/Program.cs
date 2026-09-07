@@ -14,18 +14,19 @@ namespace InfiniFrameExample.WebApp;
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
-        InfiniFrameApplication app = InfiniFrameApplication.Initialize()
-            .WithWebServer(builder => {
-                builder.WebApp.WebHost.UseUrls("http://127.0.0.1:5055");
-                builder.WindowBuilder
+        InfiniFrameApplication app = InfiniFrameApplication.CreateBuilder(args)
+            .WithWindow("web", window => window
                     .SetStartPageUrl("http://127.0.0.1:5055")
                     .SetTitle("InfiniFrame WebServer Repro")
-                    .SetIconFile("wwwroot/favicon.ico");
+                    .SetIconFile("wwwroot/favicon.ico"))
+            .UseWebServer("web", builder => {
+                builder.WebHost.UseUrls("http://127.0.0.1:5055");
                 builder.ConfigureWebApplication(webApp => webApp.MapGet("/", handler: () => Results.Content(
                     "<html><body>InfiniFrame loaded</body></html>",
                     "text/html"
                 )));
-            });
+            })
+            .Build();
 
         app.Run();
     }

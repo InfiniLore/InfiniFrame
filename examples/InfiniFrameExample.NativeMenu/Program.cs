@@ -71,7 +71,7 @@ public static class Program {
             ]
         );
 
-        InfiniFrameApplication.Initialize()
+        InfiniFrameApplication.CreateBuilder(args)
             .WithWindow(builder => builder
                 .SetTitle("InfiniFrame Native Menu Example")
                 .SetSize(new Size(960, 640))
@@ -111,6 +111,7 @@ public static class Program {
                         break;
                 }
                 }))
+            .Build()
             .Run();
     }
 

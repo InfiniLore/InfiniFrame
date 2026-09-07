@@ -5,7 +5,7 @@ Demonstrates the minimal setup for hosting a Blazor application inside a native 
 
 ## What it shows
 
-- `InfiniFrameBlazorAppBuilder.CreateDefault()` entry point
+- `InfiniFrameApplication.CreateBuilder()` entry point
 - Registering a root Blazor component (`<App>`) mapped to the `#app` selector
 - Configuring the window: size, position, and icon file
 - Integrating Serilog for structured logging via `Microsoft.Extensions.Logging`
@@ -20,15 +20,17 @@ dotnet run --project examples/InfiniFrameExample.BlazorWebView
 ## Key code
 
 ```csharp
-var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
+var appBuilder = InfiniFrameApplication.CreateBuilder(args);
 
-appBuilder.RootComponents.Add<App>("app");
+appBuilder.UseBlazorWebView(config => {
+    config.RootComponents.Add<App>("app");
 
-appBuilder.WithInfiniFrameWindowBuilder(builder => builder
+    config.ConfigureWindow(builder => builder
     .SetIconFile("favicon.ico")
     .SetLocation(new Point(100, 100))
     .SetSize(new Size(800, 600))
-);
+    );
+});
 
 appBuilder.Build().Run();
 ```

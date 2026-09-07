@@ -24,35 +24,51 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         InfiniFrameWindowBuilder? Builder,
         IServiceProvider? Provider
     )> _registrations = [];
+    private readonly List<Action<InfiniFrameWindowBuilder>> _windowConventions = [];
     private readonly List<Func<Task>> _shutdownActions = [];
     private readonly List<Func<Task>> _startupActions = [];
     private readonly Dictionary<string, IInfiniFrameWindow> _windows = [];
+    private IServiceProvider? _serviceProvider;
     private readonly TaskCompletionSource _shutdownSignal = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private int _disposed;
     private bool _built;
     private int _shutdownRequested;
-    private string? _webView2RuntimePath;
-    private string? _notificationRegistrationId;
-    private string? _appUserModelId;
-    private string? _defaultNotificationIcon;
 
-    private InfiniFrameApplication(ILogger<InfiniFrameApplication> logger) {
+    private InfiniFrameApplication(ILogger<InfiniFrameApplication> logger, ApplicationConfiguration configuration) {
         this.logger = logger;
         InfiniFrameNativeInteropStatus status = InfiniFrameNative.ApplicationConstructor(out IntPtr handle);
         if (status != InfiniFrameNativeInteropStatus.Success)
             throw new InfiniFrameNativeInteropException(InfiniFrameNative.GetLastErrorMessage() ?? "Could not create native application.");
 
         _nativeHandle = new NativeApplicationHandle(handle);
+        InfiniFrameNativeInteropStatus configureStatus = InfiniFrameNative.ApplicationConfigure(
+            _nativeHandle.DangerousGetHandle(),
+            configuration.WebView2RuntimePath,
+            configuration.NotificationRegistrationId,
+            configuration.AppUserModelId,
+            configuration.DefaultNotificationIcon
+        );
+        if (configureStatus != InfiniFrameNativeInteropStatus.Success) {
+            _nativeHandle.Dispose();
+            throw new InfiniFrameNativeInteropException(
+                InfiniFrameNative.GetLastErrorMessage() ?? "Could not configure native application.");
+        }
     }
 
     /// <summary>Creates an application without requiring a dependency-injection container.</summary>
     public static InfiniFrameApplication Initialize()
-        => new(NullLogger<InfiniFrameApplication>.Instance);
+        => new(NullLogger<InfiniFrameApplication>.Instance, new ApplicationConfiguration());
+
+    internal static InfiniFrameApplication Initialize(ApplicationConfiguration configuration)
+        => new(NullLogger<InfiniFrameApplication>.Instance, configuration);
+
+    public static InfiniFrameApplicationBuilder CreateBuilder(string[]? args = null)
+        => new(args);
 
     /// <summary>Creates an application using the supplied logger.</summary>
     public static InfiniFrameApplication Initialize(ILogger<InfiniFrameApplication> logger) {
         ArgumentNullException.ThrowIfNull(logger);
-        return new InfiniFrameApplication(logger);
+        return new InfiniFrameApplication(logger, new ApplicationConfiguration());
     }
 
     public Guid Id { get; } = Guid.NewGuid();
@@ -122,42 +138,6 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         finally {
             Dispose();
         }
-    }
-
-    /// <inheritdoc />
-    public InfiniFrameApplication WithWebView2RuntimePath(string path) {
-        ArgumentException.ThrowIfNullOrWhiteSpace(path);
-        EnsureConfigurationMutable();
-        _webView2RuntimePath = Path.GetFullPath(path);
-        ConfigureNativeApplication();
-        return this;
-    }
-
-    /// <inheritdoc />
-    public InfiniFrameApplication WithNotificationRegistrationId(string id) {
-        ArgumentException.ThrowIfNullOrWhiteSpace(id);
-        EnsureConfigurationMutable();
-        _notificationRegistrationId = id;
-        ConfigureNativeApplication();
-        return this;
-    }
-
-    /// <inheritdoc />
-    public InfiniFrameApplication WithAppUserModelId(string id) {
-        ArgumentException.ThrowIfNullOrWhiteSpace(id);
-        EnsureConfigurationMutable();
-        _appUserModelId = id;
-        ConfigureNativeApplication();
-        return this;
-    }
-
-    /// <inheritdoc />
-    public InfiniFrameApplication WithDefaultNotificationIcon(string path) {
-        ArgumentException.ThrowIfNullOrWhiteSpace(path);
-        EnsureConfigurationMutable();
-        _defaultNotificationIcon = Path.GetFullPath(path);
-        ConfigureNativeApplication();
-        return this;
     }
 
     /// <inheritdoc />
@@ -240,6 +220,10 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         }
         StopRegisteredComponents();
         _nativeHandle.Dispose();
+        if (_serviceProvider is IAsyncDisposable asyncServiceProvider)
+            asyncServiceProvider.DisposeAsync().AsTask().GetAwaiter().GetResult();
+        else (_serviceProvider as IDisposable)?.Dispose();
+        _serviceProvider = null;
     }
 
     /// <inheritdoc />
@@ -266,12 +250,21 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         }
         await StopRegisteredComponentsAsync().ConfigureAwait(false);
         _nativeHandle.Dispose();
+        if (_serviceProvider is IAsyncDisposable asyncServiceProvider)
+            await asyncServiceProvider.DisposeAsync().ConfigureAwait(false);
+        else (_serviceProvider as IDisposable)?.Dispose();
+        _serviceProvider = null;
     }
 
     internal void RegisterWindowBuilder(string id, InfiniFrameWindowBuilder builder, IServiceProvider? provider = null) {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         ArgumentNullException.ThrowIfNull(builder);
         RegisterWindowCore(id, null, builder, provider);
+    }
+
+    internal void RegisterWindowConvention(Action<InfiniFrameWindowBuilder> configure) {
+        ArgumentNullException.ThrowIfNull(configure);
+        lock (_gate) _windowConventions.Add(configure);
     }
 
     internal void RegisterShutdownAction(Func<Task> action) {
@@ -308,10 +301,12 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             try {
                 foreach ((string? id, Action<IInfiniFrameWindowBuilder>? configure, InfiniFrameWindowBuilder? registeredBuilder, IServiceProvider? provider) in _registrations) {
                     InfiniFrameWindowBuilder builder = registeredBuilder ?? new InfiniFrameWindowBuilder();
+                    foreach (Action<InfiniFrameWindowBuilder> convention in _windowConventions)
+                        convention(builder);
                     configure?.Invoke(builder);
                     builder.SetApplicationHandle(_nativeHandle.DangerousGetHandle());
                     string windowId = id ?? Guid.NewGuid().ToString("N");
-                    built.Add((windowId, builder.Build(provider)));
+                    built.Add((windowId, builder.Build(provider ?? _serviceProvider)));
                 }
 
                 foreach ((string id, IInfiniFrameWindow window) in built) {
@@ -334,28 +329,13 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         if (!_built) throw new InvalidOperationException("Windows have not been built yet. Call Run() or RunAsync() first.");
     }
 
-    private void EnsureConfigurationMutable() {
-        ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
-        lock (_gate) {
-            if (_built) throw new InvalidOperationException("Application configuration cannot change after the application has run.");
-        }
-    }
-
-    private void ConfigureNativeApplication() {
-        InfiniFrameNativeInteropStatus status = InfiniFrameNative.ApplicationConfigure(
-            _nativeHandle.DangerousGetHandle(),
-            _webView2RuntimePath,
-            _notificationRegistrationId,
-            _appUserModelId,
-            _defaultNotificationIcon
-        );
-        if (status != InfiniFrameNativeInteropStatus.Success)
-            throw new InfiniFrameNativeInteropException(InfiniFrameNative.GetLastErrorMessage() ?? "Could not configure native application.");
-    }
-
     private void RunNativeLoop() {
         foreach (IInfiniFrameWindow window in Windows.ToArray()) window.WaitForClose();
     }
+
+    internal void AttachServiceProvider(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
+    internal IServiceProvider RootServiceProvider => _serviceProvider
+        ?? throw new InvalidOperationException("The application service provider has not been initialized.");
 
     private void StopRegisteredComponents() {
         Func<Task>[] actions;

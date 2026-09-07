@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Drawing;
 using InfiniFrame;
 using InfiniFrame.WebServer;
 using InfiniFrameExample.WebApp.Blazor.Components;
 using Serilog;
-using System.Drawing;
 
 namespace InfiniFrameExample.WebApp.Blazor;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -17,8 +17,14 @@ public static class Program {
         // -------------------------------------------------------------------------------------------------------------
         // Builder
         // -------------------------------------------------------------------------------------------------------------
-        InfiniFrameApplication application = InfiniFrameApplication.Initialize()
-            .WithWebServer(builder => {
+        InfiniFrameApplicationBuilder builder = InfiniFrameApplication.CreateBuilder(args);
+
+        builder.WithWindow(window => window
+            .SetIconFile("wwwroot/favicon.ico")
+            .SetLocation(new Point(100, 100))
+            .SetSize(new Size(800, 600))
+            .RegisterOpenExternalTargetWebMessageHandler()
+        );
 
         builder.Services
             .AddLogging(config => {
@@ -32,7 +38,7 @@ public static class Program {
             .AddRazorComponents()
             .AddInteractiveServerComponents();
 
-        builder.Services.AddHttpClient("ServerApi", (sp, client) => {
+        builder.Services.AddHttpClient("ServerApi", configureClient: (sp, client) => {
             var config = sp.GetRequiredService<IConfiguration>();
 
             // Prefer ASPNETCORE_URLS, then "urls", then a fallback
@@ -50,33 +56,20 @@ public static class Program {
 
         builder.Services.AddInfiniFrameJs();
 
-        builder.WebApp.WebHost.UseStaticWebAssets();
+        builder.UseWebServer(web => {
 
-        builder.WindowBuilder
-            // .SetTransparent(true)
-            // .SetChromeless(true)
-            // .SetResizable(true)
-            .SetIconFile("wwwroot/favicon.ico")
-            // .Center()
-            // .SetUseOsDefaultSize(true)
-            // .SetUseOsDefaultLocation(true);
-            // .SetTitle("InfiniLore InfiniFrame.Blazor Sample")
-            .SetLocation(new Point(100, 100))
-            .SetSize(new Size(800, 600))
-            .RegisterOpenExternalTargetWebMessageHandler()
-            // .SetMaxSize(new Size(800, 600))
-            // .SetMinSize(new Size(600, 400))
-            ;
+                web.WebHost.UseStaticWebAssets();
 
-        builder.ConfigureWebApplication(webApp => {
-            webApp.UseRouting();
-            webApp.UseAntiforgery();
-            webApp.MapStaticAssets();
-            webApp.MapRazorComponents<App>()
-                .AddInteractiveServerRenderMode();
+            web.ConfigureWebApplication(webApp => {
+                webApp.UseRouting();
+                webApp.UseAntiforgery();
+                webApp.MapStaticAssets();
+                webApp.MapRazorComponents<App>()
+                    .AddInteractiveServerRenderMode();
+            });
         });
-    });
 
+        InfiniFrameApplication application = builder.Build();
         application.Run();
     }
 }

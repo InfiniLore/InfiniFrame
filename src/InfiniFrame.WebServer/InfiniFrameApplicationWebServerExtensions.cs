@@ -1,48 +1,56 @@
-using InfiniFrame;
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Security;
 
 namespace InfiniFrame.WebServer;
-
-/// <summary>Application-first integration for ASP.NET Core web servers.</summary>
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 public static class InfiniFrameApplicationWebServerExtensions {
-    /// <summary>
-    ///     Adds an ASP.NET Core web server and registers its native window with the application owner.
-    /// </summary>
-    public static InfiniFrameApplication WithWebServer(
-        this InfiniFrameApplication application,
-        Action<InfiniFrameWebApplicationBuilder> configure
-    ) => WithWebServer(application, "web", [], configure);
+    public static InfiniFrameApplicationBuilder UseWebServer(
+        this InfiniFrameApplicationBuilder builder,
+        Action<InfiniFrameWebServerConfiguration> configure
+    ) => builder.UseWebServer("web", configure);
 
-    /// <summary>Adds a named ASP.NET Core web server to the application.</summary>
-    public static InfiniFrameApplication WithWebServer(
-        this InfiniFrameApplication application,
+    public static InfiniFrameApplicationBuilder UseWebServer(
+        this InfiniFrameApplicationBuilder builder,
         string windowId,
-        Action<InfiniFrameWebApplicationBuilder> configure
-    ) => WithWebServer(application, windowId, [], configure);
-
-    private static InfiniFrameApplication WithWebServer(
-        InfiniFrameApplication application,
-        string windowId,
-        string[] args,
-        Action<InfiniFrameWebApplicationBuilder> configure
+        Action<InfiniFrameWebServerConfiguration> configure
     ) {
-        ArgumentNullException.ThrowIfNull(application);
+        ArgumentNullException.ThrowIfNull(builder);
         ArgumentException.ThrowIfNullOrWhiteSpace(windowId);
         ArgumentNullException.ThrowIfNull(configure);
 
-        var builder = new InfiniFrameWebApplicationBuilder {
-            WebApp = WebApplication.CreateBuilder(args),
-            WindowBuilder = new InfiniFrameWindowBuilder()
-        }.Initialize();
-        configure(builder);
-
-        InfiniFrameWebApplication webApplication = builder.Build();
-        application.RegisterWindowBuilder(
-            windowId,
-            (InfiniFrameWindowBuilder)builder.WindowBuilder,
-            webApplication.WebApp.Services
+        var configuration = new InfiniFrameWebServerConfiguration(
+            WebApplication.CreateBuilder(builder.Args),
+            builder.Services
         );
-        application.RegisterStartupAction(() => webApplication.WebApp.StartAsync());
-        application.RegisterShutdownAction(webApplication.StopServerAsync);
-        return application;
+        configure(configuration);
+
+        builder.AddIntegration(application => {
+            WebApplication webApplication = configuration.BuildApplication();
+            string? startUrl = configuration.ConfiguredStartUrl;
+            
+            application.RegisterWindowConvention(windowBuilder => {
+                if (startUrl is not null) windowBuilder.SetStartPageUrl(startUrl);
+                
+                windowBuilder.RegisterGetWebMessageHandler();
+                
+                if (startUrl is not null && Uri.TryCreate(startUrl, UriKind.Absolute, out Uri? baseUri))
+                    InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(
+                        windowBuilder,
+                        configure: policyBuilder => policyBuilder.AddTrustedOrigin(baseUri)
+                    );
+            });
+
+            application.RegisterStartupAction(() => webApplication.StartAsync());
+
+            application.RegisterShutdownAction(async () => {
+                await webApplication.StopAsync(CancellationToken.None).ConfigureAwait(false);
+                await webApplication.DisposeAsync().ConfigureAwait(false);
+            });
+        });
+        return builder;
     }
 }

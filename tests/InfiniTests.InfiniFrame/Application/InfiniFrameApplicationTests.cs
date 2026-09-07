@@ -14,6 +14,17 @@ public sealed class InfiniFrameApplicationTests {
     }
 
     [Test]
+    public async Task CreateBuilder_RegistersUnnamedWindowWithoutIntegrationId(CancellationToken ct = default) {
+        if (!OperatingSystem.IsWindows()) return;
+
+        using var application = InfiniFrameApplication.CreateBuilder()
+            .WithWindow(static window => window.SetStartPageContent("<html><body>App</body></html>"))
+            .Build();
+
+        await Assert.That(application.Windows).IsEmpty();
+    }
+
+    [Test]
     public async Task RegisterWindow_DuplicateIdThrows(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
@@ -40,8 +51,9 @@ public sealed class InfiniFrameApplicationTests {
     public async Task WebView2RuntimeConfigurationCanBeSetBeforeRun(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        using var application = InfiniFrameApplication.Initialize()
-            .WithWebView2RuntimePath(Environment.SystemDirectory);
+        using var application = InfiniFrameApplication.CreateBuilder()
+            .WithWebView2RuntimePath(Environment.SystemDirectory)
+            .Build();
 
         await Assert.That(application.Windows).IsEmpty();
     }
@@ -50,11 +62,12 @@ public sealed class InfiniFrameApplicationTests {
     public async Task ProcessWideConfigurationCanBeSetBeforeRun(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        using var application = InfiniFrameApplication.Initialize()
+        using var application = InfiniFrameApplication.CreateBuilder()
             .WithWebView2RuntimePath(Environment.SystemDirectory)
             .WithNotificationRegistrationId("InfiniFrame.Tests")
             .WithAppUserModelId("InfiniFrame.Tests")
-            .WithDefaultNotificationIcon(Environment.ProcessPath!);
+            .WithDefaultNotificationIcon(Environment.ProcessPath!)
+            .Build();
 
         await Assert.That(application.Windows).IsEmpty();
     }

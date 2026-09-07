@@ -46,12 +46,12 @@ public static class InfiniFrameSingleFile {
     ///     Registers the single-file <see cref="IFileProvider"/> for Blazor app integration.
     /// </summary>
     /// <param name="builder">The Blazor app builder.</param>
-    public static void AddSingleFileRequirements(this IInfiniFrameBlazorAppBuilder builder) {
+    public static void AddSingleFileRequirements(this InfiniFrameBlazorWebViewConfiguration builder) {
         if (!InfiniFramePackMode.IsActive) return;
 
         string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         if (!SingleFileModeFileProvider.TryCreate(baseDirectory, out IFileProvider? fileProvider)) return;
 
-        builder.Services.AddSingleton(fileProvider);
+        builder.AddSingleFileProvider(fileProvider);
     }
 }
