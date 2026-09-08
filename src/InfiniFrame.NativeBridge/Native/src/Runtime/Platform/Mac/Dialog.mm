@@ -2,9 +2,9 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #import "Runtime/Internal/Window/InfiniFrameDialog.h"
-#include "Api/Abi/InfiniFrameWindow.h"
+#include "Runtime/Internal/Interop/InfiniFrameWindow.h"
 #include "Runtime/Internal/Operations/DialogOperation.h"
-#include "Api/Utilities/StringArrayCopy.h"
+#include "Runtime/Internal/Utilities/StringArrayCopy.h"
 
 struct InfiniFrameDialog::Impl {
   NSImage* errorIcon = nil;

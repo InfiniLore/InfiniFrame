@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <memory>
 
-#include "Api/Abi/InfiniFrameApplicationInitParams.h"
+#include "Runtime/Internal/Interop/InfiniFrameApplicationInitParams.h"
 
 class InfiniFrameWindow;
 struct InfiniFrameApplicationImpl;

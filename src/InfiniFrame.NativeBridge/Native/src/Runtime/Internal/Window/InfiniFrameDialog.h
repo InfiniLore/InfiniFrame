@@ -3,10 +3,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#include "Api/Abi/Basic.h"
-#include "Api/Abi/DialogButtons.h"
-#include "Api/Abi/DialogIcon.h"
-#include "Api/Abi/DialogResult.h"
+#include "Runtime/Internal/Interop/Basic.h"
+#include "Runtime/Internal/Interop/DialogButtons.h"
+#include "Runtime/Internal/Interop/DialogIcon.h"
+#include "Runtime/Internal/Interop/DialogResult.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

@@ -7,7 +7,7 @@
  * @file UiDelegate.h
  * @brief WKUIDelegate and WKScriptMessageHandler that routes JavaScript messages to the .NET layer
  */
-#include "Api/Abi/InfiniFrame.h"
+#include "Runtime/Internal/Interop/InfiniFrame.h"
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

@@ -5,7 +5,7 @@
 #include "../CocoaCoordinates.h"
 #include "../WebKit/InfiniFrameWebView.h"
 
-#include "Api/Utilities/StringCopy.h"
+#include "Runtime/Internal/Utilities/StringCopy.h"
 #include <stdexcept>
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

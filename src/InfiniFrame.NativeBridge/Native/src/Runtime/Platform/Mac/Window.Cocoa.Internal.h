@@ -13,7 +13,7 @@
 #include <WebKit/WKWebView.h>
 #include <WebKit/WKWebViewConfiguration.h>
 
-#include "Api/Abi/InfiniFrameWindow.h"
+#include "Runtime/Internal/Interop/InfiniFrameWindow.h"
 #include "Runtime/Internal/Window/CommonWindowState.h"
 
 @

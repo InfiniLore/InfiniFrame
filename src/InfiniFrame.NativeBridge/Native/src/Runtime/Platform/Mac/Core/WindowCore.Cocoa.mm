@@ -22,7 +22,7 @@
 #include "../Delegates/UiDelegate.h"
 #include "../Delegates/UrlSchemeHandler.h"
 #include "Runtime/Internal/Window/InfiniFrameDialog.h"
-#include "Api/Abi/InfiniFrameWindow.h"
+#include "Runtime/Internal/Interop/InfiniFrameWindow.h"
 #include "Runtime/Internal/Application/InfiniFrameApplication.h"
 #include "../NSWindowBorderless.h"
 #include "../MacDiagnostics.h"

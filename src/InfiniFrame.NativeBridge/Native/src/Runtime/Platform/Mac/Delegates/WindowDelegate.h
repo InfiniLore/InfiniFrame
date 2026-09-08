@@ -7,7 +7,7 @@
  * @file WindowDelegate.h
  * @brief NSWindow delegate that forwards window lifecycle events to InfiniFrameWindow callbacks
  */
-#include "Api/Abi/InfiniFrame.h"
+#include "Runtime/Internal/Interop/InfiniFrame.h"
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

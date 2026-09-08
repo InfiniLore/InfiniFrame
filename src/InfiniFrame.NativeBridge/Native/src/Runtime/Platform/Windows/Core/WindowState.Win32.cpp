@@ -4,7 +4,7 @@
 #include <windows.h>
 
 #include "Runtime/Platform/Windows/Window.Win32.Internal.h"
-#include "Api/Utilities/StringCopy.h"
+#include "Runtime/Internal/Utilities/StringCopy.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

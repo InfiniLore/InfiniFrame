@@ -11,10 +11,10 @@
 #include <wil/com.h>
 #include <WebView2.h>
 
-#include "Api/Abi/InfiniFrameWindow.h"
+#include "Runtime/Internal/Interop/InfiniFrameWindow.h"
 #include "Runtime/Internal/Window/CommonWindowState.h"
 #include "Runtime/Platform/Windows/ToastHandler.h"
-#include "Api/Utilities/Dimensions.h"
+#include "Runtime/Internal/Utilities/Dimensions.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

@@ -8,8 +8,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Api/Abi/Basic.h"
-#include "Api/Abi/Callbacks.h"
+#include "Runtime/Internal/Interop/Basic.h"
+#include "Runtime/Internal/Interop/Callbacks.h"
 #include "Runtime/Internal/Window/InfiniFrameDialog.h"
 #include "Runtime/Internal/Operations/NativeOperation.h"
 #include "Runtime/Internal/Operations/NavigationOperation.h"

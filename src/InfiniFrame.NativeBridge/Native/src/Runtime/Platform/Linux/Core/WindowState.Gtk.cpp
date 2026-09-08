@@ -5,7 +5,7 @@
 #include <string_view>
 
 #include "Runtime/Platform/Linux/Core/GtkCallbackGuard.h"
-#include "Api/Utilities/StringCopy.h"
+#include "Runtime/Internal/Utilities/StringCopy.h"
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

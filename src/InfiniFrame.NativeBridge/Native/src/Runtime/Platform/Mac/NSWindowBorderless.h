@@ -10,7 +10,7 @@
  * Used when InfiniFrameWindowInitParams::Transparent is set, allowing the WebView to render
  * over a fully transparent window background without the standard title bar and borders
  */
-#include "Api/Abi/InfiniFrame.h"
+#include "Runtime/Internal/Interop/InfiniFrame.h"
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
