@@ -2,16 +2,12 @@
   <Folder Name="/.dev-tools/">
     <File Path=".gitattributes" />
     <File Path=".gitignore" />
-    <File Path="InfiniFrame.GitHubActions.Testing.Automation.slnf" />
     <File Path="InfiniFrame.NativeCopy.targets" />
     <File Path="LICENSE" />
     <File Path="native-vendor-deps.json" />
     <File Path="README.md" />
     <File Path=".editorconfig" />
     <File Path="global.json" />
-    <File Path="InfiniFrame.GitHubActions.Testing.slnf" />
-    <File Path="InfiniFrame.GitHubActions.Release.slnf" />
-    <File Path="InfiniFrame.GitHubActions.slnf" />
   </Folder>
   <Folder Name="/.dev-tools/badges/">
     <File Path="badges/cs-coverage.json" />
@@ -32,6 +28,12 @@
     <File Path="docker/linux/run-example-blazorwebview-wslg.sh" />
     <File Path="docker/linux/run-linux-tests-wslg.ps1" />
     <File Path="docker/linux/run-linux-tests-wslg.sh" />
+  </Folder>
+  <Folder Name="/.dev-tools/filters/">
+    <File Path="InfiniFrame.GitHubActions.Release.slnf" />
+    <File Path="InfiniFrame.GitHubActions.slnf" />
+    <File Path="InfiniFrame.GitHubActions.Testing.Automation.slnf" />
+    <File Path="InfiniFrame.GitHubActions.Testing.slnf" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github/codeql-config.yml" />
