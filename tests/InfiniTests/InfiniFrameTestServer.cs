@@ -73,7 +73,7 @@ public sealed class InfiniFrameTestServer : IAsyncDisposable {
             TaskCreationOptions.RunContinuationsAsynchronously);
         var thread = new Thread(() => {
             try {
-                var builder = InfiniFrameApplication.CreateBuilder();
+                InfiniFrameApplicationBuilder builder = InfiniFrameApplication.CreateBuilder();
                 builder.WithWindow(windowBuilder ??= static _ => { });
                 var webApplicationReady = new TaskCompletionSource<WebApplication>(
                     TaskCreationOptions.RunContinuationsAsynchronously);

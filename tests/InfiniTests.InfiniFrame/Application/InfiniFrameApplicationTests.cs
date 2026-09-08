@@ -15,7 +15,7 @@ public sealed class InfiniFrameApplicationTests {
     public async Task Initialize_CreatesApplicationWithNoWindows(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        await using var application = InfiniFrameApplication.Initialize();
+        await using InfiniFrameApplication application = InfiniFrameApplication.Initialize();
 
         await Assert.That(application.Windows).IsEmpty();
     }
@@ -24,7 +24,7 @@ public sealed class InfiniFrameApplicationTests {
     public async Task CreateBuilder_RegistersUnnamedWindowWithoutIntegrationId(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        await using var application = InfiniFrameApplication.CreateBuilder()
+        await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
             .WithWindow(static window => window.SetStartPageContent("<html><body>App</body></html>"))
             .Build();
 
@@ -35,11 +35,11 @@ public sealed class InfiniFrameApplicationTests {
     public async Task RegisterWindow_DuplicateIdThrows(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        await using var application = InfiniFrameApplication.Initialize();
-        application.RegisterWindow("main", static _ => { });
+        await using InfiniFrameApplication application = InfiniFrameApplication.Initialize();
+        application.RegisterWindow("main", configure: static _ => {});
 
         // ReSharper disable once AccessToDisposedClosure
-        await Assert.That(() => application.RegisterWindow("main", static _ => { }))
+        await Assert.That(() => application.RegisterWindow("main", configure: static _ => {}))
             .Throws<ArgumentException>();
     }
 
@@ -47,8 +47,8 @@ public sealed class InfiniFrameApplicationTests {
     public async Task LookupBeforeRunFailsClearly(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        await using var application = InfiniFrameApplication.Initialize();
-        application.RegisterWindow("main", static _ => { });
+        await using InfiniFrameApplication application = InfiniFrameApplication.Initialize();
+        application.RegisterWindow("main", configure: static _ => {});
 
         // ReSharper disable once AccessToDisposedClosure
         await Assert.That(() => application.GetWindow("main"))
@@ -60,7 +60,7 @@ public sealed class InfiniFrameApplicationTests {
     public async Task WebView2RuntimeConfigurationCanBeSetBeforeRun(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        await using var application = InfiniFrameApplication.CreateBuilder()
+        await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
             .WithWebView2RuntimePath(Environment.SystemDirectory)
             .Build();
 
@@ -71,7 +71,7 @@ public sealed class InfiniFrameApplicationTests {
     public async Task ProcessWideConfigurationCanBeSetBeforeRun(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        await using var application = InfiniFrameApplication.CreateBuilder()
+        await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
             .WithWebView2RuntimePath(Environment.SystemDirectory)
             .WithNotificationRegistrationId("InfiniFrame.Tests")
             .WithAppUserModelId("InfiniFrame.Tests")
@@ -85,11 +85,11 @@ public sealed class InfiniFrameApplicationTests {
     public async Task RegistrationAfterRunFails(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        await using var application = InfiniFrameApplication.Initialize();
+        await using InfiniFrameApplication application = InfiniFrameApplication.Initialize();
         await application.RunAsync(ct);
 
         // ReSharper disable once AccessToDisposedClosure
-        await Assert.That(() => application.RegisterWindow(static _ => { }))
+        await Assert.That(() => application.RegisterWindow(static _ => {}))
             .Throws<InvalidOperationException>();
     }
 
@@ -97,7 +97,8 @@ public sealed class InfiniFrameApplicationTests {
     public async Task RunFromMtaThreadFailsBeforeWindowCreation(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        await using var application = InfiniFrameApplication.Initialize();
+        await using InfiniFrameApplication application = InfiniFrameApplication.Initialize();
+        // ReSharper disable once AccessToDisposedClosure
         await Assert.That(async () => await Task.Run(application.Run, ct))
             .Throws<InvalidOperationException>();
     }
@@ -108,9 +109,9 @@ public sealed class InfiniFrameApplicationTests {
     public async Task RunAsyncBuildsAndRunsMultipleWindowsUntilAllClose(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
 
-        await using var application = InfiniFrameApplication.Initialize()
-            .WithWindow("main", static builder => builder.SetStartPageContent("<html><body>Main</body></html>"))
-            .WithWindow("settings", static builder => builder.SetStartPageContent("<html><body>Settings</body></html>"));
+        await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
+            .WithWindow("main", configure: static builder => builder.SetStartPageContent("<html><body>Main</body></html>"))
+            .WithWindow("settings", configure: static builder => builder.SetStartPageContent("<html><body>Settings</body></html>"));
 
         Console.WriteLine("[ApplicationMultiWindow] starting RunAsync");
         Task runTask = application.RunAsync(ct);
@@ -118,12 +119,13 @@ public sealed class InfiniFrameApplicationTests {
             for (int attempt = 0; attempt < 100 && application.Windows.Count < 2; attempt++) {
                 if (runTask.IsFaulted) await runTask;
                 await Task.Delay(100, ct);
-        }
-        Console.WriteLine($"[ApplicationMultiWindow] windows={application.Windows.Count} completed={runTask.IsCompleted}");
-        await Assert.That(application.Windows).Count().IsEqualTo(2);
-        application.Shutdown();
-        foreach (IInfiniFrameWindow window in application.Windows) window.Close();
-        await runTask.WaitAsync(TimeSpan.FromSeconds(30), ct);
+            }
+
+            Console.WriteLine($"[ApplicationMultiWindow] windows={application.Windows.Count} completed={runTask.IsCompleted}");
+            await Assert.That(application.Windows).Count().IsEqualTo(2);
+            application.Shutdown();
+            foreach (IInfiniFrameWindow window in application.Windows) window.Close();
+            await runTask.WaitAsync(TimeSpan.FromSeconds(30), ct);
         }
         finally {
             application.Shutdown();

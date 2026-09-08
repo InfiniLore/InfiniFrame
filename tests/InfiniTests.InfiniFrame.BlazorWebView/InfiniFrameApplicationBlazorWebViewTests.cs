@@ -11,7 +11,7 @@ public sealed class InfiniFrameApplicationBlazorWebViewTests {
     public async Task WithBlazorWebView_ReturnsApplicationAndDefersWindowBuild(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
-        await using var application = InfiniFrameApplication.CreateBuilder()
+        await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
             .WithWindow(window => window.SetStartPageContent("<html><body>Blazor</body></html>"))
             .UseBlazorWebView(static _ => { })
             .Build();
@@ -25,7 +25,7 @@ public sealed class InfiniFrameApplicationBlazorWebViewTests {
     public async Task UseBlazorWebView_CombinesSingleUnnamedWindowConfiguration(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
 
-        await using var application = InfiniFrameApplication.CreateBuilder()
+        await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
             .WithWindow(window => window.SetTitle("Combined Blazor window"))
             .UseBlazorWebView(static _ => { })
             .Build();

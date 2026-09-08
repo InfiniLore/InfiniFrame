@@ -27,6 +27,10 @@ public static class Program {
             Log.Information("Starting InfiniFrame BlazorWebView MudBlazor example...");
 
             InfiniFrameApplicationBuilder builder = InfiniFrameApplication.CreateBuilder(args);
+            builder.WithWindow(window => window
+                .SetIconFile("wwwroot/favicon.ico")
+                .SetLocation(new Point(100, 100))
+                .SetSize(new Size(800, 600)));
             builder.Services
                 .AddLogging(config => {
                     config.ClearProviders();
@@ -40,10 +44,6 @@ public static class Program {
 
             InfiniFrameApplication app = builder
                 .UseBlazorWebView(configuration => {
-                    configuration.ConfigureWindow(window => window
-                        .SetIconFile("wwwroot/favicon.ico")
-                        .SetLocation(new Point(100, 100))
-                        .SetSize(new Size(800, 600)));
                     configuration.RootComponents.Add<App>("app");
                 })
                 .Build();

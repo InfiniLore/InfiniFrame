@@ -109,13 +109,13 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
 
     private void RunAppOnThread(TaskCompletionSource<object?> ready) {
         try {
-            var builder = InfiniFrameApplication.CreateBuilder();
+            InfiniFrameApplicationBuilder builder = InfiniFrameApplication.CreateBuilder();
 
             ConfigureServices(builder.Services);
+            builder.WithWindow(windowBuilder => ConfigureWindowBuilder(windowBuilder, _playwrightDevtoolsPort));
             builder.UseBlazorWebView(configuration => {
                 ConfigureRootComponents(configuration.RootComponents);
                 configuration.RootComponents.Add<TRootComponent>("app");
-                configuration.ConfigureWindow(windowBuilder => ConfigureWindowBuilder(windowBuilder, _playwrightDevtoolsPort));
             });
 
             InfiniFrameApplication application = builder.Build();

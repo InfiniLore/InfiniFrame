@@ -14,7 +14,7 @@ public sealed class InfiniFrameNativeApplicationParametersMarshallerTests {
         var marshaller = new InfiniFrameNativeApplicationParametersMarshaller.ManagedToUnmanagedIn();
         marshaller.FromManaged(parameters);
         InfiniFrameNativeApplicationParametersMarshaller.Unmanaged unmanaged = marshaller.ToUnmanaged();
-        var result = (
+        (int Size, bool, bool, bool, bool) result = (
             unmanaged.Size,
             unmanaged.WebView2RuntimePath != IntPtr.Zero,
             unmanaged.NotificationRegistrationId != IntPtr.Zero,

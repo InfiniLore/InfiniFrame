@@ -270,7 +270,7 @@ public class InfiniFrameSingleFileBootstrapTests {
         NativeDirField.SetValue(null, "");
 
         // Act — empty string is NOT null, so the resolver proceeds past the null check
-        var result = (IntPtr)resolveMethod.Invoke(null, new object?[] { "InfiniFrame.Native", typeof(InfiniFrameSingleFile).Assembly, null })!;
+        IntPtr result = (IntPtr)resolveMethod.Invoke(null, new object?[] { "InfiniFrame.Native", typeof(InfiniFrameSingleFile).Assembly, null })!;
 
         // Assert — result is platform-dependent; just verify no corruption
         await Assert.That(result).IsNotEqualTo(new IntPtr(-1));

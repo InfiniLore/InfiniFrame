@@ -294,6 +294,29 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         RegisterWindowCore(id, null, builder, provider);
     }
 
+    internal void ValidateWindowIntegrationTargets(IReadOnlyList<string>? ids, string integrationName) {
+        lock (_gate) {
+            GetIntegrationTargets(ids, integrationName);
+        }
+    }
+
+    internal void ApplyWindowIntegration(
+        IReadOnlyList<string>? ids,
+        string integrationName,
+        Action<IInfiniFrameWindowBuilder> configure
+    ) {
+        ArgumentNullException.ThrowIfNull(configure);
+        lock (_gate) {
+            foreach (int index in GetIntegrationTargets(ids, integrationName)) {
+                (string? id, Action<IInfiniFrameWindowBuilder>? existing, InfiniFrameWindowBuilder? builder, IServiceProvider? provider) = _registrations[index];
+                _registrations[index] = (id, target => {
+                    existing?.Invoke(target);
+                    configure(target);
+                }, builder, provider);
+            }
+        }
+    }
+
     internal void RegisterWindowConvention(Action<InfiniFrameWindowBuilder> configure) {
         ArgumentNullException.ThrowIfNull(configure);
         lock (_gate) _windowConventions.Add(configure);
@@ -322,6 +345,33 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 throw new ArgumentException($"A window with id '{id}' is already registered.", nameof(id));
             _registrations.Add((id, configure, builder, provider));
         }
+    }
+
+    private IReadOnlyList<int> GetIntegrationTargets(IReadOnlyList<string>? ids, string integrationName) {
+        if (ids is null || ids.Count == 0) {
+            if (_registrations.Count == 0)
+                throw new InvalidOperationException(
+                    $"Cannot bind {integrationName}: no windows are registered. Register a window before configuring the integration.");
+            if (_registrations.Count != 1)
+                throw new InvalidOperationException(
+                    $"Cannot bind {integrationName}: {_registrations.Count} windows are registered. Specify explicit window IDs.");
+            return [0];
+        }
+
+        if (ids.Any(string.IsNullOrWhiteSpace))
+            throw new ArgumentException($"{integrationName} window IDs must not be null or whitespace.", nameof(ids));
+        if (ids.Count != ids.Distinct(StringComparer.Ordinal).Count())
+            throw new ArgumentException($"{integrationName} window IDs must not contain duplicates.", nameof(ids));
+
+        var targets = new List<int>(ids.Count);
+        foreach (string id in ids) {
+            int index = _registrations.FindIndex(registration => string.Equals(registration.Id, id, StringComparison.Ordinal));
+            if (index < 0)
+                throw new InvalidOperationException(
+                    $"Cannot bind {integrationName}: no registered window has ID '{id}'.");
+            targets.Add(index);
+        }
+        return targets;
     }
 
     private void BuildAllWindows() {
