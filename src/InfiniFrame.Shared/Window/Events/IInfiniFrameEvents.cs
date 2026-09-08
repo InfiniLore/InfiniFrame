@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge.Delegates;
 using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.NativeBridge.Parameters.Window;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------

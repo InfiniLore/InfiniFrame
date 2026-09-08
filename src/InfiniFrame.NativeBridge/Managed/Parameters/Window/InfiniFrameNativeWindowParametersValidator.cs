@@ -4,7 +4,7 @@
 using System.Runtime.InteropServices;
 using FluentValidation;
 
-namespace InfiniFrame.NativeBridge.Parameters;
+namespace InfiniFrame.NativeBridge.Parameters.Window;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

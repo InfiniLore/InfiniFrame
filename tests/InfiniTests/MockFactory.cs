@@ -6,6 +6,7 @@ using InfiniFrame;
 using InfiniFrame.BlazorWebView;
 using InfiniFrame.NativeBridge.Delegates;
 using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.NativeBridge.Parameters.Window;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 

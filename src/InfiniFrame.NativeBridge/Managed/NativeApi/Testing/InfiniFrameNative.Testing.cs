@@ -4,6 +4,8 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.NativeBridge.Parameters.Application;
+using InfiniFrame.NativeBridge.Parameters.Window;
 
 namespace InfiniFrame.NativeBridge;
 // ---------------------------------------------------------------------------------------------------------------------

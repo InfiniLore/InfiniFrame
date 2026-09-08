@@ -4,11 +4,10 @@
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 
-namespace InfiniFrame.NativeBridge.Parameters;
+namespace InfiniFrame.NativeBridge.Parameters.Application;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-
 [CustomMarshaller(
     typeof(InfiniFrameNativeApplicationParameters),
     MarshalMode.ManagedToUnmanagedIn,

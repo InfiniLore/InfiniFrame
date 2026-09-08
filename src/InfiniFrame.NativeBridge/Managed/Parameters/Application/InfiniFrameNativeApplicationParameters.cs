@@ -3,11 +3,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.InteropServices;
 
-namespace InfiniFrame.NativeBridge.Parameters;
+namespace InfiniFrame.NativeBridge.Parameters.Application;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-
 /// <summary>
 /// Process-wide configuration passed to the native InfiniFrame application.
 /// Field order is part of the managed/native ABI. Append fields before <see cref="Size" /> only.

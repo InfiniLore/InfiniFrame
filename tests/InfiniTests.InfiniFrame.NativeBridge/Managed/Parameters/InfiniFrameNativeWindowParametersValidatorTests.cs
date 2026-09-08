@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using FluentValidation.Results;
 using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.NativeBridge.Parameters.Window;
 
 namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Parameters;
 // ---------------------------------------------------------------------------------------------------------------------

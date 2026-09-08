@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using InfiniFrame.NativeBridge.Delegates;
 
-namespace InfiniFrame.NativeBridge.Parameters;
+namespace InfiniFrame.NativeBridge.Parameters.Window;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

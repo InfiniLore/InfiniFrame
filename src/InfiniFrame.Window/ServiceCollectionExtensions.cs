@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using FluentValidation;
 using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.NativeBridge.Parameters.Window;
 using InfiniFrame.Window.Events;
 using InfiniFrame.Window.Interop;
 using Microsoft.Extensions.DependencyInjection;

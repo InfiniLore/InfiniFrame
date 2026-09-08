@@ -6,6 +6,7 @@ using System.Reflection;
 using FluentValidation;
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.NativeBridge.Parameters.Window;
 using InfiniFrame.Window.Events;
 using InfiniFrame.Window.Features.Lifecycle;
 using Microsoft.Extensions.Logging.Abstractions;

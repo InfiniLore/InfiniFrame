@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="FluentValidation" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <ProjectReference Include="../InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
         <ProjectReference Include="../InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj" />

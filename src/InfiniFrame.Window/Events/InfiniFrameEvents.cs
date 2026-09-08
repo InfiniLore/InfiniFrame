@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using InfiniFrame.DragDrop;
 using InfiniFrame.NativeBridge.Delegates;
 using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.NativeBridge.Parameters.Window;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 

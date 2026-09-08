@@ -4,6 +4,8 @@
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
 using InfiniFrame.NativeBridge.Parameters;
+using FluentValidation;
+using InfiniFrame.NativeBridge.Parameters.Application;
 using InfiniFrame.Utilities;
 using InfiniFrame.Window.Builder;
 using Microsoft.Extensions.Logging;
@@ -37,12 +39,14 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
 
     private InfiniFrameApplication(ILogger<InfiniFrameApplication> logger, ApplicationConfiguration configuration) {
         this.logger = logger;
+        InfiniFrameNativeApplicationParameters parameters = configuration.ToNativeParameters();
+        new InfiniFrameNativeApplicationParametersValidator().ValidateAndThrow(parameters);
+
         InfiniFrameNativeInteropStatus status = InfiniFrameNative.ApplicationConstructor(out IntPtr handle);
         if (status != InfiniFrameNativeInteropStatus.Success)
             throw new InfiniFrameNativeInteropException(InfiniFrameNative.GetLastErrorMessage() ?? "Could not create native application.");
 
         _nativeHandle = new NativeApplicationHandle(handle);
-        InfiniFrameNativeApplicationParameters parameters = configuration.ToNativeParameters();
         InfiniFrameNativeInteropStatus configureStatus = InfiniFrameNative.ApplicationConfigure(
             _nativeHandle.DangerousGetHandle(),
             in parameters
