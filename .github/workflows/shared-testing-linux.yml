@@ -163,7 +163,7 @@ jobs:
                         &> compositor.log &
 
                       echo "Waiting for Wayland compositor..."
-                      timeout 30 bash -c 'until [ -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]; do sleep 1; done' || {
+                      timeout 30 bash -c "until [ -S \"$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY\" ]; do sleep 1; done" || {
                         echo "Wayland compositor failed to start."
                         cat compositor.log || true
                         exit 1
@@ -213,12 +213,14 @@ jobs:
                       }
 
                       echo "Openbox is running:"
-                      ps aux | grep "[o]penbox" || echo "Openbox missing unexpectedly"
+                      pgrep -a -x openbox || echo "Openbox missing unexpectedly"
 
-                      timeout 5 xwininfo -root >/dev/null 2>&1 && echo "Window manager responding" || {
+                      if timeout 5 xwininfo -root >/dev/null 2>&1; then
+                        echo "Window manager responding"
+                      else
                         echo "Window manager not responding"
                         exit 1
-                      }
+                      fi
 
                       echo "=== Environment Status ==="
                       echo "Display: $DISPLAY"
