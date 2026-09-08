@@ -50,7 +50,7 @@ internal abstract class WindowFeatureWebMessageDispatcherBase<TFeature> : IWindo
     }
 
     private static T? Deserialize<T>(JsonElement property, string name) {
-        JsonTypeInfo typeInfo = InfiniFrame.WindowFeatureWebMessageJsonContext.Default.GetTypeInfo(typeof(T))
+        JsonTypeInfo typeInfo = WindowFeatureWebMessageJsonContext.Default.GetTypeInfo(typeof(T))
             ?? throw new InvalidOperationException($"No JSON metadata is registered for '{typeof(T)}'.");
         try {
             return (T?)property.Deserialize(typeInfo);

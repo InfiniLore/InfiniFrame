@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Interop;
+using InfiniFrame.Js.Interop;
 using InfiniFrame.Window.Events;
 using Microsoft.Extensions.Logging.Abstractions;
 

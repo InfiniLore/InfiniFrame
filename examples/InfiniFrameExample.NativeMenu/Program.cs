@@ -4,6 +4,7 @@
 using InfiniFrame;
 using System.Drawing;
 using System.Text.Json;
+using InfiniFrame.Application;
 
 namespace InfiniFrameExample.NativeMenu;
 // ---------------------------------------------------------------------------------------------------------------------

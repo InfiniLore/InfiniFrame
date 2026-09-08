@@ -1,7 +1,7 @@
 using InfiniFrame.Window;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Application;
 
 /// <summary>Composes an InfiniFrame application before it is built.</summary>
 public sealed class InfiniFrameApplicationBuilder {

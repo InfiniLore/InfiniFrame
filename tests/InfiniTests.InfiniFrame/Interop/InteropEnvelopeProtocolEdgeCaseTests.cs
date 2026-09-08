@@ -2,8 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Text.Json;
-using InfiniFrame.Interop;
-using InfiniFrame.Interop.Interop;
+using InfiniFrame.Js.Interop;
 
 namespace InfiniTests.InfiniFrame.Interop;
 // ---------------------------------------------------------------------------------------------------------------------

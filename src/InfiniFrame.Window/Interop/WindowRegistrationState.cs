@@ -1,16 +1,13 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Diagnostics;
-using InfiniFrame.Interop.Interop;
-
-namespace InfiniFrame.Interop;
+namespace InfiniFrame.Window.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Default implementation that delegates to <see cref="Process.Start(ProcessStartInfo)" />.
+///     Holds the registration state for a single window, including the underlying handshake state machine.
 /// </summary>
-internal sealed class ExternalProcessLauncher : IExternalProcessLauncher {
-    public Process? Start(ProcessStartInfo startInfo) => Process.Start(startInfo);
+public sealed class WindowRegistrationState {
+    internal WindowRegistrationStateMachine StateMachine { get; } = new();
 }

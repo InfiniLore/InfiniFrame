@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Text.Json;
-using InfiniFrame.Interop.Interop;
+using InfiniFrame.Js.Interop;
 
 namespace InfiniFrame.Window.Features.WebMessaging.Handlers;
 // ---------------------------------------------------------------------------------------------------------------------

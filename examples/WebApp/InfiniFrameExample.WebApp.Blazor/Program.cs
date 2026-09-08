@@ -3,7 +3,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Drawing;
 using InfiniFrame;
+using InfiniFrame.Application;
 using InfiniFrame.WebServer;
+using InfiniFrame.Window.Features.WebMessaging.Handlers;
 using InfiniFrameExample.WebApp.Blazor.Components;
 using Serilog;
 

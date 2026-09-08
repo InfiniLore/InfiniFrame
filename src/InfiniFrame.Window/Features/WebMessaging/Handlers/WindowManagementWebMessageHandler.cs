@@ -2,8 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Text.Json;
-using InfiniFrame.Interop;
-using InfiniFrame.Interop.Interop;
+using InfiniFrame.Js.Interop;
+using InfiniFrame.Window.Interop;
 
 namespace InfiniFrame.Window.Features.WebMessaging.Handlers;
 // ---------------------------------------------------------------------------------------------------------------------

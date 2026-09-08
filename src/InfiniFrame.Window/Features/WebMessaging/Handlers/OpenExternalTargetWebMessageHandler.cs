@@ -4,9 +4,9 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net;
-using InfiniFrame.Interop;
-using InfiniFrame.Interop.Interop;
+using InfiniFrame.Js.Interop;
 using InfiniFrame.Security;
+using InfiniFrame.Window.Interop;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 

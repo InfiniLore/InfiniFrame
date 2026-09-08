@@ -1,5 +1,4 @@
 using FluentValidation;
-using InfiniFrame;
 using InfiniFrame.Window;
 using InfiniFrame.Window.Builder;
 using Microsoft.Extensions.DependencyInjection;

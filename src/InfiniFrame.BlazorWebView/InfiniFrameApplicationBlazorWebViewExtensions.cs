@@ -2,8 +2,13 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Reflection;
+using InfiniFrame.Application;
 using InfiniFrame.BlazorWebView.FileProviders;
 using InfiniFrame.Security;
+using InfiniFrame.StaticAssets;
+using InfiniFrame.Window.Builder;
+using InfiniFrame.Window;
+using InfiniFrame.Window.Features.WebMessaging.Handlers;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -168,7 +173,8 @@ public static class InfiniFrameApplicationBlazorWebViewExtensions {
     public static InfiniFrameApplicationBuilder UseBlazorWebView(
         this InfiniFrameApplicationBuilder builder,
         Action<InfiniFrameBlazorWebViewConfiguration> configure
-    ) => UseBlazorWebView(builder, "blazor", configure);
+    ) =>
+        builder.UseBlazorWebView("blazor", configure);
 
     public static InfiniFrameApplicationBuilder UseBlazorWebView(
         this InfiniFrameApplicationBuilder builder,

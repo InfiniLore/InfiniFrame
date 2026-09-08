@@ -1,4 +1,5 @@
 using InfiniFrame;
+using InfiniFrame.Application;
 using InfiniFrame.BlazorWebView;
 using Microsoft.Extensions.DependencyInjection;
 

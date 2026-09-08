@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Application;
 
 namespace InfiniFrameExample.TrimAotSmoke;
 

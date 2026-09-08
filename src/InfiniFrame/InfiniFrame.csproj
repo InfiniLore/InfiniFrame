@@ -9,7 +9,6 @@
     <ItemGroup>
         <ProjectReference Include="../InfiniFrame.Application/InfiniFrame.Application.csproj" />
         <ProjectReference Include="../InfiniFrame.Window/InfiniFrame.Window.csproj" />
-        <ProjectReference Include="../InfiniFrame.Interop/InfiniFrame.Interop.csproj" />
         <ProjectReference Include="../InfiniFrame.Security/InfiniFrame.Security.csproj" />
         <ProjectReference Include="../InfiniFrame.StaticAssets/InfiniFrame.StaticAssets.csproj" />
         <ProjectReference Include="../InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj" />

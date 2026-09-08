@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Reflection;
+using InfiniFrame.StaticAssets;
 using Microsoft.Extensions.FileProviders;
 
 namespace InfiniTests.InfiniFrame.StaticAssets;

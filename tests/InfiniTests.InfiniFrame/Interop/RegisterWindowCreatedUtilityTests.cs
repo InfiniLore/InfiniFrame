@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
-using InfiniFrame.Interop;
+using InfiniFrame.Js.Interop;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Window.Builder;
 using InfiniFrame.Window.Events;
+using InfiniFrame.Window.Interop;
 using InfiniTests.Substitutes;
 using Microsoft.Extensions.Logging.Abstractions;
 

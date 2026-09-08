@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Application;
 using InfiniFrame.Utilities;
 using InfiniFrame.WebServer;
 using JetBrains.Annotations;

@@ -9,7 +9,7 @@
 
     <ItemGroup>
         <ProjectReference Include="../../src/InfiniFrame.Application/InfiniFrame.Application.csproj" />
-        <ProjectReference Include="../../src/InfiniFrame.Interop/InfiniFrame.Interop.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.Js/InfiniFrame.Js.csproj" />
         <ProjectReference Include="../../src/InfiniFrame.Security/InfiniFrame.Security.csproj" />
         <ProjectReference Include="../../src/InfiniFrame.StaticAssets/InfiniFrame.StaticAssets.csproj" />
         <ProjectReference Include="../../src/InfiniFrame.Window/InfiniFrame.Window.csproj" />

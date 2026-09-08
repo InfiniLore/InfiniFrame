@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Drawing;
 using InfiniFrame;
+using InfiniFrame.Application;
 using InfiniFrame.BlazorWebView;
 using InfiniFrameExample.BlazorWebView.Components;
 using Microsoft.Extensions.DependencyInjection;

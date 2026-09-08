@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Application;
 using InfiniFrame.BlazorWebView;
 using InfiniFrame.Utilities;
 using InfiniFrame.Window.Features.WebMessaging.Handlers;

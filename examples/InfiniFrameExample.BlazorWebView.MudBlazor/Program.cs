@@ -1,14 +1,15 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
-using InfiniFrame.BlazorWebView;
 using InfiniFrameExample.BlazorWebView.MudBlazor.Components;
-using MudBlazor.Services;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Serilog;
 using System.Drawing;
+using InfiniFrame;
+using InfiniFrame.Application;
+using InfiniFrame.BlazorWebView;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using MudBlazor.Services;
 
 namespace InfiniFrameExample.BlazorWebView.MudBlazor;
 // ---------------------------------------------------------------------------------------------------------------------

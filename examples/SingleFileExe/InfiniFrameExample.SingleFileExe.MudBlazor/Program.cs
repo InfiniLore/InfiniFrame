@@ -2,8 +2,10 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Application;
 using InfiniFrame.BlazorWebView;
 using InfiniFrame.SingleFile;
+using InfiniFrame.Window.Features.WebMessaging.Handlers;
 using InfiniFrameExample.SingleFileExe.MudBlazor.Components;
 using MudBlazor.Services;
 using Serilog;
@@ -42,7 +44,7 @@ public static class Program {
                         .SetIconFile("wwwroot/favicon.ico")
                         .RegisterOpenExternalTargetWebMessageHandler());
                     configuration.RootComponents.Add<App>("app");
-                    InfiniFrameSingleFile.AddSingleFileRequirements(configuration);
+                    configuration.AddSingleFileRequirements();
                 })
                 .Build();
 

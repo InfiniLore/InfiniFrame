@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.StaticAssets;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 

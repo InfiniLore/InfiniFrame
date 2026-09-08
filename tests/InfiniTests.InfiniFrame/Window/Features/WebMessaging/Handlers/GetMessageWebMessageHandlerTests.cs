@@ -3,8 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Text.Json;
 using InfiniFrame;
-using InfiniFrame.Interop;
-using InfiniFrame.Interop.Interop;
+using InfiniFrame.Js.Interop;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Window.Builder;
 using InfiniFrame.Window.Events;

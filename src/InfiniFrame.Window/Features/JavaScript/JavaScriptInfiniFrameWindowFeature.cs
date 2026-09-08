@@ -4,8 +4,8 @@
 using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json;
-using InfiniFrame.Interop;
-using InfiniFrame.Interop.Interop;
+using InfiniFrame.Js.Interop;
+using InfiniFrame.Window.Features.WebMessaging;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame.Window.Features.JavaScript;

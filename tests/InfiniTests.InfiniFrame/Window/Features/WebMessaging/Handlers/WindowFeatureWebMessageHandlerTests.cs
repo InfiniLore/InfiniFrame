@@ -1,7 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
 using InfiniFrame.Window.Features.WebMessaging.Handlers;
 
 namespace InfiniTests.InfiniFrame.Window.Features.WebMessaging.Handlers;

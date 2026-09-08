@@ -4,7 +4,7 @@
 using InfiniAutomationTests.Tests;
 using InfiniAutomationTests.WebApp.Tests;
 
-namespace InfiniAutomationTests.WebApp;
+namespace InfiniAutomationTests.WebApp.Angular;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

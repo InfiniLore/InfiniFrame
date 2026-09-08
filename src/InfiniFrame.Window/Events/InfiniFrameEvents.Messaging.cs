@@ -2,8 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Text.Json;
-using InfiniFrame.Interop;
-using InfiniFrame.Interop.Interop;
+using InfiniFrame.Js.Interop;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -127,7 +126,7 @@ public partial class InfiniFrameEvents {
                 Success = true,
                 Data = data
             },
-            Interop.InteropGetMessageJsonContext.Default.InteropGetMessageSuccessResponse
+            InteropGetMessageJsonContext.Default.InteropGetMessageSuccessResponse
         );
 
         string responseEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage(
@@ -147,7 +146,7 @@ public partial class InfiniFrameEvents {
                 Success = false,
                 Error = error
             },
-            Interop.InteropGetMessageJsonContext.Default.InteropGetMessageErrorResponse
+            InteropGetMessageJsonContext.Default.InteropGetMessageErrorResponse
         );
 
         string responseEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage(

@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Reflection;
+using InfiniFrame.StaticAssets;
 using Microsoft.Extensions.FileProviders;
 
 // ReSharper disable once CheckNamespace

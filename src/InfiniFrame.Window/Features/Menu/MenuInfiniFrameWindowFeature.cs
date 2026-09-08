@@ -51,7 +51,7 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
 
         string? json = MenuBar.Items.IsEmpty
             ? null
-            : JsonSerializer.Serialize(MenuBar, InfiniFrame.MenuJsonContext.Default.InfiniFrameMenuBar);
+            : JsonSerializer.Serialize(MenuBar, MenuJsonContext.Default.InfiniFrameMenuBar);
 
         NativeInvoke.InvokeSyncWithValidation(
             _logger,

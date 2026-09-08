@@ -1,13 +1,13 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame.Interop;
+using System.Text.Json.Serialization;
+
+namespace InfiniFrame.Js.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal enum WindowRegistrationHandshakeState {
-    ReadyPending,
-    RegistrationSending,
-    ReadyAcknowledged,
-    Failed
-}
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+[JsonSerializable(typeof(InteropGetMessageSuccessResponse))]
+[JsonSerializable(typeof(InteropGetMessageErrorResponse))]
+internal partial class InteropGetMessageJsonContext : JsonSerializerContext;

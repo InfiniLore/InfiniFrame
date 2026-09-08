@@ -122,7 +122,6 @@
     <Project Path="src/InfiniFrame.Application/InfiniFrame.Application.csproj" />
     <Project Path="src/InfiniFrame.Blazor/InfiniFrame.Blazor.csproj" />
     <Project Path="src/InfiniFrame.BlazorWebView/InfiniFrame.BlazorWebView.csproj" />
-    <Project Path="src/InfiniFrame.Interop/InfiniFrame.Interop.csproj" />
     <Project Path="src/InfiniFrame.Js/InfiniFrame.Js.csproj" />
     <Project Path="src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj" />
     <Project Path="src/InfiniFrame.Security/InfiniFrame.Security.csproj" />

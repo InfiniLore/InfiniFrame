@@ -2,10 +2,9 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using FluentValidation;
-using InfiniFrame.Interop;
-using InfiniFrame.Interop.Interop;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Window.Events;
+using InfiniFrame.Window.Interop;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InfiniFrame.Window;

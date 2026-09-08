@@ -70,7 +70,7 @@ internal static class WindowFeatureWebMessageRouter {
     private static string Serialize(object? value) {
         if (value is null) return "null";
 
-        JsonTypeInfo typeInfo = InfiniFrame.WindowFeatureWebMessageJsonContext.Default.GetTypeInfo(value.GetType())
+        JsonTypeInfo typeInfo = WindowFeatureWebMessageJsonContext.Default.GetTypeInfo(value.GetType())
             ?? throw new InvalidOperationException($"No JSON metadata is registered for '{value.GetType()}'.");
         return JsonSerializer.Serialize(value, typeInfo);
     }

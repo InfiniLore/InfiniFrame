@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Text.Json;
-using InfiniFrame;
 using InfiniFrame.Window.Features.WebMessaging.Handlers;
 
 namespace InfiniTests.InfiniFrame.WebMessaging;

@@ -1,24 +1,24 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame.Interop.Interop;
+namespace InfiniFrame.Js.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Represents an error response for a get message interop call.
+///     Represents a successful response for a get message interop call.
 /// </summary>
-internal sealed class InteropGetMessageErrorResponse {
+internal sealed class InteropGetMessageSuccessResponse {
     /// <summary>
-    ///     Gets the request identifier associated with the error.
+    ///     Gets the request identifier associated with the response.
     /// </summary>
     public string? RequestId { get; init; }
     /// <summary>
-    ///     Gets whether the operation was successful. Always <c>false</c> for error responses.
+    ///     Gets whether the operation was successful. Always <c>true</c> for success responses.
     /// </summary>
     public bool Success { get; init; }
     /// <summary>
-    ///     Gets the error message describing the failure.
+    ///     Gets the data payload returned by the response.
     /// </summary>
-    public string? Error { get; init; }
+    public string? Data { get; init; }
 }

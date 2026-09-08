@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.Security;
+using InfiniFrame.StaticAssets;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 

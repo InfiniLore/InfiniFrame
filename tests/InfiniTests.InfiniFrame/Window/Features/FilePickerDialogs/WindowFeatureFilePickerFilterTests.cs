@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
 using InfiniFrame.Window.Features.FilePickerDialogs;
 
 namespace InfiniTests.InfiniFrame.Window.Features.FilePickerDialogs;

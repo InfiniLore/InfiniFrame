@@ -1,5 +1,6 @@
-using InfiniFrame;
 using System.Drawing;
+using InfiniFrame;
+using InfiniFrame.Application;
 using InfiniFrame.SingleFile;
 
 namespace InfiniFrameExample.SingleFileExe.React;
