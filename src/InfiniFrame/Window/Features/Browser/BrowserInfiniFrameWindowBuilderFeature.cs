@@ -153,7 +153,7 @@ public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowB
     ///     Applies all browser feature settings to the native parameters.
     /// </summary>
     /// <param name="parameters">The native parameters to populate.</param>
-    public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
+    public void ApplyToNativeParameters(ref InfiniFrameNativeWindowParameters parameters) {
         parameters.ContextMenuEnabled = IsContextMenuEnabled;
         parameters.MediaAutoplayEnabled = IsMediaAutoplayEnabled;
         parameters.UserAgent = UserAgent;

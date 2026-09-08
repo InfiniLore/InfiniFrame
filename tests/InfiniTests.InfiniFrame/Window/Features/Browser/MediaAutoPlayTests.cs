@@ -19,7 +19,7 @@ public class MediaAutoplayTests {
 
         // Act
         builder.Features.Browser.EnableMediaAutoplay(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsMediaAutoplayEnabled).IsEqualTo(value);
@@ -35,7 +35,7 @@ public class MediaAutoplayTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.EnableMediaAutoplay(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsMediaAutoplayEnabled).IsEqualTo(value);

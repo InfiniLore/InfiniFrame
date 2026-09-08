@@ -18,7 +18,7 @@ public class StartPageContentTests {
 
         // Act
         builder.Features.PageNavigation.SetStartPageContent(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.PageNavigation.StartString).IsEqualTo(value);
@@ -34,7 +34,7 @@ public class StartPageContentTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetStartPageContent(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.PageNavigation.StartString).IsEqualTo(value);

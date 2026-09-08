@@ -32,7 +32,7 @@ For detailed documentation on the new feature-based API, see:
 | C# namespace             | `Photino.NET`                           | `InfiniFrame`                        |
 | Native DLL               | `Photino.Native`                        | `InfiniFrame.Native` (internal)      |
 | C++ class                | `Photino`                               | `InfiniFrameWindow`                  |
-| C++ init params          | `PhotinoInitParams`                     | `InfiniFrameInitParams`              |
+| C++ init params          | `PhotinoInitParams`                     | `InfiniFrameWindowInitParams`        |
 | Exported function prefix | `Photino_`                              | `InfiniFrameNative_`                       |
 | Default window title     | `"Photino"`                             | `"InfiniFrame"`                      |
 | Default user agent       | `"Photino WebView"`                     | `"InfiniFrame WebView"`              |

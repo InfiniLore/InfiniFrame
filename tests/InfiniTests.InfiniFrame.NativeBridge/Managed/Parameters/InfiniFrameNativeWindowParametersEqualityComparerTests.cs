@@ -8,10 +8,10 @@ namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Parameters;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameNativeParametersEqualityComparerTests {
+public class InfiniFrameNativeWindowParametersEqualityComparerTests {
 
-    private static InfiniFrameNativeParametersEqualityComparer Comparer => InfiniFrameNativeParametersEqualityComparer.Instance;
-    private static InfiniFrameNativeParameters CreateDefault() => new() {
+    private static InfiniFrameNativeWindowParametersEqualityComparer Comparer => InfiniFrameNativeWindowParametersEqualityComparer.Instance;
+    private static InfiniFrameNativeWindowParameters CreateDefault() => new() {
         StartUrl = "https://example.com",
         CustomSchemeNames = new IntPtr[16]
     };
@@ -22,8 +22,8 @@ public class InfiniFrameNativeParametersEqualityComparerTests {
     [Test]
     public async Task Equals_TwoStructsWithSameValues_ReturnsTrue(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameNativeParameters a = CreateDefault();
-        InfiniFrameNativeParameters b = CreateDefault();
+        InfiniFrameNativeWindowParameters a = CreateDefault();
+        InfiniFrameNativeWindowParameters b = CreateDefault();
 
         // Act
         bool result = Comparer.Equals(a, b);
@@ -35,8 +35,8 @@ public class InfiniFrameNativeParametersEqualityComparerTests {
     [Test]
     public async Task Equals_DifferentStartUrl_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameNativeParameters a = CreateDefault();
-        InfiniFrameNativeParameters b = CreateDefault();
+        InfiniFrameNativeWindowParameters a = CreateDefault();
+        InfiniFrameNativeWindowParameters b = CreateDefault();
         b.StartUrl = "https://other.com";
 
         // Act
@@ -49,8 +49,8 @@ public class InfiniFrameNativeParametersEqualityComparerTests {
     [Test]
     public async Task Equals_DifferentTitle_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameNativeParameters a = CreateDefault();
-        InfiniFrameNativeParameters b = CreateDefault();
+        InfiniFrameNativeWindowParameters a = CreateDefault();
+        InfiniFrameNativeWindowParameters b = CreateDefault();
         b.Title = "Different Title";
 
         // Act
@@ -63,8 +63,8 @@ public class InfiniFrameNativeParametersEqualityComparerTests {
     [Test]
     public async Task Equals_DifferentNativeParent_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameNativeParameters a = CreateDefault();
-        InfiniFrameNativeParameters b = CreateDefault();
+        InfiniFrameNativeWindowParameters a = CreateDefault();
+        InfiniFrameNativeWindowParameters b = CreateDefault();
         b.NativeParent = new IntPtr(12345);
 
         // Act
@@ -77,8 +77,8 @@ public class InfiniFrameNativeParametersEqualityComparerTests {
     [Test]
     public async Task Equals_DifferentLeft_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameNativeParameters a = CreateDefault();
-        InfiniFrameNativeParameters b = CreateDefault();
+        InfiniFrameNativeWindowParameters a = CreateDefault();
+        InfiniFrameNativeWindowParameters b = CreateDefault();
         b.Left = 100;
 
         // Act
@@ -91,8 +91,8 @@ public class InfiniFrameNativeParametersEqualityComparerTests {
     [Test]
     public async Task Equals_DifferentBooleanField_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameNativeParameters a = CreateDefault();
-        InfiniFrameNativeParameters b = CreateDefault();
+        InfiniFrameNativeWindowParameters a = CreateDefault();
+        InfiniFrameNativeWindowParameters b = CreateDefault();
         b.Resizable = true;
 
         // Act
@@ -105,8 +105,8 @@ public class InfiniFrameNativeParametersEqualityComparerTests {
     [Test]
     public async Task Equals_DifferentRemoteDebuggingPort_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameNativeParameters a = CreateDefault();
-        InfiniFrameNativeParameters b = CreateDefault();
+        InfiniFrameNativeWindowParameters a = CreateDefault();
+        InfiniFrameNativeWindowParameters b = CreateDefault();
         b.RemoteDebuggingPort = 9222;
 
         // Act
@@ -119,8 +119,8 @@ public class InfiniFrameNativeParametersEqualityComparerTests {
     [Test]
     public async Task Equals_DifferentCustomSchemeNames_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameNativeParameters a = CreateDefault();
-        InfiniFrameNativeParameters b = CreateDefault();
+        InfiniFrameNativeWindowParameters a = CreateDefault();
+        InfiniFrameNativeWindowParameters b = CreateDefault();
 
         IntPtr ptr = Marshal.StringToHGlobalAnsi("app");
         b.CustomSchemeNames[0] = ptr;
@@ -140,7 +140,7 @@ public class InfiniFrameNativeParametersEqualityComparerTests {
     [Test]
     public async Task Equals_ObjectOverload_WithNull_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameNativeParameters a = CreateDefault();
+        InfiniFrameNativeWindowParameters a = CreateDefault();
 
         // Act
         bool result = Comparer.Equals(a, default);
@@ -152,8 +152,8 @@ public class InfiniFrameNativeParametersEqualityComparerTests {
     [Test]
     public async Task Equals_DifferentMenuBarJson_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameNativeParameters a = CreateDefault();
-        InfiniFrameNativeParameters b = CreateDefault();
+        InfiniFrameNativeWindowParameters a = CreateDefault();
+        InfiniFrameNativeWindowParameters b = CreateDefault();
         b.MenuBarJson = "{\"Items\":[]}";
 
         // Act

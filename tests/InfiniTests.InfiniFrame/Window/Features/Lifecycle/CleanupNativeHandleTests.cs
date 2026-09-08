@@ -24,7 +24,7 @@ public class CleanupNativeHandleTests {
         window.Events.Returns(events);
         window.LifecycleState.Returns(InfiniFrameWindowLifecycleState.TeardownComplete);
 
-        Mock<IValidator<InfiniFrameNativeParameters>> validator = MockFactory.CreateValidatorMock();
+        Mock<IValidator<InfiniFrameNativeWindowParameters>> validator = MockFactory.CreateValidatorMock();
         var lifecycle = new LifecycleInfiniFrameWindowFeature(
             window.Object,
             NullLogger<LifecycleInfiniFrameWindowFeature>.Instance,

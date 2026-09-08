@@ -18,7 +18,7 @@ public class BrowserControlInitParametersTests {
 
         // Act
         builder.Features.Browser.SetBrowserControlInitParameters(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Browser.BrowserControlInitParameters).IsEqualTo(value);
@@ -34,7 +34,7 @@ public class BrowserControlInitParametersTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetBrowserControlInitParameters(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Browser.BrowserControlInitParameters).IsEqualTo(value);

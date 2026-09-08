@@ -19,7 +19,7 @@ public class TopMostTests {
 
         // Act
         builder.Features.State.SetTopMost(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.State.StartTopMost).IsEqualTo(value);
@@ -35,7 +35,7 @@ public class TopMostTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetTopMost(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.State.StartTopMost).IsEqualTo(value);

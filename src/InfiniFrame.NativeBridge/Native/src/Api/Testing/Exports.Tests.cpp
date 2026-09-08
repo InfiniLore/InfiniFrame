@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Runtime/Shared/Window/InfiniFrame.h"
+#include "Runtime/Shared/Application/InfiniFrameApplicationInitParams.h"
 #include "Api/Exports/Exports.h"
 #include "Runtime/Shared/WebView/CustomSchemeResponse.h"
 #ifdef _WIN32
@@ -28,8 +29,8 @@ EXPORTED InteropStatus InfiniFrameNativeTests_MacPooledHostCount(size_t* value) 
 }
 #endif
 EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
-    const InfiniFrameInitParams* params,
-    InfiniFrameInitParams** new_params
+    const InfiniFrameWindowInitParams* params,
+    InfiniFrameWindowInitParams** new_params
     ) {
     if (new_params != nullptr) {
         *new_params = nullptr;
@@ -42,7 +43,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
                 return;
             }
 
-            *new_params = new InfiniFrameInitParams();
+            *new_params = new InfiniFrameWindowInitParams();
 
             // Content strings
             (*new_params)->StartString = DuplicateString(params->StartString);
@@ -77,7 +78,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
             (*new_params)->DebugEventHandler = params->DebugEventHandler;
 
             // Custom scheme support
-            for (size_t i = 0; i < InfiniFrameInitParams::MaxCustomSchemeNames; ++i) {
+            for (size_t i = 0; i < InfiniFrameWindowInitParams::MaxCustomSchemeNames; ++i) {
                 (*new_params)->CustomSchemeNames[i] = params->CustomSchemeNames[i] != nullptr
                     ? DuplicateString(params->CustomSchemeNames[i])
                     : nullptr;
@@ -141,7 +142,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         });
 }
 
-EXPORTED InteropStatus InfiniFrameNativeTests_FreeInitParams(InfiniFrameInitParams* params) {
+EXPORTED InteropStatus InfiniFrameNativeTests_FreeInitParams(InfiniFrameWindowInitParams* params) {
     return RunExportStatus(
         [&] {
             if (!EnsureNotNull(params, "params")) {
@@ -157,11 +158,46 @@ EXPORTED InteropStatus InfiniFrameNativeTests_FreeInitParams(InfiniFrameInitPara
             delete[] params->UserAgent;
             delete[] params->BrowserControlInitParameters;
             delete[] params->DefaultNotificationIcon;
-            for (size_t i = 0; i < InfiniFrameInitParams::MaxCustomSchemeNames; ++i) {
+            for (size_t i = 0; i < InfiniFrameWindowInitParams::MaxCustomSchemeNames; ++i) {
                 delete[] params->CustomSchemeNames[i];
             }
             delete[] params->MenuBarJson;
 
+            delete params;
+        });
+}
+
+EXPORTED InteropStatus InfiniFrameNativeTests_NativeApplicationParametersReturnAsIs(
+    const InfiniFrameApplicationInitParams* params,
+    InfiniFrameApplicationInitParams** new_params
+    ) {
+    if (new_params != nullptr) *new_params = nullptr;
+
+    return RunExportStatus(
+        [&] {
+            if (!EnsureNotNull(params, "params") ||
+                !EnsureNotNull(new_params, "new_params", ::InteropStatus::OutParameterSetToInvalidNull)) {
+                return;
+            }
+
+            *new_params = new InfiniFrameApplicationInitParams {
+                DuplicateString(params->WebView2RuntimePath),
+                DuplicateString(params->NotificationRegistrationId),
+                DuplicateString(params->AppUserModelId),
+                DuplicateString(params->DefaultNotificationIcon),
+                params->StructSize
+            };
+        });
+}
+
+EXPORTED InteropStatus InfiniFrameNativeTests_FreeApplicationParameters(InfiniFrameApplicationInitParams* params) {
+    return RunExportStatus(
+        [&] {
+            if (!EnsureNotNull(params, "params")) return;
+            delete[] params->WebView2RuntimePath;
+            delete[] params->NotificationRegistrationId;
+            delete[] params->AppUserModelId;
+            delete[] params->DefaultNotificationIcon;
             delete params;
         });
 }

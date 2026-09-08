@@ -19,7 +19,7 @@ public class BrowserPermissionsTests {
 
         // Act
         builder.Features.Browser.EnableBrowserPermissions(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.GrantBrowserPermissions).IsEqualTo(value);
@@ -35,7 +35,7 @@ public class BrowserPermissionsTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.EnableBrowserPermissions(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.GrantBrowserPermissions).IsEqualTo(value);

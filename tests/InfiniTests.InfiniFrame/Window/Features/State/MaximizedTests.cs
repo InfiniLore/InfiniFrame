@@ -19,7 +19,7 @@ public class MaximizedTests {
 
         // Act
         builder.Features.State.SetMaximized(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.State.StartMaximized).IsEqualTo(value);
@@ -35,7 +35,7 @@ public class MaximizedTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetMaximized(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.State.StartMaximized).IsEqualTo(value);

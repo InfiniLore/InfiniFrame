@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
+using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Utilities;
 
 namespace InfiniFrame;
@@ -29,7 +30,6 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     private readonly List<Func<Task>> _startupActions = [];
     private readonly Dictionary<string, IInfiniFrameWindow> _windows = [];
     private IServiceProvider? _serviceProvider;
-    private readonly TaskCompletionSource _shutdownSignal = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private int _disposed;
     private bool _built;
     private int _shutdownRequested;
@@ -41,12 +41,10 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             throw new InfiniFrameNativeInteropException(InfiniFrameNative.GetLastErrorMessage() ?? "Could not create native application.");
 
         _nativeHandle = new NativeApplicationHandle(handle);
+        InfiniFrameNativeApplicationParameters parameters = configuration.ToNativeParameters();
         InfiniFrameNativeInteropStatus configureStatus = InfiniFrameNative.ApplicationConfigure(
             _nativeHandle.DangerousGetHandle(),
-            configuration.WebView2RuntimePath,
-            configuration.NotificationRegistrationId,
-            configuration.AppUserModelId,
-            configuration.DefaultNotificationIcon
+            in parameters
         );
         if (configureStatus != InfiniFrameNativeInteropStatus.Success) {
             _nativeHandle.Dispose();
@@ -130,7 +128,9 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     public void Run() {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
         try {
+            EnsureWindowsStaThread();
             RegisterNativeApplication();
+            if (IsShutdownRequested) return;
             StartRegisteredComponents();
             BuildAllWindows();
             RunNativeLoop();
@@ -144,13 +144,32 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     public async Task RunAsync(CancellationToken ct = default) {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
         await using CancellationTokenRegistration registration = ct.Register(Shutdown);
+        Task? uiTask = null;
         try {
+            ct.ThrowIfCancellationRequested();
             await StartRegisteredComponentsAsync().ConfigureAwait(false);
+            ct.ThrowIfCancellationRequested();
             var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
             var uiThread = new Thread(() => {
                 try {
+                    if (IsShutdownRequested) {
+                        completion.TrySetResult();
+                        return;
+                    }
+
                     RegisterNativeApplication();
+                    if (IsShutdownRequested) {
+                        completion.TrySetResult();
+                        return;
+                    }
+
                     BuildAllWindows();
+                    if (IsShutdownRequested) {
+                        CloseAll();
+                        completion.TrySetResult();
+                        return;
+                    }
+
                     RunNativeLoop();
                     completion.TrySetResult();
                 }
@@ -165,31 +184,40 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             if (OperatingSystem.IsWindows())
                 uiThread.SetApartmentState(ApartmentState.STA);
             uiThread.Start();
-            await Task.WhenAny(completion.Task, _shutdownSignal.Task).ConfigureAwait(false);
-            if (!completion.Task.IsCompleted) {
-                try {
-                    await completion.Task.WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
-                }
-                catch (TimeoutException) {
-                    logger.LogWarning("Native application loop did not exit after shutdown request.");
-                }
-            }
+            uiTask = completion.Task;
+            await uiTask.ConfigureAwait(false);
         }
         finally {
-            await DisposeAsync().ConfigureAwait(false);
+            try {
+                if (uiTask is not null)
+                    await uiTask.ConfigureAwait(false);
+            }
+            finally {
+                await DisposeAsync().ConfigureAwait(false);
+            }
         }
     }
 
     /// <inheritdoc />
     public void Shutdown() {
         if (Volatile.Read(ref _disposed) != 0) return;
-        Volatile.Write(ref _shutdownRequested, 1);
-        _shutdownSignal.TrySetResult();
-        InfiniFrameNative.ApplicationShutdown(_nativeHandle.DangerousGetHandle());
+        if (Interlocked.Exchange(ref _shutdownRequested, 1) != 0) return;
+        CloseAll();
+        if (!OperatingSystem.IsWindows())
+            InfiniFrameNative.ApplicationShutdown(_nativeHandle.DangerousGetHandle());
     }
 
     /// <inheritdoc />
-    public void CloseAll() => Shutdown();
+    public void CloseAll() {
+        foreach (IInfiniFrameWindow window in Windows.ToArray()) {
+            try {
+                window.Close();
+            }
+            catch (Exception exception) when (exception is ObjectDisposedException or InvalidOperationException) {
+                logger.LogDebug(exception, "Window was already unavailable during application shutdown.");
+            }
+        }
+    }
 
     private void RegisterNativeApplication() {
         InfiniFrameNativeInteropStatus status = InfiniFrameNative.ApplicationRegister(_nativeHandle.DangerousGetHandle());
@@ -334,7 +362,20 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     }
 
     private void RunNativeLoop() {
+        if (OperatingSystem.IsWindows()) {
+            InfiniFrameNativeInteropStatus status = InfiniFrameNative.ApplicationRun(_nativeHandle.DangerousGetHandle());
+            if (status != InfiniFrameNativeInteropStatus.Success)
+                throw new InfiniFrameNativeInteropException(
+                    InfiniFrameNative.GetLastErrorMessage() ?? "Could not run the native application.");
+            return;
+        }
+
         foreach (IInfiniFrameWindow window in Windows.ToArray()) window.WaitForClose();
+    }
+
+    private static void EnsureWindowsStaThread() {
+        if (OperatingSystem.IsWindows() && Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
+            throw new InvalidOperationException("InfiniFrameApplication.Run() must be called from a Windows STA thread.");
     }
 
     internal void AttachServiceProvider(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;

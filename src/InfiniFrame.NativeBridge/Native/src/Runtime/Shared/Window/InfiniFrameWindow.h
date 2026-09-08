@@ -40,7 +40,7 @@ class WinToastHandler;
 #endif
 class InfiniFrameDialog;
 class InfiniFrameApplication;
-struct InfiniFrameInitParams;
+struct InfiniFrameWindowInitParams;
 
 struct InfiniFrameWindowImpl;
 struct NativeOperation;
@@ -59,7 +59,7 @@ class InfiniFrameWindow {
          * @brief Construct new InfiniFrame window
          * @param initParams Initialization parameters
          */
-    explicit InfiniFrameWindow(InfiniFrameInitParams* initParams);
+    explicit InfiniFrameWindow(InfiniFrameWindowInitParams* initParams);
 
     /**
          * @brief Destroy InfiniFrame window
@@ -1092,4 +1092,4 @@ class InfiniFrameWindow {
     InfiniFrameApplication* _application = nullptr;
 };
 
-#include "InfiniFrameInitParams.h"
+#include "InfiniFrameWindowInitParams.h"

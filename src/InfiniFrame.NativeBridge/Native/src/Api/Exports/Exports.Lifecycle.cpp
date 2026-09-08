@@ -32,20 +32,15 @@ EXPORTED InteropStatus InfiniFrameNativeApplication_Register(InfiniFrameApplicat
 
 EXPORTED InteropStatus InfiniFrameNativeApplication_Configure(
     InfiniFrameApplication* instance,
-    const char* webView2RuntimePath,
-    const char* notificationRegistrationId,
-    const char* appUserModelId,
-    const char* defaultNotificationIcon
+    InfiniFrameApplicationInitParams* parameters
 ) {
     return RunExportStatus(
         [&] {
             if (!EnsureNotNull(instance, "instance")) return;
-            instance->Configure(
-                webView2RuntimePath,
-                notificationRegistrationId,
-                appUserModelId,
-                defaultNotificationIcon
-            );
+            if (!EnsureNotNull(parameters, "parameters")) return;
+            if (parameters->StructSize != static_cast<int>(sizeof(InfiniFrameApplicationInitParams)))
+                throw std::invalid_argument("InfiniFrameApplicationInitParams.Size does not match native struct size.");
+            instance->Configure(*parameters);
         });
 }
 
@@ -93,7 +88,7 @@ EXPORTED InteropStatus InfiniFrameNativeApplication_GetWindowCount(
 /// @param initParams Initialization parameters for the window.
 /// @param[out] value Receives the newly created window handle.
 /// @return InteropStatus
-EXPORTED InteropStatus InfiniFrameNative_ctor(InfiniFrameInitParams* initParams, InfiniFrameWindow** value) {
+EXPORTED InteropStatus InfiniFrameNative_ctor(InfiniFrameWindowInitParams* initParams, InfiniFrameWindow** value) {
     ResetOut(value, static_cast<InfiniFrameWindow*>(nullptr));
     return RunExportStatus(
         [&] {
@@ -101,8 +96,8 @@ EXPORTED InteropStatus InfiniFrameNative_ctor(InfiniFrameInitParams* initParams,
                 return;
             if (initParams == nullptr)
                 throw std::invalid_argument("Argument 'initParams' is null.");
-            if (initParams->StructSize != static_cast<int>(sizeof(InfiniFrameInitParams))) {
-                throw std::invalid_argument("InfiniFrameInitParams.Size does not match native struct size.");
+            if (initParams->StructSize != static_cast<int>(sizeof(InfiniFrameWindowInitParams))) {
+                throw std::invalid_argument("InfiniFrameWindowInitParams.Size does not match native struct size.");
             }
             auto instance = std::make_unique<InfiniFrameWindow>(initParams);
             *value = instance.release();

@@ -112,7 +112,7 @@ public interface IInfiniFrameEvents : IHasInfiniFrameEventsStore {
     ///     Assigns the event callbacks to the native parameters structure.
     /// </summary>
     /// <param name="nativeParameters">The native parameters to assign callbacks to.</param>
-    internal void AssignToNativeParameters(ref InfiniFrameNativeParameters nativeParameters);
+    internal void AssignToNativeParameters(ref InfiniFrameNativeWindowParameters nativeParameters);
 
     /// <summary>
     ///     Assigns the window reference to this events instance.

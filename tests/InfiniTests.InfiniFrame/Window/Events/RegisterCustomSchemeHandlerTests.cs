@@ -20,7 +20,7 @@ public class RegisterCustomSchemeHandlerTests {
 
         // Act
         builder.RegisterCustomSchemeHandler("app", EmptyHandler);
-        InfiniFrameNativeParameters nativeParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters nativeParameters = builder.CollectNativeParameters();
         var events = new InfiniFrameEvents(builder.EventsStore, NullLogger<InfiniFrameEvents>.Instance);
         events.AssignToNativeParameters(ref nativeParameters);
 
@@ -42,7 +42,7 @@ public class RegisterCustomSchemeHandlerTests {
             builder.RegisterCustomSchemeHandler("app", EmptyHandler);
         }
 
-        InfiniFrameNativeParameters nativeParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters nativeParameters = builder.CollectNativeParameters();
         var events = new InfiniFrameEvents(builder.EventsStore, NullLogger<InfiniFrameEvents>.Instance);
         events.AssignToNativeParameters(ref nativeParameters);
 

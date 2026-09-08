@@ -19,7 +19,7 @@ public class FullScreenTests {
 
         // Act
         builder.Features.State.SetFullScreen(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.State.StartFullScreen).IsEqualTo(value);
@@ -35,7 +35,7 @@ public class FullScreenTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetFullScreen(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.State.StartFullScreen).IsEqualTo(value);

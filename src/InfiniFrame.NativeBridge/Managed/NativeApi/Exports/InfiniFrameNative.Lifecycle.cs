@@ -21,20 +21,28 @@ public partial class InfiniFrameNative {
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus ApplicationRegister(IntPtr instance);
 
-    [LibraryImport(
-        ArtifactManifest.NativeLibraryName,
-        EntryPoint = "InfiniFrameNativeApplication_Configure",
-        SetLastError = true,
-        StringMarshalling = StringMarshalling.Utf8
-    )]
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeApplication_Configure", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial InfiniFrameNativeInteropStatus ApplicationConfigure(
+    private static partial InfiniFrameNativeInteropStatus ApplicationConfigureNative(IntPtr instance, IntPtr parameters);
+
+    internal static InfiniFrameNativeInteropStatus ApplicationConfigure(
         IntPtr instance,
-        string? webView2RuntimePath,
-        string? notificationRegistrationId,
-        string? appUserModelId,
-        string? defaultNotificationIcon
-    );
+        in InfiniFrameNativeApplicationParameters parameters
+    ) {
+        var marshaller = new InfiniFrameNativeApplicationParametersMarshaller.ManagedToUnmanagedIn();
+        marshaller.FromManaged(parameters);
+        IntPtr unmanagedPtr = IntPtr.Zero;
+
+        try {
+            unmanagedPtr = Marshal.AllocHGlobal(Marshal.SizeOf<InfiniFrameNativeApplicationParametersMarshaller.Unmanaged>());
+            Marshal.StructureToPtr(marshaller.ToUnmanaged(), unmanagedPtr, false);
+            return ApplicationConfigureNative(instance, unmanagedPtr);
+        }
+        finally {
+            if (unmanagedPtr != IntPtr.Zero) Marshal.FreeHGlobal(unmanagedPtr);
+            marshaller.Free();
+        }
+    }
 
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeApplication_Run", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -59,16 +67,16 @@ public partial class InfiniFrameNative {
     private static partial InfiniFrameNativeInteropStatus ConstructorNative(IntPtr parameters, out IntPtr value);
 
     internal static InfiniFrameNativeInteropStatus Constructor(
-        in InfiniFrameNativeParameters parameters,
+        in InfiniFrameNativeWindowParameters parameters,
         out IntPtr value
     ) {
-        var marshaller = new InfiniFrameNativeParametersMarshaller.ManagedToUnmanagedIn();
+        var marshaller = new InfiniFrameNativeWindowParametersMarshaller.ManagedToUnmanagedIn();
         marshaller.FromManaged(parameters);
         var unmanaged = marshaller.ToUnmanaged();
         IntPtr unmanagedPtr = IntPtr.Zero;
 
         try {
-            unmanagedPtr = Marshal.AllocHGlobal(Marshal.SizeOf<InfiniFrameNativeParametersMarshaller.Unmanaged>());
+            unmanagedPtr = Marshal.AllocHGlobal(Marshal.SizeOf<InfiniFrameNativeWindowParametersMarshaller.Unmanaged>());
             Marshal.StructureToPtr(unmanaged, unmanagedPtr, false);
             return ConstructorNative(unmanagedPtr, out value);
         }

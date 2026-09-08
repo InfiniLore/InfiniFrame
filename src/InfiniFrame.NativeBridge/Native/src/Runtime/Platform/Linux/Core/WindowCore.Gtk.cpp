@@ -10,14 +10,14 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
+InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) :
     m_impl(std::make_unique<Impl>()) {
     infiniframe::linux_gtk::ui_thread::EnsureInitialized();
 
-    if (initParams->StructSize != sizeof(InfiniFrameInitParams)) {
+    if (initParams->StructSize != sizeof(InfiniFrameWindowInitParams)) {
         throw std::invalid_argument(
             "Initial parameters passed are " + std::to_string(initParams->StructSize) +
-            " bytes, but expected " + std::to_string(sizeof(InfiniFrameInitParams)) + " bytes."
+            " bytes, but expected " + std::to_string(sizeof(InfiniFrameWindowInitParams)) + " bytes."
             );
     }
 

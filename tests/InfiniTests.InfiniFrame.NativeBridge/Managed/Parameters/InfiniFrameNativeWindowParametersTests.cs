@@ -9,16 +9,16 @@ namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Parameters;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameNativeParametersTests {
+public class InfiniFrameNativeWindowParametersTests {
 
     [Test]
     public async Task SequentialLayout_SizeMatchesMarshalSizeOf(CancellationToken ct = default) {
         // Arrange
         // Size must be consistent across managed/native boundary; Marshal.SizeOf is the source of truth.
-        int expectedSize = Marshal.SizeOf<InfiniFrameNativeParameters>();
+        int expectedSize = Marshal.SizeOf<InfiniFrameNativeWindowParameters>();
 
         // Act, read back to confirm it's stable
-        int actualSize = Marshal.SizeOf<InfiniFrameNativeParameters>();
+        int actualSize = Marshal.SizeOf<InfiniFrameNativeWindowParameters>();
 
         // Assert
         await Assert.That(actualSize).IsEqualTo(expectedSize);
@@ -43,7 +43,7 @@ public class InfiniFrameNativeParametersTests {
         IntPtr newParametersPtr = IntPtr.Zero;
 
         try {
-            var parameters = new InfiniFrameNativeParameters {
+            var parameters = new InfiniFrameNativeWindowParameters {
                 StartUrl = "https://example.org",
                 CustomSchemeNames = customSchemeNames
             };
@@ -79,7 +79,7 @@ public class InfiniFrameNativeParametersTests {
                 customSchemeNames[i] = IntPtr.Zero;
             }
 
-            var parameters = new InfiniFrameNativeParameters {
+            var parameters = new InfiniFrameNativeWindowParameters {
                 StartString = "this is a string",
                 StartUrl = "https://www.transgenderinfo.be/",
                 Title = "This is a title",
@@ -150,7 +150,7 @@ public class InfiniFrameNativeParametersTests {
             await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
 
             newParametersPtr = tempPtr;
-            var newParameters = Marshal.PtrToStructure<InfiniFrameNativeParameters>(newParametersPtr);
+            var newParameters = Marshal.PtrToStructure<InfiniFrameNativeWindowParameters>(newParametersPtr);
 
             // Assert
             for (int i = 0; i < parameters.CustomSchemeNames.Length; i++) {

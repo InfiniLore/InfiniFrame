@@ -18,7 +18,7 @@ public class SetMaxSizeTests {
 
         // Act
         builder.Features.Size.SetMaxSize(width, height);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Size.MaxWidth).IsEqualTo(width);
@@ -36,7 +36,7 @@ public class SetMaxSizeTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetMaxSize(width, height);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Size.MaxWidth).IsEqualTo(width);

@@ -15,7 +15,7 @@ public interface IInfiniFrameWindowConfiguration {
     /// <summary>
     ///     Gets the native parameters used when starting the window.
     /// </summary>
-    InfiniFrameNativeParameters StartupParameters { get; }
+    InfiniFrameNativeWindowParameters StartupParameters { get; }
 
     /// <summary>
     ///     Gets or sets the parent window of this window.
@@ -31,5 +31,5 @@ public interface IInfiniFrameWindowConfiguration {
     ///     Assigns the native parameters to this configuration.
     /// </summary>
     /// <param name="nativeParameters">The native parameters to assign.</param>
-    internal void AssignNativeParameters(InfiniFrameNativeParameters nativeParameters);
+    internal void AssignNativeParameters(InfiniFrameNativeWindowParameters nativeParameters);
 }

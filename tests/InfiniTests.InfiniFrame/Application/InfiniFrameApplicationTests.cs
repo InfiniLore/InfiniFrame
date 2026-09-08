@@ -1,6 +1,12 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 
 namespace InfiniTests.InfiniFrame.Application;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 
 [NotInParallelInfiniTests]
 public sealed class InfiniFrameApplicationTests {
@@ -79,10 +85,19 @@ public sealed class InfiniFrameApplicationTests {
         if (!OperatingSystem.IsWindows()) return;
 
         await using var application = InfiniFrameApplication.Initialize();
-        application.Run();
+        await application.RunAsync(ct);
 
         // ReSharper disable once AccessToDisposedClosure
         await Assert.That(() => application.RegisterWindow(static _ => { }))
+            .Throws<InvalidOperationException>();
+    }
+
+    [Test]
+    public async Task RunFromMtaThreadFailsBeforeWindowCreation(CancellationToken ct = default) {
+        if (!OperatingSystem.IsWindows()) return;
+
+        await using var application = InfiniFrameApplication.Initialize();
+        await Assert.That(async () => await Task.Run(application.Run, ct))
             .Throws<InvalidOperationException>();
     }
 

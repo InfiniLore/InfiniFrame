@@ -23,7 +23,7 @@ public class InfiniFrameWindowConfiguration : IInfiniFrameWindowConfiguration {
     /// </summary>
     internal object ChildWindowsLock { get; } = new();
     /// <inheritdoc cref="IInfiniFrameWindowConfiguration.StartupParameters" />
-    public InfiniFrameNativeParameters StartupParameters { get; private set; }
+    public InfiniFrameNativeWindowParameters StartupParameters { get; private set; }
     /// <inheritdoc cref="IInfiniFrameWindowConfiguration.ParentWindow" />
     public IInfiniFrameWindow? ParentWindow { get; set; }
     /// <inheritdoc cref="IInfiniFrameWindowConfiguration.ChildWindows" />
@@ -33,7 +33,7 @@ public class InfiniFrameWindowConfiguration : IInfiniFrameWindowConfiguration {
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     /// <inheritdoc cref="IInfiniFrameWindowConfiguration.AssignNativeParameters" />
-    public void AssignNativeParameters(InfiniFrameNativeParameters nativeParameters) {
+    public void AssignNativeParameters(InfiniFrameNativeWindowParameters nativeParameters) {
         StartupParameters = nativeParameters;
     }
 }

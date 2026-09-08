@@ -19,7 +19,7 @@ public class SetLocationTests {
 
         // Act
         builder.Features.Position.SetLocation(left, top);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Position.Left).IsEqualTo(left);
@@ -40,7 +40,7 @@ public class SetLocationTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetLocation(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Position.Left).IsEqualTo(left);

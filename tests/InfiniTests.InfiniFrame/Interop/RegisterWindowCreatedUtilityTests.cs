@@ -23,7 +23,7 @@ public class RegisterWindowCreatedUtilityTests {
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        var nativeParameters = default(InfiniFrameNativeParameters);
+        var nativeParameters = default(InfiniFrameNativeWindowParameters);
         events.AssignToNativeParameters(ref nativeParameters);
         events.AssignToWindow(window.Window);
 
@@ -60,7 +60,7 @@ public class RegisterWindowCreatedUtilityTests {
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        var nativeParameters = default(InfiniFrameNativeParameters);
+        var nativeParameters = default(InfiniFrameNativeWindowParameters);
         events.AssignToNativeParameters(ref nativeParameters);
         events.AssignToWindow(window.Window);
 
@@ -87,7 +87,7 @@ public class RegisterWindowCreatedUtilityTests {
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        var nativeParameters = default(InfiniFrameNativeParameters);
+        var nativeParameters = default(InfiniFrameNativeWindowParameters);
         events.AssignToNativeParameters(ref nativeParameters);
         events.AssignToWindow(window.Window);
 

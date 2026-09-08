@@ -3,12 +3,12 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include <cstddef>
-#include <mutex>
-#include <stdexcept>
-#include <string>
-#include <unordered_set>
+#include <memory>
+
+#include "Runtime/Shared/Application/InfiniFrameApplicationInitParams.h"
 
 class InfiniFrameWindow;
+struct InfiniFrameApplicationImpl;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -28,12 +28,7 @@ class InfiniFrameApplication {
 
     [[nodiscard]] static InfiniFrameApplication* GetInstance() noexcept;
     void Register();
-    void Configure(
-        const char* webView2RuntimePath,
-        const char* notificationRegistrationId,
-        const char* appUserModelId,
-        const char* defaultNotificationIcon
-    );
+    void Configure(const InfiniFrameApplicationInitParams& parameters);
     void Run() noexcept;
     void Shutdown() noexcept;
     void TrackWindow(InfiniFrameWindow* window);
@@ -48,19 +43,5 @@ class InfiniFrameApplication {
     void EnsureNotificationsInitialized(const char* appName);
 
     private:
-    static InfiniFrameApplication* s_instance;
-    mutable std::mutex _mutex;
-    std::unordered_set<InfiniFrameWindow*> _windows;
-    bool _registered = false;
-    bool _shutdownRequested = false;
-    std::string _webView2RuntimePath;
-    std::string _notificationRegistrationId;
-    std::string _appUserModelId;
-    std::string _defaultNotificationIcon;
-    bool _notificationsRegistered = false;
-#ifdef _WIN32
-    unsigned long _runThreadId = 0;
-    bool _running = false;
-
-#endif
+    std::unique_ptr<InfiniFrameApplicationImpl> _impl;
 };

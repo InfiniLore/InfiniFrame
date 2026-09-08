@@ -175,7 +175,7 @@ set(HEADER_FILES
         src/Api/Utilities/Utilities.h
         src/Runtime/Shared/Window/InfiniFrame.h
         src/Runtime/Shared/Window/InfiniFrameDialog.h
-        src/Runtime/Shared/Window/InfiniFrameInitParams.h
+        src/Runtime/Shared/Window/InfiniFrameWindowInitParams.h
         src/Runtime/Shared/Window/InfiniFrameWindow.h
         src/Runtime/Shared/Application/InfiniFrameApplication.h
         src/Runtime/Shared/Types/Basic.h

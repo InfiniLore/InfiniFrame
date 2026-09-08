@@ -59,7 +59,7 @@ public class StateInfiniFrameWindowBuilderFeature : IStateInfiniFrameWindowBuild
         IsZoomEnabled = zoomEnabled;
     }
 
-    public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
+    public void ApplyToNativeParameters(ref InfiniFrameNativeWindowParameters parameters) {
         parameters.FullScreen = StartFullScreen;
         parameters.Maximized = StartMaximized;
         parameters.Minimized = StartMinimized;

@@ -82,7 +82,7 @@ void ReleaseWebKitObjectsSafely(WKWebView* webview, WKWebViewConfiguration* conf
     [configuration release];
 }
 
-std::string HostCompatibilityKey(const InfiniFrameInitParams* p) {
+std::string HostCompatibilityKey(const InfiniFrameWindowInitParams* p) {
     // Every value below is consumed while constructing/configuring WKWebView.  Exact JSON and
     // scheme ordering are retained rather than trying to normalize arbitrary WebKit preferences.
     std::string key = p->Chromeless ? "chromeless=1;" : "chromeless=0;";
@@ -214,7 +214,7 @@ void InfiniFrameWindow::Register()
     });
 }
 
-InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl(std::make_unique<Impl>())
+InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) : m_impl(std::make_unique<Impl>())
 {
     _application = initParams->ApplicationInstance;
     infiniframe::macos::LogLifecycle("window-construct-begin", this);

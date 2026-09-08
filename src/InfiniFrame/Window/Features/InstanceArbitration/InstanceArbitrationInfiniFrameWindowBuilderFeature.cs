@@ -35,7 +35,7 @@ public class InstanceArbitrationInfiniFrameWindowBuilderFeature : IInstanceArbit
     ///     Instance arbitration is a process-level concern (mutex + elevation detection) and does not
     ///     map to any native window parameters.
     /// </remarks>
-    public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
+    public void ApplyToNativeParameters(ref InfiniFrameNativeWindowParameters parameters) {
         // No-op: instance arbitration is process-level, not window-level.
     }
 }

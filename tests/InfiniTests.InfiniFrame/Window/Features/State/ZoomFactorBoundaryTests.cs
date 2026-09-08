@@ -19,7 +19,7 @@ public class ZoomFactorBoundaryTests {
 
         // Act
         builder.Features.State.SetZoomFactor(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.State.ZoomFactor).IsEqualTo(value);
@@ -35,7 +35,7 @@ public class ZoomFactorBoundaryTests {
 
         // Act
         builder.Features.State.SetZoomFactor(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.State.ZoomFactor).IsEqualTo(value);

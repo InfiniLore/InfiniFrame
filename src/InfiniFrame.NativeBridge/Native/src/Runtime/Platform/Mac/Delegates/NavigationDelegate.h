@@ -17,7 +17,7 @@
  * @brief Navigation delegate conforming to WKNavigationDelegate.
  *
  * Intercepts authentication challenges to optionally suppress TLS certificate
- * errors when InfiniFrameInitParams::IgnoreCertificateErrors is set
+ * errors when InfiniFrameWindowInitParams::IgnoreCertificateErrors is set
  */
 @
 interface NavigationDelegate:

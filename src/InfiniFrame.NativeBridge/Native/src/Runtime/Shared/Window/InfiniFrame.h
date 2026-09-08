@@ -2,7 +2,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#include "Runtime/Shared/Window/InfiniFrameInitParams.h"
+#include "Runtime/Shared/Window/InfiniFrameWindowInitParams.h"
 #include "Runtime/Shared/Window/InfiniFrameWindow.h"
 #include "Runtime/Shared/Window/InfiniFrameDialog.h"
 

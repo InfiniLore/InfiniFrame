@@ -16,7 +16,7 @@ public class TemporaryFilesPathTests {
         var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(initParameters.TemporaryFilesPath).IsEqualTo(builder.Features.Browser.TemporaryFilesPath);
@@ -33,7 +33,7 @@ public class TemporaryFilesPathTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetTemporaryFilesPath(inputPath);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Browser.TemporaryFilesPath).IsEqualTo(expectedPath);

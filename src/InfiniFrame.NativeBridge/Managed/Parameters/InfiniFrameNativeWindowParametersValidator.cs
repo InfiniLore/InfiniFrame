@@ -9,21 +9,21 @@ namespace InfiniFrame.NativeBridge.Parameters;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Validates <see cref="InfiniFrameNativeParameters" /> instances using FluentValidation rules.
+///     Validates <see cref="InfiniFrameNativeWindowParameters" /> instances using FluentValidation rules.
 /// </summary>
-public sealed class InfiniFrameNativeParametersValidator
-    : AbstractValidator<InfiniFrameNativeParameters> {
+public sealed class InfiniFrameNativeWindowParametersValidator
+    : AbstractValidator<InfiniFrameNativeWindowParameters> {
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
     /// <summary>
-    ///     Initializes a new instance of <see cref="InfiniFrameNativeParametersValidator" />
+///     Initializes a new instance of <see cref="InfiniFrameNativeWindowParametersValidator" />
     ///     and configures all validation rules.
     /// </summary>
-    public InfiniFrameNativeParametersValidator() {
+    public InfiniFrameNativeWindowParametersValidator() {
         RuleFor(p => p.Size)
-            .Equal(Marshal.SizeOf<InfiniFrameNativeParameters>());
+            .Equal(Marshal.SizeOf<InfiniFrameNativeWindowParameters>());
 
         RuleFor(p => p)
             .Must(p =>

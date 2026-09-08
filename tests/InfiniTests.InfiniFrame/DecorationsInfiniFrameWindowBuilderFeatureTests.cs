@@ -104,7 +104,7 @@ public class DecorationsInfiniFrameWindowBuilderFeatureTests {
         feature.SetTransparent(true);
         feature.SetTitle("Test Title");
 
-        var parameters = new InfiniFrameNativeParameters();
+        var parameters = new InfiniFrameNativeWindowParameters();
 
         // Act
         feature.ApplyToNativeParameters(ref parameters);

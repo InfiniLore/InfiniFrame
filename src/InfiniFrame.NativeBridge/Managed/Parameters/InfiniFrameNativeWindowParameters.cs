@@ -16,7 +16,7 @@ namespace InfiniFrame.NativeBridge.Parameters;
 ///     Passed to the native layer as a sequentially laid-out struct.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public struct InfiniFrameNativeParameters() {
+public struct InfiniFrameNativeWindowParameters() {
     //  Content strings 
 
     /// <summary>
@@ -390,5 +390,5 @@ public struct InfiniFrameNativeParameters() {
     ///     construction.
     /// </summary>
     [MarshalAs(UnmanagedType.I4)]
-    internal readonly int Size = Marshal.SizeOf<InfiniFrameNativeParameters>();
+    internal readonly int Size = Marshal.SizeOf<InfiniFrameNativeWindowParameters>();
 }

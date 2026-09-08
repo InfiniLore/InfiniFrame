@@ -99,7 +99,7 @@ public class BrowserInfiniFrameWindowBuilderFeatureTests {
         feature.SetBrowserControlInitParameters("init-params");
         feature.SetTemporaryFilesPath("/tmp/test");
 
-        var parameters = new InfiniFrameNativeParameters();
+        var parameters = new InfiniFrameNativeWindowParameters();
 
         // Act
         feature.ApplyToNativeParameters(ref parameters);

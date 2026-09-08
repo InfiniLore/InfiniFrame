@@ -37,7 +37,7 @@ public class InfiniFrameWindowBuilderFeaturesTests {
     public async Task ApplyToNativeParameters_ShouldNotThrow(CancellationToken ct = default) {
         // Arrange
         var features = new InfiniFrameWindowBuilderFeatures();
-        var parameters = new InfiniFrameNativeParameters();
+        var parameters = new InfiniFrameNativeWindowParameters();
 
         // Act
         features.ApplyToNativeParameters(ref parameters);

@@ -38,7 +38,7 @@ public class DebuggingStartupParametersTests {
             builder.Debugging.SetRemoteDebuggingPort(remoteDebuggingPort);
         }
 
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(initParameters.DevToolsEnabled).IsEqualTo(devToolsEnabled);

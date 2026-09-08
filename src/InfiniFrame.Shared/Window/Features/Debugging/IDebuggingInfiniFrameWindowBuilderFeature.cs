@@ -61,5 +61,5 @@ public interface IDebuggingInfiniFrameWindowBuilderFeature {
     [SupportedOSPlatform("linux")]
     IDebuggingInfiniFrameWindowBuilderFeature SetRemoteDebuggingPort(int port);
 
-    internal void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters);
+    internal void ApplyToNativeParameters(ref InfiniFrameNativeWindowParameters parameters);
 }

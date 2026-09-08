@@ -100,7 +100,7 @@ public class SizeInfiniFrameWindowBuilderFeature : ISizeInfiniFrameWindowBuilder
         IsResizable = enabled;
     }
 
-    public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
+    public void ApplyToNativeParameters(ref InfiniFrameNativeWindowParameters parameters) {
         parameters.Height = Height;
         parameters.Width = Width;
         parameters.MaxHeight = MaxHeight;

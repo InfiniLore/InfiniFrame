@@ -19,7 +19,7 @@ public class FileSystemAccessTests {
 
         // Act
         builder.Features.Browser.EnableFileSystemAccess(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsFileSystemAccessEnabled).IsEqualTo(value);
@@ -35,7 +35,7 @@ public class FileSystemAccessTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.EnableFileSystemAccess(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsFileSystemAccessEnabled).IsEqualTo(value);

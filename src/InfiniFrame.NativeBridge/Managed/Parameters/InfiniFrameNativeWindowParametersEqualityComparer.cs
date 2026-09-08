@@ -6,27 +6,27 @@ namespace InfiniFrame.NativeBridge.Parameters;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Compares two <see cref="InfiniFrameNativeParameters" /> instances for value equality,
+///     Compares two <see cref="InfiniFrameNativeWindowParameters" /> instances for value equality,
 ///     ignoring callback handler fields. This comparer is intended for parameter-change
 ///     detection where two instances with different callbacks but identical configuration
 ///     values are considered equivalent.
 /// </summary>
-internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityComparer<InfiniFrameNativeParameters> {
+internal sealed class InfiniFrameNativeWindowParametersEqualityComparer : IEqualityComparer<InfiniFrameNativeWindowParameters> {
     /// <summary>
     ///     Singleton instance of the equality comparer.
     /// </summary>
-    internal static readonly InfiniFrameNativeParametersEqualityComparer Instance = new();
+    internal static readonly InfiniFrameNativeWindowParametersEqualityComparer Instance = new();
 
-    private InfiniFrameNativeParametersEqualityComparer() {}
+    private InfiniFrameNativeWindowParametersEqualityComparer() {}
 
     /// <summary>
-    ///     Determines whether two <see cref="InfiniFrameNativeParameters" /> instances are equal
+///     Determines whether two <see cref="InfiniFrameNativeWindowParameters" /> instances are equal
     ///     by comparing all value fields.
     /// </summary>
     /// <param name="x">The first instance.</param>
     /// <param name="y">The second instance.</param>
     /// <returns><c>true</c> if the instances are equal; otherwise, <c>false</c>.</returns>
-    public bool Equals(InfiniFrameNativeParameters x, InfiniFrameNativeParameters y) {
+    public bool Equals(InfiniFrameNativeWindowParameters x, InfiniFrameNativeWindowParameters y) {
         // Handlers are not checked because they are set by the constructor and are not user-configurable.
         // x.ClosingHandler == y.ClosingHandler
         // && x.ClosedHandler == y.ClosedHandler
@@ -123,12 +123,12 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
     }
 
     /// <summary>
-    ///     Returns a hash code for the specified <see cref="InfiniFrameNativeParameters" /> instance
+///     Returns a hash code for the specified <see cref="InfiniFrameNativeWindowParameters" /> instance
     ///     based on its value fields.
     /// </summary>
     /// <param name="obj">The instance to hash.</param>
     /// <returns>A hash code value.</returns>
-    public int GetHashCode(InfiniFrameNativeParameters obj) {
+    public int GetHashCode(InfiniFrameNativeWindowParameters obj) {
         var hashCode = new HashCode();
 
         // Content strings

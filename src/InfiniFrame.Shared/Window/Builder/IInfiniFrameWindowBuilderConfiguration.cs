@@ -25,5 +25,5 @@ public interface IInfiniFrameWindowBuilderConfiguration {
     ///     Applies the builder configuration values to the native parameters.
     /// </summary>
     /// <param name="parameters">The native parameters to update.</param>
-    void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters);
+    void ApplyToNativeParameters(ref InfiniFrameNativeWindowParameters parameters);
 }

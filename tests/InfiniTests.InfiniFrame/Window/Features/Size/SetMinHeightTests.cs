@@ -18,7 +18,7 @@ public class SetMinHeightTests {
 
         // Act
         builder.Features.Size.SetMinHeight(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Size.MinHeight).IsEqualTo(value);
@@ -34,7 +34,7 @@ public class SetMinHeightTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetMinHeight(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Size.MinHeight).IsEqualTo(value);

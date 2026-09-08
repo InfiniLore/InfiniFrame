@@ -132,7 +132,7 @@ public class OpenExternalTargetWebMessageHandlerTests {
         builder.RegisterOpenExternalTargetWebMessageHandler();
         var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
         var events = new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance);
-        var nativeParameters = default(InfiniFrameNativeParameters);
+        var nativeParameters = default(InfiniFrameNativeWindowParameters);
         events.AssignToNativeParameters(ref nativeParameters);
 
         var windowStub = new WindowWithServiceProviderStub(serviceProvider);
@@ -298,7 +298,7 @@ public class OpenExternalTargetWebMessageHandlerTests {
             .BindToBuilder(builder);
 
         var events = new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance);
-        var nativeParameters = default(InfiniFrameNativeParameters);
+        var nativeParameters = default(InfiniFrameNativeWindowParameters);
         events.AssignToNativeParameters(ref nativeParameters);
         events.AssignToWindow(window.Window);
 

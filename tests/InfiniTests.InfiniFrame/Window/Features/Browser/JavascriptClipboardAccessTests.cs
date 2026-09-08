@@ -19,7 +19,7 @@ public class JavascriptClipboardAccessTests {
 
         // Act
         builder.Features.Browser.EnableJavascriptClipboardAccess(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsJavascriptClipboardAccessEnabled).IsEqualTo(value);
@@ -35,7 +35,7 @@ public class JavascriptClipboardAccessTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.EnableJavascriptClipboardAccess(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsJavascriptClipboardAccessEnabled).IsEqualTo(value);

@@ -24,7 +24,7 @@ gboolean on_webview_context_menu(
     );
 gboolean on_permission_request(WebKitWebView* web_view, WebKitPermissionRequest* request, gpointer user_data);
 
-void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameInitParams* initParams) {
+void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameWindowInitParams* initParams) {
     if (initParams->Title != nullptr) {
         _windowTitle = initParams->Title;
     } else {
@@ -103,7 +103,7 @@ void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameInitParams* 
     _parent = initParams->ParentInstance;
 }
 
-void InfiniFrameWindow::Impl::ConfigureInitialWindow(InfiniFrameWindow* window, InfiniFrameInitParams* initParams) {
+void InfiniFrameWindow::Impl::ConfigureInitialWindow(InfiniFrameWindow* window, InfiniFrameWindowInitParams* initParams) {
     _window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     _dialog = std::make_unique<InfiniFrameDialog>();
 
@@ -137,7 +137,7 @@ void InfiniFrameWindow::Impl::ConfigureInitialWindow(InfiniFrameWindow* window, 
 
 void InfiniFrameWindow::Impl::ApplyInitialWindowState(
     InfiniFrameWindow* window,
-    const InfiniFrameInitParams* initParams
+    const InfiniFrameWindowInitParams* initParams
     ) {
     window->SetTitle(const_cast<const char*>(_windowTitle.c_str()));
 

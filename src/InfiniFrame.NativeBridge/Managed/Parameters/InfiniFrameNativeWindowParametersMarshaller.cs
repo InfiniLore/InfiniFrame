@@ -11,15 +11,15 @@ namespace InfiniFrame.NativeBridge.Parameters;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Custom marshaller for converting <see cref="InfiniFrameNativeParameters" />
+///     Custom marshaller for converting <see cref="InfiniFrameNativeWindowParameters" />
 ///     to an unmanaged representation for native interop calls.
 /// </summary>
 [CustomMarshaller(
-    typeof(InfiniFrameNativeParameters),
+    typeof(InfiniFrameNativeWindowParameters),
     MarshalMode.ManagedToUnmanagedIn,
     typeof(ManagedToUnmanagedIn)
 )]
-internal static class InfiniFrameNativeParametersMarshaller {
+internal static class InfiniFrameNativeWindowParametersMarshaller {
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -71,8 +71,8 @@ internal static class InfiniFrameNativeParametersMarshaller {
         => values is not null && values.Length > index ? values[index] : IntPtr.Zero;
 
     /// <summary>
-    ///     Unmanaged layout of <see cref="InfiniFrameNativeParameters" /> used for native interop.
-    ///     Field order must match the C++ InfiniFrameInitParams struct exactly.
+///     Unmanaged layout of <see cref="InfiniFrameNativeWindowParameters" /> used for native interop.
+///     Field order must match the C++ InfiniFrameWindowInitParams struct exactly.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     internal struct Unmanaged {
@@ -184,7 +184,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
     }
 
     /// <summary>
-    ///     Marshals managed <see cref="InfiniFrameNativeParameters" /> to the native <see cref="Unmanaged" /> layout.
+///     Marshals managed <see cref="InfiniFrameNativeWindowParameters" /> to the native <see cref="Unmanaged" /> layout.
     /// </summary>
     [SuppressMessage("ReSharper", "NotAccessedField.Local")]
     internal ref struct ManagedToUnmanagedIn {
@@ -210,7 +210,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         ///     Copies all values from the managed source into the unmanaged representation.
         /// </summary>
         /// <param name="managed">The managed parameters source.</param>
-        public void FromManaged(InfiniFrameNativeParameters managed) {
+        public void FromManaged(InfiniFrameNativeWindowParameters managed) {
             // Retain delegate references to prevent GC during native constructor call.
             _closingHandler = managed.ClosingHandler;
             _closedHandler = managed.ClosedHandler;

@@ -16,7 +16,7 @@ public class NotificationBuilderTests {
 
         // Act
         builder.Features.Notifications.SetDefaultNotificationIcon("/path/to/icon.png");
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Notifications.DefaultNotificationIcon).IsEqualTo("/path/to/icon.png");
@@ -31,7 +31,7 @@ public class NotificationBuilderTests {
         // Act
         builder.Features.Notifications.SetDefaultNotificationIcon("/path/to/icon.png");
         builder.Features.Notifications.SetDefaultNotificationIcon(null);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Notifications.DefaultNotificationIcon).IsNull();
@@ -45,7 +45,7 @@ public class NotificationBuilderTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetDefaultNotificationIcon("/path/to/icon.png");
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Notifications.DefaultNotificationIcon).IsEqualTo("/path/to/icon.png");
@@ -63,7 +63,7 @@ public class NotificationBuilderTests {
         // Act
         builder.Features.Notifications.EnableNotifications(enable);
         builder.Features.Notifications.SetDefaultNotificationIcon("/path/to/icon.png");
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Notifications.IsNotificationsEnabled).IsEqualTo(enable);

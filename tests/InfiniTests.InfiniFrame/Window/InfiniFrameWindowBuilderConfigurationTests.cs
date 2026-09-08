@@ -39,7 +39,7 @@ public class InfiniFrameWindowBuilderConfigurationTests {
     public async Task ApplyToNativeParameters_ShouldNotThrow(CancellationToken ct = default) {
         // Arrange
         var config = new InfiniFrameWindowBuilderConfiguration();
-        var parameters = new InfiniFrameNativeParameters();
+        var parameters = new InfiniFrameNativeWindowParameters();
 
         // Act
         config.ApplyToNativeParameters(ref parameters);

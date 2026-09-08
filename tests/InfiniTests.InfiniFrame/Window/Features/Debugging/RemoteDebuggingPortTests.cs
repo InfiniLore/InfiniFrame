@@ -32,7 +32,7 @@ public class RemoteDebuggingPortTests {
 
         // Act
         builder.Features.Debugging.SetRemoteDebuggingPort(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Debugging.RemoteDebuggingPort).IsEqualTo(value);
@@ -53,7 +53,7 @@ public class RemoteDebuggingPortTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetRemoteDebuggingPort(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(returnedBuilder).IsSameReferenceAs(builder);

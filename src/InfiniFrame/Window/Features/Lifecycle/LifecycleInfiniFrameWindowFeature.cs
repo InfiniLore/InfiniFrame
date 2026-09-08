@@ -21,7 +21,7 @@ namespace InfiniFrame;
 public class LifecycleInfiniFrameWindowFeature(
     IInfiniFrameWindow window,
     ILogger<LifecycleInfiniFrameWindowFeature> logger,
-    IValidator<InfiniFrameNativeParameters> validator
+    IValidator<InfiniFrameNativeWindowParameters> validator
 ) : ILifecycleInfiniFrameWindowFeature, IDisposable {
     private static readonly InfiniFrameNative.ContextAction ReadyCallback = OnNativeReady;
     private static readonly InfiniFrameNative.ContextAction TeardownCallback = OnNativeTeardown;
@@ -79,7 +79,7 @@ public class LifecycleInfiniFrameWindowFeature(
     /// <inheritdoc cref="ILifecycleInfiniFrameWindowFeature.Initialize" />
     void ILifecycleInfiniFrameWindowFeature.Initialize() {
         window.BeginInitialization();
-        InfiniFrameNativeParameters startupParameters = window.Configuration.StartupParameters;
+        InfiniFrameNativeWindowParameters startupParameters = window.Configuration.StartupParameters;
         bool webInspectorEnabled = startupParameters.WebInspectorEnabled;
 
         try {

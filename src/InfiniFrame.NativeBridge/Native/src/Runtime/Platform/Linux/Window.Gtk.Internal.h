@@ -65,9 +65,9 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     void configure_webkit_remote_debugging() const;
     void set_webkit_customsettings(WebKitSettings* settings);
     void AddCustomSchemeHandlers();
-    void InitializeFromParams(const InfiniFrameInitParams* initParams);
-    void ConfigureInitialWindow(InfiniFrameWindow* window, InfiniFrameInitParams* initParams);
-    void ApplyInitialWindowState(InfiniFrameWindow* window, const InfiniFrameInitParams* initParams);
+    void InitializeFromParams(const InfiniFrameWindowInitParams* initParams);
+    void ConfigureInitialWindow(InfiniFrameWindow* window, InfiniFrameWindowInitParams* initParams);
+    void ApplyInitialWindowState(InfiniFrameWindow* window, const InfiniFrameWindowInitParams* initParams);
     void ConnectWindowSignals(InfiniFrameWindow* window);
     void ConnectWebViewSignals(InfiniFrameWindow* window);
 };

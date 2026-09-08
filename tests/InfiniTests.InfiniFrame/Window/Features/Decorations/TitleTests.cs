@@ -18,7 +18,7 @@ public class TitleTests {
 
         // Act
         builder.Features.Decorations.SetTitle(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Decorations.Title).IsEqualTo(value);
@@ -34,7 +34,7 @@ public class TitleTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetTitle(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Decorations.Title).IsEqualTo(value);

@@ -25,7 +25,7 @@ public class ServiceCollectionExtensionsTests {
         // Assert
         await Assert.That(provider.GetService<IInfiniFrameEventsStore>()).IsNotNull();
         await Assert.That(provider.GetService<IInfiniFrameWindowConfiguration>()).IsNotNull();
-        await Assert.That(provider.GetService<IValidator<InfiniFrameNativeParameters>>()).IsNotNull();
+        await Assert.That(provider.GetService<IValidator<InfiniFrameNativeWindowParameters>>()).IsNotNull();
         await Assert.That(provider.GetService<InfiniFrameWindowFeaturesFactory>()).IsNotNull();
     }
 

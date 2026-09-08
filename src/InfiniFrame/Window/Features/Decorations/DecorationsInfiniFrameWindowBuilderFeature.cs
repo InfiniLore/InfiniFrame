@@ -64,7 +64,7 @@ public class DecorationsInfiniFrameWindowBuilderFeature : IDecorationsInfiniFram
         LimitLinuxWindowTitleLength = enabled;
     }
 
-    public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
+    public void ApplyToNativeParameters(ref InfiniFrameNativeWindowParameters parameters) {
         parameters.Chromeless = IsChromeless;
         parameters.Transparent = IsTransparent;
         parameters.Title = Title;

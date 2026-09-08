@@ -102,7 +102,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     ///     Binds all native callback delegates to the native startup parameters for window creation.
     /// </summary>
     /// <param name="parameters">The native parameters to populate with callback delegates.</param>
-    public void AssignToNativeParameters(ref InfiniFrameNativeParameters parameters) {
+    public void AssignToNativeParameters(ref InfiniFrameNativeWindowParameters parameters) {
         // Rebind callbacks to the per-window event instance that has Sender set via CompleteSetup.
         parameters.ClosedHandler = ClosedHandler;
         parameters.ClosingHandler = ClosingHandler;

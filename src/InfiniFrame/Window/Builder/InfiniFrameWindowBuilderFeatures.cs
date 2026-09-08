@@ -41,7 +41,7 @@ public sealed class InfiniFrameWindowBuilderFeatures : IInfiniFrameWindowBuilder
     ///     Applies all configured feature settings to the native parameters.
     /// </summary>
     /// <param name="parameters">The native parameters to populate.</param>
-    public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
+    public void ApplyToNativeParameters(ref InfiniFrameNativeWindowParameters parameters) {
         Debugging.ApplyToNativeParameters(ref parameters);
         Browser.ApplyToNativeParameters(ref parameters);
         Decorations.ApplyToNativeParameters(ref parameters);

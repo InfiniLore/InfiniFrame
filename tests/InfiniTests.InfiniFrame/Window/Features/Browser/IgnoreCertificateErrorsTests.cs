@@ -19,7 +19,7 @@ public class IgnoreCertificateErrorsTests {
 
         // Act
         builder.Features.Browser.EnableIgnoreCertificateErrors(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsIgnoreCertificateErrorsEnabled).IsEqualTo(value);
@@ -35,7 +35,7 @@ public class IgnoreCertificateErrorsTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.EnableIgnoreCertificateErrors(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsIgnoreCertificateErrorsEnabled).IsEqualTo(value);

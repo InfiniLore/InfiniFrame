@@ -95,10 +95,10 @@ void InfiniFrameWindow::Register(const HINSTANCE hInstance) {
 // Initializes native window lifecycle state from host-provided startup parameters.
 // Flow:
 //  1) Allocate implementation storage.
-//  2) Validate ABI compatibility of InfiniFrameInitParams via StructSize.
+//  2) Validate ABI compatibility of InfiniFrameWindowInitParams via StructSize.
 //  3) Configure window identity/notifications and startup payload values.
 //  4) Continue with remaining platform/window initialization in this constructor.
-InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
+InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) {
     // Backing implementation object must exist before any field assignment.
     m_impl = std::make_unique<Impl>();
 
@@ -107,10 +107,10 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     WinToastLib::setDebugOutputEnabled(false);
 
     // Fail fast if caller and native side disagree on struct layout/version.
-    if (initParams->StructSize != sizeof(InfiniFrameInitParams)) {
+    if (initParams->StructSize != sizeof(InfiniFrameWindowInitParams)) {
         throw std::invalid_argument(
             "Initial parameters passed are " + std::to_string(initParams->StructSize) +
-            " bytes, but expected " + std::to_string(sizeof(InfiniFrameInitParams)) + " bytes."
+            " bytes, but expected " + std::to_string(sizeof(InfiniFrameWindowInitParams)) + " bytes."
             );
     }
 
@@ -212,7 +212,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     m_impl->_fileDroppedCallback = initParams->DragDropHandler;
     m_impl->_dragDropEnabled = initParams->DragDropEnabled;
 
-    for (std::size_t i = 0; i < InfiniFrameInitParams::MaxCustomSchemeNames; ++i) {
+    for (std::size_t i = 0; i < InfiniFrameWindowInitParams::MaxCustomSchemeNames; ++i) {
         if (initParams->CustomSchemeNames[i] != nullptr)
             m_impl->_customSchemeNames.emplace_back(ToUTF16String(initParams->CustomSchemeNames[i]));
     }
@@ -307,6 +307,8 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         m_impl->_toastHandler = std::make_unique<WinToastHandler>(this);
         if (application == nullptr)
             WinToast::instance()->initialize();
+        else
+            application->EnsureNotificationsInitialized(initParams->Title);
     }
 
     m_impl->_dialog = std::make_unique<InfiniFrameDialog>(this);

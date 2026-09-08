@@ -25,7 +25,7 @@ public class WebInspectorTests {
 
         // Act
         builder.Features.Debugging.EnableWebInspector(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Debugging.IsWebInspectorEnabled).IsEqualTo(value);
@@ -46,7 +46,7 @@ public class WebInspectorTests {
             builder.Features.Debugging.EnableWebInspector(value);
 #pragma warning restore CA1416
         });
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Debugging.IsWebInspectorEnabled).IsFalse();
@@ -68,7 +68,7 @@ public class WebInspectorTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.EnableWebInspector(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Debugging.IsWebInspectorEnabled).IsEqualTo(value);
@@ -90,7 +90,7 @@ public class WebInspectorTests {
             builder.EnableWebInspector(value);
 #pragma warning restore CA1416
         });
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Debugging.IsWebInspectorEnabled).IsFalse();

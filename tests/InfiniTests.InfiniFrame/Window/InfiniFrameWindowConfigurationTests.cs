@@ -79,7 +79,7 @@ public class InfiniFrameWindowConfigurationTests {
     public async Task AssignNativeParameters_SetsStartupParameters(CancellationToken ct = default) {
         // Arrange
         var config = new InfiniFrameWindowConfiguration();
-        var parameters = new InfiniFrameNativeParameters {
+        var parameters = new InfiniFrameNativeWindowParameters {
             Title = "Test Window",
             Width = 800,
             Height = 600

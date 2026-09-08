@@ -19,7 +19,7 @@ public class SmoothScrollingTests {
 
         // Act
         builder.Features.Browser.EnableSmoothScrolling(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsSmoothScrollingEnabled).IsEqualTo(value);
@@ -35,7 +35,7 @@ public class SmoothScrollingTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.EnableSmoothScrolling(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsSmoothScrollingEnabled).IsEqualTo(value);

@@ -47,9 +47,9 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         bool ownsServiceProvider = provider is null;
         IServiceProvider actualProvider = provider ?? Services.BuildServiceProvider();
         var featureFactory = actualProvider.GetRequiredService<InfiniFrameWindowFeaturesFactory>();
-        var validator = actualProvider.GetRequiredService<IValidator<InfiniFrameNativeParameters>>();
+        var validator = actualProvider.GetRequiredService<IValidator<InfiniFrameNativeWindowParameters>>();
 
-        InfiniFrameNativeParameters nativeParameters = CollectNativeParameters();
+        InfiniFrameNativeWindowParameters nativeParameters = CollectNativeParameters();
         validator.ValidateAndThrow(nativeParameters);
 
         // Instance arbitration check
@@ -95,8 +95,8 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     internal static InfiniFrameWindowBuilder Create(IServiceCollection? collection = null, InfiniFrameEventsStore? events = null)
         => new(collection, events);
 
-    internal InfiniFrameNativeParameters CollectNativeParameters() {
-        var parameters = new InfiniFrameNativeParameters();
+    internal InfiniFrameNativeWindowParameters CollectNativeParameters() {
+        var parameters = new InfiniFrameNativeWindowParameters();
 
         Configuration.ApplyToNativeParameters(ref parameters);
         Features.ApplyToNativeParameters(ref parameters);

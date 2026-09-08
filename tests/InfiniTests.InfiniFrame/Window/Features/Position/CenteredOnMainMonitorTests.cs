@@ -18,7 +18,7 @@ public class CenteredOnMainMonitorTests {
 
         // Act
         builder.Features.Position.CenteredOnMainMonitor(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Position.StartCentered).IsEqualTo(value);
@@ -36,7 +36,7 @@ public class CenteredOnMainMonitorTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.CenteredOnMainMonitor(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Position.StartCentered).IsEqualTo(value);

@@ -18,7 +18,7 @@ public class ChromelessTests {
 
         // Act
         builder.Features.Decorations.SetChromeless(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Decorations.IsChromeless).IsEqualTo(value);
@@ -34,7 +34,7 @@ public class ChromelessTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetChromeless(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Decorations.IsChromeless).IsEqualTo(value);

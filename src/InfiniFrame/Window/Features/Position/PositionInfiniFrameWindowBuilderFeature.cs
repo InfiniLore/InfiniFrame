@@ -57,7 +57,7 @@ public class PositionInfiniFrameWindowBuilderFeature : IPositionInfiniFrameWindo
         StartCentered = enabled;
     }
 
-    public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
+    public void ApplyToNativeParameters(ref InfiniFrameNativeWindowParameters parameters) {
         parameters.Top = Top;
         parameters.Left = Left;
         parameters.CenterOnInitialize = StartCentered;

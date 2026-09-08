@@ -19,7 +19,7 @@ public class MinimizedTests {
 
         // Act
         builder.Features.State.SetMinimized(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.State.StartMinimized).IsEqualTo(value);
@@ -35,7 +35,7 @@ public class MinimizedTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetMinimized(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.State.StartMinimized).IsEqualTo(value);

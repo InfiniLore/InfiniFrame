@@ -31,7 +31,7 @@ public class NotificationsInfiniFrameWindowBuilderFeature : INotificationsInfini
         DefaultNotificationIcon = iconPath;
     }
 
-    public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
+    public void ApplyToNativeParameters(ref InfiniFrameNativeWindowParameters parameters) {
         parameters.NotificationsEnabled = IsNotificationsEnabled;
         parameters.DefaultNotificationIcon = DefaultNotificationIcon;
     }

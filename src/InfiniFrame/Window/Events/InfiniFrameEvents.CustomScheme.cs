@@ -67,7 +67,7 @@ public partial class InfiniFrameEvents {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    private void ApplyCustomSchemeNames(ref InfiniFrameNativeParameters startupParameters) {
+    private void ApplyCustomSchemeNames(ref InfiniFrameNativeWindowParameters startupParameters) {
         var availableHandlers = new HashSet<string>(EventsStore.CustomScheme.Snapshot.Select(static item => item.Key), StringComparer.Ordinal);
         var seen = new HashSet<string>(StringComparer.Ordinal);
 

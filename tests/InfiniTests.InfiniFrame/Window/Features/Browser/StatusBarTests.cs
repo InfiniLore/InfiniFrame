@@ -19,7 +19,7 @@ public class StatusBarTests {
 
         // Act
         builder.Features.Browser.EnableStatusBar(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsStatusBarEnabled).IsEqualTo(value);
@@ -35,7 +35,7 @@ public class StatusBarTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.EnableStatusBar(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsStatusBarEnabled).IsEqualTo(value);

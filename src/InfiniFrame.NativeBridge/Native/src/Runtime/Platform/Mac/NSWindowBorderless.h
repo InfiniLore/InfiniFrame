@@ -7,7 +7,7 @@
  * @file NSWindowBorderless.h
  * @brief NSWindow subclass that accepts first-mouse events and supports transparent backgrounds
  *
- * Used when InfiniFrameInitParams::Transparent is set, allowing the WebView to render
+ * Used when InfiniFrameWindowInitParams::Transparent is set, allowing the WebView to render
  * over a fully transparent window background without the standard title bar and borders
  */
 #include "Runtime/Shared/Window/InfiniFrame.h"

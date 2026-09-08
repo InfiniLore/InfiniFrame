@@ -18,7 +18,7 @@ public class UseOsDefaultLocationTests {
 
         // Act
         builder.Features.Position.UseOsDefaultLocation(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Position.StartAtOsDefaultLocation).IsEqualTo(value);
@@ -34,7 +34,7 @@ public class UseOsDefaultLocationTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.UseOsDefaultLocation(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Position.StartAtOsDefaultLocation).IsEqualTo(value);

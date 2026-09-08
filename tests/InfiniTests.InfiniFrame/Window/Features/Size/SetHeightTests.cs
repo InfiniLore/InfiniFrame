@@ -18,7 +18,7 @@ public class SetHeightTests {
 
         // Act
         builder.Features.Size.SetHeight(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Size.Height).IsEqualTo(value);
@@ -36,7 +36,7 @@ public class SetHeightTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetHeight(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Size.Height).IsEqualTo(value);

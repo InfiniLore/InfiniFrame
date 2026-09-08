@@ -19,7 +19,7 @@ public class MediaStreamTests {
 
         // Act
         builder.Features.Browser.EnableMediaStream(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsMediaStreamEnabled).IsEqualTo(value);
@@ -35,7 +35,7 @@ public class MediaStreamTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.EnableMediaStream(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsMediaStreamEnabled).IsEqualTo(value);

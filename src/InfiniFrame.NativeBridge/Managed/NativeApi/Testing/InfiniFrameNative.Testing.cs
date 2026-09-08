@@ -62,21 +62,21 @@ public static partial class InfiniFrameNativeTesting {
     private static partial InfiniFrameNativeInteropStatus IsColorSchemeChangeNative(IntPtr lParam, out int result);
 
     /// <summary>
-    ///     Returns a native pointer to a newly allocated InfiniFrameInitParams clone.
+    ///     Returns a native pointer to a newly allocated InfiniFrameWindowInitParams clone.
     ///     Ownership is transferred to managed caller, which must call <see cref="FreeInitParams" /> exactly once.
     /// </summary>
     /// <param name="parameters">The parameters to clone.</param>
     /// <param name="newParametersPtr">The native pointer to the cloned parameters.</param>
     /// <returns>A status code indicating success or failure.</returns>
-    internal static InfiniFrameNativeInteropStatus NativeParametersReturnAsIsPtr(ref InfiniFrameNativeParameters parameters, out IntPtr newParametersPtr) {
-        var marshaller = new InfiniFrameNativeParametersMarshaller.ManagedToUnmanagedIn();
+    internal static InfiniFrameNativeInteropStatus NativeParametersReturnAsIsPtr(ref InfiniFrameNativeWindowParameters parameters, out IntPtr newParametersPtr) {
+        var marshaller = new InfiniFrameNativeWindowParametersMarshaller.ManagedToUnmanagedIn();
         marshaller.FromManaged(parameters);
         var unmanaged = marshaller.ToUnmanaged();
         InfiniFrameNativeInteropStatus status;
         IntPtr unmanagedPtr = IntPtr.Zero;
 
         try {
-            unmanagedPtr = Marshal.AllocHGlobal(Marshal.SizeOf<InfiniFrameNativeParametersMarshaller.Unmanaged>());
+            unmanagedPtr = Marshal.AllocHGlobal(Marshal.SizeOf<InfiniFrameNativeWindowParametersMarshaller.Unmanaged>());
             Marshal.StructureToPtr(unmanaged, unmanagedPtr, false);
             status = NativeParametersReturnAsIsNative(unmanagedPtr, out newParametersPtr);
         }
@@ -90,6 +90,41 @@ public static partial class InfiniFrameNativeTesting {
 
         return status;
     }
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeTests_NativeApplicationParametersReturnAsIs", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial InfiniFrameNativeInteropStatus NativeApplicationParametersReturnAsIsNative(IntPtr parameters, out IntPtr newParameters);
+
+    internal static InfiniFrameNativeInteropStatus NativeApplicationParametersReturnAsIsPtr(
+        ref InfiniFrameNativeApplicationParameters parameters,
+        out IntPtr newParametersPtr
+    ) {
+        var marshaller = new InfiniFrameNativeApplicationParametersMarshaller.ManagedToUnmanagedIn();
+        marshaller.FromManaged(parameters);
+        var unmanaged = marshaller.ToUnmanaged();
+        InfiniFrameNativeInteropStatus status;
+        IntPtr unmanagedPtr = IntPtr.Zero;
+
+        try {
+            unmanagedPtr = Marshal.AllocHGlobal(Marshal.SizeOf<InfiniFrameNativeApplicationParametersMarshaller.Unmanaged>());
+            Marshal.StructureToPtr(unmanaged, unmanagedPtr, false);
+            status = NativeApplicationParametersReturnAsIsNative(unmanagedPtr, out newParametersPtr);
+        }
+        finally {
+            if (unmanagedPtr != IntPtr.Zero) Marshal.FreeHGlobal(unmanagedPtr);
+            marshaller.Free();
+        }
+
+        if (newParametersPtr == IntPtr.Zero) throw new InvalidOperationException("Native function returned null pointer");
+        return status;
+    }
+
+    internal static InfiniFrameNativeInteropStatus FreeApplicationParameters(IntPtr parameters)
+        => FreeApplicationParametersNative(parameters);
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeTests_FreeApplicationParameters", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial InfiniFrameNativeInteropStatus FreeApplicationParametersNative(IntPtr parameters);
 
     /// <summary>
     ///     Frees init parameters that were allocated by native code during testing.

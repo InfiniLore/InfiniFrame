@@ -19,7 +19,7 @@ public class DevToolsTests {
 
         // Act
         builder.Features.Debugging.EnableDevTools(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Debugging.IsDevToolsEnabled).IsEqualTo(value);
@@ -35,7 +35,7 @@ public class DevToolsTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.EnableDevTools(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Debugging.IsDevToolsEnabled).IsEqualTo(value);

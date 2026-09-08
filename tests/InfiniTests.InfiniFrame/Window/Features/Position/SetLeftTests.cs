@@ -18,7 +18,7 @@ public class SetLeftTests {
 
         // Act
         builder.Features.Position.SetLeft(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Position.Left).IsEqualTo(value);
@@ -36,7 +36,7 @@ public class SetLeftTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetLeft(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Position.Left).IsEqualTo(value);

@@ -8,13 +8,13 @@ namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Parameters;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameNativeParametersValidatorTests {
-    private static readonly InfiniFrameNativeParametersValidator Validator = new();
+public class InfiniFrameNativeWindowParametersValidatorTests {
+    private static readonly InfiniFrameNativeWindowParametersValidator Validator = new();
 
     [Test]
     public async Task Validate_ValidParameters_Passes(CancellationToken ct = default) {
         // Arrange
-        InfiniFrameNativeParameters parameters = CreateValidParameters();
+        InfiniFrameNativeWindowParameters parameters = CreateValidParameters();
 
         // Act
         ValidationResult? result = await Validator.ValidateAsync(parameters, ct);
@@ -29,7 +29,7 @@ public class InfiniFrameNativeParametersValidatorTests {
     [Arguments(int.MaxValue)]
     public async Task Validate_InvalidWidth_FailsValidation(int width, CancellationToken ct = default) {
         // Arrange
-        InfiniFrameNativeParameters parameters = CreateValidParameters();
+        InfiniFrameNativeWindowParameters parameters = CreateValidParameters();
         parameters.Width = width;
 
         // Act
@@ -37,7 +37,7 @@ public class InfiniFrameNativeParametersValidatorTests {
 
         // Assert
         await Assert.That(result.IsValid).IsFalse();
-        await Assert.That(result.Errors.Any(error => error.PropertyName == nameof(InfiniFrameNativeParameters.Width))).IsTrue();
+        await Assert.That(result.Errors.Any(error => error.PropertyName == nameof(InfiniFrameNativeWindowParameters.Width))).IsTrue();
     }
 
     [Test]
@@ -46,7 +46,7 @@ public class InfiniFrameNativeParametersValidatorTests {
     [Arguments(int.MaxValue)]
     public async Task Validate_InvalidHeight_FailsValidation(int height, CancellationToken ct = default) {
         // Arrange
-        InfiniFrameNativeParameters parameters = CreateValidParameters();
+        InfiniFrameNativeWindowParameters parameters = CreateValidParameters();
         parameters.Height = height;
 
         // Act
@@ -54,7 +54,7 @@ public class InfiniFrameNativeParametersValidatorTests {
 
         // Assert
         await Assert.That(result.IsValid).IsFalse();
-        await Assert.That(result.Errors.Any(error => error.PropertyName == nameof(InfiniFrameNativeParameters.Height))).IsTrue();
+        await Assert.That(result.Errors.Any(error => error.PropertyName == nameof(InfiniFrameNativeWindowParameters.Height))).IsTrue();
     }
 
     [Test]
@@ -64,7 +64,7 @@ public class InfiniFrameNativeParametersValidatorTests {
     [Arguments(10, int.MinValue)]
     public async Task Validate_InvalidPosition_FailsValidation(int left, int top, CancellationToken ct = default) {
         // Arrange
-        InfiniFrameNativeParameters parameters = CreateValidParameters();
+        InfiniFrameNativeWindowParameters parameters = CreateValidParameters();
         parameters.Left = left;
         parameters.Top = top;
 
@@ -73,7 +73,7 @@ public class InfiniFrameNativeParametersValidatorTests {
 
         // Assert
         await Assert.That(result.IsValid).IsFalse();
-        await Assert.That(result.Errors.Any(error => error.PropertyName is nameof(InfiniFrameNativeParameters.Left) or nameof(InfiniFrameNativeParameters.Top))).IsTrue();
+        await Assert.That(result.Errors.Any(error => error.PropertyName is nameof(InfiniFrameNativeWindowParameters.Left) or nameof(InfiniFrameNativeWindowParameters.Top))).IsTrue();
     }
 
     [Test]
@@ -81,7 +81,7 @@ public class InfiniFrameNativeParametersValidatorTests {
     [Arguments(800, 600, -120, -80)]
     public async Task Validate_BoundaryValues_PassesWhenInRange(int width, int height, int left, int top, CancellationToken ct = default) {
         // Arrange
-        InfiniFrameNativeParameters parameters = CreateValidParameters();
+        InfiniFrameNativeWindowParameters parameters = CreateValidParameters();
         parameters.Width = width;
         parameters.Height = height;
         parameters.Left = left;
@@ -94,7 +94,7 @@ public class InfiniFrameNativeParametersValidatorTests {
         await Assert.That(result.IsValid).IsTrue();
     }
 
-    private static InfiniFrameNativeParameters CreateValidParameters() =>
+        private static InfiniFrameNativeWindowParameters CreateValidParameters() =>
         new() {
             StartUrl = "https://example.com",
             Width = 1024,

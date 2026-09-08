@@ -16,7 +16,7 @@ public class IconFileTests {
         string value = Path.Join(Path.GetTempPath(), $"{Guid.NewGuid():N}.ico");
 
         // Act
-        InfiniFrameNativeParameters initParameters;
+        InfiniFrameNativeWindowParameters initParameters;
         try {
             await File.WriteAllTextAsync(value, "icon", ct);
             builder.Features.Decorations.SetIconFile(value);
@@ -39,7 +39,7 @@ public class IconFileTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetIconFile(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Decorations.IconFilePath).IsEqualTo(value);

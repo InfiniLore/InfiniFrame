@@ -29,7 +29,7 @@ public class MenuBarTests {
 
         // Act
         builder.Features.Menu.SetMenuBar(menuBar);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Menu.MenuBar).IsEqualTo(menuBar);
@@ -48,7 +48,7 @@ public class MenuBarTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetMenuBar(menuBar);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Menu.MenuBar).IsEqualTo(menuBar);
@@ -62,7 +62,7 @@ public class MenuBarTests {
         var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Menu.MenuBar.Items.IsEmpty).IsTrue();
@@ -76,7 +76,7 @@ public class MenuBarTests {
 
         // Act
         builder.Features.Menu.SetMenuBar(null!);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Menu.MenuBar.Items.IsEmpty).IsTrue();
@@ -99,7 +99,7 @@ public class MenuBarTests {
 
         // Act
         builder.Features.Menu.SetMenuBar(menuBar);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(initParameters.MenuBarJson).IsNotNull();
@@ -124,7 +124,7 @@ public class MenuBarTests {
 
         // Act
         builder.Features.Menu.SetMenuBar(new InfiniFrameMenuBar());
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Menu.MenuBar.Items.IsEmpty).IsTrue();
@@ -147,7 +147,7 @@ public class MenuBarTests {
                 new InfiniFrameMenuItem("new", "New")
             ]
         ));
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Menu.MenuBar.Items.Length).IsEqualTo(1);

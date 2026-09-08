@@ -19,7 +19,7 @@ public class WebSecurityTests {
 
         // Act
         builder.Features.Browser.EnableWebSecurity(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsWebSecurityEnabled).IsEqualTo(value);
@@ -35,7 +35,7 @@ public class WebSecurityTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.EnableWebSecurity(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsWebSecurityEnabled).IsEqualTo(value);

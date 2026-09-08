@@ -18,7 +18,7 @@ public class SetMinWidthTests {
 
         // Act
         builder.Features.Size.SetMinWidth(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Size.MinWidth).IsEqualTo(value);
@@ -34,7 +34,7 @@ public class SetMinWidthTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetMinWidth(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Size.MinWidth).IsEqualTo(value);

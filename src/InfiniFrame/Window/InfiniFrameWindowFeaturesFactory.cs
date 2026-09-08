@@ -42,7 +42,7 @@ public class InfiniFrameWindowFeaturesFactory(IServiceProvider provider) {
             new LifecycleInfiniFrameWindowFeature(
                 window,
                 GetLogger<LifecycleInfiniFrameWindowFeature>(provider),
-                provider.GetRequiredService<IValidator<InfiniFrameNativeParameters>>()
+                provider.GetRequiredService<IValidator<InfiniFrameNativeWindowParameters>>()
             ),
             new InvokeInfiniFrameWindowFeature(
                 window,

@@ -21,7 +21,7 @@ public class UserAgentTests {
 
         // Act
         builder.Features.Browser.SetUserAgent(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.UserAgent).IsEqualTo(expected);
@@ -39,7 +39,7 @@ public class UserAgentTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetUserAgent(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(returnedBuilder).IsSameReferenceAs(builder);

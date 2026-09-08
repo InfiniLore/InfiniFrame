@@ -19,7 +19,7 @@ public class ZoomTests {
 
         // Act
         builder.Features.State.EnableZoom(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.State.IsZoomEnabled).IsEqualTo(value);
@@ -35,7 +35,7 @@ public class ZoomTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.EnableZoom(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.State.IsZoomEnabled).IsEqualTo(value);

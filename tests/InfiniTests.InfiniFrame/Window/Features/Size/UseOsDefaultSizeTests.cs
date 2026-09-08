@@ -18,7 +18,7 @@ public class UseOsDefaultSizeTests {
 
         // Act
         builder.Features.Size.UseOsDefaultSize(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Size.StartWithOsDefaultSize).IsEqualTo(value);
@@ -34,7 +34,7 @@ public class UseOsDefaultSizeTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.UseOsDefaultSize(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Size.StartWithOsDefaultSize).IsEqualTo(value);

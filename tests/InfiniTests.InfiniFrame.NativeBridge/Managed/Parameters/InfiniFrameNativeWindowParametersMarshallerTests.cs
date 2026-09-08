@@ -9,14 +9,14 @@ namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Parameters;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Tests for <see cref="InfiniFrameNativeParametersMarshaller" /> and its nested <c>Unmanaged</c> struct.
+///     Tests for <see cref="InfiniFrameNativeWindowParametersMarshaller" /> and its nested <c>Unmanaged</c> struct.
 ///     <para>
 ///         <c>ManagedToUnmanagedIn</c> is a <c>ref struct</c> and cannot be stored in async state-machine fields,
 ///         so all marshalling calls are encapsulated in synchronous private helpers; the async tests then assert
 ///         on the plain values those helpers return.
 ///     </para>
 /// </summary>
-public class InfiniFrameNativeParametersMarshallerTests {
+public class InfiniFrameNativeWindowParametersMarshallerTests {
 
     // -----------------------------------------------------------------------------------------------------------------
     // Synchronous helpers (ref-struct-safe)
@@ -29,7 +29,7 @@ public class InfiniFrameNativeParametersMarshallerTests {
     private static (bool startUrlPtrNonNull, bool titlePtrNonNull, int left, byte centerOnInit, byte resizable)
         MarshalScalarFields(string? startUrl, string? title, int left, bool centerOnInit, bool resizable) {
 
-        var parameters = new InfiniFrameNativeParameters {
+        var parameters = new InfiniFrameNativeWindowParameters {
             StartUrl = startUrl,
             Title = title,
             Left = left,
@@ -38,7 +38,7 @@ public class InfiniFrameNativeParametersMarshallerTests {
             CustomSchemeNames = new IntPtr[16]
         };
 
-        var marshaller = new InfiniFrameNativeParametersMarshaller.ManagedToUnmanagedIn();
+        var marshaller = new InfiniFrameNativeWindowParametersMarshaller.ManagedToUnmanagedIn();
         marshaller.FromManaged(parameters);
         var unmanaged = marshaller.ToUnmanaged();
 
@@ -55,12 +55,12 @@ public class InfiniFrameNativeParametersMarshallerTests {
 
     /// <summary>Marshals custom-scheme-name pointers and returns whether each slot is non-null.</summary>
     private static bool[] MarshalCustomSchemeNames(IntPtr[] customSchemeNames) {
-        var parameters = new InfiniFrameNativeParameters {
+        var parameters = new InfiniFrameNativeWindowParameters {
             StartUrl = "https://example.com",
             CustomSchemeNames = customSchemeNames
         };
 
-        var marshaller = new InfiniFrameNativeParametersMarshaller.ManagedToUnmanagedIn();
+        var marshaller = new InfiniFrameNativeWindowParametersMarshaller.ManagedToUnmanagedIn();
         marshaller.FromManaged(parameters);
         var unmanaged = marshaller.ToUnmanaged();
 
@@ -88,13 +88,13 @@ public class InfiniFrameNativeParametersMarshallerTests {
     }
 
     private static int MarshalRemoteDebuggingPort(int remoteDebuggingPort) {
-        var parameters = new InfiniFrameNativeParameters {
+        var parameters = new InfiniFrameNativeWindowParameters {
             StartUrl = "https://example.com",
             RemoteDebuggingPort = remoteDebuggingPort,
             CustomSchemeNames = new IntPtr[16]
         };
 
-        var marshaller = new InfiniFrameNativeParametersMarshaller.ManagedToUnmanagedIn();
+        var marshaller = new InfiniFrameNativeWindowParametersMarshaller.ManagedToUnmanagedIn();
         marshaller.FromManaged(parameters);
         var unmanaged = marshaller.ToUnmanaged();
 
@@ -104,13 +104,13 @@ public class InfiniFrameNativeParametersMarshallerTests {
     }
 
     private static byte MarshalWebInspectorEnabled(bool webInspectorEnabled) {
-        var parameters = new InfiniFrameNativeParameters {
+        var parameters = new InfiniFrameNativeWindowParameters {
             StartUrl = "https://example.com",
             WebInspectorEnabled = webInspectorEnabled,
             CustomSchemeNames = new IntPtr[16]
         };
 
-        var marshaller = new InfiniFrameNativeParametersMarshaller.ManagedToUnmanagedIn();
+        var marshaller = new InfiniFrameNativeWindowParametersMarshaller.ManagedToUnmanagedIn();
         marshaller.FromManaged(parameters);
         var unmanaged = marshaller.ToUnmanaged();
 
@@ -120,13 +120,13 @@ public class InfiniFrameNativeParametersMarshallerTests {
     }
 
     private static bool MarshalDebugEventHandlerIsNonNull() {
-        var parameters = new InfiniFrameNativeParameters {
+        var parameters = new InfiniFrameNativeWindowParameters {
             StartUrl = "https://example.com",
             DebugEventHandler = (_, _, _, _, _, _, _) => {},
             CustomSchemeNames = new IntPtr[16]
         };
 
-        var marshaller = new InfiniFrameNativeParametersMarshaller.ManagedToUnmanagedIn();
+        var marshaller = new InfiniFrameNativeWindowParametersMarshaller.ManagedToUnmanagedIn();
         marshaller.FromManaged(parameters);
         var unmanaged = marshaller.ToUnmanaged();
 
@@ -141,12 +141,12 @@ public class InfiniFrameNativeParametersMarshallerTests {
     [Test]
     public async Task Unmanaged_SequentialLayout_SizeMatchesExpectedFieldLayout(CancellationToken ct = default) {
         // Arrange
-        // The Unmanaged struct must have the same size as InfiniFrameNativeParameters
+        // The Unmanaged struct must have the same size as InfiniFrameNativeWindowParameters
         // so that Marshal.PtrToStructure / the native boundary works correctly.
-        int expected = Marshal.SizeOf<InfiniFrameNativeParameters>();
+        int expected = Marshal.SizeOf<InfiniFrameNativeWindowParameters>();
 
         // Act
-        int actual = Marshal.SizeOf<InfiniFrameNativeParametersMarshaller.Unmanaged>();
+        int actual = Marshal.SizeOf<InfiniFrameNativeWindowParametersMarshaller.Unmanaged>();
 
         // Assert, verify the marshaled size matches the managed parameter struct size
         await Assert.That(actual).IsEqualTo(expected);

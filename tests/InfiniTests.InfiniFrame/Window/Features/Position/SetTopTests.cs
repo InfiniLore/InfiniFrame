@@ -18,7 +18,7 @@ public class SetTopTests {
 
         // Act
         builder.Features.Position.SetTop(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Position.Top).IsEqualTo(value);
@@ -36,7 +36,7 @@ public class SetTopTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetTop(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Position.Top).IsEqualTo(value);

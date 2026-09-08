@@ -34,7 +34,7 @@ public class PageNavigationInfiniFrameWindowBuilderFeature : IPageNavigationInfi
         StartUrl = startUrl?.ToString();
     }
 
-    public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
+    public void ApplyToNativeParameters(ref InfiniFrameNativeWindowParameters parameters) {
         parameters.StartUrl = StartUrl;
         parameters.StartString = StartString;
     }

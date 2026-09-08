@@ -24,7 +24,7 @@ public static class ServiceCollectionExtensions {
         services.AddSingleton<IInfiniFrameEventsStore, InfiniFrameEventsStore>();
         services.AddSingleton<IInfiniFrameWindowConfiguration, InfiniFrameWindowConfiguration>();
         services.AddTransient<InfiniFrameWindow>();
-        services.AddSingleton<IValidator<InfiniFrameNativeParameters>, InfiniFrameNativeParametersValidator>();
+        services.AddSingleton<IValidator<InfiniFrameNativeWindowParameters>, InfiniFrameNativeWindowParametersValidator>();
 
         services.AddSingleton<InfiniFrameWindowFeaturesFactory>();
         services.AddSingleton<IExternalProcessLauncher, ExternalProcessLauncher>();

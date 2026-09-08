@@ -16,7 +16,7 @@ class InfiniFrameApplication; // Forward declaration
  * Field order defines the ABI layout shared with the managed (.NET) side via LayoutKind.Sequential.
  * When adding or removing fields, append at the end (before StructSize) and bump StructSize.
  */
-struct InfiniFrameInitParams {
+struct InfiniFrameWindowInitParams {
     static constexpr std::size_t MaxCustomSchemeNames = 16;
 
     // ── Content strings ────────────────────────────────────────────────────

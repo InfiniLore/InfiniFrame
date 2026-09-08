@@ -18,7 +18,7 @@ public class NotificationsTests {
 
         // Act
         builder.Features.Notifications.EnableNotifications(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Notifications.IsNotificationsEnabled).IsEqualTo(value);
@@ -34,7 +34,7 @@ public class NotificationsTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.EnableNotifications(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Notifications.IsNotificationsEnabled).IsEqualTo(value);

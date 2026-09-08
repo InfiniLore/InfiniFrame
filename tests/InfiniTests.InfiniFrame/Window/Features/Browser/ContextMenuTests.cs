@@ -19,7 +19,7 @@ public class ContextMenuTests {
 
         // Act
         builder.Features.Browser.EnableContextMenu(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsContextMenuEnabled).IsEqualTo(value);
@@ -35,7 +35,7 @@ public class ContextMenuTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.EnableContextMenu(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsContextMenuEnabled).IsEqualTo(value);

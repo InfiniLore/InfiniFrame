@@ -18,7 +18,7 @@ public class SetResizableTests {
 
         // Act
         builder.Features.Size.SetResizable(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Size.IsResizable).IsEqualTo(value);
@@ -34,7 +34,7 @@ public class SetResizableTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetResizable(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Size.IsResizable).IsEqualTo(value);

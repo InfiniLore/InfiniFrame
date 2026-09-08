@@ -18,7 +18,7 @@ public class TransparentTests {
 
         // Act
         builder.Features.Decorations.SetTransparent(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Decorations.IsTransparent).IsEqualTo(value);
@@ -34,7 +34,7 @@ public class TransparentTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetTransparent(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.Decorations.IsTransparent).IsEqualTo(value);

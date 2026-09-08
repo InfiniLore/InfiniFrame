@@ -23,7 +23,7 @@ public class WebMessageContextTests {
         var eventsStore = new InfiniFrameEventsStore();
         var events = new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance);
         var window = new RecordingInfiniFrameWindowSubstitute();
-        var nativeParameters = default(InfiniFrameNativeParameters);
+        var nativeParameters = default(InfiniFrameNativeWindowParameters);
         events.AssignToNativeParameters(ref nativeParameters);
         events.AssignToWindow(window.Window);
 
@@ -45,7 +45,7 @@ public class WebMessageContextTests {
         var eventsStore = new InfiniFrameEventsStore();
         var events = new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance);
         var window = new RecordingInfiniFrameWindowSubstitute();
-        var nativeParameters = default(InfiniFrameNativeParameters);
+        var nativeParameters = default(InfiniFrameNativeWindowParameters);
         events.AssignToNativeParameters(ref nativeParameters);
         events.AssignToWindow(window.Window);
 

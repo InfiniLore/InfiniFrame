@@ -18,7 +18,7 @@ public class StartPageUrlTests {
 
         // Act
         builder.Features.PageNavigation.SetStartPageUrl(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.PageNavigation.StartUrl).IsEqualTo(value);
@@ -34,7 +34,7 @@ public class StartPageUrlTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetStartPageUrl(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.PageNavigation.StartUrl).IsEqualTo(value);
@@ -52,7 +52,7 @@ public class StartPageUrlTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetUrl(uri);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert
         await Assert.That(builder.Features.PageNavigation.StartUrl).IsEqualTo(uri.ToString());

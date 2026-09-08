@@ -24,7 +24,7 @@ public class InfiniFrameWindowBuilderConfiguration : IInfiniFrameWindowBuilderCo
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     /// <inheritdoc cref="IInfiniFrameWindowBuilderConfiguration.ApplyToNativeParameters" />
-    public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
+    public void ApplyToNativeParameters(ref InfiniFrameNativeWindowParameters parameters) {
         // NativeParent is populated under a parent-handle lease immediately before native construction.
     }
 }

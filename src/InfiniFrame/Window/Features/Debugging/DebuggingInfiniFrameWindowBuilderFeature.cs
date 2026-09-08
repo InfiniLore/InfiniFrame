@@ -57,7 +57,7 @@ public sealed class DebuggingInfiniFrameWindowBuilderFeature : IDebuggingInfiniF
         return this;
     }
 
-    public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
+    public void ApplyToNativeParameters(ref InfiniFrameNativeWindowParameters parameters) {
         parameters.DevToolsEnabled = IsDevToolsEnabled;
         parameters.WebInspectorEnabled = IsWebInspectorEnabled;
         parameters.RemoteDebuggingPort = RemoteDebuggingPort;

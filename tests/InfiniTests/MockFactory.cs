@@ -43,5 +43,5 @@ public static class MockFactory {
     public static Mock<CppReleaseCustomSchemeResponseDelegate> CreateReleaseDelegateMock() => Mock.Of<CppReleaseCustomSchemeResponseDelegate>();
     public static Mock<IServiceProvider> CreateServiceProviderMock() => Mock.Of<IServiceProvider>();
     public static Mock<IDisposable> CreateDisposableMock() => Mock.Of<IDisposable>();
-    public static Mock<IValidator<InfiniFrameNativeParameters>> CreateValidatorMock() => Mock.Of<IValidator<InfiniFrameNativeParameters>>();
+    public static Mock<IValidator<InfiniFrameNativeWindowParameters>> CreateValidatorMock() => Mock.Of<IValidator<InfiniFrameNativeWindowParameters>>();
 }

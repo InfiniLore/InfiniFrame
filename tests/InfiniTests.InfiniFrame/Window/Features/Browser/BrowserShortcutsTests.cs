@@ -19,7 +19,7 @@ public class BrowserShortcutsTests {
 
         // Act
         builder.Features.Browser.EnableBrowserShortcuts(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsBrowserShortcutsEnabled).IsEqualTo(value);
@@ -35,7 +35,7 @@ public class BrowserShortcutsTests {
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.EnableBrowserShortcuts(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeWindowParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
         await Assert.That(builder.Features.Browser.IsBrowserShortcutsEnabled).IsEqualTo(value);
