@@ -6,36 +6,35 @@ This directory contains the unit, integration, and automation test suites for In
 
 ### Unit and Integration Tests (`InfiniTests.*`)
 
-| Project | Description |
-|---------|-------------|
-| `InfiniTests/` | Core unit tests using TUnit and TUnit.Mocks. Contains platform-specific window abstractions, mock factories, native interop tests, and JS runtime tests. |
-| `InfiniTests.InfiniFrame/` | Core package unit tests |
-| `InfiniTests.InfiniFrame.Blazor/` | Blazor component tests |
-| `InfiniTests.InfiniFrame.BlazorWebView/` | BlazorWebView integration tests |
-| `InfiniTests.InfiniFrame.Js/` | JavaScript interop tests |
-| `InfiniTests.InfiniFrame.NativeBridge/` | Native bridge layer tests |
-| `InfiniTests.InfiniFrame.Shared/` | Shared types and interfaces tests |
-| `InfiniTests.InfiniFrame.SingleFile/` | Single-file packaging tests |
-| `InfiniTests.InfiniFrame.Tools.Pack/` | Pack tool tests |
-| `InfiniTests.InfiniFrame.WebServer/` | Web server integration tests |
+| Project                                  | Description                                                                                                                                              |
+|------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `InfiniTests/`                           | Core unit tests using TUnit and TUnit.Mocks. Contains platform-specific window abstractions, mock factories, native interop tests, and JS runtime tests. |
+| `InfiniTests.InfiniFrame/`               | Core package unit tests                                                                                                                                  |
+| `InfiniTests.InfiniFrame.Blazor/`        | Blazor component tests                                                                                                                                   |
+| `InfiniTests.InfiniFrame.BlazorWebView/` | BlazorWebView integration tests                                                                                                                          |
+| `InfiniTests.InfiniFrame.Js/`            | JavaScript interop tests                                                                                                                                 |
+| `InfiniTests.InfiniFrame.NativeBridge/`  | Native bridge layer tests                                                                                                                                |
+| `InfiniTests.InfiniFrame.Shared/`        | Shared types and interfaces tests                                                                                                                        |
+| `InfiniTests.InfiniFrame.SingleFile/`    | Single-file packaging tests                                                                                                                              |
+| `InfiniTests.InfiniFrame.Tools.Pack/`    | Pack tool tests                                                                                                                                          |
+| `InfiniTests.InfiniFrame.WebServer/`     | Web server integration tests                                                                                                                             |
 
 ### Automation / E2E Tests (`InfiniAutomationTests.*`)
 
 End-to-end tests using **Playwright** for browser automation:
 
-| Project | Description |
-|---------|-------------|
-| `InfiniAutomationTests/` | Core automation test infrastructure |
-| `InfiniAutomationTests.WebApp/` | Web app automation tests |
-| `InfiniAutomationTests.WebApp.Angular/` | Angular integration tests |
-| `InfiniAutomationTests.WebApp.React/` | React integration tests |
-| `InfiniAutomationTests.WebApp.Vue/` | Vue.js integration tests |
-| `InfiniAutomationTests.BlazorWebView.MudBlazor/` | MudBlazor integration tests |
+| Project                                          | Description                         |
+|--------------------------------------------------|-------------------------------------|
+| `InfiniAutomationTests/`                         | Core automation test infrastructure |
+| `InfiniAutomationTests.WebApp/`                  | Web app automation tests            |
+| `InfiniAutomationTests.WebApp.Angular/`          | Angular integration tests           |
+| `InfiniAutomationTests.WebApp.React/`            | React integration tests             |
+| `InfiniAutomationTests.WebApp.Vue/`              | Vue.js integration tests            |
+| `InfiniAutomationTests.BlazorWebView.MudBlazor/` | MudBlazor integration tests         |
 
 ### Script Tests
 
 Python unit tests for repository scripts (in `tests/scripts/`):
-- `test_bump_version.py`
 - `test_coverage_report.py`
 - `test_sync_github_checks.py`
 - `test_update_native_vendor_deps.py`

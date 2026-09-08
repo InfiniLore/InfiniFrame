@@ -88,7 +88,6 @@
     <File Path="scripts/js-updatedependencies.ps1" />
   </Folder>
   <Folder Name="/.dev-tools/scripts/py/">
-    <File Path="scripts/bump_version.py" />
     <File Path="scripts/coverage_report.py" />
     <File Path="scripts/sync_github_checks.py" />
     <File Path="scripts/update_native_vendor_deps.py" />
@@ -153,7 +152,6 @@
     <Project Path="tests/InfiniAutomationTests.WebApp.Vue/InfiniAutomationTests.WebApp.Vue.csproj" />
   </Folder>
   <Folder Name="/tests/scripts/">
-    <File Path="tests/scripts/test_bump_version.py" />
     <File Path="tests/scripts/test_coverage_report.py" />
     <File Path="tests/scripts/test_sync_github_checks.py" />
     <File Path="tests/scripts/test_update_native_vendor_deps.py" />
