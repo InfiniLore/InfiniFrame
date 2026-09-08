@@ -67,7 +67,7 @@ set(COMMON_SOURCES
 set(TEST_SOURCES
          src/Abi/Testing/Exports.Tests.cpp
          src/Abi/Testing/Exports.CustomSchemeResponseTests.cpp
-         src/Abi/Testing/PublicAbiCompileBoundary.cpp
+         tests/PublicAbiCompileBoundary.cpp
 )
 
 set(WINDOWS_SOURCES
