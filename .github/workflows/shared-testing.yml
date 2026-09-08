@@ -80,7 +80,7 @@ jobs:
                       exit 1
                     fi
 
-                    echo "sha=$SHA" >> $GITHUB_OUTPUT
+                    echo "sha=$SHA" >> "$GITHUB_OUTPUT"
 
     docs-validation:
         name: "CI: docs"
