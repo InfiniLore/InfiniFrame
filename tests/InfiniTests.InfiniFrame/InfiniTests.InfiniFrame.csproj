@@ -8,7 +8,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../../src/InfiniFrame/InfiniFrame.csproj"/>
+        <ProjectReference Include="../../src/InfiniFrame.Application/InfiniFrame.Application.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.Interop/InfiniFrame.Interop.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.Security/InfiniFrame.Security.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.StaticAssets/InfiniFrame.StaticAssets.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.Window/InfiniFrame.Window.csproj" />
         <ProjectReference Include="../../src/InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
         <ProjectReference Include="../InfiniTests/InfiniTests.csproj"/>
     </ItemGroup>

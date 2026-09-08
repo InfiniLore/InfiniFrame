@@ -40,13 +40,18 @@
 
     <ItemGroup>
         <InternalsVisibleTo Include="InfiniFrame" />
+        <InternalsVisibleTo Include="InfiniFrame.Application" />
         <InternalsVisibleTo Include="InfiniFrame.Blazor" />
         <InternalsVisibleTo Include="InfiniFrame.BlazorWebView" />
+        <InternalsVisibleTo Include="InfiniFrame.Interop" />
         <InternalsVisibleTo Include="InfiniFrame.Js" />
         <InternalsVisibleTo Include="InfiniFrame.NativeBridge" />
+        <InternalsVisibleTo Include="InfiniFrame.Security" />
         <InternalsVisibleTo Include="InfiniFrame.Shared" />
         <InternalsVisibleTo Include="InfiniFrame.SingleFile" />
+        <InternalsVisibleTo Include="InfiniFrame.StaticAssets" />
         <InternalsVisibleTo Include="InfiniFrame.WebServer" />
+        <InternalsVisibleTo Include="InfiniFrame.Window" />
 
         <InternalsVisibleTo Include="InfiniTests" />
         <InternalsVisibleTo Include="InfiniTests.InfiniFrame" />

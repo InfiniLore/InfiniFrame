@@ -6,7 +6,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.WebServer"/>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
     </ItemGroup>
 
@@ -21,7 +20,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame/InfiniFrame.csproj"/>
+        <ProjectReference Include="../InfiniFrame.Application/InfiniFrame.Application.csproj" />
+        <ProjectReference Include="../InfiniFrame.Security/InfiniFrame.Security.csproj" />
     </ItemGroup>
 
 </Project>

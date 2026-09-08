@@ -2,9 +2,6 @@
 
     <PropertyGroup>
         <PackageId>InfiniLore.InfiniFrame.Js</PackageId>
-        <OutputType>Library</OutputType>
-
-        <IsPackable>true</IsPackable>
         <Description>JavaScript interop utilities for InfiniFrame Blazor applications. Provides pointer capture helpers and built-in window management message handlers.</Description>
         <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../..'))</RepositoryRoot>
 

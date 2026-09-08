@@ -119,13 +119,18 @@
     <Project Path="examples/WebApp/InfiniFrameExample.WebApp.Vue/InfiniFrameExample.WebApp.Vue.csproj" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/InfiniFrame.Application/InfiniFrame.Application.csproj" />
     <Project Path="src/InfiniFrame.Blazor/InfiniFrame.Blazor.csproj" />
     <Project Path="src/InfiniFrame.BlazorWebView/InfiniFrame.BlazorWebView.csproj" />
+    <Project Path="src/InfiniFrame.Interop/InfiniFrame.Interop.csproj" />
     <Project Path="src/InfiniFrame.Js/InfiniFrame.Js.csproj" />
     <Project Path="src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj" />
+    <Project Path="src/InfiniFrame.Security/InfiniFrame.Security.csproj" />
     <Project Path="src/InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
     <Project Path="src/InfiniFrame.SingleFile/InfiniFrame.SingleFile.csproj" />
+    <Project Path="src/InfiniFrame.StaticAssets/InfiniFrame.StaticAssets.csproj" />
     <Project Path="src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj" />
+    <Project Path="src/InfiniFrame.Window/InfiniFrame.Window.csproj" />
     <Project Path="src/InfiniFrame/InfiniFrame.csproj" />
     <File Path="Directory.Packages.props" />
     <File Path="src/AnalyzerBaseline.props" />

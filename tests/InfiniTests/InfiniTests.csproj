@@ -6,7 +6,9 @@
 
     <ItemGroup>
         <ProjectReference Include="../../src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj"/>
-        <ProjectReference Include="../../src/InfiniFrame/InfiniFrame.csproj"/>
+        <ProjectReference Include="../../src/InfiniFrame.Application/InfiniFrame.Application.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.Window/InfiniFrame.Window.csproj" />
         <ProjectReference Include="../../src/InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
     </ItemGroup>
 </Project>

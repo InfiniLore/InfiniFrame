@@ -7,7 +7,7 @@
 
     <ItemGroup>
         <ProjectReference Include="../../src/InfiniFrame.BlazorWebView/InfiniFrame.BlazorWebView.csproj"/>
-        <ProjectReference Include="../../src/InfiniFrame/InfiniFrame.csproj"/>
+        <ProjectReference Include="../../src/InfiniFrame.Application/InfiniFrame.Application.csproj" />
         <ProjectReference Include="../InfiniTests/InfiniTests.csproj"/>
     </ItemGroup>
 </Project>
