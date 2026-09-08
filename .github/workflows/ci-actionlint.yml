@@ -24,3 +24,4 @@ jobs:
                   version: 1.7.12
                   files: ".github/workflows/*.yml"
                   fail-on-error: true
+                  shellcheck: false
