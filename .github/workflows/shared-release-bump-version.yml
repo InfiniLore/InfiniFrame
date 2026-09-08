@@ -25,7 +25,7 @@ jobs:
         name: "CI: bump-version"
         runs-on: ubuntu-latest
         permissions:
-            contents: read
+            contents: write
         outputs:
             new_version: ${{ steps.bump.outputs.version }}
             tag_name: ${{ steps.bump.outputs.tag }}
@@ -37,52 +37,15 @@ jobs:
                     fetch-depth: 0
                     token: ${{ secrets.RELEASE_TOKEN }}
 
-            -   name: Setup Python
-                uses: actions/setup-python@v7
-                with:
-                    python-version: '3.x'
-
-            -   name: Configure Git
-                run: |
-                    git config user.name "github-actions[bot]"
-                    git config user.email "github-actions[bot]@users.noreply.github.com"
-
             -   name: Bump Version
                 id: bump
-                run: |
-                    if [ "${{ inputs.version_bump }}" == "custom" ]; then
-                        if [ -z "${{ inputs.custom_version }}" ]; then
-                            echo "Error: custom_version is required when version_bump is 'custom'"
-                            exit 1
-                        fi
-                        VERSION=$(python scripts/bump_version.py custom "${{ inputs.custom_version }}" | tail -n 1)
-                    else
-                        VERSION=$(python scripts/bump_version.py ${{ inputs.version_bump }} | tail -n 1)
-                    fi
-                    TAG="v${VERSION}"
-
-                    echo "version=$VERSION" >> $GITHUB_OUTPUT
-                    echo "tag=$TAG" >> $GITHUB_OUTPUT
-                    echo "Bumped to version: $VERSION (tag: $TAG)"
-
-            -   name: Commit and Push
-                run: |
-                    set -euo pipefail
-                    TAG="${{ steps.bump.outputs.tag }}"
-
-                    git add src/Directory.Build.props
-                    if ! git diff --cached --quiet; then
-                        git commit -m "VersionBump : $TAG"
-                        git push origin HEAD:${{ github.ref_name }}
-                    else
-                        echo "No version file changes detected; skipping commit push."
-                    fi
-
-                    if git ls-remote --tags origin "$TAG" | grep -q "refs/tags/$TAG$"; then
-                        echo "Tag $TAG already exists on origin; skipping tag push."
-                    else
-                        if ! git rev-parse "$TAG" >/dev/null 2>&1; then
-                            git tag "$TAG"
-                        fi
-                        git push origin "$TAG"
-                    fi
+                uses: Code-Of-Chaos/action-version-bumper@v2
+                with:
+                    version_file: src/Directory.Build.props
+                    bump: ${{ inputs.version_bump }}
+                    custom_version: ${{ inputs.custom_version }}
+                    commit: 'true'
+                    tag: 'true'
+                    push: 'true'
+                    floating_major_version: 'true'
+                    floating_minor_version: 'true'
