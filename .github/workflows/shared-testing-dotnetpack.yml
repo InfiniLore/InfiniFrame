@@ -84,7 +84,13 @@ jobs:
 
             -   name: Verify NativeBridge Package Natives
                 run: |
-                    PACKAGE=$(ls ./release/InfiniLore.InfiniFrame.NativeBridge.*.nupkg 2>/dev/null | grep -v '\.symbols\.nupkg$' | head -n 1 || true)
+                    PACKAGE=""
+                    for candidate in ./release/InfiniLore.InfiniFrame.NativeBridge.*.nupkg; do
+                      if [[ -f "$candidate" && "$candidate" != *.symbols.nupkg ]]; then
+                        PACKAGE="$candidate"
+                        break
+                      fi
+                    done
 
                     if [ -z "$PACKAGE" ]; then
                         echo "❌ No InfiniFrame.NativeBridge package found in ./release"
@@ -125,7 +131,13 @@ jobs:
                 run: |
                     set -euo pipefail
 
-                    PACKAGE=$(ls ./release/InfiniLore.InfiniFrame.NativeBridge.*.nupkg 2>/dev/null | grep -v '\.symbols\.nupkg$' | head -n 1 || true)
+                    PACKAGE=""
+                    for candidate in ./release/InfiniLore.InfiniFrame.NativeBridge.*.nupkg; do
+                      if [[ -f "$candidate" && "$candidate" != *.symbols.nupkg ]]; then
+                        PACKAGE="$candidate"
+                        break
+                      fi
+                    done
 
                     if [ -z "$PACKAGE" ]; then
                         echo "❌ No InfiniFrame.NativeBridge package found in ./release"
