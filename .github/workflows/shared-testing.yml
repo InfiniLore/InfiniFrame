@@ -69,7 +69,7 @@ jobs:
                       SHA=$(curl -s \
                         -H "Authorization: Bearer $GITHUB_TOKEN" \
                         -H "Accept: application/vnd.github+json" \
-                        https://api.github.com/repos/${{ github.repository }}/pulls/${{ inputs.pr_number }} \
+                        "https://api.github.com/repos/${{ github.repository }}/pulls/${{ inputs.pr_number }}" \
                         | jq -r .head.sha)
                     else
                       SHA="${{ github.sha }}"
@@ -80,7 +80,7 @@ jobs:
                       exit 1
                     fi
 
-                    echo "sha=$SHA" >> $GITHUB_OUTPUT
+                    echo "sha=$SHA" >> "$GITHUB_OUTPUT"
 
     docs-validation:
         name: "CI: docs"
