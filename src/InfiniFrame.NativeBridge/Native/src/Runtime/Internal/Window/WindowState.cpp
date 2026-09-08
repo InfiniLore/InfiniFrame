@@ -1,9 +1,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#include "Api/Abi/InfiniFrameWindow.h"
+#include "Runtime/Internal/Interop/InfiniFrameWindow.h"
 #include "Runtime/Internal/Window/CommonWindowState.h"
-#include "Api/Utilities/StringCopy.h"
+#include "Runtime/Internal/Utilities/StringCopy.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Pure property getters that read from internal common state with no
 // platform-specific logic. Shared across all platforms.
