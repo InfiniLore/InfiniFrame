@@ -13,7 +13,6 @@
 #include <string>
 #include <cstring>
 
-#include "Runtime/Internal/Interop/InfiniFrame.h"
 #include "Runtime/Internal/Utilities/StringCopy.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

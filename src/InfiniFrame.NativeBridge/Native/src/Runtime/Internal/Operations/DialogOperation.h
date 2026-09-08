@@ -8,8 +8,8 @@
 #include <string>
 
 #include "Runtime/Internal/Operations/NativeOperation.h"
-#include "Runtime/Internal/Interop/Callbacks.h"
-#include "Runtime/Internal/Interop/DialogResult.h"
+#include "Runtime/Internal/Interop/Types/Callbacks.h"
+#include "Runtime/Internal/Interop/Types/DialogResult.h"
 
 /** Window-owned state shared with an asynchronous native dialog callback. */
 struct DialogOperation final {

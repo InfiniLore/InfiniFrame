@@ -14,9 +14,24 @@
 #define EXPORTED
 #endif
 
-#include "Runtime/Internal/Interop/Basic.h"
-#include "Runtime/Internal/Interop/InteropStatus.h"
-#include "Runtime/Internal/Interop/Utilities.h"
+#include "Runtime/Internal/Interop/Types/Basic.h"
+#include "Runtime/Internal/Interop/Types/InteropStatus.h"
+#include "Runtime/Internal/Interop/Exports/ExportErrorState.h"
+#include "Runtime/Internal/Interop/Exports/ExportExecution.h"
+#include "Runtime/Internal/Interop/Exports/ExportStringHelpers.h"
+#include "Runtime/Internal/Interop/Exports/ExportValidation.h"
+
+using infiniframe::exports::EnsureNotNull;
+using infiniframe::exports::EnsureOutNotNull;
+using infiniframe::exports::GetLastErrorMessageCopy;
+using infiniframe::exports::ResetOut;
+using infiniframe::exports::ResetOut2;
+using infiniframe::exports::RunExportStatus;
+using infiniframe::exports::RunReturnExport;
+using infiniframe::exports::RunWindowExportStatus;
+using infiniframe::exports::RunWindowReturnExport;
+using infiniframe::exports::NullToEmpty;
+using infiniframe::exports::DuplicateString;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // String Ownership Contract

@@ -11,7 +11,7 @@
 #include <wil/com.h>
 #include <WebView2.h>
 
-#include "Runtime/Internal/Interop/InfiniFrameWindow.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
 #include "Runtime/Internal/Window/CommonWindowState.h"
 #include "Runtime/Platform/Windows/ToastHandler.h"
 #include "Runtime/Internal/Utilities/Dimensions.h"

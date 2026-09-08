@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "Runtime/Internal/Interop/Callbacks.h"
+#include "Runtime/Internal/Interop/Types/Callbacks.h"
 
 /// Represents an in-flight navigation operation (load URL or load string).
 struct NavigationOperation final {

@@ -7,11 +7,11 @@
 #include <string>
 #include <vector>
 
-#include "Runtime/Internal/Interop/Basic.h"
-#include "Runtime/Internal/Interop/DialogButtons.h"
-#include "Runtime/Internal/Interop/DialogIcon.h"
-#include "Runtime/Internal/Interop/DialogResult.h"
-#include "Runtime/Internal/Interop/Callbacks.h"
+#include "Runtime/Internal/Interop/Types/Basic.h"
+#include "Runtime/Internal/Interop/Types/DialogButtons.h"
+#include "Runtime/Internal/Interop/Types/DialogIcon.h"
+#include "Runtime/Internal/Interop/Types/DialogResult.h"
+#include "Runtime/Internal/Interop/Types/Callbacks.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -1093,5 +1093,3 @@ class InfiniFrameWindow {
     std::unique_ptr<Impl> m_impl;
     InfiniFrameApplication* _application = nullptr;
 };
-
-#include "Runtime/Internal/Interop/InfiniFrameWindowInitParams.h"

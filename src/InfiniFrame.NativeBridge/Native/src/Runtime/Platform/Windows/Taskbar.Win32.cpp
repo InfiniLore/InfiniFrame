@@ -5,7 +5,7 @@
 #include <Windows.h>
 #include <shobjidl.h>
 
-#include "Runtime/Internal/Interop/InfiniFrameWindow.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

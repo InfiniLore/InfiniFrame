@@ -16,8 +16,7 @@
 #include <string>
 #include <utility>
 
-#include "Runtime/Internal/Interop/InfiniFrame.h"
-#include "Runtime/Internal/Interop/InteropStatus.h"
+#include "Runtime/Internal/Interop/Types/InteropStatus.h"
 #include "ExportErrorState.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

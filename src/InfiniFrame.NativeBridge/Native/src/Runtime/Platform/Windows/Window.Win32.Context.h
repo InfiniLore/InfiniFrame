@@ -9,7 +9,7 @@
 
 #include <windows.h>
 
-#include "Runtime/Internal/Interop/InfiniFrameWindow.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
 #include "Runtime/Platform/Windows/Window.Win32.Internal.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

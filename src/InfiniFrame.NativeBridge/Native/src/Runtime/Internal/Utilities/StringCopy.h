@@ -39,4 +39,8 @@ inline char* AllocateUtf8FromWide(const std::wstring& wstr) {
     copy[utf8Count] = '\0';
     return copy;
 }
+
+inline char* AllocateStringCopy(const std::wstring& str) {
+    return AllocateUtf8FromWide(str);
+}
 #endif

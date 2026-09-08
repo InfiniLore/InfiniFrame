@@ -1,15 +1,15 @@
 #include <cstddef>
 #include <type_traits>
 
-#include "Runtime/Internal/Interop/Basic.h"
-#include "Runtime/Internal/Interop/Callbacks.h"
-#include "Runtime/Internal/Interop/CustomSchemeResponse.h"
-#include "Runtime/Internal/Interop/DialogButtons.h"
-#include "Runtime/Internal/Interop/DialogIcon.h"
-#include "Runtime/Internal/Interop/DialogResult.h"
-#include "Runtime/Internal/Interop/InfiniFrameApplicationInitParams.h"
-#include "Runtime/Internal/Interop/InfiniFrameWindowInitParams.h"
-#include "Runtime/Internal/Interop/Monitor.h"
+#include "Runtime/Internal/Interop/Types/Basic.h"
+#include "Runtime/Internal/Interop/Types/Callbacks.h"
+#include "Runtime/Internal/Interop/Types/CustomSchemeResponse.h"
+#include "Runtime/Internal/Interop/Types/DialogButtons.h"
+#include "Runtime/Internal/Interop/Types/DialogIcon.h"
+#include "Runtime/Internal/Interop/Types/DialogResult.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameApplicationInitParams.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindowInitParams.h"
+#include "Runtime/Internal/Interop/Types/Monitor.h"
 
 static_assert(std::is_standard_layout_v<InfiniFrameApplicationInitParams>);
 static_assert(std::is_standard_layout_v<InfiniFrameWindowInitParams>);

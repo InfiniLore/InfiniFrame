@@ -7,7 +7,7 @@
  * @file NavigationDelegate.h
  * @brief WKNavigationDelegate that handles TLS certificate validation for the embedded WebView
  */
-#include "Runtime/Internal/Interop/InfiniFrame.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

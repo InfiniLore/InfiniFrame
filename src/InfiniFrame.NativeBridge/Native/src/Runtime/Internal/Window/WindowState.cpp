@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#include "Runtime/Internal/Interop/InfiniFrameWindow.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
 #include "Runtime/Internal/Window/CommonWindowState.h"
 #include "Runtime/Internal/Utilities/StringCopy.h"
 // ---------------------------------------------------------------------------------------------------------------------

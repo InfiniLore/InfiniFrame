@@ -5,7 +5,7 @@
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
 #include "Runtime/Internal/Application/InfiniFrameApplication.h"
 #include "Runtime/Internal/Operations/NativeOperation.h"
-#include "Runtime/Internal/Interop/InfiniFrameWindow.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
 #include <shellapi.h>
 
 // ---------------------------------------------------------------------------------------------------------------------

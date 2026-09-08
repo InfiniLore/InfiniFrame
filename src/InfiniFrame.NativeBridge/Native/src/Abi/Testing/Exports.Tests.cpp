@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#include "Runtime/Internal/Interop/InfiniFrame.h"
-#include "Runtime/Internal/Interop/InfiniFrameApplicationInitParams.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindowInitParams.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameApplicationInitParams.h"
 #include "Abi/Exports.h"
 #include "Runtime/Internal/WebView/CustomSchemeResponse.h"
 #ifdef _WIN32

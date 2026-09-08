@@ -8,6 +8,7 @@
 
 #include "Runtime/Platform/Windows/DarkMode.h"
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindowInitParams.h"
 #include "Runtime/Internal/Application/InfiniFrameApplication.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

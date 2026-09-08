@@ -5,8 +5,8 @@
 #include <exception>
 #include <utility>
 
-#include "Runtime/Internal/Interop/InfiniFrame.h"
-#include "Runtime/Internal/Interop/InteropStatus.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
+#include "Runtime/Internal/Interop/Types/InteropStatus.h"
 #include "ExportErrorState.h"
 #include "ExportValidation.h"
 // ---------------------------------------------------------------------------------------------------------------------

@@ -5,6 +5,7 @@
 
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
 #include "Runtime/Internal/WebView/CustomSchemeResponse.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindowInitParams.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

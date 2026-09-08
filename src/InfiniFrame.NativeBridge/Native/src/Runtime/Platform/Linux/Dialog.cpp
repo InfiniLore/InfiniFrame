@@ -5,7 +5,7 @@
 
 #include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
 #include "Runtime/Internal/Window/InfiniFrameDialog.h"
-#include "Runtime/Internal/Interop/InfiniFrameWindow.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
 #include "Runtime/Internal/Operations/DialogOperation.h"
 #include "Runtime/Internal/Utilities/StringArrayCopy.h"
 

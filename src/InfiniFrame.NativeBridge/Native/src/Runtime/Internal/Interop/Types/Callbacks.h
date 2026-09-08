@@ -4,9 +4,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #include <cstdint>
 
-#include "Runtime/Internal/Interop/Basic.h"
-#include "Runtime/Internal/Interop/Monitor.h"
-#include "Runtime/Internal/Interop/CustomSchemeResponse.h"
+#include "Runtime/Internal/Interop/Types/Basic.h"
+#include "Runtime/Internal/Interop/Types/Monitor.h"
+#include "Runtime/Internal/Interop/Types/CustomSchemeResponse.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

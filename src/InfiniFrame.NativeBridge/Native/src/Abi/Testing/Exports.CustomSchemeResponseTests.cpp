@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#include "Runtime/Internal/Interop/InfiniFrame.h"
 #include "Abi/Exports.h"
 #include "Runtime/Internal/WebView/CustomSchemeResponse.h"
 #include "Runtime/Internal/Utilities/StringCopy.h"

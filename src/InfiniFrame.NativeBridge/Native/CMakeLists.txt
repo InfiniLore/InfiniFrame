@@ -40,7 +40,7 @@ infiniframe_setup_dependencies()
 # ----------------------------------------------------------------------------------------------------------------------
 set(COMMON_SOURCES
         src/Embedded/Embedded.cpp
-        src/Runtime/Internal/Interop/ExportErrorState.cpp
+        src/Runtime/Internal/Interop/Exports/ExportErrorState.cpp
         src/Runtime/Internal/Application/InfiniFrameApplication.cpp
         src/Runtime/Internal/Window/WindowEvents.cpp
         src/Runtime/Internal/Window/WindowState.cpp
@@ -169,25 +169,23 @@ set(HEADER_FILES
         src/Runtime/Internal/Operations/NativeOperation.h
         src/Runtime/Internal/Operations/NavigationOperation.h
         src/Abi/Exports.h
-        src/Runtime/Internal/Interop/ExportErrorState.h
-        src/Runtime/Internal/Interop/ExportExecution.h
-        src/Runtime/Internal/Interop/ExportStringHelpers.h
-        src/Runtime/Internal/Interop/ExportValidation.h
-        src/Runtime/Internal/Interop/Utilities.h
-        src/Runtime/Internal/Interop/InfiniFrame.h
-        src/Runtime/Internal/Interop/InfiniFrameApplicationInitParams.h
-        src/Runtime/Internal/Interop/InteropStatus.h
+        src/Runtime/Internal/Interop/Exports/ExportErrorState.h
+        src/Runtime/Internal/Interop/Exports/ExportExecution.h
+        src/Runtime/Internal/Interop/Exports/ExportStringHelpers.h
+        src/Runtime/Internal/Interop/Exports/ExportValidation.h
+        src/Runtime/Internal/Interop/Types/InfiniFrameApplicationInitParams.h
+        src/Runtime/Internal/Interop/Types/InteropStatus.h
         src/Runtime/Internal/Window/InfiniFrameDialog.h
-        src/Runtime/Internal/Interop/InfiniFrameWindowInitParams.h
-        src/Runtime/Internal/Interop/InfiniFrameWindow.h
+        src/Runtime/Internal/Interop/Types/InfiniFrameWindowInitParams.h
+        src/Runtime/Internal/Interop/Types/InfiniFrameWindow.h
         src/Runtime/Internal/Application/InfiniFrameApplication.h
-        src/Runtime/Internal/Interop/Basic.h
-        src/Runtime/Internal/Interop/Callbacks.h
-        src/Runtime/Internal/Interop/CustomSchemeResponse.h
-        src/Runtime/Internal/Interop/DialogButtons.h
-        src/Runtime/Internal/Interop/DialogIcon.h
-        src/Runtime/Internal/Interop/DialogResult.h
-        src/Runtime/Internal/Interop/Monitor.h
+        src/Runtime/Internal/Interop/Types/Basic.h
+        src/Runtime/Internal/Interop/Types/Callbacks.h
+        src/Runtime/Internal/Interop/Types/CustomSchemeResponse.h
+        src/Runtime/Internal/Interop/Types/DialogButtons.h
+        src/Runtime/Internal/Interop/Types/DialogIcon.h
+        src/Runtime/Internal/Interop/Types/DialogResult.h
+        src/Runtime/Internal/Interop/Types/Monitor.h
         src/Runtime/Internal/Utilities/Dimensions.h
         src/Runtime/Internal/Utilities/ErrorCode.h
         src/Runtime/Internal/Utilities/StringArrayCopy.h

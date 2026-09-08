@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Abi/Exports.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindowInitParams.h"
 #include "Runtime/Internal/Application/InfiniFrameApplication.h"
 #ifdef __linux__
 #include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"

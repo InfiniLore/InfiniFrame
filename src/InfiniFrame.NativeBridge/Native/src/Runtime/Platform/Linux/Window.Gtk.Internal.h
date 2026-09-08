@@ -11,7 +11,7 @@
 #include <gtk/gtk.h>
 #include <webkit2/webkit2.h>
 
-#include "Runtime/Internal/Interop/InfiniFrameWindow.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
 #include "Runtime/Internal/Window/CommonWindowState.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
