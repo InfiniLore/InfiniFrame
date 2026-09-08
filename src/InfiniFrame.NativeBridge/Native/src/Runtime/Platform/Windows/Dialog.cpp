@@ -13,6 +13,12 @@
 #include <vector>
 #include <thread>
 #include <atomic>
+
+struct InfiniFrameDialog::Impl {
+    InfiniFrameWindow* window = nullptr;
+};
+
+#define _window m_impl->window
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
@@ -133,6 +139,7 @@ inline HANDLE NewStyleContext::Create() {
 }
 
 InfiniFrameDialog::InfiniFrameDialog(InfiniFrameWindow* window) {
+    m_impl = std::make_unique<Impl>();
     _window = window;
 }
 

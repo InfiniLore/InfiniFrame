@@ -29,7 +29,7 @@ void InfiniFrameWindow::WaitForExit() {
     auto* impl = m_impl.get();
     ApplyPendingOwnerWindow(impl, L"wait_for_exit");
 
-    messageLoopRootWindowHandle = impl->_hWnd;
+    SetMessageLoopRootWindowHandle(impl->_hWnd);
     TraceTeardown(L"WaitForExit start instance=%p hwnd=%p", this, impl->_hWnd);
 
     MSG msg = {};
@@ -46,7 +46,7 @@ void InfiniFrameWindow::WaitForExit() {
         DispatchMessage(&msg);
     }
 
-    messageLoopRootWindowHandle = nullptr;
+    SetMessageLoopRootWindowHandle(nullptr);
     TraceTeardown(L"WaitForExit end instance=%p hwnd=%p", this, impl->_hWnd);
 }
 

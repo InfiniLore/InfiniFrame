@@ -12,11 +12,12 @@
 #include <webkit2/webkit2.h>
 
 #include "Runtime/Shared/Window/InfiniFrameWindow.h"
-#include "Runtime/Shared/Window/InfiniFrameWindowImpl.h"
+#include "Runtime/Internal/Window/CommonWindowState.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
+struct InfiniFrameWindow::Impl {
+    CommonWindowState common;
     GtkWidget* _window = nullptr;
     GtkWidget* _webview = nullptr;
     WebKitWebContext* _webContext = nullptr;
@@ -71,3 +72,5 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     void ConnectWindowSignals(InfiniFrameWindow* window);
     void ConnectWebViewSignals(InfiniFrameWindow* window);
 };
+
+#include "Runtime/Internal/Window/CommonWindowStateAccess.h"

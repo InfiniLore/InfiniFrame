@@ -1,0 +1,64 @@
+#pragma once
+
+// Platform implementation files historically use m_impl->_field for both
+// backend and shared state. These aliases are private to platform translation
+// units and keep the shared state physically composed, not inherited.
+#define _operationMutex common._operationMutex
+#define _operations common._operations
+#define _navigationMutex common._navigationMutex
+#define _navigationOperation common._navigationOperation
+#define _dialogOperationMutex common._dialogOperationMutex
+#define _dialogOperations common._dialogOperations
+#define _milestoneMutex common._milestoneMutex
+#define _readyCallback common._readyCallback
+#define _readyCallbackContext common._readyCallbackContext
+#define _teardownCallback common._teardownCallback
+#define _teardownCallbackContext common._teardownCallbackContext
+#define _readySignaled common._readySignaled
+#define _teardownSignaled common._teardownSignaled
+#define _webMessageReceivedCallback common._webMessageReceivedCallback
+#define _customSchemeCallback common._customSchemeCallback
+#define _resizedCallback common._resizedCallback
+#define _maximizedCallback common._maximizedCallback
+#define _restoredCallback common._restoredCallback
+#define _minimizedCallback common._minimizedCallback
+#define _movedCallback common._movedCallback
+#define _closingCallback common._closingCallback
+#define _closedCallback common._closedCallback
+#define _focusInCallback common._focusInCallback
+#define _focusOutCallback common._focusOutCallback
+#define _debugEventCallback common._debugEventCallback
+#define _navigationStartingCallback common._navigationStartingCallback
+#define _fileDroppedCallback common._fileDroppedCallback
+#define _dragDropEnabled common._dragDropEnabled
+#define _transparentEnabled common._transparentEnabled
+#define _contextMenuEnabled common._contextMenuEnabled
+#define _zoomEnabled common._zoomEnabled
+#define _devToolsEnabled common._devToolsEnabled
+#define _webInspectorEnabled common._webInspectorEnabled
+#define _grantBrowserPermissions common._grantBrowserPermissions
+#define _mediaAutoplayEnabled common._mediaAutoplayEnabled
+#define _fileSystemAccessEnabled common._fileSystemAccessEnabled
+#define _webSecurityEnabled common._webSecurityEnabled
+#define _javascriptClipboardAccessEnabled common._javascriptClipboardAccessEnabled
+#define _mediaStreamEnabled common._mediaStreamEnabled
+#define _smoothScrollingEnabled common._smoothScrollingEnabled
+#define _ignoreCertificateErrorsEnabled common._ignoreCertificateErrorsEnabled
+#define _statusBarEnabled common._statusBarEnabled
+#define _browserShortcutsEnabled common._browserShortcutsEnabled
+#define _remoteDebuggingPort common._remoteDebuggingPort
+#define _windowTitle common._windowTitle
+#define _startUrl common._startUrl
+#define _startString common._startString
+#define _userAgent common._userAgent
+#define _browserControlInitParameters common._browserControlInitParameters
+#define _webView2RuntimePath common._webView2RuntimePath
+#define _iconFileName common._iconFileName
+#define _defaultNotificationIcon common._defaultNotificationIcon
+#define _backgroundColorR common._backgroundColorR
+#define _backgroundColorG common._backgroundColorG
+#define _backgroundColorB common._backgroundColorB
+#define _backgroundColorA common._backgroundColorA
+#define _customSchemeNames common._customSchemeNames
+#define _parent common._parent
+#define _dialog common._dialog

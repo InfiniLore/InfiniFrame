@@ -686,8 +686,13 @@ InfiniFrameWindow::~InfiniFrameWindow()
     infiniframe::macos::LogLifecycle("window-destruct-complete", this);
 }
 
-InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() noexcept { return m_impl.get(); }
-const InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() const noexcept { return m_impl.get(); }
+CommonWindowState* GetCommonWindowState(InfiniFrameWindow* window) noexcept {
+    return &window->m_impl->common;
+}
+
+const CommonWindowState* GetCommonWindowState(const InfiniFrameWindow* window) noexcept {
+    return &window->m_impl->common;
+}
 
 NSWindow* InfiniFrameWindow::getNSWindow() {
     return m_impl->_window;

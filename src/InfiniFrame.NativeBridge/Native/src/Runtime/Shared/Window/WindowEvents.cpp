@@ -2,112 +2,112 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Runtime/Shared/Window/InfiniFrameWindow.h"
-#include "Runtime/Shared/Window/InfiniFrameWindowImpl.h"
+#include "Runtime/Internal/Window/CommonWindowState.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 InfiniFrameDialog* InfiniFrameWindow::GetDialog() const {
-    return ImplBase()->_dialog.get();
+    return GetCommonWindowState(this)->_dialog.get();
 }
 
 // -----------------------------------------------------------------------------------------------------------------
 // Callback Setters
 // -----------------------------------------------------------------------------------------------------------------
 void InfiniFrameWindow::SetClosingCallback(const ClosingCallback callback) {
-    ImplBase()->_closingCallback = callback;
+    GetCommonWindowState(this)->_closingCallback = callback;
 }
 
 void InfiniFrameWindow::SetClosedCallback(const ClosedCallback callback) {
-    ImplBase()->_closedCallback = callback;
+    GetCommonWindowState(this)->_closedCallback = callback;
 }
 
 void InfiniFrameWindow::SetFocusInCallback(const FocusInCallback callback) {
-    ImplBase()->_focusInCallback = callback;
+    GetCommonWindowState(this)->_focusInCallback = callback;
 }
 
 void InfiniFrameWindow::SetFocusOutCallback(const FocusOutCallback callback) {
-    ImplBase()->_focusOutCallback = callback;
+    GetCommonWindowState(this)->_focusOutCallback = callback;
 }
 
 void InfiniFrameWindow::SetMovedCallback(const MovedCallback callback) {
-    ImplBase()->_movedCallback = callback;
+    GetCommonWindowState(this)->_movedCallback = callback;
 }
 
 void InfiniFrameWindow::SetResizedCallback(const ResizedCallback callback) {
-    ImplBase()->_resizedCallback = callback;
+    GetCommonWindowState(this)->_resizedCallback = callback;
 }
 
 void InfiniFrameWindow::SetMaximizedCallback(const MaximizedCallback callback) {
-    ImplBase()->_maximizedCallback = callback;
+    GetCommonWindowState(this)->_maximizedCallback = callback;
 }
 
 void InfiniFrameWindow::SetRestoredCallback(const RestoredCallback callback) {
-    ImplBase()->_restoredCallback = callback;
+    GetCommonWindowState(this)->_restoredCallback = callback;
 }
 
 void InfiniFrameWindow::SetMinimizedCallback(const MinimizedCallback callback) {
-    ImplBase()->_minimizedCallback = callback;
+    GetCommonWindowState(this)->_minimizedCallback = callback;
 }
 
 void InfiniFrameWindow::SetDebugEventCallback(const DebugEventCallback callback) {
-    ImplBase()->_debugEventCallback = callback;
+    GetCommonWindowState(this)->_debugEventCallback = callback;
 }
 
 void InfiniFrameWindow::SetFileDroppedCallback(const FileDroppedCallback callback) {
-    ImplBase()->_fileDroppedCallback = callback;
+    GetCommonWindowState(this)->_fileDroppedCallback = callback;
 }
 
 void InfiniFrameWindow::SetDragDropEnabled(const bool enabled) {
-    ImplBase()->_dragDropEnabled = enabled;
+    GetCommonWindowState(this)->_dragDropEnabled = enabled;
 }
 
 // -----------------------------------------------------------------------------------------------------------------
 // Callback Invokers
 // -----------------------------------------------------------------------------------------------------------------
 bool InfiniFrameWindow::InvokeClose() const noexcept {
-    if (ImplBase()->_closingCallback)
-        return ImplBase()->_closingCallback();
+    if (GetCommonWindowState(this)->_closingCallback)
+        return GetCommonWindowState(this)->_closingCallback();
     return false;
 }
 
 void InfiniFrameWindow::InvokeClosed() const noexcept {
-    if (ImplBase()->_closedCallback)
-        ImplBase()->_closedCallback();
+    if (GetCommonWindowState(this)->_closedCallback)
+        GetCommonWindowState(this)->_closedCallback();
 }
 
 void InfiniFrameWindow::InvokeFocusIn() const noexcept {
-    if (ImplBase()->_focusInCallback)
-        ImplBase()->_focusInCallback();
+    if (GetCommonWindowState(this)->_focusInCallback)
+        GetCommonWindowState(this)->_focusInCallback();
 }
 
 void InfiniFrameWindow::InvokeFocusOut() const noexcept {
-    if (ImplBase()->_focusOutCallback)
-        ImplBase()->_focusOutCallback();
+    if (GetCommonWindowState(this)->_focusOutCallback)
+        GetCommonWindowState(this)->_focusOutCallback();
 }
 
 void InfiniFrameWindow::InvokeMove(const int x, const int y) const noexcept {
-    if (ImplBase()->_movedCallback)
-        ImplBase()->_movedCallback(x, y);
+    if (GetCommonWindowState(this)->_movedCallback)
+        GetCommonWindowState(this)->_movedCallback(x, y);
 }
 
 void InfiniFrameWindow::InvokeResize(const int width, const int height) const noexcept {
-    if (ImplBase()->_resizedCallback)
-        ImplBase()->_resizedCallback(width, height);
+    if (GetCommonWindowState(this)->_resizedCallback)
+        GetCommonWindowState(this)->_resizedCallback(width, height);
 }
 
 void InfiniFrameWindow::InvokeMaximized() const noexcept {
-    if (ImplBase()->_maximizedCallback)
-        ImplBase()->_maximizedCallback();
+    if (GetCommonWindowState(this)->_maximizedCallback)
+        GetCommonWindowState(this)->_maximizedCallback();
 }
 
 void InfiniFrameWindow::InvokeRestored() const noexcept {
-    if (ImplBase()->_restoredCallback)
-        ImplBase()->_restoredCallback();
+    if (GetCommonWindowState(this)->_restoredCallback)
+        GetCommonWindowState(this)->_restoredCallback();
 }
 
 void InfiniFrameWindow::InvokeMinimized() const noexcept {
-    if (ImplBase()->_minimizedCallback)
-        ImplBase()->_minimizedCallback();
+    if (GetCommonWindowState(this)->_minimizedCallback)
+        GetCommonWindowState(this)->_minimizedCallback();
 }
 
 void InfiniFrameWindow::InvokeDebugEvent(
@@ -119,8 +119,8 @@ void InfiniFrameWindow::InvokeDebugEvent(
     const int64_t timestampUnixMillisecondsUtc,
     const char* platformPayload
     ) const noexcept {
-    if (ImplBase()->_debugEventCallback)
-        ImplBase()->_debugEventCallback(
+    if (GetCommonWindowState(this)->_debugEventCallback)
+        GetCommonWindowState(this)->_debugEventCallback(
             kind,
             message,
             level,
@@ -136,6 +136,6 @@ void InfiniFrameWindow::InvokeFileDropped(
     const int count,
     const int x,
     const int y) const noexcept {
-    if (ImplBase()->_fileDroppedCallback)
-        ImplBase()->_fileDroppedCallback(paths, count, x, y);
+    if (GetCommonWindowState(this)->_fileDroppedCallback)
+        GetCommonWindowState(this)->_fileDroppedCallback(paths, count, x, y);
 }

@@ -80,12 +80,12 @@ InfiniFrameWindow::~InfiniFrameWindow() {
         });
 }
 
-InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() noexcept {
-    return m_impl.get();
+CommonWindowState* GetCommonWindowState(InfiniFrameWindow* window) noexcept {
+    return &window->m_impl->common;
 }
 
-const InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() const noexcept {
-    return m_impl.get();
+const CommonWindowState* GetCommonWindowState(const InfiniFrameWindow* window) noexcept {
+    return &window->m_impl->common;
 }
 
 GtkWidget* InfiniFrameWindow::getGtkWindow() {

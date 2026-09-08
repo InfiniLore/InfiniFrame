@@ -1,7 +1,7 @@
 #include "Runtime/Shared/Operations/NativeOperation.h"
 
 #include "Runtime/Shared/Window/InfiniFrameWindow.h"
-#include "Runtime/Shared/Window/InfiniFrameWindowImpl.h"
+#include "Runtime/Internal/Window/CommonWindowState.h"
 
 #include <vector>
 
@@ -50,8 +50,8 @@ bool InfiniFrameWindow::BeginInvoke(
         operationId, callback, callbackContext, completion, completionContext, this
         );
     {
-        std::lock_guard lock(ImplBase()->_operationMutex);
-        if (!ImplBase()->_operations.emplace(operationId, operation).second)
+        std::lock_guard lock(GetCommonWindowState(this)->_operationMutex);
+        if (!GetCommonWindowState(this)->_operations.emplace(operationId, operation).second)
             return false;
     }
 
@@ -65,9 +65,9 @@ bool InfiniFrameWindow::BeginInvoke(
 bool InfiniFrameWindow::CancelOperation(const uint64_t operationId, const NativeOperationResult result) {
     std::shared_ptr<NativeOperation> operation;
     {
-        std::lock_guard lock(ImplBase()->_operationMutex);
-        const auto found = ImplBase()->_operations.find(operationId);
-        if (found == ImplBase()->_operations.end())
+        std::lock_guard lock(GetCommonWindowState(this)->_operationMutex);
+        const auto found = GetCommonWindowState(this)->_operations.find(operationId);
+        if (found == GetCommonWindowState(this)->_operations.end())
             return false;
         operation = found->second;
     }
@@ -82,16 +82,16 @@ void InfiniFrameWindow::CompleteOperationsForClose() {
     };
     std::vector<DetachedCompletion> completions;
     {
-        std::lock_guard lock(ImplBase()->_operationMutex);
-        completions.reserve(ImplBase()->_operations.size());
-        for (const auto& [id, operation] : ImplBase()->_operations) {
+        std::lock_guard lock(GetCommonWindowState(this)->_operationMutex);
+        completions.reserve(GetCommonWindowState(this)->_operations.size());
+        for (const auto& [id, operation] : GetCommonWindowState(this)->_operations) {
             int expected = NativeOperation::Pending;
             if (operation && operation->state.compare_exchange_strong(
                 expected, NativeOperation::Terminal, std::memory_order_acq_rel)) {
                 completions.push_back({id, operation->completion, operation->completionContext});
             }
         }
-        ImplBase()->_operations.clear();
+        GetCommonWindowState(this)->_operations.clear();
     }
 
     // All window-owned state is detached before the first reverse callback. A callback may
@@ -113,8 +113,8 @@ void InfiniFrameWindow::FinalizeOperation(
     const char* failure
     ) noexcept {
     {
-        std::lock_guard lock(ImplBase()->_operationMutex);
-        ImplBase()->_operations.erase(operationId);
+        std::lock_guard lock(GetCommonWindowState(this)->_operationMutex);
+        GetCommonWindowState(this)->_operations.erase(operationId);
     }
 
     // This reverse callback can dispose the managed window. It must be the final access
@@ -125,10 +125,10 @@ void InfiniFrameWindow::FinalizeOperation(
 void InfiniFrameWindow::SetReadyCallback(const ContextAction callback, void* context) {
     bool invoke = false;
     {
-        std::lock_guard lock(ImplBase()->_milestoneMutex);
-        ImplBase()->_readyCallback = callback;
-        ImplBase()->_readyCallbackContext = context;
-        invoke = ImplBase()->_readySignaled && callback != nullptr;
+        std::lock_guard lock(GetCommonWindowState(this)->_milestoneMutex);
+        GetCommonWindowState(this)->_readyCallback = callback;
+        GetCommonWindowState(this)->_readyCallbackContext = context;
+        invoke = GetCommonWindowState(this)->_readySignaled && callback != nullptr;
     }
     if (invoke)
         callback(context);
@@ -137,10 +137,10 @@ void InfiniFrameWindow::SetReadyCallback(const ContextAction callback, void* con
 void InfiniFrameWindow::SetTeardownCallback(const ContextAction callback, void* context) {
     bool invoke = false;
     {
-        std::lock_guard lock(ImplBase()->_milestoneMutex);
-        ImplBase()->_teardownCallback = callback;
-        ImplBase()->_teardownCallbackContext = context;
-        invoke = ImplBase()->_teardownSignaled && callback != nullptr;
+        std::lock_guard lock(GetCommonWindowState(this)->_milestoneMutex);
+        GetCommonWindowState(this)->_teardownCallback = callback;
+        GetCommonWindowState(this)->_teardownCallbackContext = context;
+        invoke = GetCommonWindowState(this)->_teardownSignaled && callback != nullptr;
     }
     if (invoke)
         callback(context);
@@ -150,12 +150,12 @@ void InfiniFrameWindow::SignalReady() {
     ContextAction callback = nullptr;
     void* context = nullptr;
     {
-        std::lock_guard lock(ImplBase()->_milestoneMutex);
-        if (ImplBase()->_readySignaled)
+        std::lock_guard lock(GetCommonWindowState(this)->_milestoneMutex);
+        if (GetCommonWindowState(this)->_readySignaled)
             return;
-        ImplBase()->_readySignaled = true;
-        callback = ImplBase()->_readyCallback;
-        context = ImplBase()->_readyCallbackContext;
+        GetCommonWindowState(this)->_readySignaled = true;
+        callback = GetCommonWindowState(this)->_readyCallback;
+        context = GetCommonWindowState(this)->_readyCallbackContext;
     }
     if (callback != nullptr)
         callback(context);
@@ -165,12 +165,12 @@ void InfiniFrameWindow::SignalTeardown() {
     ContextAction callback = nullptr;
     void* context = nullptr;
     {
-        std::lock_guard lock(ImplBase()->_milestoneMutex);
-        if (ImplBase()->_teardownSignaled)
+        std::lock_guard lock(GetCommonWindowState(this)->_milestoneMutex);
+        if (GetCommonWindowState(this)->_teardownSignaled)
             return;
-        ImplBase()->_teardownSignaled = true;
-        callback = ImplBase()->_teardownCallback;
-        context = ImplBase()->_teardownCallbackContext;
+        GetCommonWindowState(this)->_teardownSignaled = true;
+        callback = GetCommonWindowState(this)->_teardownCallback;
+        context = GetCommonWindowState(this)->_teardownCallbackContext;
     }
     if (callback != nullptr)
         callback(context);
@@ -199,9 +199,9 @@ bool InfiniFrameWindow::BeginNavigateToString(
     ) {
     std::unique_ptr<NavigationOperation> superseded;
     {
-        std::lock_guard lock(ImplBase()->_navigationMutex);
-        superseded = std::move(ImplBase()->_navigationOperation);
-        ImplBase()->_navigationOperation = std::make_unique<NavigationOperation>(
+        std::lock_guard lock(GetCommonWindowState(this)->_navigationMutex);
+        superseded = std::move(GetCommonWindowState(this)->_navigationOperation);
+        GetCommonWindowState(this)->_navigationOperation = std::make_unique<NavigationOperation>(
             NavigationOperation{
                 operationId, 0, completion, completionContext
             });
@@ -219,9 +219,9 @@ bool InfiniFrameWindow::BeginNavigateToUrl(
     ) {
     std::unique_ptr<NavigationOperation> superseded;
     {
-        std::lock_guard lock(ImplBase()->_navigationMutex);
-        superseded = std::move(ImplBase()->_navigationOperation);
-        ImplBase()->_navigationOperation = std::make_unique<NavigationOperation>(
+        std::lock_guard lock(GetCommonWindowState(this)->_navigationMutex);
+        superseded = std::move(GetCommonWindowState(this)->_navigationOperation);
+        GetCommonWindowState(this)->_navigationOperation = std::make_unique<NavigationOperation>(
             NavigationOperation{
                 operationId, 0, completion, completionContext
             });
@@ -234,19 +234,19 @@ bool InfiniFrameWindow::BeginNavigateToUrl(
 bool InfiniFrameWindow::CancelNavigation(const uint64_t operationId) {
     std::unique_ptr<NavigationOperation> cancelled;
     {
-        std::lock_guard lock(ImplBase()->_navigationMutex);
-        if (!ImplBase()->_navigationOperation || ImplBase()->_navigationOperation->id != operationId)
+        std::lock_guard lock(GetCommonWindowState(this)->_navigationMutex);
+        if (!GetCommonWindowState(this)->_navigationOperation || GetCommonWindowState(this)->_navigationOperation->id != operationId)
             return false;
-        cancelled = std::move(ImplBase()->_navigationOperation);
+        cancelled = std::move(GetCommonWindowState(this)->_navigationOperation);
     }
     CompleteDetachedNavigation(std::move(cancelled), NativeOperationResult::Cancelled);
     return true;
 }
 
 void InfiniFrameWindow::BindNavigationBackendId(const uint64_t backendId) {
-    std::lock_guard lock(ImplBase()->_navigationMutex);
-    if (ImplBase()->_navigationOperation && ImplBase()->_navigationOperation->backendId == 0)
-        ImplBase()->_navigationOperation->backendId = backendId;
+    std::lock_guard lock(GetCommonWindowState(this)->_navigationMutex);
+    if (GetCommonWindowState(this)->_navigationOperation && GetCommonWindowState(this)->_navigationOperation->backendId == 0)
+        GetCommonWindowState(this)->_navigationOperation->backendId = backendId;
 }
 
 void InfiniFrameWindow::CompleteNavigation(
@@ -257,13 +257,13 @@ void InfiniFrameWindow::CompleteNavigation(
     ) {
     std::unique_ptr<NavigationOperation> completed;
     {
-        std::lock_guard lock(ImplBase()->_navigationMutex);
-        if (!ImplBase()->_navigationOperation)
+        std::lock_guard lock(GetCommonWindowState(this)->_navigationMutex);
+        if (!GetCommonWindowState(this)->_navigationOperation)
             return;
-        if (backendId != 0 && ImplBase()->_navigationOperation->backendId != 0
-            && backendId != ImplBase()->_navigationOperation->backendId)
+        if (backendId != 0 && GetCommonWindowState(this)->_navigationOperation->backendId != 0
+            && backendId != GetCommonWindowState(this)->_navigationOperation->backendId)
             return;
-        completed = std::move(ImplBase()->_navigationOperation);
+        completed = std::move(GetCommonWindowState(this)->_navigationOperation);
     }
     CompleteDetachedNavigation(
         std::move(completed),
@@ -282,19 +282,19 @@ void InfiniFrameWindow::CompleteNavigationAndSignalReady(
     ContextAction readyCallback = nullptr;
     void* readyContext = nullptr;
     {
-        std::lock_guard lock(ImplBase()->_navigationMutex);
-        if (ImplBase()->_navigationOperation
-            && (backendId == 0 || ImplBase()->_navigationOperation->backendId == 0
-                || backendId == ImplBase()->_navigationOperation->backendId)) {
-            completed = std::move(ImplBase()->_navigationOperation);
+        std::lock_guard lock(GetCommonWindowState(this)->_navigationMutex);
+        if (GetCommonWindowState(this)->_navigationOperation
+            && (backendId == 0 || GetCommonWindowState(this)->_navigationOperation->backendId == 0
+                || backendId == GetCommonWindowState(this)->_navigationOperation->backendId)) {
+            completed = std::move(GetCommonWindowState(this)->_navigationOperation);
         }
     }
     {
-        std::lock_guard lock(ImplBase()->_milestoneMutex);
-        if (!ImplBase()->_readySignaled) {
-            ImplBase()->_readySignaled = true;
-            readyCallback = ImplBase()->_readyCallback;
-            readyContext = ImplBase()->_readyCallbackContext;
+        std::lock_guard lock(GetCommonWindowState(this)->_milestoneMutex);
+        if (!GetCommonWindowState(this)->_readySignaled) {
+            GetCommonWindowState(this)->_readySignaled = true;
+            readyCallback = GetCommonWindowState(this)->_readyCallback;
+            readyContext = GetCommonWindowState(this)->_readyCallbackContext;
         }
     }
 
@@ -312,8 +312,8 @@ void InfiniFrameWindow::CompleteNavigationAndSignalReady(
 void InfiniFrameWindow::CompleteNavigationForClose() {
     std::unique_ptr<NavigationOperation> completed;
     {
-        std::lock_guard lock(ImplBase()->_navigationMutex);
-        completed = std::move(ImplBase()->_navigationOperation);
+        std::lock_guard lock(GetCommonWindowState(this)->_navigationMutex);
+        completed = std::move(GetCommonWindowState(this)->_navigationOperation);
     }
     CompleteDetachedNavigation(std::move(completed), NativeOperationResult::WindowClosed);
 }

@@ -8,6 +8,8 @@
 #include "Runtime/Shared/Window/InfiniFrameWindow.h"
 #include "Runtime/Shared/Operations/DialogOperation.h"
 #include "Runtime/Shared/Utilities/StringArrayCopy.h"
+
+struct InfiniFrameDialog::Impl {};
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -139,7 +141,7 @@ const char** ShowDialog(
     return arr;
 }
 
-InfiniFrameDialog::InfiniFrameDialog() {}
+InfiniFrameDialog::InfiniFrameDialog() : m_impl(std::make_unique<Impl>()) {}
 
 InfiniFrameDialog::~InfiniFrameDialog() {}
 

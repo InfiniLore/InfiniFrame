@@ -1,7 +1,7 @@
 #include "Runtime/Shared/Operations/DialogOperation.h"
 
 #include "Runtime/Shared/Window/InfiniFrameWindow.h"
-#include "Runtime/Shared/Window/InfiniFrameWindowImpl.h"
+#include "Runtime/Internal/Window/CommonWindowState.h"
 
 #include <vector>
 
@@ -80,14 +80,14 @@ std::shared_ptr<DialogOperation> InfiniFrameWindow::RegisterFileDialogOperation(
     void* context
     ) {
     auto operation = std::make_shared<DialogOperation>(id, name, completion, context);
-    std::lock_guard lock(ImplBase()->_dialogOperationMutex);
-    for (auto it = ImplBase()->_dialogOperations.begin(); it != ImplBase()->_dialogOperations.end();) {
+    std::lock_guard lock(GetCommonWindowState(this)->_dialogOperationMutex);
+    for (auto it = GetCommonWindowState(this)->_dialogOperations.begin(); it != GetCommonWindowState(this)->_dialogOperations.end();) {
         if (it->second->terminal.load(std::memory_order_acquire))
-            it = ImplBase()->_dialogOperations.erase(it);
+            it = GetCommonWindowState(this)->_dialogOperations.erase(it);
         else
             ++it;
     }
-    if (!ImplBase()->_dialogOperations.emplace(id, operation).second)
+    if (!GetCommonWindowState(this)->_dialogOperations.emplace(id, operation).second)
         throw std::invalid_argument("A dialog operation with this ID already exists.");
     return operation;
 }
@@ -98,8 +98,8 @@ std::shared_ptr<DialogOperation> InfiniFrameWindow::RegisterMessageDialogOperati
     void* context
     ) {
     auto operation = std::make_shared<DialogOperation>(id, "ShowMessage", completion, context);
-    std::lock_guard lock(ImplBase()->_dialogOperationMutex);
-    if (!ImplBase()->_dialogOperations.emplace(id, operation).second)
+    std::lock_guard lock(GetCommonWindowState(this)->_dialogOperationMutex);
+    if (!GetCommonWindowState(this)->_dialogOperations.emplace(id, operation).second)
         throw std::invalid_argument("A dialog operation with this ID already exists.");
     return operation;
 }
@@ -107,9 +107,9 @@ std::shared_ptr<DialogOperation> InfiniFrameWindow::RegisterMessageDialogOperati
 bool InfiniFrameWindow::CancelDialog(const uint64_t id) {
     std::shared_ptr<DialogOperation> operation;
     {
-        std::lock_guard lock(ImplBase()->_dialogOperationMutex);
-        const auto found = ImplBase()->_dialogOperations.find(id);
-        if (found == ImplBase()->_dialogOperations.end())
+        std::lock_guard lock(GetCommonWindowState(this)->_dialogOperationMutex);
+        const auto found = GetCommonWindowState(this)->_dialogOperations.find(id);
+        if (found == GetCommonWindowState(this)->_dialogOperations.end())
             return false;
         operation = found->second;
     }
@@ -119,10 +119,10 @@ bool InfiniFrameWindow::CancelDialog(const uint64_t id) {
 void InfiniFrameWindow::CompleteDialogsForClose() {
     std::vector<std::shared_ptr<DialogOperation>> operations;
     {
-        std::lock_guard lock(ImplBase()->_dialogOperationMutex);
-        for (const auto& [id, operation] : ImplBase()->_dialogOperations)
+        std::lock_guard lock(GetCommonWindowState(this)->_dialogOperationMutex);
+        for (const auto& [id, operation] : GetCommonWindowState(this)->_dialogOperations)
             operations.push_back(operation);
-        ImplBase()->_dialogOperations.clear();
+        GetCommonWindowState(this)->_dialogOperations.clear();
     }
     for (const auto& operation : operations)
         operation->Cancel(NativeOperationResult::WindowClosed);

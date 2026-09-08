@@ -58,6 +58,22 @@ namespace {
     };
 }
 
+HINSTANCE GetWindowModuleInstance() noexcept {
+    return _hInstance.load(std::memory_order_acquire);
+}
+
+HWND GetMessageLoopRootWindowHandle() noexcept {
+    return messageLoopRootWindowHandle;
+}
+
+void SetMessageLoopRootWindowHandle(const HWND hwnd) noexcept {
+    messageLoopRootWindowHandle = hwnd;
+}
+
+const wchar_t* GetWindowClassName() noexcept {
+    return CLASS_NAME;
+}
+
 HBRUSH GetDarkBrush() {
     return BrushManager::instance().dark();
 }
@@ -188,7 +204,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) {
     const char* defaultNotificationIcon = application == nullptr
         ? initParams->DefaultNotificationIcon
         : application->GetDefaultNotificationIcon();
-    m_impl->_defaultNotificationIcon = ToUTF8String(defaultNotificationIcon);
+    m_impl->_platformDefaultNotificationIcon = ToUTF8String(defaultNotificationIcon);
 
     m_impl->_zoom = initParams->Zoom;
     m_impl->_minWidth = initParams->MinWidth;
@@ -272,9 +288,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) {
     const HWND parentWindowHandle = ResolveParentWindowHandle(m_impl->_parent);
     m_impl->_pendingOwnerHwnd = parentWindowHandle;
 
-    const HINSTANCE windowInstance = _hInstance.load(std::memory_order_acquire);
+    const HINSTANCE windowInstance = GetWindowModuleInstance();
     m_impl->_hWnd = CreateWindowEx(
-        initParams->Transparent ? WS_EX_LAYERED : 0, CLASS_NAME, m_impl->_windowTitle.c_str(),
+        initParams->Transparent ? WS_EX_LAYERED : 0, GetWindowClassName(), m_impl->_windowTitle.c_str(),
         initParams->Chromeless || initParams->FullScreen ? WS_POPUP : WS_OVERLAPPEDWINDOW, normalizedLeft,
         normalizedTop, normalizedWidth, normalizedHeight, nullptr, nullptr, windowInstance, this
         );
@@ -333,12 +349,12 @@ InfiniFrameWindow::~InfiniFrameWindow() {
         _application->UntrackWindow(this);
 }
 
-InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() noexcept {
-    return m_impl.get();
+CommonWindowState* GetCommonWindowState(InfiniFrameWindow* window) noexcept {
+    return &window->m_impl->common;
 }
 
-const InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() const noexcept {
-    return m_impl.get();
+const CommonWindowState* GetCommonWindowState(const InfiniFrameWindow* window) noexcept {
+    return &window->m_impl->common;
 }
 
 HWND InfiniFrameWindow::getHwnd() {

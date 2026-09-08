@@ -2,29 +2,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#ifdef _WIN32
-#include <Windows.h>
-#include <wil/com.h>
-#include <WebView2.h>
-#endif
-
-#ifdef __APPLE__
-#include <Cocoa/Cocoa.h>
-#include <Foundation/Foundation.h>
-#include <UserNotifications/UserNotifications.h>
-#include <WebKit/WebKit.h>
-#include <WebKit/WKWebView.h>
-#include <WebKit/WKWebViewConfiguration.h>
-#include <Security/SecTrust.h>
-#endif
-
-#ifdef __linux__
-#include <gtk/gtk.h>
-#include <webkit2/webkit2.h>
-#endif
-
-#include <map>
+#include <cstdint>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "Runtime/Shared/Types/Basic.h"
@@ -37,12 +17,38 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #ifdef _WIN32
 class WinToastHandler;
+#ifndef _WINDEF_
+struct HWND__;
+struct HINSTANCE__;
+using HWND = HWND__*;
+using HINSTANCE = HINSTANCE__*;
+using WPARAM = uintptr_t;
+using LPARAM = intptr_t;
+using LRESULT = intptr_t;
+using UINT = unsigned int;
+#endif
+#ifndef _WINDEF_
+using HRESULT = long;
+#endif
+struct ICoreWebView2EnvironmentOptions;
+#endif
+#ifdef __linux__
+typedef enum _GdkWindowState GdkWindowState;
+struct _GtkWidget;
+using GtkWidget = _GtkWidget;
+#endif
+#ifdef __APPLE__
+#ifdef __OBJC__
+@class NSWindow;
+#else
+class NSWindow;
+#endif
 #endif
 class InfiniFrameDialog;
 class InfiniFrameApplication;
 struct InfiniFrameWindowInitParams;
 
-struct InfiniFrameWindowImpl;
+struct CommonWindowState;
 struct NativeOperation;
 struct DialogOperation;
 enum class NativeOperationResult : int32_t;
@@ -1070,6 +1076,8 @@ class InfiniFrameWindow {
     struct Impl;
 
     private:
+    friend CommonWindowState* GetCommonWindowState(InfiniFrameWindow* window) noexcept;
+    friend const CommonWindowState* GetCommonWindowState(const InfiniFrameWindow* window) noexcept;
     void Show(bool isAlreadyShown);
     void AttachWebView();
 
@@ -1081,12 +1089,7 @@ class InfiniFrameWindow {
     HRESULT ApplyInitialWebViewSettings();
 #endif
 
-#ifdef _WIN32
-    friend LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-#endif
-
-    InfiniFrameWindowImpl* ImplBase() noexcept;
-    const InfiniFrameWindowImpl* ImplBase() const noexcept;
+    friend struct InfiniFrameWindowAccess;
 
     std::unique_ptr<Impl> m_impl;
     InfiniFrameApplication* _application = nullptr;

@@ -167,7 +167,7 @@ void InfiniFrameWindow::ApplyInitMenuBar(const char* menuBarJson) {
     if (menuBarJson == nullptr || menuBarJson[0] == '\0')
         return;
 
-    auto* impl = static_cast<Impl*>(ImplBase());
+    auto* impl = m_impl.get();
 
     if (impl->_menuBar != nullptr) {
         DestroyMenuActivateData(impl);
@@ -212,7 +212,7 @@ void InfiniFrameWindow::SetMenuBarJson(const char* menuBarJson) {
 }
 
 void InfiniFrameWindow::SetMenuItemEnabledById(const char* menuItemId, const bool enabled) {
-    auto* impl = static_cast<Impl*>(ImplBase());
+    auto* impl = m_impl.get();
 
     if (impl->_menuBar == nullptr)
         return;
@@ -224,7 +224,7 @@ void InfiniFrameWindow::SetMenuItemEnabledById(const char* menuItemId, const boo
 }
 
 void InfiniFrameWindow::SetMenuItemVisibleById(const char* menuItemId, const bool visible) {
-    auto* impl = static_cast<Impl*>(ImplBase());
+    auto* impl = m_impl.get();
 
     if (impl->_menuBar == nullptr)
         return;

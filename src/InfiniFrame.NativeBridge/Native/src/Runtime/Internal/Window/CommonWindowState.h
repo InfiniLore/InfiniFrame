@@ -18,8 +18,15 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 class InfiniFrameWindow;
+struct CommonWindowState;
 
-struct InfiniFrameWindowImpl {
+CommonWindowState* GetCommonWindowState(InfiniFrameWindow* window) noexcept;
+const CommonWindowState* GetCommonWindowState(const InfiniFrameWindow* window) noexcept;
+
+
+// Shared logical state. Platform backends own this state through their private
+// implementation object; it is never part of the public window declaration.
+struct CommonWindowState {
     std::mutex _operationMutex;
     std::unordered_map<uint64_t, std::shared_ptr<NativeOperation>> _operations;
     std::mutex _navigationMutex;

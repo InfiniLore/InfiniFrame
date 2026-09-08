@@ -2,71 +2,71 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Runtime/Shared/Window/InfiniFrameWindow.h"
-#include "Runtime/Shared/Window/InfiniFrameWindowImpl.h"
+#include "Runtime/Internal/Window/CommonWindowState.h"
 #include "Runtime/Shared/Utilities/StringCopy.h"
 // ---------------------------------------------------------------------------------------------------------------------
-// Pure property getters that read from InfiniFrameWindowImpl fields with no
+// Pure property getters that read from internal common state with no
 // platform-specific logic. Shared across all platforms.
 // ---------------------------------------------------------------------------------------------------------------------
 void InfiniFrameWindow::GetGrantBrowserPermissions(bool* grant) const {
-    *grant = ImplBase()->_grantBrowserPermissions;
+    *grant = GetCommonWindowState(this)->_grantBrowserPermissions;
 }
 
 const char* InfiniFrameWindow::GetUserAgent() const {
 #ifdef _WIN32
-    return AllocateUtf8FromWide(ImplBase()->_userAgent);
+    return AllocateUtf8FromWide(GetCommonWindowState(this)->_userAgent);
 #else
-    return AllocateStringCopy(ImplBase()->_userAgent);
+    return AllocateStringCopy(GetCommonWindowState(this)->_userAgent);
 #endif
 }
 
 void InfiniFrameWindow::GetMediaAutoplayEnabled(bool* enabled) const {
-    *enabled = ImplBase()->_mediaAutoplayEnabled;
+    *enabled = GetCommonWindowState(this)->_mediaAutoplayEnabled;
 }
 
 void InfiniFrameWindow::GetFileSystemAccessEnabled(bool* enabled) const {
-    *enabled = ImplBase()->_fileSystemAccessEnabled;
+    *enabled = GetCommonWindowState(this)->_fileSystemAccessEnabled;
 }
 
 void InfiniFrameWindow::GetWebSecurityEnabled(bool* enabled) const {
-    *enabled = ImplBase()->_webSecurityEnabled;
+    *enabled = GetCommonWindowState(this)->_webSecurityEnabled;
 }
 
 void InfiniFrameWindow::GetJavascriptClipboardAccessEnabled(bool* enabled) const {
-    *enabled = ImplBase()->_javascriptClipboardAccessEnabled;
+    *enabled = GetCommonWindowState(this)->_javascriptClipboardAccessEnabled;
 }
 
 void InfiniFrameWindow::GetMediaStreamEnabled(bool* enabled) const {
-    *enabled = ImplBase()->_mediaStreamEnabled;
+    *enabled = GetCommonWindowState(this)->_mediaStreamEnabled;
 }
 
 void InfiniFrameWindow::GetSmoothScrollingEnabled(bool* enabled) const {
-    *enabled = ImplBase()->_smoothScrollingEnabled;
+    *enabled = GetCommonWindowState(this)->_smoothScrollingEnabled;
 }
 
 void InfiniFrameWindow::GetIgnoreCertificateErrorsEnabled(bool* enabled) const {
-    *enabled = ImplBase()->_ignoreCertificateErrorsEnabled;
+    *enabled = GetCommonWindowState(this)->_ignoreCertificateErrorsEnabled;
 }
 
 void InfiniFrameWindow::GetBrowserShortcutsEnabled(bool* enabled) const {
-    *enabled = ImplBase()->_browserShortcutsEnabled;
+    *enabled = GetCommonWindowState(this)->_browserShortcutsEnabled;
 }
 
 NavigationStartingCallback InfiniFrameWindow::GetNavigationStartingCallback() const {
-    return ImplBase()->_navigationStartingCallback;
+    return GetCommonWindowState(this)->_navigationStartingCallback;
 }
 
 const char* InfiniFrameWindow::GetIconFileName() const {
 #ifdef _WIN32
-    return AllocateUtf8FromWide(ImplBase()->_iconFileName);
+    return AllocateUtf8FromWide(GetCommonWindowState(this)->_iconFileName);
 #else
-    return AllocateStringCopy(ImplBase()->_iconFileName);
+    return AllocateStringCopy(GetCommonWindowState(this)->_iconFileName);
 #endif
 }
 
 void InfiniFrameWindow::GetBackgroundColor(uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a) const {
-    *r = ImplBase()->_backgroundColorR;
-    *g = ImplBase()->_backgroundColorG;
-    *b = ImplBase()->_backgroundColorB;
-    *a = ImplBase()->_backgroundColorA;
+    *r = GetCommonWindowState(this)->_backgroundColorR;
+    *g = GetCommonWindowState(this)->_backgroundColorG;
+    *b = GetCommonWindowState(this)->_backgroundColorB;
+    *a = GetCommonWindowState(this)->_backgroundColorA;
 }

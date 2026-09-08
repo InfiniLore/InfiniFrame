@@ -17,9 +17,10 @@
 inline constexpr UINT WM_USER_INVOKE = WM_USER + 0x0002;
 inline constexpr UINT WM_USER_DISPATCH_OPERATION = WM_USER + 0x0003;
 
-extern std::atomic<HINSTANCE> _hInstance;
-extern thread_local HWND messageLoopRootWindowHandle;
-extern const wchar_t* CLASS_NAME;
+HINSTANCE GetWindowModuleInstance() noexcept;
+HWND GetMessageLoopRootWindowHandle() noexcept;
+void SetMessageLoopRootWindowHandle(HWND hwnd) noexcept;
+const wchar_t* GetWindowClassName() noexcept;
 
 struct InvokeWaitInfo {
     std::mutex mutex;

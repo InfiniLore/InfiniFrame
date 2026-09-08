@@ -1,11 +1,8 @@
 #pragma once
+#include <memory>
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#ifdef __APPLE__
-#include <Cocoa/Cocoa.h>
-#endif
-
 #include "Runtime/Shared/Types/Basic.h"
 #include "Runtime/Shared/Types/DialogButtons.h"
 #include "Runtime/Shared/Types/DialogIcon.h"
@@ -94,13 +91,7 @@ class InfiniFrameDialog {
          */
     DialogResult ShowMessage(const char* title, const char* text, DialogButtons buttons, DialogIcon icon);
 
-    protected:
-#ifdef __APPLE__
-    NSImage* _errorIcon;
-    NSImage* _infoIcon;
-    NSImage* _questionIcon;
-    NSImage* _warningIcon;
-#elif _WIN32
-    InfiniFrameWindow* _window;
-#endif
+    private:
+    struct Impl;
+    std::unique_ptr<Impl> m_impl;
 };
