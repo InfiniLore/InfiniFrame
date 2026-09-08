@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Text.Json;
-using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.NativeBridge.Parameters.Window;
 
 namespace InfiniFrame.Window.Features.Menu;

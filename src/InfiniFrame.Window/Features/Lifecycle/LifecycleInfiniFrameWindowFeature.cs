@@ -6,7 +6,6 @@ using System.Runtime.InteropServices;
 using FluentValidation;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
-using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.NativeBridge.Parameters.Window;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;

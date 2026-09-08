@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
-using InfiniFrame.NativeBridge.Parameters;
 using FluentValidation;
 using InfiniFrame.NativeBridge.Parameters.Application;
 using InfiniFrame.Utilities;

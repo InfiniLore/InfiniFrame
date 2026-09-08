@@ -1,6 +1,5 @@
 using System.Runtime.InteropServices;
 using InfiniFrame.NativeBridge;
-using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.NativeBridge.Parameters.Application;
 
 namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Parameters;

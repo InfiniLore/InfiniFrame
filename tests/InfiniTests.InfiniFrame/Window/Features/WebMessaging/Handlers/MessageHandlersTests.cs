@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Js.Interop;
-using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.NativeBridge.Parameters.Window;
 using InfiniFrame.Window.Builder;
 using InfiniFrame.Window.Events;

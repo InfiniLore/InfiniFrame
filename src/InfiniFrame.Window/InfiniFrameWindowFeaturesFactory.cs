@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using FluentValidation;
-using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.NativeBridge.Parameters.Window;
 using InfiniFrame.Window.Features.Browser;
 using InfiniFrame.Window.Features.Debugging;
