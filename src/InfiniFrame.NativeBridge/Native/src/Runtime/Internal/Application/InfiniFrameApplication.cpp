@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#include "Runtime/Shared/Application/InfiniFrameApplication.h"
+#include "Runtime/Internal/Application/InfiniFrameApplication.h"
 #include <atomic>
 #include <mutex>
 #include <string>

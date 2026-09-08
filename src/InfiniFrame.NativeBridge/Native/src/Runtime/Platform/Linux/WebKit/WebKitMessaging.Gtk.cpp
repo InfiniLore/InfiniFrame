@@ -4,8 +4,8 @@
 #include <webkit2/webkit2.h>
 
 #include "Runtime/Platform/Linux/Core/GtkCallbackGuard.h"
-#include "Runtime/Shared/Types/Basic.h"
-#include "Runtime/Shared/Types/Callbacks.h"
+#include "Api/Abi/Basic.h"
+#include "Api/Abi/Callbacks.h"
 #include "Runtime/Platform/Linux/WebKit/WebKit.Gtk.Internal.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

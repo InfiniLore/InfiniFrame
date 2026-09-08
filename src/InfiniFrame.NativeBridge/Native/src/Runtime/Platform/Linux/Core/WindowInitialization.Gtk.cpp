@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cstring>
 
-#include "Runtime/Shared/Window/InfiniFrameDialog.h"
+#include "Runtime/Internal/Window/InfiniFrameDialog.h"
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

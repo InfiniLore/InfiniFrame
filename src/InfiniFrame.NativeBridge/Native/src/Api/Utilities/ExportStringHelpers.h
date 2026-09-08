@@ -13,7 +13,8 @@
 #include <string>
 #include <cstring>
 
-#include "Runtime/Shared/Window/InfiniFrame.h"
+#include "Api/Abi/InfiniFrame.h"
+#include "Api/Utilities/StringCopy.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

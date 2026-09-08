@@ -11,7 +11,7 @@
 #include <gtk/gtk.h>
 #include <webkit2/webkit2.h>
 
-#include "Runtime/Shared/Window/InfiniFrameWindow.h"
+#include "Api/Abi/InfiniFrameWindow.h"
 #include "Runtime/Internal/Window/CommonWindowState.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -22,8 +22,6 @@ struct InfiniFrameWindow::Impl {
     GtkWidget* _webview = nullptr;
     WebKitWebContext* _webContext = nullptr;
     gulong _webMessageSignalHandlerId = 0;
-    int _remoteDebuggingPort = 0;
-
     std::string _temporaryFilesPath;
 
     GtkWidget* _menuBar = nullptr;
@@ -72,5 +70,3 @@ struct InfiniFrameWindow::Impl {
     void ConnectWindowSignals(InfiniFrameWindow* window);
     void ConnectWebViewSignals(InfiniFrameWindow* window);
 };
-
-#include "Runtime/Internal/Window/CommonWindowStateAccess.h"

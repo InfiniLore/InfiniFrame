@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #include <WinUser.h>
 
-#include "Runtime/Shared/Window/InfiniFrameWindow.h"
+#include "Api/Abi/InfiniFrameWindow.h"
 #include "Dependencies/wintoastlib/wintoastlib.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

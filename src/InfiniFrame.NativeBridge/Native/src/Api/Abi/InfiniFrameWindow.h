@@ -7,11 +7,11 @@
 #include <string>
 #include <vector>
 
-#include "Runtime/Shared/Types/Basic.h"
-#include "Runtime/Shared/Types/DialogButtons.h"
-#include "Runtime/Shared/Types/DialogIcon.h"
-#include "Runtime/Shared/Types/DialogResult.h"
-#include "Runtime/Shared/Types/Callbacks.h"
+#include "Api/Abi/Basic.h"
+#include "Api/Abi/DialogButtons.h"
+#include "Api/Abi/DialogIcon.h"
+#include "Api/Abi/DialogResult.h"
+#include "Api/Abi/Callbacks.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -47,8 +47,8 @@ class NSWindow;
 class InfiniFrameDialog;
 class InfiniFrameApplication;
 struct InfiniFrameWindowInitParams;
-
 struct CommonWindowState;
+
 struct NativeOperation;
 struct DialogOperation;
 enum class NativeOperationResult : int32_t;
@@ -1078,6 +1078,7 @@ class InfiniFrameWindow {
     private:
     friend CommonWindowState* GetCommonWindowState(InfiniFrameWindow* window) noexcept;
     friend const CommonWindowState* GetCommonWindowState(const InfiniFrameWindow* window) noexcept;
+    friend struct InfiniFrameWindowAccess;
     void Show(bool isAlreadyShown);
     void AttachWebView();
 
@@ -1089,10 +1090,8 @@ class InfiniFrameWindow {
     HRESULT ApplyInitialWebViewSettings();
 #endif
 
-    friend struct InfiniFrameWindowAccess;
-
     std::unique_ptr<Impl> m_impl;
     InfiniFrameApplication* _application = nullptr;
 };
 
-#include "InfiniFrameWindowInitParams.h"
+#include "Api/Abi/InfiniFrameWindowInitParams.h"

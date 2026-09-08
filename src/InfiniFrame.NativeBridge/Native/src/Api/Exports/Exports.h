@@ -14,8 +14,8 @@
 #define EXPORTED
 #endif
 
-#include "Runtime/Shared/Types/Basic.h"
-#include "Runtime/Shared/Utilities/InteropStatus.h"
+#include "Api/Abi/Basic.h"
+#include "Api/Utilities/InteropStatus.h"
 #include "Api/Utilities/Utilities.h"
 
 // ---------------------------------------------------------------------------------------------------------------------

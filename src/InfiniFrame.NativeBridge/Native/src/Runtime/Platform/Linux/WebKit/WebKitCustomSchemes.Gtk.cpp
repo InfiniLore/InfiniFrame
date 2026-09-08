@@ -8,7 +8,7 @@
 
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
 #include "Runtime/Platform/Linux/WebKit/WebKit.Gtk.Internal.h"
-#include "Runtime/Shared/WebView/CustomSchemeResponse.h"
+#include "Runtime/Internal/WebView/CustomSchemeResponse.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

@@ -4,8 +4,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #include <cstdint>
 
-#include "Basic.h"
-#include "Monitor.h"
+#include "Api/Abi/Basic.h"
+#include "Api/Abi/Monitor.h"
+#include "Api/Abi/CustomSchemeResponse.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -62,40 +63,6 @@ using DebugEventCallback = void (*)(
     int64_t timestampUnixMillisecondsUtc,
     const char* platformPayload
     );
-
-/** Version 1 custom-scheme response body kinds. Kind 2 is reserved for a future pull-based stream ABI. */
-enum class CustomSchemeBodyKind : uint32_t {
-    Buffered = 1,
-    Stream = 2
-};
-
-using ReleaseCustomSchemeResponseCallback = void (*)(void* ownerContext);
-
-/**
- * @brief Versioned custom-scheme response descriptor shared with .NET.
- *
- * The native caller owns this descriptor. The producer owns Body, ContentTypeUtf8, and OwnerContext until native calls
- * Release(OwnerContext) exactly once. Native must not free any field directly. ReservedRead/ReservedSeek are ABI space
- * for a future streaming body kind and must be null for buffered responses.
- */
-struct CustomSchemeResponse {
-    static constexpr uint32_t CurrentAbiVersion = 1;
-    static constexpr uint64_t MaxBufferedBodyBytes = 256ULL * 1024ULL * 1024ULL;
-
-    uint32_t StructSize;
-    uint32_t AbiVersion;
-    uint32_t StatusCode;
-    uint32_t BodyKind;
-    uint64_t ContentLength;
-    const uint8_t* Body;
-    const char* ContentTypeUtf8;
-    void* OwnerContext;
-    ReleaseCustomSchemeResponseCallback Release;
-    void* ReservedRead;
-    void* ReservedSeek;
-};
-
-static_assert(sizeof(uintptr_t) != 8 || sizeof(CustomSchemeResponse) == 72, "Unexpected 64-bit response ABI layout");
 
 /**
  * @brief Called when the WebView requests a custom-scheme resource.

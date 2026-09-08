@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <memory>
 
-#include "Runtime/Shared/Types/Callbacks.h"
+#include "Api/Abi/Callbacks.h"
 
 class InfiniFrameWindow;
 

@@ -3,9 +3,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Runtime/Platform/Windows/DarkMode.h"
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
-#include "Runtime/Shared/Application/InfiniFrameApplication.h"
-#include "Runtime/Shared/Operations/NativeOperation.h"
-#include "Runtime/Shared/Window/InfiniFrameWindow.h"
+#include "Runtime/Internal/Application/InfiniFrameApplication.h"
+#include "Runtime/Internal/Operations/NativeOperation.h"
+#include "Api/Abi/InfiniFrameWindow.h"
 #include <shellapi.h>
 
 // ---------------------------------------------------------------------------------------------------------------------

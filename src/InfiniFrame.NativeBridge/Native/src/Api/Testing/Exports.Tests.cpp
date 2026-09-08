@@ -1,10 +1,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#include "Runtime/Shared/Window/InfiniFrame.h"
-#include "Runtime/Shared/Application/InfiniFrameApplicationInitParams.h"
+#include "Api/Abi/InfiniFrame.h"
+#include "Api/Abi/InfiniFrameApplicationInitParams.h"
 #include "Api/Exports/Exports.h"
-#include "Runtime/Shared/WebView/CustomSchemeResponse.h"
+#include "Runtime/Internal/WebView/CustomSchemeResponse.h"
 #ifdef _WIN32
 #include "Runtime/Platform/Windows/DarkMode.h"
 #endif

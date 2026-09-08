@@ -41,11 +41,11 @@ infiniframe_setup_dependencies()
 set(COMMON_SOURCES
         src/Embedded/Embedded.cpp
         src/Api/Utilities/ExportErrorState.cpp
-        src/Runtime/Shared/Application/InfiniFrameApplication.cpp
-        src/Runtime/Shared/Window/WindowEvents.cpp
-        src/Runtime/Shared/Window/WindowState.cpp
-        src/Runtime/Shared/Operations/NativeOperation.cpp
-        src/Runtime/Shared/Operations/DialogOperation.cpp
+        src/Runtime/Internal/Application/InfiniFrameApplication.cpp
+        src/Runtime/Core/WindowEvents.cpp
+        src/Runtime/Core/WindowState.cpp
+        src/Runtime/Internal/Operations/NativeOperation.cpp
+        src/Runtime/Internal/Operations/DialogOperation.cpp
         src/Api/Exports/Exports.CustomSchemes.cpp
         src/Api/Exports/Exports.Dispatch.cpp
         src/Api/Exports/Exports.Dialog.cpp
@@ -65,8 +65,9 @@ set(COMMON_SOURCES
 )
 
 set(TEST_SOURCES
-        src/Api/Testing/Exports.Tests.cpp
-        src/Api/Testing/Exports.CustomSchemeResponseTests.cpp
+         src/Api/Testing/Exports.Tests.cpp
+         src/Api/Testing/Exports.CustomSchemeResponseTests.cpp
+         src/Api/Testing/PublicAbiCompileBoundary.cpp
 )
 
 set(WINDOWS_SOURCES
@@ -164,31 +165,33 @@ set(MAC_SOURCES
 
 set(HEADER_FILES
         src/Embedded/Embedded.h
-        src/Runtime/Shared/WebView/CustomSchemeResponse.h
-        src/Runtime/Shared/Operations/NativeOperation.h
-        src/Runtime/Shared/Operations/NavigationOperation.h
+        src/Runtime/Internal/WebView/CustomSchemeResponse.h
+        src/Runtime/Internal/Operations/NativeOperation.h
+        src/Runtime/Internal/Operations/NavigationOperation.h
         src/Api/Exports/Exports.h
         src/Api/Utilities/ExportErrorState.h
         src/Api/Utilities/ExportExecution.h
         src/Api/Utilities/ExportStringHelpers.h
         src/Api/Utilities/ExportValidation.h
         src/Api/Utilities/Utilities.h
-        src/Runtime/Shared/Window/InfiniFrame.h
-        src/Runtime/Shared/Window/InfiniFrameDialog.h
-        src/Runtime/Shared/Window/InfiniFrameWindowInitParams.h
-        src/Runtime/Shared/Window/InfiniFrameWindow.h
-        src/Runtime/Shared/Application/InfiniFrameApplication.h
-        src/Runtime/Shared/Types/Basic.h
-        src/Runtime/Shared/Types/Callbacks.h
-        src/Runtime/Shared/Types/DialogButtons.h
-        src/Runtime/Shared/Types/DialogIcon.h
-        src/Runtime/Shared/Types/DialogResult.h
-        src/Runtime/Shared/Types/Monitor.h
-        src/Runtime/Shared/Utilities/Dimensions.h
-        src/Runtime/Shared/Utilities/ErrorCode.h
-        src/Runtime/Shared/Utilities/InteropStatus.h
-        src/Runtime/Shared/Utilities/StringArrayCopy.h
-        src/Runtime/Shared/Utilities/StringCopy.h
+        src/Api/Abi/InfiniFrame.h
+        src/Api/Abi/InfiniFrameApplicationInitParams.h
+        src/Runtime/Internal/Window/InfiniFrameDialog.h
+        src/Api/Abi/InfiniFrameWindowInitParams.h
+        src/Api/Abi/InfiniFrameWindow.h
+        src/Runtime/Internal/Application/InfiniFrameApplication.h
+        src/Api/Abi/Basic.h
+        src/Api/Abi/Callbacks.h
+        src/Api/Abi/CustomSchemeResponse.h
+        src/Api/Abi/DialogButtons.h
+        src/Api/Abi/DialogIcon.h
+        src/Api/Abi/DialogResult.h
+        src/Api/Abi/Monitor.h
+        src/Api/Utilities/Dimensions.h
+        src/Api/Utilities/ErrorCode.h
+        src/Api/Utilities/InteropStatus.h
+        src/Api/Utilities/StringArrayCopy.h
+        src/Api/Utilities/StringCopy.h
 )
 
 if (WIN32)

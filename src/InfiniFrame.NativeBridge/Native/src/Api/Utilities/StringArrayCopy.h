@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "Runtime/Shared/Utilities/StringCopy.h"
+#include "Api/Utilities/StringCopy.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Owned string array allocation and free, consistent with StringCopy.h.
 //

@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "Runtime/Shared/Types/Callbacks.h"
+#include "Api/Abi/Callbacks.h"
 
 /// Represents an in-flight navigation operation (load URL or load string).
 struct NavigationOperation final {

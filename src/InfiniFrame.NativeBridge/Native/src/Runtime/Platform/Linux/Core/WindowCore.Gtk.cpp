@@ -6,7 +6,7 @@
 
 #include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
-#include "Runtime/Shared/Application/InfiniFrameApplication.h"
+#include "Runtime/Internal/Application/InfiniFrameApplication.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -40,11 +40,11 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) :
             if (initParams->Transparent)
                 SetTransparentEnabled(true);
 
-            if (m_impl->_backgroundColorR != 0 || m_impl->_backgroundColorG != 0 || m_impl->_backgroundColorB != 0 ||
-                m_impl->_backgroundColorA != 0)
+            if (m_impl->common._backgroundColorR != 0 || m_impl->common._backgroundColorG != 0 || m_impl->common._backgroundColorB != 0 ||
+                m_impl->common._backgroundColorA != 0)
                 SetBackgroundColor(
-                    m_impl->_backgroundColorR, m_impl->_backgroundColorG, m_impl->_backgroundColorB,
-                    m_impl->_backgroundColorA);
+                    m_impl->common._backgroundColorR, m_impl->common._backgroundColorG, m_impl->common._backgroundColorB,
+                    m_impl->common._backgroundColorA);
 
              if (m_impl->_zoom != 100.0)
                  SetZoom(m_impl->_zoom);

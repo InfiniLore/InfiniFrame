@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Api/Exports/Exports.h"
-#include "Runtime/Shared/Operations/NativeOperation.h"
+#include "Runtime/Internal/Operations/NativeOperation.h"
 #ifdef __linux__
 #include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
 #endif

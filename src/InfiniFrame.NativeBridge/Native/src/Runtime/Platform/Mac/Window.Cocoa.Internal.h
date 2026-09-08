@@ -13,7 +13,7 @@
 #include <WebKit/WKWebView.h>
 #include <WebKit/WKWebViewConfiguration.h>
 
-#include "Runtime/Shared/Window/InfiniFrameWindow.h"
+#include "Api/Abi/InfiniFrameWindow.h"
 #include "Runtime/Internal/Window/CommonWindowState.h"
 
 @
@@ -93,5 +93,3 @@ struct InfiniFrameWindow::Impl {
     bool LeasePooledMacHost(const std::string& compatibilityKey);
     void ReturnPooledMacHost();
 };
-
-#include "Runtime/Internal/Window/CommonWindowStateAccess.h"

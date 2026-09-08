@@ -1,9 +1,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#include "Runtime/Shared/Window/InfiniFrame.h"
-#include "Runtime/Shared/Operations/DialogOperation.h"
-#include "Runtime/Shared/Utilities/StringArrayCopy.h"
+#include "Api/Abi/InfiniFrame.h"
+#include "Runtime/Internal/Window/InfiniFrameDialog.h"
+#include "Runtime/Internal/Operations/DialogOperation.h"
+#include "Api/Utilities/StringArrayCopy.h"
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
 
 #include <iostream>

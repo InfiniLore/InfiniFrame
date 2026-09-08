@@ -215,7 +215,7 @@ void InfiniFrameWindow::SetMenuItemVisibleById(const char* menuItemId, const boo
 }
 
 void InfiniFrameWindow::ClickMenuItemById(const char* menuItemId) {
-    if (m_impl->_webMessageReceivedCallback == nullptr)
+    if (m_impl->common._webMessageReceivedCallback == nullptr)
         return;
 
     std::string message = std::string("menu:") + menuItemId;
@@ -229,7 +229,7 @@ void InfiniFrameWindow::HandleMenuCommand(const WPARAM wParam) {
     if (it == m_impl->_menuCommandIdToItemId.end())
         return;
 
-    if (m_impl->_webMessageReceivedCallback == nullptr)
+    if (m_impl->common._webMessageReceivedCallback == nullptr)
         return;
 
     std::string message = std::string("menu:") + it->second;

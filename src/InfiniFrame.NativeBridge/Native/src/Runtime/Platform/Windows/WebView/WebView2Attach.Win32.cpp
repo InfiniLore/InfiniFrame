@@ -31,7 +31,7 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
     UpdateWindow(m_impl->_hWnd);
 
     if (!m_impl->_webviewController) {
-        if (!m_impl->_webView2RuntimePath.empty() || EnsureWebViewIsInstalled())
+        if (!m_impl->common._webView2RuntimePath.empty() || EnsureWebViewIsInstalled())
             AttachWebView();
         else
             throw std::runtime_error("WebView2 Runtime is not installed and automatic installation failed.");
@@ -68,34 +68,34 @@ void InfiniFrameWindow::AttachWebView() {
     m_impl->_isWebView2Initializing = true;
 
     // Keep a local owned value alive until environment creation has consumed it.
-    const std::wstring configuredRuntimePath = m_impl->_webView2RuntimePath;
+    const std::wstring configuredRuntimePath = m_impl->common._webView2RuntimePath;
     PCWSTR runtimePath = configuredRuntimePath.empty() ? nullptr : configuredRuntimePath.c_str();
 
     // Compose WebView2 command-line switches from current window/browser options.
     // This string is passed to environment creation and controls browser process behavior.
     std::wstring startupString;
-    if (!m_impl->_userAgent.empty())
-        startupString += L"--user-agent=\"" + m_impl->_userAgent + L"\" ";
-    if (m_impl->_mediaAutoplayEnabled)
+    if (!m_impl->common._userAgent.empty())
+        startupString += L"--user-agent=\"" + m_impl->common._userAgent + L"\" ";
+    if (m_impl->common._mediaAutoplayEnabled)
         startupString += L"--autoplay-policy=no-user-gesture-required ";
-    if (m_impl->_fileSystemAccessEnabled)
+    if (m_impl->common._fileSystemAccessEnabled)
         startupString += L"--allow-file-access-from-files ";
-    if (!m_impl->_webSecurityEnabled)
+    if (!m_impl->common._webSecurityEnabled)
         startupString += L"--disable-web-security ";
-    if (m_impl->_javascriptClipboardAccessEnabled)
+    if (m_impl->common._javascriptClipboardAccessEnabled)
         startupString += L"--enable-javascript-clipboard-access ";
-    if (m_impl->_mediaStreamEnabled)
+    if (m_impl->common._mediaStreamEnabled)
         startupString += L"--enable-usermedia-screen-capturing ";
-    if (!m_impl->_smoothScrollingEnabled)
+    if (!m_impl->common._smoothScrollingEnabled)
         startupString += L"--disable-smooth-scrolling ";
-    if (m_impl->_ignoreCertificateErrorsEnabled)
+    if (m_impl->common._ignoreCertificateErrorsEnabled)
         startupString += L"--ignore-certificate-errors ";
-    if (!m_impl->_browserControlInitParameters.empty())
-        startupString += m_impl->_browserControlInitParameters; //e.g.--hide-scrollbars
-    if (m_impl->_remoteDebuggingPort > 0) {
+    if (!m_impl->common._browserControlInitParameters.empty())
+        startupString += m_impl->common._browserControlInitParameters; //e.g.--hide-scrollbars
+    if (m_impl->common._remoteDebuggingPort > 0) {
         startupString += std::format(
             L" --remote-debugging-address=127.0.0.1 --remote-debugging-port={}",
-            m_impl->_remoteDebuggingPort);
+            m_impl->common._remoteDebuggingPort);
     }
 
     auto options = Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>();
@@ -200,11 +200,11 @@ void InfiniFrameWindow::AttachWebView() {
                                     if (fired)
                                         return;
                                     fired = true;
-                                    if (!self->m_impl->_startUrl.empty())
-                                        self->m_impl->_webviewWindow->Navigate(self->m_impl->_startUrl.c_str());
-                                    else if (!self->m_impl->_startString.empty())
+                                    if (!self->m_impl->common._startUrl.empty())
+                                        self->m_impl->_webviewWindow->Navigate(self->m_impl->common._startUrl.c_str());
+                                    else if (!self->m_impl->common._startString.empty())
                                         self->m_impl->_webviewWindow->NavigateToString(
-                                            self->m_impl->_startString.c_str()
+                                            self->m_impl->common._startString.c_str()
                                             );
                                     else {
                                         OutputDebugStringW(
@@ -240,7 +240,7 @@ void InfiniFrameWindow::AttachWebView() {
                                         if (message.get() != nullptr && message.get()[0] != L'\0') {
                                             auto msgUtf8 = WideToUtf8(message.get());
                                             auto srcUtf8 = WideToUtf8(source.get());
-                                            m_impl->_webMessageReceivedCallback(msgUtf8.c_str(), srcUtf8.c_str());
+                                            m_impl->common._webMessageReceivedCallback(msgUtf8.c_str(), srcUtf8.c_str());
                                         }
                                         return S_OK;
                                     }
@@ -266,7 +266,7 @@ void InfiniFrameWindow::AttachWebView() {
                                             args->get_PermissionKind(&permissionKind);
                                         if (permissionKind == COREWEBVIEW2_PERMISSION_KIND_AUTOPLAY) {
                                             args->put_State(
-                                                m_impl->_mediaAutoplayEnabled
+                                                m_impl->common._mediaAutoplayEnabled
                                                 ? COREWEBVIEW2_PERMISSION_STATE_ALLOW
                                                 : COREWEBVIEW2_PERMISSION_STATE_DENY
                                                 );
@@ -274,7 +274,7 @@ void InfiniFrameWindow::AttachWebView() {
                                         }
 #endif
 
-                                        if (m_impl->_grantBrowserPermissions)
+                                        if (m_impl->common._grantBrowserPermissions)
                                             args->put_State(COREWEBVIEW2_PERMISSION_STATE_ALLOW);
                                         return S_OK;
                                     }
@@ -296,7 +296,7 @@ void InfiniFrameWindow::AttachWebView() {
                                         args->get_NavigationId(&navigationId);
                                         BindNavigationBackendId(navigationId);
 
-                                        if (m_impl->_navigationStartingCallback == nullptr)
+                                        if (m_impl->common._navigationStartingCallback == nullptr)
                                             return S_OK;
 
                                         wil::unique_cotaskmem_string uri;
@@ -311,7 +311,7 @@ void InfiniFrameWindow::AttachWebView() {
                                         int isMainFrame = 1;
 
                                         auto uriUtf8 = WideToUtf8(uri.get());
-                                        int cancel = m_impl->_navigationStartingCallback(
+                                        int cancel = m_impl->common._navigationStartingCallback(
                                             uriUtf8.c_str(), isUserInitiated ? 1 : 0, isRedirected ? 1 : 0, isMainFrame
                                             );
                                         if (cancel) {

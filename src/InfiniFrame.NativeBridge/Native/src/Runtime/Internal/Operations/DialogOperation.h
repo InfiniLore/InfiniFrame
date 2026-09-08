@@ -7,9 +7,9 @@
 #include <mutex>
 #include <string>
 
-#include "Runtime/Shared/Operations/NativeOperation.h"
-#include "Runtime/Shared/Types/Callbacks.h"
-#include "Runtime/Shared/Types/DialogResult.h"
+#include "Runtime/Internal/Operations/NativeOperation.h"
+#include "Api/Abi/Callbacks.h"
+#include "Api/Abi/DialogResult.h"
 
 /** Window-owned state shared with an asynchronous native dialog callback. */
 struct DialogOperation final {

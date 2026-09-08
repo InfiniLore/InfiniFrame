@@ -21,9 +21,9 @@
 #include "../Delegates/NavigationDelegate.h"
 #include "../Delegates/UiDelegate.h"
 #include "../Delegates/UrlSchemeHandler.h"
-#include "Runtime/Shared/Window/InfiniFrameDialog.h"
-#include "Runtime/Shared/Window/InfiniFrameWindow.h"
-#include "Runtime/Shared/Application/InfiniFrameApplication.h"
+#include "Runtime/Internal/Window/InfiniFrameDialog.h"
+#include "Api/Abi/InfiniFrameWindow.h"
+#include "Runtime/Internal/Application/InfiniFrameApplication.h"
 #include "../NSWindowBorderless.h"
 #include "../MacDiagnostics.h"
 #include "../Window.Cocoa.Internal.h"
@@ -225,57 +225,57 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) : 
     try {
     DispatchToMainSync(^{
       @autoreleasepool {
-        this->m_impl->_windowTitle = params->Title ? params->Title : "";
+        this->m_impl->common._windowTitle = params->Title ? params->Title : "";
 
         if (params->StartUrl != nullptr)
-            this->m_impl->_startUrl = params->StartUrl;
+            this->m_impl->common._startUrl = params->StartUrl;
 
         if (params->StartString != nullptr)
-            this->m_impl->_startString = params->StartString;
+            this->m_impl->common._startString = params->StartString;
 
         if (params->TemporaryFilesPath != nullptr)
             this->m_impl->_temporaryFilesPath = params->TemporaryFilesPath;
 
-        this->m_impl->_ignoreCertificateErrorsEnabled = params->IgnoreCertificateErrorsEnabled;
-        this->m_impl->_contextMenuEnabled = params->ContextMenuEnabled;
-        this->m_impl->_zoomEnabled = params->ZoomEnabled;
+        this->m_impl->common._ignoreCertificateErrorsEnabled = params->IgnoreCertificateErrorsEnabled;
+        this->m_impl->common._contextMenuEnabled = params->ContextMenuEnabled;
+        this->m_impl->common._zoomEnabled = params->ZoomEnabled;
         this->m_impl->_zoom = params->Zoom;
-        this->m_impl->_devToolsEnabled = params->DevToolsEnabled;
-        this->m_impl->_webInspectorEnabled = params->WebInspectorEnabled;
-        this->m_impl->_grantBrowserPermissions = params->GrantBrowserPermissions;
-        this->m_impl->_mediaAutoplayEnabled = params->MediaAutoplayEnabled;
-        this->m_impl->_fileSystemAccessEnabled = params->FileSystemAccessEnabled;
-        this->m_impl->_webSecurityEnabled = params->WebSecurityEnabled;
-        this->m_impl->_javascriptClipboardAccessEnabled = params->JavascriptClipboardAccessEnabled;
-        this->m_impl->_mediaStreamEnabled = params->MediaStreamEnabled;
-        this->m_impl->_smoothScrollingEnabled = params->SmoothScrollingEnabled;
-        this->m_impl->_statusBarEnabled = params->StatusBarEnabled;
-        this->m_impl->_browserShortcutsEnabled = params->BrowserShortcutsEnabled;
-        this->m_impl->_remoteDebuggingPort = params->RemoteDebuggingPort;
+        this->m_impl->common._devToolsEnabled = params->DevToolsEnabled;
+        this->m_impl->common._webInspectorEnabled = params->WebInspectorEnabled;
+        this->m_impl->common._grantBrowserPermissions = params->GrantBrowserPermissions;
+        this->m_impl->common._mediaAutoplayEnabled = params->MediaAutoplayEnabled;
+        this->m_impl->common._fileSystemAccessEnabled = params->FileSystemAccessEnabled;
+        this->m_impl->common._webSecurityEnabled = params->WebSecurityEnabled;
+        this->m_impl->common._javascriptClipboardAccessEnabled = params->JavascriptClipboardAccessEnabled;
+        this->m_impl->common._mediaStreamEnabled = params->MediaStreamEnabled;
+        this->m_impl->common._smoothScrollingEnabled = params->SmoothScrollingEnabled;
+        this->m_impl->common._statusBarEnabled = params->StatusBarEnabled;
+        this->m_impl->common._browserShortcutsEnabled = params->BrowserShortcutsEnabled;
+        this->m_impl->common._remoteDebuggingPort = params->RemoteDebuggingPort;
         if (params->DefaultNotificationIcon != nullptr)
-            this->m_impl->_defaultNotificationIcon = params->DefaultNotificationIcon;
+            this->m_impl->common._defaultNotificationIcon = params->DefaultNotificationIcon;
 
-        this->m_impl->_webMessageReceivedCallback = params->WebMessageReceivedHandler;
-        this->m_impl->_resizedCallback = params->ResizedHandler;
-        this->m_impl->_movedCallback = params->MovedHandler;
-        this->m_impl->_closingCallback = params->ClosingHandler;
-        this->m_impl->_closedCallback  = params->ClosedHandler;
-        this->m_impl->_focusInCallback = params->FocusInHandler;
-        this->m_impl->_focusOutCallback = params->FocusOutHandler;
-        this->m_impl->_maximizedCallback = params->MaximizedHandler;
-        this->m_impl->_minimizedCallback = params->MinimizedHandler;
-        this->m_impl->_restoredCallback = params->RestoredHandler;
-        this->m_impl->_debugEventCallback = params->DebugEventHandler;
-        this->m_impl->_customSchemeCallback = params->CustomSchemeHandler;
-        this->m_impl->_navigationStartingCallback = params->NavigationStartingHandler;
+        this->m_impl->common._webMessageReceivedCallback = params->WebMessageReceivedHandler;
+        this->m_impl->common._resizedCallback = params->ResizedHandler;
+        this->m_impl->common._movedCallback = params->MovedHandler;
+        this->m_impl->common._closingCallback = params->ClosingHandler;
+        this->m_impl->common._closedCallback  = params->ClosedHandler;
+        this->m_impl->common._focusInCallback = params->FocusInHandler;
+        this->m_impl->common._focusOutCallback = params->FocusOutHandler;
+        this->m_impl->common._maximizedCallback = params->MaximizedHandler;
+        this->m_impl->common._minimizedCallback = params->MinimizedHandler;
+        this->m_impl->common._restoredCallback = params->RestoredHandler;
+        this->m_impl->common._debugEventCallback = params->DebugEventHandler;
+        this->m_impl->common._customSchemeCallback = params->CustomSchemeHandler;
+        this->m_impl->common._navigationStartingCallback = params->NavigationStartingHandler;
 
         for (int i = 0; i < 16; ++i)
         {
             if (params->CustomSchemeNames[i] != nullptr)
-                this->m_impl->_customSchemeNames.emplace_back(params->CustomSchemeNames[i]);
+                this->m_impl->common._customSchemeNames.emplace_back(params->CustomSchemeNames[i]);
         }
 
-        this->m_impl->_parent = params->ParentInstance;
+        this->m_impl->common._parent = params->ParentInstance;
 
         if (params->UseOsDefaultSize)
         {
@@ -330,15 +330,15 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) : 
         // teardown and causes a second release at the next autorelease-pool drain.
         [this->m_impl->_window setReleasedWhenClosed:NO];
 
-        this->m_impl->_transparentEnabled = params->Transparent;
-        this->m_impl->_backgroundColorR = params->BackgroundColorR;
-        this->m_impl->_backgroundColorG = params->BackgroundColorG;
-        this->m_impl->_backgroundColorB = params->BackgroundColorB;
-        this->m_impl->_backgroundColorA = params->BackgroundColorA;
+        this->m_impl->common._transparentEnabled = params->Transparent;
+        this->m_impl->common._backgroundColorR = params->BackgroundColorR;
+        this->m_impl->common._backgroundColorG = params->BackgroundColorG;
+        this->m_impl->common._backgroundColorB = params->BackgroundColorB;
+        this->m_impl->common._backgroundColorA = params->BackgroundColorA;
 
-        if (this->m_impl->_parent != nullptr && this->m_impl->_parent->m_impl != nullptr)
+        if (this->m_impl->common._parent != nullptr && this->m_impl->common._parent->m_impl != nullptr)
         {
-            auto* parentImpl = static_cast<InfiniFrameWindow::Impl*>(this->m_impl->_parent->m_impl.get());
+            auto* parentImpl = static_cast<InfiniFrameWindow::Impl*>(this->m_impl->common._parent->m_impl.get());
             this->m_impl->_nativeParentWindow = parentImpl->_window;
             if (this->m_impl->_nativeParentWindow != nil && this->m_impl->_nativeParentWindow != this->m_impl->_window)
             {
@@ -366,7 +366,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) : 
         this->m_impl->_windowDelegate->infiniFrame = this;
         this->m_impl->_window.delegate = this->m_impl->_windowDelegate;
 
-        this->SetTitle(const_cast<const char*>(this->m_impl->_windowTitle.c_str()));
+        this->SetTitle(const_cast<const char*>(this->m_impl->common._windowTitle.c_str()));
 
         if (params->WindowIconFile != nullptr && params->WindowIconFile[0] != '\0')
             this->SetIconFile(params->WindowIconFile);
@@ -389,11 +389,11 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) : 
         // A pooled host must never carry persistent browser data into a later logical session.
         // The store is also cleared before the host is leased again (see CloseWebView).
         this->m_impl->_webviewConfiguration.websiteDataStore = [WKWebsiteDataStore nonPersistentDataStore];
-        this->SetMediaAutoplayEnabled(this->m_impl->_mediaAutoplayEnabled);
+        this->SetMediaAutoplayEnabled(this->m_impl->common._mediaAutoplayEnabled);
 
-        for (const auto & scheme : this->m_impl->_customSchemeNames)
+        for (const auto & scheme : this->m_impl->common._customSchemeNames)
         {
-            this->m_impl->AddCustomScheme(scheme.c_str(), this->m_impl->_customSchemeCallback);
+            this->m_impl->AddCustomScheme(scheme.c_str(), this->m_impl->common._customSchemeCallback);
         }
 
         webViewStartedAt = std::chrono::steady_clock::now();
@@ -481,11 +481,11 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) : 
             // session-specific state; AttachWebView reinstalls the interop handler and starts
             // the new document.
             this->m_impl->_chromeless = params->Chromeless;
-            this->m_impl->_transparentEnabled = params->Transparent;
+            this->m_impl->common._transparentEnabled = params->Transparent;
             this->m_impl->_windowDelegate->infiniFrame = this;
             this->m_impl->_window.delegate = this->m_impl->_windowDelegate;
-            if (this->m_impl->_parent != nullptr && this->m_impl->_parent->m_impl != nullptr) {
-                auto* parentImpl = static_cast<InfiniFrameWindow::Impl*>(this->m_impl->_parent->m_impl.get());
+            if (this->m_impl->common._parent != nullptr && this->m_impl->common._parent->m_impl != nullptr) {
+                auto* parentImpl = static_cast<InfiniFrameWindow::Impl*>(this->m_impl->common._parent->m_impl.get());
                 this->m_impl->_nativeParentWindow = parentImpl->_window;
                 if (this->m_impl->_nativeParentWindow != nil) {
                     [this->m_impl->_nativeParentWindow addChildWindow:this->m_impl->_window ordered:NSWindowAbove];
@@ -495,7 +495,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) : 
                         usingBlock:^(NSNotification*) { [childWindow orderOut:nil]; }];
                 }
             }
-            this->SetTitle(const_cast<const char*>(this->m_impl->_windowTitle.c_str()));
+            this->SetTitle(const_cast<const char*>(this->m_impl->common._windowTitle.c_str()));
             this->SetTopmost(params->Topmost);
             this->SetPosition(params->Left, params->Top);
             this->SetMinSize(params->MinWidth, params->MinHeight);
@@ -503,7 +503,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) : 
             this->SetSize(params->Width, params->Height);
             this->SetResizable(params->Resizable);
             for (UrlSchemeHandler* handler : this->m_impl->_urlSchemeHandlers)
-                handler->requestHandler = this->m_impl->_customSchemeCallback;
+                handler->requestHandler = this->m_impl->common._customSchemeCallback;
             this->AttachWebView();
             if (params->CenterOnInitialize) this->Center();
             this->SetMinimized(params->Minimized);
@@ -511,7 +511,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) : 
             this->SetFullScreen(params->FullScreen);
         }
 
-        this->m_impl->_dialog = std::make_unique<InfiniFrameDialog>();
+        this->m_impl->common._dialog = std::make_unique<InfiniFrameDialog>();
 
         if (params->MenuBarJson != nullptr && params->MenuBarJson[0] != '\0')
             this->ApplyInitMenuBar(params->MenuBarJson);
@@ -566,7 +566,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) : 
             }
             [m_impl->_windowDelegate release];
             m_impl->_windowDelegate = nil;
-            m_impl->_dialog.reset();
+            m_impl->common._dialog.reset();
         });
         throw;
     }
@@ -609,7 +609,7 @@ InfiniFrameWindow::~InfiniFrameWindow()
                 CloseWebView();
             if (m_impl->_window != nil)
                 m_impl->ReturnPooledMacHost();
-            m_impl->_dialog.reset();
+            m_impl->common._dialog.reset();
             m_impl->_windowClosed.store(true, std::memory_order_release);
             m_impl->_windowClosedCondition.notify_all();
             return;
@@ -677,7 +677,7 @@ InfiniFrameWindow::~InfiniFrameWindow()
 
         // InfiniFrameDialog owns NSImage instances and must be destroyed on AppKit's thread.
         infiniframe::macos::LogLifecycle("window-destruct-dialog", this);
-        m_impl->_dialog.reset();
+        m_impl->common._dialog.reset();
 
         m_impl->_windowClosed.store(true, std::memory_order_release);
         m_impl->_windowClosedCondition.notify_all();

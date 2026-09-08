@@ -7,7 +7,7 @@
 #include <cstddef>
 #include <cstring>
 
-#include "Runtime/Shared/Types/Callbacks.h"
+#include "Api/Abi/CustomSchemeResponse.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Cross-platform CORS/header helper for custom-scheme responses.
 //

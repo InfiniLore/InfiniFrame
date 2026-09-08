@@ -8,12 +8,12 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Runtime/Shared/Types/Basic.h"
-#include "Runtime/Shared/Types/Callbacks.h"
-#include "Runtime/Shared/Window/InfiniFrameDialog.h"
-#include "Runtime/Shared/Operations/NativeOperation.h"
-#include "Runtime/Shared/Operations/NavigationOperation.h"
-#include "Runtime/Shared/Operations/DialogOperation.h"
+#include "Api/Abi/Basic.h"
+#include "Api/Abi/Callbacks.h"
+#include "Runtime/Internal/Window/InfiniFrameDialog.h"
+#include "Runtime/Internal/Operations/NativeOperation.h"
+#include "Runtime/Internal/Operations/NavigationOperation.h"
+#include "Runtime/Internal/Operations/DialogOperation.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

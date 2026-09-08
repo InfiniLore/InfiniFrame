@@ -16,8 +16,8 @@
 #include <string>
 #include <utility>
 
-#include "Runtime/Shared/Window/InfiniFrame.h"
-#include "Runtime/Shared/Utilities/InteropStatus.h"
+#include "Api/Abi/InfiniFrame.h"
+#include "Api/Utilities/InteropStatus.h"
 #include "Api/Utilities/ExportStringHelpers.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

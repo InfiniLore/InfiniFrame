@@ -1,6 +1,6 @@
-#include "Runtime/Shared/Operations/DialogOperation.h"
+#include "Runtime/Internal/Operations/DialogOperation.h"
 
-#include "Runtime/Shared/Window/InfiniFrameWindow.h"
+#include "Api/Abi/InfiniFrameWindow.h"
 #include "Runtime/Internal/Window/CommonWindowState.h"
 
 #include <vector>

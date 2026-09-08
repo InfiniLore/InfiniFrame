@@ -8,7 +8,7 @@
 
 #include "Runtime/Platform/Windows/DarkMode.h"
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
-#include "Runtime/Shared/Application/InfiniFrameApplication.h"
+#include "Runtime/Internal/Application/InfiniFrameApplication.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -150,56 +150,56 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) {
 
     // Initialize window title and optional toast notification identity.
     if (initParams->Title != nullptr) {
-        m_impl->_windowTitle = ToUTF16String(initParams->Title);
+        m_impl->common._windowTitle = ToUTF16String(initParams->Title);
         if (initParams->NotificationsEnabled) {
-            WinToast::instance()->setAppName(m_impl->_windowTitle.c_str());
+            WinToast::instance()->setAppName(m_impl->common._windowTitle.c_str());
         }
     }
 
     // Capture startup URL (if provided) for initial navigation/bootstrap.
     if (initParams->StartUrl != nullptr)
-        m_impl->_startUrl = ToUTF16String(initParams->StartUrl);
+        m_impl->common._startUrl = ToUTF16String(initParams->StartUrl);
 
     // Capture startup string payload (if provided) for host-defined boot data.
     if (initParams->StartString != nullptr)
-        m_impl->_startString = ToUTF16String(initParams->StartString);
+        m_impl->common._startString = ToUTF16String(initParams->StartString);
 
     if (initParams->TemporaryFilesPath != nullptr)
         m_impl->_temporaryFilesPath = ToUTF16String(initParams->TemporaryFilesPath);
 
     if (initParams->UserAgent != nullptr)
-        m_impl->_userAgent = ToUTF16String(initParams->UserAgent);
+        m_impl->common._userAgent = ToUTF16String(initParams->UserAgent);
 
     if (initParams->BrowserControlInitParameters != nullptr)
-        m_impl->_browserControlInitParameters = ToUTF16String(initParams->BrowserControlInitParameters);
+        m_impl->common._browserControlInitParameters = ToUTF16String(initParams->BrowserControlInitParameters);
 
     const char* webView2RuntimePath = application == nullptr ? nullptr : application->GetWebView2RuntimePath();
     if (webView2RuntimePath != nullptr && webView2RuntimePath[0] != '\0')
-        m_impl->_webView2RuntimePath = ToUTF16String(webView2RuntimePath);
+        m_impl->common._webView2RuntimePath = ToUTF16String(webView2RuntimePath);
 
     const char* notificationRegistrationId = application == nullptr ? nullptr : application->GetNotificationRegistrationId();
     if (notificationRegistrationId != nullptr && notificationRegistrationId[0] != '\0')
         m_impl->_notificationRegistrationId = ToUTF16String(notificationRegistrationId);
-    m_impl->_remoteDebuggingPort = initParams->RemoteDebuggingPort;
+    m_impl->common._remoteDebuggingPort = initParams->RemoteDebuggingPort;
 
-    m_impl->_transparentEnabled = initParams->Transparent;
-    m_impl->_backgroundColorR = initParams->BackgroundColorR;
-    m_impl->_backgroundColorG = initParams->BackgroundColorG;
-    m_impl->_backgroundColorB = initParams->BackgroundColorB;
-    m_impl->_backgroundColorA = initParams->BackgroundColorA;
-    m_impl->_contextMenuEnabled = initParams->ContextMenuEnabled;
-    m_impl->_zoomEnabled = initParams->ZoomEnabled;
-    m_impl->_devToolsEnabled = initParams->DevToolsEnabled;
-    m_impl->_grantBrowserPermissions = initParams->GrantBrowserPermissions;
-    m_impl->_mediaAutoplayEnabled = initParams->MediaAutoplayEnabled;
-    m_impl->_fileSystemAccessEnabled = initParams->FileSystemAccessEnabled;
-    m_impl->_webSecurityEnabled = initParams->WebSecurityEnabled;
-    m_impl->_javascriptClipboardAccessEnabled = initParams->JavascriptClipboardAccessEnabled;
-    m_impl->_mediaStreamEnabled = initParams->MediaStreamEnabled;
-    m_impl->_smoothScrollingEnabled = initParams->SmoothScrollingEnabled;
-    m_impl->_ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
-    m_impl->_statusBarEnabled = initParams->StatusBarEnabled;
-    m_impl->_browserShortcutsEnabled = initParams->BrowserShortcutsEnabled;
+    m_impl->common._transparentEnabled = initParams->Transparent;
+    m_impl->common._backgroundColorR = initParams->BackgroundColorR;
+    m_impl->common._backgroundColorG = initParams->BackgroundColorG;
+    m_impl->common._backgroundColorB = initParams->BackgroundColorB;
+    m_impl->common._backgroundColorA = initParams->BackgroundColorA;
+    m_impl->common._contextMenuEnabled = initParams->ContextMenuEnabled;
+    m_impl->common._zoomEnabled = initParams->ZoomEnabled;
+    m_impl->common._devToolsEnabled = initParams->DevToolsEnabled;
+    m_impl->common._grantBrowserPermissions = initParams->GrantBrowserPermissions;
+    m_impl->common._mediaAutoplayEnabled = initParams->MediaAutoplayEnabled;
+    m_impl->common._fileSystemAccessEnabled = initParams->FileSystemAccessEnabled;
+    m_impl->common._webSecurityEnabled = initParams->WebSecurityEnabled;
+    m_impl->common._javascriptClipboardAccessEnabled = initParams->JavascriptClipboardAccessEnabled;
+    m_impl->common._mediaStreamEnabled = initParams->MediaStreamEnabled;
+    m_impl->common._smoothScrollingEnabled = initParams->SmoothScrollingEnabled;
+    m_impl->common._ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
+    m_impl->common._statusBarEnabled = initParams->StatusBarEnabled;
+    m_impl->common._browserShortcutsEnabled = initParams->BrowserShortcutsEnabled;
     m_impl->_notificationsEnabled = initParams->NotificationsEnabled;
     const char* defaultNotificationIcon = application == nullptr
         ? initParams->DefaultNotificationIcon
@@ -212,28 +212,28 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) {
     m_impl->_maxWidth = initParams->MaxWidth;
     m_impl->_maxHeight = initParams->MaxHeight;
 
-    m_impl->_webMessageReceivedCallback = initParams->WebMessageReceivedHandler;
-    m_impl->_resizedCallback = initParams->ResizedHandler;
-    m_impl->_maximizedCallback = initParams->MaximizedHandler;
-    m_impl->_restoredCallback = initParams->RestoredHandler;
-    m_impl->_minimizedCallback = initParams->MinimizedHandler;
-    m_impl->_movedCallback = initParams->MovedHandler;
-    m_impl->_closingCallback = initParams->ClosingHandler;
-    m_impl->_closedCallback = initParams->ClosedHandler;
-    m_impl->_focusInCallback = initParams->FocusInHandler;
-    m_impl->_focusOutCallback = initParams->FocusOutHandler;
-    m_impl->_debugEventCallback = initParams->DebugEventHandler;
-    m_impl->_customSchemeCallback = initParams->CustomSchemeHandler;
-    m_impl->_navigationStartingCallback = initParams->NavigationStartingHandler;
-    m_impl->_fileDroppedCallback = initParams->DragDropHandler;
-    m_impl->_dragDropEnabled = initParams->DragDropEnabled;
+    m_impl->common._webMessageReceivedCallback = initParams->WebMessageReceivedHandler;
+    m_impl->common._resizedCallback = initParams->ResizedHandler;
+    m_impl->common._maximizedCallback = initParams->MaximizedHandler;
+    m_impl->common._restoredCallback = initParams->RestoredHandler;
+    m_impl->common._minimizedCallback = initParams->MinimizedHandler;
+    m_impl->common._movedCallback = initParams->MovedHandler;
+    m_impl->common._closingCallback = initParams->ClosingHandler;
+    m_impl->common._closedCallback = initParams->ClosedHandler;
+    m_impl->common._focusInCallback = initParams->FocusInHandler;
+    m_impl->common._focusOutCallback = initParams->FocusOutHandler;
+    m_impl->common._debugEventCallback = initParams->DebugEventHandler;
+    m_impl->common._customSchemeCallback = initParams->CustomSchemeHandler;
+    m_impl->common._navigationStartingCallback = initParams->NavigationStartingHandler;
+    m_impl->common._fileDroppedCallback = initParams->DragDropHandler;
+    m_impl->common._dragDropEnabled = initParams->DragDropEnabled;
 
     for (std::size_t i = 0; i < InfiniFrameWindowInitParams::MaxCustomSchemeNames; ++i) {
         if (initParams->CustomSchemeNames[i] != nullptr)
-            m_impl->_customSchemeNames.emplace_back(ToUTF16String(initParams->CustomSchemeNames[i]));
+            m_impl->common._customSchemeNames.emplace_back(ToUTF16String(initParams->CustomSchemeNames[i]));
     }
 
-    m_impl->_parent = initParams->ParentInstance;
+    m_impl->common._parent = initParams->ParentInstance;
 
     int normalizedWidth = initParams->Width;
     int normalizedHeight = initParams->Height;
@@ -285,19 +285,19 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) {
     if (normalizedWidth < initParams->MinWidth && initParams->MinWidth > 0)
         normalizedWidth = initParams->MinWidth;
 
-    const HWND parentWindowHandle = ResolveParentWindowHandle(m_impl->_parent);
+    const HWND parentWindowHandle = ResolveParentWindowHandle(m_impl->common._parent);
     m_impl->_pendingOwnerHwnd = parentWindowHandle;
 
     const HINSTANCE windowInstance = GetWindowModuleInstance();
     m_impl->_hWnd = CreateWindowEx(
-        initParams->Transparent ? WS_EX_LAYERED : 0, GetWindowClassName(), m_impl->_windowTitle.c_str(),
+        initParams->Transparent ? WS_EX_LAYERED : 0, GetWindowClassName(), m_impl->common._windowTitle.c_str(),
         initParams->Chromeless || initParams->FullScreen ? WS_POPUP : WS_OVERLAPPEDWINDOW, normalizedLeft,
         normalizedTop, normalizedWidth, normalizedHeight, nullptr, nullptr, windowInstance, this
         );
     if (m_impl->_hWnd == nullptr) {
         throw std::runtime_error("CreateWindowEx failed to create the native window.");
     }
-    SetWindowTextW(m_impl->_hWnd, m_impl->_windowTitle.c_str());
+    SetWindowTextW(m_impl->_hWnd, m_impl->common._windowTitle.c_str());
 
     ApplyPendingOwnerWindow(m_impl.get(), L"ctor");
 
@@ -327,7 +327,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) {
             application->EnsureNotificationsInitialized(initParams->Title);
     }
 
-    m_impl->_dialog = std::make_unique<InfiniFrameDialog>(this);
+    m_impl->common._dialog = std::make_unique<InfiniFrameDialog>(this);
 
     if (initParams->DragDropEnabled) {
         DragAcceptFiles(m_impl->_hWnd, TRUE);

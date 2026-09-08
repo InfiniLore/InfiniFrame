@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Api/Exports/Exports.h"
-#include "Runtime/Shared/Application/InfiniFrameApplication.h"
+#include "Runtime/Internal/Application/InfiniFrameApplication.h"
 #ifdef __linux__
 #include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
 #endif

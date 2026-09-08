@@ -11,10 +11,10 @@
 #include <wil/com.h>
 #include <WebView2.h>
 
-#include "Runtime/Shared/Window/InfiniFrameWindow.h"
+#include "Api/Abi/InfiniFrameWindow.h"
 #include "Runtime/Internal/Window/CommonWindowState.h"
 #include "Runtime/Platform/Windows/ToastHandler.h"
-#include "Runtime/Shared/Utilities/Dimensions.h"
+#include "Api/Utilities/Dimensions.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -88,7 +88,6 @@ struct InfiniFrameWindow::Impl {
     UINT _nextMenuCommandId = 1;
 };
 
-#include "Runtime/Internal/Window/CommonWindowStateAccess.h"
 struct InfiniFrameWindowAccess {
     static InfiniFrameWindow::Impl* Get(InfiniFrameWindow& window) noexcept {
         return window.m_impl.get();

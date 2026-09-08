@@ -4,7 +4,7 @@
 #include <WebView2EnvironmentOptions.h>
 
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
-#include "Runtime/Shared/WebView/CustomSchemeResponse.h"
+#include "Runtime/Internal/WebView/CustomSchemeResponse.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -12,7 +12,7 @@ using namespace Microsoft::WRL;
 
 bool InfiniFrameWindow::RegisterCustomSchemesOnOptions(ICoreWebView2EnvironmentOptions* options) {
     bool requiresAppSchemeRegistration = std::any_of(
-        m_impl->_customSchemeNames.begin(), m_impl->_customSchemeNames.end(),
+        m_impl->common._customSchemeNames.begin(), m_impl->common._customSchemeNames.end(),
         [](const std::wstring& schemeName) {
             return _wcsicmp(schemeName.c_str(), L"app") == 0;
         }
@@ -20,14 +20,14 @@ bool InfiniFrameWindow::RegisterCustomSchemesOnOptions(ICoreWebView2EnvironmentO
     bool appSchemeRegistrationSupported = false;
 
     // Register custom schemes with WebView2 so top-level navigations like app://... are allowed.
-    if (!m_impl->_customSchemeNames.empty()) {
+    if (!m_impl->common._customSchemeNames.empty()) {
         wil::com_ptr<ICoreWebView2EnvironmentOptions4> options4;
         if (SUCCEEDED(options->QueryInterface(IID_PPV_ARGS(&options4))) && options4) {
             appSchemeRegistrationSupported = true;
             std::vector<wil::com_ptr<ICoreWebView2CustomSchemeRegistration>> registrations;
-            registrations.reserve(m_impl->_customSchemeNames.size());
+            registrations.reserve(m_impl->common._customSchemeNames.size());
 
-            for (const auto& schemeName : m_impl->_customSchemeNames) {
+            for (const auto& schemeName : m_impl->common._customSchemeNames) {
                 auto registration = Microsoft::WRL::Make<CoreWebView2CustomSchemeRegistration>(schemeName.c_str());
                 if (!registration)
                     continue;
@@ -141,15 +141,15 @@ void InfiniFrameWindow::AttachCustomSchemeHandler() {
                 if (colonPos > 0) {
                     std::wstring scheme = uriString.substr(0, colonPos);
                     auto it = std::find(
-                        m_impl->_customSchemeNames.begin(), m_impl->_customSchemeNames.end(),
+                        m_impl->common._customSchemeNames.begin(), m_impl->common._customSchemeNames.end(),
                         scheme
                         );
 
-                    if (it != m_impl->_customSchemeNames.end() &&
-                        m_impl->_customSchemeCallback != nullptr) {
+                    if (it != m_impl->common._customSchemeNames.end() &&
+                        m_impl->common._customSchemeCallback != nullptr) {
                         CustomSchemeResponse managedResponse{};
                         auto uriUtf8 = WideToUtf8(uriString.c_str());
-                        const int handled = m_impl->_customSchemeCallback(
+                        const int handled = m_impl->common._customSchemeCallback(
                             uriUtf8.c_str(), &managedResponse
                             );
                         infiniframe::CustomSchemeResponseLease responseLease(managedResponse);
@@ -197,12 +197,12 @@ void InfiniFrameWindow::AttachCustomSchemeHandler() {
 void InfiniFrameWindow::AddCustomSchemeName(const char* scheme) {
     if (scheme == nullptr)
         return;
-    if (m_impl->_customSchemeNames.size() >= InfiniFrameWindowInitParams::MaxCustomSchemeNames)
+    if (m_impl->common._customSchemeNames.size() >= InfiniFrameWindowInitParams::MaxCustomSchemeNames)
         return;
     std::wstring wide = ToUTF16String(scheme);
-    for (const auto& existing : m_impl->_customSchemeNames) {
+    for (const auto& existing : m_impl->common._customSchemeNames) {
         if (_wcsicmp(existing.c_str(), wide.c_str()) == 0)
             return;
     }
-    m_impl->_customSchemeNames.emplace_back(std::move(wide));
+    m_impl->common._customSchemeNames.emplace_back(std::move(wide));
 }
