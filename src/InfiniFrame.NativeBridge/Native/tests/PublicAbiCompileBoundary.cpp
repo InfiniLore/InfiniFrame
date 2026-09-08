@@ -14,6 +14,5 @@
 static_assert(std::is_standard_layout_v<InfiniFrameApplicationInitParams>);
 static_assert(std::is_standard_layout_v<InfiniFrameWindowInitParams>);
 static_assert(std::is_standard_layout_v<CustomSchemeResponse>);
-static_assert(offsetof(InfiniFrameApplicationInitParams, StructSize) ==
-              sizeof(const char*) * 4);
+static_assert(offsetof(InfiniFrameApplicationInitParams, StructSize) == sizeof(const char*) * 4);
 static_assert(offsetof(CustomSchemeResponse, StructSize) == 0);
