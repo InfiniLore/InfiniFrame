@@ -5,7 +5,7 @@ using System.Runtime.Versioning;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Utilities;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Features.Debugging;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

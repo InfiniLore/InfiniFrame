@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using System.Reflection;
 using InfiniFrame;
+using InfiniFrame.Window.Events;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniTests.InfiniFrame.Window.Events;

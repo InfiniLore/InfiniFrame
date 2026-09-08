@@ -4,6 +4,7 @@
 using System.Text.Json;
 using InfiniFrame;
 using InfiniFrame.Debugging;
+using WindowFeatureWebMessageJsonContext = InfiniFrame.Window.Features.WebMessaging.WindowFeatureWebMessageJsonContext;
 
 namespace InfiniTests.InfiniFrame.Window.Features.WebMessaging;
 // ---------------------------------------------------------------------------------------------------------------------

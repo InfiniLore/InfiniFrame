@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniAutomationTests.TestUtility;
 using InfiniFrame;
+using InfiniFrame.Window.Features.WebMessaging.Handlers;
 using InfiniTests;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

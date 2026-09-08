@@ -4,6 +4,8 @@
 using InfiniFrame;
 using InfiniFrame.Interop;
 using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.Window.Builder;
+using InfiniFrame.Window.Events;
 using InfiniTests.Substitutes;
 using Microsoft.Extensions.Logging.Abstractions;
 

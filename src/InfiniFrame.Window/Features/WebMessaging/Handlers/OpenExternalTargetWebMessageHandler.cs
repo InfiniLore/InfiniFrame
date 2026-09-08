@@ -5,11 +5,12 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Net;
 using InfiniFrame.Interop;
+using InfiniFrame.Interop.Interop;
 using InfiniFrame.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Features.WebMessaging.Handlers;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

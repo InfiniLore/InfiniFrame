@@ -3,8 +3,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Text.Json;
 using InfiniFrame.NativeBridge.Dialogs;
+using InfiniFrame.Window.Features.WebMessaging.Handlers;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Features.Notifications;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

@@ -5,7 +5,7 @@ using System.Drawing;
 using InfiniFrame.Debugging;
 using InfiniFrame.DragDrop;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

@@ -5,7 +5,7 @@ using System.Diagnostics;
 using InfiniFrame.NativeBridge;
 using Microsoft.Extensions.Logging;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Features.DragDrop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

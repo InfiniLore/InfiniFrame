@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Window.Builder;
 using InfiniTests.Native;
 
 namespace InfiniTests.InfiniFrame.Window.Events;

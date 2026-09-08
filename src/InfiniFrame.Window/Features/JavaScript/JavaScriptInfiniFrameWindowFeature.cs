@@ -5,9 +5,10 @@ using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json;
 using InfiniFrame.Interop;
+using InfiniFrame.Interop.Interop;
 using Microsoft.Extensions.Logging;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Features.JavaScript;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

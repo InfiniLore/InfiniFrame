@@ -4,9 +4,11 @@
 using FluentValidation;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Security;
+using InfiniFrame.Window.Events;
+using InfiniFrame.Window.Features.InstanceArbitration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Builder;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

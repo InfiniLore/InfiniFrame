@@ -4,7 +4,7 @@
 using InfiniFrame.NativeBridge;
 using Microsoft.Extensions.Logging;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Features.FilePickerDialogs;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

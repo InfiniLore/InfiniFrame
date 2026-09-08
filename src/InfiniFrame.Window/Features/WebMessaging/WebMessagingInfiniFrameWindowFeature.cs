@@ -5,11 +5,12 @@ using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json;
 using InfiniFrame.Interop;
+using InfiniFrame.Interop.Interop;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
 using Microsoft.Extensions.Logging;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Features.WebMessaging;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

@@ -5,6 +5,7 @@ using System.Runtime.Versioning;
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Handles;
 using InfiniFrame.Utilities;
+using InfiniFrame.Window.Builder;
 using JetBrains.Annotations;
 
 namespace InfiniTests;

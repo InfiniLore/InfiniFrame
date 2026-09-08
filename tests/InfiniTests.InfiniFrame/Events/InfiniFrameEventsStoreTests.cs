@@ -4,6 +4,7 @@
 using System.Drawing;
 using InfiniFrame;
 using InfiniFrame.Debugging;
+using InfiniFrame.Window.Events;
 
 namespace InfiniTests.InfiniFrame.Events;
 // ---------------------------------------------------------------------------------------------------------------------

@@ -3,10 +3,11 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Text.Json;
 using InfiniFrame.Interop;
+using InfiniFrame.Interop.Interop;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -126,7 +127,7 @@ public partial class InfiniFrameEvents {
                 Success = true,
                 Data = data
             },
-            InteropGetMessageJsonContext.Default.InteropGetMessageSuccessResponse
+            Interop.InteropGetMessageJsonContext.Default.InteropGetMessageSuccessResponse
         );
 
         string responseEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage(
@@ -146,7 +147,7 @@ public partial class InfiniFrameEvents {
                 Success = false,
                 Error = error
             },
-            InteropGetMessageJsonContext.Default.InteropGetMessageErrorResponse
+            Interop.InteropGetMessageJsonContext.Default.InteropGetMessageErrorResponse
         );
 
         string responseEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage(

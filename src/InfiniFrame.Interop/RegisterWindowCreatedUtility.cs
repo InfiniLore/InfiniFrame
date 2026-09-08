@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.CompilerServices;
+using InfiniFrame.Interop.Interop;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 

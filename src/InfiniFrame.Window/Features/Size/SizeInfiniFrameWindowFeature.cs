@@ -2,12 +2,11 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Diagnostics;
-using System.Drawing;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Features.Size;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -22,13 +21,13 @@ public class SizeInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="ISizeInfiniFrameWindowFeature.Size" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Size Size => NativeInvoke.InvokeSyncWithValidation(
+    public System.Drawing.Size Size => NativeInvoke.InvokeSyncWithValidation(
         logger,
         window,
         window.ManagedThreadId,
-        callback: (IntPtr handle, out Size value) => {
+        callback: (IntPtr handle, out System.Drawing.Size value) => {
             InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetSize(handle, out int width, out int height);
-            value = new Size(width, height);
+            value = new System.Drawing.Size(width, height);
             return status;
         }
     );
@@ -54,13 +53,13 @@ public class SizeInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="ISizeInfiniFrameWindowFeature.MaxSize" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Size MaxSize => NativeInvoke.InvokeSyncWithValidation(
+    public System.Drawing.Size MaxSize => NativeInvoke.InvokeSyncWithValidation(
         logger,
         window,
         window.ManagedThreadId,
-        callback: (IntPtr handle, out Size value) => {
+        callback: (IntPtr handle, out System.Drawing.Size value) => {
             InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetMaxSize(handle, out int width, out int height);
-            value = new Size(width, height);
+            value = new System.Drawing.Size(width, height);
             return status;
         }
     );
@@ -85,13 +84,13 @@ public class SizeInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="ISizeInfiniFrameWindowFeature.MinSize" />
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Size MinSize => NativeInvoke.InvokeSyncWithValidation(
+    public System.Drawing.Size MinSize => NativeInvoke.InvokeSyncWithValidation(
         logger,
         window,
         window.ManagedThreadId,
-        callback: (IntPtr handle, out Size value) => {
+        callback: (IntPtr handle, out System.Drawing.Size value) => {
             InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetMinSize(handle, out int width, out int height);
-            value = new Size(width, height);
+            value = new System.Drawing.Size(width, height);
             return status;
         }
     );
@@ -143,7 +142,7 @@ public class SizeInfiniFrameWindowFeature(
 
     // ReSharper disable once InvalidXmlDocComment
     /// <inheritdoc cref="ISizeInfiniFrameWindowFeature.SetSize(Size)" />
-    public void SetSize(Size size)
+    public void SetSize(System.Drawing.Size size)
         => SetSize(size.Width, size.Height);
 
     /// <inheritdoc cref="ISizeInfiniFrameWindowFeature.SetHeight" />
@@ -185,7 +184,7 @@ public class SizeInfiniFrameWindowFeature(
     ///     Sets the maximum window size from a Size value.
     /// </summary>
     /// <param name="size">The maximum size to set.</param>
-    public void SetMaxSize(Size size)
+    public void SetMaxSize(System.Drawing.Size size)
         => SetMaxSize(size.Width, size.Height);
 
     /// <summary>
@@ -219,7 +218,7 @@ public class SizeInfiniFrameWindowFeature(
     ///     Sets the minimum window size from a Size value.
     /// </summary>
     /// <param name="size">The minimum size to set.</param>
-    public void SetMinSize(Size size)
+    public void SetMinSize(System.Drawing.Size size)
         => SetMinSize(size.Width, size.Height);
 
     /// <summary>

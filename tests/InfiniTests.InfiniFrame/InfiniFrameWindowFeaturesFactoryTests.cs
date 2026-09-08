@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Window;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InfiniTests.InfiniFrame;

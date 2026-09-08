@@ -1,3 +1,4 @@
+using InfiniFrame.Window;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InfiniFrame;

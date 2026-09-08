@@ -7,7 +7,7 @@ using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Dialogs;
 using Microsoft.Extensions.Logging;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Features.Notifications;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

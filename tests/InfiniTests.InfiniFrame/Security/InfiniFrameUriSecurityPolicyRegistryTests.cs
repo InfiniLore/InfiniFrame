@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Security;
+using InfiniFrame.Window.Builder;
 using InfiniTests.Substitutes;
 
 namespace InfiniTests.InfiniFrame.Security;

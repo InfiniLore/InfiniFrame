@@ -26,7 +26,7 @@ public class InstanceArbitrationWindowStageTests {
     public async Task AtWindowStage_BuildWithArbitration_SecondInstance_Throws(CancellationToken ct) {
         // Arrange
         string mutexName = $"InfiniFrame.Test.{Guid.NewGuid():N}";
-        global::InfiniFrame.InstanceArbitration.TryAcquirePrimaryInstance(mutexName);
+        global::InfiniFrame.Window.Features.InstanceArbitration.InstanceArbitration.TryAcquirePrimaryInstance(mutexName);
 
         // Act & Assert
         await Assert.That(() => {

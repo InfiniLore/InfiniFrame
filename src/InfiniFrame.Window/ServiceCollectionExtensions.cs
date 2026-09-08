@@ -3,10 +3,12 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using FluentValidation;
 using InfiniFrame.Interop;
+using InfiniFrame.Interop.Interop;
 using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.Window.Events;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

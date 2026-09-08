@@ -7,6 +7,7 @@ using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Utilities;
+using InfiniFrame.Window.Builder;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------

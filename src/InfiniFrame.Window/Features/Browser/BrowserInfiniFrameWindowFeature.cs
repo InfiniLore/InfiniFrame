@@ -6,7 +6,7 @@ using System.Runtime.Versioning;
 using InfiniFrame.NativeBridge;
 using Microsoft.Extensions.Logging;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Features.Browser;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

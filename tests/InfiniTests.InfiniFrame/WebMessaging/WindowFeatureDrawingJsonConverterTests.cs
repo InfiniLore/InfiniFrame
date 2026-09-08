@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Text.Json;
 using InfiniFrame;
+using InfiniFrame.Window.Features.WebMessaging;
 
 namespace InfiniTests.InfiniFrame.WebMessaging;
 // ---------------------------------------------------------------------------------------------------------------------

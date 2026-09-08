@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Window.Builder;
 
 namespace InfiniTests.InfiniFrame.Window.Features.InstanceArbitration;
 // ---------------------------------------------------------------------------------------------------------------------

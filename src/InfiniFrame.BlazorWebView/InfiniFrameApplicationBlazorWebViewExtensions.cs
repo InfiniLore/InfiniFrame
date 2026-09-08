@@ -4,7 +4,6 @@
 using System.Reflection;
 using InfiniFrame.BlazorWebView.FileProviders;
 using InfiniFrame.Security;
-using InfiniFrame.StaticAssets;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;

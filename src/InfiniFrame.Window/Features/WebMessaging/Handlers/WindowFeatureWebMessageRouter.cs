@@ -3,8 +3,21 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
+using InfiniFrame.Window.Features.Browser;
+using InfiniFrame.Window.Features.Debugging;
+using InfiniFrame.Window.Features.Decorations;
+using InfiniFrame.Window.Features.FilePickerDialogs;
+using InfiniFrame.Window.Features.Invoke;
+using InfiniFrame.Window.Features.JavaScript;
+using InfiniFrame.Window.Features.Lifecycle;
+using InfiniFrame.Window.Features.Monitors;
+using InfiniFrame.Window.Features.Notifications;
+using InfiniFrame.Window.Features.PageNavigation;
+using InfiniFrame.Window.Features.Position;
+using InfiniFrame.Window.Features.Size;
+using InfiniFrame.Window.Features.State;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Features.WebMessaging.Handlers;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -57,7 +70,7 @@ internal static class WindowFeatureWebMessageRouter {
     private static string Serialize(object? value) {
         if (value is null) return "null";
 
-        JsonTypeInfo typeInfo = WindowFeatureWebMessageJsonContext.Default.GetTypeInfo(value.GetType())
+        JsonTypeInfo typeInfo = InfiniFrame.WindowFeatureWebMessageJsonContext.Default.GetTypeInfo(value.GetType())
             ?? throw new InvalidOperationException($"No JSON metadata is registered for '{value.GetType()}'.");
         return JsonSerializer.Serialize(value, typeInfo);
     }

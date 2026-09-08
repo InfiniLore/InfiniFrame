@@ -4,7 +4,7 @@
 using System.Drawing;
 using InfiniFrame.NativeBridge.Parameters;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Features.Position;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

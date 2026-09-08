@@ -14,7 +14,7 @@ public class InstanceArbitrationTests {
         string mutexName = $"InfiniFrame.Test.{Guid.NewGuid():N}";
 
         // Act
-        bool result = global::InfiniFrame.InstanceArbitration.TryAcquirePrimaryInstance(mutexName);
+        bool result = global::InfiniFrame.Window.Features.InstanceArbitration.InstanceArbitration.TryAcquirePrimaryInstance(mutexName);
 
         // Assert
         await Assert.That(result).IsTrue();
@@ -27,8 +27,8 @@ public class InstanceArbitrationTests {
         string mutexName = $"InfiniFrame.Test.{Guid.NewGuid():N}";
 
         // Act
-        bool first = global::InfiniFrame.InstanceArbitration.TryAcquirePrimaryInstance(mutexName);
-        bool second = global::InfiniFrame.InstanceArbitration.TryAcquirePrimaryInstance(mutexName);
+        bool first = global::InfiniFrame.Window.Features.InstanceArbitration.InstanceArbitration.TryAcquirePrimaryInstance(mutexName);
+        bool second = global::InfiniFrame.Window.Features.InstanceArbitration.InstanceArbitration.TryAcquirePrimaryInstance(mutexName);
 
         // Assert
         await Assert.That(first).IsTrue();
@@ -39,10 +39,10 @@ public class InstanceArbitrationTests {
     [NotInParallelInfiniTests]
     public async Task TryAcquirePrimaryInstance_NullMutexName_UsesDefault(CancellationToken ct) {
         // Arrange - acquire the default mutex (or discover another process already holds it)
-        bool first = global::InfiniFrame.InstanceArbitration.TryAcquirePrimaryInstance(null);
+        bool first = global::InfiniFrame.Window.Features.InstanceArbitration.InstanceArbitration.TryAcquirePrimaryInstance(null);
 
         // Act - call again with null; same default name means this must fail within the same process
-        bool second = global::InfiniFrame.InstanceArbitration.TryAcquirePrimaryInstance(null);
+        bool second = global::InfiniFrame.Window.Features.InstanceArbitration.InstanceArbitration.TryAcquirePrimaryInstance(null);
 
         // Assert - verify the method uses a consistent name (not a new GUID each time)
         // If the first call succeeded, the second must fail (same mutex name).
@@ -53,7 +53,7 @@ public class InstanceArbitrationTests {
     [Test]
     public async Task IsProcessElevated_ReturnsTrueOrFalse(CancellationToken ct) {
         // Act
-        bool result = global::InfiniFrame.InstanceArbitration.IsProcessElevated();
+        bool result = global::InfiniFrame.Window.Features.InstanceArbitration.InstanceArbitration.IsProcessElevated();
 
         // Assert - verify it returns a valid bool without throwing
         await Assert.That(result || !result).IsTrue();

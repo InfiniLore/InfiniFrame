@@ -4,7 +4,7 @@
 using System.Drawing;
 using InfiniFrame.NativeBridge.Parameters;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Features.Size;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ public class SizeInfiniFrameWindowBuilderFeature : ISizeInfiniFrameWindowBuilder
         Height = height;
     }
     /// <inheritdoc cref="ISizeInfiniFrameWindowBuilderFeature.SetSize(Size)" />
-    public void SetSize(Size size) {
+    public void SetSize(System.Drawing.Size size) {
         StartWithOsDefaultSize = false;
         Width = size.Width;
         Height = size.Height;
@@ -61,7 +61,7 @@ public class SizeInfiniFrameWindowBuilderFeature : ISizeInfiniFrameWindowBuilder
         MaxHeight = maxHeight;
     }
     /// <inheritdoc cref="ISizeInfiniFrameWindowBuilderFeature.SetMaxSize(Size)" />
-    public void SetMaxSize(Size size) {
+    public void SetMaxSize(System.Drawing.Size size) {
         MaxWidth = size.Width;
         MaxHeight = size.Height;
     }
@@ -79,7 +79,7 @@ public class SizeInfiniFrameWindowBuilderFeature : ISizeInfiniFrameWindowBuilder
         MinHeight = minHeight;
     }
     /// <inheritdoc cref="ISizeInfiniFrameWindowBuilderFeature.SetMinSize(Size)" />
-    public void SetMinSize(Size size) {
+    public void SetMinSize(System.Drawing.Size size) {
         MinWidth = size.Width;
         MinHeight = size.Height;
     }

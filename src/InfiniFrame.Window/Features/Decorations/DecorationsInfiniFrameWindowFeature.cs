@@ -6,7 +6,7 @@ using InfiniFrame.NativeBridge;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Features.Decorations;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

@@ -4,6 +4,7 @@
 using System.Text.Json;
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.Window.Events;
 using InfiniTests.Substitutes;
 using Microsoft.Extensions.Logging.Abstractions;
 

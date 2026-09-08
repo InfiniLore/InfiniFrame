@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Features.WebMessaging;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -35,16 +35,16 @@ internal sealed class PointWebMessageJsonConverter : JsonConverter<Point> {
     }
 }
 
-internal sealed class SizeWebMessageJsonConverter : JsonConverter<Size> {
-    public override Size Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+internal sealed class SizeWebMessageJsonConverter : JsonConverter<System.Drawing.Size> {
+    public override System.Drawing.Size Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
         using JsonDocument document = JsonDocument.ParseValue(ref reader);
         JsonElement value = document.RootElement;
-        return new Size(
+        return new System.Drawing.Size(
             PointWebMessageJsonConverter.RequiredInt(value, "width"),
             PointWebMessageJsonConverter.RequiredInt(value, "height"));
     }
 
-    public override void Write(Utf8JsonWriter writer, Size value, JsonSerializerOptions options) {
+    public override void Write(Utf8JsonWriter writer, System.Drawing.Size value, JsonSerializerOptions options) {
         writer.WriteStartObject();
         writer.WriteNumber("width", value.Width);
         writer.WriteNumber("height", value.Height);

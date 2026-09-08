@@ -8,7 +8,7 @@ using InfiniFrame.NativeBridge;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Features.Menu;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
 
         string? json = MenuBar.Items.IsEmpty
             ? null
-            : JsonSerializer.Serialize(MenuBar, MenuJsonContext.Default.InfiniFrameMenuBar);
+            : JsonSerializer.Serialize(MenuBar, InfiniFrame.MenuJsonContext.Default.InfiniFrameMenuBar);
 
         NativeInvoke.InvokeSyncWithValidation(
             _logger,

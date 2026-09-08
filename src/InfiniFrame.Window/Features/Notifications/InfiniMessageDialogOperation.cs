@@ -9,7 +9,7 @@ using InfiniFrame.NativeBridge.Handles;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Features.Notifications;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

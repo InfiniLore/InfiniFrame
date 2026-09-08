@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Window.Features.Size;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniTests.InfiniFrame;

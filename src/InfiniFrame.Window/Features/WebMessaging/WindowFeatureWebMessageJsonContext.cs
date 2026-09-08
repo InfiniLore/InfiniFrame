@@ -6,8 +6,10 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge.Dialogs;
+using InfiniFrame.Window.Features.Debugging;
+using InfiniFrame.Window.Features.FilePickerDialogs;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Features.WebMessaging;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -32,7 +34,7 @@ namespace InfiniFrame;
 [JsonSerializable(typeof(InfiniMonitor))]
 [JsonSerializable(typeof(InfiniMonitor[]))]
 [JsonSerializable(typeof(Point))]
-[JsonSerializable(typeof(Size))]
+[JsonSerializable(typeof(System.Drawing.Size))]
 [JsonSerializable(typeof(Rectangle))]
 [JsonSerializable(typeof(InfiniFrameDebugCapabilities))]
 [JsonSerializable(typeof(InfiniFrameDebugDiagnostics))]

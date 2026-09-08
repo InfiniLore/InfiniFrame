@@ -4,6 +4,7 @@
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
 using InfiniFrame.Utilities;
+using InfiniFrame.Window.Features.WebMessaging.Handlers;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;

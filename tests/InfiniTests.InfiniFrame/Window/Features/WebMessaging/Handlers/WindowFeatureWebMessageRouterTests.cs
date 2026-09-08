@@ -6,6 +6,7 @@ using InfiniFrame;
 using InfiniFrame.Debugging;
 using System.Drawing;
 using System.Text.Json;
+using InfiniFrame.Window.Features.WebMessaging.Handlers;
 
 namespace InfiniTests.InfiniFrame.Window.Features.WebMessaging.Handlers;
 // ---------------------------------------------------------------------------------------------------------------------

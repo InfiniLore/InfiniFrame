@@ -2,8 +2,18 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.Window.Features.Browser;
+using InfiniFrame.Window.Features.Debugging;
+using InfiniFrame.Window.Features.Decorations;
+using InfiniFrame.Window.Features.InstanceArbitration;
+using InfiniFrame.Window.Features.Menu;
+using InfiniFrame.Window.Features.Notifications;
+using InfiniFrame.Window.Features.PageNavigation;
+using InfiniFrame.Window.Features.Position;
+using InfiniFrame.Window.Features.Size;
+using InfiniFrame.Window.Features.State;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Builder;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

@@ -4,6 +4,7 @@
 using FluentValidation;
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.Window;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InfiniTests.InfiniFrame;

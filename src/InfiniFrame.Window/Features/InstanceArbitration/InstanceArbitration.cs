@@ -4,9 +4,9 @@
 using System.Runtime.Versioning;
 using System.Security;
 using System.Security.Principal;
-using InfiniFrame.Utilities;
+using InfiniFrame.NativeBridge;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Window.Features.InstanceArbitration;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

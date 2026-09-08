@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.Window.Features.Decorations;
 
 namespace InfiniTests.InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
