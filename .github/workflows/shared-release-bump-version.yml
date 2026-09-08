@@ -39,9 +39,19 @@ jobs:
 
             -   name: Bump Version
                 id: bump
-                uses: Code-Of-Chaos/action-version-bumper@v2
+                uses: Code-Of-Chaos/action-version-bumper@v2.1.0
                 with:
                     version_file: src/Directory.Build.props
+                    additional_version_files: |
+                        src/InfiniFrame.NativeBridge/Native/CMakeLists.txt
+                        docs/package.json
+                        src/InfiniFrame.Js/package.json
+                        examples/WebApp/InfiniFrameExample.WebApp.Vue/Source/InfiniFrame.Vue/package.json
+                        examples/WebApp/InfiniFrameExample.WebApp.React/Source/InfiniFrame.React/package.json
+                        tests/InfiniAutomationTests.WebApp/package.json
+                        tests/InfiniAutomationTests.WebApp.Angular/package.json
+                        tests/InfiniAutomationTests.WebApp.React/package.json
+                        tests/InfiniAutomationTests.WebApp.Vue/package.json
                     bump: ${{ inputs.version_bump }}
                     custom_version: ${{ inputs.custom_version }}
                     commit: 'true'
