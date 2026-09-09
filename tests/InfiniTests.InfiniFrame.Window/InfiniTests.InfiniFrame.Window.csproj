@@ -14,7 +14,7 @@
         <ProjectReference Include="../../src/InfiniFrame.StaticAssets/InfiniFrame.StaticAssets.csproj" />
         <ProjectReference Include="../../src/InfiniFrame.Window/InfiniFrame.Window.csproj" />
         <ProjectReference Include="../../src/InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
-        <ProjectReference Include="../InfiniTests/InfiniTests.csproj"/>
+        <ProjectReference Include="../InfiniTests.TestSupport/InfiniTests.TestSupport.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

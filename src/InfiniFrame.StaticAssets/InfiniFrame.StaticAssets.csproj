@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Window" />
         <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.FileProviders.Composite" />
         <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" />

@@ -5,7 +5,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Application" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Window" />
         <InternalsVisibleTo Include="InfiniFrame.WebServer" />
         <InternalsVisibleTo Include="InfiniFrame.BlazorWebView" />
     </ItemGroup>

@@ -6,12 +6,10 @@
         <PackageReference Include="TUnit"/>
         <PackageReference Include="TUnit.Mocks"/>
     </ItemGroup>
-
     <ItemGroup>
         <ProjectReference Include="../../src/InfiniFrame.Application/InfiniFrame.Application.csproj" />
-        <ProjectReference Include="../../src/InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
-        <ProjectReference Include="../../src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj"/>
-        <ProjectReference Include="..\InfiniTests.TestSupport\InfiniTests.TestSupport.csproj"/>
+        <ProjectReference Include="../../src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
+        <ProjectReference Include="../InfiniTests.TestSupport/InfiniTests.TestSupport.csproj" />
     </ItemGroup>
-
 </Project>

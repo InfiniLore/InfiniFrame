@@ -206,9 +206,8 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     public void Shutdown() {
         if (Volatile.Read(ref _disposed) != 0) return;
         if (Interlocked.Exchange(ref _shutdownRequested, 1) != 0) return;
+        InfiniFrameNative.ApplicationShutdown(_nativeHandle.DangerousGetHandle());
         CloseAll();
-        if (!OperatingSystem.IsWindows())
-            InfiniFrameNative.ApplicationShutdown(_nativeHandle.DangerousGetHandle());
     }
 
     /// <inheritdoc />

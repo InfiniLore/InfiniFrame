@@ -15,7 +15,9 @@
             "src\\InfiniFrame.WebServer\\InfiniFrame.WebServer.csproj",
             "src\\InfiniFrame.Window\\InfiniFrame.Window.csproj",
 
-            "tests\\InfiniTests\\InfiniTests.csproj",
+            "tests\\InfiniTests.TestSupport\\InfiniTests.TestSupport.csproj",
+            "tests\\InfiniTests.InfiniFrame.Application\\InfiniTests.InfiniFrame.Application.csproj",
+            "tests\\InfiniTests.InfiniFrame.Window\\InfiniTests.InfiniFrame.Window.csproj",
             "tests\\InfiniAutomationTests\\InfiniAutomationTests.csproj",
             "tests\\InfiniAutomationTests.WebApp\\InfiniAutomationTests.WebApp.csproj",
             "tests\\InfiniAutomationTests.BlazorWebView.MudBlazor\\InfiniAutomationTests.BlazorWebView.MudBlazor.csproj",

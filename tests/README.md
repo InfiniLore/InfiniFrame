@@ -8,8 +8,9 @@ This directory contains the unit, integration, and automation test suites for In
 
 | Project                                  | Description                                                                                                                                              |
 |------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `InfiniTests/`                           | Core unit tests using TUnit and TUnit.Mocks. Contains platform-specific window abstractions, mock factories, native interop tests, and JS runtime tests. |
-| `InfiniTests.InfiniFrame/`               | Core package unit tests                                                                                                                                  |
+| `InfiniTests.TestSupport/`               | Shared fixtures, platform helpers, mocks, and test-host infrastructure                                                                                   |
+| `InfiniTests.InfiniFrame.Application/`  | Application lifecycle, registration, and run-loop tests                                                                                                  |
+| `InfiniTests.InfiniFrame.Window/`       | Native window, feature, event, and lifecycle tests                                                                                                       |
 | `InfiniTests.InfiniFrame.Blazor/`        | Blazor component tests                                                                                                                                   |
 | `InfiniTests.InfiniFrame.BlazorWebView/` | BlazorWebView integration tests                                                                                                                          |
 | `InfiniTests.InfiniFrame.Js/`            | JavaScript interop tests                                                                                                                                 |
@@ -51,13 +52,13 @@ Python unit tests for repository scripts (in `tests/scripts/`):
 ### Run All Tests
 
 ```bash
-dotnet test tests/InfiniTests.InfiniFrame.slnf
+dotnet test InfiniFrame.GitHubActions.Testing.slnf
 ```
 
 ### Run Specific Test Project
 
 ```bash
-dotnet test tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj
+dotnet test tests/InfiniTests.InfiniFrame.Window/InfiniTests.InfiniFrame.Window.csproj
 ```
 
 ### Run with Filter

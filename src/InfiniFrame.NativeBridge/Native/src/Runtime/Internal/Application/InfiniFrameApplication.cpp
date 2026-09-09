@@ -19,7 +19,7 @@
 struct InfiniFrameApplicationImpl {
     mutable std::mutex mutex;
     std::unordered_set<InfiniFrameWindow*> windows;
-    std::unordered_set<InfiniFrameWindow*> closedWindows;
+    std::unordered_set<InfiniFrameWindow*> liveWindows;
     bool registered = false;
     bool shutdownRequested = false;
     std::string webView2RuntimePath;
@@ -61,7 +61,7 @@ InfiniFrameApplication::InfiniFrameApplication()
 InfiniFrameApplication::~InfiniFrameApplication() {
     std::lock_guard lock(_impl->mutex);
     _impl->windows.clear();
-    _impl->closedWindows.clear();
+    _impl->liveWindows.clear();
     InfiniFrameApplication* expected = this;
     applicationInstance.compare_exchange_strong(expected, nullptr, std::memory_order_acq_rel);
 }
@@ -125,8 +125,7 @@ void InfiniFrameApplication::Run() noexcept {
         std::lock_guard lock(_impl->mutex);
         _impl->runThreadId = GetCurrentThreadId();
         _impl->running = true;
-        if (_impl->windows.empty() || _impl->shutdownRequested
-            || (!_impl->windows.empty() && _impl->closedWindows.size() == _impl->windows.size())) {
+        if (_impl->windows.empty() || _impl->shutdownRequested) {
             _impl->running = false;
             return;
         }
@@ -163,8 +162,9 @@ void InfiniFrameApplication::Shutdown() noexcept {
     std::lock_guard lock(_impl->mutex);
     _impl->shutdownRequested = true;
 #ifdef _WIN32
-    if (_impl->running && _impl->runThreadId != 0)
+    if (_impl->runThreadId != 0) {
         PostThreadMessage(_impl->runThreadId, WM_QUIT, 0, 0);
+    }
 #endif
 }
 
@@ -172,31 +172,30 @@ void InfiniFrameApplication::TrackWindow(InfiniFrameWindow* window) {
     if (window == nullptr) return;
     std::lock_guard lock(_impl->mutex);
     _impl->windows.insert(window);
-    _impl->closedWindows.erase(window);
+    _impl->liveWindows.insert(window);
 }
 
 void InfiniFrameApplication::UntrackWindow(InfiniFrameWindow* window) noexcept {
     if (window == nullptr) return;
     std::lock_guard lock(_impl->mutex);
     _impl->windows.erase(window);
-    _impl->closedWindows.erase(window);
+    _impl->liveWindows.erase(window);
 }
 
 void InfiniFrameApplication::NotifyWindowClosed(InfiniFrameWindow* window) noexcept {
     if (window == nullptr) return;
 
     std::lock_guard lock(_impl->mutex);
-    if (_impl->windows.contains(window))
-        _impl->closedWindows.insert(window);
+    _impl->windows.erase(window);
 #ifdef _WIN32
-    if (_impl->running && !_impl->windows.empty() && _impl->closedWindows.size() == _impl->windows.size())
+    if (_impl->running && _impl->windows.empty())
         PostThreadMessage(_impl->runThreadId, WM_QUIT, 0, 0);
 #endif
 }
 
 std::size_t InfiniFrameApplication::GetWindowCount() const noexcept {
     std::lock_guard lock(_impl->mutex);
-    return _impl->windows.size();
+    return _impl->liveWindows.size();
 }
 
 const char* InfiniFrameApplication::GetWebView2RuntimePath() const noexcept {

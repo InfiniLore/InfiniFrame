@@ -146,8 +146,9 @@
     <Project Path="tests/InfiniTests.InfiniFrame.Shared/InfiniTests.InfiniFrame.Shared.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame.SingleFile/InfiniTests.InfiniFrame.SingleFile.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame.WebServer/InfiniTests.InfiniFrame.WebServer.csproj" />
-    <Project Path="tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj" />
-    <Project Path="tests/InfiniTests/InfiniTests.csproj" />
+    <Project Path="tests/InfiniTests.InfiniFrame.Application/InfiniTests.InfiniFrame.Application.csproj" />
+    <Project Path="tests/InfiniTests.InfiniFrame.Window/InfiniTests.InfiniFrame.Window.csproj" />
+    <Project Path="tests/InfiniTests.TestSupport/InfiniTests.TestSupport.csproj" />
   </Folder>
   <Folder Name="/tests/automation/">
     <Project Path="tests/InfiniAutomationTests.WebApp/InfiniAutomationTests.WebApp.csproj" />
