@@ -52,8 +52,12 @@ public static class InfiniFrameApplicationWebServerExtensions {
 
             async Task StopServerAsync() {
                 if (Interlocked.Exchange(ref serverCleanupStarted, 1) != 0) return;
-                await webApplication.StopAsync(CancellationToken.None).ConfigureAwait(false);
-                await webApplication.DisposeAsync().ConfigureAwait(false);
+                try {
+                    await webApplication.StopAsync(CancellationToken.None).ConfigureAwait(false);
+                }
+                finally {
+                    await webApplication.DisposeAsync().ConfigureAwait(false);
+                }
             }
 
             application.RegisterStartupAction(async () => {

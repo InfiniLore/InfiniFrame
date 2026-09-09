@@ -27,7 +27,6 @@ public partial class InfiniFrameEvents {
             if (config.ChildWindowsInternal.Count <= 0) return;// No child windows to close
 
             childWindows = [.. config.ChildWindowsInternal];
-            config.ChildWindowsInternal.Clear();
         }
 
         Logger.LogDebug("Lifecycle child windows");

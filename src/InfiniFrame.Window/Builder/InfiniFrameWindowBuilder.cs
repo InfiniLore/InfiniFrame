@@ -90,7 +90,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             return window;
         }
         catch {
-            (window as IDisposable)?.Dispose();
+            window?.Dispose();
             if (ownsServiceProvider)
                 (actualProvider as IDisposable)?.Dispose();
             throw;

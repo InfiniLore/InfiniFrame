@@ -74,7 +74,7 @@ using InfiniFrame;
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
-        InfiniFrameSingleFileBootstrap.Initialize();
+        InfiniFrameSingleFile.Initialize();
 
         var window = InfiniFrameWindowBuilder.Create()
             .SetTitle("Hello, InfiniFrame")

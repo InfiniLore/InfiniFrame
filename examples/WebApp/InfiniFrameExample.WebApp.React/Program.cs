@@ -46,7 +46,6 @@ public static class Program {
             }))
             .UseWebServer(builder => {
                 builder.ConfigureWebApplication(webApp => {
-                    webApp.UseStaticFiles();
                     webApp.MapStaticAssets();
                 });
             })

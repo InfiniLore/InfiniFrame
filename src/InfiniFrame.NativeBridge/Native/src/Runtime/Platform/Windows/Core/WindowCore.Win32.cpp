@@ -346,6 +346,11 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) {
 }
 
 InfiniFrameWindow::~InfiniFrameWindow() {
+    if (m_impl != nullptr && m_impl->_hWnd != nullptr) {
+        SetWindowLongPtr(m_impl->_hWnd, GWLP_USERDATA, 0);
+        DestroyWindow(m_impl->_hWnd);
+        m_impl->_hWnd = nullptr;
+    }
     if (_application != nullptr)
         _application->UntrackWindow(this);
 }

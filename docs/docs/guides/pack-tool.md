@@ -30,7 +30,7 @@ Compared to a regular `dotnet publish`, the target additionally:
 - Removes unpacked sidecar files from the final publish directory
 - Performs a two-pass publish to ensure all content is available before embedding
 
-Because native files are embedded as resources, your app must initialize the runtime resolver at startup with `InfiniFrameSingleFileBootstrap.Initialize()`.
+Because native files are embedded as resources, your app must initialize the runtime resolver at startup with `InfiniFrameSingleFile.Initialize()`.
 
 ## How It Works
 
@@ -147,7 +147,7 @@ using InfiniFrame;
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
-        InfiniFrameSingleFileBootstrap.Initialize();
+        InfiniFrameSingleFile.Initialize();
 
         var window = InfiniFrameWindowBuilder.Create()
             .SetTitle("My App")
@@ -163,7 +163,7 @@ public static class Program {
 Why this is required:
 
 - The publish target embeds `InfiniFrame.Native` and platform loader files (`WebView2Loader.dll` on Windows) as resources.
-- `InfiniFrameSingleFileBootstrap.Initialize()` extracts them to a temporary RID-specific folder and registers a native resolver so P/Invoke can load them.
+- `InfiniFrameSingleFile.Initialize()` extracts them to a temporary RID-specific folder and registers a native resolver so P/Invoke can load them.
 
 Alternatively, use the higher-level `InfiniFrameSingleFile.Initialize()` helper which also configures embedded static web assets for Blazor apps:
 

@@ -237,18 +237,28 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         IInfiniFrameWindow[] windows;
         lock (_gate) {
             windows = _windows.Values.ToArray();
-            _windows.Clear();
-            _registrations.Clear();
         }
 
+        Exception? windowDisposalFailure = null;
         foreach (IInfiniFrameWindow window in windows) {
             try {
                 (window as IDisposable)?.Dispose();
+                if (window.LifecycleState != InfiniFrameWindowLifecycleState.Disposed)
+                    throw new InvalidOperationException("A window did not complete native disposal.");
                 WindowDestroyed?.Invoke(window);
             }
             catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException) {
                 logger.LogWarning(ex, "Failed to dispose an application window.");
+                windowDisposalFailure ??= ex;
             }
+        }
+        if (windowDisposalFailure is not null) {
+            Volatile.Write(ref _disposed, 0);
+            throw new InvalidOperationException("The application could not dispose all windows.", windowDisposalFailure);
+        }
+        lock (_gate) {
+            _windows.Clear();
+            _registrations.Clear();
         }
         StopRegisteredComponents();
         _nativeHandle.Dispose();
@@ -265,20 +275,30 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         IInfiniFrameWindow[] windows;
         lock (_gate) {
             windows = _windows.Values.ToArray();
-            _windows.Clear();
-            _registrations.Clear();
         }
 
+        Exception? windowDisposalFailure = null;
         foreach (IInfiniFrameWindow window in windows) {
             try {
                 if (window is IAsyncDisposable asyncDisposable)
                     await asyncDisposable.DisposeAsync().ConfigureAwait(false);
                 else (window as IDisposable)?.Dispose();
+                if (window.LifecycleState != InfiniFrameWindowLifecycleState.Disposed)
+                    throw new InvalidOperationException("A window did not complete native disposal.");
                 WindowDestroyed?.Invoke(window);
             }
             catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException) {
                 logger.LogWarning(ex, "Failed to asynchronously dispose an application window.");
+                windowDisposalFailure ??= ex;
             }
+        }
+        if (windowDisposalFailure is not null) {
+            Volatile.Write(ref _disposed, 0);
+            throw new InvalidOperationException("The application could not dispose all windows.", windowDisposalFailure);
+        }
+        lock (_gate) {
+            _windows.Clear();
+            _registrations.Clear();
         }
         await StopRegisteredComponentsAsync().ConfigureAwait(false);
         _nativeHandle.Dispose();

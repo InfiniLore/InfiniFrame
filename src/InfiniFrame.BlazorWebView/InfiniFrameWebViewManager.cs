@@ -68,6 +68,12 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         : base(provider, dispatcher, config.Value.AppBaseUri, fileProvider, jsComponents, config.Value.HostPage) {
         _logger = logger;
         InfiniFrameBlazorAppConfiguration configuration = config.Value;
+        if (configuration.AppBaseUri is null
+            || !configuration.AppBaseUri.IsAbsoluteUri
+            || string.IsNullOrWhiteSpace(configuration.AppBaseUri.Scheme)
+            || string.IsNullOrWhiteSpace(configuration.AppBaseUri.Host)) {
+            throw new ArgumentException("AppBaseUri must be an absolute URI with a scheme and host.", nameof(configuration.AppBaseUri));
+        }
         _appBaseUri = configuration.AppBaseUri;
         if (configuration.WebMessageQueueCapacity <= 0) {
             throw new ArgumentOutOfRangeException(

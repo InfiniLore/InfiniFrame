@@ -1,6 +1,6 @@
 # Native C++ API
 
-InfiniFrame native API documentation is maintained directly in Docusaurus and sourced from the native headers and comments under `src/InfiniFrame.Native`.
+InfiniFrame native API documentation is maintained directly in Docusaurus and sourced from the native headers and comments under `src/InfiniFrame.NativeBridge/Native`.
 
 ## Core headers
 

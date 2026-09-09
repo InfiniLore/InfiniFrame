@@ -125,7 +125,8 @@ void InfiniFrameApplication::Run() noexcept {
         std::lock_guard lock(_impl->mutex);
         _impl->runThreadId = GetCurrentThreadId();
         _impl->running = true;
-        if (_impl->windows.empty() || _impl->shutdownRequested) {
+        if (_impl->windows.empty() || _impl->shutdownRequested
+            || (!_impl->windows.empty() && _impl->closedWindows.size() == _impl->windows.size())) {
             _impl->running = false;
             return;
         }
