@@ -74,14 +74,19 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
                 "The WebView message queue capacity must be positive.");
         }
 
+        // TryWrite cannot report which item DropWrite discarded. Use Wait so the non-awaitable
+        // producer receives a false result and the loss is observable through diagnostics.
+        BoundedChannelFullMode effectiveFullMode = configuration.WebMessageQueueFullMode == BoundedChannelFullMode.DropWrite
+            ? BoundedChannelFullMode.Wait
+            : configuration.WebMessageQueueFullMode;
         _channel = Channel.CreateBounded<string>(new BoundedChannelOptions(configuration.WebMessageQueueCapacity) {
             SingleReader = true,
             SingleWriter = false,
-            FullMode = configuration.WebMessageQueueFullMode,
+            FullMode = effectiveFullMode,
             AllowSynchronousContinuations = false
         });
         _messageQueueCapacity = configuration.WebMessageQueueCapacity;
-        _messageQueueFullMode = configuration.WebMessageQueueFullMode;
+        _messageQueueFullMode = effectiveFullMode;
         _fallbackUriSecurityPolicy = InfiniFrameUriSecurityPolicy.Default
             .WithTrustedOrigin(configuration.AppBaseUri);
 

@@ -64,29 +64,6 @@ public sealed class InfiniFrameApplicationBuilder {
         _integrations.Add(integration);
     }
 
-    internal Action<IInfiniFrameWindowBuilder>? TakeWindowConfiguration(string id) {
-        ArgumentException.ThrowIfNullOrWhiteSpace(id);
-
-        int index = _windows.FindIndex(window => string.Equals(window.Id, id, StringComparison.Ordinal));
-        if (index < 0) {
-            int unnamedIndex = -1;
-            for (int candidate = 0; candidate < _windows.Count; candidate++) {
-                if (_windows[candidate].Id is not null) continue;
-                if (unnamedIndex >= 0)
-                    throw new InvalidOperationException(
-                        $"Cannot determine which unnamed window should use integration '{id}'. " +
-                        "Give the target window an id and pass the same id to the integration.");
-                unnamedIndex = candidate;
-            }
-            index = unnamedIndex;
-        }
-
-        if (index < 0) return null;
-        Action<IInfiniFrameWindowBuilder> configure = _windows[index].Configure;
-        _windows.RemoveAt(index);
-        return configure;
-    }
-
     public InfiniFrameApplication Build() {
         InfiniFrameApplication? application = null;
         IServiceProvider? serviceProvider = null;

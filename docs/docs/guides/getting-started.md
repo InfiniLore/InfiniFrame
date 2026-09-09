@@ -124,21 +124,24 @@ A minimal `index.html`:
 ### Program.cs
 
 ```csharp
+using InfiniFrame.Application;
 using InfiniFrame.BlazorWebView;
 using Microsoft.Extensions.DependencyInjection;
 
-var builder = InfiniFrameBlazorAppBuilder.CreateDefault(args, w => w
-    .SetTitle("My Blazor App")
-    .SetSize(1280, 720)
-    .Center()
-);
+var builder = InfiniFrameApplication.CreateBuilder(args)
+    .WithWindow(window => window
+        .SetTitle("My Blazor App")
+        .SetSize(1280, 720)
+        .Center());
 
 // Register your services
 builder.Services.AddSingleton<MyService>();
 
 // Register root Blazor components
-builder.RootComponents.Add<App>("#app");
-builder.RootComponents.Add<HeadOutlet>("head::after");
+builder.UseBlazorWebView(configuration => {
+    configuration.RootComponents.Add<App>("app");
+    configuration.RootComponents.Add<HeadOutlet>("head::after");
+});
 
 builder.Build().Run();
 ```
@@ -166,21 +169,19 @@ dotnet add package InfiniLore.InfiniFrame.WebServer
 ### Program.cs
 
 ```csharp
+using InfiniFrame.Application;
 using InfiniFrame.WebServer;
 
-var app = InfiniFrameWebApplication.CreateBuilder(args)
-    .Build()
-    .UseAutoServerClose();
-
-// Configure the ASP.NET Core pipeline on app.WebApp
-app.WebApp.UseRouting();
-app.WebApp.MapGet("/", () => "Hello from InfiniFrame");
+var app = InfiniFrameApplication.CreateBuilder(args)
+    .WithWindow("web", static _ => { })
+    .UseWebServer("web", web => web.ConfigureWebApplication(application =>
+        application.MapGet("/", () => "Hello from InfiniFrame")))
+    .Build();
 
 app.Run();
 ```
 
-The start URL is automatically read from `ASPNETCORE_URLS` or the `urls` configuration key.
-`UseAutoServerClose()` ensures the server shuts down gracefully when the window is closed.
+The start URL is resolved from the server's bound address after startup, and the server shuts down with the InfiniFrame application.
 
 ## Next Steps
 

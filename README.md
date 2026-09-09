@@ -91,11 +91,14 @@ var app = InfiniFrameApplication.CreateBuilder().UseBlazorWebView(config => conf
 Install: `dotnet add package InfiniLore.InfiniFrame.WebServer`
 
 ```csharp
+using InfiniFrame.Application;
 using InfiniFrame.WebServer;
 
-var app = InfiniFrameWebApplication.CreateBuilder(args)
-    .Build()
-    .UseAutoServerClose();
+var app = InfiniFrameApplication.CreateBuilder(args)
+    .WithWindow("web", static window => window.SetTitle("InfiniFrame"))
+    .UseWebServer("web", web => web.ConfigureWebApplication(application =>
+        application.MapGet("/", () => "Hello from InfiniFrame")))
+    .Build();
 
 app.Run();
 ```

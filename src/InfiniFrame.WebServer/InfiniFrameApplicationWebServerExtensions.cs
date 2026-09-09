@@ -48,23 +48,34 @@ public static class InfiniFrameApplicationWebServerExtensions {
         builder.AddIntegration(application => {
             application.ValidateWindowIntegrationTargets(windowIds, "WebServer");
             WebApplication webApplication = configuration.BuildApplication();
-            application.RegisterStartupAction(async () => {
-                await webApplication.StartAsync().ConfigureAwait(false);
-                Uri address = ResolveStartedAddress(webApplication);
-                application.ApplyWindowIntegration(windowIds, "WebServer", configure: windowBuilder => {
-                    windowBuilder.SetStartPageUrl(address.ToString());
-                    windowBuilder.RegisterGetWebMessageHandler();
-                    InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(
-                        windowBuilder,
-                        configure: policyBuilder => policyBuilder.AddTrustedOrigin(address)
-                    );
-                });
-            });
+            int serverCleanupStarted = 0;
 
-            application.RegisterShutdownAction(async () => {
+            async Task StopServerAsync() {
+                if (Interlocked.Exchange(ref serverCleanupStarted, 1) != 0) return;
                 await webApplication.StopAsync(CancellationToken.None).ConfigureAwait(false);
                 await webApplication.DisposeAsync().ConfigureAwait(false);
+            }
+
+            application.RegisterStartupAction(async () => {
+                try {
+                    await webApplication.StartAsync().ConfigureAwait(false);
+                    Uri address = ResolveStartedAddress(webApplication);
+                    application.ApplyWindowIntegration(windowIds, "WebServer", configure: windowBuilder => {
+                        windowBuilder.SetStartPageUrl(address.ToString());
+                        windowBuilder.RegisterGetWebMessageHandler();
+                        InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(
+                            windowBuilder,
+                            configure: policyBuilder => policyBuilder.AddTrustedOrigin(address)
+                        );
+                    });
+                }
+                catch {
+                    await StopServerAsync().ConfigureAwait(false);
+                    throw;
+                }
             });
+
+            application.RegisterShutdownAction(StopServerAsync);
         });
         return builder;
     }
@@ -80,6 +91,11 @@ public static class InfiniFrameApplicationWebServerExtensions {
             throw new InvalidOperationException(
                 "The ASP.NET Core web server started but its bound address could not be resolved. " +
                 "Refusing to navigate a window to an unresolved port.");
+
+        if (result.Host is "*" or "+" or "0.0.0.0" or "::") {
+            var loopback = new UriBuilder(result) { Host = "127.0.0.1" };
+            return loopback.Uri;
+        }
 
         return result;
     }

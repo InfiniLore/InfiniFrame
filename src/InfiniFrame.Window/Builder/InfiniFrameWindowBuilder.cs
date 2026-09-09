@@ -48,40 +48,47 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     public IInfiniFrameWindow Build(IServiceProvider? provider = null) {
         bool ownsServiceProvider = provider is null;
         IServiceProvider actualProvider = provider ?? Services.BuildServiceProvider();
-        var featureFactory = actualProvider.GetRequiredService<InfiniFrameWindowFeaturesFactory>();
-        var validator = actualProvider.GetRequiredService<IValidator<InfiniFrameNativeWindowParameters>>();
+        InfiniFrameWindow? window = null;
+        try {
+            var featureFactory = actualProvider.GetRequiredService<InfiniFrameWindowFeaturesFactory>();
+            var validator = actualProvider.GetRequiredService<IValidator<InfiniFrameNativeWindowParameters>>();
 
-        InfiniFrameNativeWindowParameters nativeParameters = CollectNativeParameters();
-        validator.ValidateAndThrow(nativeParameters);
+            InfiniFrameNativeWindowParameters nativeParameters = CollectNativeParameters();
+            validator.ValidateAndThrow(nativeParameters);
 
-        // Instance arbitration check
-        IInstanceArbitrationInfiniFrameWindowBuilderFeature arbitration = Features.InstanceArbitration;
-        if (arbitration.Mode != InstanceArbitrationMode.Disabled
-            && !InstanceArbitration.TryAcquirePrimaryInstance(arbitration.MutexName)) {
-            throw new InstanceAlreadyRunningException();
+            // Instance arbitration check
+            IInstanceArbitrationInfiniFrameWindowBuilderFeature arbitration = Features.InstanceArbitration;
+            if (arbitration.Mode != InstanceArbitrationMode.Disabled
+                && !InstanceArbitration.TryAcquirePrimaryInstance(arbitration.MutexName)) {
+                throw new InstanceAlreadyRunningException();
+            }
+
+            window = actualProvider.GetRequiredService<InfiniFrameWindow>();
+            window.AssignFeatures(featureFactory.Create(window, this));
+
+            window.Events.PopulateFromBuilderEventStore(EventsStore);
+            window.Events.AssignToNativeParameters(ref nativeParameters);
+            window.Events.AssignDefaultEventCallbacks();
+            window.Events.AssignToWindow(window);
+
+            window.Configuration.ParentWindow = Configuration.ParentWindow;
+            window.Configuration.AssignNativeParameters(nativeParameters);
+
+            InfiniFrameUriSecurityPolicyRegistry.BindToWindow(
+                window,
+                InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(this)
+            );
+
+            window.Features.Lifecycle.Initialize();
+            window.SetOwnsServiceProvider(ownsServiceProvider);
+            return window;
         }
-
-        var window = actualProvider.GetRequiredService<InfiniFrameWindow>();
-        window.SetOwnsServiceProvider(ownsServiceProvider);
-
-        window.AssignFeatures(featureFactory.Create(window, this));
-
-        window.Events.PopulateFromBuilderEventStore(EventsStore);
-        window.Events.AssignToNativeParameters(ref nativeParameters);
-        window.Events.AssignDefaultEventCallbacks();
-        window.Events.AssignToWindow(window);
-
-        window.Configuration.ParentWindow = Configuration.ParentWindow;
-        window.Configuration.AssignNativeParameters(nativeParameters);
-
-        InfiniFrameUriSecurityPolicyRegistry.BindToWindow(
-            window,
-            InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(this)
-        );
-
-        window.Features.Lifecycle.Initialize();
-
-        return window;
+        catch {
+            (window as IDisposable)?.Dispose();
+            if (ownsServiceProvider)
+                (actualProvider as IDisposable)?.Dispose();
+            throw;
+        }
 
     }
 

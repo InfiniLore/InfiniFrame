@@ -94,6 +94,28 @@ public sealed class InfiniFrameApplicationTests {
     }
 
     [Test]
+    [Timeout(60_000)]
+    public async Task ConcurrentRunAsync_IsRejected(CancellationToken ct = default) {
+        if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
+
+        await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
+            .WithWindow(static window => window.SetStartPageContent("<html><body>Run guard</body></html>"));
+        Task runTask = application.RunAsync(ct);
+        try {
+            for (int attempt = 0; attempt < 100 && application.Windows.Count == 0; attempt++)
+                await Task.Delay(100, ct);
+
+            await Assert.That(() => application.RunAsync(ct))
+                .Throws<InvalidOperationException>()
+                .WithMessageContaining("only be run once");
+        }
+        finally {
+            application.Shutdown();
+            await runTask.WaitAsync(TimeSpan.FromSeconds(30), CancellationToken.None);
+        }
+    }
+
+    [Test]
     public async Task RunFromMtaThreadFailsBeforeWindowCreation(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 

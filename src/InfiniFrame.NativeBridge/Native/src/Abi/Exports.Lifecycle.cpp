@@ -68,6 +68,10 @@ EXPORTED InteropStatus InfiniFrameNativeApplication_dtor(InfiniFrameApplication*
     return RunExportStatus(
         [&] {
             if (!EnsureNotNull(instance, "instance")) return;
+#ifdef _WIN32
+            if (instance->GetWindowCount() != 0)
+                throw std::runtime_error("Cannot destroy a native application while windows are still alive.");
+#endif
             std::unique_ptr<InfiniFrameApplication> guard{instance};
         });
 }

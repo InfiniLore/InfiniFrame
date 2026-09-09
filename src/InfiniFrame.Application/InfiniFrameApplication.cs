@@ -27,12 +27,12 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         InfiniFrameWindowBuilder? Builder,
         IServiceProvider? Provider
     )> _registrations = [];
-    private readonly List<Action<InfiniFrameWindowBuilder>> _windowConventions = [];
     private readonly List<Func<Task>> _shutdownActions = [];
     private readonly List<Func<Task>> _startupActions = [];
     private readonly Dictionary<string, IInfiniFrameWindow> _windows = [];
     private IServiceProvider? _serviceProvider;
     private int _disposed;
+    private int _runState;
     private bool _built;
     private int _shutdownRequested;
 
@@ -130,7 +130,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
 
     /// <inheritdoc />
     public void Run() {
-        ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
+        BeginRun();
         try {
             EnsureWindowsStaThread();
             RegisterNativeApplication();
@@ -146,7 +146,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
 
     /// <inheritdoc />
     public async Task RunAsync(CancellationToken ct = default) {
-        ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
+        BeginRun();
         await using CancellationTokenRegistration registration = ct.Register(Shutdown);
         Task? uiTask = null;
         try {
@@ -294,6 +294,12 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         RegisterWindowCore(id, null, builder, provider);
     }
 
+    private void BeginRun() {
+        ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
+        if (Interlocked.CompareExchange(ref _runState, 1, 0) != 0)
+            throw new InvalidOperationException("The InfiniFrame application can only be run once.");
+    }
+
     internal void ValidateWindowIntegrationTargets(IReadOnlyList<string>? ids, string integrationName) {
         lock (_gate) {
             GetIntegrationTargets(ids, integrationName);
@@ -315,11 +321,6 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 }, builder, provider);
             }
         }
-    }
-
-    internal void RegisterWindowConvention(Action<InfiniFrameWindowBuilder> configure) {
-        ArgumentNullException.ThrowIfNull(configure);
-        lock (_gate) _windowConventions.Add(configure);
     }
 
     internal void RegisterShutdownAction(Func<Task> action) {
@@ -384,8 +385,6 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             try {
                 foreach ((string? id, Action<IInfiniFrameWindowBuilder>? configure, InfiniFrameWindowBuilder? registeredBuilder, IServiceProvider? provider) in _registrations) {
                     InfiniFrameWindowBuilder builder = registeredBuilder ?? new InfiniFrameWindowBuilder();
-                    foreach (Action<InfiniFrameWindowBuilder> convention in _windowConventions)
-                        convention(builder);
                     configure?.Invoke(builder);
                     builder.SetApplicationHandle(_nativeHandle.DangerousGetHandle());
                     string windowId = id ?? Guid.NewGuid().ToString("N");

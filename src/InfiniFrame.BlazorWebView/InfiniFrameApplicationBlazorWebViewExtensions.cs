@@ -203,6 +203,9 @@ public static class InfiniFrameApplicationBlazorWebViewExtensions {
     ) {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(configure);
+        ArgumentNullException.ThrowIfNull(windowIds);
+        if (windowIds.Length > 1)
+            throw new NotSupportedException("BlazorWebView can currently target only one window.");
 
         var configuration = new InfiniFrameBlazorWebViewConfiguration(builder.Services);
         configure(configuration);

@@ -8,6 +8,14 @@ namespace InfiniTests.InfiniFrame.BlazorWebView;
 [NotInParallelInfiniTests]
 public sealed class InfiniFrameApplicationBlazorWebViewTests {
     [Test]
+    public async Task UseBlazorWebView_RejectsMultipleTargetWindows() {
+        await Assert.That(() => InfiniFrameApplication.CreateBuilder()
+                .UseBlazorWebView(static _ => { }, "main", "settings"))
+            .Throws<NotSupportedException>()
+            .WithMessageContaining("only one window");
+    }
+
+    [Test]
     public async Task WithBlazorWebView_ReturnsApplicationAndDefersWindowBuild(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 

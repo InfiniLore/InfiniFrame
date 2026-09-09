@@ -27,17 +27,11 @@ public sealed class InfiniFrameWindow(
     private int _closeReturnState = (int)InfiniFrameWindowLifecycleState.Ready;
     private int _managedThreadId = Environment.CurrentManagedThreadId;
     private long _lastLifecycleTransitionUtcTicks = DateTimeOffset.UtcNow.UtcTicks;
-    private int _asyncDisposing;
     private readonly object _diagnosticsLock = new();
     private readonly Dictionary<string, InfiniFrameOperationDiagnostics> _outstandingOperations = [];
     private InfiniFrameOperationDiagnostics? _lastOperation;
     private bool _ownsServiceProvider;
-    #if NET9_0_OR_GREATER
-    private readonly Lock _disposeLock = new();
-    #else
-    // ReSharper disable once ConvertToAutoPropertyWhenPossible
-    private readonly object _disposeLock = new();
-    #endif
+    private readonly SemaphoreSlim _disposeLock = new(1, 1);
     /// <inheritdoc cref="IInfiniFrameWindow.MainProgramHandle" />
     public IntPtr MainProgramHandle => LazyMainProgramHandle.Value;
 
@@ -304,7 +298,8 @@ public sealed class InfiniFrameWindow(
     }
 
     public void Dispose() {
-        lock (_disposeLock) {
+        _disposeLock.Wait();
+        try {
             if (LifecycleState == InfiniFrameWindowLifecycleState.Disposed) return;
 
             if (!Features.Lifecycle.IsClosedOrClosing()) {
@@ -331,24 +326,29 @@ public sealed class InfiniFrameWindow(
                 disposableProvider.Dispose();
             }
         }
+        finally {
+            _disposeLock.Release();
+        }
     }
 
     public async ValueTask DisposeAsync() {
-        lock (_disposeLock) {
-            if (Interlocked.CompareExchange(ref _asyncDisposing, 1, 0) != 0) return;
-            if (LifecycleState == InfiniFrameWindowLifecycleState.Disposed) return;
-        }
-
+        await _disposeLock.WaitAsync().ConfigureAwait(false);
         try {
-            if (!Features.Lifecycle.IsClosedOrClosing()) await Features.Lifecycle.CloseAsync().ConfigureAwait(false);
-            await Features.Lifecycle.WaitForTeardownAsync().ConfigureAwait(false);
+            try {
+                if (LifecycleState == InfiniFrameWindowLifecycleState.Disposed) return;
+                if (!Features.Lifecycle.IsClosedOrClosing()) await Features.Lifecycle.CloseAsync().ConfigureAwait(false);
+                await Features.Lifecycle.WaitForTeardownAsync().ConfigureAwait(false);
+            }
+            finally {
+                Features.Lifecycle.CleanupNativeHandle();
+
+                if (_ownsServiceProvider && ServiceProvider is IDisposable disposableProvider) {
+                    disposableProvider.Dispose();
+                }
+            }
         }
         finally {
-            Features.Lifecycle.CleanupNativeHandle();
-
-            if (_ownsServiceProvider && ServiceProvider is IDisposable disposableProvider) {
-                using IDisposable _ = disposableProvider;
-            }
+            _disposeLock.Release();
         }
     }
 }

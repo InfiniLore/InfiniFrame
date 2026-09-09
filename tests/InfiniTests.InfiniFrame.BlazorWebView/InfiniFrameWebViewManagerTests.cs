@@ -206,6 +206,43 @@ public class InfiniFrameWebViewManagerTests {
     }
 
     [Test]
+    public async Task SendMessage_DefaultQueueModeDoesNotSilentlyDropMessages(CancellationToken ct = default) {
+        var firstStarted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var firstRelease = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var sentMessages = new List<string>();
+        Mock<IInfiniFrameWindow> windowMock = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> featuresMock = MockFactory.CreateFeaturesMock();
+        Mock<IWebMessagingInfiniFrameWindowFeature> webMessagingMock = MockFactory.CreateWebMessagingMock();
+        windowMock.Features.Returns(featuresMock.Object);
+        featuresMock.WebMessaging.Returns(webMessagingMock.Object);
+        ValueTask returnValue = new(firstRelease.Task);
+        webMessagingMock.SendWebMessageAsync(Any<string>(), Any<CancellationToken>())
+            .Callback((message, _) => {
+                sentMessages.Add(message);
+                if (message == "first") firstStarted.TrySetResult(true);
+            }).Returns(() => returnValue);
+
+        await using ServiceProvider provider = new ServiceCollection()
+            .AddLogging()
+            .AddSingleton(windowMock.Object)
+            .BuildServiceProvider();
+        TestableInfiniFrameWebViewManager manager = CreateManager(provider, new InfiniFrameBlazorAppConfiguration {
+            WebMessageQueueCapacity = 1
+        });
+
+        manager.SendMessageForTest("first");
+        await firstStarted.Task.WaitAsync(TimeSpan.FromSeconds(5), ct);
+        manager.SendMessageForTest("second");
+        manager.SendMessageForTest("dropped");
+        firstRelease.TrySetResult(true);
+
+        await Task.Delay(100, ct);
+        await manager.DisposeAsync();
+
+        await Assert.That(sentMessages).IsEquivalentTo(["first", "second"]);
+    }
+
+    [Test]
     public async Task DisposeAsync_ShouldCancelAndAwaitActiveMessagePumpWork(CancellationToken ct = default) {
         // Arrange
         Mock<IInfiniFrameWindow> windowMock = MockFactory.CreateWindowMock();
