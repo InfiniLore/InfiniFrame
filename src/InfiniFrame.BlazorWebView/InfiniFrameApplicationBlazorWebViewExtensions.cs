@@ -88,9 +88,10 @@ public sealed class InfiniFrameBlazorWebViewConfiguration {
         _services.AddOptions<InfiniFrameBlazorAppConfiguration>();
         _services
             .AddInfiniFrame()
-            .AddScoped(static sp => {
+            .AddScoped(sp => {
                 var handler = sp.GetRequiredService<InfiniFrameHttpHandler>();
-                return new HttpClient(handler) { BaseAddress = new Uri(InfiniFrameWebViewManager.AppBaseUri) };
+                Uri appBaseUri = sp.GetRequiredService<IOptions<InfiniFrameBlazorAppConfiguration>>().Value.AppBaseUri;
+                return new HttpClient(handler) { BaseAddress = appBaseUri };
             })
             .AddSingleton<IInfiniFrameWebViewManager, InfiniFrameWebViewManager>()
             .AddSingleton<IInfiniFrameJsComponentConfiguration, InfiniFrameJsComponentConfiguration>()

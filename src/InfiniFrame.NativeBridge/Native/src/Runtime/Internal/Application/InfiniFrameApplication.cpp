@@ -19,6 +19,7 @@
 struct InfiniFrameApplicationImpl {
     mutable std::mutex mutex;
     std::unordered_set<InfiniFrameWindow*> windows;
+    std::unordered_set<InfiniFrameWindow*> closedWindows;
     bool registered = false;
     bool shutdownRequested = false;
     std::string webView2RuntimePath;
@@ -60,6 +61,7 @@ InfiniFrameApplication::InfiniFrameApplication()
 InfiniFrameApplication::~InfiniFrameApplication() {
     std::lock_guard lock(_impl->mutex);
     _impl->windows.clear();
+    _impl->closedWindows.clear();
     InfiniFrameApplication* expected = this;
     applicationInstance.compare_exchange_strong(expected, nullptr, std::memory_order_acq_rel);
 }
@@ -169,21 +171,24 @@ void InfiniFrameApplication::TrackWindow(InfiniFrameWindow* window) {
     if (window == nullptr) return;
     std::lock_guard lock(_impl->mutex);
     _impl->windows.insert(window);
+    _impl->closedWindows.erase(window);
 }
 
 void InfiniFrameApplication::UntrackWindow(InfiniFrameWindow* window) noexcept {
     if (window == nullptr) return;
     std::lock_guard lock(_impl->mutex);
     _impl->windows.erase(window);
+    _impl->closedWindows.erase(window);
 }
 
 void InfiniFrameApplication::NotifyWindowClosed(InfiniFrameWindow* window) noexcept {
     if (window == nullptr) return;
 
     std::lock_guard lock(_impl->mutex);
-    _impl->windows.erase(window);
+    if (_impl->windows.contains(window))
+        _impl->closedWindows.insert(window);
 #ifdef _WIN32
-    if (_impl->running && _impl->windows.empty())
+    if (_impl->running && !_impl->windows.empty() && _impl->closedWindows.size() == _impl->windows.size())
         PostThreadMessage(_impl->runThreadId, WM_QUIT, 0, 0);
 #endif
 }
@@ -194,19 +199,31 @@ std::size_t InfiniFrameApplication::GetWindowCount() const noexcept {
 }
 
 const char* InfiniFrameApplication::GetWebView2RuntimePath() const noexcept {
-    return _impl->webView2RuntimePath.c_str();
+    thread_local std::string value;
+    std::lock_guard lock(_impl->mutex);
+    value = _impl->webView2RuntimePath;
+    return value.c_str();
 }
 
 const char* InfiniFrameApplication::GetNotificationRegistrationId() const noexcept {
-    return _impl->notificationRegistrationId.c_str();
+    thread_local std::string value;
+    std::lock_guard lock(_impl->mutex);
+    value = _impl->notificationRegistrationId;
+    return value.c_str();
 }
 
 const char* InfiniFrameApplication::GetAppUserModelId() const noexcept {
-    return _impl->appUserModelId.c_str();
+    thread_local std::string value;
+    std::lock_guard lock(_impl->mutex);
+    value = _impl->appUserModelId;
+    return value.c_str();
 }
 
 const char* InfiniFrameApplication::GetDefaultNotificationIcon() const noexcept {
-    return _impl->defaultNotificationIcon.c_str();
+    thread_local std::string value;
+    std::lock_guard lock(_impl->mutex);
+    value = _impl->defaultNotificationIcon;
+    return value.c_str();
 }
 
 bool InfiniFrameApplication::HasNotificationRegistration() const noexcept {

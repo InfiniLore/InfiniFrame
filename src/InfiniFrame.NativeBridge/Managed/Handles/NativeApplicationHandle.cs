@@ -7,7 +7,7 @@ public sealed class NativeApplicationHandle : SafeHandleZeroOrMinusOneIsInvalid 
     internal NativeApplicationHandle(IntPtr handle) : base(true) => SetHandle(handle);
 
     protected override bool ReleaseHandle() {
-        InfiniFrameNative.ApplicationDestructor(handle);
-        return true;
+        InfiniFrameNativeInteropStatus status = InfiniFrameNative.ApplicationDestructor(handle);
+        return status == InfiniFrameNativeInteropStatus.Success;
     }
 }

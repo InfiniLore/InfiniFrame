@@ -362,9 +362,12 @@ public class LifecycleInfiniFrameWindowFeature(
 
         if (window.LifecycleState < InfiniFrameWindowLifecycleState.TeardownComplete
             && window.LifecycleState != InfiniFrameWindowLifecycleState.Disposed) {
-            // The normal teardown path hasn't completed yet. Still release callback roots
-            // and milestones to avoid leaks, and release the native handle so .NET 10's
-            // runtime doesn't abort during shutdown over unreleased SafeHandles.
+            // Native teardown callbacks can still be executing. Keep the callback and
+            // milestone roots alive; CompleteTeardown performs the final release after
+            // WM_NCDESTROY has returned to the native message loop.
+            if (Volatile.Read(ref _closeRequestDispatched) != 0 || window.LifecycleState >= InfiniFrameWindowLifecycleState.NativeClosed)
+                return;
+
             ReleaseNativeCallbackRootOnce();
             ReleaseMilestoneRootOnce();
             try { window.ReleaseNativeHandle(); }

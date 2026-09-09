@@ -327,6 +327,7 @@ public sealed class InfiniFrameWindow(
             }
         }
         finally {
+            DetachFromParent();
             _disposeLock.Release();
         }
     }
@@ -348,7 +349,14 @@ public sealed class InfiniFrameWindow(
             }
         }
         finally {
+            DetachFromParent();
             _disposeLock.Release();
         }
+    }
+
+    private void DetachFromParent() {
+        if (Configuration.ParentWindow?.Configuration is not InfiniFrameWindowConfiguration parentConfiguration) return;
+        lock (parentConfiguration.ChildWindowsLock)
+            parentConfiguration.ChildWindowsInternal.Remove(this);
     }
 }

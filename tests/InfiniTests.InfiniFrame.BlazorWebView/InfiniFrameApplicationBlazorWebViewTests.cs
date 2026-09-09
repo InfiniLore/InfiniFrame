@@ -2,6 +2,7 @@ using InfiniFrame;
 using InfiniFrame.Application;
 using InfiniFrame.BlazorWebView;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace InfiniTests.InfiniFrame.BlazorWebView;
 
@@ -13,6 +14,23 @@ public sealed class InfiniFrameApplicationBlazorWebViewTests {
                 .UseBlazorWebView(static _ => { }, "main", "settings"))
             .Throws<NotSupportedException>()
             .WithMessageContaining("only one window");
+    }
+
+    [Test]
+    public async Task UseBlazorWebView_UsesConfiguredAppBaseUriForHttpClient() {
+        if (!OperatingSystem.IsWindows()) return;
+
+        Uri customBaseUri = new("app://custom-host/");
+        await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
+            .WithWindow(static _ => { })
+            .UseBlazorWebView(configuration => configuration.Configure(options => options.AppBaseUri = customBaseUri))
+            .Build();
+
+        HttpClient client = application.RootServiceProvider.GetRequiredService<HttpClient>();
+
+        await Assert.That(client.BaseAddress).IsEqualTo(customBaseUri);
+        await Assert.That(application.RootServiceProvider.GetRequiredService<IOptions<InfiniFrameBlazorAppConfiguration>>().Value.AppBaseUri)
+            .IsEqualTo(customBaseUri);
     }
 
     [Test]

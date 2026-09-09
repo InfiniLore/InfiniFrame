@@ -41,8 +41,15 @@ public sealed class InfiniFrameWebServerConfiguration {
         AddRootServices();
         _webApplicationBuilder.WebHost.UseStaticWebAssets();
         WebApplication application = _webApplicationBuilder.Build();
-        application.UseDefaultFiles();
-        Apply(application);
-        return application;
+        try {
+            application.UseDefaultFiles();
+            application.UseStaticFiles();
+            Apply(application);
+            return application;
+        }
+        catch {
+            application.DisposeAsync().AsTask().GetAwaiter().GetResult();
+            throw;
+        }
     }
 }

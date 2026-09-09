@@ -341,7 +341,8 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     ) {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
         lock (_gate) {
-            if (_built) throw new InvalidOperationException("Cannot register windows after the application has run.");
+            if (_built || Volatile.Read(ref _runState) != 0)
+                throw new InvalidOperationException("Cannot register windows after the application run has started.");
             if (id is not null && _registrations.Any(registration => registration.Id == id))
                 throw new ArgumentException($"A window with id '{id}' is already registered.", nameof(id));
             _registrations.Add((id, configure, builder, provider));

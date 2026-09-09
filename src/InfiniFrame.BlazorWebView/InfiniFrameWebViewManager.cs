@@ -40,6 +40,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     private readonly Task _messagePumpTask;
     private readonly int _messageQueueCapacity;
     private readonly BoundedChannelFullMode _messageQueueFullMode;
+    private readonly Uri _appBaseUri;
     private readonly IInfiniFrameUriSecurityPolicy _fallbackUriSecurityPolicy;
     private int _disposeStarted;
     private int _disposed;
@@ -67,6 +68,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         : base(provider, dispatcher, config.Value.AppBaseUri, fileProvider, jsComponents, config.Value.HostPage) {
         _logger = logger;
         InfiniFrameBlazorAppConfiguration configuration = config.Value;
+        _appBaseUri = configuration.AppBaseUri;
         if (configuration.WebMessageQueueCapacity <= 0) {
             throw new ArgumentOutOfRangeException(
                 nameof(configuration.WebMessageQueueCapacity),
@@ -203,7 +205,8 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
                 return;
             }
         }
-        else if (Uri.TryCreate(AppBaseUri, UriKind.Absolute, out Uri? fallback)) {
+        else if (_appBaseUri.IsAbsoluteUri) {
+            Uri fallback = _appBaseUri;
             messageOriginUrl = fallback;
 
             _logger.LogDebug(

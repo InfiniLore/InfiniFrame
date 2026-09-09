@@ -80,6 +80,12 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             );
 
             window.Features.Lifecycle.Initialize();
+            if (window.Configuration.ParentWindow?.Configuration is InfiniFrameWindowConfiguration parentConfiguration) {
+                lock (parentConfiguration.ChildWindowsLock) {
+                    if (!parentConfiguration.ChildWindowsInternal.Contains(window))
+                        parentConfiguration.ChildWindowsInternal.Add(window);
+                }
+            }
             window.SetOwnsServiceProvider(ownsServiceProvider);
             return window;
         }
