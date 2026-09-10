@@ -166,6 +166,19 @@ EXPORTED InteropStatus InfiniFrameNative_SetReadyCallback(
         });
 }
 
+EXPORTED InteropStatus InfiniFrameNative_SetReadyFailureCallback(
+    InfiniFrameWindow* instance,
+    const ContextAction callback,
+    void* context
+    ) {
+    return RunWindowExportStatus(
+        instance, [&](InfiniFrameWindow* window) {
+            if (callback == nullptr)
+                throw std::invalid_argument("Argument 'callback' is null.");
+            window->SetReadyFailureCallback(callback, context);
+        });
+}
+
 /// @brief Registers a callback for when teardown begins.
 /// @param instance The window handle.
 /// @param callback Context action invoked when teardown starts.

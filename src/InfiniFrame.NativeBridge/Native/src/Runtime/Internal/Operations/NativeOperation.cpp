@@ -146,6 +146,18 @@ void InfiniFrameWindow::SetTeardownCallback(const ContextAction callback, void* 
         callback(context);
 }
 
+void InfiniFrameWindow::SetReadyFailureCallback(const ContextAction callback, void* context) {
+    bool invoke = false;
+    {
+        std::lock_guard lock(GetCommonWindowState(this)->_milestoneMutex);
+        GetCommonWindowState(this)->_readyFailureCallback = callback;
+        GetCommonWindowState(this)->_readyFailureCallbackContext = context;
+        invoke = GetCommonWindowState(this)->_readySignaled && callback != nullptr;
+    }
+    if (invoke)
+        callback(context);
+}
+
 void InfiniFrameWindow::SignalReady() {
     ContextAction callback = nullptr;
     void* context = nullptr;
@@ -156,6 +168,21 @@ void InfiniFrameWindow::SignalReady() {
         GetCommonWindowState(this)->_readySignaled = true;
         callback = GetCommonWindowState(this)->_readyCallback;
         context = GetCommonWindowState(this)->_readyCallbackContext;
+    }
+    if (callback != nullptr)
+        callback(context);
+}
+
+void InfiniFrameWindow::SignalReadyFailure() {
+    ContextAction callback = nullptr;
+    void* context = nullptr;
+    {
+        std::lock_guard lock(GetCommonWindowState(this)->_milestoneMutex);
+        if (GetCommonWindowState(this)->_readySignaled)
+            return;
+        GetCommonWindowState(this)->_readySignaled = true;
+        callback = GetCommonWindowState(this)->_readyFailureCallback;
+        context = GetCommonWindowState(this)->_readyFailureCallbackContext;
     }
     if (callback != nullptr)
         callback(context);

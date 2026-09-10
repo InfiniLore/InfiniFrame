@@ -329,7 +329,10 @@ public sealed class InfiniFrameWindow(
             DetachFromParent();
             _disposeLock.Release();
         }
-        (ownedProvider as IDisposable)?.Dispose();
+        if (ownedProvider is IDisposable disposable)
+            disposable.Dispose();
+        else if (ownedProvider is IAsyncDisposable asyncDisposable)
+            asyncDisposable.DisposeAsync().AsTask().GetAwaiter().GetResult();
     }
 
     public async ValueTask DisposeAsync() {
@@ -351,7 +354,9 @@ public sealed class InfiniFrameWindow(
             DetachFromParent();
             _disposeLock.Release();
         }
-        (ownedProvider as IDisposable)?.Dispose();
+        if (ownedProvider is IAsyncDisposable asyncDisposable)
+            await asyncDisposable.DisposeAsync().ConfigureAwait(false);
+        else (ownedProvider as IDisposable)?.Dispose();
     }
 
     private void DetachFromParent() {

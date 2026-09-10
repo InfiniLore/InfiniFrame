@@ -846,8 +846,10 @@ class InfiniFrameWindow {
     /** Platform-specific non-blocking event-loop enqueue. */
     bool ScheduleOperation(const std::shared_ptr<NativeOperation>& operation);
     void SetReadyCallback(ContextAction callback, void* context);
+    void SetReadyFailureCallback(ContextAction callback, void* context);
     void SetTeardownCallback(ContextAction callback, void* context);
     void SignalReady();
+    void SignalReadyFailure();
     void SignalTeardown();
     /// Schedule the teardown completion callback to run after pending work finishes.
     void ScheduleTeardownCompletion();

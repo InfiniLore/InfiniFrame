@@ -217,8 +217,11 @@ void InfiniFrameWindow::AttachWebView() {
                             auto nav = std::make_shared<NavigateOnce>(NavigateOnce{this});
 
                             HRESULT settingsResult = ApplyInitialWebViewSettings();
-                            if (FAILED(settingsResult))
+                            if (FAILED(settingsResult)) {
+                                m_impl->_isWebView2Initializing = false;
+                                SignalReadyFailure();
                                 return settingsResult;
+                            }
 
                             EventRegistrationToken webMessageToken;
                             m_impl->_webviewWindow->add_WebMessageReceived(

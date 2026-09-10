@@ -5,6 +5,7 @@
 #include <atomic>
 #include <mutex>
 #include <string>
+#include <vector>
 #include <unordered_set>
 #ifdef _WIN32
 #include <windows.h>
@@ -143,8 +144,16 @@ void InfiniFrameApplication::Run() noexcept {
         MsgWaitForMultipleObjectsEx(0, nullptr, 50, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
         while (PeekMessage(&message, nullptr, 0, 0, PM_REMOVE)) {
             if (message.message == WM_QUIT) {
-                std::lock_guard lock(_impl->mutex);
-                _impl->shutdownRequested = true;
+                std::vector<InfiniFrameWindow*> windows;
+                {
+                    std::lock_guard lock(_impl->mutex);
+                    _impl->shutdownRequested = true;
+                    windows.assign(_impl->windows.begin(), _impl->windows.end());
+                }
+                // WM_QUIT does not dispatch to HWNDs. Post WM_CLOSE so normal
+                // teardown drains every tracked window before returning.
+                for (InfiniFrameWindow* window : windows)
+                    window->Close();
                 break;
             }
             TranslateMessage(&message);

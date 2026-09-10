@@ -36,9 +36,12 @@ struct CommonWindowState {
     std::mutex _milestoneMutex;
     ContextAction _readyCallback = nullptr;
     void* _readyCallbackContext = nullptr;
+    ContextAction _readyFailureCallback = nullptr;
+    void* _readyFailureCallbackContext = nullptr;
     ContextAction _teardownCallback = nullptr;
     void* _teardownCallbackContext = nullptr;
     bool _readySignaled = false;
+    bool _readySucceeded = false;
     bool _teardownSignaled = false;
     // -----------------------------------------------------------------------------------------------------------------
     // Callbacks

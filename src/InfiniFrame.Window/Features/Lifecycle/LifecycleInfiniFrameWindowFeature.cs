@@ -24,6 +24,7 @@ public class LifecycleInfiniFrameWindowFeature(
     IValidator<InfiniFrameNativeWindowParameters> validator
 ) : ILifecycleInfiniFrameWindowFeature, IDisposable {
     private static readonly InfiniFrameNative.ContextAction ReadyCallback = OnNativeReady;
+    private static readonly InfiniFrameNative.ContextAction ReadyFailureCallback = OnNativeReadyFailure;
     private static readonly InfiniFrameNative.ContextAction TeardownCallback = OnNativeTeardown;
     private readonly TaskCompletionSource _closed = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly TaskCompletionSource _closedCallbacksDelivered = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -437,8 +438,10 @@ public class LifecycleInfiniFrameWindowFeature(
         _milestoneRoot = GCHandle.Alloc(this);
         IntPtr context = GCHandle.ToIntPtr(_milestoneRoot);
         InfiniFrameNativeInteropStatus readyStatus = InfiniFrameNative.SetReadyCallback(handle, ReadyCallback, context);
+        InfiniFrameNativeInteropStatus readyFailureStatus = InfiniFrameNative.SetReadyFailureCallback(handle, ReadyFailureCallback, context);
         InfiniFrameNativeInteropStatus teardownStatus = InfiniFrameNative.SetTeardownCallback(handle, TeardownCallback, context);
         if (readyStatus == InfiniFrameNativeInteropStatus.Success
+            && readyFailureStatus == InfiniFrameNativeInteropStatus.Success
             && teardownStatus == InfiniFrameNativeInteropStatus.Success)
             return;
 
@@ -449,6 +452,12 @@ public class LifecycleInfiniFrameWindowFeature(
         if (!TryGetLifecycle(context, out LifecycleInfiniFrameWindowFeature? lifecycle)) return;
 
         lifecycle.CompleteReady();
+    }
+
+    private static void OnNativeReadyFailure(IntPtr context) {
+        if (!TryGetLifecycle(context, out LifecycleInfiniFrameWindowFeature? lifecycle)) return;
+
+        lifecycle._ready.TrySetException(new InfiniFrameNativeInteropException("WebView2 initialization failed."));
     }
 
     private static void OnNativeTeardown(IntPtr context) {

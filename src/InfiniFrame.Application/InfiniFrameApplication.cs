@@ -242,7 +242,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 (window as IDisposable)?.Dispose();
                 if (window.LifecycleState != InfiniFrameWindowLifecycleState.Disposed)
                     throw new InvalidOperationException("A window did not complete native disposal.");
-                WindowDestroyed?.Invoke(window);
+                RemoveTrackedWindow(window);
             }
             catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException) {
                 logger.LogWarning(ex, "Failed to dispose an application window.");
@@ -282,7 +282,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 else (window as IDisposable)?.Dispose();
                 if (window.LifecycleState != InfiniFrameWindowLifecycleState.Disposed)
                     throw new InvalidOperationException("A window did not complete native disposal.");
-                WindowDestroyed?.Invoke(window);
+                RemoveTrackedWindow(window);
             }
             catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException) {
                 logger.LogWarning(ex, "Failed to asynchronously dispose an application window.");
@@ -424,6 +424,39 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
 
         foreach ((_, IInfiniFrameWindow window) in built)
             WindowCreated?.Invoke(window);
+        foreach ((string id, IInfiniFrameWindow window) in built)
+            _ = TrackNaturalWindowCloseAsync(id, window);
+    }
+
+    private async Task TrackNaturalWindowCloseAsync(string id, IInfiniFrameWindow window) {
+        try {
+            await window.Features.Lifecycle.WaitForTeardownAsync().ConfigureAwait(false);
+            if (window is IAsyncDisposable asyncDisposable)
+                await asyncDisposable.DisposeAsync().ConfigureAwait(false);
+            else (window as IDisposable)?.Dispose();
+            RemoveTrackedWindow(id, window);
+        }
+        catch (Exception exception) when (exception is not OutOfMemoryException and not StackOverflowException) {
+            logger.LogDebug(exception, "Could not finalize a naturally closed application window.");
+        }
+    }
+
+    private void RemoveTrackedWindow(IInfiniFrameWindow window) {
+        string? id;
+        lock (_gate) {
+            id = _windows.FirstOrDefault(pair => ReferenceEquals(pair.Value, window)).Key;
+            if (id is null) return;
+            _windows.Remove(id);
+        }
+        WindowDestroyed?.Invoke(window);
+    }
+
+    private void RemoveTrackedWindow(string id, IInfiniFrameWindow window) {
+        lock (_gate) {
+            if (!_windows.TryGetValue(id, out IInfiniFrameWindow? tracked) || !ReferenceEquals(tracked, window)) return;
+            _windows.Remove(id);
+        }
+        WindowDestroyed?.Invoke(window);
     }
 
     private void EnsureBuilt()

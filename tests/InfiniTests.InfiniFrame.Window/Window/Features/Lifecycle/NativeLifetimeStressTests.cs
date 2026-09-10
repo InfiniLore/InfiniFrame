@@ -126,7 +126,7 @@ public class NativeLifetimeStressTests {
         catch (OperationCanceledException) when (stop.IsCancellationRequested) {}
 
         // Assert
-        await Assert.That(completedCalls).IsGreaterThanOrEqualTo(0);
+        await Assert.That(completedCalls).IsGreaterThan(0);
         await Assert.That((int)window.Features.Lifecycle.State)
             .IsGreaterThanOrEqualTo((int)InfiniFrameWindowLifecycleState.TeardownPending);
         await Assert.That(() => window.Features.State.IsFocused).Throws<ObjectDisposedException>();
