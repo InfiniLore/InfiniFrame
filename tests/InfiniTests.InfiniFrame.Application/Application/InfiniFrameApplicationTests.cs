@@ -121,7 +121,8 @@ public sealed class InfiniFrameApplicationTests {
             }
 
             await Assert.That(application.Windows).Count().IsEqualTo(2);
-            foreach (IInfiniFrameWindow window in application.Windows) window.Close();
+            await Task.WhenAll(application.Windows.Select(window => Task.Run(window.Close, ct)));
+            application.Shutdown();
             application.Shutdown();
             await runTask.WaitAsync(TimeSpan.FromSeconds(30), ct);
         }
@@ -129,6 +130,22 @@ public sealed class InfiniFrameApplicationTests {
             application.Shutdown();
             await runTask.WaitAsync(TimeSpan.FromSeconds(30), CancellationToken.None);
         }
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    [Timeout(60_000)]
+    public async Task ShutdownBeforeWebView2InitializationCompletesDrainsRunAsync(CancellationToken ct = default) {
+        if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
+
+        await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
+            .WithWindow("main", configure: static builder => builder.SetStartPageContent("<html><body>Main</body></html>"));
+
+        Task runTask = application.RunAsync(ct);
+        application.Shutdown();
+        application.Shutdown();
+
+        await runTask.WaitAsync(TimeSpan.FromSeconds(30), ct);
     }
 
 }

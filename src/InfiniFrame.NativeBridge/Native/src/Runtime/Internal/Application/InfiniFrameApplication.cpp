@@ -125,7 +125,10 @@ void InfiniFrameApplication::Run() noexcept {
         std::lock_guard lock(_impl->mutex);
         _impl->runThreadId = GetCurrentThreadId();
         _impl->running = true;
-        if (_impl->windows.empty() || _impl->shutdownRequested) {
+        // Shutdown is a drain request, not permission to abandon HWNDs. A close can
+        // be deferred while WebView2 is creating its controller, so the message pump
+        // must continue until every tracked window has reached WM_DESTROY.
+        if (_impl->windows.empty()) {
             _impl->running = false;
             return;
         }
@@ -134,7 +137,7 @@ void InfiniFrameApplication::Run() noexcept {
     while (true) {
         {
             std::lock_guard lock(_impl->mutex);
-            if (_impl->shutdownRequested) break;
+            if (_impl->shutdownRequested && _impl->windows.empty()) break;
         }
 
         MsgWaitForMultipleObjectsEx(0, nullptr, 50, QS_ALLINPUT, MWMO_INPUTAVAILABLE);

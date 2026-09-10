@@ -258,8 +258,11 @@ public class LifecycleInfiniFrameWindowFeature(
     public ValueTask WaitForClosedCallbacksAsync(CancellationToken ct = default)
         => new(_closedCallbacksDelivered.Task.WaitAsync(ct));
 
-    public ValueTask WaitForTeardownAsync(CancellationToken ct = default)
-        => new(_teardown.Task.WaitAsync(ct));
+    public ValueTask WaitForTeardownAsync(CancellationToken ct = default) {
+        if (window.LifecycleState >= InfiniFrameWindowLifecycleState.TeardownComplete)
+            return ValueTask.CompletedTask;
+        return new(_teardown.Task.WaitAsync(ct));
+    }
 
     /// <inheritdoc cref="ILifecycleInfiniFrameWindowFeature.Close" />
     public void Close() {
@@ -334,6 +337,11 @@ public class LifecycleInfiniFrameWindowFeature(
 
     void ILifecycleInfiniFrameWindowFeature.MarkClosedCallbacksDelivered()
         => _closedCallbacksDelivered.TrySetResult();
+
+    void ILifecycleInfiniFrameWindowFeature.CompleteTeardownAfterNativeLoop() {
+        if (window.LifecycleState >= InfiniFrameWindowLifecycleState.NativeClosed)
+            CompleteTeardown();
+    }
 
     void ILifecycleInfiniFrameWindowFeature.MarkCloseRejected() {
         TaskCompletionSource? attempt;

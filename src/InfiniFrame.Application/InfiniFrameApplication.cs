@@ -170,8 +170,6 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                     BuildAllWindows();
                     if (IsShutdownRequested) {
                         CloseAll();
-                        completion.TrySetResult();
-                        return;
                     }
 
                     RunNativeLoop();
@@ -440,6 +438,12 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             if (status != InfiniFrameNativeInteropStatus.Success)
                 throw new InfiniFrameNativeInteropException(
                     InfiniFrameNative.GetLastErrorMessage() ?? "Could not run the native application.");
+
+            // ApplicationRun drains WM_NCDESTROY before returning. If a platform
+            // callback was delivered after the managed owner stopped observing it,
+            // complete the already-observed native teardown milestone here.
+            foreach (IInfiniFrameWindow window in Windows.ToArray())
+                window.Features.Lifecycle.CompleteTeardownAfterNativeLoop();
             return;
         }
 

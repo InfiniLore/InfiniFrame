@@ -299,6 +299,7 @@ public sealed class InfiniFrameWindow(
 
     public void Dispose() {
         _disposeLock.Wait();
+        IServiceProvider? ownedProvider = null;
         try {
             if (LifecycleState == InfiniFrameWindowLifecycleState.Disposed) return;
 
@@ -322,18 +323,18 @@ public sealed class InfiniFrameWindow(
 
             Features.Lifecycle.CleanupNativeHandle();
 
-            if (_ownsServiceProvider && ServiceProvider is IDisposable disposableProvider) {
-                disposableProvider.Dispose();
-            }
+            if (_ownsServiceProvider) ownedProvider = ServiceProvider;
         }
         finally {
             DetachFromParent();
             _disposeLock.Release();
         }
+        (ownedProvider as IDisposable)?.Dispose();
     }
 
     public async ValueTask DisposeAsync() {
         await _disposeLock.WaitAsync().ConfigureAwait(false);
+        IServiceProvider? ownedProvider = null;
         try {
             try {
                 if (LifecycleState == InfiniFrameWindowLifecycleState.Disposed) return;
@@ -343,15 +344,14 @@ public sealed class InfiniFrameWindow(
             finally {
                 Features.Lifecycle.CleanupNativeHandle();
 
-                if (_ownsServiceProvider && ServiceProvider is IDisposable disposableProvider) {
-                    disposableProvider.Dispose();
-                }
+                if (_ownsServiceProvider) ownedProvider = ServiceProvider;
             }
         }
         finally {
             DetachFromParent();
             _disposeLock.Release();
         }
+        (ownedProvider as IDisposable)?.Dispose();
     }
 
     private void DetachFromParent() {
