@@ -5,8 +5,9 @@ using System.Drawing;
 using InfiniFrame;
 using InfiniFrame.Debugging;
 using InfiniFrame.Window.Events;
+using InfiniTests.TestSupport;
 
-namespace InfiniTests.InfiniFrame.Events;
+namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

@@ -9,7 +9,7 @@ using InfiniFrame.NativeBridge.Parameters.Window;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 
-namespace InfiniTests;
+namespace InfiniTests.TestSupport;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

@@ -3,6 +3,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Diagnostics.CodeAnalysis;
 using InfiniFrame;
+using InfiniTests.TestSupport;
+using InfiniTests.TestSupport.Attributes;
 
 namespace InfiniTests.InfiniFrame.Window.Features.FilePickerDialogs;
 // ---------------------------------------------------------------------------------------------------------------------

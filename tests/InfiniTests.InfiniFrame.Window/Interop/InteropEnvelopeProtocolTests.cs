@@ -4,7 +4,7 @@
 using System.Text.Json;
 using InfiniFrame.Js.Interop;
 
-namespace InfiniTests.InfiniFrame.Interop;
+namespace InfiniTests.InfiniFrame.Window.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

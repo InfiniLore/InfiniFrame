@@ -10,7 +10,7 @@ using InfiniFrame.Window.Builder;
 using InfiniFrame.Window.Events;
 using InfiniFrame.Window.Features.WebMessaging.Handlers;
 using InfiniFrame.Window.Interop;
-using InfiniTests.Substitutes;
+using InfiniTests.TestSupport.Substitutes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 

@@ -2,10 +2,11 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.InteropServices;
-using InfiniTests.Native;
+using InfiniTests.TestSupport.Attributes;
+using InfiniTests.TestSupport.Native;
 using TUnit.Core.Interfaces;
 
-namespace InfiniTests;
+namespace InfiniTests.TestSupport;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

@@ -3,9 +3,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Window.Features.Size;
+using InfiniTests.TestSupport;
 using Microsoft.Extensions.Logging;
 
-namespace InfiniTests.InfiniFrame;
+namespace InfiniTests.InfiniFrame.Window;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

@@ -4,7 +4,7 @@
 using InfiniFrame.NativeBridge.Parameters.Window;
 using InfiniFrame.Window.Features.Browser;
 
-namespace InfiniTests.InfiniFrame;
+namespace InfiniTests.InfiniFrame.Window;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

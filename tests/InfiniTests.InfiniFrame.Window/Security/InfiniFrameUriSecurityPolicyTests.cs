@@ -3,9 +3,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Security;
 using InfiniFrame.Window.Builder;
-using InfiniTests.Substitutes;
+using InfiniTests.TestSupport.Substitutes;
 
-namespace InfiniTests.InfiniFrame.Security;
+namespace InfiniTests.InfiniFrame.Window.Security;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

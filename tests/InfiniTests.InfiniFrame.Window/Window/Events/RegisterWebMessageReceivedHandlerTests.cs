@@ -4,6 +4,7 @@
 using InfiniFrame;
 using InfiniFrame.Window.Builder;
 using InfiniFrame.Window.Events;
+using InfiniTests.TestSupport;
 
 namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------

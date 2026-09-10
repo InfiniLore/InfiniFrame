@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Application;
+using InfiniTests.TestSupport.Attributes;
 
 namespace InfiniTests.InfiniFrame.Application;
 // ---------------------------------------------------------------------------------------------------------------------

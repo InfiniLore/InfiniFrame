@@ -5,7 +5,7 @@ using System.Reflection;
 using InfiniFrame.StaticAssets;
 using Microsoft.Extensions.FileProviders;
 
-namespace InfiniTests.InfiniFrame.StaticAssets;
+namespace InfiniTests.InfiniFrame.Window.StaticAssets;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

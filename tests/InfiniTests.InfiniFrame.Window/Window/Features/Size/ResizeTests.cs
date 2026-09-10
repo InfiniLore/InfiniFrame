@@ -2,6 +2,9 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniTests.TestSupport;
+using InfiniTests.TestSupport.Attributes;
+using InfiniTests.TestSupport.Utilities;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Size;
 // ---------------------------------------------------------------------------------------------------------------------

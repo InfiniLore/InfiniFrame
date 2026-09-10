@@ -3,6 +3,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Window.Builder;
+using InfiniTests.TestSupport;
+using InfiniTests.TestSupport.Attributes;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Decorations;
 // ---------------------------------------------------------------------------------------------------------------------

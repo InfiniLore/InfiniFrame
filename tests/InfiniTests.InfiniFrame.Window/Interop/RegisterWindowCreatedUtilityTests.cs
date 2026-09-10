@@ -6,10 +6,10 @@ using InfiniFrame.NativeBridge.Parameters.Window;
 using InfiniFrame.Window.Builder;
 using InfiniFrame.Window.Events;
 using InfiniFrame.Window.Interop;
-using InfiniTests.Substitutes;
+using InfiniTests.TestSupport.Substitutes;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace InfiniTests.InfiniFrame.Interop;
+namespace InfiniTests.InfiniFrame.Window.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

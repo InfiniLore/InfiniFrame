@@ -4,7 +4,7 @@
 using InfiniFrame;
 using InfiniFrame.Utilities;
 
-namespace InfiniTests.InfiniFrame.Features.Size;
+namespace InfiniTests.InfiniFrame.Window.Features.Size;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

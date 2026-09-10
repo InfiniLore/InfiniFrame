@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 using InfiniFrame;
 using InfiniFrame.Utilities;
 
-namespace InfiniTests.InfiniFrame.Features.Menu;
+namespace InfiniTests.InfiniFrame.Window.Features.Menu;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

@@ -4,6 +4,7 @@
 using InfiniFrame;
 using InfiniFrame.Application;
 using InfiniFrame.WebServer;
+using InfiniTests.TestSupport.Attributes;
 using Microsoft.AspNetCore.Hosting;
 
 namespace InfiniTests.InfiniFrame.WebServer;

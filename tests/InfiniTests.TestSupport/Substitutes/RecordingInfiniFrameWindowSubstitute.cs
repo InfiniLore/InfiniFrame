@@ -6,7 +6,7 @@ using InfiniFrame.Js.Interop;
 using InfiniFrame.Window.Events;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace InfiniTests.Substitutes;
+namespace InfiniTests.TestSupport.Substitutes;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

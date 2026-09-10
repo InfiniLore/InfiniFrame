@@ -4,7 +4,7 @@
 using InfiniFrame.Debugging;
 using InfiniFrame.Utilities;
 
-namespace InfiniTests.InfiniFrame.Features.Debugging;
+namespace InfiniTests.InfiniFrame.Window.Features.Debugging;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Window.Builder;
+using InfiniTests.TestSupport.Attributes;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 // ---------------------------------------------------------------------------------------------------------------------

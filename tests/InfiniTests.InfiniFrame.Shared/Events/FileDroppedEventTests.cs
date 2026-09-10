@@ -5,6 +5,7 @@ using System.Drawing;
 using InfiniFrame;
 using InfiniFrame.DragDrop;
 using InfiniFrame.Window.Events;
+using InfiniTests.TestSupport;
 
 namespace InfiniTests.InfiniFrame.Shared.Events;
 // ---------------------------------------------------------------------------------------------------------------------

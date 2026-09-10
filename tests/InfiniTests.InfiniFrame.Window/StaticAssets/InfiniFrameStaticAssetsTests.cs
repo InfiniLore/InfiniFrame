@@ -1,13 +1,13 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
 using System.Collections;
+using InfiniFrame;
 using InfiniFrame.StaticAssets;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 
-namespace InfiniTests.InfiniFrame.StaticAssets;
+namespace InfiniTests.InfiniFrame.Window.StaticAssets;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

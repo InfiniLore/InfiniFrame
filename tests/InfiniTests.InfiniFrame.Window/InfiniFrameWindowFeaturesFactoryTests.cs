@@ -4,7 +4,7 @@
 using InfiniFrame.Window;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace InfiniTests.InfiniFrame;
+namespace InfiniTests.InfiniFrame.Window;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

@@ -4,7 +4,7 @@
 using System.Drawing;
 using InfiniFrame.Utilities;
 
-namespace InfiniTests.InfiniFrame.Features.Position;
+namespace InfiniTests.InfiniFrame.Window.Features.Position;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

@@ -5,6 +5,8 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using InfiniFrame;
 using InfiniFrame.Window.Events;
+using InfiniTests.TestSupport;
+using InfiniTests.TestSupport.Attributes;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniTests.InfiniFrame.Window.Events;

@@ -1,6 +1,7 @@
 using InfiniFrame;
 using InfiniFrame.Application;
 using InfiniFrame.BlazorWebView;
+using InfiniTests.TestSupport.Attributes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 

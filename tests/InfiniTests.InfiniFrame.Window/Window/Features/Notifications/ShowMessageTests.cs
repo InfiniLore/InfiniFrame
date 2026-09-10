@@ -4,6 +4,8 @@
 using System.Diagnostics.CodeAnalysis;
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Dialogs;
+using InfiniTests.TestSupport;
+using InfiniTests.TestSupport.Attributes;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Notifications;
 // ---------------------------------------------------------------------------------------------------------------------

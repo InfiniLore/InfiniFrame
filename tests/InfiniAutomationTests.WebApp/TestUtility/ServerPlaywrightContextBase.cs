@@ -4,7 +4,7 @@
 using InfiniAutomationTests.TestUtility;
 using InfiniFrame;
 using InfiniFrame.Window.Features.WebMessaging.Handlers;
-using InfiniTests;
+using InfiniTests.TestSupport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Playwright;

@@ -4,7 +4,7 @@
 using InfiniFrame;
 using InfiniFrame.Window.Events;
 
-namespace InfiniTests.InfiniFrame;
+namespace InfiniTests.InfiniFrame.Window;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

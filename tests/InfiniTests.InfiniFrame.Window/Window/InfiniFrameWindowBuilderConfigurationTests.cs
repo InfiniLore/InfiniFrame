@@ -4,6 +4,7 @@
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters.Window;
 using InfiniFrame.Window.Builder;
+using InfiniTests.TestSupport;
 
 namespace InfiniTests.InfiniFrame.Window;
 // ---------------------------------------------------------------------------------------------------------------------

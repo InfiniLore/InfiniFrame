@@ -4,6 +4,8 @@
 using InfiniFrame;
 using InfiniFrame.Utilities;
 using InfiniFrame.Window.Builder;
+using InfiniTests.TestSupport;
+using InfiniTests.TestSupport.Attributes;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Decorations;
 // ---------------------------------------------------------------------------------------------------------------------
