@@ -1,8 +1,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
 using System.Drawing;
+using InfiniFrame;
+using InfiniFrame.Application;
 using InfiniFrame.SingleFile;
 
 namespace InfiniFrameExample.SingleFileExe.Vue;
@@ -14,14 +15,15 @@ public static class Program {
     public static void Main(string[] args) {
         InfiniFrameSingleFile.Initialize();
 
-        IInfiniFrameWindowBuilder builder = InfiniFrameWindowBuilder.Create()
-            .SetTitle("InfiniFrame + Vue")
-            .SetSize(new Size(960, 640))
-            .CenteredOnMainMonitor();
-
-        builder.AddSingleFileRequirements();
-
-        IInfiniFrameWindow window = builder.Build();
-        window.WaitForClose();
+        InfiniFrameApplication.CreateBuilder(args)
+            .WithWindow(builder => {
+                builder
+                    .SetTitle("InfiniFrame + Vue")
+                    .SetSize(new Size(960, 640))
+                    .CenteredOnMainMonitor();
+                builder.AddSingleFileRequirements();
+            })
+            .Build()
+            .Run();
     }
 }

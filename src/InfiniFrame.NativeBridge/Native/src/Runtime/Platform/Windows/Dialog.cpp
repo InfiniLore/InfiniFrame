@@ -1,9 +1,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#include "Runtime/Shared/Window/InfiniFrame.h"
-#include "Runtime/Shared/Operations/DialogOperation.h"
-#include "Runtime/Shared/Utilities/StringArrayCopy.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
+#include "Runtime/Internal/Window/InfiniFrameDialog.h"
+#include "Runtime/Internal/Operations/DialogOperation.h"
+#include "Runtime/Internal/Utilities/StringArrayCopy.h"
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
 
 #include <iostream>
@@ -13,6 +14,12 @@
 #include <vector>
 #include <thread>
 #include <atomic>
+
+struct InfiniFrameDialog::Impl {
+    InfiniFrameWindow* window = nullptr;
+};
+
+#define _window m_impl->window
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
@@ -133,6 +140,7 @@ inline HANDLE NewStyleContext::Create() {
 }
 
 InfiniFrameDialog::InfiniFrameDialog(InfiniFrameWindow* window) {
+    m_impl = std::make_unique<Impl>();
     _window = window;
 }
 

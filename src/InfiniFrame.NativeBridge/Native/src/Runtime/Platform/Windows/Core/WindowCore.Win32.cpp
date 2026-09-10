@@ -8,6 +8,8 @@
 
 #include "Runtime/Platform/Windows/DarkMode.h"
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindowInitParams.h"
+#include "Runtime/Internal/Application/InfiniFrameApplication.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -57,6 +59,22 @@ namespace {
     };
 }
 
+HINSTANCE GetWindowModuleInstance() noexcept {
+    return _hInstance.load(std::memory_order_acquire);
+}
+
+HWND GetMessageLoopRootWindowHandle() noexcept {
+    return messageLoopRootWindowHandle;
+}
+
+void SetMessageLoopRootWindowHandle(const HWND hwnd) noexcept {
+    messageLoopRootWindowHandle = hwnd;
+}
+
+const wchar_t* GetWindowClassName() noexcept {
+    return CLASS_NAME;
+}
+
 HBRUSH GetDarkBrush() {
     return BrushManager::instance().dark();
 }
@@ -84,7 +102,7 @@ void InfiniFrameWindow::Register(const HINSTANCE hInstance) {
     wcx.lpszClassName = CLASS_NAME;
     wcx.hIconSm = LoadIcon(hInstance, IDI_APPLICATION);
 
-    if (RegisterClassEx(&wcx) == 0) {
+    if (RegisterClassEx(&wcx) == 0 && GetLastError() != ERROR_CLASS_ALREADY_EXISTS) {
         throw std::runtime_error("RegisterClassEx failed for window class 'InfiniFrame'.");
     }
 
@@ -94,10 +112,10 @@ void InfiniFrameWindow::Register(const HINSTANCE hInstance) {
 // Initializes native window lifecycle state from host-provided startup parameters.
 // Flow:
 //  1) Allocate implementation storage.
-//  2) Validate ABI compatibility of InfiniFrameInitParams via StructSize.
+//  2) Validate ABI compatibility of InfiniFrameWindowInitParams via StructSize.
 //  3) Configure window identity/notifications and startup payload values.
 //  4) Continue with remaining platform/window initialization in this constructor.
-InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
+InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) {
     // Backing implementation object must exist before any field assignment.
     m_impl = std::make_unique<Impl>();
 
@@ -106,15 +124,19 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     WinToastLib::setDebugOutputEnabled(false);
 
     // Fail fast if caller and native side disagree on struct layout/version.
-    if (initParams->StructSize != sizeof(InfiniFrameInitParams)) {
+    if (initParams->StructSize != sizeof(InfiniFrameWindowInitParams)) {
         throw std::invalid_argument(
             "Initial parameters passed are " + std::to_string(initParams->StructSize) +
-            " bytes, but expected " + std::to_string(sizeof(InfiniFrameInitParams)) + " bytes."
+            " bytes, but expected " + std::to_string(sizeof(InfiniFrameWindowInitParams)) + " bytes."
             );
     }
 
-    if (initParams->WindowsAppUserModelId != nullptr && initParams->WindowsAppUserModelId[0] != '\0') {
-        const std::wstring appUserModelId = ToUTF16String(initParams->WindowsAppUserModelId);
+    _application = initParams->ApplicationInstance;
+    InfiniFrameApplication* application = _application;
+    const char* appUserModelIdValue = application == nullptr ? nullptr : application->GetAppUserModelId();
+
+    if (appUserModelIdValue != nullptr && appUserModelIdValue[0] != '\0') {
+        const std::wstring appUserModelId = ToUTF16String(appUserModelIdValue);
         m_impl->_windowsAppUserModelId = appUserModelId;
         const HRESULT result = SetCurrentProcessExplicitAppUserModelID(appUserModelId.c_str());
         if (FAILED(result)) {
@@ -129,56 +151,61 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
 
     // Initialize window title and optional toast notification identity.
     if (initParams->Title != nullptr) {
-        m_impl->_windowTitle = ToUTF16String(initParams->Title);
+        m_impl->common._windowTitle = ToUTF16String(initParams->Title);
         if (initParams->NotificationsEnabled) {
-            WinToast::instance()->setAppName(m_impl->_windowTitle.c_str());
+            WinToast::instance()->setAppName(m_impl->common._windowTitle.c_str());
         }
     }
 
     // Capture startup URL (if provided) for initial navigation/bootstrap.
     if (initParams->StartUrl != nullptr)
-        m_impl->_startUrl = ToUTF16String(initParams->StartUrl);
+        m_impl->common._startUrl = ToUTF16String(initParams->StartUrl);
 
     // Capture startup string payload (if provided) for host-defined boot data.
     if (initParams->StartString != nullptr)
-        m_impl->_startString = ToUTF16String(initParams->StartString);
+        m_impl->common._startString = ToUTF16String(initParams->StartString);
 
     if (initParams->TemporaryFilesPath != nullptr)
         m_impl->_temporaryFilesPath = ToUTF16String(initParams->TemporaryFilesPath);
 
     if (initParams->UserAgent != nullptr)
-        m_impl->_userAgent = ToUTF16String(initParams->UserAgent);
+        m_impl->common._userAgent = ToUTF16String(initParams->UserAgent);
 
     if (initParams->BrowserControlInitParameters != nullptr)
-        m_impl->_browserControlInitParameters = ToUTF16String(initParams->BrowserControlInitParameters);
+        m_impl->common._browserControlInitParameters = ToUTF16String(initParams->BrowserControlInitParameters);
 
-    if (initParams->WebView2RuntimePath != nullptr)
-        m_impl->_webView2RuntimePath = ToUTF16String(initParams->WebView2RuntimePath);
+    const char* webView2RuntimePath = application == nullptr ? nullptr : application->GetWebView2RuntimePath();
+    if (webView2RuntimePath != nullptr && webView2RuntimePath[0] != '\0')
+        m_impl->common._webView2RuntimePath = ToUTF16String(webView2RuntimePath);
 
-    if (initParams->NotificationRegistrationId != nullptr)
-        m_impl->_notificationRegistrationId = ToUTF16String(initParams->NotificationRegistrationId);
-    m_impl->_remoteDebuggingPort = initParams->RemoteDebuggingPort;
+    const char* notificationRegistrationId = application == nullptr ? nullptr : application->GetNotificationRegistrationId();
+    if (notificationRegistrationId != nullptr && notificationRegistrationId[0] != '\0')
+        m_impl->_notificationRegistrationId = ToUTF16String(notificationRegistrationId);
+    m_impl->common._remoteDebuggingPort = initParams->RemoteDebuggingPort;
 
-    m_impl->_transparentEnabled = initParams->Transparent;
-    m_impl->_backgroundColorR = initParams->BackgroundColorR;
-    m_impl->_backgroundColorG = initParams->BackgroundColorG;
-    m_impl->_backgroundColorB = initParams->BackgroundColorB;
-    m_impl->_backgroundColorA = initParams->BackgroundColorA;
-    m_impl->_contextMenuEnabled = initParams->ContextMenuEnabled;
-    m_impl->_zoomEnabled = initParams->ZoomEnabled;
-    m_impl->_devToolsEnabled = initParams->DevToolsEnabled;
-    m_impl->_grantBrowserPermissions = initParams->GrantBrowserPermissions;
-    m_impl->_mediaAutoplayEnabled = initParams->MediaAutoplayEnabled;
-    m_impl->_fileSystemAccessEnabled = initParams->FileSystemAccessEnabled;
-    m_impl->_webSecurityEnabled = initParams->WebSecurityEnabled;
-    m_impl->_javascriptClipboardAccessEnabled = initParams->JavascriptClipboardAccessEnabled;
-    m_impl->_mediaStreamEnabled = initParams->MediaStreamEnabled;
-    m_impl->_smoothScrollingEnabled = initParams->SmoothScrollingEnabled;
-    m_impl->_ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
-    m_impl->_statusBarEnabled = initParams->StatusBarEnabled;
-    m_impl->_browserShortcutsEnabled = initParams->BrowserShortcutsEnabled;
+    m_impl->common._transparentEnabled = initParams->Transparent;
+    m_impl->common._backgroundColorR = initParams->BackgroundColorR;
+    m_impl->common._backgroundColorG = initParams->BackgroundColorG;
+    m_impl->common._backgroundColorB = initParams->BackgroundColorB;
+    m_impl->common._backgroundColorA = initParams->BackgroundColorA;
+    m_impl->common._contextMenuEnabled = initParams->ContextMenuEnabled;
+    m_impl->common._zoomEnabled = initParams->ZoomEnabled;
+    m_impl->common._devToolsEnabled = initParams->DevToolsEnabled;
+    m_impl->common._grantBrowserPermissions = initParams->GrantBrowserPermissions;
+    m_impl->common._mediaAutoplayEnabled = initParams->MediaAutoplayEnabled;
+    m_impl->common._fileSystemAccessEnabled = initParams->FileSystemAccessEnabled;
+    m_impl->common._webSecurityEnabled = initParams->WebSecurityEnabled;
+    m_impl->common._javascriptClipboardAccessEnabled = initParams->JavascriptClipboardAccessEnabled;
+    m_impl->common._mediaStreamEnabled = initParams->MediaStreamEnabled;
+    m_impl->common._smoothScrollingEnabled = initParams->SmoothScrollingEnabled;
+    m_impl->common._ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
+    m_impl->common._statusBarEnabled = initParams->StatusBarEnabled;
+    m_impl->common._browserShortcutsEnabled = initParams->BrowserShortcutsEnabled;
     m_impl->_notificationsEnabled = initParams->NotificationsEnabled;
-    m_impl->_defaultNotificationIcon = ToUTF8String(initParams->DefaultNotificationIcon);
+    const char* defaultNotificationIcon = application == nullptr
+        ? initParams->DefaultNotificationIcon
+        : application->GetDefaultNotificationIcon();
+    m_impl->_platformDefaultNotificationIcon = ToUTF8String(defaultNotificationIcon);
 
     m_impl->_zoom = initParams->Zoom;
     m_impl->_minWidth = initParams->MinWidth;
@@ -186,28 +213,28 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     m_impl->_maxWidth = initParams->MaxWidth;
     m_impl->_maxHeight = initParams->MaxHeight;
 
-    m_impl->_webMessageReceivedCallback = initParams->WebMessageReceivedHandler;
-    m_impl->_resizedCallback = initParams->ResizedHandler;
-    m_impl->_maximizedCallback = initParams->MaximizedHandler;
-    m_impl->_restoredCallback = initParams->RestoredHandler;
-    m_impl->_minimizedCallback = initParams->MinimizedHandler;
-    m_impl->_movedCallback = initParams->MovedHandler;
-    m_impl->_closingCallback = initParams->ClosingHandler;
-    m_impl->_closedCallback = initParams->ClosedHandler;
-    m_impl->_focusInCallback = initParams->FocusInHandler;
-    m_impl->_focusOutCallback = initParams->FocusOutHandler;
-    m_impl->_debugEventCallback = initParams->DebugEventHandler;
-    m_impl->_customSchemeCallback = initParams->CustomSchemeHandler;
-    m_impl->_navigationStartingCallback = initParams->NavigationStartingHandler;
-    m_impl->_fileDroppedCallback = initParams->DragDropHandler;
-    m_impl->_dragDropEnabled = initParams->DragDropEnabled;
+    m_impl->common._webMessageReceivedCallback = initParams->WebMessageReceivedHandler;
+    m_impl->common._resizedCallback = initParams->ResizedHandler;
+    m_impl->common._maximizedCallback = initParams->MaximizedHandler;
+    m_impl->common._restoredCallback = initParams->RestoredHandler;
+    m_impl->common._minimizedCallback = initParams->MinimizedHandler;
+    m_impl->common._movedCallback = initParams->MovedHandler;
+    m_impl->common._closingCallback = initParams->ClosingHandler;
+    m_impl->common._closedCallback = initParams->ClosedHandler;
+    m_impl->common._focusInCallback = initParams->FocusInHandler;
+    m_impl->common._focusOutCallback = initParams->FocusOutHandler;
+    m_impl->common._debugEventCallback = initParams->DebugEventHandler;
+    m_impl->common._customSchemeCallback = initParams->CustomSchemeHandler;
+    m_impl->common._navigationStartingCallback = initParams->NavigationStartingHandler;
+    m_impl->common._fileDroppedCallback = initParams->DragDropHandler;
+    m_impl->common._dragDropEnabled = initParams->DragDropEnabled;
 
-    for (std::size_t i = 0; i < InfiniFrameInitParams::MaxCustomSchemeNames; ++i) {
+    for (std::size_t i = 0; i < InfiniFrameWindowInitParams::MaxCustomSchemeNames; ++i) {
         if (initParams->CustomSchemeNames[i] != nullptr)
-            m_impl->_customSchemeNames.emplace_back(ToUTF16String(initParams->CustomSchemeNames[i]));
+            m_impl->common._customSchemeNames.emplace_back(ToUTF16String(initParams->CustomSchemeNames[i]));
     }
 
-    m_impl->_parent = initParams->ParentInstance;
+    m_impl->common._parent = initParams->ParentInstance;
 
     int normalizedWidth = initParams->Width;
     int normalizedHeight = initParams->Height;
@@ -259,19 +286,19 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     if (normalizedWidth < initParams->MinWidth && initParams->MinWidth > 0)
         normalizedWidth = initParams->MinWidth;
 
-    const HWND parentWindowHandle = ResolveParentWindowHandle(m_impl->_parent);
+    const HWND parentWindowHandle = ResolveParentWindowHandle(m_impl->common._parent);
     m_impl->_pendingOwnerHwnd = parentWindowHandle;
 
-    const HINSTANCE windowInstance = _hInstance.load(std::memory_order_acquire);
+    const HINSTANCE windowInstance = GetWindowModuleInstance();
     m_impl->_hWnd = CreateWindowEx(
-        initParams->Transparent ? WS_EX_LAYERED : 0, CLASS_NAME, m_impl->_windowTitle.c_str(),
+        initParams->Transparent ? WS_EX_LAYERED : 0, GetWindowClassName(), m_impl->common._windowTitle.c_str(),
         initParams->Chromeless || initParams->FullScreen ? WS_POPUP : WS_OVERLAPPEDWINDOW, normalizedLeft,
         normalizedTop, normalizedWidth, normalizedHeight, nullptr, nullptr, windowInstance, this
         );
     if (m_impl->_hWnd == nullptr) {
         throw std::runtime_error("CreateWindowEx failed to create the native window.");
     }
-    SetWindowTextW(m_impl->_hWnd, m_impl->_windowTitle.c_str());
+    SetWindowTextW(m_impl->_hWnd, m_impl->common._windowTitle.c_str());
 
     ApplyPendingOwnerWindow(m_impl.get(), L"ctor");
 
@@ -294,18 +321,14 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         SetTopmost(true);
 
     if (initParams->NotificationsEnabled) {
-        if (!m_impl->_windowsAppUserModelId.empty())
-            WinToast::instance()->setAppUserModelId(m_impl->_windowsAppUserModelId.c_str());
-        else if (!m_impl->_notificationRegistrationId.empty())
-            WinToast::instance()->setAppUserModelId(m_impl->_notificationRegistrationId.c_str());
-        else
-            WinToast::instance()->setAppUserModelId(m_impl->_windowTitle.c_str());
-
         m_impl->_toastHandler = std::make_unique<WinToastHandler>(this);
-        WinToast::instance()->initialize();
+        if (application == nullptr)
+            WinToast::instance()->initialize();
+        else
+            application->EnsureNotificationsInitialized(initParams->Title);
     }
 
-    m_impl->_dialog = std::make_unique<InfiniFrameDialog>(this);
+    m_impl->common._dialog = std::make_unique<InfiniFrameDialog>(this);
 
     if (initParams->DragDropEnabled) {
         DragAcceptFiles(m_impl->_hWnd, TRUE);
@@ -315,18 +338,29 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         ApplyInitMenuBar(initParams->MenuBarJson);
     }
 
+    if (_application != nullptr)
+        _application->TrackWindow(this);
+
     bool isAlreadyShown = initParams->Minimized || initParams->Maximized;
     Show(isAlreadyShown);
 }
 
-InfiniFrameWindow::~InfiniFrameWindow() {}
-
-InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() noexcept {
-    return m_impl.get();
+InfiniFrameWindow::~InfiniFrameWindow() {
+    if (m_impl != nullptr && m_impl->_hWnd != nullptr) {
+        SetWindowLongPtr(m_impl->_hWnd, GWLP_USERDATA, 0);
+        DestroyWindow(m_impl->_hWnd);
+        m_impl->_hWnd = nullptr;
+    }
+    if (_application != nullptr)
+        _application->UntrackWindow(this);
 }
 
-const InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() const noexcept {
-    return m_impl.get();
+CommonWindowState* GetCommonWindowState(InfiniFrameWindow* window) noexcept {
+    return &window->m_impl->common;
+}
+
+const CommonWindowState* GetCommonWindowState(const InfiniFrameWindow* window) noexcept {
+    return &window->m_impl->common;
 }
 
 HWND InfiniFrameWindow::getHwnd() {

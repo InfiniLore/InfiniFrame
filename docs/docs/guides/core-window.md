@@ -33,7 +33,7 @@ The returned `IInfiniFrameWindow` gives you full control over the window at runt
 
 ## Single-File Native Packaging
 
-When your app is published as a single-file executable with embedded InfiniFrame native binaries, call `InfiniFrameSingleFileBootstrap.Initialize()` before creating any windows.
+When your app is published as a single-file executable with embedded InfiniFrame native binaries, call `InfiniFrameSingleFile.Initialize()` before creating any windows.
 
 ```csharp
 using InfiniFrame;
@@ -41,7 +41,7 @@ using InfiniFrame;
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
-        InfiniFrameSingleFileBootstrap.Initialize();
+        InfiniFrameSingleFile.Initialize();
 
         var window = InfiniFrameWindowBuilder.Create()
             .SetTitle("My App")

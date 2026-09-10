@@ -7,7 +7,7 @@
  * @file NavigationDelegate.h
  * @brief WKNavigationDelegate that handles TLS certificate validation for the embedded WebView
  */
-#include "Runtime/Shared/Window/InfiniFrame.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -17,7 +17,7 @@
  * @brief Navigation delegate conforming to WKNavigationDelegate.
  *
  * Intercepts authentication challenges to optionally suppress TLS certificate
- * errors when InfiniFrameInitParams::IgnoreCertificateErrors is set
+ * errors when InfiniFrameWindowInitParams::IgnoreCertificateErrors is set
  */
 @
 interface NavigationDelegate:

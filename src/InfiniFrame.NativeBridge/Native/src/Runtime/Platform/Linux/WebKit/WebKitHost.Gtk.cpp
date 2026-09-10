@@ -80,7 +80,7 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
     // window.webkit.messageHandlers.infiniFrameInterop.postMessage().
     m_impl->_webMessageSignalHandlerId = g_signal_connect(
         contentManager, "script-message-received::infiniFrameInterop", G_CALLBACK(gtk_webkit::HandleWebMessage),
-        reinterpret_cast<void*>(m_impl->_webMessageReceivedCallback)
+        reinterpret_cast<void*>(m_impl->common._webMessageReceivedCallback)
         );
     webkit_user_content_manager_register_script_message_handler(contentManager, "infiniFrameInterop");
 
@@ -96,10 +96,10 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
 
     // Navigate to the initial content.  Show an error dialog if neither URL
     // nor raw string was provided.
-    if (!m_impl->_startUrl.empty()) {
-        NavigateToUrl(const_cast<const char*>(m_impl->_startUrl.c_str()));
-    } else if (!m_impl->_startString.empty()) {
-        NavigateToString(const_cast<const char*>(m_impl->_startString.c_str()));
+    if (!m_impl->common._startUrl.empty()) {
+        NavigateToUrl(const_cast<const char*>(m_impl->common._startUrl.c_str()));
+    } else if (!m_impl->common._startString.empty()) {
+        NavigateToString(const_cast<const char*>(m_impl->common._startString.c_str()));
     } else {
         GtkWidget* dialog = gtk_message_dialog_new(
             nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,

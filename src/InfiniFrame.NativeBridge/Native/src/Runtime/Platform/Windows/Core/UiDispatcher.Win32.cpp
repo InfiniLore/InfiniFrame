@@ -4,7 +4,7 @@
 #include "chrono"
 
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
-#include "Runtime/Shared/Operations/NativeOperation.h"
+#include "Runtime/Internal/Operations/NativeOperation.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

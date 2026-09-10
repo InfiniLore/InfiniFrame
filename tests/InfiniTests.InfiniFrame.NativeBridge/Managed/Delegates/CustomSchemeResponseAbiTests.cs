@@ -4,6 +4,7 @@
 using System.Runtime.InteropServices;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Delegates;
+using InfiniTests.TestSupport.Attributes;
 
 namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Delegates;
 // ---------------------------------------------------------------------------------------------------------------------

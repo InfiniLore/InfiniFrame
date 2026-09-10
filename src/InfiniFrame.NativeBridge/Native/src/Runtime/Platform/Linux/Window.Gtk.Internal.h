@@ -11,18 +11,17 @@
 #include <gtk/gtk.h>
 #include <webkit2/webkit2.h>
 
-#include "Runtime/Shared/Window/InfiniFrameWindow.h"
-#include "Runtime/Shared/Window/InfiniFrameWindowImpl.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
+#include "Runtime/Internal/Window/CommonWindowState.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
+struct InfiniFrameWindow::Impl {
+    CommonWindowState common;
     GtkWidget* _window = nullptr;
     GtkWidget* _webview = nullptr;
     WebKitWebContext* _webContext = nullptr;
     gulong _webMessageSignalHandlerId = 0;
-    int _remoteDebuggingPort = 0;
-
     std::string _temporaryFilesPath;
 
     GtkWidget* _menuBar = nullptr;
@@ -65,9 +64,9 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     void configure_webkit_remote_debugging() const;
     void set_webkit_customsettings(WebKitSettings* settings);
     void AddCustomSchemeHandlers();
-    void InitializeFromParams(const InfiniFrameInitParams* initParams);
-    void ConfigureInitialWindow(InfiniFrameWindow* window, InfiniFrameInitParams* initParams);
-    void ApplyInitialWindowState(InfiniFrameWindow* window, const InfiniFrameInitParams* initParams);
+    void InitializeFromParams(const InfiniFrameWindowInitParams* initParams);
+    void ConfigureInitialWindow(InfiniFrameWindow* window, InfiniFrameWindowInitParams* initParams);
+    void ApplyInitialWindowState(InfiniFrameWindow* window, const InfiniFrameWindowInitParams* initParams);
     void ConnectWindowSignals(InfiniFrameWindow* window);
     void ConnectWebViewSignals(InfiniFrameWindow* window);
 };

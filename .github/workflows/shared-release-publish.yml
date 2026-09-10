@@ -112,6 +112,30 @@ jobs:
                       /p:InfiniFrameEnableTestExports=false \
                       -o ./release
 
+            -   name: Verify Meta Package Dependencies
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    PACKAGE=""
+                    for candidate in ./release/InfiniLore.InfiniFrame.[0-9]*.nupkg; do
+                      if [[ -f "$candidate" && "$candidate" != *.symbols.nupkg ]]; then
+                        PACKAGE="$candidate"
+                        break
+                      fi
+                    done
+                    [ -n "$PACKAGE" ] || { echo "Missing InfiniLore.InfiniFrame meta-package"; exit 1; }
+                    NUSPEC=$(unzip -p "$PACKAGE" 'InfiniLore.InfiniFrame.nuspec')
+                    for dependency in Application Js NativeBridge Security Shared StaticAssets Window; do
+                      echo "$NUSPEC" | grep -q "InfiniLore.InfiniFrame.$dependency" || {
+                        echo "Missing meta-package dependency: InfiniLore.InfiniFrame.$dependency"
+                        exit 1
+                      }
+                    done
+                    if unzip -l "$PACKAGE" | grep -Eq 'lib/net[^/]*/InfiniFrame\.(Application|Security|StaticAssets|Window)\.dll'; then
+                      echo "The meta-package contains duplicated implementation assemblies"
+                      exit 1
+                    fi
+
             -   name: Upload NuGet Artifacts
                 uses: actions/upload-artifact@v7
                 with:
@@ -173,17 +197,27 @@ jobs:
                 env:
                     NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
                 run: |
-                    dotnet nuget push "./release/*.nupkg" \
-                      --api-key "$NUGET_API_KEY" \
-                      --source https://api.nuget.org/v3/index.json \
-                      --skip-duplicate
+                    set -euo pipefail
+                    packages=(NativeBridge Shared Js Security StaticAssets Window Application Blazor BlazorWebView WebServer SingleFile InfiniFrame)
+                    for package in "${packages[@]}"; do
+                      prefix="InfiniLore.InfiniFrame.$package"
+                      [[ "$package" == "InfiniFrame" ]] && prefix="InfiniLore.InfiniFrame"
+                      file=$(find ./release -maxdepth 1 -name "$prefix.*.nupkg" ! -name '*.symbols.nupkg' -print -quit)
+                      [ -n "$file" ] || { echo "Missing package: $package"; exit 1; }
+                      dotnet nuget push "$file" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+                    done
 
             -   name: Push GitHub Packages
                 if: inputs.publish_to_nuget
                 env:
                     GITHUB_TOKEN: ${{ github.token }}
                 run: |
-                    dotnet nuget push "./release/*.nupkg" \
-                        --api-key "$GITHUB_TOKEN" \
-                        --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-                        --skip-duplicate
+                    set -euo pipefail
+                    packages=(NativeBridge Shared Js Security StaticAssets Window Application Blazor BlazorWebView WebServer SingleFile InfiniFrame)
+                    for package in "${packages[@]}"; do
+                      prefix="InfiniLore.InfiniFrame.$package"
+                      [[ "$package" == "InfiniFrame" ]] && prefix="InfiniLore.InfiniFrame"
+                      file=$(find ./release -maxdepth 1 -name "$prefix.*.nupkg" ! -name '*.symbols.nupkg' -print -quit)
+                      [ -n "$file" ] || { echo "Missing package: $package"; exit 1; }
+                      dotnet nuget push "$file" --api-key "$GITHUB_TOKEN" --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --skip-duplicate
+                    done

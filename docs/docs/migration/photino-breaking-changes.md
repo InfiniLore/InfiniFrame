@@ -32,7 +32,7 @@ For detailed documentation on the new feature-based API, see:
 | C# namespace             | `Photino.NET`                           | `InfiniFrame`                        |
 | Native DLL               | `Photino.Native`                        | `InfiniFrame.Native` (internal)      |
 | C++ class                | `Photino`                               | `InfiniFrameWindow`                  |
-| C++ init params          | `PhotinoInitParams`                     | `InfiniFrameInitParams`              |
+| C++ init params          | `PhotinoInitParams`                     | `InfiniFrameWindowInitParams`        |
 | Exported function prefix | `Photino_`                              | `InfiniFrameNative_`                       |
 | Default window title     | `"Photino"`                             | `"InfiniFrame"`                      |
 | Default user agent       | `"Photino WebView"`                     | `"InfiniFrame WebView"`              |
@@ -250,19 +250,22 @@ For BlazorWebView, InfiniFrame serves content from `app://localhost/` and valida
 The preferred migration pattern is to keep web security on and explicitly trust only the origins you need:
 
 ```csharp
-var app = InfiniFrameBlazorAppBuilder.CreateDefault(windowBuilder: wb => {
-    wb.AddTrustedOrigin("https://xyz");
-    wb.AddTrustedOrigin("https://cdn.jsdelivr.net");
-    wb.AddTrustedOrigin("https://unpkg.com");
-});
+var builder = InfiniFrameApplication.CreateBuilder(args)
+    .WithWindow(window => window
+        .AddTrustedOrigin("https://xyz")
+        .AddTrustedOrigin("https://cdn.jsdelivr.net")
+        .AddTrustedOrigin("https://unpkg.com"));
+builder.UseBlazorWebView(configuration => configuration.RootComponents.Add<App>("app"));
+var app = builder.Build();
 ```
 
 If you need broad compatibility during migration, you can opt in to trusting all origins:
 
 ```csharp
-var app = InfiniFrameBlazorAppBuilder.CreateDefault(windowBuilder: wb => {
-    wb.SetTrustAllOrigins(true);
-});
+var builder = InfiniFrameApplication.CreateBuilder(args)
+    .WithWindow(window => window.SetTrustAllOrigins(true));
+builder.UseBlazorWebView(configuration => configuration.RootComponents.Add<App>("app"));
+var app = builder.Build();
 ```
 
 `SetTrustAllOrigins(true)` is intentionally high-risk and should be treated as a temporary dev-time switch, not a production default.

@@ -43,21 +43,21 @@ void InfiniFrameWindow::AttachWebView()
     }
 
     InfiniFrameWebView* infiniFrameWebView = (InfiniFrameWebView*)m_impl->_webview;
-    [infiniFrameWebView setInfiniFrameContextMenuEnabled:m_impl->_contextMenuEnabled ? YES : NO];
-    [infiniFrameWebView setInfiniFrameZoomEnabled:m_impl->_zoomEnabled ? YES : NO];
+    [infiniFrameWebView setInfiniFrameContextMenuEnabled:m_impl->common._contextMenuEnabled ? YES : NO];
+    [infiniFrameWebView setInfiniFrameZoomEnabled:m_impl->common._zoomEnabled ? YES : NO];
     [m_impl->_webview setMagnification: m_impl->_zoom / 100.0];
-    SetTransparentEnabled(m_impl->_transparentEnabled);
-    if (m_impl->_backgroundColorR != 0 || m_impl->_backgroundColorG != 0 || m_impl->_backgroundColorB != 0 || m_impl->_backgroundColorA != 0)
-        SetBackgroundColor(m_impl->_backgroundColorR, m_impl->_backgroundColorG, m_impl->_backgroundColorB, m_impl->_backgroundColorA);
+    SetTransparentEnabled(m_impl->common._transparentEnabled);
+    if (m_impl->common._backgroundColorR != 0 || m_impl->common._backgroundColorG != 0 || m_impl->common._backgroundColorB != 0 || m_impl->common._backgroundColorA != 0)
+        SetBackgroundColor(m_impl->common._backgroundColorR, m_impl->common._backgroundColorG, m_impl->common._backgroundColorB, m_impl->common._backgroundColorA);
 
     SEL setInspectableSelector = NSSelectorFromString(@"setInspectable:");
     if ([m_impl->_webview respondsToSelector: setInspectableSelector])
     {
         using SetInspectableFn = void (*)(id, SEL, BOOL);
         auto setInspectable = reinterpret_cast<SetInspectableFn>([m_impl->_webview methodForSelector: setInspectableSelector]);
-        setInspectable(m_impl->_webview, setInspectableSelector, m_impl->_webInspectorEnabled ? YES : NO);
+        setInspectable(m_impl->_webview, setInspectableSelector, m_impl->common._webInspectorEnabled ? YES : NO);
     }
-    else if (m_impl->_webInspectorEnabled)
+    else if (m_impl->common._webInspectorEnabled)
     {
         throw std::runtime_error("Web inspector mode requires macOS 13.3+ WKWebView runtime support.");
     }
@@ -70,7 +70,7 @@ void InfiniFrameWindow::AttachWebView()
         m_impl->_uiDelegate = [[UiDelegate alloc] init];
     m_impl->_uiDelegate->infiniFrame = this;
     m_impl->_uiDelegate->window = m_impl->_window;
-    m_impl->_uiDelegate->webMessageReceivedCallback = m_impl->_webMessageReceivedCallback;
+    m_impl->_uiDelegate->webMessageReceivedCallback = m_impl->common._webMessageReceivedCallback;
 
     if (m_impl->_navigationDelegate == nil)
         m_impl->_navigationDelegate = [[NavigationDelegate alloc] init];
@@ -82,10 +82,10 @@ void InfiniFrameWindow::AttachWebView()
     m_impl->_webview.UIDelegate = m_impl->_uiDelegate;
     m_impl->_webview.navigationDelegate = m_impl->_navigationDelegate;
 
-    if (!m_impl->_startUrl.empty())
-        NavigateToUrl(const_cast<const char*>(m_impl->_startUrl.c_str()));
-    else if (!m_impl->_startString.empty())
-        NavigateToString(const_cast<const char*>(m_impl->_startString.c_str()));
+    if (!m_impl->common._startUrl.empty())
+        NavigateToUrl(const_cast<const char*>(m_impl->common._startUrl.c_str()));
+    else if (!m_impl->common._startString.empty())
+        NavigateToString(const_cast<const char*>(m_impl->common._startString.c_str()));
     else
     {
         NSAlert *alert = [[[NSAlert alloc] init] autorelease];

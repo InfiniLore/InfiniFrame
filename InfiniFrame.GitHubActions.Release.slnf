@@ -2,14 +2,18 @@
     "solution": {
         "path": "InfiniFrame.slnx",
         "projects": [
+            "src\\InfiniFrame.Application\\InfiniFrame.Application.csproj",
             "src\\InfiniFrame\\InfiniFrame.csproj",
             "src\\InfiniFrame.BlazorWebView\\InfiniFrame.BlazorWebView.csproj",
             "src\\InfiniFrame.Blazor\\InfiniFrame.Blazor.csproj",
             "src\\InfiniFrame.Js\\InfiniFrame.Js.csproj",
             "src\\InfiniFrame.NativeBridge\\InfiniFrame.NativeBridge.csproj",
+            "src\\InfiniFrame.Security\\InfiniFrame.Security.csproj",
             "src\\InfiniFrame.Shared\\InfiniFrame.Shared.csproj",
             "src\\InfiniFrame.SingleFile\\InfiniFrame.SingleFile.csproj",
-            "src\\InfiniFrame.WebServer\\InfiniFrame.WebServer.csproj"
+            "src\\InfiniFrame.StaticAssets\\InfiniFrame.StaticAssets.csproj",
+            "src\\InfiniFrame.WebServer\\InfiniFrame.WebServer.csproj",
+            "src\\InfiniFrame.Window\\InfiniFrame.Window.csproj"
         ]
     }
 }

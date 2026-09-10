@@ -10,8 +10,7 @@ Native/
   BUILDING.md                 # Build performance tips
 
   src/
-    Api/
-      Exports/                # extern "C" functions (the public C ABI)
+    Abi/                       # extern "C" functions (the public C ABI)
         Exports.Window.Actions.cpp    # Center, Restore, Focus, Notifications
         Exports.Window.Getters.cpp    # Query window state (size, position, flags)
         Exports.Window.Setters.cpp    # Modify window state
@@ -28,30 +27,15 @@ Native/
         Exports.Platform.Windows.cpp  # Windows-specific exports
         Exports.Platform.MacOs.cpp    # macOS-specific exports
         Exports.Platform.Linux.cpp    # Linux-specific exports
-      Testing/                # Test-only exports
-      Utilities/              # Export infrastructure (validation, error state, string helpers)
+    Runtime/Internal/         # Internal runtime, interop types, operations, and window state
 
-    Runtime/
-      Shared/                 # Cross-platform runtime code
-        Window/               # Window state, events, configuration
-        Operations/           # Async operation infrastructure
-        Platform/             # Platform detection
-
+    Runtime/Platform/         # Windows, Linux, and macOS implementations
     Embedded/                 # Embedded JS assets
-
-    Platforms/
-      Windows/                # WebView2 implementation
-      Linux/                  # WebKitGTK implementation
-      MacOs/                  # WKWebView implementation
-
-  include/
-    InfiniFrameWindow.h       # Main public header InfiniFrameWindow class
-    Types/                    # Shared ABI types (enums, structs)
 ```
 
 ## Public C API
 
-The public API is defined in `src/Api/Exports/` and consists of `extern "C"` functions with the prefix `InfiniFrameNative_`. These functions are called by the .NET managed layer via P/Invoke.
+The public API is defined in `src/Abi/` and consists of `extern "C"` functions with the prefix `InfiniFrameNative_`. These functions are called by the .NET managed layer via P/Invoke.
 
 ### String Ownership
 

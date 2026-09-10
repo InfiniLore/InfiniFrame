@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.SingleFile;
+using InfiniTests.TestSupport.Attributes;
 
 namespace InfiniTests.InfiniFrame.SingleFile;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -270,7 +271,7 @@ public class InfiniFrameSingleFileBootstrapTests {
         NativeDirField.SetValue(null, "");
 
         // Act — empty string is NOT null, so the resolver proceeds past the null check
-        var result = (IntPtr)resolveMethod.Invoke(null, new object?[] { "InfiniFrame.Native", typeof(InfiniFrameSingleFile).Assembly, null })!;
+        IntPtr result = (IntPtr)resolveMethod.Invoke(null, new object?[] { "InfiniFrame.Native", typeof(InfiniFrameSingleFile).Assembly, null })!;
 
         // Assert — result is platform-dependent; just verify no corruption
         await Assert.That(result).IsNotEqualTo(new IntPtr(-1));
@@ -451,7 +452,7 @@ public class InfiniFrameSingleFileBootstrapTests {
     }
 
     [Test]
-    public async Task ExtractEmbeddedNative_NullResourceStream_SkipsFile(CancellationToken ct = default) {
+    public async Task ExtractEmbeddedNative_NullResourceStream_ThrowsRequiredResourceError(CancellationToken ct = default) {
         // Arrange
         ResetState();
         string tempDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "test_extract_" + Guid.NewGuid());
@@ -460,10 +461,9 @@ public class InfiniFrameSingleFileBootstrapTests {
         MethodInfo extractMethod = BootstrapType.GetMethod("ExtractEmbeddedNative", BindingFlags.NonPublic | BindingFlags.Static)!;
         string fakeFileName = $"nonexistent_{Guid.NewGuid()}.dll";
 
-        // Act — should not throw; resource stream will be null and skipped
-        extractMethod.Invoke(null, [typeof(InfiniFrameSingleFile).Assembly, "win-x64", new[] { fakeFileName }]);
-
-        // Assert (no exception = pass)
+        // Act / Assert — missing required resources fail fast.
+        await Assert.That(() => extractMethod.Invoke(null, [typeof(InfiniFrameSingleFile).Assembly, "win-x64", new[] { fakeFileName }]))
+            .Throws<TargetInvocationException>();
 
         // Cleanup
         ResetState();
@@ -471,7 +471,7 @@ public class InfiniFrameSingleFileBootstrapTests {
     }
 
     [Test]
-    public async Task ExtractEmbeddedNative_FileAlreadyExists_SkipsFile(CancellationToken ct = default) {
+    public async Task ExtractEmbeddedNative_FileAlreadyExists_StillRequiresResource(CancellationToken ct = default) {
         // Arrange
         ResetState();
         string tempDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "test_extract_" + Guid.NewGuid());
@@ -482,12 +482,9 @@ public class InfiniFrameSingleFileBootstrapTests {
         NativeDirField.SetValue(null, tempDir);
         MethodInfo extractMethod = BootstrapType.GetMethod("ExtractEmbeddedNative", BindingFlags.NonPublic | BindingFlags.Static)!;
 
-        // Act
-        extractMethod.Invoke(null, [typeof(InfiniFrameSingleFile).Assembly, "win-x64", new[] { fakeFileName }]);
-
-        // Assert — file should still be 1 byte (not overwritten)
-        byte[] content = await File.ReadAllBytesAsync(filePath, ct);
-        await Assert.That(content.Length).IsEqualTo(1);
+        // Act / Assert — an existing destination cannot mask a missing embedded resource.
+        await Assert.That(() => extractMethod.Invoke(null, [typeof(InfiniFrameSingleFile).Assembly, "win-x64", new[] { fakeFileName }]))
+            .Throws<TargetInvocationException>();
 
         // Cleanup
         ResetState();

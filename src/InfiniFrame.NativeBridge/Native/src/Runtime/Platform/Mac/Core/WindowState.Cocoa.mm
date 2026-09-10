@@ -5,7 +5,7 @@
 #include "../CocoaCoordinates.h"
 #include "../WebKit/InfiniFrameWebView.h"
 
-#include "Runtime/Shared/Utilities/StringCopy.h"
+#include "Runtime/Internal/Utilities/StringCopy.h"
 #include <stdexcept>
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -36,37 +36,37 @@ void InfiniFrameWindow::ApplyMediaAutoplayConfiguration()
         [m_impl->_webviewConfiguration methodForSelector: selector]);
 
     const NSUInteger mediaTypesMask =
-        m_impl->_mediaAutoplayEnabled ? 0u : NSUIntegerMax;
+        m_impl->common._mediaAutoplayEnabled ? 0u : NSUIntegerMax;
 
     setter(m_impl->_webviewConfiguration, selector, mediaTypesMask);
 }
 
 void InfiniFrameWindow::GetTransparentEnabled(bool* enabled) const
 {
-    *enabled = m_impl->_transparentEnabled;
+    *enabled = m_impl->common._transparentEnabled;
 }
 
 void InfiniFrameWindow::GetContextMenuEnabled(bool* enabled) const
 {
     // Returns cached state; actual context menu is controlled via InfiniFrameWebView override.
-    *enabled = m_impl->_contextMenuEnabled;
+    *enabled = m_impl->common._contextMenuEnabled;
 }
 
 void InfiniFrameWindow::GetZoomEnabled(bool* enabled) const
 {
     // Returns cached state; actual zoom is controlled via InfiniFrameWebView override.
-    *enabled = m_impl->_zoomEnabled;
+    *enabled = m_impl->common._zoomEnabled;
 }
 
 void InfiniFrameWindow::GetStatusBarEnabled(bool* enabled) const
 {
     // WKWebView has no native status bar — this flag is stored for API consistency.
-    *enabled = m_impl->_statusBarEnabled;
+    *enabled = m_impl->common._statusBarEnabled;
 }
 
 void InfiniFrameWindow::GetDevToolsEnabled(bool* enabled) const
 {
-    *enabled = m_impl->_devToolsEnabled;
+    *enabled = m_impl->common._devToolsEnabled;
 }
 
 void InfiniFrameWindow::GetFullScreen(bool* fullScreen) const
@@ -149,7 +149,7 @@ void InfiniFrameWindow::GetMinSize(int* width, int* height) const
 
 const char* InfiniFrameWindow::GetTitle() const
 {
-    return AllocateStringCopy(m_impl->_windowTitle);
+    return AllocateStringCopy(m_impl->common._windowTitle);
 }
 
 const char* InfiniFrameWindow::GetCurrentUrl() const
@@ -280,13 +280,13 @@ void InfiniFrameWindow::SendWebMessage(const char* message)
 
 void InfiniFrameWindow::SetDevToolsEnabled(bool enabled)
 {
-    m_impl->_devToolsEnabled = enabled;
+    m_impl->common._devToolsEnabled = enabled;
     m_impl->SetPreference(@"developerExtrasEnabled", enabled ? @YES : @NO);
 }
 
 void InfiniFrameWindow::SetTransparentEnabled(bool enabled)
 {
-    m_impl->_transparentEnabled = enabled;
+    m_impl->common._transparentEnabled = enabled;
 
     [m_impl->_window setOpaque:enabled ? NO : YES];
     [m_impl->_window setBackgroundColor:enabled ? [NSColor clearColor] : [NSColor windowBackgroundColor]];
@@ -298,7 +298,7 @@ void InfiniFrameWindow::SetTransparentEnabled(bool enabled)
 
 void InfiniFrameWindow::SetContextMenuEnabled(bool enabled)
 {
-    m_impl->_contextMenuEnabled = enabled;
+    m_impl->common._contextMenuEnabled = enabled;
     if (m_impl->_webview != nil) {
         InfiniFrameWebView* webView = (InfiniFrameWebView*)m_impl->_webview;
         [webView setInfiniFrameContextMenuEnabled:enabled ? YES : NO];
@@ -307,7 +307,7 @@ void InfiniFrameWindow::SetContextMenuEnabled(bool enabled)
 
 void InfiniFrameWindow::SetMediaAutoplayEnabled(bool enabled)
 {
-    m_impl->_mediaAutoplayEnabled = enabled;
+    m_impl->common._mediaAutoplayEnabled = enabled;
     ApplyMediaAutoplayConfiguration();
 
     if (m_impl->_webview != nil)
@@ -324,7 +324,7 @@ void InfiniFrameWindow::SetUserAgent(const char* userAgent)
 
 void InfiniFrameWindow::SetZoomEnabled(bool enabled)
 {
-    m_impl->_zoomEnabled = enabled;
+    m_impl->common._zoomEnabled = enabled;
     if (m_impl->_webview != nil) {
         InfiniFrameWebView* webView = (InfiniFrameWebView*)m_impl->_webview;
         [webView setInfiniFrameZoomEnabled:enabled ? YES : NO];
@@ -335,12 +335,12 @@ void InfiniFrameWindow::SetStatusBarEnabled(bool enabled)
 {
     // WKWebView has no native status bar concept — this is a WebView2-only feature.
     // The flag is stored for API consistency but has no visible effect on macOS.
-    m_impl->_statusBarEnabled = enabled;
+    m_impl->common._statusBarEnabled = enabled;
 }
 
 void InfiniFrameWindow::SetBrowserShortcutsEnabled(bool enabled)
 {
-    m_impl->_browserShortcutsEnabled = enabled;
+    m_impl->common._browserShortcutsEnabled = enabled;
     if (m_impl->_webview == nil)
         return;
     @autoreleasepool {
@@ -368,7 +368,7 @@ void InfiniFrameWindow::SetIconFile(const char* filename)
         [[m_impl->_window standardWindowButton: NSWindowDocumentIconButton] setImage: icon];
     [icon release];
 
-    m_impl->_iconFileName = filename ? filename : "";
+    m_impl->common._iconFileName = filename ? filename : "";
 }
 
 void InfiniFrameWindow::SetFullScreen(bool fullScreen)
@@ -476,7 +476,7 @@ void InfiniFrameWindow::SetMaxSize(int width, int height)
 
 void InfiniFrameWindow::SetTitle(const char* title)
 {
-    m_impl->_windowTitle = title ? title : "";
+    m_impl->common._windowTitle = title ? title : "";
     [m_impl->_window setTitle:RequireUtf8String(title, "title")];
 }
 
@@ -489,7 +489,7 @@ void InfiniFrameWindow::SetTopmost(bool topmost)
 void InfiniFrameWindow::SetZoom(int zoom)
 {
     // Software guard: respect EnableZoom(false) to match cross-platform API semantics.
-    if (!m_impl->_zoomEnabled)
+    if (!m_impl->common._zoomEnabled)
         return;
 
     // Clamp to valid range (25-500%) to match Windows/Linux behavior.
@@ -520,10 +520,10 @@ void InfiniFrameWindow::SetFocused()
 
 void InfiniFrameWindow::SetBackgroundColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
-    m_impl->_backgroundColorR = r;
-    m_impl->_backgroundColorG = g;
-    m_impl->_backgroundColorB = b;
-    m_impl->_backgroundColorA = a;
+    m_impl->common._backgroundColorR = r;
+    m_impl->common._backgroundColorG = g;
+    m_impl->common._backgroundColorB = b;
+    m_impl->common._backgroundColorA = a;
 
     if (m_impl->_webview == nil)
         return;

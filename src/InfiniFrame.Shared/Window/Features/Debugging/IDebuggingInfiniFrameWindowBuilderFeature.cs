@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.Versioning;
-using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.NativeBridge.Parameters.Window;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -61,5 +61,5 @@ public interface IDebuggingInfiniFrameWindowBuilderFeature {
     [SupportedOSPlatform("linux")]
     IDebuggingInfiniFrameWindowBuilderFeature SetRemoteDebuggingPort(int port);
 
-    internal void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters);
+    internal void ApplyToNativeParameters(ref InfiniFrameNativeWindowParameters parameters);
 }

@@ -29,7 +29,7 @@ void InfiniFrameWindow::WaitForExit() {
     auto* impl = m_impl.get();
     ApplyPendingOwnerWindow(impl, L"wait_for_exit");
 
-    messageLoopRootWindowHandle = impl->_hWnd;
+    SetMessageLoopRootWindowHandle(impl->_hWnd);
     TraceTeardown(L"WaitForExit start instance=%p hwnd=%p", this, impl->_hWnd);
 
     MSG msg = {};
@@ -46,21 +46,16 @@ void InfiniFrameWindow::WaitForExit() {
         DispatchMessage(&msg);
     }
 
-    messageLoopRootWindowHandle = nullptr;
+    SetMessageLoopRootWindowHandle(nullptr);
     TraceTeardown(L"WaitForExit end instance=%p hwnd=%p", this, impl->_hWnd);
-}
-
-namespace {
-    DWORD CALLBACK CompleteTeardown(void* context) {
-        static_cast<InfiniFrameWindow*>(context)->SignalTeardown();
-        return 0;
-    }
 }
 
 void InfiniFrameWindow::ScheduleTeardownCompletion() {
     CompleteOperationsForClose();
     CompleteNavigationForClose();
     CompleteDialogsForClose();
-    if (!QueueUserWorkItem(CompleteTeardown, this, WT_EXECUTEONLYONCE))
-        SignalTeardown();
+    // WM_NCDESTROY is the native lifetime boundary. Signal the managed milestone
+    // before returning from that callback; managed completion is queued by the
+    // reverse callback, so native handle release cannot happen re-entrantly.
+    SignalTeardown();
 }

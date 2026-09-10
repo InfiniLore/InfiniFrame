@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <PackageId>InfiniLore.InfiniFrame.StaticAssets</PackageId>
+        <Description>InfiniFrame static asset providers, models, scheme handlers, and extensions.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Window" />
+        <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.FileProviders.Composite" />
+        <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" />
+        <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" />
+        <ProjectReference Include="../InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
+    </ItemGroup>
+</Project>

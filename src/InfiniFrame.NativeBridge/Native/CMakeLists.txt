@@ -40,32 +40,34 @@ infiniframe_setup_dependencies()
 # ----------------------------------------------------------------------------------------------------------------------
 set(COMMON_SOURCES
         src/Embedded/Embedded.cpp
-        src/Api/Utilities/ExportErrorState.cpp
-        src/Runtime/Shared/Window/WindowEvents.cpp
-        src/Runtime/Shared/Window/WindowState.cpp
-        src/Runtime/Shared/Operations/NativeOperation.cpp
-        src/Runtime/Shared/Operations/DialogOperation.cpp
-        src/Api/Exports/Exports.CustomSchemes.cpp
-        src/Api/Exports/Exports.Dispatch.cpp
-        src/Api/Exports/Exports.Dialog.cpp
-        src/Api/Exports/Exports.Events.cpp
-        src/Api/Exports/Exports.Lifecycle.cpp
-        src/Api/Exports/Exports.Memory.cpp
-        src/Api/Exports/Exports.Monitors.cpp
-        src/Api/Exports/Exports.Platform.Linux.cpp
-        src/Api/Exports/Exports.Platform.MacOs.cpp
-        src/Api/Exports/Exports.Platform.Windows.cpp
-        src/Api/Exports/Exports.Window.Actions.cpp
-        src/Api/Exports/Exports.Window.Getters.cpp
-        src/Api/Exports/Exports.Window.Navigation.cpp
-        src/Api/Exports/Exports.Window.Setters.cpp
-        src/Api/Exports/Exports.Window.Taskbar.cpp
-        src/Api/Exports/Exports.Menu.cpp
+        src/Runtime/Internal/Interop/Exports/ExportErrorState.cpp
+        src/Runtime/Internal/Application/InfiniFrameApplication.cpp
+        src/Runtime/Internal/Window/WindowEvents.cpp
+        src/Runtime/Internal/Window/WindowState.cpp
+        src/Runtime/Internal/Operations/NativeOperation.cpp
+        src/Runtime/Internal/Operations/DialogOperation.cpp
+        src/Abi/Exports.CustomSchemes.cpp
+        src/Abi/Exports.Dispatch.cpp
+        src/Abi/Exports.Dialog.cpp
+        src/Abi/Exports.Events.cpp
+        src/Abi/Exports.Lifecycle.cpp
+        src/Abi/Exports.Memory.cpp
+        src/Abi/Exports.Monitors.cpp
+        src/Abi/Exports.Platform.Linux.cpp
+        src/Abi/Exports.Platform.MacOs.cpp
+        src/Abi/Exports.Platform.Windows.cpp
+        src/Abi/Exports.Window.Actions.cpp
+        src/Abi/Exports.Window.Getters.cpp
+        src/Abi/Exports.Window.Navigation.cpp
+        src/Abi/Exports.Window.Setters.cpp
+        src/Abi/Exports.Window.Taskbar.cpp
+        src/Abi/Exports.Menu.cpp
 )
 
 set(TEST_SOURCES
-        src/Api/Testing/Exports.Tests.cpp
-        src/Api/Testing/Exports.CustomSchemeResponseTests.cpp
+         src/Abi/Testing/Exports.Tests.cpp
+         src/Abi/Testing/Exports.CustomSchemeResponseTests.cpp
+         tests/PublicAbiCompileBoundary.cpp
 )
 
 set(WINDOWS_SOURCES
@@ -163,30 +165,31 @@ set(MAC_SOURCES
 
 set(HEADER_FILES
         src/Embedded/Embedded.h
-        src/Runtime/Shared/WebView/CustomSchemeResponse.h
-        src/Runtime/Shared/Operations/NativeOperation.h
-        src/Runtime/Shared/Operations/NavigationOperation.h
-        src/Api/Exports/Exports.h
-        src/Api/Utilities/ExportErrorState.h
-        src/Api/Utilities/ExportExecution.h
-        src/Api/Utilities/ExportStringHelpers.h
-        src/Api/Utilities/ExportValidation.h
-        src/Api/Utilities/Utilities.h
-        src/Runtime/Shared/Window/InfiniFrame.h
-        src/Runtime/Shared/Window/InfiniFrameDialog.h
-        src/Runtime/Shared/Window/InfiniFrameInitParams.h
-        src/Runtime/Shared/Window/InfiniFrameWindow.h
-        src/Runtime/Shared/Types/Basic.h
-        src/Runtime/Shared/Types/Callbacks.h
-        src/Runtime/Shared/Types/DialogButtons.h
-        src/Runtime/Shared/Types/DialogIcon.h
-        src/Runtime/Shared/Types/DialogResult.h
-        src/Runtime/Shared/Types/Monitor.h
-        src/Runtime/Shared/Utilities/Dimensions.h
-        src/Runtime/Shared/Utilities/ErrorCode.h
-        src/Runtime/Shared/Utilities/InteropStatus.h
-        src/Runtime/Shared/Utilities/StringArrayCopy.h
-        src/Runtime/Shared/Utilities/StringCopy.h
+        src/Runtime/Internal/WebView/CustomSchemeResponse.h
+        src/Runtime/Internal/Operations/NativeOperation.h
+        src/Runtime/Internal/Operations/NavigationOperation.h
+        src/Abi/Exports.h
+        src/Runtime/Internal/Interop/Exports/ExportErrorState.h
+        src/Runtime/Internal/Interop/Exports/ExportExecution.h
+        src/Runtime/Internal/Interop/Exports/ExportStringHelpers.h
+        src/Runtime/Internal/Interop/Exports/ExportValidation.h
+        src/Runtime/Internal/Interop/Types/InfiniFrameApplicationInitParams.h
+        src/Runtime/Internal/Interop/Types/InteropStatus.h
+        src/Runtime/Internal/Window/InfiniFrameDialog.h
+        src/Runtime/Internal/Interop/Types/InfiniFrameWindowInitParams.h
+        src/Runtime/Internal/Interop/Types/InfiniFrameWindow.h
+        src/Runtime/Internal/Application/InfiniFrameApplication.h
+        src/Runtime/Internal/Interop/Types/Basic.h
+        src/Runtime/Internal/Interop/Types/Callbacks.h
+        src/Runtime/Internal/Interop/Types/CustomSchemeResponse.h
+        src/Runtime/Internal/Interop/Types/DialogButtons.h
+        src/Runtime/Internal/Interop/Types/DialogIcon.h
+        src/Runtime/Internal/Interop/Types/DialogResult.h
+        src/Runtime/Internal/Interop/Types/Monitor.h
+        src/Runtime/Internal/Utilities/Dimensions.h
+        src/Runtime/Internal/Utilities/ErrorCode.h
+        src/Runtime/Internal/Utilities/StringArrayCopy.h
+        src/Runtime/Internal/Utilities/StringCopy.h
 )
 
 if (WIN32)

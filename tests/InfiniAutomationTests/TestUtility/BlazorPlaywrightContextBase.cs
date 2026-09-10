@@ -2,8 +2,10 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Application;
 using InfiniFrame.BlazorWebView;
 using InfiniFrame.Utilities;
+using InfiniFrame.Window.Features.WebMessaging.Handlers;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +20,6 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
     private readonly int _playwrightDevtoolsPort = PlaywrightConnectionUtility.GetAvailablePort();
 
     [UsedImplicitly]
-    private InfiniFrameBlazorApp? _app;// kept for future reference
     private Thread? _appThread;
     private IInfiniFrameWindow? _window;
     public override IInfiniFrameWindow Window => _window!;
@@ -27,26 +28,36 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     protected async Task BeforeAllAsync() {
-        using var startupCancellation = new CancellationTokenSource(TimeSpan.FromSeconds(90));
+        TimeSpan startupTimeout = TimeSpan.FromSeconds(90);
+        using var startupCancellation = new CancellationTokenSource(startupTimeout);
         var ready = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         _appThread = CreateAppThread(ready);
         _appThread.Start();
 
-        await ready.Task.WaitAsync(startupCancellation.Token);
+        try {
+            await ready.Task.WaitAsync(startupCancellation.Token);
+        }
+        catch (OperationCanceledException) {
+            throw new TimeoutException(
+                $"The Blazor application did not create its window within {startupTimeout.TotalSeconds:0} seconds.");
+        }
 
         Uri cdpEndpoint = PlaywrightConnectionUtility.CreateCdpConnectionUrl(_playwrightDevtoolsPort);
-        Console.WriteLine($"[PlaywrightSetup] Waiting for CDP endpoint at {cdpEndpoint}...");
-        using var probeCancellation = new CancellationTokenSource(TimeSpan.FromSeconds(60));
-        while (!probeCancellation.Token.IsCancellationRequested) {
+        using var probeCancellation = CancellationTokenSource.CreateLinkedTokenSource(startupCancellation.Token);
+        while (true) {
             if (RemoteDebuggingUtility.TryProbeEndpoint(cdpEndpoint, out _)) {
-                Console.WriteLine($"[PlaywrightSetup] CDP endpoint at {cdpEndpoint} is reachable.");
                 return;
             }
-            await Task.Delay(500, probeCancellation.Token).ConfigureAwait(false);
+            try {
+                await Task.Delay(500, probeCancellation.Token).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) {
+                throw new TimeoutException(
+                    $"The Blazor CDP endpoint '{cdpEndpoint}' was not reachable within " +
+                    $"{startupTimeout.TotalSeconds:0} seconds.");
+            }
         }
-        Console.WriteLine($"[PlaywrightSetup] WARNING: CDP endpoint at {cdpEndpoint} not reachable after 60s. " +
-            "Proceeding anyway — Playwright connection will retry.");
     }
 
     protected void AfterAll() {
@@ -55,7 +66,6 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
 
         JoinAppThreadSafely();
 
-        _app = null;
         _window = null;
         _appThread = null;
     }
@@ -82,7 +92,7 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
             });
     }
 
-    protected virtual void RunApp(InfiniFrameBlazorApp app)
+    protected virtual void RunApp(InfiniFrameApplication app)
         => app.Run();
 
     private Thread CreateAppThread(TaskCompletionSource<object?> ready) {
@@ -99,21 +109,21 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
 
     private void RunAppOnThread(TaskCompletionSource<object?> ready) {
         try {
-            var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+            InfiniFrameApplicationBuilder builder = InfiniFrameApplication.CreateBuilder();
 
             ConfigureServices(builder.Services);
-            ConfigureRootComponents(builder.RootComponents);
-            builder.RootComponents.Add<TRootComponent>("app");
-            builder.WithInfiniFrameWindowBuilder(windowBuilder => ConfigureWindowBuilder(windowBuilder, _playwrightDevtoolsPort));
+            builder.WithWindow(windowBuilder => ConfigureWindowBuilder(windowBuilder, _playwrightDevtoolsPort));
+            builder.UseBlazorWebView(configuration => {
+                ConfigureRootComponents(configuration.RootComponents);
+                configuration.RootComponents.Add<TRootComponent>("app");
+            });
 
-            InfiniFrameBlazorApp app = builder.Build();
-            var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
-
-            _app = app;
-            _window = window;
-            ready.SetResult(null);
-
-            RunApp(app);
+            InfiniFrameApplication application = builder.Build();
+            application.WindowCreated += window => {
+                _window = window;
+                ready.TrySetResult(null);
+            };
+            RunApp(application);
         }
         catch (InvalidOperationException ex) {
             ready.TrySetException(ex);
@@ -122,6 +132,9 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
             ready.TrySetException(ex);
         }
         catch (PlaywrightException ex) {
+            ready.TrySetException(ex);
+        }
+        catch (Exception ex) {
             ready.TrySetException(ex);
         }
     }

@@ -13,8 +13,8 @@
 #include <WebKit/WKWebView.h>
 #include <WebKit/WKWebViewConfiguration.h>
 
-#include "Runtime/Shared/Window/InfiniFrameWindow.h"
-#include "Runtime/Shared/Window/InfiniFrameWindowImpl.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
+#include "Runtime/Internal/Window/CommonWindowState.h"
 
 @
 class UiDelegate;
@@ -44,7 +44,8 @@ size_t PooledMacHostCountForTesting();
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
+struct InfiniFrameWindow::Impl {
+    CommonWindowState common;
     NSWindow* _window = nil;
     WKWebView* _webview = nil;
     WKWebViewConfiguration* _webviewConfiguration = nil;

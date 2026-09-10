@@ -1,11 +1,13 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Drawing;
 using InfiniFrame;
+using InfiniFrame.Application;
 using InfiniFrame.WebServer;
+using InfiniFrame.Window.Features.WebMessaging.Handlers;
 using InfiniFrameExample.WebApp.Blazor.Components;
 using Serilog;
-using System.Drawing;
 
 namespace InfiniFrameExample.WebApp.Blazor;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -17,9 +19,16 @@ public static class Program {
         // -------------------------------------------------------------------------------------------------------------
         // Builder
         // -------------------------------------------------------------------------------------------------------------
-        InfiniFrameWebApplicationBuilder appBuilder = InfiniFrameWebApplication.CreateBuilder(args);
+        InfiniFrameApplicationBuilder builder = InfiniFrameApplication.CreateBuilder(args);
 
-        appBuilder.Services
+        builder.WithWindow(window => window
+            .SetIconFile("wwwroot/favicon.ico")
+            .SetLocation(new Point(100, 100))
+            .SetSize(new Size(800, 600))
+            .RegisterOpenExternalTargetWebMessageHandler()
+        );
+
+        builder.Services
             .AddLogging(config => {
                 config.ClearProviders();
                 config.AddSerilog();
@@ -31,7 +40,7 @@ public static class Program {
             .AddRazorComponents()
             .AddInteractiveServerComponents();
 
-        appBuilder.Services.AddHttpClient("ServerApi", (sp, client) => {
+        builder.Services.AddHttpClient("ServerApi", configureClient: (sp, client) => {
             var config = sp.GetRequiredService<IConfiguration>();
 
             // Prefer ASPNETCORE_URLS, then "urls", then a fallback
@@ -45,44 +54,24 @@ public static class Program {
 
             client.BaseAddress = new Uri(baseUrl);
         });
-        appBuilder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ServerApi"));
+        builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ServerApi"));
 
-        appBuilder.Services.AddInfiniFrameJs();
+        builder.Services.AddInfiniFrameJs();
 
-        appBuilder.WebApp.WebHost.UseStaticWebAssets();
+        builder.UseWebServer(web => {
 
-        appBuilder.WindowBuilder
-            // .SetTransparent(true)
-            // .SetChromeless(true)
-            // .SetResizable(true)
-            .SetIconFile("wwwroot/favicon.ico")
-            // .Center()
-            // .SetUseOsDefaultSize(true)
-            // .SetUseOsDefaultLocation(true);
-            // .SetTitle("InfiniLore InfiniFrame.Blazor Sample")
-            .SetLocation(new Point(100, 100))
-            .SetSize(new Size(800, 600))
-            .RegisterOpenExternalTargetWebMessageHandler()
-            // .SetMaxSize(new Size(800, 600))
-            // .SetMinSize(new Size(600, 400))
-            ;
+                web.WebHost.UseStaticWebAssets();
 
-        // -------------------------------------------------------------------------------------------------------------
-        // App
-        // -------------------------------------------------------------------------------------------------------------
-        InfiniFrameWebApplication application = appBuilder.Build();
-        application.UseAutoServerClose();
+            web.ConfigureWebApplication(webApp => {
+                webApp.UseRouting();
+                webApp.UseAntiforgery();
+                webApp.MapStaticAssets();
+                webApp.MapRazorComponents<App>()
+                    .AddInteractiveServerRenderMode();
+            });
+        });
 
-        WebApplication webApp = application.WebApp;
-
-        webApp.UseRouting();
-
-        webApp.UseAntiforgery();
-        webApp.MapStaticAssets();
-
-        webApp.MapRazorComponents<App>()
-            .AddInteractiveServerRenderMode();
-
+        InfiniFrameApplication application = builder.Build();
         application.Run();
     }
 }

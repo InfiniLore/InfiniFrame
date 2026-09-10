@@ -67,7 +67,7 @@ public class StaticWebAssetTests {
 
         // Act
         string json = JsonSerializer.Serialize(manifest, StaticWebAssetsManifestJsonContext.Default.StaticWebAssetManifest);
-        var deserialized = JsonSerializer.Deserialize(json, StaticWebAssetsManifestJsonContext.Default.StaticWebAssetManifest);
+        StaticWebAssetManifest? deserialized = JsonSerializer.Deserialize(json, StaticWebAssetsManifestJsonContext.Default.StaticWebAssetManifest);
 
         // Assert
         await Assert.That(deserialized).IsNotNull();
@@ -85,7 +85,7 @@ public class StaticWebAssetTests {
 
         // Act
         string json = JsonSerializer.Serialize(manifest, StaticWebAssetsManifestJsonContext.Default.StaticWebAssetManifest);
-        var deserialized = JsonSerializer.Deserialize(json, StaticWebAssetsManifestJsonContext.Default.StaticWebAssetManifest);
+        StaticWebAssetManifest? deserialized = JsonSerializer.Deserialize(json, StaticWebAssetsManifestJsonContext.Default.StaticWebAssetManifest);
 
         // Assert
         await Assert.That(deserialized!.Root!.Asset!.ContentRootIndex).IsEqualTo(0);
@@ -98,7 +98,7 @@ public class StaticWebAssetTests {
         string json = "{\"Root\": {\"Asset\": {\"ContentRootIndex\": 1}}}";
 
         // Act
-        var deserialized = JsonSerializer.Deserialize(json, StaticWebAssetsManifestJsonContext.Default.StaticWebAssetManifest);
+        StaticWebAssetManifest? deserialized = JsonSerializer.Deserialize(json, StaticWebAssetsManifestJsonContext.Default.StaticWebAssetManifest);
 
         // Assert
         await Assert.That(deserialized).IsNotNull();

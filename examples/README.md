@@ -24,7 +24,7 @@ All examples require the native `InfiniFrame.Native` library to be built first
 
 ```bash
 # From the repo root build the native library for your platform
-cmake -S src/InfiniFrame.Native -B artifacts/native/windows/x64/Debug -DCMAKE_BUILD_TYPE=Debug
+cmake -S src/InfiniFrame.NativeBridge/Native -B artifacts/native/windows/x64/Debug -DCMAKE_BUILD_TYPE=Debug
 cmake --build artifacts/native/windows/x64/Debug
 
 # Then run an example

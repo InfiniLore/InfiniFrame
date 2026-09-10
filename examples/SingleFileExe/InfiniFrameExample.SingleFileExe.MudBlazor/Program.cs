@@ -2,8 +2,10 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Application;
 using InfiniFrame.BlazorWebView;
 using InfiniFrame.SingleFile;
+using InfiniFrame.Window.Features.WebMessaging.Handlers;
 using InfiniFrameExample.SingleFileExe.MudBlazor.Components;
 using MudBlazor.Services;
 using Serilog;
@@ -25,9 +27,11 @@ public static class Program {
         try {
             Log.Information("Starting InfiniFrame MudBlazor example...");
 
-            var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
-
-            appBuilder.Services
+            InfiniFrameApplicationBuilder builder = InfiniFrameApplication.CreateBuilder(args);
+            builder.WithWindow(window => window
+                .SetIconFile("wwwroot/favicon.ico")
+                .RegisterOpenExternalTargetWebMessageHandler());
+            builder.Services
                 .AddLogging(config => {
                     config.ClearProviders();
                     config.AddSerilog();
@@ -37,17 +41,12 @@ public static class Program {
                         .MinimumLevel.Debug();
                 })
                 .AddMudServices();
-
-            appBuilder.RootComponents.Add<App>("app");
-
-            appBuilder.WindowBuilder
-                .SetIconFile("wwwroot/favicon.ico")
-                .RegisterOpenExternalTargetWebMessageHandler();
-            
-            InfiniFrameSingleFile.AddSingleFileRequirements(appBuilder);
-
-            Log.Information("Building InfiniFrame application...");
-            InfiniFrameBlazorApp application = appBuilder.Build();
+            InfiniFrameApplication application = builder
+                .UseBlazorWebView(configuration => {
+                    configuration.RootComponents.Add<App>("app");
+                    configuration.AddSingleFileRequirements();
+                })
+                .Build();
 
             Log.Information("Running application...");
             application.Run();

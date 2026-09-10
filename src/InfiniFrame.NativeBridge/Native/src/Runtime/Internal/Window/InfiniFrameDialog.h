@@ -1,0 +1,97 @@
+#pragma once
+#include <memory>
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+#include "Runtime/Internal/Interop/Types/Basic.h"
+#include "Runtime/Internal/Interop/Types/DialogButtons.h"
+#include "Runtime/Internal/Interop/Types/DialogIcon.h"
+#include "Runtime/Internal/Interop/Types/DialogResult.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+class InfiniFrameWindow; // forward declaration
+
+/**
+ * @brief Dialog handler for file/folder operations and message boxes
+ */
+class InfiniFrameDialog {
+    public:
+#ifdef _WIN32
+    /**
+         * @brief Construct dialog handler with parent window (Windows)
+         * @param window Parent InfiniFrame window
+         */
+    InfiniFrameDialog(InfiniFrameWindow* window);
+#else
+    /**
+         * @brief Construct dialog handler (Linux/macOS)
+         */
+    InfiniFrameDialog();
+#endif
+
+    /**
+         * @brief Destroy dialog handler
+         */
+    ~InfiniFrameDialog();
+
+    /**
+         * @brief Show open file dialog
+         * @param title Dialog title
+         * @param defaultPath Default path
+         * @param multiSelect Allow multiple selection
+         * @param filters File filters (e.g., "*.txt;*.doc")
+         * @param filterCount Number of filters
+         * @param resultCount Output: number of selected files
+         * @return Array of selected file paths
+         */
+    const char** ShowOpenFile(
+        const char* title,
+        const char* defaultPath,
+        bool multiSelect,
+        const char** filters,
+        int filterCount,
+        int* resultCount
+        );
+
+    /**
+         * @brief Show open folder dialog
+         * @param title Dialog title
+         * @param defaultPath Default path
+         * @param multiSelect Allow multiple selection
+         * @param resultCount Output: number of selected folders
+         * @return Array of selected folder paths
+         */
+    const char** ShowOpenFolder(const char* title, const char* defaultPath, bool multiSelect, int* resultCount);
+
+    /**
+         * @brief Show save file dialog
+         * @param title Dialog title
+         * @param defaultPath Default path
+         * @param filters File filters
+         * @param filterCount Number of filters
+         * @param defaultFileName Default file name
+         * @return Selected file path
+         */
+    const char* ShowSaveFile(
+        const char* title,
+        const char* defaultPath,
+        const char** filters,
+        int filterCount,
+        const char* defaultFileName = nullptr
+        );
+
+    /**
+         * @brief Show message dialog
+         * @param title Dialog title
+         * @param text Message text
+         * @param buttons Button configuration
+         * @param icon Icon type
+         * @return User's response
+         */
+    DialogResult ShowMessage(const char* title, const char* text, DialogButtons buttons, DialogIcon icon);
+
+    private:
+    struct Impl;
+    std::unique_ptr<Impl> m_impl;
+};

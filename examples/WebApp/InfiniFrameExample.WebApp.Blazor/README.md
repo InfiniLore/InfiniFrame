@@ -4,12 +4,12 @@ Demonstrates hosting a full ASP.NET Core Blazor Server application inside a nati
 
 ## What it shows
 
-- `InfiniFrameWebApplication.CreateBuilder()` entry point
+- `InfiniFrameApplication.CreateBuilder()` entry point
 - Blazor Server with `AddRazorComponents()` + `AddInteractiveServerComponents()`
 - `HttpClient` factory configured to point at the local Kestrel server
 - `AddInfiniFrameJs()` service registration for Blazor component interop
 - `RegisterOpenExternalTargetWebMessageHandler()` links with `target="_blank"` open in the default browser
-- `UseAutoServerClose()` server stops when the window is closed
+- Application-owned lifecycle stops the server when the window is closed
 - Serilog with async console sink
 
 ## Run
@@ -21,19 +21,19 @@ dotnet run --project examples/InfiniFrameExample.WebApp.Blazor
 ## Key code
 
 ```csharp
-InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder(args);
+InfiniFrameApplicationBuilder builder = InfiniFrameApplication.CreateBuilder(args);
 
-builder.WebApp.Services.AddRazorComponents()
+builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.WebApp.Services.AddInfiniFrameJs();
+builder.Services.AddInfiniFrameJs();
 
-builder.Window
+builder.WithWindow(window => window
     .SetSize(new Size(800, 600))
-    .RegisterOpenExternalTargetWebMessageHandler();
+    .RegisterOpenExternalTargetWebMessageHandler());
 
-InfiniFrameWebApplication app = builder.Build();
-app.UseAutoServerClose();
-app.WebApp.MapRazorComponents<App>().AddInteractiveServerRenderMode();
+builder.UseWebServer(web => web.ConfigureWebApplication(application =>
+    application.MapRazorComponents<App>().AddInteractiveServerRenderMode()));
+InfiniFrameApplication app = builder.Build();
 app.Run();
 ```
 

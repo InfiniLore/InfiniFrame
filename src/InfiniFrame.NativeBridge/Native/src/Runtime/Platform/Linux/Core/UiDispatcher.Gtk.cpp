@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
-#include "Runtime/Shared/Operations/NativeOperation.h"
+#include "Runtime/Internal/Operations/NativeOperation.h"
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

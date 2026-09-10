@@ -6,19 +6,23 @@
 
 #include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindowInitParams.h"
+#include "Runtime/Internal/Application/InfiniFrameApplication.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
+InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) :
     m_impl(std::make_unique<Impl>()) {
     infiniframe::linux_gtk::ui_thread::EnsureInitialized();
 
-    if (initParams->StructSize != sizeof(InfiniFrameInitParams)) {
+    if (initParams->StructSize != sizeof(InfiniFrameWindowInitParams)) {
         throw std::invalid_argument(
             "Initial parameters passed are " + std::to_string(initParams->StructSize) +
-            " bytes, but expected " + std::to_string(sizeof(InfiniFrameInitParams)) + " bytes."
+            " bytes, but expected " + std::to_string(sizeof(InfiniFrameWindowInitParams)) + " bytes."
             );
     }
+
+    _application = initParams->ApplicationInstance;
 
     infiniframe::linux_gtk::ui_thread::InvokeSync(
         [this, initParams] {
@@ -37,18 +41,23 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
             if (initParams->Transparent)
                 SetTransparentEnabled(true);
 
-            if (m_impl->_backgroundColorR != 0 || m_impl->_backgroundColorG != 0 || m_impl->_backgroundColorB != 0 ||
-                m_impl->_backgroundColorA != 0)
+            if (m_impl->common._backgroundColorR != 0 || m_impl->common._backgroundColorG != 0 || m_impl->common._backgroundColorB != 0 ||
+                m_impl->common._backgroundColorA != 0)
                 SetBackgroundColor(
-                    m_impl->_backgroundColorR, m_impl->_backgroundColorG, m_impl->_backgroundColorB,
-                    m_impl->_backgroundColorA);
+                    m_impl->common._backgroundColorR, m_impl->common._backgroundColorG, m_impl->common._backgroundColorB,
+                    m_impl->common._backgroundColorA);
 
-            if (m_impl->_zoom != 100.0)
-                SetZoom(m_impl->_zoom);
-        });
+             if (m_impl->_zoom != 100.0)
+                 SetZoom(m_impl->_zoom);
+
+              if (_application != nullptr)
+                  _application->TrackWindow(this);
+         });
 }
 
 InfiniFrameWindow::~InfiniFrameWindow() {
+    if (_application != nullptr)
+        _application->UntrackWindow(this);
     infiniframe::linux_gtk::ui_thread::InvokeSync(
         [this] {
             if (m_impl->_window != nullptr) {
@@ -72,12 +81,12 @@ InfiniFrameWindow::~InfiniFrameWindow() {
         });
 }
 
-InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() noexcept {
-    return m_impl.get();
+CommonWindowState* GetCommonWindowState(InfiniFrameWindow* window) noexcept {
+    return &window->m_impl->common;
 }
 
-const InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() const noexcept {
-    return m_impl.get();
+const CommonWindowState* GetCommonWindowState(const InfiniFrameWindow* window) noexcept {
+    return &window->m_impl->common;
 }
 
 GtkWidget* InfiniFrameWindow::getGtkWindow() {

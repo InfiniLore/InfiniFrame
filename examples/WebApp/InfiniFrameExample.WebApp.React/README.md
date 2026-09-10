@@ -7,7 +7,7 @@ Demonstrates a React frontend served by ASP.NET Core inside an InfiniFrame windo
 - `RegisterCustomSchemeHandler("app", ...)` intercepts `app://` requests and returns dynamically generated JavaScript
 - `RegisterWebMessageReceivedHandler(...)` receives messages from JavaScript, increments a counter, and echoes a response back via `SendWebMessage`
 - A singleton `WebMessageCounter` service accessed inside the message handler via DI
-- `UseAutoServerClose()` server stops when the window is closed
+- Application-owned lifecycle stops the server when the window is closed
 
 ## Run
 

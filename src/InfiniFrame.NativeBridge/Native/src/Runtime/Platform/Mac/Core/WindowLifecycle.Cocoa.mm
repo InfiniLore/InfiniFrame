@@ -197,18 +197,18 @@ void InfiniFrameWindow::PrepareForDeferredDestruction()
     m_impl->_webviewReady = false;
     m_impl->_pendingWebMessages.clear();
 
-    m_impl->_closingCallback = nullptr;
-    m_impl->_closedCallback = nullptr;
-    m_impl->_focusInCallback = nullptr;
-    m_impl->_focusOutCallback = nullptr;
-    m_impl->_movedCallback = nullptr;
-    m_impl->_resizedCallback = nullptr;
-    m_impl->_maximizedCallback = nullptr;
-    m_impl->_restoredCallback = nullptr;
-    m_impl->_minimizedCallback = nullptr;
-    m_impl->_debugEventCallback = nullptr;
-    m_impl->_customSchemeCallback = nullptr;
-    m_impl->_webMessageReceivedCallback = nullptr;
+    m_impl->common._closingCallback = nullptr;
+    m_impl->common._closedCallback = nullptr;
+    m_impl->common._focusInCallback = nullptr;
+    m_impl->common._focusOutCallback = nullptr;
+    m_impl->common._movedCallback = nullptr;
+    m_impl->common._resizedCallback = nullptr;
+    m_impl->common._maximizedCallback = nullptr;
+    m_impl->common._restoredCallback = nullptr;
+    m_impl->common._minimizedCallback = nullptr;
+    m_impl->common._debugEventCallback = nullptr;
+    m_impl->common._customSchemeCallback = nullptr;
+    m_impl->common._webMessageReceivedCallback = nullptr;
 
     if (m_impl->_uiDelegate != nil)
         m_impl->_uiDelegate->webMessageReceivedCallback = nullptr;

@@ -4,6 +4,7 @@
 using System.Threading.Channels;
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
+using InfiniTests.TestSupport;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,10 +27,8 @@ public class InfiniFrameWebViewManagerTests {
     public async Task HandleWebRequest_FragmentAndQueryAreExcludedFromLookup(CancellationToken ct = default) {
         byte[] expected = [.. "settings-page"u8];
         var fileProvider = new RecordingFileProvider("index.html", expected);
-        var builder = InfiniFrameWindowBuilder.Create();
         await using ServiceProvider provider = new ServiceCollection().AddLogging().BuildServiceProvider();
         await using var manager = new TestableInfiniFrameWebViewManager(
-            builder,
             provider,
             MockFactory.CreateDispatcherMock().Object,
             fileProvider,
@@ -58,7 +57,6 @@ public class InfiniFrameWebViewManagerTests {
         var fileProvider = new RecordingFileProvider("index.html", [.. "blocked"u8]);
         await using ServiceProvider provider = new ServiceCollection().AddLogging().BuildServiceProvider();
         await using var manager = new TestableInfiniFrameWebViewManager(
-            InfiniFrameWindowBuilder.Create(),
             provider,
             MockFactory.CreateDispatcherMock().Object,
             fileProvider,
@@ -92,7 +90,6 @@ public class InfiniFrameWebViewManagerTests {
 
         Dispatcher dispatcher = MockFactory.CreateDispatcherMock().Object;
         var manager = new TestableInfiniFrameWebViewManager(
-            InfiniFrameWindowBuilder.Create(),
             provider,
             dispatcher,
             new NullFileProvider(),
@@ -143,7 +140,6 @@ public class InfiniFrameWebViewManagerTests {
             .BuildServiceProvider();
 
         var manager = new TestableInfiniFrameWebViewManager(
-            InfiniFrameWindowBuilder.Create(),
             provider,
             MockFactory.CreateDispatcherMock().Object,
             new NullFileProvider(),
@@ -207,6 +203,43 @@ public class InfiniFrameWebViewManagerTests {
         await manager.DisposeAsync();
 
         // Assert
+        await Assert.That(sentMessages).IsEquivalentTo(["first", "second"]);
+    }
+
+    [Test]
+    public async Task SendMessage_DefaultQueueModeDoesNotSilentlyDropMessages(CancellationToken ct = default) {
+        var firstStarted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var firstRelease = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var sentMessages = new List<string>();
+        Mock<IInfiniFrameWindow> windowMock = MockFactory.CreateWindowMock();
+        Mock<IInfiniFrameWindowFeatures> featuresMock = MockFactory.CreateFeaturesMock();
+        Mock<IWebMessagingInfiniFrameWindowFeature> webMessagingMock = MockFactory.CreateWebMessagingMock();
+        windowMock.Features.Returns(featuresMock.Object);
+        featuresMock.WebMessaging.Returns(webMessagingMock.Object);
+        ValueTask returnValue = new(firstRelease.Task);
+        webMessagingMock.SendWebMessageAsync(Any<string>(), Any<CancellationToken>())
+            .Callback((message, _) => {
+                sentMessages.Add(message);
+                if (message == "first") firstStarted.TrySetResult(true);
+            }).Returns(() => returnValue);
+
+        await using ServiceProvider provider = new ServiceCollection()
+            .AddLogging()
+            .AddSingleton(windowMock.Object)
+            .BuildServiceProvider();
+        TestableInfiniFrameWebViewManager manager = CreateManager(provider, new InfiniFrameBlazorAppConfiguration {
+            WebMessageQueueCapacity = 1
+        });
+
+        manager.SendMessageForTest("first");
+        await firstStarted.Task.WaitAsync(TimeSpan.FromSeconds(5), ct);
+        manager.SendMessageForTest("second");
+        manager.SendMessageForTest("dropped");
+        firstRelease.TrySetResult(true);
+
+        await Task.Delay(100, ct);
+        await manager.DisposeAsync();
+
         await Assert.That(sentMessages).IsEquivalentTo(["first", "second"]);
     }
 
@@ -281,7 +314,6 @@ public class InfiniFrameWebViewManagerTests {
         IServiceProvider provider,
         InfiniFrameBlazorAppConfiguration? configuration = null
     ) => new(
-        InfiniFrameWindowBuilder.Create(),
         provider,
         MockFactory.CreateDispatcherMock().Object,
         new NullFileProvider(),
@@ -290,14 +322,13 @@ public class InfiniFrameWebViewManagerTests {
         NullLogger<InfiniFrameWebViewManager>.Instance);
 
     private sealed class TestableInfiniFrameWebViewManager(
-        IInfiniFrameWindowBuilder builder,
         IServiceProvider provider,
         Dispatcher dispatcher,
         IFileProvider fileProvider,
         JSComponentConfigurationStore jsComponents,
         IOptions<InfiniFrameBlazorAppConfiguration> config,
         ILogger<InfiniFrameWebViewManager> logger
-    ) : InfiniFrameWebViewManager(builder, provider, dispatcher, fileProvider, jsComponents, config, logger) {
+    ) : InfiniFrameWebViewManager(provider, dispatcher, fileProvider, jsComponents, config, logger) {
         public void SendMessageForTest(string message) => SendMessage(message);
     }
 

@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Application;
 
 namespace InfiniFrameExample.TrimAotSmoke;
 
@@ -11,13 +12,13 @@ namespace InfiniFrameExample.TrimAotSmoke;
 public static class Program {
     [STAThread]
     public static void Main() {
-        IInfiniFrameWindow window = InfiniFrameWindowBuilder.Create()
-            .SetTitle("InfiniFrame Trim/AOT Smoke")
-            .SetSize(800, 600)
-            .CenteredOnMainMonitor()
-            .UseEmbeddedWwwrootAssets()
-            .Build();
-
-        window.WaitForClose();
+        InfiniFrameApplication.CreateBuilder()
+            .WithWindow(builder => builder
+                .SetTitle("InfiniFrame Trim/AOT Smoke")
+                .SetSize(800, 600)
+                .CenteredOnMainMonitor()
+                .UseEmbeddedWwwrootAssets())
+            .Build()
+            .Run();
     }
 }

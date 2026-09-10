@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "../Window.Cocoa.Internal.h"
-#include "Runtime/Shared/Operations/NativeOperation.h"
+#include "Runtime/Internal/Operations/NativeOperation.h"
 
 #include <atomic>
 #include <chrono>

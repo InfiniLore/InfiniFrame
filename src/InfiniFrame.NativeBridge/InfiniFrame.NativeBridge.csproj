@@ -2,15 +2,15 @@
 
     <PropertyGroup>
         <PackageId>InfiniLore.InfiniFrame.NativeBridge</PackageId>
-        <OutputType>Library</OutputType>
         <EnableDynamicLoading>true</EnableDynamicLoading>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Description>C++ native bridge layer for InfiniFrame. Provides the P/Invoke interop between .NET and the native window implementations (WebView2, WebKitGTK, WKWebView).</Description>
     </PropertyGroup>
 
     <ItemGroup>
         <InternalsVisibleTo Include="InfiniTests.InfiniFrame.NativeBridge"/>
+        <InternalsVisibleTo Include="InfiniFrame.Window" />
+        <InternalsVisibleTo Include="InfiniFrame.Application" />
     </ItemGroup>
 
     <ItemGroup>

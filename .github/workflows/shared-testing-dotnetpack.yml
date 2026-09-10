@@ -82,6 +82,30 @@ jobs:
                       /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
                       -o ./release
 
+            -   name: Verify Meta Package Dependencies
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    PACKAGE=""
+                    for candidate in ./release/InfiniLore.InfiniFrame.[0-9]*.nupkg; do
+                      if [[ -f "$candidate" && "$candidate" != *.symbols.nupkg ]]; then
+                        PACKAGE="$candidate"
+                        break
+                      fi
+                    done
+                    [ -n "$PACKAGE" ] || { echo "Missing InfiniLore.InfiniFrame meta-package"; exit 1; }
+                    NUSPEC=$(unzip -p "$PACKAGE" 'InfiniLore.InfiniFrame.nuspec')
+                    for dependency in Application Js NativeBridge Security Shared StaticAssets Window; do
+                      echo "$NUSPEC" | grep -q "InfiniLore.InfiniFrame.$dependency" || {
+                        echo "Missing meta-package dependency: InfiniLore.InfiniFrame.$dependency"
+                        exit 1
+                      }
+                    done
+                    if unzip -l "$PACKAGE" | grep -Eq 'lib/net[^/]*/InfiniFrame\.(Application|Security|StaticAssets|Window)\.dll'; then
+                      echo "The meta-package contains duplicated implementation assemblies"
+                      exit 1
+                    fi
+
             -   name: Verify NativeBridge Package Natives
                 run: |
                     PACKAGE=""

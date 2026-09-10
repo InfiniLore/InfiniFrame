@@ -82,7 +82,6 @@ public interface IBrowserInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBui
     /// <summary>
     ///     Gets the fixed-version WebView2 runtime path used on Windows.
     /// </summary>
-    string? WebView2RuntimePath { get; }
 
     /// <summary>
     ///     Enables or disables the context menu.
@@ -177,10 +176,4 @@ public interface IBrowserInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBui
     /// </summary>
     /// <param name="parameters">The temporary files path.</param>
     void SetTemporaryFilesPath(string parameters);
-
-    /// <summary>
-    ///     Sets the fixed-version WebView2 runtime path used when creating the window on Windows.
-    /// </summary>
-    /// <param name="path">The path to the extracted WebView2 runtime directory.</param>
-    void SetWebView2RuntimePath(string path);
 }

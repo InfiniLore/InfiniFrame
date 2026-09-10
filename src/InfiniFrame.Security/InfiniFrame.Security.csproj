@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <PackageId>InfiniLore.InfiniFrame.Security</PackageId>
+        <Description>InfiniFrame URI security policies, builders, registries, and extensions.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
+    </ItemGroup>
+</Project>

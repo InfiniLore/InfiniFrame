@@ -147,7 +147,7 @@ Do not add async getters or async versions of immediate setters. After the prior
 
 ## Native ABI additions
 
-All current exports and the size-equality-checked `InfiniFrameInitParams` layout remain unchanged. Additive operations use an opaque managed context, a 64-bit operation ID, and exactly-once completion callbacks. General operations report a terminal result, native code, and a borrowed UTF-8 failure string; file-dialog callbacks report borrowed native strings for the callback duration:
+All current exports and the size-equality-checked `InfiniFrameWindowInitParams` layout remain unchanged. Additive operations use an opaque managed context, a 64-bit operation ID, and exactly-once completion callbacks. General operations report a terminal result, native code, and a borrowed UTF-8 failure string; file-dialog callbacks report borrowed native strings for the callback duration:
 
 ```cpp
 using OperationCompletedCallback =

@@ -4,9 +4,9 @@ Demonstrates InfiniFrame's built-in ASP.NET Core web server integration. A local
 
 ## What It Shows
 
-- `InfiniFrameWebApplicationBuilder` and `InfiniFrameWebApplication` API
+- `InfiniFrameApplicationBuilder` and `InfiniFrameApplication` API
 - ASP.NET Core minimal APIs (`MapGet`)
-- `UseAutoServerClose()` for graceful shutdown
+- Application-owned lifecycle for graceful shutdown
 - Window-to-server DI integration
 
 ## Run

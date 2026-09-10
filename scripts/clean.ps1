@@ -24,10 +24,6 @@ $ExtraPaths = @(
     "../src/InfiniFrame.NativeBridge/build",
     "../src/InfiniFrame.NativeBridge/artifacts",
     "../src/InfiniFrame.Js/node_modules",
-    "../src/InfiniFrame.NativeBridge/Native/cmake-build-debug-linux",
-    "../src/InfiniFrame.NativeBridge/Native/cmake-build-debug-windows",
-    "../src/InfiniFrame.NativeBridge/Native/cmake-build-release-linux",
-    "../src/InfiniFrame.NativeBridge/Native/cmake-build-release-windows",
     "../src/InfiniFrame.NativeBridge/Native/packages"
 )
 

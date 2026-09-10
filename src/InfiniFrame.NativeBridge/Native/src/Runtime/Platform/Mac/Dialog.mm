@@ -1,10 +1,22 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#import "Runtime/Shared/Window/InfiniFrameDialog.h"
-#include "Runtime/Shared/Window/InfiniFrameWindow.h"
-#include "Runtime/Shared/Operations/DialogOperation.h"
-#include "Runtime/Shared/Utilities/StringArrayCopy.h"
+#import "Runtime/Internal/Window/InfiniFrameDialog.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
+#include "Runtime/Internal/Operations/DialogOperation.h"
+#include "Runtime/Internal/Utilities/StringArrayCopy.h"
+
+struct InfiniFrameDialog::Impl {
+  NSImage* errorIcon = nil;
+  NSImage* infoIcon = nil;
+  NSImage* questionIcon = nil;
+  NSImage* warningIcon = nil;
+};
+
+#define _errorIcon m_impl->errorIcon
+#define _infoIcon m_impl->infoIcon
+#define _questionIcon m_impl->questionIcon
+#define _warningIcon m_impl->warningIcon
 
 #if defined(VSTGUI_USE_OBJC_UTTYPE)
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
@@ -34,6 +46,7 @@ NSImage* getIcon(NSString* base64) {
 }
 
 InfiniFrameDialog::InfiniFrameDialog() {
+  m_impl = std::make_unique<Impl>();
   _errorIcon = getIcon(errorBase64);
   _infoIcon = getIcon(infoBase64);
   _questionIcon = getIcon(questionBase64);

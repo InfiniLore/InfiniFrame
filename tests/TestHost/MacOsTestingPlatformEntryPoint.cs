@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniTests.Native;
 using Microsoft.Testing.Platform.Builder;
 using System.Reflection;
 using System.Runtime.InteropServices;

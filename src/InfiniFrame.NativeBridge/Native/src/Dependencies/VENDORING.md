@@ -1,6 +1,6 @@
 # Vendored Native Dependencies
 
-`src/InfiniFrame.Native/Dependencies` contains vendored native dependency artifacts used by `InfiniFrame.Native`.
+`src/InfiniFrame.NativeBridge/Native/src/Dependencies` contains vendored native dependency artifacts used by `InfiniFrame.Native`.
 
 ## Libraries
 
