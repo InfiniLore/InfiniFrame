@@ -12,7 +12,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 static const int MAX_WINDOW_DIMENSION = 10000;
 
-static NSString* RequireUtf8String(const const char* value, const char* argumentName)
+static NSString* RequireUtf8String(const char* value, const char* argumentName)
 {
     if (value == nullptr)
         throw std::invalid_argument(std::string(argumentName) + " is null.");

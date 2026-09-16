@@ -9,7 +9,7 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 
-void InfiniFrameWindow::AddCustomSchemeName(const const char* scheme)
+void InfiniFrameWindow::AddCustomSchemeName(const char* scheme)
 {
     if (scheme == nullptr)
         return;
