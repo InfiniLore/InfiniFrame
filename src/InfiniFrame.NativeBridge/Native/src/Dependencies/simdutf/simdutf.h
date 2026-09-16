@@ -1,4 +1,4 @@
-/* auto-generated on 2026-08-18 10:18:07 -0400. Do not edit! */
+/* auto-generated on 2026-09-10 22:05:17 -0400. Do not edit! */
 /* begin file include/simdutf.h */
 #ifndef SIMDUTF_H
 #define SIMDUTF_H
@@ -172,7 +172,7 @@
 #elif defined(__aarch64__) || defined(_M_ARM64) || defined(_M_ARM64EC)
   #define SIMDUTF_IS_ARM64 1
 #elif defined(__PPC64__) || defined(_M_PPC64)
-  #if defined(__VEC__) && defined(__ALTIVEC__)
+  #if defined(__VEC__) && defined(__ALTIVEC__) && defined(__POWER8_VECTOR__)
     #define SIMDUTF_IS_PPC64 1
   #endif
 #elif defined(__s390__)
@@ -941,7 +941,7 @@ SIMDUTF_DISABLE_UNDESIRED_WARNINGS
 #define SIMDUTF_SIMDUTF_VERSION_H
 
 /** The version of simdutf being used (major.minor.revision) */
-#define SIMDUTF_VERSION "9.1.0"
+#define SIMDUTF_VERSION "9.1.2"
 
 namespace simdutf {
 enum {
@@ -956,7 +956,7 @@ enum {
   /**
    * The revision (major.minor.REVISION) of simdutf being used.
    */
-  SIMDUTF_VERSION_REVISION = 0
+  SIMDUTF_VERSION_REVISION = 2
 };
 } // namespace simdutf
 

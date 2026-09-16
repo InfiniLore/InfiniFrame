@@ -175,7 +175,7 @@ dotnet publish src/MyApp/MyApp.csproj -t:InfiniFrameSingleFile -r win-x64 -c Rel
 
 Requirements:
 
-- `Node.js`/`npm` (required)
+- `Node.js` 24.15+ and `npm`
 
 Run:
 
