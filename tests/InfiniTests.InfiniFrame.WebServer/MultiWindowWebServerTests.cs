@@ -10,6 +10,7 @@ namespace InfiniTests.InfiniFrame.WebServer;
 [NotInParallelInfiniTests]
 public sealed class MultiWindowWebServerTests {
     [Test]
+    [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task UseWebServer_CanRunTwoIndependentIntegrations(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
@@ -47,6 +48,7 @@ public sealed class MultiWindowWebServerTests {
     }
 
     [Test]
+    [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task UseWebServer_UsesCommandLineUrls(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
@@ -80,6 +82,7 @@ public sealed class MultiWindowWebServerTests {
     }
 
     [Test]
+    [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task UseWebServer_AttachesTheStartedServerToSelectedWindows(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;

@@ -199,6 +199,8 @@ void InfiniFrameApplication::NotifyWindowClosed(InfiniFrameWindow* window) noexc
 
     std::lock_guard lock(_impl->mutex);
     _impl->windows.erase(window);
+    _impl->liveWindows.erase(window);
+    window->DetachApplication();
 #ifdef _WIN32
     if (_impl->running && _impl->windows.empty())
         PostThreadMessage(_impl->runThreadId, WM_QUIT, 0, 0);

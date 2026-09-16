@@ -14,6 +14,7 @@ namespace InfiniTests.InfiniFrame.WebServer;
 [NotInParallelInfiniTests]
 public sealed class InfiniFrameApplicationWebServerTests {
     [Test]
+    [NotInParallelInfiniTests]
     public async Task WithWebServer_ReturnsApplicationAndDefersWindowBuild(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
@@ -26,6 +27,7 @@ public sealed class InfiniFrameApplicationWebServerTests {
     }
 
     [Test]
+    [NotInParallelInfiniTests]
     public async Task WithWebServer_RequiresExplicitIdsForMultipleWindows(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
@@ -39,6 +41,7 @@ public sealed class InfiniFrameApplicationWebServerTests {
     }
 
     [Test]
+    [NotInParallelInfiniTests]
     public async Task WithWebServer_RejectsMissingAndDuplicateIds(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 

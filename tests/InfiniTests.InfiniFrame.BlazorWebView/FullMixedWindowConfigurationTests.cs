@@ -11,6 +11,7 @@ namespace InfiniTests.InfiniFrame.BlazorWebView;
 [NotInParallelInfiniTests]
 public sealed class FullMixedWindowConfigurationTests {
     [Test]
+    [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task Application_CanRunPlainServerAndBlazorWindows(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;

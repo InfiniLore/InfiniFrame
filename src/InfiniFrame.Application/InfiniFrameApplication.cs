@@ -29,6 +29,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     )> _registrations = [];
     private readonly List<Func<Task>> _shutdownActions = [];
     private readonly List<Func<Task>> _startupActions = [];
+    private readonly List<Task> _naturalWindowTeardowns = [];
     private readonly Dictionary<string, IInfiniFrameWindow> _windows = [];
     private IServiceProvider? _serviceProvider;
     private int _disposed;
@@ -249,6 +250,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 windowDisposalFailure ??= ex;
             }
         }
+        DrainNaturalWindowTeardowns();
         if (windowDisposalFailure is not null) {
             Volatile.Write(ref _disposed, 0);
             throw new InvalidOperationException("The application could not dispose all windows.", windowDisposalFailure);
@@ -259,6 +261,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         }
         StopRegisteredComponents();
         _nativeHandle.Dispose();
+        EnsureNativeHandleReleased();
         if (_serviceProvider is IAsyncDisposable asyncServiceProvider)
             asyncServiceProvider.DisposeAsync().AsTask().GetAwaiter().GetResult();
         else (_serviceProvider as IDisposable)?.Dispose();
@@ -289,6 +292,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 windowDisposalFailure ??= ex;
             }
         }
+        await DrainNaturalWindowTeardownsAsync().ConfigureAwait(false);
         if (windowDisposalFailure is not null) {
             Volatile.Write(ref _disposed, 0);
             throw new InvalidOperationException("The application could not dispose all windows.", windowDisposalFailure);
@@ -299,6 +303,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         }
         await StopRegisteredComponentsAsync().ConfigureAwait(false);
         _nativeHandle.Dispose();
+        EnsureNativeHandleReleased();
         if (_serviceProvider is IAsyncDisposable asyncServiceProvider)
             await asyncServiceProvider.DisposeAsync().ConfigureAwait(false);
         else (_serviceProvider as IDisposable)?.Dispose();
@@ -425,7 +430,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         foreach ((_, IInfiniFrameWindow window) in built)
             WindowCreated?.Invoke(window);
         foreach ((string id, IInfiniFrameWindow window) in built)
-            _ = TrackNaturalWindowCloseAsync(id, window);
+            lock (_gate) _naturalWindowTeardowns.Add(TrackNaturalWindowCloseAsync(id, window));
     }
 
     private async Task TrackNaturalWindowCloseAsync(string id, IInfiniFrameWindow window) {
@@ -457,6 +462,26 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             _windows.Remove(id);
         }
         WindowDestroyed?.Invoke(window);
+    }
+
+    private void DrainNaturalWindowTeardowns() {
+        Task[] teardowns;
+        lock (_gate) {
+            teardowns = _naturalWindowTeardowns.ToArray();
+            _naturalWindowTeardowns.Clear();
+        }
+
+        foreach (Task teardown in teardowns) teardown.GetAwaiter().GetResult();
+    }
+
+    private async Task DrainNaturalWindowTeardownsAsync() {
+        Task[] teardowns;
+        lock (_gate) {
+            teardowns = _naturalWindowTeardowns.ToArray();
+            _naturalWindowTeardowns.Clear();
+        }
+
+        await Task.WhenAll(teardowns).ConfigureAwait(false);
     }
 
     private void EnsureBuilt()
@@ -532,5 +557,15 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 logger.LogWarning(ex, "Failed to stop an application component.");
             }
         }
+    }
+
+    private void EnsureNativeHandleReleased() {
+        if (_nativeHandle.ReleaseStatus == InfiniFrameNativeInteropStatus.Success) return;
+
+        _ = InfiniFrameNative.ApplicationGetWindowCount(_nativeHandle.DangerousGetHandle(), out nuint nativeWindowCount);
+        throw new InfiniFrameNativeInteropException(
+            $"Could not destroy the native application ({_nativeHandle.ReleaseStatus}); " +
+            $"managed windows remaining: {Windows.Count}, native windows remaining: {nativeWindowCount}. " +
+            (InfiniFrameNative.GetLastErrorMessage() ?? "No native error message provided."));
     }
 }

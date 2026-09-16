@@ -13,6 +13,7 @@ namespace InfiniTests.InfiniFrame.Application;
 [NotInParallelInfiniTests]
 public sealed class InfiniFrameApplicationTests {
     [Test]
+    [NotInParallelInfiniTests]
     public async Task Initialize_CreatesApplicationWithNoWindows(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
@@ -22,6 +23,7 @@ public sealed class InfiniFrameApplicationTests {
     }
 
     [Test]
+    [NotInParallelInfiniTests]
     public async Task CreateBuilder_RegistersUnnamedWindowWithoutIntegrationId(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
@@ -33,6 +35,7 @@ public sealed class InfiniFrameApplicationTests {
     }
 
     [Test]
+    [NotInParallelInfiniTests]
     public async Task RegisterWindow_DuplicateIdThrows(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
@@ -45,6 +48,7 @@ public sealed class InfiniFrameApplicationTests {
     }
 
     [Test]
+    [NotInParallelInfiniTests]
     public async Task LookupBeforeRunFailsClearly(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
@@ -58,6 +62,7 @@ public sealed class InfiniFrameApplicationTests {
     }
 
     [Test]
+    [NotInParallelInfiniTests]
     public async Task WebView2RuntimeConfigurationCanBeSetBeforeRun(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
@@ -69,6 +74,7 @@ public sealed class InfiniFrameApplicationTests {
     }
 
     [Test]
+    [NotInParallelInfiniTests]
     public async Task ProcessWideConfigurationCanBeSetBeforeRun(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
@@ -83,6 +89,7 @@ public sealed class InfiniFrameApplicationTests {
     }
 
     [Test]
+    [NotInParallelInfiniTests]
     public async Task RegistrationAfterRunFails(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
@@ -95,6 +102,7 @@ public sealed class InfiniFrameApplicationTests {
     }
 
     [Test]
+    [NotInParallelInfiniTests]
     public async Task RunFromMtaThreadFailsBeforeWindowCreation(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 

@@ -704,6 +704,7 @@ class InfiniFrameWindow {
     /** @brief Tear down the WebView control while keeping the native window alive */
     void CloseWebView();
     [[nodiscard]] InfiniFrameApplication* GetApplication() const noexcept { return _application; }
+    void DetachApplication() noexcept { _application = nullptr; }
 
 #ifdef __APPLE__
     /**

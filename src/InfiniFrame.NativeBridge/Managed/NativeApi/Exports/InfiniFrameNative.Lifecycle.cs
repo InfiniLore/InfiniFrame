@@ -57,6 +57,16 @@ public partial class InfiniFrameNative {
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus ApplicationDestructor(IntPtr instance);
 
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeApplication_GetWindowCount", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial InfiniFrameNativeInteropStatus ApplicationGetWindowCountNative(
+        IntPtr instance,
+        out nuint value
+    );
+
+    internal static InfiniFrameNativeInteropStatus ApplicationGetWindowCount(IntPtr instance, out nuint value)
+        => ApplicationGetWindowCountNative(instance, out value);
+
     /// <summary>
     ///     Creates a new native window instance with the specified parameters.
     /// </summary>

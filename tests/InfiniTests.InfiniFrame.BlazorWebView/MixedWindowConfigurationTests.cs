@@ -8,6 +8,7 @@ namespace InfiniTests.InfiniFrame.BlazorWebView;
 [NotInParallelInfiniTests]
 public sealed class MixedWindowConfigurationTests {
     [Test]
+    [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task BlazorWebView_CanTargetOneWindowAlongsidePlainHtml(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;

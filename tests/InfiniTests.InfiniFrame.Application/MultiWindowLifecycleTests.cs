@@ -7,6 +7,7 @@ namespace InfiniTests.InfiniFrame.Application;
 [NotInParallelInfiniTests]
 public sealed class MultiWindowLifecycleTests {
     [Test]
+    [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task FileUriWindow_LoadsAlongsidePlainWindow(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
@@ -45,6 +46,7 @@ public sealed class MultiWindowLifecycleTests {
     }
 
     [Test]
+    [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task ClosingOneWindow_DoesNotCloseItsSiblings(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
@@ -76,6 +78,7 @@ public sealed class MultiWindowLifecycleTests {
     }
 
     [Test]
+    [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task WindowLifecycleEvents_AreRaisedOncePerWindow(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;

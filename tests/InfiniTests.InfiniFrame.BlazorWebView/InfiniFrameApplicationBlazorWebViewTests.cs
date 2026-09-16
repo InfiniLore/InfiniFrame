@@ -10,6 +10,7 @@ namespace InfiniTests.InfiniFrame.BlazorWebView;
 [NotInParallelInfiniTests]
 public sealed class InfiniFrameApplicationBlazorWebViewTests {
     [Test]
+    [NotInParallelInfiniTests]
     public async Task UseBlazorWebView_RejectsMultipleTargetWindows() {
         await Assert.That(() => InfiniFrameApplication.CreateBuilder()
                 .UseBlazorWebView(static _ => { }, "main", "settings"))
@@ -18,6 +19,7 @@ public sealed class InfiniFrameApplicationBlazorWebViewTests {
     }
 
     [Test]
+    [NotInParallelInfiniTests]
     public async Task UseBlazorWebView_UsesConfiguredAppBaseUriForHttpClient() {
         if (!OperatingSystem.IsWindows()) return;
 
@@ -35,6 +37,7 @@ public sealed class InfiniFrameApplicationBlazorWebViewTests {
     }
 
     [Test]
+    [NotInParallelInfiniTests]
     public async Task WithBlazorWebView_ReturnsApplicationAndDefersWindowBuild(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows()) return;
 
@@ -48,6 +51,7 @@ public sealed class InfiniFrameApplicationBlazorWebViewTests {
     }
 
     [Test]
+    [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task UseBlazorWebView_CombinesSingleUnnamedWindowConfiguration(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
