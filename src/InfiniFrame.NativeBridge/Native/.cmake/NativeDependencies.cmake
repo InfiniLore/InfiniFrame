@@ -192,7 +192,10 @@ function(infiniframe_resolve_webview2_base_dir webview2_version out_var)
     endforeach ()
     _infiniframe_resolve_base_dir(_base_dir "include/WebView2.h" ${_candidates})
     if (NOT _base_dir)
-        message(FATAL_ERROR "WebView2 headers not found")
+        message(FATAL_ERROR
+                "WebView2 headers not found for version ${webview2_version}. "
+                "Run 'dotnet restore src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj' "
+                "before configuring CMake, or set NUGET_PACKAGES/INFINIFRAME_NUGET_PACKAGES_ROOT to the NuGet cache.")
     endif ()
     set(${out_var} "${_base_dir}" PARENT_SCOPE)
 endfunction()
