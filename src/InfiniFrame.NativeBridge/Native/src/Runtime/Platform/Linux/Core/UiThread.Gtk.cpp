@@ -27,7 +27,10 @@ namespace {
     bool initialized = false;
     std::thread::id ownerThreadId = {};
     GMainContext* ownerContext = nullptr;
-    std::thread gtkThread;
+    // The GTK owner is process-scoped. Keep the thread object outside static
+    // destruction so unloading the native library cannot terminate the host
+    // because a WebKit worker is still draining.
+    std::thread* gtkThread = nullptr;
     GMainLoop* mainLoop = nullptr;
 
     struct InvokeState {
@@ -71,13 +74,13 @@ namespace {
 
     void AtexitShutdown() {
         std::lock_guard lock(initializeMutex);
-        if (!initialized || !gtkThread.joinable()) return;
+        if (!initialized || gtkThread == nullptr || !gtkThread->joinable()) return;
         if (mainLoop != nullptr) g_main_loop_quit(mainLoop);
 
         // Detach rather than join. During process exit GLib/GDK objects may already be
         // half-torn-down and the thread could be stuck in a GLib call. Joining here risks
         // deadlock or SIGABRT. The OS reclaims all thread resources on process exit.
-        gtkThread.detach();
+        gtkThread->detach();
     }
 }
 
@@ -86,7 +89,7 @@ namespace infiniframe::linux_gtk::ui_thread {
         std::unique_lock lock(initializeMutex);
         if (initialized) return;
         std::atexit(AtexitShutdown);
-        gtkThread = std::thread(
+        gtkThread = new std::thread(
                     [] {
                         linux_gtk::ConfigureGraphicsEnvironment();
                         XInitThreads();
@@ -138,9 +141,9 @@ namespace infiniframe::linux_gtk::ui_thread {
         std::thread thread;
         {
             std::lock_guard lock(initializeMutex);
-            if (!initialized && !gtkThread.joinable()) return;
+            if (!initialized && (gtkThread == nullptr || !gtkThread->joinable())) return;
             if (mainLoop != nullptr) g_main_loop_quit(mainLoop);
-            thread = std::move(gtkThread);
+            thread = std::move(*gtkThread);
         }
         if (thread.joinable()) thread.join();
         std::lock_guard lock(initializeMutex);

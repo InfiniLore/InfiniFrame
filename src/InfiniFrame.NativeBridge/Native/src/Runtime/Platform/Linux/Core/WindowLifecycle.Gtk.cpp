@@ -128,7 +128,11 @@ void InfiniFrameWindow::CloseWebView() {
 
 void InfiniFrameWindow::NotifyWebViewFinalized() {
     m_impl->_webview = nullptr;
-    m_impl->_webviewFinalized = true;
+    {
+        std::lock_guard lock(m_impl->_lifecycleMutex);
+        m_impl->_webviewFinalized = true;
+    }
+    m_impl->_lifecycleClosed.notify_all();
     ScheduleTeardownCompletion();
 }
 
@@ -143,16 +147,26 @@ void InfiniFrameWindow::ScheduleTeardownCompletion() {
     if (!infiniframe::linux_gtk::ui_thread::InvokeIdle(
         [this] {
             SignalTeardown();
-            if (!m_impl->_applicationNotified && _application != nullptr) {
-                m_impl->_applicationNotified = true;
-                _application->NotifyWindowClosed(this);
-            }
-        }))
+             if (!m_impl->_applicationNotified && _application != nullptr) {
+                 m_impl->_applicationNotified = true;
+                 _application->NotifyWindowClosed(this);
+             }
+             {
+                 std::lock_guard lock(m_impl->_lifecycleMutex);
+                 m_impl->_teardownCompleted = true;
+             }
+             m_impl->_lifecycleClosed.notify_all();
+         }))
     {
         SignalTeardown();
         if (!m_impl->_applicationNotified && _application != nullptr) {
             m_impl->_applicationNotified = true;
             _application->NotifyWindowClosed(this);
         }
+        {
+            std::lock_guard lock(m_impl->_lifecycleMutex);
+            m_impl->_teardownCompleted = true;
+        }
+        m_impl->_lifecycleClosed.notify_all();
     }
 }

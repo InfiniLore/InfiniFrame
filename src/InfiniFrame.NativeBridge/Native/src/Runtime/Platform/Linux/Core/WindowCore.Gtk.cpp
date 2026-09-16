@@ -60,15 +60,13 @@ InfiniFrameWindow::~InfiniFrameWindow() {
         _application->UntrackWindow(this);
     infiniframe::linux_gtk::ui_thread::InvokeSync(
         [this] {
+            if (m_impl->_webview != nullptr && !m_impl->_webviewClosed)
+                CloseWebView();
+
             if (m_impl->_window != nullptr) {
                 g_signal_handlers_disconnect_by_data(m_impl->_window, this);
                 gtk_widget_destroy(m_impl->_window);
                 m_impl->_window = nullptr;
-            }
-
-            if (m_impl->_webview != nullptr) {
-                g_signal_handlers_disconnect_by_data(m_impl->_webview, this);
-                m_impl->_webview = nullptr;
             }
 
             m_impl->_webContext = nullptr;
@@ -79,6 +77,13 @@ InfiniFrameWindow::~InfiniFrameWindow() {
             }
             m_impl->_lifecycleClosed.notify_all();
         });
+
+    if (!infiniframe::linux_gtk::ui_thread::IsCurrentThread()) {
+        std::unique_lock lock(m_impl->_lifecycleMutex);
+        m_impl->_lifecycleClosed.wait(lock, [this] {
+            return m_impl->_teardownCompleted || m_impl->_webviewFinalized;
+        });
+    }
 }
 
 CommonWindowState* GetCommonWindowState(InfiniFrameWindow* window) noexcept {
