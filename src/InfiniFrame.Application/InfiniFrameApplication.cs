@@ -260,8 +260,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             _registrations.Clear();
         }
         StopRegisteredComponents();
-        _nativeHandle.Dispose();
-        EnsureNativeHandleReleased();
+        ReleaseNativeHandleOrThrow();
         if (_serviceProvider is IAsyncDisposable asyncServiceProvider)
             asyncServiceProvider.DisposeAsync().AsTask().GetAwaiter().GetResult();
         else (_serviceProvider as IDisposable)?.Dispose();
@@ -302,8 +301,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             _registrations.Clear();
         }
         await StopRegisteredComponentsAsync().ConfigureAwait(false);
-        _nativeHandle.Dispose();
-        EnsureNativeHandleReleased();
+        ReleaseNativeHandleOrThrow();
         if (_serviceProvider is IAsyncDisposable asyncServiceProvider)
             await asyncServiceProvider.DisposeAsync().ConfigureAwait(false);
         else (_serviceProvider as IDisposable)?.Dispose();
@@ -582,5 +580,12 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             $"Could not destroy the native application ({_nativeHandle.ReleaseStatus}); " +
             $"managed windows remaining: {Windows.Count}, native windows remaining: {nativeWindowCount}. " +
             (InfiniFrameNative.GetLastErrorMessage() ?? "No native error message provided."));
+    }
+
+    private void ReleaseNativeHandleOrThrow() {
+        if (_nativeHandle.TryRelease()) return;
+
+        Volatile.Write(ref _disposed, 0);
+        EnsureNativeHandleReleased();
     }
 }

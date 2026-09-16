@@ -10,12 +10,12 @@ public sealed class InfiniFrameWebServerConfiguration {
 
     internal InfiniFrameWebServerConfiguration(WebApplicationBuilder webApp, IServiceCollection services) {
         _webApplicationBuilder = webApp;
-        RootServices = [.. services];
+        RootServices = services;
     }
 
     public IWebHostBuilder WebHost => _webApplicationBuilder.WebHost;
     internal WebApplicationBuilder Builder => _webApplicationBuilder;
-    internal IReadOnlyList<ServiceDescriptor> RootServices { get; }
+    internal IServiceCollection RootServices { get; }
 
     private readonly List<Action<WebApplication>> _applicationConfiguration = [];
 

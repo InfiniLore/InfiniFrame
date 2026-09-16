@@ -21,8 +21,8 @@ public sealed class FullMixedWindowConfigurationTests {
             .WithWindow("plain", builder => builder.SetStartPageContent("<html><body>Plain</body></html>"))
             .WithWindow("server", static _ => { })
             .WithWindow("blazor", builder => builder.SetTitle("Blazor"))
-            .UseWebServer("server", server => server.WebHost.UseUrls($"http://127.0.0.1:{port}"))
             .UseBlazorWebView("blazor", static _ => { })
+            .UseWebServer("server", server => server.WebHost.UseUrls($"http://127.0.0.1:{port}"))
             .Build();
 
         Task runTask = application.RunAsync(ct);
@@ -43,6 +43,10 @@ public sealed class FullMixedWindowConfigurationTests {
             await Assert.That(application.GetWindow("blazor").Features.PageNavigation.GetCurrentUri()?.Scheme)
                 .IsEqualTo("app");
             await Assert.That(application.GetWindow("plain")).IsNotNull();
+
+            NavigationResult rejectedAppNavigation = await application.GetWindow("plain")
+                .Features.PageNavigation.LoadAsync(new Uri("app://localhost/"), ct);
+            await Assert.That(rejectedAppNavigation.Status).IsEqualTo(NavigationStatus.Failed);
         }
         finally {
             application.Shutdown();

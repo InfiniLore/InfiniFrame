@@ -11,6 +11,14 @@ public sealed class NativeApplicationHandle : SafeHandleZeroOrMinusOneIsInvalid 
     internal InfiniFrameNativeInteropStatus ReleaseStatus
         => (InfiniFrameNativeInteropStatus)Volatile.Read(ref _releaseStatus);
 
+    internal bool TryRelease() {
+        if (IsClosed) return ReleaseStatus == InfiniFrameNativeInteropStatus.Success;
+
+        bool released = ReleaseHandle();
+        if (released) SetHandleAsInvalid();
+        return released;
+    }
+
     protected override bool ReleaseHandle() {
         InfiniFrameNativeInteropStatus status = InfiniFrameNative.ApplicationDestructor(handle);
         Volatile.Write(ref _releaseStatus, (int)status);

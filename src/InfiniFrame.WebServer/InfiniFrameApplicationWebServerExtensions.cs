@@ -47,11 +47,12 @@ public static class InfiniFrameApplicationWebServerExtensions {
 
         builder.AddIntegration(application => {
             application.ValidateWindowIntegrationTargets(windowIds, "WebServer");
-            WebApplication webApplication = configuration.BuildApplication();
+            WebApplication? webApplication = null;
             int serverCleanupStarted = 0;
 
             async Task StopServerAsync() {
                 if (Interlocked.Exchange(ref serverCleanupStarted, 1) != 0) return;
+                if (webApplication is null) return;
                 try {
                     await webApplication.StopAsync(CancellationToken.None).ConfigureAwait(false);
                 }
@@ -62,8 +63,10 @@ public static class InfiniFrameApplicationWebServerExtensions {
 
             application.RegisterStartupAction(async () => {
                 try {
-                    await webApplication.StartAsync().ConfigureAwait(false);
-                    Uri address = ResolveStartedAddress(webApplication);
+                    WebApplication server = configuration.BuildApplication();
+                    webApplication = server;
+                    await server.StartAsync().ConfigureAwait(false);
+                    Uri address = ResolveStartedAddress(server);
                     application.ApplyWindowIntegration(windowIds, "WebServer", configure: windowBuilder => {
                         windowBuilder.SetStartPageUrl(address.ToString());
                         windowBuilder.RegisterGetWebMessageHandler();
