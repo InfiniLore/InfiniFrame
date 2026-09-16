@@ -33,9 +33,7 @@ using HRESULT = long;
 struct ICoreWebView2EnvironmentOptions;
 #endif
 #ifdef __linux__
-typedef enum _GdkWindowState GdkWindowState;
-struct _GtkWidget;
-using GtkWidget = _GtkWidget;
+#include <gtk/gtk.h>
 #endif
 #ifdef __APPLE__
 #ifdef __OBJC__

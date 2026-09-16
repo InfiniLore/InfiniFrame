@@ -10,7 +10,7 @@ public sealed class MultiWindowLifecycleTests {
     [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task FileUriWindow_LoadsAlongsidePlainWindow(CancellationToken ct = default) {
-        if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
+        if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) || Environment.Version.Major < 8) return;
 
         string filePath = Path.Join(Path.GetTempPath(), $"{Guid.NewGuid():N}.html");
         await File.WriteAllTextAsync(filePath, "<html><body>File window</body></html>", ct);
@@ -49,7 +49,7 @@ public sealed class MultiWindowLifecycleTests {
     [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task ClosingOneWindow_DoesNotCloseItsSiblings(CancellationToken ct = default) {
-        if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
+        if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) || Environment.Version.Major < 8) return;
 
         await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
             .WithWindow("main", builder => builder.SetStartPageContent("<html><body>Main</body></html>"))
@@ -81,7 +81,7 @@ public sealed class MultiWindowLifecycleTests {
     [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task WindowLifecycleEvents_AreRaisedOncePerWindow(CancellationToken ct = default) {
-        if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
+        if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) || Environment.Version.Major < 8) return;
 
         await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
             .WithWindow("main", builder => builder.SetStartPageContent("<html><body>Main</body></html>"))

@@ -15,8 +15,6 @@ public sealed class InfiniFrameApplicationTests {
     [Test]
     [NotInParallelInfiniTests]
     public async Task Initialize_CreatesApplicationWithNoWindows(CancellationToken ct = default) {
-        if (!OperatingSystem.IsWindows()) return;
-
         await using InfiniFrameApplication application = InfiniFrameApplication.Initialize();
 
         await Assert.That(application.Windows).IsEmpty();
@@ -25,8 +23,6 @@ public sealed class InfiniFrameApplicationTests {
     [Test]
     [NotInParallelInfiniTests]
     public async Task CreateBuilder_RegistersUnnamedWindowWithoutIntegrationId(CancellationToken ct = default) {
-        if (!OperatingSystem.IsWindows()) return;
-
         await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
             .WithWindow(static window => window.SetStartPageContent("<html><body>App</body></html>"))
             .Build();
@@ -37,8 +33,6 @@ public sealed class InfiniFrameApplicationTests {
     [Test]
     [NotInParallelInfiniTests]
     public async Task RegisterWindow_DuplicateIdThrows(CancellationToken ct = default) {
-        if (!OperatingSystem.IsWindows()) return;
-
         await using InfiniFrameApplication application = InfiniFrameApplication.Initialize();
         application.RegisterWindow("main", configure: static _ => {});
 
@@ -50,8 +44,6 @@ public sealed class InfiniFrameApplicationTests {
     [Test]
     [NotInParallelInfiniTests]
     public async Task LookupBeforeRunFailsClearly(CancellationToken ct = default) {
-        if (!OperatingSystem.IsWindows()) return;
-
         await using InfiniFrameApplication application = InfiniFrameApplication.Initialize();
         application.RegisterWindow("main", configure: static _ => {});
 
@@ -91,8 +83,6 @@ public sealed class InfiniFrameApplicationTests {
     [Test]
     [NotInParallelInfiniTests]
     public async Task RegistrationAfterRunFails(CancellationToken ct = default) {
-        if (!OperatingSystem.IsWindows()) return;
-
         await using InfiniFrameApplication application = InfiniFrameApplication.Initialize();
         await application.RunAsync(ct);
 
@@ -116,7 +106,7 @@ public sealed class InfiniFrameApplicationTests {
     [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task RunAsyncBuildsAndRunsMultipleWindowsUntilAllClose(CancellationToken ct = default) {
-        if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
+        if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) || Environment.Version.Major < 8) return;
 
         await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
             .WithWindow("main", configure: static builder => builder.SetStartPageContent("<html><body>Main</body></html>"))
@@ -145,7 +135,7 @@ public sealed class InfiniFrameApplicationTests {
     [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task ShutdownBeforeWebView2InitializationCompletesDrainsRunAsync(CancellationToken ct = default) {
-        if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
+        if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) || Environment.Version.Major < 8) return;
 
         await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
             .WithWindow("main", configure: static builder => builder.SetStartPageContent("<html><body>Main</body></html>"));

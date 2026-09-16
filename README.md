@@ -199,6 +199,8 @@ npm --prefix docs run build
 
 ## Run Linux GUI Tests In Docker
 
+Linux application lifecycle and WebKit tests run under WSL2/WSLg. Install the SDKs listed in `global.json`, CMake, Ninja, GCC/G++, Clang, `pkg-config`, GTK 3, WebKitGTK 4.1, libnotify, and X11 development packages in the WSL distribution. Run `bash ./docker/linux/run-linux-tests-wslg.sh` from WSL; the native library is built in Linux and is never taken from the Windows output.
+
 The full scripts reference lives in docs:
 
 - [Scripts Reference](https://docs.infiniframe.dev/guides/scripts)

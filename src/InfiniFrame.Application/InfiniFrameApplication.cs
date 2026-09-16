@@ -134,7 +134,8 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         BeginRun();
         try {
             EnsureWindowsStaThread();
-            RegisterNativeApplication();
+            if (HasRegisteredWindows())
+                RegisterNativeApplication();
             if (IsShutdownRequested) return;
             StartRegisteredComponents();
             BuildAllWindows();
@@ -162,7 +163,8 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                         return;
                     }
 
-                    RegisterNativeApplication();
+                    if (HasRegisteredWindows())
+                        RegisterNativeApplication();
                     if (IsShutdownRequested) {
                         completion.TrySetResult();
                         return;
@@ -226,6 +228,10 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         if (status != InfiniFrameNativeInteropStatus.Success)
             throw new InfiniFrameNativeInteropException(
                 InfiniFrameNative.GetLastErrorMessage() ?? "Could not register native application.");
+    }
+
+    private bool HasRegisteredWindows() {
+        lock (_gate) return _registrations.Count != 0;
     }
 
     /// <inheritdoc />
@@ -503,7 +509,10 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             return;
         }
 
-        foreach (IInfiniFrameWindow window in Windows.ToArray()) window.WaitForClose();
+        InfiniFrameNativeInteropStatus linuxStatus = InfiniFrameNative.ApplicationRun(_nativeHandle.DangerousGetHandle());
+        if (linuxStatus != InfiniFrameNativeInteropStatus.Success)
+            throw new InfiniFrameNativeInteropException(
+                InfiniFrameNative.GetLastErrorMessage() ?? "Could not run the native application.");
     }
 
     private static void EnsureWindowsStaThread() {

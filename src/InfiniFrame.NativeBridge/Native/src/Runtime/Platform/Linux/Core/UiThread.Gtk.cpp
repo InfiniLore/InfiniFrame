@@ -22,7 +22,6 @@
 namespace {
     constexpr auto NotifyAppName = "InfiniFrame";
 
-    std::once_flag initializeOnce;
     std::mutex initializeMutex;
     std::condition_variable initializeCompleted;
     bool initialized = false;
@@ -71,14 +70,9 @@ namespace {
     }
 
     void AtexitShutdown() {
-        if (!initialized)
-            return;
-        if (!gtkThread.joinable())
-            return;
-
-        if (mainLoop != nullptr && g_main_loop_is_running(mainLoop)) {
-            g_main_loop_quit(mainLoop);
-        }
+        std::lock_guard lock(initializeMutex);
+        if (!initialized || !gtkThread.joinable()) return;
+        if (mainLoop != nullptr) g_main_loop_quit(mainLoop);
 
         // Detach rather than join. During process exit GLib/GDK objects may already be
         // half-torn-down and the thread could be stuck in a GLib call. Joining here risks
@@ -89,11 +83,10 @@ namespace {
 
 namespace infiniframe::linux_gtk::ui_thread {
     void EnsureInitialized() {
-        std::call_once(
-            initializeOnce, [] {
-                std::atexit(AtexitShutdown);
-
-                gtkThread = std::thread(
+        std::unique_lock lock(initializeMutex);
+        if (initialized) return;
+        std::atexit(AtexitShutdown);
+        gtkThread = std::thread(
                     [] {
                         linux_gtk::ConfigureGraphicsEnvironment();
                         XInitThreads();
@@ -101,14 +94,14 @@ namespace infiniframe::linux_gtk::ui_thread {
                         notify_init(NotifyAppName);
 
                         {
-                            std::lock_guard lock(initializeMutex);
+                            std::lock_guard stateLock(initializeMutex);
                             ownerThreadId = std::this_thread::get_id();
                             ownerContext = g_main_context_default();
+                            mainLoop = g_main_loop_new(ownerContext, FALSE);
                             initialized = true;
                             initializeCompleted.notify_all();
                         }
 
-                        mainLoop = g_main_loop_new(ownerContext, FALSE);
                         g_main_loop_run(mainLoop);
 
                         // Drain pending sources (e.g. WebKit web-process cleanup idle
@@ -121,30 +114,40 @@ namespace infiniframe::linux_gtk::ui_thread {
                         }
 
                         g_main_loop_unref(mainLoop);
-                        mainLoop = nullptr;
+                        {
+                            std::lock_guard stateLock(initializeMutex);
+                            mainLoop = nullptr;
+                            initialized = false;
+                            ownerThreadId = {};
+                            ownerContext = nullptr;
+                        }
 
                         notify_uninit();
                     });
+        lock.unlock();
+        std::unique_lock waitLock(initializeMutex);
+        initializeCompleted.wait(waitLock, [] { return initialized; });
+    }
 
-                std::unique_lock lock(initializeMutex);
-                initializeCompleted.wait(
-                    lock, [] {
-                        return initialized;
-                    });
-            });
+    void RequestShutdown() {
+        std::lock_guard lock(initializeMutex);
+        if (mainLoop != nullptr) g_main_loop_quit(mainLoop);
     }
 
     void Shutdown() {
-        if (!initialized)
-            return;
-
-        if (mainLoop != nullptr && g_main_loop_is_running(mainLoop)) {
-            g_main_loop_quit(mainLoop);
+        std::thread thread;
+        {
+            std::lock_guard lock(initializeMutex);
+            if (!initialized && !gtkThread.joinable()) return;
+            if (mainLoop != nullptr) g_main_loop_quit(mainLoop);
+            thread = std::move(gtkThread);
         }
-
-        if (gtkThread.joinable()) {
-            gtkThread.join();
-        }
+        if (thread.joinable()) thread.join();
+        std::lock_guard lock(initializeMutex);
+        initialized = false;
+        ownerThreadId = {};
+        ownerContext = nullptr;
+        mainLoop = nullptr;
     }
 
     bool IsCurrentThread() {

@@ -5,6 +5,7 @@
 #include <cstring>
 
 #include "Runtime/Internal/Window/InfiniFrameDialog.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindowInitParams.h"
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -26,49 +27,49 @@ gboolean on_permission_request(WebKitWebView* web_view, WebKitPermissionRequest*
 
 void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameWindowInitParams* initParams) {
     if (initParams->Title != nullptr) {
-        _windowTitle = initParams->Title;
+        common._windowTitle = initParams->Title;
     } else {
-        _windowTitle = "";
+        common._windowTitle = "";
     }
 
     if (initParams->StartUrl != nullptr) {
-        _startUrl = initParams->StartUrl;
+        common._startUrl = initParams->StartUrl;
     }
     if (initParams->StartString != nullptr) {
-        _startString = initParams->StartString;
+        common._startString = initParams->StartString;
     }
     if (initParams->TemporaryFilesPath != nullptr) {
         _temporaryFilesPath = initParams->TemporaryFilesPath;
     }
     if (initParams->UserAgent != nullptr) {
-        _userAgent = initParams->UserAgent;
+        common._userAgent = initParams->UserAgent;
     }
     if (initParams->BrowserControlInitParameters != nullptr) {
-        _browserControlInitParameters = initParams->BrowserControlInitParameters;
+        common._browserControlInitParameters = initParams->BrowserControlInitParameters;
     }
 
-    _transparentEnabled = initParams->Transparent;
-    _backgroundColorR = initParams->BackgroundColorR;
-    _backgroundColorG = initParams->BackgroundColorG;
-    _backgroundColorB = initParams->BackgroundColorB;
-    _backgroundColorA = initParams->BackgroundColorA;
-    _contextMenuEnabled = initParams->ContextMenuEnabled;
-    _zoomEnabled = initParams->ZoomEnabled;
-    _devToolsEnabled = initParams->DevToolsEnabled;
-    _grantBrowserPermissions = initParams->GrantBrowserPermissions;
-    _mediaAutoplayEnabled = initParams->MediaAutoplayEnabled;
-    _fileSystemAccessEnabled = initParams->FileSystemAccessEnabled;
-    _webSecurityEnabled = initParams->WebSecurityEnabled;
-    _javascriptClipboardAccessEnabled = initParams->JavascriptClipboardAccessEnabled;
-    _mediaStreamEnabled = initParams->MediaStreamEnabled;
-    _smoothScrollingEnabled = initParams->SmoothScrollingEnabled;
-    _ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
-    _statusBarEnabled = initParams->StatusBarEnabled;
-    _browserShortcutsEnabled = initParams->BrowserShortcutsEnabled;
-    _remoteDebuggingPort = initParams->RemoteDebuggingPort;
+    common._transparentEnabled = initParams->Transparent;
+    common._backgroundColorR = initParams->BackgroundColorR;
+    common._backgroundColorG = initParams->BackgroundColorG;
+    common._backgroundColorB = initParams->BackgroundColorB;
+    common._backgroundColorA = initParams->BackgroundColorA;
+    common._contextMenuEnabled = initParams->ContextMenuEnabled;
+    common._zoomEnabled = initParams->ZoomEnabled;
+    common._devToolsEnabled = initParams->DevToolsEnabled;
+    common._grantBrowserPermissions = initParams->GrantBrowserPermissions;
+    common._mediaAutoplayEnabled = initParams->MediaAutoplayEnabled;
+    common._fileSystemAccessEnabled = initParams->FileSystemAccessEnabled;
+    common._webSecurityEnabled = initParams->WebSecurityEnabled;
+    common._javascriptClipboardAccessEnabled = initParams->JavascriptClipboardAccessEnabled;
+    common._mediaStreamEnabled = initParams->MediaStreamEnabled;
+    common._smoothScrollingEnabled = initParams->SmoothScrollingEnabled;
+    common._ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
+    common._statusBarEnabled = initParams->StatusBarEnabled;
+    common._browserShortcutsEnabled = initParams->BrowserShortcutsEnabled;
+    common._remoteDebuggingPort = initParams->RemoteDebuggingPort;
     _isFullScreen = initParams->FullScreen;
     if (initParams->DefaultNotificationIcon != nullptr)
-        _defaultNotificationIcon = initParams->DefaultNotificationIcon;
+        common._defaultNotificationIcon = initParams->DefaultNotificationIcon;
 
     _zoom = initParams->Zoom;
     _minWidth = initParams->MinWidth;
@@ -76,36 +77,36 @@ void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameWindowInitPa
     _maxWidth = initParams->MaxWidth;
     _maxHeight = initParams->MaxHeight;
 
-    _webMessageReceivedCallback = initParams->WebMessageReceivedHandler;
-    _resizedCallback = initParams->ResizedHandler;
-    _movedCallback = initParams->MovedHandler;
-    _closingCallback = initParams->ClosingHandler;
-    _closedCallback = initParams->ClosedHandler;
-    _focusInCallback = initParams->FocusInHandler;
-    _focusOutCallback = initParams->FocusOutHandler;
-    _maximizedCallback = initParams->MaximizedHandler;
-    _minimizedCallback = initParams->MinimizedHandler;
-    _restoredCallback = initParams->RestoredHandler;
-    _debugEventCallback = initParams->DebugEventHandler;
-    _customSchemeCallback = initParams->CustomSchemeHandler;
-    _navigationStartingCallback = initParams->NavigationStartingHandler;
-    _fileDroppedCallback = initParams->DragDropHandler;
-    _dragDropEnabled = initParams->DragDropEnabled;
+    common._webMessageReceivedCallback = initParams->WebMessageReceivedHandler;
+    common._resizedCallback = initParams->ResizedHandler;
+    common._movedCallback = initParams->MovedHandler;
+    common._closingCallback = initParams->ClosingHandler;
+    common._closedCallback = initParams->ClosedHandler;
+    common._focusInCallback = initParams->FocusInHandler;
+    common._focusOutCallback = initParams->FocusOutHandler;
+    common._maximizedCallback = initParams->MaximizedHandler;
+    common._minimizedCallback = initParams->MinimizedHandler;
+    common._restoredCallback = initParams->RestoredHandler;
+    common._debugEventCallback = initParams->DebugEventHandler;
+    common._customSchemeCallback = initParams->CustomSchemeHandler;
+    common._navigationStartingCallback = initParams->NavigationStartingHandler;
+    common._fileDroppedCallback = initParams->DragDropHandler;
+    common._dragDropEnabled = initParams->DragDropEnabled;
 
-    _customSchemeNames.clear();
+    common._customSchemeNames.clear();
     for (auto* customSchemeName : initParams->CustomSchemeNames) {
         if (customSchemeName == nullptr) {
             continue;
         }
-        _customSchemeNames.emplace_back(customSchemeName);
+        common._customSchemeNames.emplace_back(customSchemeName);
     }
 
-    _parent = initParams->ParentInstance;
+    common._parent = initParams->ParentInstance;
 }
 
 void InfiniFrameWindow::Impl::ConfigureInitialWindow(InfiniFrameWindow* window, InfiniFrameWindowInitParams* initParams) {
     _window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    _dialog = std::make_unique<InfiniFrameDialog>();
+    common._dialog = std::make_unique<InfiniFrameDialog>();
 
     if (initParams->FullScreen) {
         window->SetFullScreen(true);
@@ -139,7 +140,7 @@ void InfiniFrameWindow::Impl::ApplyInitialWindowState(
     InfiniFrameWindow* window,
     const InfiniFrameWindowInitParams* initParams
     ) {
-    window->SetTitle(const_cast<const char*>(_windowTitle.c_str()));
+    window->SetTitle(const_cast<const char*>(common._windowTitle.c_str()));
 
     if (initParams->Chromeless) {
         gtk_window_set_decorated(GTK_WINDOW(_window), false);
@@ -179,7 +180,7 @@ void InfiniFrameWindow::Impl::ConnectWindowSignals(InfiniFrameWindow* window) {
 
     g_signal_connect(G_OBJECT(_window), "focus-out-event", G_CALLBACK(on_focus_out_event), window);
 
-    if (_dragDropEnabled) {
+    if (common._dragDropEnabled) {
         constexpr GtkTargetEntry targets[] = {};
         gtk_drag_dest_set(GTK_WIDGET(_window), GTK_DEST_DEFAULT_ALL, targets, 0, GDK_ACTION_COPY);
 

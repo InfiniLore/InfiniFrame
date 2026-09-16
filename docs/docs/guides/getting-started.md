@@ -21,7 +21,7 @@ This guide walks you through installing InfiniFrame and creating your first nati
 | Platform | Requirement                                                                                                                                                       |
 |----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Windows  | [WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/); pre-installed on Windows 11 and available as a redistributable for Windows 10 |
-| Linux    | `webkit2gtk-4.0` and `libgtk-3-dev` installed via your package manager                                                                                            |
+| Linux    | WebKitGTK 4.1, GTK 3, libnotify, X11 development headers, `pkg-config`, and a WSLg/X11 display for GUI tests |
 | macOS    | macOS 10.15 Catalina or later (WKWebView is built into the OS)                                                                                                    |
 
 ## Choose Your Integration

@@ -7,11 +7,18 @@
 #include <string>
 #include <vector>
 #include <unordered_set>
+#ifdef __linux__
+#include <condition_variable>
+#include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
+#endif
 #ifdef _WIN32
 #include <windows.h>
 #include <shobjidl_core.h>
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
 #include "Dependencies/wintoastlib/wintoastlib.h"
+#endif
+#ifdef __linux__
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
 #endif
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -31,6 +38,10 @@ struct InfiniFrameApplicationImpl {
 #ifdef _WIN32
     unsigned long runThreadId = 0;
     bool running = false;
+#endif
+#ifdef __linux__
+    bool running = false;
+    std::condition_variable runCompleted;
 #endif
 };
 
@@ -83,6 +94,11 @@ void InfiniFrameApplication::Register() {
             throw std::runtime_error("Could not set the application Windows AppUserModelID.");
     }
 
+#endif
+#ifdef __linux__
+    // GTK/WebKit must be initialized by the application, not by the first
+    // window. This also establishes the owner thread before construction.
+    infiniframe::linux_gtk::ui_thread::EnsureInitialized();
 #endif
     _impl->registered = true;
 }
@@ -165,18 +181,42 @@ void InfiniFrameApplication::Run() noexcept {
     _impl->running = false;
     _impl->runThreadId = 0;
 #else
-    // Other platforms retain their existing loop until their application
-    // lifecycle integrations are implemented.
+#ifdef __linux__
+    {
+        std::unique_lock lock(_impl->mutex);
+        _impl->running = true;
+        if (_impl->windows.empty()) {
+            _impl->running = false;
+            return;
+        }
+        lock.unlock();
+    }
+    infiniframe::linux_gtk::ui_thread::EnsureInitialized();
+    {
+        std::unique_lock lock(_impl->mutex);
+        _impl->runCompleted.wait(lock, [this] { return _impl->windows.empty(); });
+        _impl->running = false;
+    }
+#endif
 #endif
 }
 
 void InfiniFrameApplication::Shutdown() noexcept {
-    std::lock_guard lock(_impl->mutex);
-    _impl->shutdownRequested = true;
-#ifdef _WIN32
-    if (_impl->runThreadId != 0) {
-        PostThreadMessage(_impl->runThreadId, WM_QUIT, 0, 0);
+    std::vector<InfiniFrameWindow*> windows;
+    {
+        std::lock_guard lock(_impl->mutex);
+        _impl->shutdownRequested = true;
+        windows.assign(_impl->windows.begin(), _impl->windows.end());
     }
+#ifdef _WIN32
+    {
+        std::lock_guard lock(_impl->mutex);
+        if (_impl->runThreadId != 0) {
+        PostThreadMessage(_impl->runThreadId, WM_QUIT, 0, 0);
+        }
+    }
+#elif defined(__linux__)
+    (void)windows;
 #endif
 }
 
@@ -189,21 +229,40 @@ void InfiniFrameApplication::TrackWindow(InfiniFrameWindow* window) {
 
 void InfiniFrameApplication::UntrackWindow(InfiniFrameWindow* window) noexcept {
     if (window == nullptr) return;
-    std::lock_guard lock(_impl->mutex);
-    _impl->windows.erase(window);
-    _impl->liveWindows.erase(window);
+    bool becameEmpty = false;
+    {
+        std::lock_guard lock(_impl->mutex);
+        _impl->windows.erase(window);
+        _impl->liveWindows.erase(window);
+        becameEmpty = _impl->windows.empty();
+    }
+#ifdef __linux__
+    // The native window destructor is the ownership boundary. Detach only
+    // after it has unregistered itself so the GTK loop cannot be joined while
+    // managed teardown still owns the native window.
+    window->DetachApplication();
+    if (becameEmpty) _impl->runCompleted.notify_all();
+#endif
+#ifndef __linux__
+    (void)becameEmpty;
+#endif
 }
 
 void InfiniFrameApplication::NotifyWindowClosed(InfiniFrameWindow* window) noexcept {
     if (window == nullptr) return;
 
     std::lock_guard lock(_impl->mutex);
-    _impl->windows.erase(window);
     _impl->liveWindows.erase(window);
-    window->DetachApplication();
 #ifdef _WIN32
-    if (_impl->running && _impl->windows.empty())
+    _impl->windows.erase(window);
+    window->DetachApplication();
+    if (_impl->running && _impl->liveWindows.empty())
         PostThreadMessage(_impl->runThreadId, WM_QUIT, 0, 0);
+#endif
+#ifdef __linux__
+    // Keep the registry entry until the native destructor calls
+    // UntrackWindow. This lets managed teardown complete before the GTK loop
+    // is joined, while the live-window count reflects the GTK destroy event.
 #endif
 }
 

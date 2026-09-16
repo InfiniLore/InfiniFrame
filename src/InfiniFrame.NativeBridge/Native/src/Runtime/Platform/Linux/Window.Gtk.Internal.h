@@ -37,6 +37,7 @@ struct InfiniFrameWindow::Impl {
     bool _webviewFinalized = false;
     bool _windowDestroyed = false;
     bool _teardownCompletionScheduled = false;
+    bool _applicationNotified = false;
     bool _maximized = false;
     bool _minimized = false;
     double _zoom = 100.0;

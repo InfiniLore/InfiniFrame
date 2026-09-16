@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
 #include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
+#include "Runtime/Internal/Application/InfiniFrameApplication.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -142,6 +143,16 @@ void InfiniFrameWindow::ScheduleTeardownCompletion() {
     if (!infiniframe::linux_gtk::ui_thread::InvokeIdle(
         [this] {
             SignalTeardown();
+            if (!m_impl->_applicationNotified && _application != nullptr) {
+                m_impl->_applicationNotified = true;
+                _application->NotifyWindowClosed(this);
+            }
         }))
+    {
         SignalTeardown();
+        if (!m_impl->_applicationNotified && _application != nullptr) {
+            m_impl->_applicationNotified = true;
+            _application->NotifyWindowClosed(this);
+        }
+    }
 }

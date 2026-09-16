@@ -10,7 +10,7 @@ docker/
     Dockerfile          # Linux container image with all build/test dependencies
     docker-compose.yml  # Service definitions for tests and examples
     entrypoint.sh       # Container entrypoint (display setup, build, test dispatch)
-    scripts/            # Helper scripts for Docker operations
+    linux/              # Linux Dockerfiles, Compose files, and WSLg wrappers
 ```
 
 ## Quick Start
@@ -84,3 +84,5 @@ The Docker image is based on `mcr.microsoft.com/dotnet/sdk:10.0` and includes:
 - Docker Desktop or Docker Engine
 - For WSLg: Windows 11 or WSL2 with GUI support
 - For host X11: X11 display server on Linux
+
+The WSL2 path requires Windows 11 with WSLg enabled. Run `bash ./docker/linux/run-linux-tests-wslg.sh` from the repository root in WSL. The wrapper exports `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, and `PULSE_SERVER`, mounts the WSLg runtime, and uses the Linux native build inside the container. If the display check fails, confirm `/mnt/wslg` exists and that `echo "$DISPLAY"` is not empty.
