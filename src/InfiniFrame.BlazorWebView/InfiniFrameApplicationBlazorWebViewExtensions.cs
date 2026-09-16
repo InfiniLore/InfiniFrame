@@ -63,6 +63,10 @@ public sealed class InfiniFrameBlazorWebViewConfiguration {
         }
 
         IDisposable? exceptionRegistration = TryRegisterUnhandledExceptionHandler(services);
+        application.ApplyWindowIntegrationToAll(windowBuilder => {
+            if (!windowBuilder.EventsStore.CustomScheme.ContainsKey(InfiniFrameWebViewManager.BlazorAppScheme))
+                windowBuilder.RegisterCustomSchemeHandler(InfiniFrameWebViewManager.BlazorAppScheme, manager.HandleWebRequest);
+        });
         application.ApplyWindowIntegration(windowIds, "BlazorWebView", windowBuilder => {
             foreach (Action<IInfiniFrameWindowBuilder> configure in _windowConfigurations)
                 configure(windowBuilder);
@@ -70,8 +74,6 @@ public sealed class InfiniFrameBlazorWebViewConfiguration {
                 windowBuilder,
                 policyBuilder => policyBuilder.AddTrustedOrigin(appConfig.AppBaseUri));
             windowBuilder.StaticAssets = services.GetRequiredService<IInfiniFrameStaticAssets>().DeepCopy();
-            if (!windowBuilder.EventsStore.CustomScheme.ContainsKey(InfiniFrameWebViewManager.BlazorAppScheme))
-                windowBuilder.RegisterCustomSchemeHandler(InfiniFrameWebViewManager.BlazorAppScheme, manager.HandleWebRequest);
             windowBuilder.RegisterWebMessageReceivedHandler(manager.HandleWebMessage);
             windowBuilder.RegisterGetWebMessageHandler();
             windowBuilder.SetStartPageUrl(BuildStartupUrl(appConfig));

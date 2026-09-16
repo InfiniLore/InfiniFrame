@@ -559,6 +559,21 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         }
     }
 
+    internal void ApplyWindowIntegrationToAll(
+        Action<IInfiniFrameWindowBuilder> configure
+    ) {
+        ArgumentNullException.ThrowIfNull(configure);
+        lock (_gate) {
+            for (int index = 0; index < _registrations.Count; index++) {
+                (string? id, Action<IInfiniFrameWindowBuilder>? existing, InfiniFrameWindowBuilder? builder, IServiceProvider? provider) = _registrations[index];
+                _registrations[index] = (id, target => {
+                    existing?.Invoke(target);
+                    configure(target);
+                }, builder, provider);
+            }
+        }
+    }
+
     private void EnsureNativeHandleReleased() {
         if (_nativeHandle.ReleaseStatus == InfiniFrameNativeInteropStatus.Success) return;
 
