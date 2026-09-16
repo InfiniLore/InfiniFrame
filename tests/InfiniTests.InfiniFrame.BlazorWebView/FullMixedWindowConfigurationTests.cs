@@ -14,16 +14,37 @@ public sealed class FullMixedWindowConfigurationTests {
     [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task Application_CanRunPlainServerAndBlazorWindows(CancellationToken ct = default) {
+        await RunMixedApplicationAsync(blazorFirst: true, ct);
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    [Timeout(60_000)]
+    public async Task Application_CanRunPlainServerAndBlazorWindows_WhenServerRegisteredFirst(CancellationToken ct = default) {
+        await RunMixedApplicationAsync(blazorFirst: false, ct);
+    }
+
+    private static async Task RunMixedApplicationAsync(bool blazorFirst, CancellationToken ct) {
         if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
 
         int port = PortUtils.GetOpenPortValue();
-        await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
+        InfiniFrameApplicationBuilder builder = InfiniFrameApplication.CreateBuilder()
             .WithWindow("plain", builder => builder.SetStartPageContent("<html><body>Plain</body></html>"))
             .WithWindow("server", static _ => { })
-            .WithWindow("blazor", builder => builder.SetTitle("Blazor"))
-            .UseBlazorWebView("blazor", static _ => { })
-            .UseWebServer("server", server => server.WebHost.UseUrls($"http://127.0.0.1:{port}"))
-            .Build();
+            .WithWindow("blazor", builder => builder.SetTitle("Blazor"));
+
+        if (blazorFirst) {
+            builder
+                .UseBlazorWebView("blazor", static _ => { })
+                .UseWebServer("server", server => server.WebHost.UseUrls($"http://127.0.0.1:{port}"));
+        }
+        else {
+            builder
+                .UseWebServer("server", server => server.WebHost.UseUrls($"http://127.0.0.1:{port}"))
+                .UseBlazorWebView("blazor", static _ => { });
+        }
+
+        await using InfiniFrameApplication application = builder.Build();
 
         Task runTask = application.RunAsync(ct);
         try {
