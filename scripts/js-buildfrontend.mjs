@@ -32,6 +32,12 @@ if (!appDirectoryArg || !stampFileArg || outputFileArgs.length === 0) {
     process.exit(1);
 }
 
+const [nodeMajor, nodeMinor, nodePatch] = process.versions.node.split('.').map(Number);
+if (nodeMajor < 24 || (nodeMajor === 24 && (nodeMinor < 15 || (nodeMinor === 15 && nodePatch < 0)))) {
+    console.error(`InfiniFrame frontend builds require Node.js 24.15.0 or newer; found ${process.versions.node}.`);
+    process.exit(1);
+}
+
 const appDirectory = path.resolve(appDirectoryArg);
 const stampFile = path.resolve(stampFileArg);
 const outputFiles = outputFileArgs.map(outputFileArg => path.resolve(outputFileArg));
