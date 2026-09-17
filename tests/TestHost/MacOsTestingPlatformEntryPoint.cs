@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Testing.Platform.Builder;
+using InfiniTests.TestSupport.Native;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Assembly=System.Reflection.Assembly;
