@@ -7,6 +7,12 @@
 #include <string>
 #include <vector>
 #include <unordered_set>
+#ifdef __APPLE__
+#include <Cocoa/Cocoa.h>
+#include <condition_variable>
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
+#include "Runtime/Platform/Mac/Window.Cocoa.Internal.h"
+#endif
 #ifdef __linux__
 #include <condition_variable>
 #include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
@@ -43,6 +49,10 @@ struct InfiniFrameApplicationImpl {
     bool running = false;
     std::condition_variable runCompleted;
 #endif
+#ifdef __APPLE__
+    bool running = false;
+    std::condition_variable runCompleted;
+#endif
 };
 
 namespace {
@@ -71,6 +81,18 @@ InfiniFrameApplication::InfiniFrameApplication()
 }
 
 InfiniFrameApplication::~InfiniFrameApplication() {
+#ifdef __APPLE__
+    // NSApplication and WKWebView are process-scoped.  The logical application can
+    // be recreated, but all pooled hosts must be released before its native handle
+    // disappears so callbacks cannot outlive the application owner.
+    if ([NSThread isMainThread]) {
+        DrainPooledMacHosts();
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            DrainPooledMacHosts();
+        });
+    }
+#endif
     std::lock_guard lock(_impl->mutex);
     _impl->windows.clear();
     _impl->liveWindows.clear();
@@ -99,6 +121,11 @@ void InfiniFrameApplication::Register() {
     // GTK/WebKit must be initialized by the application, not by the first
     // window. This also establishes the owner thread before construction.
     infiniframe::linux_gtk::ui_thread::EnsureInitialized();
+#endif
+#ifdef __APPLE__
+    // NSApplication is initialized exactly once for the process, while the
+    // InfiniFrame application registry remains per application instance.
+    InfiniFrameWindow::Register();
 #endif
     _impl->registered = true;
 }
@@ -198,6 +225,33 @@ void InfiniFrameApplication::Run() noexcept {
         _impl->running = false;
     }
 #endif
+#ifdef __APPLE__
+    {
+        std::unique_lock lock(_impl->mutex);
+        _impl->running = true;
+        if (_impl->windows.empty()) {
+            _impl->running = false;
+            return;
+        }
+    }
+
+    auto stopWhenComplete = [this] {
+        std::unique_lock lock(_impl->mutex);
+        _impl->runCompleted.wait(lock, [this] { return _impl->windows.empty() || _impl->liveWindows.empty(); });
+        _impl->running = false;
+    };
+
+    if ([NSThread isMainThread]) {
+        [NSApp run];
+        stopWhenComplete();
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([NSApp isRunning]) return;
+            [NSApp run];
+        });
+        stopWhenComplete();
+    }
+#endif
 #endif
 }
 
@@ -217,6 +271,11 @@ void InfiniFrameApplication::Shutdown() noexcept {
     }
 #elif defined(__linux__)
     (void)windows;
+#elif defined(__APPLE__)
+    dispatch_async(dispatch_get_main_queue(), ^{
+        for (InfiniFrameWindow* window : windows)
+            window->Close();
+    });
 #endif
 }
 
@@ -243,6 +302,12 @@ void InfiniFrameApplication::UntrackWindow(InfiniFrameWindow* window) noexcept {
     window->DetachApplication();
     if (becameEmpty) _impl->runCompleted.notify_all();
 #endif
+#ifdef __APPLE__
+    // Deferred destruction can outlive the logical close, but never let the
+    // window retain a pointer to an application that has unregistered it.
+    window->DetachApplication();
+    if (becameEmpty) _impl->runCompleted.notify_all();
+#endif
 #ifndef __linux__
     (void)becameEmpty;
 #endif
@@ -263,6 +328,23 @@ void InfiniFrameApplication::NotifyWindowClosed(InfiniFrameWindow* window) noexc
     // Keep the registry entry until the native destructor calls
     // UntrackWindow. This lets managed teardown complete before the GTK loop
     // is joined, while the live-window count reflects the GTK destroy event.
+#endif
+#ifdef __APPLE__
+    // Keep the C++ object registered until deferred destruction has completed,
+    // but remove it from the live set so the final logical close ends Run().
+    if (_impl->running && _impl->liveWindows.empty()) {
+        _impl->runCompleted.notify_all();
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([NSApp isRunning]) {
+                [NSApp stop:nil];
+                [NSApp postEvent:[NSEvent otherEventWithType:NSEventTypeApplicationDefined
+                                                     location:NSZeroPoint
+                                                modifierFlags:0 timestamp:0 windowNumber:0
+                                                      context:nil subtype:0 data1:0 data2:0]
+                          atStart:NO];
+            }
+        });
+    }
 #endif
 }
 

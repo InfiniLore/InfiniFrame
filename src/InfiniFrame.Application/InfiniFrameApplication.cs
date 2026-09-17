@@ -134,7 +134,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         BeginRun();
         try {
             EnsureWindowsStaThread();
-            if (HasRegisteredWindows())
+            if (HasRegisteredWindows() || OperatingSystem.IsMacOS())
                 RegisterNativeApplication();
             if (IsShutdownRequested) return;
             StartRegisteredComponents();
@@ -163,7 +163,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                         return;
                     }
 
-                    if (HasRegisteredWindows())
+                    if (HasRegisteredWindows() || OperatingSystem.IsMacOS())
                         RegisterNativeApplication();
                     if (IsShutdownRequested) {
                         completion.TrySetResult();

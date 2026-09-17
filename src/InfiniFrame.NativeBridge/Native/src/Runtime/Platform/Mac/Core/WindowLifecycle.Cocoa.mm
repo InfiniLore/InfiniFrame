@@ -128,6 +128,13 @@ void InfiniFrameWindow::CompleteCloseAfterWebKitTeardown()
     }
     SignalWindowClosed();
     ScheduleTeardownCompletion();
+    // Queue loop termination after the teardown milestone has been queued. This
+    // lets the AppKit run loop drain WebKit callbacks before NSApplication.run()
+    // returns to managed disposal.
+    if (_application != nullptr && !m_impl->_applicationNotifiedClosed) {
+        m_impl->_applicationNotifiedClosed = true;
+        _application->NotifyWindowClosed(this);
+    }
 
     // Defer one main-queue turn so SafeHandle disposal from a reverse P/Invoke callback never
     // deletes the C++ session while AppKit is unwinding through that callback.

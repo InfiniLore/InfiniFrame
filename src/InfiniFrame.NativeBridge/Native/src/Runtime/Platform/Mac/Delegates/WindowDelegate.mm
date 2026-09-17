@@ -67,6 +67,7 @@
 - (void)windowWillClose:(NSNotification*)notification
 {
     if (infiniFrame == nullptr) return;
+    infiniframe::macos::NativeCallbackScope callbackScope;
     infiniFrame->CloseWebView();
 }
 

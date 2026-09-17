@@ -106,7 +106,7 @@ public sealed class InfiniFrameApplicationTests {
     [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task RunAsyncBuildsAndRunsMultipleWindowsUntilAllClose(CancellationToken ct = default) {
-        if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) || Environment.Version.Major < 8) return;
+         if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS()) || Environment.Version.Major < 8) return;
 
         await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
             .WithWindow("main", configure: static builder => builder.SetStartPageContent("<html><body>Main</body></html>"))
@@ -135,7 +135,7 @@ public sealed class InfiniFrameApplicationTests {
     [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task ShutdownBeforeWebView2InitializationCompletesDrainsRunAsync(CancellationToken ct = default) {
-        if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) || Environment.Version.Major < 8) return;
+         if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS()) || Environment.Version.Major < 8) return;
 
         await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
             .WithWindow("main", configure: static builder => builder.SetStartPageContent("<html><body>Main</body></html>"));
@@ -145,6 +145,26 @@ public sealed class InfiniFrameApplicationTests {
         application.Shutdown();
 
         await runTask.WaitAsync(TimeSpan.FromSeconds(30), ct);
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public void Run_WithNoWindows_CompletesDeterministically() {
+        if (!OperatingSystem.IsMacOS() && !OperatingSystem.IsLinux()) return;
+
+        using InfiniFrameApplication application = InfiniFrameApplication.Initialize();
+        application.Run();
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task MacOsApplication_CanBeCreatedAndDisposedSequentially(CancellationToken ct = default) {
+        if (!OperatingSystem.IsMacOS()) return;
+
+        await using (InfiniFrameApplication first = InfiniFrameApplication.Initialize())
+            await first.RunAsync(ct);
+        await using (InfiniFrameApplication second = InfiniFrameApplication.Initialize())
+            await second.RunAsync(ct);
     }
 
 }

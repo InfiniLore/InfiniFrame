@@ -137,9 +137,11 @@ namespace {
         bool isMainFrame = navigationAction.targetFrame.mainFrame;
 
         const char* urlUtf8 = (const char*)[url.absoluteString UTF8String];
-        int cancel = callback(
-            urlUtf8, isUserInitiated ? 1 : 0, isRedirect ? 1 : 0, isMainFrame ? 1 : 0
-        );
+        int cancel;
+        {
+            infiniframe::macos::NativeCallbackScope callbackScope;
+            cancel = callback(urlUtf8, isUserInitiated ? 1 : 0, isRedirect ? 1 : 0, isMainFrame ? 1 : 0);
+        }
 
         decisionHandler(cancel ? WKNavigationActionPolicyCancel : WKNavigationActionPolicyAllow);
     }
