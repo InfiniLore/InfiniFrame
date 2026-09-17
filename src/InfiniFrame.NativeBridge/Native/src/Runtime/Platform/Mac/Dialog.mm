@@ -399,6 +399,7 @@ void InfiniFrameWindow::BeginShowMessage(
     const DialogButtons buttons, const DialogIcon icon,
     const OperationCompletedCallback completion, void* context
 ) {
+  (void)icon;
   auto operation = RegisterMessageDialogOperation(id, completion, context);
   NSAlert* alert = [[[NSAlert alloc] init] autorelease];
   [alert setMessageText:[NSString stringWithUTF8String:title]];

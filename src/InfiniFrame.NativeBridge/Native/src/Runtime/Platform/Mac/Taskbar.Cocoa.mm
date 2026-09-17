@@ -45,6 +45,7 @@ void InfiniFrameWindow::ClearTaskbarProgress() {
 }
 
 void InfiniFrameWindow::SetTaskbarFlash(int mode, uint32_t count) {
+    (void)count;
     if (!m_impl || !m_impl->_window) return;
 
     switch (mode) {

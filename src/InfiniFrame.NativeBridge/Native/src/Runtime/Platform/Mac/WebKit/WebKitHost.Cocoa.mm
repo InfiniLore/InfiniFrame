@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include <stdexcept>
+#import <WebKit/WKUserScript.h>
 
 #include "Embedded/Embedded.h"
 #include "../Delegates/NavigationDelegate.h"
