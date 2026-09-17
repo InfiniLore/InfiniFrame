@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "../Window.Cocoa.Internal.h"
+#include "Runtime/Internal/Application/InfiniFrameApplication.h"
 #include "../MacDiagnostics.h"
 #include "../Delegates/UrlSchemeHandler.h"
 #include "../Delegates/UiDelegate.h"

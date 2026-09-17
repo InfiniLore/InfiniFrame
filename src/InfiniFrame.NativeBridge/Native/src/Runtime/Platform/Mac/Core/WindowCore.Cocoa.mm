@@ -16,6 +16,7 @@
 #include <exception>
 #include <algorithm>
 #include <stdexcept>
+#import <WebKit/WKWebsiteDataStore.h>
 
 #include "../Delegates/AppDelegate.h"
 #include "../Delegates/NavigationDelegate.h"

@@ -10,8 +10,9 @@
 #include <string>
 
 #include <Cocoa/Cocoa.h>
-#include <WebKit/WKWebView.h>
-#include <WebKit/WKWebViewConfiguration.h>
+#import <WebKit/WKWebView.h>
+#import <WebKit/WKWebViewConfiguration.h>
+#import <WebKit/WKUserContentController.h>
 
 #include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
 #include "Runtime/Internal/Window/CommonWindowState.h"
