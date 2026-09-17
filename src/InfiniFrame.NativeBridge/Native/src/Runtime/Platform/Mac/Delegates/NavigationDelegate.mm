@@ -5,6 +5,9 @@
 #include <string>
 
 #import "NavigationDelegate.h"
+#import <WebKit/WKFrameInfo.h>
+#import <WebKit/WKNavigationAction.h>
+#import <WebKit/WKWebView.h>
 #include "../MacDiagnostics.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

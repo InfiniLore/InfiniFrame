@@ -2,6 +2,10 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #import "UiDelegate.h"
+#import <WebKit/WKFrameInfo.h>
+#import <WebKit/WKOpenPanelParameters.h>
+#import <WebKit/WKScriptMessage.h>
+#import <WebKit/WKSecurityOrigin.h>
 
 #include "../MacDiagnostics.h"
 // ---------------------------------------------------------------------------------------------------------------------
