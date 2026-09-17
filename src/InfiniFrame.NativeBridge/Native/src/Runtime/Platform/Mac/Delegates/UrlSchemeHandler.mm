@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #import "UrlSchemeHandler.h"
+#import <WebKit/WKURLSchemeTask.h>
 
 #include "../MacDiagnostics.h"
 #include "Runtime/Internal/WebView/CustomSchemeResponse.h"

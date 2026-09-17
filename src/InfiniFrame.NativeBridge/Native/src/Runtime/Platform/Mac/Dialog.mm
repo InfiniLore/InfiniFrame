@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+#import <Cocoa/Cocoa.h>
 #import "Runtime/Internal/Window/InfiniFrameDialog.h"
 #include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
 #include "Runtime/Internal/Operations/DialogOperation.h"

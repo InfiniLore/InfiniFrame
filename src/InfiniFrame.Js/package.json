@@ -9,6 +9,9 @@
     "engines": {
         "node": ">=24.15.0"
     },
+    "allowScripts": {
+        "fsevents@2.3.3": true
+    },
     "scripts": {
         "typecheck": "tsc --noEmit",
         "build": "npm run typecheck && vite build --config vite.config.prod.ts && vite build --config vite.config.dev.ts",
