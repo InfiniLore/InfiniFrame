@@ -68,6 +68,12 @@ EXPORTED InteropStatus InfiniFrameNativeApplication_dtor(InfiniFrameApplication*
     return RunExportStatus(
         [&] {
             if (!EnsureNotNull(instance, "instance")) return;
+#ifdef __APPLE__
+            // macOS SafeHandle release is intentionally asynchronous. Keep the
+            // application owner alive until deferred native window deletion has
+            // unregistered every C++ window object.
+            instance->WaitForWindowDestruction();
+#endif
             if (instance->GetWindowCount() != 0)
                 throw std::runtime_error("Cannot destroy a native application while windows are still alive.");
             std::unique_ptr<InfiniFrameApplication> guard{instance};

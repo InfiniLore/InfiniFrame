@@ -31,6 +31,9 @@ class InfiniFrameApplication {
     void Configure(const InfiniFrameApplicationInitParams& parameters);
     void Run() noexcept;
     void Shutdown() noexcept;
+#ifdef __APPLE__
+    void WaitForWindowDestruction() noexcept;
+#endif
     void TrackWindow(InfiniFrameWindow* window);
     void UntrackWindow(InfiniFrameWindow* window) noexcept;
     void NotifyWindowClosed(InfiniFrameWindow* window) noexcept;

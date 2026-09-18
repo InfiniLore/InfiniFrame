@@ -295,6 +295,28 @@ void InfiniFrameApplication::Shutdown() noexcept {
 #endif
 }
 
+#ifdef __APPLE__
+void InfiniFrameApplication::WaitForWindowDestruction() noexcept {
+    auto windowsRemain = [this] {
+        std::lock_guard lock(_impl->mutex);
+        return !_impl->windows.empty();
+    };
+
+    if ([NSThread isMainThread]) {
+        while (windowsRemain()) {
+            @autoreleasepool {
+                [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode
+                                      beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.05]];
+            }
+        }
+        return;
+    }
+
+    std::unique_lock lock(_impl->mutex);
+    _impl->runCompleted.wait(lock, [this] { return _impl->windows.empty(); });
+}
+#endif
+
 void InfiniFrameApplication::TrackWindow(InfiniFrameWindow* window) {
     if (window == nullptr) return;
     std::lock_guard lock(_impl->mutex);
