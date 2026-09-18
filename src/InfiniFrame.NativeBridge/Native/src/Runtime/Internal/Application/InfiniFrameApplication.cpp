@@ -241,21 +241,32 @@ void InfiniFrameApplication::Run() noexcept {
         _impl->running = false;
     };
 
+    void (^pumpMainRunLoop)() = ^{
+        while (true) {
+            {
+                std::lock_guard lock(_impl->mutex);
+                if (_impl->liveWindows.empty()) break;
+            }
+
+            @autoreleasepool {
+                [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode
+                                      beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.05]];
+            }
+        }
+    };
+
     if ([NSThread isMainThread]) {
-        [NSApp run];
-        stopWhenComplete();
+        pumpMainRunLoop();
     } else {
-        // Enter AppKit from the main run loop rather than from a block occupying
-        // the main dispatch queue. Window operations synchronously dispatch to
-        // that queue, and occupying it here would deadlock Close/Dispose calls.
+        // Keep the main dispatch queue available for synchronous AppKit calls.
+        // The test host and embedding applications may already own NSApp's
+        // process loop, so pump the shared main run loop instead of entering a
+        // nested [NSApp run] invocation.
         CFRunLoopRef mainRunLoop = CFRunLoopGetMain();
-        CFRunLoopPerformBlock(mainRunLoop, kCFRunLoopCommonModes, ^{
-            if (![NSApp isRunning])
-                [NSApp run];
-        });
+        CFRunLoopPerformBlock(mainRunLoop, kCFRunLoopCommonModes, pumpMainRunLoop);
         CFRunLoopWakeUp(mainRunLoop);
-        stopWhenComplete();
     }
+    stopWhenComplete();
 #endif
 #endif
 }
@@ -339,16 +350,6 @@ void InfiniFrameApplication::NotifyWindowClosed(InfiniFrameWindow* window) noexc
     // but remove it from the live set so the final logical close ends Run().
     if (_impl->running && _impl->liveWindows.empty()) {
         _impl->runCompleted.notify_all();
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if ([NSApp isRunning]) {
-                [NSApp stop:nil];
-                [NSApp postEvent:[NSEvent otherEventWithType:NSEventTypeApplicationDefined
-                                                     location:NSZeroPoint
-                                                modifierFlags:0 timestamp:0 windowNumber:0
-                                                      context:nil subtype:0 data1:0 data2:0]
-                          atStart:NO];
-            }
-        });
     }
 #endif
 }
