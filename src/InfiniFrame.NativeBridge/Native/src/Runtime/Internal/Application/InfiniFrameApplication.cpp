@@ -245,10 +245,15 @@ void InfiniFrameApplication::Run() noexcept {
         [NSApp run];
         stopWhenComplete();
     } else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if ([NSApp isRunning]) return;
-            [NSApp run];
+        // Enter AppKit from the main run loop rather than from a block occupying
+        // the main dispatch queue. Window operations synchronously dispatch to
+        // that queue, and occupying it here would deadlock Close/Dispose calls.
+        CFRunLoopRef mainRunLoop = CFRunLoopGetMain();
+        CFRunLoopPerformBlock(mainRunLoop, kCFRunLoopCommonModes, ^{
+            if (![NSApp isRunning])
+                [NSApp run];
         });
+        CFRunLoopWakeUp(mainRunLoop);
         stopWhenComplete();
     }
 #endif
