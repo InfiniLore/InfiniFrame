@@ -23,10 +23,11 @@ public class EmbeddedResourceTests {
         JsonElement rootChildren = root.ValueKind == JsonValueKind.Object
             ? root.GetProperty("Children")
             : default;
+        bool hasAssetTree = rootChildren.ValueKind == JsonValueKind.Object;
 
         int contentRootIndex;
         string subPath;
-        if (root.ValueKind == JsonValueKind.Object) {
+        if (hasAssetTree) {
             JsonElement infiniFrameJsNode = rootChildren.GetProperty("InfiniFrame.js");
             contentRootIndex = infiniFrameJsNode.GetProperty("Asset").GetProperty("ContentRootIndex").GetInt32();
             subPath = infiniFrameJsNode.GetProperty("Asset").GetProperty("SubPath").GetString()!;
@@ -49,7 +50,7 @@ public class EmbeddedResourceTests {
 
         // Assert
         await Assert.That(File.Exists(runtimeManifestPath)).IsTrue();
-        if (root.ValueKind == JsonValueKind.Object)
+        if (hasAssetTree)
             await Assert.That(rootChildren.TryGetProperty("InfiniFrame.js", out _)).IsTrue();
         await Assert.That(File.Exists(assetPath)).IsTrue();
         await Assert.That(stream.Length).IsGreaterThan(0);
