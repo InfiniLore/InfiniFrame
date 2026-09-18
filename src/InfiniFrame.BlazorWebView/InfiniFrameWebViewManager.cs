@@ -74,6 +74,12 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             || string.IsNullOrWhiteSpace(configuration.AppBaseUri.Host)) {
             throw new ArgumentException("AppBaseUri must be an absolute URI with a scheme and host.", nameof(configuration.AppBaseUri));
         }
+
+        if (!string.Equals(configuration.AppBaseUri.Scheme, BlazorAppScheme, StringComparison.OrdinalIgnoreCase)) {
+            throw new ArgumentException(
+                $"AppBaseUri must use the '{BlazorAppScheme}' scheme. Got '{configuration.AppBaseUri.Scheme}'.",
+                nameof(configuration.AppBaseUri));
+        }
         _appBaseUri = configuration.AppBaseUri;
         if (configuration.WebMessageQueueCapacity <= 0) {
             throw new ArgumentOutOfRangeException(

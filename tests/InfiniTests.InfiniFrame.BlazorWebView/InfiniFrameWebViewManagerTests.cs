@@ -310,6 +310,121 @@ public class InfiniFrameWebViewManagerTests {
         await Assert.That(sendsAfterDispose).IsEqualTo(sendsAtDispose);
     }
 
+    [Test]
+    public async Task Constructor_DefaultAppBaseUri_ShouldSucceed(CancellationToken ct = default) {
+        await using ServiceProvider provider = new ServiceCollection().AddLogging().BuildServiceProvider();
+
+        await using var manager = new TestableInfiniFrameWebViewManager(
+            provider,
+            MockFactory.CreateDispatcherMock().Object,
+            new NullFileProvider(),
+            new JSComponentConfigurationStore(),
+            Options.Create(new InfiniFrameBlazorAppConfiguration()),
+            NullLogger<InfiniFrameWebViewManager>.Instance);
+
+        await Assert.That(manager).IsNotNull();
+    }
+
+    [Test]
+    [Arguments("https://example.com/")]
+    [Arguments("http://localhost/")]
+    [Arguments("ftp://server/")]
+    [Arguments("custom://anything/")]
+    public async Task Constructor_NonAppSchemeAppBaseUri_ShouldThrow(string schemeUri, CancellationToken ct = default) {
+        await using ServiceProvider provider = new ServiceCollection().AddLogging().BuildServiceProvider();
+        var config = new InfiniFrameBlazorAppConfiguration { AppBaseUri = new Uri(schemeUri) };
+
+        await Assert.That(() => new TestableInfiniFrameWebViewManager(
+            provider,
+            MockFactory.CreateDispatcherMock().Object,
+            new NullFileProvider(),
+            new JSComponentConfigurationStore(),
+            Options.Create(config),
+            NullLogger<InfiniFrameWebViewManager>.Instance))
+            .Throws<ArgumentException>();
+    }
+
+    [Test]
+    public async Task Constructor_AppSchemeWithCustomHost_ShouldSucceed(CancellationToken ct = default) {
+        await using ServiceProvider provider = new ServiceCollection().AddLogging().BuildServiceProvider();
+        var config = new InfiniFrameBlazorAppConfiguration { AppBaseUri = new Uri("app://custom-host/") };
+
+        await using var manager = new TestableInfiniFrameWebViewManager(
+            provider,
+            MockFactory.CreateDispatcherMock().Object,
+            new NullFileProvider(),
+            new JSComponentConfigurationStore(),
+            Options.Create(config),
+            NullLogger<InfiniFrameWebViewManager>.Instance);
+
+        await Assert.That(manager).IsNotNull();
+    }
+
+    [Test]
+    public async Task HandleWebRequest_CustomAppHost_ShouldServeAssets(CancellationToken ct = default) {
+        byte[] expected = [.. "custom-host-page"u8];
+        var fileProvider = new RecordingFileProvider("index.html", expected);
+        await using ServiceProvider provider = new ServiceCollection().AddLogging().BuildServiceProvider();
+        var config = new InfiniFrameBlazorAppConfiguration { AppBaseUri = new Uri("app://myapp/") };
+        await using var manager = new TestableInfiniFrameWebViewManager(
+            provider,
+            MockFactory.CreateDispatcherMock().Object,
+            fileProvider,
+            new JSComponentConfigurationStore(),
+            Options.Create(config),
+            NullLogger<InfiniFrameWebViewManager>.Instance
+        );
+
+        (Stream? data, string? contentType) = manager.HandleWebRequest(
+            null, "app://myapp/index.html");
+        await using (data) {
+            using var copy = new MemoryStream();
+            await data!.CopyToAsync(copy, ct);
+            await Assert.That(copy.ToArray()).IsEquivalentTo(expected);
+        }
+
+        await Assert.That(fileProvider.LastSubpath).IsEqualTo("index.html");
+    }
+
+    [Test]
+    public async Task HandleWebRequest_DifferentAppSchemeOrigin_ShouldReject(CancellationToken ct = default) {
+        var fileProvider = new RecordingFileProvider("index.html", [.. "blocked"u8]);
+        await using ServiceProvider provider = new ServiceCollection().AddLogging().BuildServiceProvider();
+        await using var manager = new TestableInfiniFrameWebViewManager(
+            provider,
+            MockFactory.CreateDispatcherMock().Object,
+            fileProvider,
+            new JSComponentConfigurationStore(),
+            Options.Create(new InfiniFrameBlazorAppConfiguration()),
+            NullLogger<InfiniFrameWebViewManager>.Instance
+        );
+
+        (Stream? data, string? contentType) = manager.HandleWebRequest(null, "app://attacker/index.html");
+
+        await Assert.That(data).IsNull();
+        await Assert.That(contentType).IsNull();
+    }
+
+    [Test]
+    public async Task HandleWebRequest_NonAppScheme_ShouldReject(CancellationToken ct = default) {
+        var fileProvider = new RecordingFileProvider("index.html", [.. "blocked"u8]);
+        await using ServiceProvider provider = new ServiceCollection().AddLogging().BuildServiceProvider();
+        var config = new InfiniFrameBlazorAppConfiguration { AppBaseUri = new Uri("app://localhost/") };
+        await using var manager = new TestableInfiniFrameWebViewManager(
+            provider,
+            MockFactory.CreateDispatcherMock().Object,
+            fileProvider,
+            new JSComponentConfigurationStore(),
+            Options.Create(config),
+            NullLogger<InfiniFrameWebViewManager>.Instance
+        );
+
+        (Stream? data, string? contentType) = manager.HandleWebRequest(null, "https://localhost/index.html");
+
+        await Assert.That(data).IsNull();
+        await Assert.That(contentType).IsNull();
+    }
+
     private static TestableInfiniFrameWebViewManager CreateManager(
         IServiceProvider provider,
         InfiniFrameBlazorAppConfiguration? configuration = null
