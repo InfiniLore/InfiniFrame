@@ -19,6 +19,8 @@ namespace InfiniFrame.BlazorWebView;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 
+internal sealed class BlazorWebViewMarker { }
+
 public sealed class InfiniFrameBlazorWebViewConfiguration {
     private readonly IServiceCollection _services;
     private readonly List<Action<IInfiniFrameWindowBuilder>> _windowConfigurations = [];
@@ -87,6 +89,7 @@ public sealed class InfiniFrameBlazorWebViewConfiguration {
 
     private void ConfigureServices() {
         IFileProvider fileProvider = ConfigureFileProvider(null);
+        _services.TryAddSingleton<BlazorWebViewMarker>();
         _services.AddOptions<InfiniFrameBlazorAppConfiguration>();
         _services
             .AddInfiniFrame()
@@ -209,6 +212,11 @@ public static class InfiniFrameApplicationBlazorWebViewExtensions {
         ArgumentNullException.ThrowIfNull(windowIds);
         if (windowIds.Length > 1)
             throw new NotSupportedException("BlazorWebView can currently target only one window.");
+        if (builder.Services.Any(static sd => sd.ServiceType == typeof(BlazorWebViewMarker)))
+            throw new InvalidOperationException(
+                "UseBlazorWebView has already been registered on this application builder. " +
+                "Multiple Blazor WebView integrations are not supported. " +
+                "Register a single Blazor WebView and target it at the desired window.");
 
         var configuration = new InfiniFrameBlazorWebViewConfiguration(builder.Services);
         configure(configuration);
