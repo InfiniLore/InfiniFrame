@@ -258,7 +258,7 @@ public class StateInfiniFrameWindowFeature(
         }
 
         if (IsFullScreen == fullScreen) {
-            logger.LogDebug("Window is already of the same fullscreen state of {fullscreen}", fullScreen);
+            logger.LogDebug("Window is already of the same fullscreen state of {Fullscreen}", fullScreen);
             return;
         }
 

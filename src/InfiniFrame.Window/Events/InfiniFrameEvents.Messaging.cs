@@ -46,7 +46,7 @@ public partial class InfiniFrameEvents {
 
             case { IsIgnored: true }:
                 Logger.LogDebug(
-                    "Ignored web message with ID '{messageId}' due to parsing rules. Defaulting to WebMessageReceived",
+                    "Ignored web message with ID '{MessageId}' due to parsing rules. Defaulting to WebMessageReceived",
                     parseResult.MessageId
                 );
                 EventsStore.WebMessageReceived.Invoke(
@@ -71,7 +71,7 @@ public partial class InfiniFrameEvents {
                 try {
                     if (!EventsStore.WebMessagePostData.TryInvoke(messageId, sender, payload)) {
                         Logger.LogWarning(
-                            "Failed to handle post data request for message ID '{messageId}'",
+                            "Failed to handle post data request for message ID '{MessageId}'",
                             messageId
                         );
                     }
@@ -111,7 +111,7 @@ public partial class InfiniFrameEvents {
 
             default:
                 Logger.LogWarning(
-                    "Unhandled command '{command}' for message ID '{messageId}'",
+                    "Unhandled command '{Command}' for message ID '{MessageId}'",
                     parseResult.Command,
                     messageId
                 );

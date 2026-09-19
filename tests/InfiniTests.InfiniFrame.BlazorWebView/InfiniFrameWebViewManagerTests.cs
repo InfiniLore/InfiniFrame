@@ -335,6 +335,7 @@ public class InfiniFrameWebViewManagerTests {
         var config = new InfiniFrameBlazorAppConfiguration { AppBaseUri = new Uri(schemeUri) };
 
         await Assert.That(() => new TestableInfiniFrameWebViewManager(
+            // ReSharper disable once AccessToDisposedClosure
             provider,
             MockFactory.CreateDispatcherMock().Object,
             new NullFileProvider(),
@@ -375,7 +376,7 @@ public class InfiniFrameWebViewManagerTests {
             NullLogger<InfiniFrameWebViewManager>.Instance
         );
 
-        (Stream? data, string? contentType) = manager.HandleWebRequest(
+        (Stream? data, string? _) = manager.HandleWebRequest(
             null, "app://myapp/index.html");
         await using (data) {
             using var copy = new MemoryStream();

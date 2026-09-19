@@ -78,7 +78,7 @@ public class DecorationsInfiniFrameWindowFeature(
             return;
         }
 
-        logger.LogDebug("Invoking InfiniFrameNative.SetTransparentEnabled({value})", enabled);
+        logger.LogDebug("Invoking InfiniFrameNative.SetTransparentEnabled({Value})", enabled);
         NativeInvoke.InvokeSyncWithoutValidation(
             logger,
             window,
@@ -96,7 +96,7 @@ public class DecorationsInfiniFrameWindowFeature(
 
         ColorUtility.ParseBackgroundColor(color, out byte r, out byte g, out byte b, out byte a);
 
-        logger.LogDebug("Invoking InfiniFrameNative.SetBackgroundColor({r}, {g}, {b}, {a})", r, g, b, a);
+        logger.LogDebug("Invoking InfiniFrameNative.SetBackgroundColor({R}, {G}, {B}, {A})", r, g, b, a);
         NativeInvoke.InvokeSyncWithoutValidation(
             logger,
             window,
@@ -120,7 +120,7 @@ public class DecorationsInfiniFrameWindowFeature(
 
         if (title == oldTitle) return;
 
-        logger.LogDebug("Invoking InfiniFrameNative.SetTitle({title})", title);
+        logger.LogDebug("Invoking InfiniFrameNative.SetTitle({Title})", title);
         string? newTitle = TitleStringUtility.Validate(title, LimitLinuxWindowTitleLength);
 
         NativeInvoke.InvokeSyncWithValidation(
