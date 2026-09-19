@@ -52,5 +52,5 @@ void InfiniFrameWindow::SetWebView2RuntimePath(const char* pathToWebView2) {
     if (pathToWebView2 == nullptr)
         return;
 
-    m_impl->_webView2RuntimePath = Utf8ToWide(pathToWebView2);
+    m_impl->common._webView2RuntimePath = Utf8ToWide(pathToWebView2);
 }

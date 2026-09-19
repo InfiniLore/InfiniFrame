@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
-#include "Api/Utilities/ExportStringHelpers.h"
+#include "Runtime/Internal/Interop/Exports/ExportStringHelpers.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -17,8 +17,8 @@ void InfiniFrameWindow::ShowNotification(const char* title, const char* body) {
             WinToastTemplate(WinToastTemplate::ImageAndText02);
         toast.setTextField(wideTitle.c_str(), WinToastTemplate::FirstLine);
         toast.setTextField(wideBody.c_str(), WinToastTemplate::SecondLine);
-        if (!m_impl->_iconFileName.empty())
-            toast.setImagePath(m_impl->_iconFileName);
+        if (!m_impl->common._iconFileName.empty())
+            toast.setImagePath(m_impl->common._iconFileName);
         WinToast::instance()->showToast(toast, m_impl->_toastHandler.get());
     }
 }
@@ -42,8 +42,8 @@ void InfiniFrameWindow::ShowNotificationWithOptions(
         const char* iconStr = NullToEmpty(iconPath);
         if (iconStr[0] != '\0') {
             toast.setImagePath(ToUTF16String(iconStr));
-        } else if (!m_impl->_iconFileName.empty()) {
-            toast.setImagePath(m_impl->_iconFileName);
+        } else if (!m_impl->common._iconFileName.empty()) {
+            toast.setImagePath(m_impl->common._iconFileName);
         }
 
         if (urgency >= 0 && urgency <= 3) {
@@ -83,8 +83,8 @@ void InfiniFrameWindow::BeginShowNotification(
         const char* iconStr = NullToEmpty(iconPath);
         if (iconStr[0] != '\0') {
             toast.setImagePath(ToUTF16String(iconStr));
-        } else if (!m_impl->_iconFileName.empty()) {
-            toast.setImagePath(m_impl->_iconFileName);
+        } else if (!m_impl->common._iconFileName.empty()) {
+            toast.setImagePath(m_impl->common._iconFileName);
         }
 
         if (urgency >= 0 && urgency <= 3) {

@@ -3,8 +3,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Runtime/Platform/Windows/DarkMode.h"
 #include "Runtime/Platform/Windows/Window.Win32.Context.h"
-#include "Runtime/Shared/Operations/NativeOperation.h"
-#include "Runtime/Shared/Window/InfiniFrameWindow.h"
+#include "Runtime/Internal/Application/InfiniFrameApplication.h"
+#include "Runtime/Internal/Operations/NativeOperation.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
 #include <shellapi.h>
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -171,7 +172,9 @@ namespace {
         instance->CloseWebView();
         instance->InvokeClosed();
         TraceTeardown(L"WM_DESTROY end hwnd=%p instance=%p", hwnd, instance);
-        if (hwnd == messageLoopRootWindowHandle)
+        if (InfiniFrameApplication* application = instance->GetApplication())
+            application->NotifyWindowClosed(instance);
+        else if (hwnd == GetMessageLoopRootWindowHandle())
             PostQuitMessage(0);
 
         return 0;
@@ -259,7 +262,7 @@ namespace {
 // - applies per-monitor DPI resize recommendations
 // - forwards focus and close events to the owning instance
 // - paints the window background according to current theme
-LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wParam, const LPARAM lParam) {
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
         case WM_NCCREATE: {
             return initialize_window_instance(hwnd, lParam);
@@ -291,29 +294,31 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
         }
         case WM_SIZE: {
             if (auto* instance = LookupWindowInstance(hwnd))
-                handle_window_size_change(instance, instance->m_impl.get(), wParam);
+                handle_window_size_change(instance, InfiniFrameWindowAccess::Get(*instance), wParam);
             break;
         }
         case WM_MOVE: {
             if (auto* instance = LookupWindowInstance(hwnd))
-                update_window_position(instance, instance->m_impl.get());
+                update_window_position(instance, InfiniFrameWindowAccess::Get(*instance));
             break;
         }
         case WM_CLOSE: {
             if (auto* instance = LookupWindowInstance(hwnd))
-                return handle_window_close(hwnd, instance, instance->m_impl.get());
+                return handle_window_close(hwnd, instance, InfiniFrameWindowAccess::Get(*instance));
             return 0;
         }
         case WM_DESTROY: {
             if (auto* instance = LookupWindowInstance(hwnd))
-                return handle_window_destruction(hwnd, instance, instance->m_impl.get());
-            if (hwnd == messageLoopRootWindowHandle)
+                return handle_window_destruction(hwnd, instance, InfiniFrameWindowAccess::Get(*instance));
+            if (InfiniFrameApplication* application = InfiniFrameApplication::GetInstance())
+                application->NotifyWindowClosed(nullptr);
+            else if (hwnd == GetMessageLoopRootWindowHandle())
                 PostQuitMessage(0);
             return 0;
         }
         case WM_NCDESTROY: {
             if (auto* instance = LookupWindowInstance(hwnd))
-                cleanup_window_instance(hwnd, instance, instance->m_impl.get());
+            cleanup_window_instance(hwnd, instance, InfiniFrameWindowAccess::Get(*instance));
             else
                 SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
             break;

@@ -4,7 +4,7 @@
 #include <windows.h>
 
 #include "Runtime/Platform/Windows/Window.Win32.Internal.h"
-#include "Runtime/Shared/Utilities/StringCopy.h"
+#include "Runtime/Internal/Utilities/StringCopy.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ void InfiniFrameWindow::GetMinSize(int* width, int* height) const {
 }
 
 const char* InfiniFrameWindow::GetTitle() const {
-    return AllocateUtf8FromWide(m_impl->_windowTitle);
+    return AllocateUtf8FromWide(m_impl->common._windowTitle);
 }
 
 const char* InfiniFrameWindow::GetCurrentUrl() const {
@@ -185,7 +185,7 @@ void InfiniFrameWindow::SetFullScreen(const bool fullScreen) {
 
 void InfiniFrameWindow::SetIconFile(const char* filename) {
     std::wstring wideFilename = ToUTF16String(filename);
-    m_impl->_iconFileName = wideFilename;
+    m_impl->common._iconFileName = wideFilename;
     if (wideFilename.empty())
         return;
 
@@ -276,7 +276,7 @@ void InfiniFrameWindow::SetSize(const int width, const int height) {
 
 void InfiniFrameWindow::SetTitle(const char* title) {
     std::wstring wideTitle = ToUTF16String(title);
-    m_impl->_windowTitle = wideTitle;
+    m_impl->common._windowTitle = wideTitle;
     SetWindowText(m_impl->_hWnd, wideTitle.c_str());
     if (m_impl->_notificationsEnabled) {
         WinToastLib::WinToast::instance()->setAppName(wideTitle.c_str());
@@ -298,7 +298,7 @@ void InfiniFrameWindow::SetTopmost(const bool topmost) {
 
 void InfiniFrameWindow::SetZoom(const int zoom) {
     // Software guard: respect EnableZoom(false) to match cross-platform API semantics.
-    if (!m_impl->_zoomEnabled)
+    if (!m_impl->common._zoomEnabled)
         return;
 
     // Clamp to valid range (25-500%) to match Linux/macOS behavior.

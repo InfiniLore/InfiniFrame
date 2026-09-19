@@ -7,21 +7,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions"/>
-        <PackageReference Include="Microsoft.Extensions.FileProviders.Composite"/>
-        <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded"/>
-        <PackageReference Include="Microsoft.Extensions.FileProviders.Physical"/>
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
-        <PackageReference Include="Microsoft.Extensions.Logging.Console"/>
+        <ProjectReference Include="../InfiniFrame.Application/InfiniFrame.Application.csproj" />
+        <ProjectReference Include="../InfiniFrame.Window/InfiniFrame.Window.csproj" />
+        <ProjectReference Include="../InfiniFrame.Security/InfiniFrame.Security.csproj" />
+        <ProjectReference Include="../InfiniFrame.StaticAssets/InfiniFrame.StaticAssets.csproj" />
+        <ProjectReference Include="../InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj" />
+        <ProjectReference Include="../InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
+        <ProjectReference Include="../InfiniFrame.Js/InfiniFrame.Js.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame.Js/InfiniFrame.Js.csproj"/>
-        <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Application" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Window" />
+        <InternalsVisibleTo Include="InfiniTests.TestSupport" />
     </ItemGroup>
 
 </Project>

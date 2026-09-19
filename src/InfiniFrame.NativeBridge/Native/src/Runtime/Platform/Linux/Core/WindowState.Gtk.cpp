@@ -5,30 +5,30 @@
 #include <string_view>
 
 #include "Runtime/Platform/Linux/Core/GtkCallbackGuard.h"
-#include "Runtime/Shared/Utilities/StringCopy.h"
+#include "Runtime/Internal/Utilities/StringCopy.h"
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 void InfiniFrameWindow::GetTransparentEnabled(bool* enabled) const {
-    *enabled = m_impl->_transparentEnabled;
+    *enabled = m_impl->common._transparentEnabled;
 }
 
 void InfiniFrameWindow::GetContextMenuEnabled(bool* enabled) const {
-    *enabled = m_impl->_contextMenuEnabled;
+    *enabled = m_impl->common._contextMenuEnabled;
 }
 
 void InfiniFrameWindow::GetZoomEnabled(bool* enabled) const {
-    *enabled = m_impl->_zoomEnabled;
+    *enabled = m_impl->common._zoomEnabled;
 }
 
 void InfiniFrameWindow::GetStatusBarEnabled(bool* enabled) const {
-    *enabled = m_impl->_statusBarEnabled;
+    *enabled = m_impl->common._statusBarEnabled;
 }
 
 void InfiniFrameWindow::GetDevToolsEnabled(bool* enabled) const {
     if (m_impl->_webview == nullptr) {
-        *enabled = m_impl->_devToolsEnabled;
+        *enabled = m_impl->common._devToolsEnabled;
         return;
     }
     WebKitSettings* settings = webkit_web_view_get_settings(WEBKIT_WEB_VIEW(m_impl->_webview));
@@ -226,7 +226,7 @@ void InfiniFrameWindow::SendWebMessage(const char* message) {
 }
 
 void InfiniFrameWindow::SetContextMenuEnabled(const bool enabled) {
-    m_impl->_contextMenuEnabled = enabled;
+    m_impl->common._contextMenuEnabled = enabled;
     if (m_impl->_webview == nullptr)
         return;
     std::string payload = "{\"enabled\":" + std::string(enabled ? "true" : "false") + "}";
@@ -236,7 +236,7 @@ void InfiniFrameWindow::SetContextMenuEnabled(const bool enabled) {
 }
 
 void InfiniFrameWindow::SetMediaAutoplayEnabled(const bool enabled) {
-    m_impl->_mediaAutoplayEnabled = enabled;
+    m_impl->common._mediaAutoplayEnabled = enabled;
     if (m_impl->_webview == nullptr)
         return;
 
@@ -246,20 +246,20 @@ void InfiniFrameWindow::SetMediaAutoplayEnabled(const bool enabled) {
 }
 
 void InfiniFrameWindow::SetUserAgent(const char* userAgent) {
-    m_impl->_userAgent = userAgent != nullptr ? userAgent : "";
+    m_impl->common._userAgent = userAgent != nullptr ? userAgent : "";
     if (m_impl->_webview == nullptr)
         return;
 
     WebKitSettings* settings = webkit_web_view_get_settings(WEBKIT_WEB_VIEW(m_impl->_webview));
     webkit_settings_set_user_agent(
         settings,
-        m_impl->_userAgent.empty() ? nullptr : m_impl->_userAgent.c_str()
+        m_impl->common._userAgent.empty() ? nullptr : m_impl->common._userAgent.c_str()
         );
     webkit_web_view_reload(WEBKIT_WEB_VIEW(m_impl->_webview));
 }
 
 void InfiniFrameWindow::SetZoomEnabled(const bool enabled) {
-    m_impl->_zoomEnabled = enabled;
+    m_impl->common._zoomEnabled = enabled;
     if (m_impl->_webview == nullptr)
         return;
     std::string payload = "{\"enabled\":" + std::string(enabled ? "true" : "false") + "}";
@@ -271,11 +271,11 @@ void InfiniFrameWindow::SetZoomEnabled(const bool enabled) {
 void InfiniFrameWindow::SetStatusBarEnabled(const bool enabled) {
     // WebKitGTK has no native status bar concept — this is a WebView2-only feature.
     // The flag is stored for API consistency but has no visible effect on Linux.
-    m_impl->_statusBarEnabled = enabled;
+    m_impl->common._statusBarEnabled = enabled;
 }
 
 void InfiniFrameWindow::SetBrowserShortcutsEnabled(const bool enabled) {
-    m_impl->_browserShortcutsEnabled = enabled;
+    m_impl->common._browserShortcutsEnabled = enabled;
     if (m_impl->_webview == nullptr)
         return;
     std::string payload = "{\"enabled\":" + std::string(enabled ? "true" : "false") + "}";
@@ -286,11 +286,11 @@ void InfiniFrameWindow::SetBrowserShortcutsEnabled(const bool enabled) {
 }
 
 void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled) {
-    m_impl->_devToolsEnabled = enabled;
+    m_impl->common._devToolsEnabled = enabled;
     if (m_impl->_webview == nullptr)
         return;
     WebKitSettings* settings = webkit_web_view_get_settings(WEBKIT_WEB_VIEW(m_impl->_webview));
-    webkit_settings_set_enable_developer_extras(settings, m_impl->_devToolsEnabled || m_impl->_remoteDebuggingPort > 0);
+    webkit_settings_set_enable_developer_extras(settings, m_impl->common._devToolsEnabled || m_impl->common._remoteDebuggingPort > 0);
 }
 
 void InfiniFrameWindow::SetFullScreen(const bool fullScreen) {
@@ -304,7 +304,7 @@ void InfiniFrameWindow::SetFullScreen(const bool fullScreen) {
 
 void InfiniFrameWindow::SetIconFile(const char* filename) {
     gtk_window_set_icon_from_file(GTK_WINDOW(m_impl->_window), filename, nullptr);
-    m_impl->_iconFileName = filename ? filename : "";
+    m_impl->common._iconFileName = filename ? filename : "";
 }
 
 void InfiniFrameWindow::SetMinimized(const bool minimized) {
@@ -382,7 +382,7 @@ void InfiniFrameWindow::SetTopmost(const bool topmost) {
 
 void InfiniFrameWindow::SetZoom(const int zoom) {
     // Software guard: respect EnableZoom(false) to match cross-platform API semantics.
-    if (!m_impl->_zoomEnabled)
+    if (!m_impl->common._zoomEnabled)
         return;
 
     // Clamp to valid range (25-500%) to match Windows/macOS behavior.
@@ -401,7 +401,7 @@ void InfiniFrameWindow::SetFocused() {
 }
 
 void InfiniFrameWindow::SetTransparentEnabled(const bool enabled) {
-    m_impl->_transparentEnabled = enabled;
+    m_impl->common._transparentEnabled = enabled;
 
     gtk_window_set_decorated(GTK_WINDOW(m_impl->_window), !enabled);
 
@@ -421,10 +421,10 @@ void InfiniFrameWindow::SetTransparentEnabled(const bool enabled) {
 }
 
 void InfiniFrameWindow::SetBackgroundColor(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) {
-    m_impl->_backgroundColorR = r;
-    m_impl->_backgroundColorG = g;
-    m_impl->_backgroundColorB = b;
-    m_impl->_backgroundColorA = a;
+    m_impl->common._backgroundColorR = r;
+    m_impl->common._backgroundColorG = g;
+    m_impl->common._backgroundColorB = b;
+    m_impl->common._backgroundColorA = a;
 
     if (m_impl->_webview == nullptr)
         return;

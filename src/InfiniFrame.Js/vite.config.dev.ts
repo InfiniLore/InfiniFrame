@@ -1,7 +1,7 @@
 ﻿import {defineConfig} from "vite";
 import {resolve} from "node:path";
 
-const entry = resolve(__dirname, "TypeScript/Index.ts");
+const entry = resolve(import.meta.dirname, "TypeScript/Index.ts");
 
 export default defineConfig({
     build: {

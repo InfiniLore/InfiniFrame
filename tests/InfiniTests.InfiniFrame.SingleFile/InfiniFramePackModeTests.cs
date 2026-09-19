@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Reflection;
 using InfiniFrame.SingleFile;
+using InfiniTests.TestSupport.Attributes;
 
 namespace InfiniTests.InfiniFrame.SingleFile;
 // ---------------------------------------------------------------------------------------------------------------------

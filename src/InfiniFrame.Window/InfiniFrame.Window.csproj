@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <PackageId>InfiniLore.InfiniFrame.Window</PackageId>
+        <Description>InfiniFrame concrete window runtime, lifecycle, configuration, events, and features.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
+        <ProjectReference Include="../InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj" />
+        <ProjectReference Include="../InfiniFrame.Js/InfiniFrame.Js.csproj" />
+        <ProjectReference Include="../InfiniFrame.Security/InfiniFrame.Security.csproj" />
+        <ProjectReference Include="../InfiniFrame.StaticAssets/InfiniFrame.StaticAssets.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FluentValidation" />
+        <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+    </ItemGroup>
+</Project>

@@ -52,7 +52,7 @@ internal static class InfiniFrameSingleFileBootstrap {
             bool initialized = false;
             try {
                 string[] requiredFiles = GetNativeFileNamesForCurrentPlatform();
-                bool hasResources = requiredFiles.Any(fileName => {
+                bool hasResources = requiredFiles.All(fileName => {
                     string resourceName = $"{entryAssembly.GetName().Name}.native.{rid}.{fileName}";
                     return entryAssembly.GetManifestResourceStream(resourceName) is not null;
                 });
@@ -118,7 +118,8 @@ internal static class InfiniFrameSingleFileBootstrap {
         foreach (string fileName in fileNames) {
             string resourceName = $"{assembly.GetName().Name}.native.{rid}.{fileName}";
             using Stream? resourceStream = assembly.GetManifestResourceStream(resourceName);
-            if (resourceStream is null) continue;
+            if (resourceStream is null)
+                throw new InvalidDataException($"Required single-file native resource '{resourceName}' was not found.");
 
             string destinationPath = Path.Join(_nativeDir!, fileName);
 

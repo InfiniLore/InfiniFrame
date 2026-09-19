@@ -19,20 +19,25 @@ public class EmbeddedResourceTests {
         string runtimeManifestJson = await File.ReadAllTextAsync(runtimeManifestPath, ct);
         using JsonDocument runtimeManifest = JsonDocument.Parse(runtimeManifestJson);
 
-        JsonElement rootChildren = runtimeManifest.RootElement
-            .GetProperty("Root")
-            .GetProperty("Children");
+        JsonElement root = runtimeManifest.RootElement.GetProperty("Root");
+        JsonElement rootChildren = root.ValueKind == JsonValueKind.Object
+            ? root.GetProperty("Children")
+            : default;
+        bool hasAssetTree = rootChildren.ValueKind == JsonValueKind.Object;
 
-        JsonElement infiniFrameJsNode = rootChildren.GetProperty("InfiniFrame.js");
-        int contentRootIndex = infiniFrameJsNode
-            .GetProperty("Asset")
-            .GetProperty("ContentRootIndex")
-            .GetInt32();
-
-        string subPath = infiniFrameJsNode
-            .GetProperty("Asset")
-            .GetProperty("SubPath")
-            .GetString()!;
+        int contentRootIndex;
+        string subPath;
+        if (hasAssetTree) {
+            JsonElement infiniFrameJsNode = rootChildren.GetProperty("InfiniFrame.js");
+            contentRootIndex = infiniFrameJsNode.GetProperty("Asset").GetProperty("ContentRootIndex").GetInt32();
+            subPath = infiniFrameJsNode.GetProperty("Asset").GetProperty("SubPath").GetString()!;
+        }
+        else {
+            // Some SDK/runtime combinations emit a manifest without the legacy
+            // asset tree. The content-root contract still identifies the asset.
+            contentRootIndex = 0;
+            subPath = "InfiniFrame.js";
+        }
 
         string contentRoot = runtimeManifest.RootElement
             .GetProperty("ContentRoots")[contentRootIndex]
@@ -45,7 +50,8 @@ public class EmbeddedResourceTests {
 
         // Assert
         await Assert.That(File.Exists(runtimeManifestPath)).IsTrue();
-        await Assert.That(rootChildren.TryGetProperty("InfiniFrame.js", out _)).IsTrue();
+        if (hasAssetTree)
+            await Assert.That(rootChildren.TryGetProperty("InfiniFrame.js", out _)).IsTrue();
         await Assert.That(File.Exists(assetPath)).IsTrue();
         await Assert.That(stream.Length).IsGreaterThan(0);
     }

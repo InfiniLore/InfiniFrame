@@ -2,6 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Window.Events;
+using InfiniTests.TestSupport;
 
 namespace InfiniTests.InfiniFrame.Shared.Features;
 // ---------------------------------------------------------------------------------------------------------------------

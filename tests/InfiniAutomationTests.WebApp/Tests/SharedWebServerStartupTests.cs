@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniAutomationTests.Tests;
-using InfiniTests;
+using InfiniTests.TestSupport.Attributes;
 using Microsoft.Playwright;
 
 namespace InfiniAutomationTests.WebApp.Tests;

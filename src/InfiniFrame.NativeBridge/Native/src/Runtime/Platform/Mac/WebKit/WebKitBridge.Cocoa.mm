@@ -40,7 +40,7 @@ void InfiniFrameWindow::Impl::SetUserAgent(const char* userAgent)
 {
     if (userAgent != nullptr)
     {
-        _userAgent = userAgent;
+        common._userAgent = userAgent;
         NSString* value = [NSString stringWithUTF8String:userAgent];
         if (value == nil)
             throw std::invalid_argument("userAgent is not valid UTF-8.");
@@ -48,7 +48,7 @@ void InfiniFrameWindow::Impl::SetUserAgent(const char* userAgent)
     }
     else
     {
-        _userAgent.clear();
+        common._userAgent.clear();
         [_webview setCustomUserAgent: nil];
     }
 }

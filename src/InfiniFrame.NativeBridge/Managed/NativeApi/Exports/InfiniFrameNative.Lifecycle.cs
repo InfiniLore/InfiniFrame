@@ -3,13 +3,70 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.NativeBridge.Parameters.Application;
+using InfiniFrame.NativeBridge.Parameters.Window;
 
 namespace InfiniFrame.NativeBridge;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public partial class InfiniFrameNative {
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeApplication_ctor", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial InfiniFrameNativeInteropStatus ApplicationConstructorNative(out IntPtr value);
+
+    internal static InfiniFrameNativeInteropStatus ApplicationConstructor(out IntPtr value)
+        => ApplicationConstructorNative(out value);
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeApplication_Register", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus ApplicationRegister(IntPtr instance);
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeApplication_Configure", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial InfiniFrameNativeInteropStatus ApplicationConfigureNative(IntPtr instance, IntPtr parameters);
+
+    internal static InfiniFrameNativeInteropStatus ApplicationConfigure(
+        IntPtr instance,
+        in InfiniFrameNativeApplicationParameters parameters
+    ) {
+        var marshaller = new InfiniFrameNativeApplicationParametersMarshaller.ManagedToUnmanagedIn();
+        marshaller.FromManaged(parameters);
+        IntPtr unmanagedPtr = IntPtr.Zero;
+
+        try {
+            unmanagedPtr = Marshal.AllocHGlobal(Marshal.SizeOf<InfiniFrameNativeApplicationParametersMarshaller.Unmanaged>());
+            Marshal.StructureToPtr(marshaller.ToUnmanaged(), unmanagedPtr, false);
+            return ApplicationConfigureNative(instance, unmanagedPtr);
+        }
+        finally {
+            if (unmanagedPtr != IntPtr.Zero) Marshal.FreeHGlobal(unmanagedPtr);
+            marshaller.Free();
+        }
+    }
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeApplication_Run", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus ApplicationRun(IntPtr instance);
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeApplication_Shutdown", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus ApplicationShutdown(IntPtr instance);
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeApplication_dtor")]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus ApplicationDestructor(IntPtr instance);
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeApplication_GetWindowCount", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial InfiniFrameNativeInteropStatus ApplicationGetWindowCountNative(
+        IntPtr instance,
+        out nuint value
+    );
+
+    internal static InfiniFrameNativeInteropStatus ApplicationGetWindowCount(IntPtr instance, out nuint value)
+        => ApplicationGetWindowCountNative(instance, out value);
+
     /// <summary>
     ///     Creates a new native window instance with the specified parameters.
     /// </summary>
@@ -21,16 +78,16 @@ public partial class InfiniFrameNative {
     private static partial InfiniFrameNativeInteropStatus ConstructorNative(IntPtr parameters, out IntPtr value);
 
     internal static InfiniFrameNativeInteropStatus Constructor(
-        in InfiniFrameNativeParameters parameters,
+        in InfiniFrameNativeWindowParameters parameters,
         out IntPtr value
     ) {
-        var marshaller = new InfiniFrameNativeParametersMarshaller.ManagedToUnmanagedIn();
+        var marshaller = new InfiniFrameNativeWindowParametersMarshaller.ManagedToUnmanagedIn();
         marshaller.FromManaged(parameters);
         var unmanaged = marshaller.ToUnmanaged();
         IntPtr unmanagedPtr = IntPtr.Zero;
 
         try {
-            unmanagedPtr = Marshal.AllocHGlobal(Marshal.SizeOf<InfiniFrameNativeParametersMarshaller.Unmanaged>());
+            unmanagedPtr = Marshal.AllocHGlobal(Marshal.SizeOf<InfiniFrameNativeWindowParametersMarshaller.Unmanaged>());
             Marshal.StructureToPtr(unmanaged, unmanagedPtr, false);
             return ConstructorNative(unmanagedPtr, out value);
         }
@@ -70,6 +127,10 @@ public partial class InfiniFrameNative {
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetReadyCallback", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus SetReadyCallback(IntPtr instance, ContextAction callback, IntPtr context);
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetReadyFailureCallback", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus SetReadyFailureCallback(IntPtr instance, ContextAction callback, IntPtr context);
 
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetTeardownCallback", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]

@@ -1,0 +1,73 @@
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using System.Runtime.Versioning;
+using InfiniFrame;
+using InfiniFrame.NativeBridge.Handles;
+using InfiniFrame.Utilities;
+using InfiniFrame.Window.Builder;
+using JetBrains.Annotations;
+
+namespace InfiniTests.TestSupport;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public sealed partial class InfiniFrameTestWindow {
+    private static readonly bool TestWindowTracingEnabled =
+        string.Equals(Environment.GetEnvironmentVariable("INFINIFRAME_TEST_TRACE"), "1", StringComparison.Ordinal);
+
+    [SupportedOSPlatform("windows")]
+    [MustDisposeResource]
+    private static partial InfiniFrameTestWindow CreateWindows(InfiniFrameWindowBuilder windowBuilder) {
+        var windowSource = new TaskCompletionSource<IInfiniFrameWindow>(TaskCreationOptions.RunContinuationsAsynchronously);
+        using var startupMutex = new Mutex(false, "InfiniFrameDesktopStartup");
+        try {
+            startupMutex.WaitOne();
+        }
+        catch (AbandonedMutexException) {
+            // The previous test process exited during desktop startup.
+        }
+
+        try {
+            var thread = new Thread(() => {
+                try {
+                if (TestWindowTracingEnabled) {
+                    Console.Error.WriteLine(
+                        $"[InfiniFrameWindowTestUtility] STA thread started managedThreadId={Environment.CurrentManagedThreadId} apt={Thread.CurrentThread.GetApartmentState()} pid={Environment.ProcessId}");
+                }
+
+                IInfiniFrameWindow window = windowBuilder.Build();
+
+                if (TestWindowTracingEnabled) {
+                    using NativeHandleLease lease = window.AcquireNativeHandle();
+                    Console.Error.WriteLine(
+                        $"[InfiniFrameWindowTestUtility] window initialized instance=0x{lease.Handle.ToInt64():X} hwnd=0x{window.WindowHandle.ToInt64():X} thread={Environment.CurrentManagedThreadId}");
+                }
+
+                windowSource.SetResult(window);
+
+                window.WaitForClose();
+            }
+            catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
+                windowSource.TrySetException(ex);
+                }
+            }) {
+                IsBackground = true,
+                Name = "InfiniFrame Test Window Thread"
+            };
+
+            thread.SetApartmentState(ApartmentState.STA);
+
+            thread.Start();
+
+            return new InfiniFrameTestWindow {
+                BuilderSnapshot = windowBuilder,
+                Window = windowSource.Task.GetAwaiter().GetResult(),
+                _windowThread = thread
+            };
+        }
+        finally {
+            startupMutex.ReleaseMutex();
+        }
+    }
+}

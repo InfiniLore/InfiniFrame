@@ -5,7 +5,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\InfiniFrame.Js\InfiniFrame.Js.csproj"/>
-        <ProjectReference Include="..\InfiniTests\InfiniTests.csproj"/>
+        <ProjectReference Include="..\InfiniTests.TestSupport\InfiniTests.TestSupport.csproj"/>
     </ItemGroup>
 
 </Project>

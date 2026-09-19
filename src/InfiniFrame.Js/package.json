@@ -5,8 +5,12 @@
     "author": "InfiniLore",
     "license": "Apache-2.0",
     "keywords": ["infiniframe", "blazor", "interop", "webview", "desktop"],
+    "type": "module",
     "engines": {
         "node": ">=24.15.0"
+    },
+    "allowScripts": {
+        "fsevents@2.3.3": true
     },
     "scripts": {
         "typecheck": "tsc --noEmit",

@@ -98,7 +98,7 @@
         @if (_eventLog.Count == 0) {
             <MudText Typo="Typo.body2" Class="mud-text-secondary">No events yet. Click a button above.</MudText>
         }
-        @foreach (var entry in _eventLog) {
+        @foreach (string entry in _eventLog) {
             <MudText Typo="Typo.body2" Class="mb-1">
                 <MudIcon Icon="@Icons.Material.Filled.Info" Size="Size.Small" Class="mr-1" />
                 @entry

@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <NoWarn>$(NoWarn);CS0105</NoWarn>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="TUnit"/>
+        <PackageReference Include="TUnit.Mocks"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../../src/InfiniFrame.Application/InfiniFrame.Application.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.Js/InfiniFrame.Js.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.Security/InfiniFrame.Security.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.StaticAssets/InfiniFrame.StaticAssets.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.Window/InfiniFrame.Window.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
+        <ProjectReference Include="../InfiniTests.TestSupport/InfiniTests.TestSupport.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="../../src/InfiniFrame.Js/TypeScript/Interop/EnvelopeProtocol/interop-envelope-golden-vectors.json">
+            <Link>Interop/interop-envelope-golden-vectors.json</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+</Project>

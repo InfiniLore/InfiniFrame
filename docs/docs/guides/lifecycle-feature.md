@@ -95,7 +95,9 @@ Top-level statements cannot carry `[STAThread]` so use an explicit `static void 
 `[STAThread]` is silently ignored on `async Task Main`. The async continuation runs on thread pool threads (MTA). Never use `async Task Main` as the entry point for an InfiniFrame application.
 :::
 
-**Linux does not have this restriction** because GTK has no COM apartment model. The native constructor calls `gtk_init()` itself and implicitly claims whichever thread calls `Build()` as the GTK main thread.
+Linux has no COM apartment restriction, but GTK/WebKit still have one owner thread. `InfiniFrameApplication.Register()` initializes GTK, WebKit, libnotify, and the application GTK context before any registered window is built. Window operations are marshalled to that owner thread; `Run()` and `RunAsync()` enter the application-owned lifecycle and return only after the final window's deferred WebKit teardown has drained.
+
+Do not initialize GTK from a window or call the process-level Linux shutdown export in application code. Dispose the application after its windows have closed so the application can drain GLib callbacks. The GTK/WebKit owner is process-scoped and is reused by later applications in the same process; its final cleanup is registered for process exit because WebKitGTK does not safely support tearing down and reinitializing its worker runtime between application instances.
 
 ## Cross-Thread Invocation
 

@@ -15,8 +15,9 @@
         <None Include="InfiniFrame.SingleFile.targets" Pack="true" PackagePath="build/InfiniLore.InfiniFrame.SingleFile.targets"/>
         <None Include="InfiniFrame.SingleFile.targets" Pack="true" PackagePath="buildTransitive/InfiniLore.InfiniFrame.SingleFile.targets"/>
     </ItemGroup>
+    
     <ItemGroup>
-        <ProjectReference Include="..\InfiniFrame\InfiniFrame.csproj"/>
+        <ProjectReference Include="..\InfiniFrame.Window\InfiniFrame.Window.csproj"/>
         <ProjectReference Include="..\InfiniFrame.BlazorWebView\InfiniFrame.BlazorWebView.csproj"/>
     </ItemGroup>
 </Project>

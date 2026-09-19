@@ -21,7 +21,7 @@ This guide walks you through installing InfiniFrame and creating your first nati
 | Platform | Requirement                                                                                                                                                       |
 |----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Windows  | [WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/); pre-installed on Windows 11 and available as a redistributable for Windows 10 |
-| Linux    | `webkit2gtk-4.0` and `libgtk-3-dev` installed via your package manager                                                                                            |
+| Linux    | WebKitGTK 4.1, GTK 3, libnotify, X11 development headers, `pkg-config`, and a WSLg/X11 display for GUI tests |
 | macOS    | macOS 10.15 Catalina or later (WKWebView is built into the OS)                                                                                                    |
 
 ## Choose Your Integration
@@ -74,7 +74,7 @@ using InfiniFrame;
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
-        InfiniFrameSingleFileBootstrap.Initialize();
+        InfiniFrameSingleFile.Initialize();
 
         var window = InfiniFrameWindowBuilder.Create()
             .SetTitle("Hello, InfiniFrame")
@@ -124,21 +124,24 @@ A minimal `index.html`:
 ### Program.cs
 
 ```csharp
+using InfiniFrame.Application;
 using InfiniFrame.BlazorWebView;
 using Microsoft.Extensions.DependencyInjection;
 
-var builder = InfiniFrameBlazorAppBuilder.CreateDefault(args, w => w
-    .SetTitle("My Blazor App")
-    .SetSize(1280, 720)
-    .Center()
-);
+var builder = InfiniFrameApplication.CreateBuilder(args)
+    .WithWindow(window => window
+        .SetTitle("My Blazor App")
+        .SetSize(1280, 720)
+        .Center());
 
 // Register your services
 builder.Services.AddSingleton<MyService>();
 
 // Register root Blazor components
-builder.RootComponents.Add<App>("#app");
-builder.RootComponents.Add<HeadOutlet>("head::after");
+builder.UseBlazorWebView(configuration => {
+    configuration.RootComponents.Add<App>("app");
+    configuration.RootComponents.Add<HeadOutlet>("head::after");
+});
 
 builder.Build().Run();
 ```
@@ -166,21 +169,19 @@ dotnet add package InfiniLore.InfiniFrame.WebServer
 ### Program.cs
 
 ```csharp
+using InfiniFrame.Application;
 using InfiniFrame.WebServer;
 
-var app = InfiniFrameWebApplication.CreateBuilder(args)
-    .Build()
-    .UseAutoServerClose();
-
-// Configure the ASP.NET Core pipeline on app.WebApp
-app.WebApp.UseRouting();
-app.WebApp.MapGet("/", () => "Hello from InfiniFrame");
+var app = InfiniFrameApplication.CreateBuilder(args)
+    .WithWindow("web", static _ => { })
+    .UseWebServer("web", web => web.ConfigureWebApplication(application =>
+        application.MapGet("/", () => "Hello from InfiniFrame")))
+    .Build();
 
 app.Run();
 ```
 
-The start URL is automatically read from `ASPNETCORE_URLS` or the `urls` configuration key.
-`UseAutoServerClose()` ensures the server shuts down gracefully when the window is closed.
+The start URL is resolved from the server's bound address after startup, and the server shuts down with the InfiniFrame application.
 
 ## Next Steps
 

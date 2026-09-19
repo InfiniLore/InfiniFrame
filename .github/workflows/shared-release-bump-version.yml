@@ -39,7 +39,7 @@ jobs:
 
             -   name: Bump Version
                 id: bump
-                uses: Code-Of-Chaos/action-version-bumper@v2.1.0
+                uses: Code-Of-Chaos/action-version-bumper@v2
                 with:
                     version_file: src/Directory.Build.props
                     additional_version_files: |

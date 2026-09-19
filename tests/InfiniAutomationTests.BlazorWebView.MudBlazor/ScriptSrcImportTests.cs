@@ -4,7 +4,7 @@
 using System.Text.Json;
 using InfiniAutomationTests.BlazorWebView.MudBlazor.TestUtility;
 using InfiniAutomationTests.Tests;
-using InfiniTests;
+using InfiniTests.TestSupport.Attributes;
 using Microsoft.Playwright;
 
 namespace InfiniAutomationTests.BlazorWebView.MudBlazor;

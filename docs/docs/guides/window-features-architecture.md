@@ -37,7 +37,7 @@ builder.Features.Size.SetSize(1280, 720);  // Direct feature access
 builder.SetSize(1280, 720);                // Extension method equivalent
 ```
 
-Builder features apply their settings to `InfiniFrameNativeParameters`, which the native layer reads during window creation. After `Build()`, builder-only settings cannot be changed.
+Builder features apply their settings to `InfiniFrameNativeWindowParameters`, which the native layer reads during window creation. After `Build()`, builder-only settings cannot be changed.
 
 ### Runtime Feature (`I<Name>InfiniFrameWindowFeature`)
 
@@ -134,7 +134,7 @@ builder.Features.InstanceArbitration // IInstanceArbitrationInfiniFrameWindowBui
 
 ## How Features Are Wired
 
-1. **Builder phase**: Each builder feature implements `IInfiniFrameWindowBuilderFeature` with an `ApplyToNativeParameters(ref InfiniFrameNativeParameters)` method. The builder collects all settings into a native parameters struct.
+1. **Builder phase**: Each builder feature implements `IInfiniFrameWindowBuilderFeature` with an `ApplyToNativeParameters(ref InfiniFrameNativeWindowParameters)` method. The builder collects all settings into a native parameters struct.
 
 2. **Build**: `InfiniFrameWindowBuilder.Build()` creates the window, then `InfiniFrameWindowFeaturesFactory` creates all runtime feature instances from the DI container, passing the window and the original builder.
 

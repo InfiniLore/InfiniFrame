@@ -3,7 +3,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniAutomationTests.TestUtility;
 using InfiniFrame;
-using InfiniTests;
+using InfiniFrame.Window.Features.WebMessaging.Handlers;
+using InfiniTests.TestSupport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Playwright;
@@ -22,7 +23,27 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
     private string ServerUrl => $"http://127.0.0.1:{_serverPort}";
 
     protected void BeforeAll()
-        => StartUtilityWithFreshPorts();
+    {
+        using var startupMutex = new Mutex(false, "InfiniFrameDesktopStartup");
+        try {
+            startupMutex.WaitOne();
+        }
+        catch (AbandonedMutexException) {
+            // The previous test process exited during desktop startup.
+        }
+
+        try {
+            StartUtilityWithFreshPorts();
+
+            // Warm the CDP connection during assembly setup. WebView2 startup can be
+            // delayed under the full parallel solution workload; deferring the first
+            // connection to a test subjects it to the short per-test timeout.
+            GetOrCreateBrowserAsync().GetAwaiter().GetResult();
+        }
+        finally {
+            startupMutex.ReleaseMutex();
+        }
+    }
 
     protected async ValueTask AfterAllAsync() {
         BeforeAssemblyTeardown();
@@ -64,7 +85,7 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
 
         using var startupCancellation = new CancellationTokenSource(TimeSpan.FromSeconds(90));
         _utility = InfiniFrameTestServer.Create(
-            appBuilder: serverBuilder => serverBuilder.WebHost.UseUrls(ServerUrl),
+            appBuilder: serverBuilder => serverBuilder.UseUrls(ServerUrl),
             windowBuilder: windowBuilder => {
                 if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux())
                     windowBuilder.Debugging.SetRemoteDebuggingPort(_playwrightDevtoolsPort);

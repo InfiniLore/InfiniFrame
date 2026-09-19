@@ -6,7 +6,7 @@
 
     <ItemGroup>
         <ProjectReference Include="../InfiniAutomationTests/InfiniAutomationTests.csproj"/>
-        <ProjectReference Include="../InfiniTests/InfiniTests.csproj"/>
+        <ProjectReference Include="../InfiniTests.TestSupport/InfiniTests.TestSupport.csproj"/>
     </ItemGroup>
 
     <!-- These files are linked into each concrete framework test assembly. -->

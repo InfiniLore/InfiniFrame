@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <NoWarn>$(NoWarn);CS0105</NoWarn>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="TUnit"/>
+        <PackageReference Include="TUnit.Mocks"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="../../src/InfiniFrame.Application/InfiniFrame.Application.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
+        <ProjectReference Include="../InfiniTests.TestSupport/InfiniTests.TestSupport.csproj" />
+    </ItemGroup>
+</Project>
