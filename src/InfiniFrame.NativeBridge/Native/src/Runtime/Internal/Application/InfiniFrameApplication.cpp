@@ -81,6 +81,16 @@ InfiniFrameApplication::InfiniFrameApplication()
 }
 
 InfiniFrameApplication::~InfiniFrameApplication() {
+    {
+        std::lock_guard lock(_impl->mutex);
+        // Native windows may outlive the logical application (notably while deferred
+        // platform teardown is completing). Do not leave them holding a raw
+        // pointer to the application being destroyed.
+        for (InfiniFrameWindow* window : _impl->windows)
+            window->DetachApplication();
+        _impl->windows.clear();
+        _impl->liveWindows.clear();
+    }
 #ifdef __APPLE__
     // NSApplication and WKWebView are process-scoped.  The logical application can
     // be recreated, but all pooled hosts must be released before its native handle
@@ -93,9 +103,6 @@ InfiniFrameApplication::~InfiniFrameApplication() {
         });
     }
 #endif
-    std::lock_guard lock(_impl->mutex);
-    _impl->windows.clear();
-    _impl->liveWindows.clear();
     InfiniFrameApplication* expected = this;
     applicationInstance.compare_exchange_strong(expected, nullptr, std::memory_order_acq_rel);
 }

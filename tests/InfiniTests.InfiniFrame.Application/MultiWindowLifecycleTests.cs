@@ -111,4 +111,35 @@ public sealed class MultiWindowLifecycleTests {
             await runTask.WaitAsync(TimeSpan.FromSeconds(30), CancellationToken.None);
         }
     }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    [Timeout(60_000)]
+    public async Task ShutdownAndDisposeWithMultipleWindows_CanBeRepeated(CancellationToken ct = default) {
+        if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS()) || Environment.Version.Major < 8) return;
+
+        for (int iteration = 0; iteration < 2; iteration++) {
+            await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
+                .WithWindow("main", builder => builder.SetStartPageContent("<html><body>Main</body></html>"))
+                .WithWindow("secondary", builder => builder.SetStartPageContent("<html><body>Secondary</body></html>"));
+
+            Task runTask = application.RunAsync(ct);
+            try {
+                for (int attempt = 0; attempt < 100 && application.Windows.Count < 2; attempt++) {
+                    if (runTask.IsFaulted) await runTask;
+                    await Task.Delay(100, ct);
+                }
+
+                await Assert.That(application.Windows).Count().IsEqualTo(2);
+                application.Shutdown();
+                application.Shutdown();
+                await runTask.WaitAsync(TimeSpan.FromSeconds(30), ct);
+            }
+            finally {
+                application.Shutdown();
+                try { await runTask.WaitAsync(TimeSpan.FromSeconds(30), CancellationToken.None); }
+                catch (OperationCanceledException) { }
+            }
+        }
+    }
 }
