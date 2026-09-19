@@ -97,7 +97,7 @@ internal sealed class InfiniDispatchOperation {
             InfiniFrameNative.CancelOperation(lease.Handle, Id, (int)result);
         }
         catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
-            _logger.LogDebug(exception, "Could not cancel native dispatch {OperationId}.", Id);
+            _logger.LogDebug(exception, "Could not cancel native dispatch {OperationId}", Id);
         }
     }
 

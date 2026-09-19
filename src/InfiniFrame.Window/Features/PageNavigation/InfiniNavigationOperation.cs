@@ -112,7 +112,7 @@ internal sealed class InfiniNavigationOperation {
             Finish(new NavigationResult(Id, NavigationStatus.WindowClosed, _uri));
         }
         catch (Exception exception) {
-            _logger.LogError(exception, "Navigation {OperationId} failed to start.", Id);
+            _logger.LogError(exception, "Navigation {OperationId} failed to start", Id);
             Finish(new NavigationResult(Id, NavigationStatus.Failed, _uri, FailureReason: exception.Message));
         }
     }
@@ -129,7 +129,7 @@ internal sealed class InfiniNavigationOperation {
         _ = _window.DispatchAsync(() => InfiniFrameNative.CancelNavigation(lease.Handle, Id))
             .AsTask()
             .ContinueWith(
-                continuationAction: t => _logger.LogWarning(t.Exception, "Unhandled error while cancelling navigation {OperationId}.", Id),
+                continuationAction: t => _logger.LogWarning(t.Exception, "Unhandled error while cancelling navigation {OperationId}", Id),
                 CancellationToken.None,
                 TaskContinuationOptions.OnlyOnFaulted,
                 TaskScheduler.Default

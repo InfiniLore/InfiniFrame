@@ -218,7 +218,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 window.Close();
             }
             catch (Exception exception) when (exception is ObjectDisposedException or InvalidOperationException) {
-                logger.LogDebug(exception, "Window was already unavailable during application shutdown.");
+                logger.LogDebug(exception, "Window was already unavailable during application shutdown");
             }
         }
     }
@@ -252,7 +252,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 RemoveTrackedWindow(window);
             }
             catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException) {
-                logger.LogWarning(ex, "Failed to dispose an application window.");
+                logger.LogWarning(ex, "Failed to dispose an application window");
                 windowDisposalFailure ??= ex;
             }
         }
@@ -293,7 +293,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 RemoveTrackedWindow(window);
             }
             catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException) {
-                logger.LogWarning(ex, "Failed to asynchronously dispose an application window.");
+                logger.LogWarning(ex, "Failed to asynchronously dispose an application window");
                 windowDisposalFailure ??= ex;
             }
         }
@@ -446,7 +446,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             RemoveTrackedWindow(id, window);
         }
         catch (Exception exception) when (exception is not OutOfMemoryException and not StackOverflowException) {
-            logger.LogDebug(exception, "Could not finalize a naturally closed application window.");
+            logger.LogDebug(exception, "Could not finalize a naturally closed application window");
         }
     }
 
@@ -534,7 +534,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         foreach (Func<Task> action in actions) {
             try { action().GetAwaiter().GetResult(); }
             catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException) {
-                logger.LogWarning(ex, "Failed to stop an application component.");
+                logger.LogWarning(ex, "Failed to stop an application component");
             }
         }
     }
@@ -561,7 +561,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         foreach (Func<Task> action in actions) {
             try { await action().ConfigureAwait(false); }
             catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException) {
-                logger.LogWarning(ex, "Failed to stop an application component.");
+                logger.LogWarning(ex, "Failed to stop an application component");
             }
         }
     }

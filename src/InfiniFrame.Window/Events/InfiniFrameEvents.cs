@@ -269,7 +269,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         }
         catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
             // Managed handler exceptions must never cross a reverse P/Invoke boundary.
-            Logger.LogError(ex, "Unhandled exception in native callback {CallbackName}.", callbackName);
+            Logger.LogError(ex, "Unhandled exception in native callback {CallbackName}", callbackName);
         }
     }
 
@@ -279,7 +279,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         }
         catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
             // Managed handler exceptions must never cross a reverse P/Invoke boundary.
-            Logger.LogError(ex, "Unhandled exception in native callback {CallbackName}.", callbackName);
+            Logger.LogError(ex, "Unhandled exception in native callback {CallbackName}", callbackName);
             return fallback();
         }
     }

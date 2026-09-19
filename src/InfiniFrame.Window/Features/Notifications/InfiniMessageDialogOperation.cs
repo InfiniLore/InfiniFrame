@@ -86,7 +86,7 @@ internal sealed class InfiniMessageDialogOperation {
                 StartCancellationDispatch();
         }
         catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
-            _logger.LogError(exception, "Asynchronous message dialog {OperationId} failed.", Id);
+            _logger.LogError(exception, "Asynchronous message dialog {OperationId} failed", Id);
             Finish(InfiniFrameDialogResult.Cancel);
         }
     }
@@ -120,7 +120,7 @@ internal sealed class InfiniMessageDialogOperation {
             // Window teardown requests cancellation for every registered dialog.
         }
         catch (Exception exception) {
-            _logger.LogWarning(exception, "Native message dialog cancellation for {OperationId} failed.", Id);
+            _logger.LogWarning(exception, "Native message dialog cancellation for {OperationId} failed", Id);
         }
     }
 

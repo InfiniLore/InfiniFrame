@@ -86,18 +86,18 @@ public class LifecycleInfiniFrameWindowFeature(
         try {
             if (startupParameters.RemoteDebuggingPort != 0) {
                 logger.LogInformation(
-                    "Remote debugging requested on loopback port {RemoteDebuggingPort}.",
+                    "Remote debugging requested on loopback port {RemoteDebuggingPort}",
                     startupParameters.RemoteDebuggingPort
                 );
 
                 if (OperatingSystem.IsLinux() && !startupParameters.DevToolsEnabled) {
                     logger.LogInformation(
-                        "Linux remote debugging keeps WebKit developer extras enabled while active."
+                        "Linux remote debugging keeps WebKit developer extras enabled while active"
                     );
                 }
             }
             else {
-                logger.LogDebug("Remote debugging is disabled.");
+                logger.LogDebug("Remote debugging is disabled");
             }
 
             RemoteDebuggingUtility.EnsureSupportedPlatform(startupParameters.RemoteDebuggingPort);
@@ -191,7 +191,7 @@ public class LifecycleInfiniFrameWindowFeature(
         }
 
         try {
-            logger.LogDebug("Starting message loop for window.");
+            logger.LogDebug("Starting message loop for window");
             if (OperatingSystem.IsLinux()) {
                 Volatile.Write(ref _messageLoopStarted, 1);
                 NativeHandleLease lease;
@@ -401,7 +401,7 @@ public class LifecycleInfiniFrameWindowFeature(
             window.MarkDisposed();
         }
         catch (Exception ex) when (!disposing && ExceptionsUtility.IsNonFatalException(ex)) {
-            logger.LogTrace(ex, "Ignoring non-fatal exception while finalizing lifecycle cleanup.");
+            logger.LogTrace(ex, "Ignoring non-fatal exception while finalizing lifecycle cleanup");
         }
         finally {
             ReleaseNativeCallbackRootOnce();
@@ -422,7 +422,7 @@ public class LifecycleInfiniFrameWindowFeature(
             window.Events.ReleaseNativeCallbackRoot();
         }
         catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-            logger.LogTrace(ex, "Ignoring non-fatal exception while releasing native callback root.");
+            logger.LogTrace(ex, "Ignoring non-fatal exception while releasing native callback root");
         }
     }
 

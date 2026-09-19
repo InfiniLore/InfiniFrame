@@ -185,7 +185,7 @@ public class PositionInfiniFrameWindowFeature(
         );
 
         if (!MonitorsUtility.TryGetCurrentMonitor(monitors, new Rectangle(x, y, width, height), out InfiniMonitor monitor)) {
-            logger.LogWarning("Could not determine monitor for window at ({X}, {Y}) - skipping centering.", x, y);
+            logger.LogWarning("Could not determine monitor for window at ({X}, {Y}) - skipping centering", x, y);
             return;
         }
 

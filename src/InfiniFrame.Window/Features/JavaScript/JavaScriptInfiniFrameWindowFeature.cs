@@ -156,7 +156,7 @@ public class JavaScriptInfiniFrameWindowFeature : IJavaScriptInfiniFrameWindowFe
             sender.Features.WebMessaging.SendWebMessage(responseEnvelope);
         }
         catch (JsonException exception) {
-            logger.LogWarning(exception, "Failed to parse JavaScript evaluation result.");
+            logger.LogWarning(exception, "Failed to parse JavaScript evaluation result");
         }
     }
 

@@ -81,7 +81,7 @@ internal sealed class InfiniNotificationOperation {
                 StartCancellationDispatch();
         }
         catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
-            _logger.LogError(exception, "Asynchronous notification {OperationId} failed.", Id);
+            _logger.LogError(exception, "Asynchronous notification {OperationId} failed", Id);
             Finish(new InfiniFrameNotificationActivation(InfiniFrameNotificationResult.Failed));
         }
     }
@@ -115,7 +115,7 @@ internal sealed class InfiniNotificationOperation {
             // Window teardown requests cancellation for every registered notification.
         }
         catch (InfiniFrameNativeInteropException exception) {
-            _logger.LogWarning(exception, "Native notification cancellation for {OperationId} failed.", Id);
+            _logger.LogWarning(exception, "Native notification cancellation for {OperationId} failed", Id);
         }
     }
 

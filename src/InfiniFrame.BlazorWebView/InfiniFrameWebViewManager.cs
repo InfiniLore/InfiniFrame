@@ -200,7 +200,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             HandleWebMessageCore(window, message, origin);
         }
         catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-            _logger.LogWarning(ex, "Unhandled exception while handling native web message callback.");
+            _logger.LogWarning(ex, "Unhandled exception while handling native web message callback");
         }
     }
 
@@ -227,7 +227,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         }
         else {
             _logger.LogWarning(
-                "Rejected web message because origin is missing or unknown.");
+                "Rejected web message because origin is missing or unknown");
             return;
         }
 
@@ -261,7 +261,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
 
     protected override void SendMessage(string message) {
         if (IsDisposingOrDisposed || _messagePumpShutdown.IsCancellationRequested) {
-            _logger.LogTrace("Discarded outbound WebView message because the manager is shutting down.");
+            _logger.LogTrace("Discarded outbound WebView message because the manager is shutting down");
             return;
         }
 
@@ -285,16 +285,16 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             }
         }
         catch (ObjectDisposedException ex) {
-            _logger.LogDebug(ex, "WebView message pump observed disposed dependencies; stopping.");
+            _logger.LogDebug(ex, "WebView message pump observed disposed dependencies; stopping");
         }
         catch (ChannelClosedException ex) {
-            _logger.LogDebug(ex, "WebView message channel closed; stopping message pump.");
+            _logger.LogDebug(ex, "WebView message channel closed; stopping message pump");
         }
         catch (OperationCanceledException) {
-            _logger.LogDebug("WebView message pump cancellation requested.");
+            _logger.LogDebug("WebView message pump cancellation requested");
         }
         catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-            _logger.LogError(ex, "Unhandled exception in WebView message pump.");
+            _logger.LogError(ex, "Unhandled exception in WebView message pump");
         }
     }
 
@@ -318,12 +318,12 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
                 await _messagePumpTask.ConfigureAwait(false);
             }
             catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-                _logger.LogWarning(ex, "Message pump faulted during WebView manager shutdown.");
+                _logger.LogWarning(ex, "Message pump faulted during WebView manager shutdown");
             }
             finally {
                 _messagePumpShutdown.Dispose();
                 Volatile.Write(ref _disposed, 1);
-                _logger.LogDebug("WebView manager disposal completed after the message pump stopped.");
+                _logger.LogDebug("WebView manager disposal completed after the message pump stopped");
             }
         }
     }

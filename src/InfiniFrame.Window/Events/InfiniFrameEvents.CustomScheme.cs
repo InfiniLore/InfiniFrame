@@ -59,7 +59,7 @@ public partial class InfiniFrameEvents {
             // Exceptions must never unwind through a reverse P/Invoke boundary.
             if (response.OwnerContext != IntPtr.Zero) ReleaseResponseStorage(response.OwnerContext);
             response = default;
-            Logger.LogError(ex, "Custom scheme handler failed for URL '{Url}'.", url);
+            Logger.LogError(ex, "Custom scheme handler failed for URL '{Url}'", url);
             return 0;
         }
     }

@@ -74,7 +74,7 @@ public class DecorationsInfiniFrameWindowFeature(
     /// <inheritdoc cref="IDecorationsInfiniFrameWindowFeature.SetTransparent" />
     public void SetTransparent(bool enabled) {
         if (OperatingSystem.IsWindows()) {
-            logger.LogWarning("Transparent can only be set on Windows before the native window is instantiated.");
+            logger.LogWarning("Transparent can only be set on Windows before the native window is instantiated");
             return;
         }
 
@@ -138,7 +138,7 @@ public class DecorationsInfiniFrameWindowFeature(
         logger.LogDebug(".SetIconFile({IconFile})", iconFilePath);
 
         if (!IconFileUtility.TryResolveIconFilePath(iconFilePath, out string? resolvedIconFilePath)) {
-            logger.LogWarning("Icon file {IconFile} does not exist or is an invalid file path.", iconFilePath);
+            logger.LogWarning("Icon file {IconFile} does not exist or is an invalid file path", iconFilePath);
             return;
         }
 

@@ -25,12 +25,12 @@ public partial class InfiniFrameEvents {
         // delivery itself proves that the transport is live; only reject work
         // before creation or once close has been requested.
         if (state is < InfiniFrameWindowLifecycleState.Creating or >= InfiniFrameWindowLifecycleState.CloseRequested) {
-            Logger.LogDebug("Skipping web message handling because window is closed.");
+            Logger.LogDebug("Skipping web message handling because window is closed");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(message)) {
-            Logger.LogDebug("Rejected empty web message.");
+            Logger.LogDebug("Rejected empty web message");
             return;
         }
 

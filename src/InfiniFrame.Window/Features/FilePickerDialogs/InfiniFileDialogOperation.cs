@@ -103,7 +103,7 @@ internal sealed class InfiniFileDialogOperation {
                 StartCancellationDispatch();
         }
         catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
-            _logger.LogError(exception, "Asynchronous file dialog {OperationId} failed.", Id);
+            _logger.LogError(exception, "Asynchronous file dialog {OperationId} failed", Id);
             Finish([]);
         }
     }
@@ -131,13 +131,13 @@ internal sealed class InfiniFileDialogOperation {
                     throw new InfiniFrameNativeInteropException(InfiniFrameNative.GetLastErrorMessage() ?? "Could not cancel native dialog.");
             }).ConfigureAwait(false);
             if (dispatched == InfiniFrameDispatchResult.Failed)
-                _logger.LogWarning("Native dialog cancellation for operation {OperationId} could not be dispatched.", Id);
+                _logger.LogWarning("Native dialog cancellation for operation {OperationId} could not be dispatched", Id);
         }
         catch (ObjectDisposedException) {
             // Window teardown completes the registered native dialog operation.
         }
         catch (Exception exception) {
-            _logger.LogWarning(exception, "Native dialog cancellation for operation {OperationId} failed.", Id);
+            _logger.LogWarning(exception, "Native dialog cancellation for operation {OperationId} failed", Id);
         }
     }
 

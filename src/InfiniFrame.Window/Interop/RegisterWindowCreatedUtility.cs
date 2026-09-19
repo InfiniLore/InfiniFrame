@@ -73,7 +73,7 @@ public static class RegisterWindowCreatedUtility {
                     await SendRegistrationsAndAckAsync(window, state, windowState, registrationMessages).ConfigureAwait(false);
                 }
                 catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-                    logger?.LogWarning(ex, "Unhandled error while sending window-created registration messages.");
+                    logger?.LogWarning(ex, "Unhandled error while sending window-created registration messages");
                 }
             });
         });
