@@ -155,42 +155,75 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             ct.ThrowIfCancellationRequested();
             await StartRegisteredComponentsAsync().ConfigureAwait(false);
             ct.ThrowIfCancellationRequested();
-            var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-            var uiThread = new Thread(() => {
+
+            if (OperatingSystem.IsMacOS()) {
+                // AppKit and WKWebView require process-main-thread ownership.
+                // Run the UI work directly on the calling thread (the main thread)
+                // rather than spawning a background thread.  The native Run() pumps
+                // the main run loop via CFRunLoopPerformBlock when not already on
+                // the main thread, but Register and BuildAllWindows must run here.
+                var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
                 try {
                     if (IsShutdownRequested) {
                         completion.TrySetResult();
-                        return;
+                    } else {
+                        if (HasRegisteredWindows())
+                            RegisterNativeApplication();
+                        if (IsShutdownRequested) {
+                            completion.TrySetResult();
+                        } else {
+                            BuildAllWindows();
+                            if (IsShutdownRequested)
+                                CloseAll();
+                            RunNativeLoop();
+                            completion.TrySetResult();
+                        }
                     }
-
-                    if (HasRegisteredWindows() || OperatingSystem.IsMacOS())
-                        RegisterNativeApplication();
-                    if (IsShutdownRequested) {
-                        completion.TrySetResult();
-                        return;
-                    }
-
-                    BuildAllWindows();
-                    if (IsShutdownRequested) {
-                        CloseAll();
-                    }
-
-                    RunNativeLoop();
-                    completion.TrySetResult();
                 }
                 catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
                     completion.TrySetException(exception);
                 }
-            }) {
-                IsBackground = true,
-                Name = "InfiniFrame Application UI Thread"
-            };
 
-            if (OperatingSystem.IsWindows())
-                uiThread.SetApartmentState(ApartmentState.STA);
-            uiThread.Start();
-            uiTask = completion.Task;
-            await uiTask.ConfigureAwait(false);
+                uiTask = completion.Task;
+                await uiTask.ConfigureAwait(false);
+            } else {
+                var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+                var uiThread = new Thread(() => {
+                    try {
+                        if (IsShutdownRequested) {
+                            completion.TrySetResult();
+                            return;
+                        }
+
+                        if (HasRegisteredWindows())
+                            RegisterNativeApplication();
+                        if (IsShutdownRequested) {
+                            completion.TrySetResult();
+                            return;
+                        }
+
+                        BuildAllWindows();
+                        if (IsShutdownRequested) {
+                            CloseAll();
+                        }
+
+                        RunNativeLoop();
+                        completion.TrySetResult();
+                    }
+                    catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
+                        completion.TrySetException(exception);
+                    }
+                }) {
+                    IsBackground = true,
+                    Name = "InfiniFrame Application UI Thread"
+                };
+
+                if (OperatingSystem.IsWindows())
+                    uiThread.SetApartmentState(ApartmentState.STA);
+                uiThread.Start();
+                uiTask = completion.Task;
+                await uiTask.ConfigureAwait(false);
+            }
         }
         finally {
             try {

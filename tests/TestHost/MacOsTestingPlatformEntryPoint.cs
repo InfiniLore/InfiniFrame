@@ -7,7 +7,8 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Assembly=System.Reflection.Assembly;
 
-namespace InfiniAutomationTests.BlazorWebView.MudBlazor;
+// ReSharper disable once CheckNamespace
+namespace InfiniAutomationTests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

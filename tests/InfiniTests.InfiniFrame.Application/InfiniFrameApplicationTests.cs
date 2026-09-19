@@ -167,4 +167,110 @@ public sealed class InfiniFrameApplicationTests {
             await second.RunAsync(ct);
     }
 
+    [Test]
+    [NotInParallelInfiniTests]
+    [Timeout(60_000)]
+    public async Task RunAsyncCancellation_StopsRunLoop(CancellationToken ct = default) {
+        if (!OperatingSystem.IsMacOS()) return;
+
+        using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
+            .WithWindow("main", configure: static builder => builder.SetStartPageContent("<html><body>Main</body></html>"));
+
+        Task runTask = application.RunAsync(cts.Token);
+        try {
+            for (int attempt = 0; attempt < 100 && application.Windows.Count < 1; attempt++) {
+                if (runTask.IsFaulted) await runTask;
+                await Task.Delay(100, ct);
+            }
+
+            cts.Cancel();
+            await runTask.WaitAsync(TimeSpan.FromSeconds(30), ct);
+        }
+        finally {
+            application.Shutdown();
+            try { await runTask.WaitAsync(TimeSpan.FromSeconds(30), CancellationToken.None); }
+            catch (OperationCanceledException) { }
+        }
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    [Timeout(60_000)]
+    public async Task RunAsyncShutdownDuringStartup_DrainsRunAsync(CancellationToken ct = default) {
+        if (!OperatingSystem.IsMacOS()) return;
+
+        await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
+            .WithWindow("main", configure: static builder => builder.SetStartPageContent("<html><body>Main</body></html>"));
+
+        Task runTask = application.RunAsync(ct);
+        application.Shutdown();
+        application.Shutdown();
+
+        await runTask.WaitAsync(TimeSpan.FromSeconds(30), ct);
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task RunAsyncWithNoWindows_CompletesWithoutBlockingMainThread(CancellationToken ct = default) {
+        if (!OperatingSystem.IsMacOS()) return;
+
+        await using InfiniFrameApplication application = InfiniFrameApplication.Initialize();
+        await application.RunAsync(ct);
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    [Timeout(60_000)]
+    public async Task RunAsyncShutdownAfterWindows_CleansUpNativeTeardown(CancellationToken ct = default) {
+        if (!OperatingSystem.IsMacOS()) return;
+
+        await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
+            .WithWindow("main", configure: static builder => builder.SetStartPageContent("<html><body>Main</body></html>"));
+
+        Task runTask = application.RunAsync(ct);
+        try {
+            for (int attempt = 0; attempt < 100 && application.Windows.Count < 1; attempt++) {
+                if (runTask.IsFaulted) await runTask;
+                await Task.Delay(100, ct);
+            }
+
+            application.Shutdown();
+            await runTask.WaitAsync(TimeSpan.FromSeconds(30), ct);
+        }
+        finally {
+            application.Shutdown();
+            try { await runTask.WaitAsync(TimeSpan.FromSeconds(30), CancellationToken.None); }
+            catch (OperationCanceledException) { }
+        }
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    [Timeout(60_000)]
+    public async Task RunAsyncTwiceConsecutively_PreservesLifecycleGuarantees(CancellationToken ct = default) {
+        if (!OperatingSystem.IsMacOS()) return;
+
+        for (int i = 0; i < 2; i++) {
+            await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
+                .WithWindow("main", configure: static builder => builder.SetStartPageContent("<html><body>Main</body></html>"));
+
+            Task runTask = application.RunAsync(ct);
+            try {
+                for (int attempt = 0; attempt < 100 && application.Windows.Count < 1; attempt++) {
+                    if (runTask.IsFaulted) await runTask;
+                    await Task.Delay(100, ct);
+                }
+
+                application.Shutdown();
+                await runTask.WaitAsync(TimeSpan.FromSeconds(30), ct);
+            }
+            finally {
+                application.Shutdown();
+                try { await runTask.WaitAsync(TimeSpan.FromSeconds(30), CancellationToken.None); }
+                catch (OperationCanceledException) { }
+            }
+        }
+    }
+
 }
