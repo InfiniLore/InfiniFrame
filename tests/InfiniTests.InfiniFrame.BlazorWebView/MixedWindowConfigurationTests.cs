@@ -11,7 +11,7 @@ public sealed class MixedWindowConfigurationTests {
     [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task BlazorWebView_CanTargetOneWindowAlongsidePlainHtml(CancellationToken ct = default) {
-        if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
+        if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS()) || Environment.Version.Major < 10) return;
 
         await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
             .WithWindow("blazor", builder => builder.SetTitle("Blazor"))

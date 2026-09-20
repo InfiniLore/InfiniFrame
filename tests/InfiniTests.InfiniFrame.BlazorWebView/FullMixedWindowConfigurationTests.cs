@@ -25,7 +25,7 @@ public sealed class FullMixedWindowConfigurationTests {
     }
 
     private static async Task RunMixedApplicationAsync(bool blazorFirst, CancellationToken ct) {
-        if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
+        if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS()) || Environment.Version.Major < 10) return;
 
         int port = PortUtils.GetOpenPortValue();
         InfiniFrameApplicationBuilder builder = InfiniFrameApplication.CreateBuilder()

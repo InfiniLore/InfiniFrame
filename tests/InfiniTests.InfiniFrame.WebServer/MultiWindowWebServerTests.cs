@@ -13,7 +13,7 @@ public sealed class MultiWindowWebServerTests {
     [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task UseWebServer_CanRunTwoIndependentIntegrations(CancellationToken ct = default) {
-        if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
+        if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS()) || Environment.Version.Major < 10) return;
 
         int firstPort = PortUtils.GetOpenPortValue();
         int secondPort = PortUtils.GetOpenPortValue();
@@ -51,7 +51,7 @@ public sealed class MultiWindowWebServerTests {
     [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task UseWebServer_UsesCommandLineUrls(CancellationToken ct = default) {
-        if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
+        if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS()) || Environment.Version.Major < 10) return;
 
         int port = PortUtils.GetOpenPortValue();
         await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder([
@@ -85,7 +85,7 @@ public sealed class MultiWindowWebServerTests {
     [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task UseWebServer_AttachesTheStartedServerToSelectedWindows(CancellationToken ct = default) {
-        if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
+        if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS()) || Environment.Version.Major < 10) return;
 
         await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
             .WithWindow("main", builder => builder.SetTitle("Main"))

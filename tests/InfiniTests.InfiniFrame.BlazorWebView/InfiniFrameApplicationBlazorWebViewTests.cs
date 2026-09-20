@@ -65,8 +65,6 @@ public sealed class InfiniFrameApplicationBlazorWebViewTests {
     [Test]
     [NotInParallelInfiniTests]
     public async Task UseBlazorWebView_PreservesRootComponentsOnSingleRegistration() {
-        if (!OperatingSystem.IsWindows()) return;
-
         InfiniFrameApplicationBuilder builder = InfiniFrameApplication.CreateBuilder()
             .WithWindow(static _ => { });
 
@@ -86,7 +84,7 @@ public sealed class InfiniFrameApplicationBlazorWebViewTests {
     [Test]
     [NotInParallelInfiniTests]
     public async Task UseBlazorWebView_SingleRegistration_TargetsCorrectWindow() {
-        if (!OperatingSystem.IsWindows()) return;
+        if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS()) || Environment.Version.Major < 8) return;
 
         bool windowResolved = false;
         await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
@@ -118,8 +116,6 @@ public sealed class InfiniFrameApplicationBlazorWebViewTests {
     [Test]
     [NotInParallelInfiniTests]
     public async Task UseBlazorWebView_SingleRegistration_RegistersHandlers() {
-        if (!OperatingSystem.IsWindows()) return;
-
         await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
             .WithWindow(static _ => { })
             .UseBlazorWebView(static _ => { })
@@ -132,8 +128,6 @@ public sealed class InfiniFrameApplicationBlazorWebViewTests {
     [Test]
     [NotInParallelInfiniTests]
     public async Task UseBlazorWebView_SingleRegistration_ConfiguresStartupUrl() {
-        if (!OperatingSystem.IsWindows()) return;
-
         Uri customBaseUri = new("app://my-app/");
         await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
             .WithWindow(static _ => { })
@@ -152,8 +146,6 @@ public sealed class InfiniFrameApplicationBlazorWebViewTests {
     [Test]
     [NotInParallelInfiniTests]
     public async Task UseBlazorWebView_SingleRegistration_SupportsDisposal() {
-        if (!OperatingSystem.IsWindows()) return;
-
         await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
             .WithWindow(static _ => { })
             .UseBlazorWebView(static _ => { })
@@ -167,8 +159,6 @@ public sealed class InfiniFrameApplicationBlazorWebViewTests {
     [Test]
     [NotInParallelInfiniTests]
     public async Task UseBlazorWebView_UsesConfiguredAppBaseUriForHttpClient() {
-        if (!OperatingSystem.IsWindows()) return;
-
         Uri customBaseUri = new("app://custom-host/");
         await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
             .WithWindow(static _ => { })
@@ -185,8 +175,6 @@ public sealed class InfiniFrameApplicationBlazorWebViewTests {
     [Test]
     [NotInParallelInfiniTests]
     public async Task WithBlazorWebView_ReturnsApplicationAndDefersWindowBuild(CancellationToken ct = default) {
-        if (!OperatingSystem.IsWindows()) return;
-
         await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
             .WithWindow(window => window.SetStartPageContent("<html><body>Blazor</body></html>"))
             .UseBlazorWebView(static _ => { })
@@ -200,7 +188,7 @@ public sealed class InfiniFrameApplicationBlazorWebViewTests {
     [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task UseBlazorWebView_CombinesSingleUnnamedWindowConfiguration(CancellationToken ct = default) {
-        if (!OperatingSystem.IsWindows() || Environment.Version.Major < 10) return;
+        if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS()) || Environment.Version.Major < 10) return;
 
         await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
             .WithWindow(window => window.SetTitle("Combined Blazor window"))
@@ -221,6 +209,121 @@ public sealed class InfiniFrameApplicationBlazorWebViewTests {
             application.Shutdown();
             foreach (IInfiniFrameWindow window in application.Windows) window.Close();
             await runTask.WaitAsync(TimeSpan.FromSeconds(30), CancellationToken.None);
+        }
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task UseBlazorWebView_BuildApplication_RegistersAllExpectedServices() {
+        await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
+            .WithWindow(static _ => { })
+            .UseBlazorWebView(static _ => { })
+            .Build();
+
+        await Assert.That(application.RootServiceProvider.GetRequiredService<IInfiniFrameWebViewManager>()).IsNotNull();
+        await Assert.That(application.RootServiceProvider.GetRequiredService<InfiniFrameHttpHandler>()).IsNotNull();
+        await Assert.That(application.RootServiceProvider.GetRequiredService<HttpClient>()).IsNotNull();
+        await Assert.That(application.RootServiceProvider.GetRequiredService<IInfiniFrameRootComponentList>()).IsNotNull();
+        await Assert.That(application.RootServiceProvider.GetRequiredService<IInfiniFrameJsComponentConfiguration>()).IsNotNull();
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task UseBlazorWebView_BuildApplication_SetsDefaultAppBaseUri() {
+        await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
+            .WithWindow(static _ => { })
+            .UseBlazorWebView(static _ => { })
+            .Build();
+
+        IOptions<InfiniFrameBlazorAppConfiguration> options =
+            application.RootServiceProvider.GetRequiredService<IOptions<InfiniFrameBlazorAppConfiguration>>();
+        await Assert.That(options.Value.AppBaseUri).IsEqualTo(new Uri("app://localhost/"));
+        await Assert.That(options.Value.HostPage).IsEqualTo("index.html");
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task UseBlazorWebView_BuildApplication_RegistersRootComponentsFromConfiguration() {
+        InfiniFrameApplicationBuilder builder = InfiniFrameApplication.CreateBuilder()
+            .WithWindow(static _ => { });
+
+        builder.UseBlazorWebView(config => {
+            config.RootComponents.Add<StubComponent>("app");
+            config.RootComponents.Add<StubComponent>("secondary");
+        });
+
+        await using InfiniFrameApplication application = builder.Build();
+
+        IInfiniFrameRootComponentList resolved = application.RootServiceProvider.GetRequiredService<IInfiniFrameRootComponentList>();
+        await Assert.That(resolved).Count().IsEqualTo(2);
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task UseBlazorWebView_BuildApplication_RegistersJsComponentConfiguration() {
+        await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
+            .WithWindow(static _ => { })
+            .UseBlazorWebView(static _ => { })
+            .Build();
+
+        IInfiniFrameJsComponentConfiguration jsConfig =
+            application.RootServiceProvider.GetRequiredService<IInfiniFrameJsComponentConfiguration>();
+        await Assert.That(jsConfig).IsNotNull();
+        await Assert.That(jsConfig.JSComponents).IsNotNull();
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task UseBlazorWebView_BuildApplication_HttpClientUsesConfiguredBaseUri() {
+        Uri customUri = new("app://custom-scheme/");
+        await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
+            .WithWindow(static _ => { })
+            .UseBlazorWebView(config => config.Configure(opts => opts.AppBaseUri = customUri))
+            .Build();
+
+        HttpClient client = application.RootServiceProvider.GetRequiredService<HttpClient>();
+        await Assert.That(client.BaseAddress).IsEqualTo(customUri);
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task UseBlazorWebView_BuildApplication_CanBeDisposedWithoutRunning(CancellationToken ct = default) {
+        InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
+            .WithWindow(static _ => { })
+            .UseBlazorWebView(static _ => { })
+            .Build();
+
+        await application.DisposeAsync();
+
+        await Assert.That(application.Windows).IsEmpty();
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    [Timeout(60_000)]
+    public async Task UseBlazorWebView_StartupAndShutdown_CompletesCleanly(CancellationToken ct = default) {
+        if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS()) || Environment.Version.Major < 8) return;
+
+        await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
+            .WithWindow(static _ => { })
+            .UseBlazorWebView(static _ => { })
+            .Build();
+
+        Task runTask = application.RunAsync(ct);
+        try {
+            for (int attempt = 0; attempt < 100 && application.Windows.Count == 0; attempt++) {
+                if (runTask.IsFaulted) await runTask;
+                await Task.Delay(100, ct);
+            }
+
+            await Assert.That(application.Windows).Count().IsEqualTo(1);
+            application.Shutdown();
+            await runTask.WaitAsync(TimeSpan.FromSeconds(30), ct);
+        }
+        finally {
+            application.Shutdown();
+            try { await runTask.WaitAsync(TimeSpan.FromSeconds(30), CancellationToken.None); }
+            catch (OperationCanceledException) { }
         }
     }
 
