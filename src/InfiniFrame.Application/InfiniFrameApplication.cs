@@ -158,10 +158,10 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
 
             if (OperatingSystem.IsMacOS()) {
                 // AppKit and WKWebView require process-main-thread ownership.
-                // Run the UI work directly on the calling thread (the main thread)
-                // rather than spawning a background thread.  The native Run() pumps
-                // the main run loop via CFRunLoopPerformBlock when not already on
-                // the main thread, but Register and BuildAllWindows must run here.
+                // Register and build windows on the calling thread (the main thread),
+                // then run the blocking native wait asynchronously. The native Run()
+                // implementation keeps AppKit work on the main run loop while the
+                // managed caller remains free to request shutdown.
                 var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
                 try {
                     if (IsShutdownRequested) {
@@ -175,8 +175,20 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                             BuildAllWindows();
                             if (IsShutdownRequested)
                                 CloseAll();
-                            RunNativeLoop();
-                            completion.TrySetResult();
+
+                            var uiThread = new Thread(() => {
+                                try {
+                                    RunNativeLoop();
+                                    completion.TrySetResult();
+                                }
+                                catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
+                                    completion.TrySetException(exception);
+                                }
+                            }) {
+                                IsBackground = true,
+                                Name = "InfiniFrame Application macOS Native Loop"
+                            };
+                            uiThread.Start();
                         }
                     }
                 }
