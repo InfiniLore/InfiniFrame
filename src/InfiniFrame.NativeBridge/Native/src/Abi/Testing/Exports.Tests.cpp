@@ -11,6 +11,9 @@
 #ifdef __APPLE__
 #include "Runtime/Platform/Mac/Window.Cocoa.Internal.h"
 #endif
+#ifdef __linux__
+#include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
+#endif
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -240,6 +243,36 @@ EXPORTED InteropStatus InfiniFrameNativeTests_ConsumeCustomSchemeResponse(
             *valid = 1;
         });
 }
+
+#ifdef __linux__
+EXPORTED InteropStatus InfiniFrameNativeTests_GtkUiThreadLifecycle(int* result) {
+    if (result != nullptr) {
+        *result = 0;
+    }
+
+    return RunExportStatus(
+        [&] {
+            if (!EnsureNotNull(result, "result", ::InteropStatus::OutParameterSetToInvalidNull)) {
+                return;
+            }
+
+            // Exercise repeated init/shutdown cycles to verify:
+            //  - unique_ptr<thread> is properly reset (no leak / no use-after-free)
+            //  - std::atexit is registered at most once
+            //  - re-initialization after shutdown succeeds
+            for (int i = 0; i < 2; ++i) {
+                infiniframe::linux_gtk::ui_thread::EnsureInitialized();
+                infiniframe::linux_gtk::ui_thread::Shutdown();
+            }
+
+            // Final init so the process can exit cleanly through the atexit path.
+            infiniframe::linux_gtk::ui_thread::EnsureInitialized();
+            infiniframe::linux_gtk::ui_thread::RequestShutdown();
+
+            *result = 1;
+        });
+}
+#endif
 
 #ifdef _WIN32
 EXPORTED InteropStatus InfiniFrameNativeTests_IsColorSchemeChange(const LPARAM lParam, int* result) {

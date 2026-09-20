@@ -27,11 +27,16 @@ namespace {
     bool initialized = false;
     std::thread::id ownerThreadId = {};
     GMainContext* ownerContext = nullptr;
-    // The GTK owner is process-scoped. Keep the thread object outside static
-    // destruction so unloading the native library cannot terminate the host
-    // because a WebKit worker is still draining.
-    std::thread* gtkThread = nullptr;
+    // The GTK owner is process-scoped. unique_ptr ensures explicit cleanup so
+    // the heap-allocated std::thread is freed on every Shutdown path. The
+    // pointer is kept outside any class to survive static-destruction ordering
+    // issues with WebKit workers still draining.
+    std::unique_ptr<std::thread> gtkThread;
     GMainLoop* mainLoop = nullptr;
+    // Guard against repeated std::atexit registrations across init/shutdown
+    // cycles. std::call_once is safe here because the call site already holds
+    // initializeMutex, but once_flag itself is process-scoped and idempotent.
+    std::once_flag atexitRegistered;
 
     struct InvokeState {
         std::function<void()> callback;
@@ -81,6 +86,7 @@ namespace {
         // half-torn-down and the thread could be stuck in a GLib call. Joining here risks
         // deadlock or SIGABRT. The OS reclaims all thread resources on process exit.
         gtkThread->detach();
+        gtkThread.reset();
     }
 }
 
@@ -88,8 +94,8 @@ namespace infiniframe::linux_gtk::ui_thread {
     void EnsureInitialized() {
         std::unique_lock lock(initializeMutex);
         if (initialized) return;
-        std::atexit(AtexitShutdown);
-        gtkThread = new std::thread(
+        std::call_once(atexitRegistered, [] { std::atexit(AtexitShutdown); });
+        gtkThread = std::make_unique<std::thread>(
                     [] {
                         linux_gtk::ConfigureGraphicsEnvironment();
                         XInitThreads();
@@ -144,6 +150,7 @@ namespace infiniframe::linux_gtk::ui_thread {
             if (!initialized && (gtkThread == nullptr || !gtkThread->joinable())) return;
             if (mainLoop != nullptr) g_main_loop_quit(mainLoop);
             thread = std::move(*gtkThread);
+            gtkThread.reset();
         }
         if (thread.joinable()) thread.join();
         std::lock_guard lock(initializeMutex);
