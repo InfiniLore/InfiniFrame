@@ -1,8 +1,13 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Window;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InfiniFrame.Application;
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 /// <summary>Composes an InfiniFrame application before it is built.</summary>
 public sealed class InfiniFrameApplicationBuilder {
     private readonly List<Action<InfiniFrameApplication>> _integrations = [];
@@ -11,7 +16,13 @@ public sealed class InfiniFrameApplicationBuilder {
     private string? _notificationRegistrationId;
     private string? _appUserModelId;
     private string? _defaultNotificationIcon;
+    
+    public IReadOnlyCollection<(string? Id, Action<IInfiniFrameWindowBuilder> Configure)> WindowRegistrations 
+        => _windows.AsReadOnly();
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     internal InfiniFrameApplicationBuilder(string[]? args) {
         Args = args ?? [];
         Services = new ServiceCollection().AddLogging().AddInfiniFrame();

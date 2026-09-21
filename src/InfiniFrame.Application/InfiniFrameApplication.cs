@@ -36,6 +36,21 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     private int _runState;
     private bool _built;
     private int _shutdownRequested;
+    
+    /// <inheritdoc />
+    public IReadOnlyList<IInfiniFrameWindow> Windows {
+        get {
+            lock (_gate) return _windows.Values.ToArray();
+        }
+    }
+    
+    /// <inheritdoc />
+    public IReadOnlyList<string?> WindowRegistrations {
+        get {
+            lock (_gate) return _registrations.Select(r => r.Id).ToArray();
+        }
+    }
+
 
     private InfiniFrameApplication(ILogger<InfiniFrameApplication> logger, ApplicationConfiguration configuration) {
         this.logger = logger;
@@ -122,21 +137,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         lock (_gate) return _built && _windows.TryGetValue(id, out IInfiniFrameWindow? window) ? window : null;
     }
-
-    /// <inheritdoc />
-    public IReadOnlyList<IInfiniFrameWindow> Windows {
-        get {
-            lock (_gate) return _windows.Values.ToArray();
-        }
-    }
     
-    /// <inheritdoc />
-    public IReadOnlyList<string?> WindowRegistrations {
-        get {
-            lock (_gate) return _registrations.Select(r => r.Id).ToArray();
-        }
-    }
-
     /// <inheritdoc />
     public void Run() {
         BeginRun();
