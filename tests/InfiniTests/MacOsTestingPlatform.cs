@@ -74,7 +74,9 @@ public class MacOsTestingPlatform {
     }
 
     private static void AddSelfRegisteredExtensions(ITestApplicationBuilder builder, string[] args) {
-        MethodInfo? addExtensions = Assembly.GetExecutingAssembly()
+        // This helper lives in the shared test-support assembly, while TUnit emits the
+        // registration hook into the runnable test project assembly.
+        MethodInfo? addExtensions = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
             .GetTypes()
             .FirstOrDefault(type => type.Name == "SelfRegisteredExtensions")?
             .GetMethod(
