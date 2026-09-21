@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <ItemGroup>
+        <PackageReference Include="Microsoft.Testing.Platform" />
         <PackageReference Include="TUnit.Core"/>
         <PackageReference Include="TUnit.Mocks"/>
     </ItemGroup>
