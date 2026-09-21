@@ -42,13 +42,12 @@ public class MacOsTestingPlatform {
                 }
             }
 
-            // .NET 10's runtime teardown calls abort() during GC finalization on macOS,
-            // causing app.RunAsync() to return 1 even when every test passes (results are
-            // already written to disk).  Calling POSIX _exit(0) terminates the process
-            // immediately, bypassing the CLR shutdown sequence entirely and reporting a
-            // clean exit to the CI.
-            MacOsNative.PosixExit(0);
-            return Task.FromResult(0);
+            // .NET 10's runtime teardown can call abort() on macOS after results are
+            // written. Exit directly, but preserve the test platform's result so failures
+            // cannot be hidden by the teardown workaround.
+            int exitCode = testTask.GetAwaiter().GetResult();
+            MacOsNative.PosixExit(exitCode);
+            return Task.FromResult(exitCode);
         }
         catch (Exception exception) {
             return Task.FromException<int>(exception);

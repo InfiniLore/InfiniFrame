@@ -41,7 +41,7 @@ public sealed partial class InfiniFrameApplicationTests {
         builder.WithAppUserModelId("InfiniFrame.Tests");
         builder.WithDefaultNotificationIcon(Environment.ProcessPath!);
 
-        InfiniFrameApplication application = builder.Build();
+        await using InfiniFrameApplication application = builder.Build();
 
         // Assert
         await Assert.That(application.Windows).IsEmpty();

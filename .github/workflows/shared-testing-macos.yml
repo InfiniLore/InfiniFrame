@@ -139,6 +139,7 @@ jobs:
                           --diagnostic-output-directory "artifacts/testdiag/$framework"
                           --no-ansi
                           --
+                          --maximum-parallel-tests 1
                           --diagnostic
                           --diagnostic-file-prefix "mtp-$framework"
                           --diagnostic-verbosity Warning

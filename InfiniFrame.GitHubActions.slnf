@@ -2,8 +2,8 @@
     "solution": {
         "path": "InfiniFrame.slnx",
         "projects": [
-            "src\\InfiniFrame.Application\\InfiniFrame.Application.csproj",
             "src\\InfiniFrame\\InfiniFrame.csproj",
+            "src\\InfiniFrame.Application\\InfiniFrame.Application.csproj",
             "src\\InfiniFrame.BlazorWebView\\InfiniFrame.BlazorWebView.csproj",
             "src\\InfiniFrame.Blazor\\InfiniFrame.Blazor.csproj",
             "src\\InfiniFrame.Js\\InfiniFrame.Js.csproj",
