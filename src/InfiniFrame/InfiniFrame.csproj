@@ -16,10 +16,4 @@
         <ProjectReference Include="../InfiniFrame.Js/InfiniFrame.Js.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Application" />
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Window" />
-        <InternalsVisibleTo Include="InfiniTests" />
-    </ItemGroup>
-
 </Project>

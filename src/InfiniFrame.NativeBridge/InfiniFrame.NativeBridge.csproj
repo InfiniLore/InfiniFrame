@@ -8,12 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.NativeBridge"/>
-        <InternalsVisibleTo Include="InfiniFrame.Window" />
-        <InternalsVisibleTo Include="InfiniFrame.Application" />
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="FluentValidation" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="Microsoft.Web.WebView2"

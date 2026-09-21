@@ -13,8 +13,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="InfiniFrame.Window" />
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Window" />
         <ProjectReference Include="../InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
     </ItemGroup>
 

@@ -6,7 +6,6 @@
 
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
-
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView"/>
     </ItemGroup>
     
@@ -15,7 +14,7 @@
         <ProjectReference Include="../InfiniFrame.Window/InfiniFrame.Window.csproj" />
         <ProjectReference Include="../InfiniFrame.Security/InfiniFrame.Security.csproj" />
         <ProjectReference Include="../InfiniFrame.StaticAssets/InfiniFrame.StaticAssets.csproj" />
-        <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame.Blazor/InfiniFrame.Blazor.csproj"/>
+        <ProjectReference Include="../InfiniFrame.Blazor/InfiniFrame.Blazor.csproj"/>
         <ProjectReference Include="../InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
     </ItemGroup>
 
