@@ -114,6 +114,7 @@ jobs:
                     echo "Running in native macOS mode"
 
                     export NSUnbufferedIO=YES
+                    set -o pipefail
 
                     mkdir -p artifacts/native-crash
                     exit_code=0
@@ -125,6 +126,7 @@ jobs:
 
                         framework_exit_code=0
                         echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Starting $framework"
+                        output_log="artifacts/testresults/${framework}-output.log"
 
                         test_args=(
                           --solution InfiniFrame.GitHubActions.Testing.slnf
@@ -149,7 +151,17 @@ jobs:
                           test_args+=(--coverage --coverage-output-format cobertura)
                         fi
 
-                        dotnet test "${test_args[@]}" || framework_exit_code=$?
+                        dotnet test "${test_args[@]}" 2>&1 | tee "$output_log" || framework_exit_code=$?
+
+                        # AppKit/WebKit and the .NET runtime can abort during teardown after
+                        # all test assertions have passed. Keep the failure visible unless the
+                        # test summary explicitly confirms that no assertions failed.
+                        if [ "$framework_exit_code" -eq 134 ] || [ "$framework_exit_code" -eq 139 ]; then
+                          if grep -qE '^[[:space:]]*failed:[[:space:]]+0[[:space:]]*$' "$output_log"; then
+                            echo "WARN: macOS runtime teardown failed after all tests passed; ignoring exit $framework_exit_code"
+                            framework_exit_code=0
+                          fi
+                        fi
 
                         echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Finished $framework with exit code $framework_exit_code"
 

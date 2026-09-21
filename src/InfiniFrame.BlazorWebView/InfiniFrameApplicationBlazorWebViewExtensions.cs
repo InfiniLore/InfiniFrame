@@ -81,9 +81,8 @@ public sealed class InfiniFrameBlazorWebViewConfiguration {
             windowBuilder.RegisterWebMessageReceivedHandler(manager.HandleWebMessage);
             windowBuilder.RegisterGetWebMessageHandler();
 
-            windowBuilder.RegisterWindowClosingHandler((_, _) => {
+            windowBuilder.RegisterWindowClosedHandler(_ => {
                 managerDisposal ??= DisposeManagerAsync();
-                return WindowClosingResult.Close;
 
                 async Task DisposeManagerAsync() {
                     if (manager is not IAsyncDisposable asyncManager)
