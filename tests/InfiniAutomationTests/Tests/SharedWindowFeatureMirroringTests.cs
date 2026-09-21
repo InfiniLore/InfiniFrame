@@ -4,7 +4,7 @@
 using System.Drawing;
 using System.Text.Json;
 using InfiniFrame;
-using InfiniTests.TestSupport.Attributes;
+using InfiniTests.Attributes;
 using Microsoft.Playwright;
 
 namespace InfiniAutomationTests.Tests;

@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.BlazorWebView;
-using InfiniTests.TestSupport;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 

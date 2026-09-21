@@ -1,8 +1,8 @@
 using InfiniFrame;
 using InfiniFrame.Application;
 using InfiniFrame.WebServer;
-using InfiniTests.TestSupport.Attributes;
-using InfiniTests.TestSupport.Utilities;
+using InfiniTests.Attributes;
+using InfiniTests.Utilities;
 using Microsoft.AspNetCore.Hosting;
 
 namespace InfiniTests.InfiniFrame.WebServer;

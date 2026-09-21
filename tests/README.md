@@ -8,7 +8,7 @@ This directory contains the unit, integration, and automation test suites for In
 
 | Project                                  | Description                                                                                                                                              |
 |------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `InfiniTests.TestSupport/`               | Shared fixtures, platform helpers, mocks, and test-host infrastructure                                                                                   |
+| `InfiniTests/`               | Shared fixtures, platform helpers, mocks, and test-host infrastructure                                                                                   |
 | `InfiniTests.InfiniFrame.Application/`  | Application lifecycle, registration, and run-loop tests                                                                                                  |
 | `InfiniTests.InfiniFrame.Window/`       | Native window, feature, event, and lifecycle tests                                                                                                       |
 | `InfiniTests.InfiniFrame.Blazor/`        | Blazor component tests                                                                                                                                   |

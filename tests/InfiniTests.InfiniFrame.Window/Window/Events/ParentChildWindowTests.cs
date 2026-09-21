@@ -3,9 +3,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Window.Builder;
-using InfiniTests.TestSupport;
-using InfiniTests.TestSupport.Attributes;
-using WindowsNative = InfiniTests.TestSupport.Native.WindowsNative;
+using InfiniTests.Attributes;
+using WindowsNative = InfiniTests.Native.WindowsNative;
 
 namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------

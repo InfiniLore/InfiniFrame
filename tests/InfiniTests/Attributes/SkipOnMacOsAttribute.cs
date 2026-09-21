@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniTests.TestSupport.Attributes;
+namespace InfiniTests.Attributes;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class OnlyRunOnMacOsAttribute(string? message = null) : SkipAttribute(message ?? "This test is only supported on macOS environments") {
+public class SkipOnMacOsAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Mac OS environments") {
     public override Task<bool> ShouldSkip(TestRegisteredContext context)
-        => Task.FromResult(!OperatingSystem.IsMacOS());
+        => Task.FromResult(OperatingSystem.IsMacOS());
 }

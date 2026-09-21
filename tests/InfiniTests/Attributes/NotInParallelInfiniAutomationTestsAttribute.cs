@@ -1,8 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniTests.TestSupport.Attributes;
+namespace InfiniTests.Attributes;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class NotInParallelInfiniTestsAttribute() : NotInParallelAttribute("InfiniTests");
+public class NotInParallelInfiniAutomationTestsAttribute() : NotInParallelAttribute("InfiniAutomationTests");

@@ -1,8 +1,7 @@
 using System.Reflection;
 using InfiniFrame;
 using InfiniFrame.SingleFile;
-using InfiniTests.TestSupport;
-using InfiniTests.TestSupport.Attributes;
+using InfiniTests.Attributes;
 
 namespace InfiniTests.InfiniFrame.SingleFile;
 

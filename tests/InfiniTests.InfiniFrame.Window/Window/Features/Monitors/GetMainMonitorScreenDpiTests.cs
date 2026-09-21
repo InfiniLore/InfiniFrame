@@ -2,8 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniTests.TestSupport;
-using InfiniTests.TestSupport.Attributes;
+using InfiniTests.Attributes;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Monitors;
 // ---------------------------------------------------------------------------------------------------------------------

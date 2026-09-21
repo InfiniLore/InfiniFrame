@@ -4,9 +4,8 @@
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters.Window;
 using InfiniFrame.Window.Builder;
-using InfiniTests.TestSupport;
-using InfiniTests.TestSupport.Attributes;
-using InfiniTests.TestSupport.Utilities;
+using InfiniTests.Attributes;
+using InfiniTests.Utilities;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Debugging;
 // ---------------------------------------------------------------------------------------------------------------------

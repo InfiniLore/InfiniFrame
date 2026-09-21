@@ -1,13 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Runtime.InteropServices;
-
-namespace InfiniTests.TestSupport.Attributes;
+namespace InfiniTests.Attributes;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class SkipOnWindowsArmAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Windows environments") {
+public class SkipOnLinuxAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Linux environments") {
     public override Task<bool> ShouldSkip(TestRegisteredContext context)
-        => Task.FromResult(OperatingSystem.IsWindows() && RuntimeInformation.ProcessArchitecture == Architecture.Arm64);
+        => Task.FromResult(OperatingSystem.IsLinux());
 }

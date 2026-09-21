@@ -19,7 +19,7 @@
     <ItemGroup>
         <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Application" />
         <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Window" />
-        <InternalsVisibleTo Include="InfiniTests.TestSupport" />
+        <InternalsVisibleTo Include="InfiniTests" />
     </ItemGroup>
 
 </Project>

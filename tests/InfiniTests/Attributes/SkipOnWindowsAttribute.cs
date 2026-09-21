@@ -1,10 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniTests.TestSupport.Attributes;
+namespace InfiniTests.Attributes;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class DefaultInfiniTestsTimeoutAttribute(int offset = 0) : TimeoutAttribute(TimeoutValue + offset) {
-    public const int TimeoutValue = 10_000;
+public class SkipOnWindowsAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Windows environments") {
+    public override Task<bool> ShouldSkip(TestRegisteredContext context)
+        => Task.FromResult(OperatingSystem.IsWindows());
 }

@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniAutomationTests.BlazorWebView.MudBlazor.TestUtility;
 using InfiniAutomationTests.Tests;
-using InfiniTests.TestSupport.Attributes;
+using InfiniTests.Attributes;
 using Microsoft.Playwright;
 
 namespace InfiniAutomationTests.BlazorWebView.MudBlazor;

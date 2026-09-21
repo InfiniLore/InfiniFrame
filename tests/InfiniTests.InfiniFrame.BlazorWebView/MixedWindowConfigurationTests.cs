@@ -1,7 +1,7 @@
 using InfiniFrame;
 using InfiniFrame.Application;
 using InfiniFrame.BlazorWebView;
-using InfiniTests.TestSupport.Attributes;
+using InfiniTests.Attributes;
 
 namespace InfiniTests.InfiniFrame.BlazorWebView;
 

@@ -1,11 +1,13 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniTests.TestSupport.Attributes;
+using System.Runtime.InteropServices;
+
+namespace InfiniTests.Attributes;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class OnlyRunOnLinuxAttribute(string? message = null) : SkipAttribute(message ?? "This test is only supported on Linux environments") {
+public class OnlyRunOnWindowsX64Attribute(string? message = null) : SkipAttribute(message ?? "This test is only supported on Windows environments") {
     public override Task<bool> ShouldSkip(TestRegisteredContext context)
-        => Task.FromResult(!OperatingSystem.IsLinux());
+        => Task.FromResult(!OperatingSystem.IsWindows() || RuntimeInformation.ProcessArchitecture != Architecture.X64);
 }

@@ -1,8 +1,10 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniTests.TestSupport.Attributes;
+namespace InfiniTests.Attributes;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class NotInParallelInfiniAutomationTestsAttribute() : NotInParallelAttribute("InfiniAutomationTests");
+public class DefaultInfiniTestsTimeoutAttribute(int offset = 0) : TimeoutAttribute(TimeoutValue + offset) {
+    public const int TimeoutValue = 10_000;
+}

@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
-using InfiniTests.TestSupport;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InfiniTests.InfiniFrame.BlazorWebView;

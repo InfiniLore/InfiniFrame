@@ -4,7 +4,6 @@
 using System.Text.Json;
 using InfiniFrame;
 using InfiniFrame.Window.Features.WebMessaging.Handlers;
-using InfiniTests.TestSupport;
 
 namespace InfiniTests.InfiniFrame.Window.Features.WebMessaging.Handlers;
 // ---------------------------------------------------------------------------------------------------------------------

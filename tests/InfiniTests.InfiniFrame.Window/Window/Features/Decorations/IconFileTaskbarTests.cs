@@ -2,9 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniTests.TestSupport;
-using InfiniTests.TestSupport.Attributes;
-using WindowsNative = InfiniTests.TestSupport.Native.WindowsNative;
+using InfiniTests.Attributes;
+using WindowsNative = InfiniTests.Native.WindowsNative;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Decorations;
 // ---------------------------------------------------------------------------------------------------------------------

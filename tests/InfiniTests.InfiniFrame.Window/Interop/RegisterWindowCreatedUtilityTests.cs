@@ -6,7 +6,7 @@ using InfiniFrame.NativeBridge.Parameters.Window;
 using InfiniFrame.Window.Builder;
 using InfiniFrame.Window.Events;
 using InfiniFrame.Window.Interop;
-using InfiniTests.TestSupport.Substitutes;
+using InfiniTests.Substitutes;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniTests.InfiniFrame.Window.Interop;

@@ -3,9 +3,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Text.RegularExpressions;
 using InfiniFrame;
-using InfiniTests.TestSupport;
-using InfiniTests.TestSupport.Attributes;
-using InfiniTests.TestSupport.Utilities;
+using InfiniTests.Attributes;
+using InfiniTests.Utilities;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Size;
 // ---------------------------------------------------------------------------------------------------------------------

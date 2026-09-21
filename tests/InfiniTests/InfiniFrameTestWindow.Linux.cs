@@ -6,7 +6,7 @@ using InfiniFrame;
 using InfiniFrame.Window.Builder;
 using JetBrains.Annotations;
 
-namespace InfiniTests.TestSupport;
+namespace InfiniTests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

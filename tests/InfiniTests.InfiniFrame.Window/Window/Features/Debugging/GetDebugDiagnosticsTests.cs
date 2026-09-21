@@ -3,9 +3,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Debugging;
-using InfiniTests.TestSupport;
-using InfiniTests.TestSupport.Attributes;
-using InfiniTests.TestSupport.Utilities;
+using InfiniTests.Attributes;
+using InfiniTests.Utilities;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Debugging;
 // ---------------------------------------------------------------------------------------------------------------------

@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniTests.TestSupport.Attributes;
+namespace InfiniTests.Attributes;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class SkipOnWindowsAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Windows environments") {
+public class OnlyRunOnWindowsAttribute(string? message = null) : SkipAttribute(message ?? "This test is only supported on Windows environments") {
     public override Task<bool> ShouldSkip(TestRegisteredContext context)
-        => Task.FromResult(OperatingSystem.IsWindows());
+        => Task.FromResult(!OperatingSystem.IsWindows());
 }

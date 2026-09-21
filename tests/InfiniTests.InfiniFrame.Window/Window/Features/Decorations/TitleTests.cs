@@ -4,8 +4,7 @@
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters.Window;
 using InfiniFrame.Window.Builder;
-using InfiniTests.TestSupport;
-using InfiniTests.TestSupport.Attributes;
+using InfiniTests.Attributes;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Decorations;
 // ---------------------------------------------------------------------------------------------------------------------

@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Dialogs;
-using InfiniTests.TestSupport;
 
 namespace InfiniTests.InfiniFrame.Shared.Features;
 // ---------------------------------------------------------------------------------------------------------------------

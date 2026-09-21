@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniTests.TestSupport.Substitutes;
+using InfiniTests.Substitutes;
 
 namespace InfiniTests.InfiniFrame.Window.Features.WebMessaging;
 // ---------------------------------------------------------------------------------------------------------------------

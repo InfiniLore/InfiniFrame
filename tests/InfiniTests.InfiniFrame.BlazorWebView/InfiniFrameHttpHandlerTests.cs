@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
-using InfiniTests.TestSupport;
 
 namespace InfiniTests.InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------

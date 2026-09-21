@@ -1,11 +1,17 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniTests.TestSupport.Attributes;
+using TUnit.Core.Interfaces;
+
+namespace InfiniTests.Attributes;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class SkipOnMacOsAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Mac OS environments") {
-    public override Task<bool> ShouldSkip(TestRegisteredContext context)
-        => Task.FromResult(OperatingSystem.IsMacOS());
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
+public sealed class MacOsMainThreadTestExecutorAttribute : Attribute, ITestExecutor {
+    private static readonly MacOsMainThreadExecutor Executor = new();
+
+    public async ValueTask ExecuteTest(TestContext context, Func<ValueTask> action) {
+        await Executor.ExecuteTest(context, action);
+    }
 }

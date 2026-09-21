@@ -6,8 +6,7 @@ using System.Runtime.InteropServices;
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Delegates;
 using InfiniFrame.Window.Events;
-using InfiniTests.TestSupport;
-using InfiniTests.TestSupport.Attributes;
+using InfiniTests.Attributes;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniTests.InfiniFrame.Window.Events;
