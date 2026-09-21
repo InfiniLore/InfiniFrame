@@ -20,17 +20,14 @@ public static class Program {
     private static void Main(string[] args) {
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
-            .WriteTo.Async(static c => c.Console())
+            .WriteTo.Console()
             .CreateLogger();
 
         try {
             Log.Information("Starting InfiniFrame BlazorWebView MudBlazor example...");
 
             InfiniFrameApplicationBuilder builder = InfiniFrameApplication.CreateBuilder(args);
-            builder.WithWindow(window => window
-                .SetIconFile("wwwroot/favicon.ico")
-                .SetLocation(new Point(100, 100))
-                .SetSize(new Size(800, 600)));
+            
             builder.Services
                 .AddLogging(config => {
                     config.ClearProviders();
@@ -42,11 +39,16 @@ public static class Program {
                 })
                 .AddMudServices();
 
-            InfiniFrameApplication app = builder
-                .UseBlazorWebView(configuration => {
-                    configuration.RootComponents.Add<App>("app");
-                })
-                .Build();
+            builder.WithWindow(window => window
+                .SetIconFile("wwwroot/favicon.ico")
+                .SetLocation(new Point(100, 100))
+                .SetSize(new Size(800, 600)));
+
+            builder.UseBlazorWebView(configuration => {
+                configuration.RootComponents.Add<App>("app");
+            });
+            
+            InfiniFrameApplication app = builder.Build();
 
             Log.Information("Running application...");
             app.Run();

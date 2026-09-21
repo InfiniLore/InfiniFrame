@@ -52,7 +52,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     ///     Initializes a new instance of the <see cref="InfiniFrameWebViewManager"/> class.
     /// </summary>
     /// <param name="provider">The service provider for dependency injection.</param>
-    /// <param name="dispatcher">The Blazor dispatcher for thread marshalling.</param>
+    /// <param name="dispatcher">The Blazor dispatcher for thread marshaling.</param>
     /// <param name="fileProvider">The file provider for serving static assets.</param>
     /// <param name="jsComponents">The JavaScript component configuration store.</param>
     /// <param name="config">The Blazor application configuration.</param>
@@ -218,12 +218,11 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             }
         }
         else if (_appBaseUri.IsAbsoluteUri) {
-            Uri fallback = _appBaseUri;
-            messageOriginUrl = fallback;
+            messageOriginUrl = _appBaseUri;
 
             _logger.LogDebug(
                 "Web message origin missing. Falling back to AppBaseUri origin: {FallbackOrigin}",
-                fallback);
+                _appBaseUri);
         }
         else {
             _logger.LogWarning(
@@ -310,7 +309,13 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             // that resolve IInfiniFrameWindow and initialize native resources during teardown.
             // Avoid creating a window while disposing of an app that never ran.
             if (LazyWindow.IsValueCreated) {
-                await base.DisposeAsyncCore();
+                Task disposeTask = Task.Run(() => base.DisposeAsyncCore().AsTask());
+                try {
+                    await disposeTask.WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+                }
+                catch (TimeoutException) {
+                    _logger.LogWarning("Timed out disposing the Blazor WebView page");
+                }
             }
         }
         finally {

@@ -20,9 +20,8 @@ public sealed class InfiniFrameNativeApplicationParametersEqualityComparerTests 
             AppUserModelId = "app",
             DefaultNotificationIcon = "icon"
         };
-        InfiniFrameNativeApplicationParameters second = first;
 
-        await Assert.That(Comparer.Equals(first, second)).IsTrue();
+        await Assert.That(Comparer.Equals(first, first)).IsTrue();
     }
 
     [Test]

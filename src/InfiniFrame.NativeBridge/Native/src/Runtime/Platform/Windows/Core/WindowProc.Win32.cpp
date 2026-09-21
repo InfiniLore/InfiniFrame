@@ -167,13 +167,20 @@ namespace {
 
     template <typename TImpl>
     LRESULT handle_window_destruction(const HWND hwnd, InfiniFrameWindow* instance, TImpl* impl) {
+        // CloseWebView can trigger managed teardown that detaches the window from its
+        // application before this callback returns. Capture the owner first so the
+        // application loop still receives the final native close notification.
+        InfiniFrameApplication* application = instance->GetApplication();
         impl->_isClosingOrClosed.store(true, std::memory_order_release);
         TraceTeardown(L"WM_DESTROY begin hwnd=%p instance=%p", hwnd, instance);
         instance->CloseWebView();
         instance->InvokeClosed();
         TraceTeardown(L"WM_DESTROY end hwnd=%p instance=%p", hwnd, instance);
-        if (InfiniFrameApplication* application = instance->GetApplication())
+        if (application) {
             application->NotifyWindowClosed(instance);
+        }
+        else if (InfiniFrameApplication* currentApplication = InfiniFrameApplication::GetInstance())
+            currentApplication->NotifyWindowClosed(instance);
         else if (hwnd == GetMessageLoopRootWindowHandle())
             PostQuitMessage(0);
 

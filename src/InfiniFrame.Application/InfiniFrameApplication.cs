@@ -156,6 +156,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             StartRegisteredComponents();
             BuildAllWindows();
             RunNativeLoop();
+            logger.LogDebug("Native application loop returned");
         }
         finally {
             Dispose();
@@ -318,6 +319,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             }
         }
         DrainNaturalWindowTeardowns();
+        logger.LogDebug("Application window disposal completed");
         if (windowDisposalFailure is not null) {
             Volatile.Write(ref _disposed, 0);
             throw new InvalidOperationException("The application could not dispose all windows.", windowDisposalFailure);
@@ -326,8 +328,9 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             _windows.Clear();
             _registrations.Clear();
         }
-        StopRegisteredComponents();
         ReleaseNativeHandleOrThrow();
+        logger.LogDebug("Application native disposal completed");
+        StopRegisteredComponents();
         if (_serviceProvider is IAsyncDisposable asyncServiceProvider)
             asyncServiceProvider.DisposeAsync().AsTask().GetAwaiter().GetResult();
         else (_serviceProvider as IDisposable)?.Dispose();
@@ -367,8 +370,8 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             _windows.Clear();
             _registrations.Clear();
         }
-        await StopRegisteredComponentsAsync().ConfigureAwait(false);
         ReleaseNativeHandleOrThrow();
+        await StopRegisteredComponentsAsync().ConfigureAwait(false);
         if (_serviceProvider is IAsyncDisposable asyncServiceProvider)
             await asyncServiceProvider.DisposeAsync().ConfigureAwait(false);
         else (_serviceProvider as IDisposable)?.Dispose();
@@ -562,11 +565,6 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 throw new InfiniFrameNativeInteropException(
                     InfiniFrameNative.GetLastErrorMessage() ?? "Could not run the native application.");
 
-            // ApplicationRun drains WM_NCDESTROY before returning. If a platform
-            // callback was delivered after the managed owner stopped observing it,
-            // complete the already-observed native teardown milestone here.
-            foreach (IInfiniFrameWindow window in Windows.ToArray())
-                window.Features.Lifecycle.CompleteTeardownAfterNativeLoop();
             return;
         }
 

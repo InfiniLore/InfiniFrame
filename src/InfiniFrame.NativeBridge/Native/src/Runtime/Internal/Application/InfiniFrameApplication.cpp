@@ -366,8 +366,10 @@ void InfiniFrameApplication::NotifyWindowClosed(InfiniFrameWindow* window) noexc
 #ifdef _WIN32
     _impl->windows.erase(window);
     window->DetachApplication();
-    if (_impl->running && _impl->liveWindows.empty())
+    if (_impl->running && _impl->liveWindows.empty()) {
+        _impl->shutdownRequested = true;
         PostThreadMessage(_impl->runThreadId, WM_QUIT, 0, 0);
+    }
 #endif
 #ifdef __linux__
     // Keep the registry entry until the native destructor calls

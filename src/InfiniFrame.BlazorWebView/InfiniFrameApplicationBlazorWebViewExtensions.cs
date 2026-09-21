@@ -126,9 +126,11 @@ public sealed class InfiniFrameBlazorWebViewConfiguration {
         string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         var providers = new List<IFileProvider>();
         IFileProvider? staticWebAssets = StaticWebAssetsRuntimeFileProvider.TryCreate(baseDirectory, Assembly.GetEntryAssembly());
+        
         if (staticWebAssets is not null) providers.Add(staticWebAssets);
         string wwwroot = Path.Join(baseDirectory, "wwwroot");
         PhysicalFileProvider? physical = Directory.Exists(wwwroot) ? new PhysicalFileProvider(wwwroot) : null;
+        
         if (physical is not null) providers.Add(physical);
         return providers.Count switch {
             0 => new NullFileProvider(),
@@ -140,6 +142,7 @@ public sealed class InfiniFrameBlazorWebViewConfiguration {
     private static string BuildStartupUrl(InfiniFrameBlazorAppConfiguration configuration) {
         Uri appBaseUri = configuration.AppBaseUri;
         string hostPage = NormalizeHostPage(configuration.HostPage);
+        
         return string.Equals(hostPage, "index.html", StringComparison.OrdinalIgnoreCase)
             ? appBaseUri.ToString()
             : new Uri(appBaseUri, hostPage).ToString();
