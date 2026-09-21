@@ -14,7 +14,6 @@ public sealed class InfiniFrameWebServerConfiguration {
     }
 
     public IWebHostBuilder WebHost => _webApplicationBuilder.WebHost;
-    internal WebApplicationBuilder Builder => _webApplicationBuilder;
     internal IServiceCollection RootServices { get; }
 
     private readonly List<Action<WebApplication>> _applicationConfiguration = [];

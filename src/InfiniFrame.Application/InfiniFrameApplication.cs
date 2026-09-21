@@ -20,7 +20,14 @@ namespace InfiniFrame.Application;
 public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     private readonly ILogger<InfiniFrameApplication> logger;
     private readonly NativeApplicationHandle _nativeHandle;
+    
+    #if NET9_0_OR_GREATER
+    private readonly Lock _gate = new();
+    #else
+    // ReSharper disable once ChangeFieldTypeToSystemThreadingLock
     private readonly object _gate = new();
+    #endif
+    
     private readonly List<(
         string? Id,
         Action<IInfiniFrameWindowBuilder>? Configure,

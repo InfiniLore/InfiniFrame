@@ -99,11 +99,10 @@ public static class InfiniFrameApplicationWebServerExtensions {
                 "The ASP.NET Core web server started but its bound address could not be resolved. " +
                 "Refusing to navigate a window to an unresolved port.");
 
-        if (result.Host is "*" or "+" or "0.0.0.0" or "::") {
-            var loopback = new UriBuilder(result) { Host = "127.0.0.1" };
-            return loopback.Uri;
-        }
+        if (result.Host is not ("*" or "+" or "0.0.0.0" or "::")) return result;
 
-        return result;
+        var loopback = new UriBuilder(result) { Host = "127.0.0.1" };
+        return loopback.Uri;
+
     }
 }
