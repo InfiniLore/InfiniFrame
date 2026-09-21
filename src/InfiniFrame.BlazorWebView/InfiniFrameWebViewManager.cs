@@ -301,7 +301,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         if (Interlocked.Exchange(ref _disposeStarted, 1) != 0) return;
 
         _channel.Writer.TryComplete();
-        _messagePumpShutdown.Cancel();
+        await _messagePumpShutdown.CancelAsync();
 
         try {
             // Some tests build and dispose of the app without ever creating a native window.
@@ -309,13 +309,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             // that resolve IInfiniFrameWindow and initialize native resources during teardown.
             // Avoid creating a window while disposing of an app that never ran.
             if (LazyWindow.IsValueCreated) {
-                Task disposeTask = Task.Run(() => base.DisposeAsyncCore().AsTask());
-                try {
-                    await disposeTask.WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
-                }
-                catch (TimeoutException) {
-                    _logger.LogWarning("Timed out disposing the Blazor WebView page");
-                }
+                await base.DisposeAsyncCore().ConfigureAwait(false);
             }
         }
         finally {

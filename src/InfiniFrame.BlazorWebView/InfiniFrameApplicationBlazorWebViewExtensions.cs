@@ -19,8 +19,6 @@ namespace InfiniFrame.BlazorWebView;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 
-internal sealed class BlazorWebViewMarker { }
-
 public sealed class InfiniFrameBlazorWebViewConfiguration {
     private readonly IServiceCollection _services;
     private readonly List<Action<IInfiniFrameWindowBuilder>> _windowConfigurations = [];
@@ -55,12 +53,13 @@ public sealed class InfiniFrameBlazorWebViewConfiguration {
         InfiniFrameBlazorAppConfiguration appConfig = services.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?.Value
             ?? new InfiniFrameBlazorAppConfiguration();
 
-        IInfiniFrameJsComponentConfiguration? jsConfiguration =
+        var jsConfiguration =
             services.GetService<IInfiniFrameJsComponentConfiguration>();
         if (jsConfiguration is not null) {
             application.WindowCreated += _ => {
-                foreach ((Type componentType, string selector) in RootComponents)
+                foreach ((Type componentType, string selector) in RootComponents) {
                     jsConfiguration.Add(componentType, selector);
+                }
             };
         }
 
@@ -69,15 +68,31 @@ public sealed class InfiniFrameBlazorWebViewConfiguration {
             if (!windowBuilder.EventsStore.CustomScheme.ContainsKey(InfiniFrameWebViewManager.BlazorAppScheme))
                 windowBuilder.RegisterCustomSchemeHandler(InfiniFrameWebViewManager.BlazorAppScheme, manager.HandleWebRequest);
         });
-        application.ApplyWindowIntegration(windowIds, "BlazorWebView", windowBuilder => {
-            foreach (Action<IInfiniFrameWindowBuilder> configure in _windowConfigurations)
+        Task? managerDisposal = null;
+        application.ApplyWindowIntegration(windowIds, "BlazorWebView", configure: windowBuilder => {
+            foreach (Action<IInfiniFrameWindowBuilder> configure in _windowConfigurations) {
                 configure(windowBuilder);
+            }
+
             InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(
                 windowBuilder,
-                policyBuilder => policyBuilder.AddTrustedOrigin(appConfig.AppBaseUri));
+                configure: policyBuilder => policyBuilder.AddTrustedOrigin(appConfig.AppBaseUri));
             windowBuilder.StaticAssets = services.GetRequiredService<IInfiniFrameStaticAssets>().DeepCopy();
             windowBuilder.RegisterWebMessageReceivedHandler(manager.HandleWebMessage);
             windowBuilder.RegisterGetWebMessageHandler();
+
+            windowBuilder.RegisterWindowClosingHandler((_, _) => {
+                managerDisposal ??= DisposeManagerAsync();
+                return WindowClosingResult.Close;
+
+                async Task DisposeManagerAsync() {
+                    if (manager is not IAsyncDisposable asyncManager)
+                        throw new InvalidOperationException("The Blazor WebView manager is not asynchronously disposable.");
+
+                    await Task.Run(async () => await asyncManager.DisposeAsync().ConfigureAwait(false))
+                        .ConfigureAwait(false);
+                }
+            });
             windowBuilder.SetStartPageUrl(BuildStartupUrl(appConfig));
         });
         if (exceptionRegistration is not null)
@@ -123,14 +138,15 @@ public sealed class InfiniFrameBlazorWebViewConfiguration {
 
     private static IFileProvider ConfigureFileProvider(IFileProvider? fileProvider) {
         if (fileProvider is not null) return fileProvider;
+
         string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         var providers = new List<IFileProvider>();
         IFileProvider? staticWebAssets = StaticWebAssetsRuntimeFileProvider.TryCreate(baseDirectory, Assembly.GetEntryAssembly());
-        
+
         if (staticWebAssets is not null) providers.Add(staticWebAssets);
         string wwwroot = Path.Join(baseDirectory, "wwwroot");
         PhysicalFileProvider? physical = Directory.Exists(wwwroot) ? new PhysicalFileProvider(wwwroot) : null;
-        
+
         if (physical is not null) providers.Add(physical);
         return providers.Count switch {
             0 => new NullFileProvider(),
@@ -142,7 +158,7 @@ public sealed class InfiniFrameBlazorWebViewConfiguration {
     private static string BuildStartupUrl(InfiniFrameBlazorAppConfiguration configuration) {
         Uri appBaseUri = configuration.AppBaseUri;
         string hostPage = NormalizeHostPage(configuration.HostPage);
-        
+
         return string.Equals(hostPage, "index.html", StringComparison.OrdinalIgnoreCase)
             ? appBaseUri.ToString()
             : new Uri(appBaseUri, hostPage).ToString();
@@ -155,14 +171,15 @@ public sealed class InfiniFrameBlazorWebViewConfiguration {
         bool enabled = services.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?.Value
             .EnableGlobalUnhandledExceptionHandler ?? true;
         if (!enabled) return null;
+
         var source = services.GetRequiredService<IInfiniFrameUnhandledExceptionSource>();
         return source.Register((_, error) => {
             try {
                 var window = services.GetService<IInfiniFrameWindow>();
                 window?.Invoke(() => window.ShowMessage("Fatal exception", error.ExceptionObject.ToString()));
             }
-            catch (ObjectDisposedException) { }
-            catch (InvalidOperationException) { }
+            catch (ObjectDisposedException) {}
+            catch (InvalidOperationException) {}
         });
     }
 }
@@ -194,7 +211,7 @@ public static class InfiniFrameApplicationBlazorWebViewExtensions {
         this InfiniFrameApplicationBuilder builder,
         string windowId,
         Action<InfiniFrameBlazorWebViewConfiguration> configure
-    ) => builder.UseBlazorWebView(configure, [windowId]);
+    ) => builder.UseBlazorWebView(configure, windowId);
 
     public static InfiniFrameApplicationBuilder UseBlazorWebView(
         this InfiniFrameApplicationBuilder builder,
@@ -235,6 +252,7 @@ public static class InfiniFrameApplicationBlazorWebViewExtensions {
     private static IInfiniFrameWindow ResolveTargetWindow(IInfiniFrameApplication application, IReadOnlyList<string> windowIds) {
         if (windowIds.Count > 0) return application.GetWindow(windowIds[0]);
         if (application.Windows.Count == 1) return application.Windows[0];
+
         throw new InvalidOperationException("BlazorWebView could not resolve its target window.");
     }
 }
