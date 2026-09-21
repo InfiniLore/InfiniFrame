@@ -2,8 +2,8 @@
     "solution": {
         "path": "InfiniFrame.slnx",
         "projects": [
-            "src\\InfiniFrame.Application\\InfiniFrame.Application.csproj",
             "src\\InfiniFrame\\InfiniFrame.csproj",
+            "src\\InfiniFrame.Application\\InfiniFrame.Application.csproj",
             "src\\InfiniFrame.BlazorWebView\\InfiniFrame.BlazorWebView.csproj",
             "src\\InfiniFrame.Blazor\\InfiniFrame.Blazor.csproj",
             "src\\InfiniFrame.Js\\InfiniFrame.Js.csproj",
@@ -17,14 +17,14 @@
             
             "tests\\InfiniTests\\InfiniTests.csproj",
             "tests\\InfiniTests.InfiniFrame.Application\\InfiniTests.InfiniFrame.Application.csproj",
-            "tests\\InfiniTests.InfiniFrame.Window\\InfiniTests.InfiniFrame.Window.csproj",
             "tests\\InfiniTests.InfiniFrame.Blazor\\InfiniTests.InfiniFrame.Blazor.csproj",
             "tests\\InfiniTests.InfiniFrame.BlazorWebView\\InfiniTests.InfiniFrame.BlazorWebView.csproj",
             "tests\\InfiniTests.InfiniFrame.Js\\InfiniTests.InfiniFrame.Js.csproj",
             "tests\\InfiniTests.InfiniFrame.NativeBridge\\InfiniTests.InfiniFrame.NativeBridge.csproj",
             "tests\\InfiniTests.InfiniFrame.Shared\\InfiniTests.InfiniFrame.Shared.csproj",
             "tests\\InfiniTests.InfiniFrame.SingleFile\\InfiniTests.InfiniFrame.SingleFile.csproj",
-            "tests\\InfiniTests.InfiniFrame.WebServer\\InfiniTests.InfiniFrame.WebServer.csproj"
+            "tests\\InfiniTests.InfiniFrame.WebServer\\InfiniTests.InfiniFrame.WebServer.csproj",
+            "tests\\InfiniTests.InfiniFrame.Window\\InfiniTests.InfiniFrame.Window.csproj"
         ]
     }
 }
