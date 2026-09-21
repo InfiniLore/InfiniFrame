@@ -1,10 +1,10 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniTests.Attributes;
+namespace InfiniTests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class DefaultInfiniTestsTimeoutAttribute(int offset = 0) : TimeoutAttribute(TimeoutValue + offset) {
+public class DefaultTimeoutAttribute(int offset = 0) : TimeoutAttribute(TimeoutValue + offset) {
     public const int TimeoutValue = 10_000;
 }

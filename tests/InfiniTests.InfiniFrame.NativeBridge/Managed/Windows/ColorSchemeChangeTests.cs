@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.InteropServices;
 using InfiniFrame.NativeBridge;
-using InfiniTests.Attributes;
 
 namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Windows;
 // ---------------------------------------------------------------------------------------------------------------------

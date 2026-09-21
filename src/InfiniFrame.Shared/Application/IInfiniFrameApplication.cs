@@ -29,6 +29,11 @@ public interface IInfiniFrameApplication : IDisposable, IAsyncDisposable {
     /// <summary>Gets the windows built by this application.</summary>
     IReadOnlyList<IInfiniFrameWindow> Windows { get; }
 
+    /// <summary>
+    /// Gets the collection of window identifiers registered for the application.
+    /// </summary>
+    IReadOnlyList<string?> WindowRegistrations { get; }
+
     /// <summary>Runs the application until its windows have closed.</summary>
     void Run();
 

@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniTests.Attributes;
 using WindowsNative = InfiniTests.Native.WindowsNative;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Decorations;

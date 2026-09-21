@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Application;
-using InfiniTests.Attributes;
 
 namespace InfiniTests.InfiniFrame.Application;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -15,29 +14,48 @@ public sealed class InfiniFrameApplicationTests {
     [Test]
     [NotInParallelInfiniTests]
     public async Task Initialize_CreatesApplicationWithNoWindows(CancellationToken ct = default) {
+        // Arrange
+
+        // Act
         await using InfiniFrameApplication application = InfiniFrameApplication.Initialize();
 
+        // Assert
         await Assert.That(application.Windows).IsEmpty();
     }
 
     [Test]
     [NotInParallelInfiniTests]
     public async Task CreateBuilder_RegistersUnnamedWindowWithoutIntegrationId(CancellationToken ct = default) {
-        await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
-            .WithWindow(static window => window.SetStartPageContent("<html><body>App</body></html>"))
+        // Arrange
+        const string pageContent = "<html><body>App</body></html>";
+        InfiniFrameApplicationBuilder builder = InfiniFrameApplication.CreateBuilder();
+        
+        // Act
+        await using InfiniFrameApplication application = builder
+            .WithWindow(static window => window.SetStartPageContent(pageContent))
             .Build();
-
+        
+        // Assert
         await Assert.That(application.Windows).IsEmpty();
+        await Assert.That(application.WindowRegistrations)
+            .IsNotEmpty()
+            .Count().IsEqualTo(1);
     }
 
     [Test]
     [NotInParallelInfiniTests]
     public async Task RegisterWindow_DuplicateIdThrows(CancellationToken ct = default) {
+        // Arrange
         await using InfiniFrameApplication application = InfiniFrameApplication.Initialize();
+
+        // Act
         application.RegisterWindow("main", configure: static _ => {});
 
+        // Assert
         // ReSharper disable once AccessToDisposedClosure
-        await Assert.That(() => application.RegisterWindow("main", configure: static _ => {}))
+        await Assert.That(() => {
+                application.RegisterWindow("main", configure: static _ => {});
+            })
             .Throws<ArgumentException>();
     }
 
@@ -106,7 +124,7 @@ public sealed class InfiniFrameApplicationTests {
     [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task RunAsyncBuildsAndRunsMultipleWindowsUntilAllClose(CancellationToken ct = default) {
-         if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS()) || Environment.Version.Major < 8) return;
+        if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS() || Environment.Version.Major < 8) return;
 
         await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
             .WithWindow("main", configure: static builder => builder.SetStartPageContent("<html><body>Main</body></html>"))
@@ -135,7 +153,7 @@ public sealed class InfiniFrameApplicationTests {
     [NotInParallelInfiniTests]
     [Timeout(60_000)]
     public async Task ShutdownBeforeWebView2InitializationCompletesDrainsRunAsync(CancellationToken ct = default) {
-         if ((!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS()) || Environment.Version.Major < 8) return;
+        if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS() || Environment.Version.Major < 8) return;
 
         await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
             .WithWindow("main", configure: static builder => builder.SetStartPageContent("<html><body>Main</body></html>"));
@@ -161,10 +179,13 @@ public sealed class InfiniFrameApplicationTests {
     public async Task MacOsApplication_CanBeCreatedAndDisposedSequentially(CancellationToken ct = default) {
         if (!OperatingSystem.IsMacOS()) return;
 
-        await using (InfiniFrameApplication first = InfiniFrameApplication.Initialize())
+        await using (InfiniFrameApplication first = InfiniFrameApplication.Initialize()) {
             await first.RunAsync(ct);
-        await using (InfiniFrameApplication second = InfiniFrameApplication.Initialize())
+        }
+
+        await using (InfiniFrameApplication second = InfiniFrameApplication.Initialize()) {
             await second.RunAsync(ct);
+        }
     }
 
     [Test]
@@ -173,7 +194,7 @@ public sealed class InfiniFrameApplicationTests {
     public async Task RunAsyncCancellation_StopsRunLoop(CancellationToken ct = default) {
         if (!OperatingSystem.IsMacOS()) return;
 
-        using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
         await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
             .WithWindow("main", configure: static builder => builder.SetStartPageContent("<html><body>Main</body></html>"));
 
@@ -190,7 +211,7 @@ public sealed class InfiniFrameApplicationTests {
         finally {
             application.Shutdown();
             try { await runTask.WaitAsync(TimeSpan.FromSeconds(30), CancellationToken.None); }
-            catch (OperationCanceledException) { }
+            catch (OperationCanceledException) {}
         }
     }
 
@@ -241,7 +262,7 @@ public sealed class InfiniFrameApplicationTests {
         finally {
             application.Shutdown();
             try { await runTask.WaitAsync(TimeSpan.FromSeconds(30), CancellationToken.None); }
-            catch (OperationCanceledException) { }
+            catch (OperationCanceledException) {}
         }
     }
 
@@ -268,7 +289,7 @@ public sealed class InfiniFrameApplicationTests {
             finally {
                 application.Shutdown();
                 try { await runTask.WaitAsync(TimeSpan.FromSeconds(30), CancellationToken.None); }
-                catch (OperationCanceledException) { }
+                catch (OperationCanceledException) {}
             }
         }
     }

@@ -2,8 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniTests.Attributes;
-using InfiniTests.Utilities;
 
 namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -14,7 +12,7 @@ public class WindowFocusOutEventTests {
     [SkipOnWindowsArm("WM_ACTIVATE WA_INACTIVE is not reliably delivered on headless ARM64 CI runners")]
     [SkipOnLinux("Focus transitions are desktop-state dependent under WSLg/local Linux runs")]
     [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(5_000 + 100)]
+    [DefaultTimeout(5_000 + 100)]
     public async Task AtWindowStage_SetMinimized_RaisesEvent(CancellationToken ct = default) {
         // Arrange
         int focusOutEventCount = 0;

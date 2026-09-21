@@ -5,8 +5,6 @@ using System.Drawing;
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters.Window;
 using InfiniFrame.Window.Builder;
-using InfiniTests.Attributes;
-using InfiniTests.Utilities;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Position;
 // ---------------------------------------------------------------------------------------------------------------------

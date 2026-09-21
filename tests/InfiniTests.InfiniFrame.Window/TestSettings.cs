@@ -2,12 +2,11 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniTests;
-using InfiniTests.Attributes;
 using TUnit.Core.Executors;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[assembly: DefaultInfiniTestsTimeout]
+[assembly: DefaultTimeout]
 [assembly: Retry(3)]
 [assembly: TestExecutor<MacOsMainThreadExecutor>]

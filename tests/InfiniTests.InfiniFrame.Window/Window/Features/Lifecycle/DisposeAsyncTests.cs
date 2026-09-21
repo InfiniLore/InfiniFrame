@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Dialogs;
-using InfiniTests.Attributes;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -12,7 +11,7 @@ namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 public class DisposeAsyncTests {
     [Test]
     [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(30_000)]
+    [DefaultTimeout(30_000)]
     public async Task DisposeAsync_Extension_ShouldDrainWindowToNativeHandleReleasedOrDisposed(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -28,7 +27,7 @@ public class DisposeAsyncTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(30_000)]
+    [DefaultTimeout(30_000)]
     public async Task DisposeAsync_OutstandingOperations_ShouldBeDrained(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

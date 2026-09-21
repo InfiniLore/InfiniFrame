@@ -4,7 +4,6 @@
 using System.Diagnostics.CodeAnalysis;
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Dialogs;
-using InfiniTests.Attributes;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Notifications;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -57,7 +56,7 @@ public class ShowMessageTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(30_000)]
+    [DefaultTimeout(30_000)]
     public async Task ShowMessageAsync_Cancellation_ClosesNativeDialog(CancellationToken ct) {
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;

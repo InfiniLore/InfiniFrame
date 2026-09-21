@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Window.Builder;
-using InfiniTests.Attributes;
 using WindowsNative = InfiniTests.Native.WindowsNative;
 
 namespace InfiniTests.InfiniFrame.Window.Events;
@@ -17,7 +16,7 @@ public class ParentChildWindowTests {
     [SkipOnWindowsArm]
     // Rider can schedule the net8 test host last while all target frameworks are cold-starting WebView2.
     // This integration test creates two native browser windows, so use a 30-second total budget.
-    [DefaultInfiniTestsTimeout(20_000)]
+    [DefaultTimeout(20_000)]
     [NotInParallelInfiniTests]
     public async Task AtBuilderStage_AssignsParentWindowAndNativeParentHandle(CancellationToken ct = default) {
         // Arrange
@@ -40,7 +39,7 @@ public class ParentChildWindowTests {
 
     [Test]
     [SkipOnWindowsArm]
-    [DefaultInfiniTestsTimeout(6_000)]
+    [DefaultTimeout(6_000)]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_ClosingParent_ClosesChildWindow(CancellationToken ct = default) {
         // Arrange

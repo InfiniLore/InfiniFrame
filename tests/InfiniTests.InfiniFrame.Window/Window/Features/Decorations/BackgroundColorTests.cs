@@ -4,7 +4,6 @@
 using InfiniFrame;
 using InfiniFrame.Utilities;
 using InfiniFrame.Window.Builder;
-using InfiniTests.Attributes;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Decorations;
 // ---------------------------------------------------------------------------------------------------------------------

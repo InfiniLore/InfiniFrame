@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.NativeBridge;
-using InfiniTests.Attributes;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -17,7 +16,7 @@ public class NativeLifetimeStressTests {
     [Test]
     [OnlyRunOnMacOs]
     [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(20_000)]
+    [DefaultTimeout(20_000)]
     public Task RepeatedCloseAndRecreate_ReusesMacWebKitHost(CancellationToken ct) {
         // Arrange
         // macOS keeps the complete AppKit/WebKit host alive across logical sessions.  Besides
@@ -45,7 +44,7 @@ public class NativeLifetimeStressTests {
     [Test]
     [OnlyRunOnMacOs]
     [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(30_000)]
+    [DefaultTimeout(30_000)]
     public Task Pool_RemainsBounded_WhenMoreCompatibleSessionsClose(CancellationToken ct) {
         // Arrange
         const int hostPoolLimit = 8;
@@ -91,7 +90,7 @@ public class NativeLifetimeStressTests {
     }
 
     [Test]
-    [DefaultInfiniTestsTimeout(20_000)]
+    [DefaultTimeout(20_000)]
     public async Task FeatureCallsRacingClose_DoNotReachFreedNativeInstance(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -134,7 +133,7 @@ public class NativeLifetimeStressTests {
     }
 
     [Test]
-    [DefaultInfiniTestsTimeout(20_000)]
+    [DefaultTimeout(20_000)]
     public async Task ConcurrentCloseRequests_ProduceSingleDeterministicShutdown(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

@@ -51,11 +51,12 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             _nativeHandle.DangerousGetHandle(),
             in parameters
         );
-        if (configureStatus != InfiniFrameNativeInteropStatus.Success) {
-            _nativeHandle.Dispose();
-            throw new InfiniFrameNativeInteropException(
-                InfiniFrameNative.GetLastErrorMessage() ?? "Could not configure native application.");
-        }
+        
+        if (configureStatus == InfiniFrameNativeInteropStatus.Success) return;
+
+        _nativeHandle.Dispose();
+        throw new InfiniFrameNativeInteropException(
+            InfiniFrameNative.GetLastErrorMessage() ?? "Could not configure native application.");
     }
 
     /// <summary>Creates an application without requiring a dependency-injection container.</summary>
@@ -126,6 +127,13 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     public IReadOnlyList<IInfiniFrameWindow> Windows {
         get {
             lock (_gate) return _windows.Values.ToArray();
+        }
+    }
+    
+    /// <inheritdoc />
+    public IReadOnlyList<string?> WindowRegistrations {
+        get {
+            lock (_gate) return _registrations.Select(r => r.Id).ToArray();
         }
     }
 

@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Window.Builder;
-using InfiniTests.Attributes;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -24,7 +23,7 @@ public class CrossThreadWindowLifecycleTests {
     [Test]
     [SkipOnWindows]
     [SkipOnMacOs("WKWebView can crash in WebKit when windows are repeatedly created and destroyed from managed worker threads")]
-    [DefaultInfiniTestsTimeout(30_000)]
+    [DefaultTimeout(30_000)]
     public async Task RepeatedCreateCloseAcrossManagedThreads_DoesNotFail(CancellationToken ct) {
         // Arrange
         const int iterations = 6;
@@ -39,7 +38,7 @@ public class CrossThreadWindowLifecycleTests {
     [Test]
     [SkipOnWindows]
     [SkipOnMacOs("WKWebView can crash in WebKit when several windows are created and destroyed concurrently from managed worker threads")]
-    [DefaultInfiniTestsTimeout(30_000)]
+    [DefaultTimeout(30_000)]
     public async Task ParallelCreateCloseAcrossManagedThreads_DoesNotFail(CancellationToken ct) {
         // Arrange
         Task[] operations = [

@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniTests.Attributes;
 
 namespace InfiniTests.InfiniFrame.Window.Features.PageNavigation;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -43,7 +42,7 @@ public class LoadRawStringTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(DefaultInfiniTestsTimeoutAttribute.TimeoutValue + 5_000)]
+    [DefaultTimeout(DefaultTimeoutAttribute.TimeoutValue + 5_000)]
     public async Task AtWindowStage_AfterClose_DoesNotThrowAndNoOps(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -61,7 +60,7 @@ public class LoadRawStringTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(DefaultInfiniTestsTimeoutAttribute.TimeoutValue + 5_000)]
+    [DefaultTimeout(DefaultTimeoutAttribute.TimeoutValue + 5_000)]
     public async Task AtWindowStage_DuringClosingRequested_DoesNotThrow(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(

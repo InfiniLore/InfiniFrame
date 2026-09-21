@@ -1,6 +1,5 @@
 using InfiniFrame;
 using InfiniFrame.Application;
-using InfiniTests.Attributes;
 
 namespace InfiniTests.InfiniFrame.Application;
 

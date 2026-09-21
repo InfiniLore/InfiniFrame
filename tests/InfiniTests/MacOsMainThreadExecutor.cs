@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.InteropServices;
-using InfiniTests.Attributes;
 using InfiniTests.Native;
 using TUnit.Core.Interfaces;
 

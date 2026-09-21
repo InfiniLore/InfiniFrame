@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniTests.Attributes;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -11,7 +10,7 @@ namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 public class CloseAsyncTests {
     [Test]
     [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(30_000)]
+    [DefaultTimeout(30_000)]
     public async Task CloseAsync_Extension_ShouldRequestWindowClose(CancellationToken ct = default) {
         // Arrange
         var windowClosing = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -31,7 +30,7 @@ public class CloseAsyncTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(30_000)]
+    [DefaultTimeout(30_000)]
     public async Task CloseAsync_Feature_ShouldMarkWindowAsClosing(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

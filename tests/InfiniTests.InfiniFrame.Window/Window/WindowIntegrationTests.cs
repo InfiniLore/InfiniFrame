@@ -2,8 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniTests.Attributes;
-using InfiniTests.Utilities;
 
 namespace InfiniTests.InfiniFrame.Window;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -13,7 +11,7 @@ namespace InfiniTests.InfiniFrame.Window;
 public class WindowIntegrationTests {
     [Test]
     [SkipOnLinux]
-    [DefaultInfiniTestsTimeout(30_000)]
+    [DefaultTimeout(30_000)]
     public async Task FullscreenAndResize_Interaction_RemainsDeterministic(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => {

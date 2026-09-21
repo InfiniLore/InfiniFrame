@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniTests.Attributes;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -10,7 +9,7 @@ namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 // ---------------------------------------------------------------------------------------------------------------------
 public class IsClosedOrClosingTests {
     [Test]
-    [DefaultInfiniTestsTimeout(6_000)]
+    [DefaultTimeout(6_000)]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct = default) {
         // Arrange
@@ -31,7 +30,7 @@ public class IsClosedOrClosingTests {
     }
 
     [Test]
-    [DefaultInfiniTestsTimeout(6_000)]
+    [DefaultTimeout(6_000)]
     [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment(CancellationToken ct = default) {
         // Arrange

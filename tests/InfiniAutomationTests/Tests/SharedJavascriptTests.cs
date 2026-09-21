@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Text.Json;
-using InfiniTests.Attributes;
+using InfiniTests;
 using Microsoft.Playwright;
 
 namespace InfiniAutomationTests.Tests;

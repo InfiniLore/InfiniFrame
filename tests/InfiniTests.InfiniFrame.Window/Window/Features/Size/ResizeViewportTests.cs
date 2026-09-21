@@ -3,8 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Text.RegularExpressions;
 using InfiniFrame;
-using InfiniTests.Attributes;
-using InfiniTests.Utilities;
 
 namespace InfiniTests.InfiniFrame.Window.Features.Size;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -17,7 +15,7 @@ public sealed class ResizeViewportTests {
     [NotInParallelInfiniTests]
     [SkipOnLinux]
     [SkipOnWindowsArm("Test is flaky on ARM")]
-    [DefaultInfiniTestsTimeout(35_000)]
+    [DefaultTimeout(35_000)]
     public async Task NativeResize_ShouldUpdateBrowserViewport(CancellationToken ct = default) {
         // Arrange
         var firstViewport = new TaskCompletionSource<(int Width, int Height)>(TaskCreationOptions.RunContinuationsAsynchronously);

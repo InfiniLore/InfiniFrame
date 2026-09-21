@@ -6,7 +6,6 @@ using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters.Window;
 using InfiniFrame.Window.Builder;
 using InfiniFrame.Window.Events;
-using InfiniTests.Attributes;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniTests.InfiniFrame.Window.Events;
@@ -106,7 +105,7 @@ public class RegisterCustomSchemeHandlerTests {
     [Test]
     [OnlyRunOnMacOs]
     [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(15_000)]
+    [DefaultTimeout(15_000)]
     public async Task OnMacOs_PooledHost_RoutesNativeSchemeRequestOnlyToCurrentSession(CancellationToken ct = default) {
         int firstCalls = 0;
         int secondCalls = 0;

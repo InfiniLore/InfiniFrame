@@ -64,6 +64,7 @@ public sealed class InfiniFrameTestServer : IAsyncDisposable {
 
     }
 
+    [MustDisposeResource]
     public static InfiniFrameTestServer Create(
         Action<IWebHostBuilder>? appBuilder = null,
         Action<IInfiniFrameWindowBuilder>? windowBuilder = null,

@@ -31,25 +31,25 @@ public sealed partial class InfiniFrameTestWindow {
         try {
             var thread = new Thread(() => {
                 try {
-                if (TestWindowTracingEnabled) {
-                    Console.Error.WriteLine(
-                        $"[InfiniFrameWindowTestUtility] STA thread started managedThreadId={Environment.CurrentManagedThreadId} apt={Thread.CurrentThread.GetApartmentState()} pid={Environment.ProcessId}");
+                    if (TestWindowTracingEnabled) {
+                        Console.Error.WriteLine(
+                            $"[InfiniFrameWindowTestUtility] STA thread started managedThreadId={Environment.CurrentManagedThreadId} apt={Thread.CurrentThread.GetApartmentState()} pid={Environment.ProcessId}");
+                    }
+
+                    IInfiniFrameWindow window = windowBuilder.Build();
+
+                    if (TestWindowTracingEnabled) {
+                        using NativeHandleLease lease = window.AcquireNativeHandle();
+                        Console.Error.WriteLine(
+                            $"[InfiniFrameWindowTestUtility] window initialized instance=0x{lease.Handle.ToInt64():X} hwnd=0x{window.WindowHandle.ToInt64():X} thread={Environment.CurrentManagedThreadId}");
+                    }
+
+                    windowSource.SetResult(window);
+
+                    window.WaitForClose();
                 }
-
-                IInfiniFrameWindow window = windowBuilder.Build();
-
-                if (TestWindowTracingEnabled) {
-                    using NativeHandleLease lease = window.AcquireNativeHandle();
-                    Console.Error.WriteLine(
-                        $"[InfiniFrameWindowTestUtility] window initialized instance=0x{lease.Handle.ToInt64():X} hwnd=0x{window.WindowHandle.ToInt64():X} thread={Environment.CurrentManagedThreadId}");
-                }
-
-                windowSource.SetResult(window);
-
-                window.WaitForClose();
-            }
-            catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-                windowSource.TrySetException(ex);
+                catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
+                    windowSource.TrySetException(ex);
                 }
             }) {
                 IsBackground = true,

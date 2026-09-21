@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Diagnostics.CodeAnalysis;
 using InfiniFrame;
-using InfiniTests.Attributes;
 
 namespace InfiniTests.InfiniFrame.Window.Features.FilePickerDialogs;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -52,7 +51,7 @@ public class FilePickerDialogsWhenClosedAsyncTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(30_000)]
+    [DefaultTimeout(30_000)]
     public async Task ShowOpenFileAsync_Cancellation_ClosesNativeDialog(CancellationToken ct) {
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
