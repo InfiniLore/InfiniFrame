@@ -8,6 +8,7 @@ const sidebars: SidebarsConfig = {
       label: "Guides",
       items: [
         "guides/getting-started",
+        "guides/macos-application-lifecycle",
         "guides/pack-tool",
         "guides/trim-aot-compatibility",
         {

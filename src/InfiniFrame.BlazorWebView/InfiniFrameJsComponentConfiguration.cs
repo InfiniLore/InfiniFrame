@@ -38,7 +38,7 @@ public sealed class InfiniFrameJsComponentConfiguration(
         Task addComponentTask = manager.Dispatcher.InvokeAsync(() => manager.AddRootComponentAsync(typeComponent, selector, parameterView));
         addComponentTask.ContinueWith(
             continuationAction: task => {
-                logger.LogError(task.Exception, "Failed to add root component '{ComponentType}' for selector '{Selector}'.", typeComponent, selector);
+                logger.LogError(task.Exception, "Failed to add root component '{ComponentType}' for selector '{Selector}'", typeComponent, selector);
                 Interlocked.Exchange(ref _lastAddComponentException, task.Exception);
             },
             CancellationToken.None,

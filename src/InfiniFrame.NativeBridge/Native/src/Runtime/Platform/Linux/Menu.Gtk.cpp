@@ -58,13 +58,19 @@ namespace {
                 continue;
 
             int64_t type = 0;
-            (void)obj["type"].get_int64().get(type);
+            const simdjson::error_code typeError = obj["type"].get_int64().get(type);
+            if (typeError != simdjson::SUCCESS)
+                type = 0;
 
             bool isEnabled = true;
-            (void)obj["isEnabled"].get_bool().get(isEnabled);
+            const simdjson::error_code enabledError = obj["isEnabled"].get_bool().get(isEnabled);
+            if (enabledError != simdjson::SUCCESS)
+                isEnabled = true;
 
             bool isVisible = true;
-            (void)obj["isVisible"].get_bool().get(isVisible);
+            const simdjson::error_code visibleError = obj["isVisible"].get_bool().get(isVisible);
+            if (visibleError != simdjson::SUCCESS)
+                isVisible = true;
 
             if (!isVisible)
                 continue;
@@ -76,7 +82,9 @@ namespace {
             }
 
             std::string label;
-            (void)obj["label"].get_string().get(label);
+            const simdjson::error_code labelError = obj["label"].get_string().get(label);
+            if (labelError != simdjson::SUCCESS)
+                label.clear();
 
             guint commandId = nextId++;
             idToCommand[id] = commandId;
@@ -167,7 +175,7 @@ void InfiniFrameWindow::ApplyInitMenuBar(const char* menuBarJson) {
     if (menuBarJson == nullptr || menuBarJson[0] == '\0')
         return;
 
-    auto* impl = static_cast<Impl*>(ImplBase());
+    auto* impl = m_impl.get();
 
     if (impl->_menuBar != nullptr) {
         DestroyMenuActivateData(impl);
@@ -212,7 +220,7 @@ void InfiniFrameWindow::SetMenuBarJson(const char* menuBarJson) {
 }
 
 void InfiniFrameWindow::SetMenuItemEnabledById(const char* menuItemId, const bool enabled) {
-    auto* impl = static_cast<Impl*>(ImplBase());
+    auto* impl = m_impl.get();
 
     if (impl->_menuBar == nullptr)
         return;
@@ -224,7 +232,7 @@ void InfiniFrameWindow::SetMenuItemEnabledById(const char* menuItemId, const boo
 }
 
 void InfiniFrameWindow::SetMenuItemVisibleById(const char* menuItemId, const bool visible) {
-    auto* impl = static_cast<Impl*>(ImplBase());
+    auto* impl = m_impl.get();
 
     if (impl->_menuBar == nullptr)
         return;
@@ -240,7 +248,7 @@ void InfiniFrameWindow::SetMenuItemVisibleById(const char* menuItemId, const boo
 }
 
 void InfiniFrameWindow::ClickMenuItemById(const char* menuItemId) {
-    if (m_impl->_webMessageReceivedCallback == nullptr)
+    if (m_impl->common._webMessageReceivedCallback == nullptr)
         return;
 
     std::string message = std::string("menu:") + menuItemId;

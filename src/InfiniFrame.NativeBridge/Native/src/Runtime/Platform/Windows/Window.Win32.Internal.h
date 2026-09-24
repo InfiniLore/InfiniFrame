@@ -11,21 +11,22 @@
 #include <wil/com.h>
 #include <WebView2.h>
 
-#include "Runtime/Shared/Window/InfiniFrameWindow.h"
-#include "Runtime/Shared/Window/InfiniFrameWindowImpl.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
+#include "Runtime/Internal/Window/CommonWindowState.h"
 #include "Runtime/Platform/Windows/ToastHandler.h"
-#include "Runtime/Shared/Utilities/Dimensions.h"
+#include "Runtime/Internal/Utilities/Dimensions.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 
-struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
+struct InfiniFrameWindow::Impl {
+    CommonWindowState common;
     std::wstring _temporaryFilesPath;
     std::wstring _notificationRegistrationId;
     std::wstring _windowsAppUserModelId;
 
     bool _notificationsEnabled = false;
-    std::string _defaultNotificationIcon;
+    std::string _platformDefaultNotificationIcon;
     bool _isInitialized = false;
     bool _isWebView2Initializing = false;
     std::atomic<bool> _isClosingOrClosed = false;
@@ -85,4 +86,10 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     std::unordered_map<std::string, UINT> _menuItemIdToCommandId;
     std::unordered_map<UINT, std::string> _menuCommandIdToItemId;
     UINT _nextMenuCommandId = 1;
+};
+
+struct InfiniFrameWindowAccess {
+    static InfiniFrameWindow::Impl* Get(InfiniFrameWindow& window) noexcept {
+        return window.m_impl.get();
+    }
 };

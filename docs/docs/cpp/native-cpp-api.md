@@ -1,13 +1,13 @@
 # Native C++ API
 
-InfiniFrame native API documentation is maintained directly in Docusaurus and sourced from the native headers and comments under `src/InfiniFrame.Native`.
+InfiniFrame native API documentation is maintained directly in Docusaurus and sourced from the native headers and comments under `src/InfiniFrame.NativeBridge/Native`.
 
 ## Core headers
 
 - `Core/InfiniFrame.h`: top-level native interop include.
 - `Core/InfiniFrameWindow.h`: main native window class and callbacks.
 - `Core/InfiniFrameDialog.h`: dialog surface for file/folder/message dialogs.
-- `Core/InfiniFrameInitParams.h`: build-time and startup window parameters.
+- `Core/InfiniFrameWindowInitParams.h`: build-time and startup window parameters.
 - `Core/InfiniFrameWindowImpl.h`: shared implementation state for platform windows.
 
 ## Shared native types

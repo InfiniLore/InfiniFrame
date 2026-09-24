@@ -71,7 +71,7 @@ internal static partial class NativeInvoke {
 
         // Otherwise, we need to execute it on the window thread.
         else {
-            logger.LogTrace("Executing callback on window thread. Marshalling to C++ native cobebase.");
+            logger.LogTrace("Executing callback on window thread. Marshalling to C++ native cobebase");
             string? nativeErrorMessage = null;
             InfiniFrameNative.Invoke(nativeHandle, callback: () => {
                 try {
@@ -141,7 +141,7 @@ internal static partial class NativeInvoke {
             // The explicit interop status is authoritative. A managed callback executed inside a native dispatch can
             // leave an unrelated Win32 last-error value on the thread even though the enclosing operation succeeded.
             Marshal.SetLastPInvokeError(0);
-            logger.LogTrace("Native interop call succeeded.");
+            logger.LogTrace("Native interop call succeeded");
             return;
         }
 
@@ -163,7 +163,7 @@ internal static partial class NativeInvoke {
             message = foundMessage;
         }
         else {
-            logger.LogTrace("Native interop call failed with no error message.");
+            logger.LogTrace("Native interop call failed with no error message");
             message = NoNativeMessage;
         }
 

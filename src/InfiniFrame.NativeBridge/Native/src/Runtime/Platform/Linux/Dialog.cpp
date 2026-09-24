@@ -4,10 +4,12 @@
 #include <gtk/gtk.h>
 
 #include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
-#include "Runtime/Shared/Window/InfiniFrameDialog.h"
-#include "Runtime/Shared/Window/InfiniFrameWindow.h"
-#include "Runtime/Shared/Operations/DialogOperation.h"
-#include "Runtime/Shared/Utilities/StringArrayCopy.h"
+#include "Runtime/Internal/Window/InfiniFrameDialog.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
+#include "Runtime/Internal/Operations/DialogOperation.h"
+#include "Runtime/Internal/Utilities/StringArrayCopy.h"
+
+struct InfiniFrameDialog::Impl {};
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -139,7 +141,7 @@ const char** ShowDialog(
     return arr;
 }
 
-InfiniFrameDialog::InfiniFrameDialog() {}
+InfiniFrameDialog::InfiniFrameDialog() : m_impl(std::make_unique<Impl>()) {}
 
 InfiniFrameDialog::~InfiniFrameDialog() {}
 

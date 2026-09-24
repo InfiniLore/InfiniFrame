@@ -17,10 +17,9 @@ public class InfiniFrameDispatchResultTests {
     [Arguments(InfiniFrameDispatchResult.Failed)]
     public async Task Value_CanBeAssigned(InfiniFrameDispatchResult value, CancellationToken ct = default) {
         // Arrange & Act
-        InfiniFrameDispatchResult assigned = value;
 
         // Assert
-        await Assert.That(assigned).IsEqualTo(value);
+        await Assert.That(value).IsEqualTo(value);
     }
 
     [Test]

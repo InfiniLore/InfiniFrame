@@ -4,7 +4,7 @@
 #include <libnotify/notify.h>
 
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
-#include "Api/Utilities/ExportStringHelpers.h"
+#include "Runtime/Internal/Interop/Exports/ExportStringHelpers.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

@@ -2,9 +2,10 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #import "UrlSchemeHandler.h"
+#import <WebKit/WKURLSchemeTask.h>
 
 #include "../MacDiagnostics.h"
-#include "Runtime/Shared/WebView/CustomSchemeResponse.h"
+#include "Runtime/Internal/WebView/CustomSchemeResponse.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -49,12 +50,15 @@
     auto *urlUtf8 = const_cast<char *>([url.absoluteString UTF8String]);
     CustomSchemeResponse managedResponse{};
     int handled = 0;
+    WebResourceRequestedCallback handler = nullptr;
     @synchronized (self) {
-        if (requestHandler != nullptr)
-        {
-            infiniframe::macos::NativeCallbackScope callbackScope;
-            handled = requestHandler(urlUtf8, &managedResponse);
-        }
+        handler = requestHandler;
+    }
+    if (handler != nullptr) {
+        // Do not hold the handler lock across managed code. The managed callback
+        // may synchronously close the window and invalidate this handler.
+        infiniframe::macos::NativeCallbackScope callbackScope;
+        handled = handler(urlUtf8, &managedResponse);
     }
     infiniframe::CustomSchemeResponseLease responseLease(managedResponse);
     bool valid = handled != 0 && infiniframe::IsValidBufferedCustomSchemeResponse(managedResponse);

@@ -16,7 +16,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 void InfiniFrameWindow::Impl::set_webkit_settings() {
     // WebKitGTK remote inspector requires developer extras to be enabled.
-    const bool enableDeveloperExtras = _devToolsEnabled || _remoteDebuggingPort > 0;
+    const bool enableDeveloperExtras = common._devToolsEnabled || common._remoteDebuggingPort > 0;
 
     WebKitSettings* settings = webkit_settings_new_with_settings(
         "allow_modal_dialogs", TRUE, "allow_top_navigation_to_data_urls", TRUE, "allow_universal_access_from_file_urls",
@@ -24,20 +24,20 @@ void InfiniFrameWindow::Impl::set_webkit_settings() {
         "enable_mock_capture_devices", TRUE, "enable_page_cache", TRUE, "enable_webrtc", TRUE,
         "javascript_can_open_windows_automatically", TRUE,
 
-        "allow_file_access_from_file_urls", _fileSystemAccessEnabled, "disable_web_security", !_webSecurityEnabled,
-        "enable_developer_extras", enableDeveloperExtras, "enable_media_stream", _mediaStreamEnabled,
-        "enable_smooth_scrolling", _smoothScrollingEnabled, "javascript_can_access_clipboard",
-        _javascriptClipboardAccessEnabled, "media_playback_requires_user_gesture", !_mediaAutoplayEnabled, "user_agent",
-        _userAgent.c_str(),
+        "allow_file_access_from_file_urls", common._fileSystemAccessEnabled, "disable_web_security", !common._webSecurityEnabled,
+        "enable_developer_extras", enableDeveloperExtras, "enable_media_stream", common._mediaStreamEnabled,
+        "enable_smooth_scrolling", common._smoothScrollingEnabled, "javascript_can_access_clipboard",
+        common._javascriptClipboardAccessEnabled, "media_playback_requires_user_gesture", !common._mediaAutoplayEnabled, "user_agent",
+        common._userAgent.c_str(),
 
         NULL
         );
 
-    if (!_browserControlInitParameters.empty())
+    if (!common._browserControlInitParameters.empty())
         set_webkit_customsettings(settings);
 
     WebKitWebsiteDataManager* manager = webkit_web_view_get_website_data_manager(WEBKIT_WEB_VIEW(_webview));
-    if (_ignoreCertificateErrorsEnabled)
+    if (common._ignoreCertificateErrorsEnabled)
         webkit_website_data_manager_set_tls_errors_policy(manager, WEBKIT_TLS_ERRORS_POLICY_IGNORE);
     else
         webkit_website_data_manager_set_tls_errors_policy(manager, WEBKIT_TLS_ERRORS_POLICY_FAIL);
@@ -48,7 +48,7 @@ void InfiniFrameWindow::Impl::set_webkit_settings() {
 void InfiniFrameWindow::Impl::set_webkit_customsettings(WebKitSettings* settings) {
     try {
         simdjson::ondemand::parser parser;
-        auto padded = simdjson::padded_string(_browserControlInitParameters);
+        auto padded = simdjson::padded_string(common._browserControlInitParameters);
         auto doc = parser.iterate(padded);
 
         for (auto field : doc.get_object()) {

@@ -1,12 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <!-- Shared test infrastructure; this project is not a runnable test application. -->
+        <IsTestingPlatformApplication>false</IsTestingPlatformApplication>
+    </PropertyGroup>
+
     <ItemGroup>
+        <PackageReference Include="Microsoft.Testing.Platform" />
         <PackageReference Include="TUnit.Core"/>
         <PackageReference Include="TUnit.Mocks"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="../../src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj"/>
-        <ProjectReference Include="../../src/InfiniFrame/InfiniFrame.csproj"/>
+        <ProjectReference Include="../../src/InfiniFrame.Application/InfiniFrame.Application.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.Window/InfiniFrame.Window.csproj" />
         <ProjectReference Include="../../src/InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
     </ItemGroup>
 </Project>

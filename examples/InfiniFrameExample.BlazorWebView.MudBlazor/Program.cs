@@ -1,14 +1,15 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
-using InfiniFrame.BlazorWebView;
 using InfiniFrameExample.BlazorWebView.MudBlazor.Components;
-using MudBlazor.Services;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Serilog;
 using System.Drawing;
+using InfiniFrame;
+using InfiniFrame.Application;
+using InfiniFrame.BlazorWebView;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using MudBlazor.Services;
 
 namespace InfiniFrameExample.BlazorWebView.MudBlazor;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -19,15 +20,15 @@ public static class Program {
     private static void Main(string[] args) {
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
-            .WriteTo.Async(static c => c.Console())
+            .WriteTo.Console()
             .CreateLogger();
 
         try {
             Log.Information("Starting InfiniFrame BlazorWebView MudBlazor example...");
 
-            var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
-
-            appBuilder.Services
+            InfiniFrameApplicationBuilder builder = InfiniFrameApplication.CreateBuilder(args);
+            
+            builder.Services
                 .AddLogging(config => {
                     config.ClearProviders();
                     config.AddSerilog();
@@ -38,17 +39,16 @@ public static class Program {
                 })
                 .AddMudServices();
 
-            appBuilder.RootComponents.Add<App>("app");
+            builder.WithWindow(window => window
+                .SetIconFile("wwwroot/favicon.ico")
+                .SetLocation(new Point(100, 100))
+                .SetSize(new Size(800, 600)));
 
-            appBuilder.WithInfiniFrameWindowBuilder(builder => {
-                builder
-                    .SetIconFile("wwwroot/favicon.ico")
-                    .SetLocation(new Point(100, 100))
-                    .SetSize(new Size(800, 600));
+            builder.UseBlazorWebView(configuration => {
+                configuration.RootComponents.Add<App>("app");
             });
-
-            Log.Information("Building InfiniFrame application...");
-            InfiniFrameBlazorApp app = appBuilder.Build();
+            
+            InfiniFrameApplication app = builder.Build();
 
             Log.Information("Running application...");
             app.Run();

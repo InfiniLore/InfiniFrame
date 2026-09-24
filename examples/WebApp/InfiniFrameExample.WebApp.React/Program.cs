@@ -2,8 +2,9 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.WebServer;
 using System.Drawing;
+using InfiniFrame.Application;
+using InfiniFrame.WebServer;
 
 namespace InfiniFrameExample.WebApp.React;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -17,11 +18,10 @@ public static class Program {
 
     [STAThread]
     public static void Main(string[] args) {
-        InfiniFrameWebApplicationBuilder appBuilder = InfiniFrameWebApplication.CreateBuilder(args);
-        // WebApplicationBuilder appBuilder = builder.WebApp;
-        appBuilder.WebApp.Services.AddSingleton<WebMessageCounter>();
-
-        appBuilder.WindowBuilder
+        InfiniFrameApplicationBuilder rootBuilder = InfiniFrameApplication.CreateBuilder(args);
+        rootBuilder.Services.AddSingleton<WebMessageCounter>();
+        InfiniFrameApplication application = rootBuilder
+            .WithWindow(window => window
             .UseOsDefaultSize(false)
             .SetResizable()
             .CenteredOnMainMonitor()
@@ -39,18 +39,17 @@ public static class Program {
                 ])
                 , "text/javascript")
             )
-            .RegisterWebMessageReceivedHandler((IInfiniFrameWindow window, string message, WebMessageCounter counter) => {
+            .RegisterWebMessageReceivedHandler((IInfiniFrameWindow infiniFrameWindow, string message, WebMessageCounter counter) => {
                 int count = counter.Increment();
                 string response = $"[{count}] Received message: \"{message}\"";
-                window.SendWebMessage(response);
-            });
-
-        InfiniFrameWebApplication application = appBuilder.Build();
-
-        application.UseAutoServerClose();
-
-        application.WebApp.UseStaticFiles();
-        application.WebApp.MapStaticAssets();
+                infiniFrameWindow.SendWebMessage(response);
+            }))
+            .UseWebServer(builder => {
+                builder.ConfigureWebApplication(webApp => {
+                    webApp.MapStaticAssets();
+                });
+            })
+            .Build();
 
         application.Run();
     }

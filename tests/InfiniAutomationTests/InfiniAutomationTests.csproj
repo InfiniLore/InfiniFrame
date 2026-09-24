@@ -1,4 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <!-- Shared test infrastructure; this project is not a runnable test application. -->
+        <IsTestingPlatformApplication>false</IsTestingPlatformApplication>
+    </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="Microsoft.Playwright"/>
         <PackageReference Include="TUnit.Assertions"/>
@@ -7,7 +12,7 @@
 
     <ItemGroup>
         <ProjectReference Include="../../src/InfiniFrame.BlazorWebView/InfiniFrame.BlazorWebView.csproj"/>
-        <ProjectReference Include="../../src/InfiniFrame/InfiniFrame.csproj"/>
-        <ProjectReference Include="../InfiniTests/InfiniTests.csproj"/>
+        <ProjectReference Include="../../src/InfiniFrame.Application/InfiniFrame.Application.csproj" />
+        <ProjectReference Include="../InfiniTests/InfiniTests.csproj" />
     </ItemGroup>
 </Project>

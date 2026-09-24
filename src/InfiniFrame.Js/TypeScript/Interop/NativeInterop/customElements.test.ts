@@ -376,7 +376,11 @@ describe("customElements", () => {
 
     it("registerBlazorCustomElement skips non-EventCallback params", () => {
         window.Blazor = {rootComponents: {add: vi.fn()}};
-        window.customElements = {define: vi.fn(), get: vi.fn(() => undefined)} as any;
+        Object.defineProperty(window, "customElements", {
+            configurable: true,
+            value: {define: vi.fn(), get: vi.fn(() => undefined)},
+            writable: true
+        });
 
         initCustomElements(setup);
         window.registerBlazorCustomElement!("test-element", [
@@ -390,7 +394,11 @@ describe("customElements", () => {
 
     it("registerBlazorCustomElement skips undefined name params", () => {
         window.Blazor = {rootComponents: {add: vi.fn()}};
-        window.customElements = {define: vi.fn(), get: vi.fn(() => undefined)} as any;
+        Object.defineProperty(window, "customElements", {
+            configurable: true,
+            value: {define: vi.fn(), get: vi.fn(() => undefined)},
+            writable: true
+        });
 
         initCustomElements(setup);
         window.registerBlazorCustomElement!("test-element", [
@@ -403,7 +411,11 @@ describe("customElements", () => {
 
     it("registerBlazorCustomElement skips already-defined elements", () => {
         window.Blazor = {rootComponents: {add: vi.fn()}};
-        window.customElements = {define: vi.fn(), get: vi.fn(() => ({}))} as any;
+        Object.defineProperty(window, "customElements", {
+            configurable: true,
+            value: {define: vi.fn(), get: vi.fn(() => ({}))},
+            writable: true
+        });
 
         initCustomElements(setup);
         window.registerBlazorCustomElement!("existing-element", [{name: "Value", type: "string"}]);

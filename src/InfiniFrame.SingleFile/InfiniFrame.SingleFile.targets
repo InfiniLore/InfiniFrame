@@ -91,7 +91,8 @@
 
         <!-- Clean up sidecar files immediately after inner publish -->
         <PropertyGroup>
-            <_InfiniFramePackPublishDir>$([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '$(OutputPath)', 'publish'))</_InfiniFramePackPublishDir>
+            <_InfiniFramePackPublishDir Condition="'$(PublishDir)' != ''">$(PublishDir)</_InfiniFramePackPublishDir>
+            <_InfiniFramePackPublishDir Condition="'$(_InfiniFramePackPublishDir)' == ''">$([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '$(OutputPath)', 'publish'))</_InfiniFramePackPublishDir>
         </PropertyGroup>
         <ItemGroup>
             <_InfiniFramePackSidecarFile Include="$(_InfiniFramePackPublishDir)\*.staticwebassets.endpoints.json"/>
@@ -195,7 +196,8 @@
 
         <!-- Compute the publish directory -->
         <PropertyGroup>
-            <_InfiniFramePackPublishDir>$([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '$(OutputPath)', 'publish'))</_InfiniFramePackPublishDir>
+            <_InfiniFramePackPublishDir Condition="'$(PublishDir)' != ''">$(PublishDir)</_InfiniFramePackPublishDir>
+            <_InfiniFramePackPublishDir Condition="'$(_InfiniFramePackPublishDir)' == ''">$([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '$(OutputPath)', 'publish'))</_InfiniFramePackPublishDir>
         </PropertyGroup>
 
         <!-- Remove sidecar files -->

@@ -1,5 +1,6 @@
-using InfiniFrame;
 using System.Drawing;
+using InfiniFrame;
+using InfiniFrame.Application;
 using InfiniFrame.SingleFile;
 
 namespace InfiniFrameExample.SingleFileExe.React;
@@ -9,14 +10,15 @@ public static class Program {
     public static void Main(string[] args) {
         InfiniFrameSingleFile.Initialize();
 
-        IInfiniFrameWindowBuilder builder = InfiniFrameWindowBuilder.Create()
-            .SetTitle("InfiniFrame + React")
-            .SetSize(new Size(960, 640))
-            .CenteredOnMainMonitor();
-
-        builder.AddSingleFileRequirements();
-
-        IInfiniFrameWindow window = builder.Build();
-        window.WaitForClose();
+        InfiniFrameApplication.CreateBuilder(args)
+            .WithWindow(builder => {
+                builder
+                    .SetTitle("InfiniFrame + React")
+                    .SetSize(new Size(960, 640))
+                    .CenteredOnMainMonitor();
+                builder.AddSingleFileRequirements();
+            })
+            .Build()
+            .Run();
     }
 }

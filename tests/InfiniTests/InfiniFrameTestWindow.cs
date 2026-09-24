@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Window.Builder;
 using JetBrains.Annotations;
 
 namespace InfiniTests;
@@ -99,7 +100,7 @@ public sealed partial class InfiniFrameTestWindow : IDisposable {
     public static InfiniFrameTestWindow Create(Action<IInfiniFrameWindowBuilder>? builder = null, CancellationToken ct = default) {
         ct.ThrowIfCancellationRequested();
 
-        var windowBuilder = InfiniFrameWindowBuilder.Create();
+        var windowBuilder = new InfiniFrameWindowBuilder();
         windowBuilder
             .SetIconFile("wwwroot/favicon.ico")
             .SetStartPageContent(StartString);

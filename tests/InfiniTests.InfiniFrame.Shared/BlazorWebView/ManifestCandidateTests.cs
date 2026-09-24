@@ -174,10 +174,10 @@ public class ManifestCandidateTests {
     [Test]
     public async Task ResourceStream_CanAcceptFileStream(CancellationToken ct = default) {
         // Arrange
-        var tempFile = Path.GetTempFileName();
+        string tempFile = Path.GetTempFileName();
         try {
             await File.WriteAllTextAsync(tempFile, "test content");
-            using var stream = File.OpenRead(tempFile);
+            await using FileStream stream = File.OpenRead(tempFile);
 
             // Act
             var candidate = new ManifestCandidate("/path", 10, stream);

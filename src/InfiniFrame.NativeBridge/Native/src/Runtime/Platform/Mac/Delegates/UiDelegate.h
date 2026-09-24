@@ -2,12 +2,15 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+#import <Cocoa/Cocoa.h>
+#import <WebKit/WKUIDelegate.h>
+#import <WebKit/WKScriptMessageHandler.h>
 
 /**
  * @file UiDelegate.h
  * @brief WKUIDelegate and WKScriptMessageHandler that routes JavaScript messages to the .NET layer
  */
-#include "Runtime/Shared/Window/InfiniFrame.h"
+#include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

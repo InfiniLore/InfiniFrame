@@ -9,6 +9,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 namespace infiniframe::linux_gtk::ui_thread {
     void EnsureInitialized();
+    void RequestShutdown();
     void Shutdown();
     bool IsCurrentThread();
     bool InvokeAsync(std::function<void()> callback);

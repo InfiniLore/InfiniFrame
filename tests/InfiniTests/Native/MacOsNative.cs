@@ -33,4 +33,7 @@ public static partial class MacOsNative {
 
     [LibraryImport(LibSystem, EntryPoint = "pthread_main_np")]
     public static partial int IsMainThread();
+    
+    [LibraryImport("/usr/lib/libc.dylib", EntryPoint = "_exit")]
+    public static partial void PosixExit(int status);
 }

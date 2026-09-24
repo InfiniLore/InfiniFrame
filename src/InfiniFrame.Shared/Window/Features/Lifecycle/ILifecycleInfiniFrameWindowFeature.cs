@@ -68,6 +68,7 @@ public interface ILifecycleInfiniFrameWindowFeature {
     internal void MarkAsClosed();
     internal void MarkClosedCallbacksDelivered();
     internal void MarkCloseRejected();
+    internal void CompleteTeardownAfterNativeLoop();
 
     /// <summary>
     ///     Frees the native window handle. Must be called outside of native signal handlers.

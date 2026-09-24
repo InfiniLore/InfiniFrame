@@ -2,19 +2,11 @@
     <PropertyGroup>
         <RootNamespace>InfiniFrame</RootNamespace>
         <PackageId>InfiniLore.InfiniFrame.Shared</PackageId>
-        <OutputType>Library</OutputType>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Description>Shared interfaces, types, enums, delegates, and native interop layer for InfiniFrame. Contains the feature system contracts used by the core and integration packages.</Description>
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Shared"/>
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
-
         <PackageReference Include="JetBrains.Annotations"/>
         <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions"/>
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>

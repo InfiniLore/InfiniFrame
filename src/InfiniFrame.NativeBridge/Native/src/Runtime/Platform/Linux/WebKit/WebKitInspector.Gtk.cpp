@@ -27,7 +27,7 @@ namespace {
 }
 
 void InfiniFrameWindow::Impl::configure_webkit_remote_debugging() const {
-    if (_remoteDebuggingPort <= 0) {
+    if (common._remoteDebuggingPort <= 0) {
         g_unsetenv(InspectorServerEnvVar);
         g_unsetenv(InspectorHttpServerEnvVar);
 
@@ -35,7 +35,7 @@ void InfiniFrameWindow::Impl::configure_webkit_remote_debugging() const {
         return;
     }
 
-    std::string binding = BuildInspectorBinding(_remoteDebuggingPort);
+    std::string binding = BuildInspectorBinding(common._remoteDebuggingPort);
     if (!g_setenv(InspectorServerEnvVar, binding.c_str(), TRUE))
         ThrowEnvMutationFailure("set", InspectorServerEnvVar);
     if (!g_setenv(InspectorHttpServerEnvVar, binding.c_str(), TRUE))

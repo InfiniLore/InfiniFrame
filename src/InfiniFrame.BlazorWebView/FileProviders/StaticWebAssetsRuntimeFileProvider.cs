@@ -402,15 +402,14 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string baseDirectory, s
         string fileName = Path.GetFileName(originalPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
         if (string.IsNullOrWhiteSpace(fileName)) return null;
 
-        string searchPattern = fileName;
         string? directory = baseDirectory;
         while (!string.IsNullOrEmpty(directory)) {
-            string candidate = Path.Join(directory, searchPattern);
+            string candidate = Path.Join(directory, fileName);
             if (Directory.Exists(candidate)) return candidate;
 
             string[] children = [];
             try {
-                children = Directory.GetDirectories(directory, searchPattern, SearchOption.TopDirectoryOnly);
+                children = Directory.GetDirectories(directory, fileName, SearchOption.TopDirectoryOnly);
             }
             catch (IOException) {
                 // Ignore

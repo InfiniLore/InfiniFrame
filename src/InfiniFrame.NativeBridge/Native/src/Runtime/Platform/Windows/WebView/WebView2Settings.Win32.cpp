@@ -16,22 +16,21 @@ HRESULT InfiniFrameWindow::ApplyInitialWebViewSettings() {
     settings->put_AreDefaultScriptDialogsEnabled(TRUE);
     settings->put_IsWebMessageEnabled(TRUE);
 
-    if (!m_impl->_contextMenuEnabled)
+    if (!m_impl->common._contextMenuEnabled)
         SetContextMenuEnabled(false);
-    if (!m_impl->_zoomEnabled)
+    if (!m_impl->common._zoomEnabled)
         SetZoomEnabled(false);
-    if (!m_impl->_devToolsEnabled)
+    if (!m_impl->common._devToolsEnabled)
         SetDevToolsEnabled(false);
-    if (!m_impl->_statusBarEnabled)
+    if (!m_impl->common._statusBarEnabled)
         SetStatusBarEnabled(false);
-    if (!m_impl->_browserShortcutsEnabled)
+    if (!m_impl->common._browserShortcutsEnabled)
         SetBrowserShortcutsEnabled(false);
-    if (m_impl->_transparentEnabled)
+    if (m_impl->common._transparentEnabled)
         SetTransparentEnabled(true);
-    if (m_impl->_backgroundColorR != 0 || m_impl->_backgroundColorG != 0 || m_impl->_backgroundColorB != 0 || m_impl->
-        _backgroundColorA != 0)
+    if (m_impl->common._backgroundColorR != 0 || m_impl->common._backgroundColorG != 0 || m_impl->common._backgroundColorB != 0 || m_impl->common._backgroundColorA != 0)
         SetBackgroundColor(
-            m_impl->_backgroundColorR, m_impl->_backgroundColorG, m_impl->_backgroundColorB, m_impl->_backgroundColorA);
+            m_impl->common._backgroundColorR, m_impl->common._backgroundColorG, m_impl->common._backgroundColorB, m_impl->common._backgroundColorA);
     if (m_impl->_zoom != 100)
         SetZoom(m_impl->_zoom);
 
@@ -40,12 +39,12 @@ HRESULT InfiniFrameWindow::ApplyInitialWebViewSettings() {
 
 void InfiniFrameWindow::GetTransparentEnabled(bool* enabled) const {
     if (!m_impl->_webviewController) {
-        *enabled = m_impl->_transparentEnabled;
+        *enabled = m_impl->common._transparentEnabled;
         return;
     }
     wil::com_ptr<ICoreWebView2Controller2> controller2;
     if (FAILED(m_impl->_webviewController->QueryInterface(&controller2)) || !controller2) {
-        *enabled = m_impl->_transparentEnabled;
+        *enabled = m_impl->common._transparentEnabled;
         return;
     }
     COREWEBVIEW2_COLOR backgroundColor;
@@ -55,7 +54,7 @@ void InfiniFrameWindow::GetTransparentEnabled(bool* enabled) const {
 
 void InfiniFrameWindow::GetContextMenuEnabled(bool* enabled) const {
     if (!m_impl->_webviewWindow) {
-        *enabled = m_impl->_contextMenuEnabled;
+        *enabled = m_impl->common._contextMenuEnabled;
         return;
     }
     wil::com_ptr<ICoreWebView2Settings> settings;
@@ -68,7 +67,7 @@ void InfiniFrameWindow::GetContextMenuEnabled(bool* enabled) const {
 
 void InfiniFrameWindow::GetZoomEnabled(bool* enabled) const {
     if (!m_impl->_webviewWindow) {
-        *enabled = m_impl->_zoomEnabled;
+        *enabled = m_impl->common._zoomEnabled;
         return;
     }
     wil::com_ptr<ICoreWebView2Settings> settings;
@@ -81,7 +80,7 @@ void InfiniFrameWindow::GetZoomEnabled(bool* enabled) const {
 
 void InfiniFrameWindow::GetStatusBarEnabled(bool* enabled) const {
     if (!m_impl->_webviewWindow) {
-        *enabled = m_impl->_statusBarEnabled;
+        *enabled = m_impl->common._statusBarEnabled;
         return;
     }
     wil::com_ptr<ICoreWebView2Settings> settings;
@@ -94,7 +93,7 @@ void InfiniFrameWindow::GetStatusBarEnabled(bool* enabled) const {
 
 void InfiniFrameWindow::GetDevToolsEnabled(bool* enabled) const {
     if (!m_impl->_webviewWindow) {
-        *enabled = m_impl->_devToolsEnabled;
+        *enabled = m_impl->common._devToolsEnabled;
         return;
     }
     wil::com_ptr<ICoreWebView2Settings> settings;
@@ -106,7 +105,7 @@ void InfiniFrameWindow::GetDevToolsEnabled(bool* enabled) const {
 }
 
 void InfiniFrameWindow::SetTransparentEnabled(const bool enabled) {
-    m_impl->_transparentEnabled = enabled;
+    m_impl->common._transparentEnabled = enabled;
     if (!m_impl->_webviewController || !m_impl->_webviewWindow)
         return;
     wil::com_ptr<ICoreWebView2Controller2> controller2;
@@ -120,7 +119,7 @@ void InfiniFrameWindow::SetTransparentEnabled(const bool enabled) {
 }
 
 void InfiniFrameWindow::SetContextMenuEnabled(const bool enabled) {
-    m_impl->_contextMenuEnabled = enabled;
+    m_impl->common._contextMenuEnabled = enabled;
     if (!m_impl->_webviewWindow)
         return;
     wil::com_ptr<ICoreWebView2Settings> settings;
@@ -131,7 +130,7 @@ void InfiniFrameWindow::SetContextMenuEnabled(const bool enabled) {
 }
 
 void InfiniFrameWindow::SetMediaAutoplayEnabled(const bool enabled) {
-    m_impl->_mediaAutoplayEnabled = enabled;
+    m_impl->common._mediaAutoplayEnabled = enabled;
     if (!m_impl->_webviewWindow)
         return;
 
@@ -141,7 +140,7 @@ void InfiniFrameWindow::SetMediaAutoplayEnabled(const bool enabled) {
 }
 
 void InfiniFrameWindow::SetUserAgent(const char* userAgent) {
-    m_impl->_userAgent = userAgent != nullptr ? ToUTF16String(userAgent) : L"";
+    m_impl->common._userAgent = userAgent != nullptr ? ToUTF16String(userAgent) : L"";
     if (!m_impl->_webviewWindow)
         return;
 
@@ -153,12 +152,12 @@ void InfiniFrameWindow::SetUserAgent(const char* userAgent) {
     if (FAILED(settings->QueryInterface(&settings2)) || !settings2)
         return;
 
-    settings2->put_UserAgent(m_impl->_userAgent.empty() ? nullptr : m_impl->_userAgent.c_str());
+    settings2->put_UserAgent(m_impl->common._userAgent.empty() ? nullptr : m_impl->common._userAgent.c_str());
     m_impl->_webviewWindow->Reload();
 }
 
 void InfiniFrameWindow::SetZoomEnabled(const bool enabled) {
-    m_impl->_zoomEnabled = enabled;
+    m_impl->common._zoomEnabled = enabled;
     if (!m_impl->_webviewWindow)
         return;
     wil::com_ptr<ICoreWebView2Settings> settings;
@@ -169,7 +168,7 @@ void InfiniFrameWindow::SetZoomEnabled(const bool enabled) {
 }
 
 void InfiniFrameWindow::SetStatusBarEnabled(const bool enabled) {
-    m_impl->_statusBarEnabled = enabled;
+    m_impl->common._statusBarEnabled = enabled;
     if (!m_impl->_webviewWindow)
         return;
     wil::com_ptr<ICoreWebView2Settings> settings;
@@ -180,7 +179,7 @@ void InfiniFrameWindow::SetStatusBarEnabled(const bool enabled) {
 }
 
 void InfiniFrameWindow::SetBrowserShortcutsEnabled(const bool enabled) {
-    m_impl->_browserShortcutsEnabled = enabled;
+    m_impl->common._browserShortcutsEnabled = enabled;
     if (!m_impl->_webviewWindow)
         return;
     const char* flag = enabled ? "true" : "false";
@@ -192,7 +191,7 @@ void InfiniFrameWindow::SetBrowserShortcutsEnabled(const bool enabled) {
 }
 
 void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled) {
-    m_impl->_devToolsEnabled = enabled;
+    m_impl->common._devToolsEnabled = enabled;
     if (!m_impl->_webviewWindow)
         return;
     wil::com_ptr<ICoreWebView2Settings> settings;
@@ -203,10 +202,10 @@ void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled) {
 }
 
 void InfiniFrameWindow::SetBackgroundColor(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) {
-    m_impl->_backgroundColorR = r;
-    m_impl->_backgroundColorG = g;
-    m_impl->_backgroundColorB = b;
-    m_impl->_backgroundColorA = a;
+    m_impl->common._backgroundColorR = r;
+    m_impl->common._backgroundColorG = g;
+    m_impl->common._backgroundColorB = b;
+    m_impl->common._backgroundColorA = a;
 
     if (!m_impl->_webviewController)
         return;

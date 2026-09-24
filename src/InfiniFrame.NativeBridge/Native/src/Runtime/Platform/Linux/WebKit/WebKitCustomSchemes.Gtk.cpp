@@ -8,7 +8,7 @@
 
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
 #include "Runtime/Platform/Linux/WebKit/WebKit.Gtk.Internal.h"
-#include "Runtime/Shared/WebView/CustomSchemeResponse.h"
+#include "Runtime/Internal/WebView/CustomSchemeResponse.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -77,11 +77,11 @@ namespace gtk_webkit {
 }
 
 void InfiniFrameWindow::Impl::AddCustomSchemeHandlers() {
-    if (_customSchemeCallback == nullptr || _webContext == nullptr)
+    if (common._customSchemeCallback == nullptr || _webContext == nullptr)
         return;
 
     WebKitSecurityManager* securityManager = webkit_web_context_get_security_manager(_webContext);
-    for (const auto& value : _customSchemeNames) {
+    for (const auto& value : common._customSchemeNames) {
         if (securityManager != nullptr && g_ascii_strcasecmp(value.c_str(), "app") == 0) {
             webkit_security_manager_register_uri_scheme_as_secure(securityManager, value.c_str());
             webkit_security_manager_register_uri_scheme_as_cors_enabled(securityManager, value.c_str());
@@ -90,7 +90,7 @@ void InfiniFrameWindow::Impl::AddCustomSchemeHandlers() {
         webkit_web_context_register_uri_scheme(
             _webContext, value.c_str(),
             reinterpret_cast<WebKitURISchemeRequestCallback>(gtk_webkit::HandleCustomSchemeRequest),
-            reinterpret_cast<void*>(_customSchemeCallback), nullptr
+            reinterpret_cast<void*>(common._customSchemeCallback), nullptr
             );
     }
 }
