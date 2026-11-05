@@ -90,7 +90,8 @@ runs:
                     x11-xserver-utils
                     xfonts-base
                     xvfb
-                version: 2.0
+                # Bump when the Linux package list changes so stale apt caches cannot hide dependencies.
+                version: 3.0
 
         -   name: Verify GTK3 Deps (Linux)
             if: runner.os == 'Linux'
@@ -98,20 +99,23 @@ runs:
             run: |
                 set -euo pipefail
 
-                if pkg-config --exists gtk+-3.0; then
-                  echo "gtk+-3.0 detected via pkg-config."
+                if pkg-config --exists gtk+-3.0 && pkg-config --exists libnotify; then
+                  echo "GTK3 and libnotify detected via pkg-config."
                   exit 0
                 fi
 
-                echo "gtk+-3.0 not found after cached apt step; running fallback apt install."
+                echo "Required GTK3/libnotify packages not found after cached apt step; running fallback apt install."
                 sudo apt-get update
                 sudo apt-get install -y --no-install-recommends \
                   libgtk-3-dev \
                   libwebkit2gtk-4.1-dev \
+                  libnotify-dev \
+                  libnotify4 \
                   pkg-config
 
                 pkg-config --exists gtk+-3.0
-                echo "gtk+-3.0 is now available."
+                pkg-config --exists libnotify
+                echo "GTK3 and libnotify are now available."
 
         -   name: Cache Homebrew
             if: runner.os == 'macOS'
