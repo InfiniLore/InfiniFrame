@@ -161,3 +161,4 @@ jobs:
                     job-status: ${{ job.status }}
                     success-description: SingleFile E2E tests passed
                     failure-description: SingleFile E2E tests failed
+                    allow-status-422: 'true'
