@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using FluentValidation;
+using InfiniFrame.Hosting;
 using InfiniFrame.NativeBridge.Parameters.Window;
 using InfiniFrame.Security;
 using InfiniFrame.Window.Events;
@@ -46,6 +47,8 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.Build" />
     public IInfiniFrameWindow Build(IServiceProvider? provider = null) {
+        // Default native windows and an external host provider are mutually exclusive per process.
+        InfiniFrameHostSelection.Select(InfiniFrameHostSelection.Kind.Default);
         bool ownsServiceProvider = provider is null;
         IServiceProvider actualProvider = provider ?? Services.BuildServiceProvider();
         InfiniFrameWindow? window = null;

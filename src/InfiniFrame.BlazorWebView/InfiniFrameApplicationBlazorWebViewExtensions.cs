@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Reflection;
+using System.Threading.Channels;
 using InfiniFrame.Application;
 using InfiniFrame.BlazorWebView.FileProviders;
 using InfiniFrame.Security;
@@ -52,6 +53,12 @@ public sealed class InfiniFrameBlazorWebViewConfiguration {
         var manager = services.GetRequiredService<IInfiniFrameWebViewManager>();
         InfiniFrameBlazorAppConfiguration appConfig = services.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?.Value
             ?? new InfiniFrameBlazorAppConfiguration();
+        // Hosted windows never drop render messages: an over-full queue faults the window instead. DropOldest and
+        // DropNewest would discard queued messages silently, so they are rejected before anything is created.
+        if (application.HostedRuntime is not null
+            && appConfig.WebMessageQueueFullMode is BoundedChannelFullMode.DropOldest or BoundedChannelFullMode.DropNewest)
+            throw new NotSupportedException(
+                $"WebMessageQueueFullMode {appConfig.WebMessageQueueFullMode} drops messages silently and cannot be used with an external host provider.");
 
         var jsConfiguration =
             services.GetService<IInfiniFrameJsComponentConfiguration>();

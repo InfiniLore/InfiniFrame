@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Threading.Channels;
+using InfiniFrame.Hosting;
 using InfiniFrame.Security;
 using InfiniFrame.Utilities;
 using Microsoft.AspNetCore.Components;
@@ -19,7 +20,7 @@ namespace InfiniFrame.BlazorWebView;
 /// <summary>
 ///     Manages the Blazor web view lifecycle, resource serving, and custom URL scheme handling.
 /// </summary>
-public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewManager {
+public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewManager, IInfiniFrameStatusResourceSource {
 
     // BlazorWebView resources are always hosted on a dedicated app:// origin.
     // This keeps module/script fetches on the same trusted internal origin
@@ -33,8 +34,21 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     /// </summary>
     public const string AppBaseUri = $"{BlazorAppScheme}://localhost/";
 
-    private readonly Channel<string> _channel;
+    private readonly Channel<QueuedWebMessage> _channel;
     private readonly CancellationTokenSource _messagePumpShutdown = new();
+
+    // Hosted windows only (external host providers). Blazor keeps one page context per AttachPage, and everything it
+    // sends belongs to that page. Each outbound message is therefore bound, when produced, to the browser document whose
+    // AttachPage created the current page context (recorded on Blazor's dispatcher, after work already queued for the
+    // previous page). Ambient execution context is deliberately not used: long-lived work started under one page (for
+    // example a singleton's timer) can later drive the next page. Work for a retired document is cancelled, never sent
+    // to a later document, and an over-full queue faults the window instead of dropping messages.
+    private const string AttachPageMessagePrefix = "__bwv:[\"AttachPage\"";
+    private const long HostedQueueByteCapacity = 64L * 1024 * 1024;
+    private readonly Dispatcher _blazorDispatcher;
+    private IInfiniFrameDocumentWindow? _documentWindow;
+    private ulong _pageDocument;
+    private long _hostedQueuedBytes;
     private readonly ILogger<InfiniFrameWebViewManager> _logger;
 
     private readonly Task _messagePumpTask;
@@ -67,6 +81,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     )
         : base(provider, dispatcher, config.Value.AppBaseUri, fileProvider, jsComponents, config.Value.HostPage) {
         _logger = logger;
+        _blazorDispatcher = dispatcher;
         InfiniFrameBlazorAppConfiguration configuration = config.Value;
         if (configuration.AppBaseUri is null
             || !configuration.AppBaseUri.IsAbsoluteUri
@@ -93,7 +108,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         BoundedChannelFullMode effectiveFullMode = configuration.WebMessageQueueFullMode == BoundedChannelFullMode.DropWrite
             ? BoundedChannelFullMode.Wait
             : configuration.WebMessageQueueFullMode;
-        _channel = Channel.CreateBounded<string>(new BoundedChannelOptions(configuration.WebMessageQueueCapacity) {
+        _channel = Channel.CreateBounded<QueuedWebMessage>(new BoundedChannelOptions(configuration.WebMessageQueueCapacity) {
             SingleReader = true,
             SingleWriter = false,
             FullMode = effectiveFullMode,
@@ -122,12 +137,22 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     // -----------------------------------------------------------------------------------------------------------------
     /// <inheritdoc cref="IInfiniFrameWebViewManager.HandleWebRequest" />
     public (Stream? Data, string? ContentType) HandleWebRequest(IInfiniFrameWindow? infiniFrameWindow, string? url) {
+        (_, Stream? data, string? contentType) = GetResourceCore(infiniFrameWindow, url);
+        return (data, contentType);
+    }
+
+    // Hosted windows read the status that the public tuple contract above cannot carry (for example, the 404 response
+    // the Blazor static content provider returns for a missing asset). Default engines keep using HandleWebRequest.
+    (int StatusCode, Stream? Body, string? ContentType) IInfiniFrameStatusResourceSource.GetResource(IInfiniFrameWindow? window, string? url)
+        => GetResourceCore(window, url);
+
+    private (int StatusCode, Stream? Body, string? ContentType) GetResourceCore(IInfiniFrameWindow? infiniFrameWindow, string? url) {
         if (string.IsNullOrWhiteSpace(url)) {
             _logger.LogWarning(
                 "Rejected web request because URL is null or empty. Url: {Url}",
                 url
             );
-            return default;
+            return (404, null, null);
         }
 
         if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? requestUri)) {
@@ -135,7 +160,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
                 "Rejected web request because URL parsing failed. Url: {Url}",
                 url
             );
-            return default;
+            return (404, null, null);
         }
 
         IInfiniFrameUriSecurityPolicy uriSecurityPolicy = GetUriSecurityPolicy(infiniFrameWindow);
@@ -144,7 +169,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
                 "Rejected web request due to disallowed URI scheme. Scheme: {Scheme}, Url: {Url}",
                 requestUri.Scheme,
                 requestUri);
-            return default;
+            return (403, null, null);
         }
 
         if (!uriSecurityPolicy.IsTrustedOrigin(requestUri)) {
@@ -152,7 +177,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
                 "Rejected web request due to untrusted origin. RequestOrigin: {RequestOrigin}, TrustedOrigins: {TrustedOrigins}",
                 requestUri,
                 uriSecurityPolicy.TrustedOrigins);
-            return default;
+            return (403, null, null);
         }
 
         string localPath = requestUri.LocalPath;
@@ -168,20 +193,20 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         if (TryGetResponseContent(
             resourceUri.AbsoluteUri,
             !hasFileExtension,
-            out _,
+            out int statusCode,
             out _,
             out Stream content2,
             out IDictionary<string, string> headers2)
         ) {
             headers2.TryGetValue("Content-Type", out string? contentType);
-            return (content2, contentType ?? GetFallbackContentType(resourceUri.LocalPath));
+            return (statusCode == 0 ? 200 : statusCode, content2, contentType ?? GetFallbackContentType(resourceUri.LocalPath));
         }
 
         _logger.LogWarning(
             "No web content found for trusted URL. Url: {Url}",
             resourceUri);
 
-        return default;
+        return (404, null, null);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -207,6 +232,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     private void HandleWebMessageCore(IInfiniFrameWindow window, string message, string? origin) {
         if (IsDisposingOrDisposed) return;
 
+        IInfiniFrameDocumentWindow? documentWindow = window as IInfiniFrameDocumentWindow;
         Uri? messageOriginUrl;
 
         if (!string.IsNullOrWhiteSpace(origin)) {
@@ -217,7 +243,8 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
                 return;
             }
         }
-        else if (_appBaseUri.IsAbsoluteUri) {
+        // A hosted window always supplies the browser-reported document origin, so it never falls back.
+        else if (documentWindow is null && _appBaseUri.IsAbsoluteUri) {
             messageOriginUrl = _appBaseUri;
 
             _logger.LogDebug(
@@ -243,7 +270,38 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         // messages because the pump synchronously invokes that same thread to send responses.
         if (IsDisposingOrDisposed) return;
 
-        MessageReceived(messageOriginUrl, message);
+        if (documentWindow is null) {
+            MessageReceived(messageOriginUrl, message);
+            return;
+        }
+
+        ulong? incoming = documentWindow.IncomingMessageDocument;
+        if (incoming is null or 0 || incoming.Value != documentWindow.CurrentDocument) {
+            _logger.LogWarning("Rejected a web message from a superseded or unknown hosted document");
+            return;
+        }
+        Volatile.Write(ref _documentWindow, documentWindow);
+        if (!message.StartsWith(AttachPageMessagePrefix, StringComparison.Ordinal)) {
+            MessageReceived(messageOriginUrl, message);
+            return;
+        }
+        // Record the attaching document on Blazor's dispatcher, in order with the work already queued there, so output
+        // still pending for the previous page context stays bound to the previous document.
+        ulong document = incoming.Value;
+        Uri attachOrigin = messageOriginUrl;
+        _ = ObserveHostedAttachAsync(_blazorDispatcher.InvokeAsync(() => {
+            Volatile.Write(ref _pageDocument, document);
+            MessageReceived(attachOrigin, message);
+        }));
+    }
+
+    private async Task ObserveHostedAttachAsync(Task attach) {
+        try {
+            await attach.ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
+            _logger.LogWarning(ex, "Attaching a hosted Blazor page failed");
+        }
     }
 
     private IInfiniFrameUriSecurityPolicy GetUriSecurityPolicy(IInfiniFrameWindow? window) =>
@@ -264,7 +322,12 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             return;
         }
 
-        if (_channel.Writer.TryWrite(message)) return;
+        if (Volatile.Read(ref _documentWindow) is {} documentWindow) {
+            QueueHostedMessage(documentWindow, message);
+            return;
+        }
+
+        if (_channel.Writer.TryWrite(new QueuedWebMessage(message, 0, false))) return;
 
         _logger.LogError(
             "Discarded outbound WebView message because the bounded queue is unavailable or full. " +
@@ -273,13 +336,44 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             _messageQueueFullMode);
     }
 
+    private void QueueHostedMessage(IInfiniFrameDocumentWindow documentWindow, string message) {
+        ulong document = Volatile.Read(ref _pageDocument);
+        long bytes = (long)message.Length * sizeof(char);
+        long queued = Interlocked.Add(ref _hostedQueuedBytes, bytes);
+        if (queued <= HostedQueueByteCapacity && _channel.Writer.TryWrite(new QueuedWebMessage(message, document, true))) return;
+
+        Interlocked.Add(ref _hostedQueuedBytes, -bytes);
+        var exception = new InvalidOperationException(
+            "The Blazor message queue of a hosted window is full; the window cannot continue without dropping messages.");
+        _logger.LogError(exception,
+            "Hosted Blazor delivery faulted. QueueCapacity: {QueueCapacity}, ByteCapacity: {ByteCapacity}",
+            _messageQueueCapacity, HostedQueueByteCapacity);
+        _channel.Writer.TryComplete(exception);
+        documentWindow.FaultWindow(exception);
+        throw exception;
+    }
+
     private async Task MessagePump() {
         try {
             while (await _channel.Reader.WaitToReadAsync(_messagePumpShutdown.Token)) {
-                while (_channel.Reader.TryRead(out string? message)) {
+                while (_channel.Reader.TryRead(out QueuedWebMessage message)) {
                     if (IsDisposingOrDisposed || _messagePumpShutdown.IsCancellationRequested) return;
 
-                    await LazyWindow.Value.SendWebMessageAsync(message, _messagePumpShutdown.Token).ConfigureAwait(false);
+                    if (!message.Hosted) {
+                        await LazyWindow.Value.SendWebMessageAsync(message.Payload, _messagePumpShutdown.Token).ConfigureAwait(false);
+                        continue;
+                    }
+                    try {
+                        await Volatile.Read(ref _documentWindow)!
+                            .SendWebMessageForDocumentAsync(message.Payload, message.Document, _messagePumpShutdown.Token)
+                            .ConfigureAwait(false);
+                    }
+                    catch (InfiniFrameHostDocumentRetiredException) {
+                        _logger.LogDebug("Cancelled outbound Blazor work for retired hosted document {Document}", message.Document);
+                    }
+                    finally {
+                        Interlocked.Add(ref _hostedQueuedBytes, -(long)message.Payload.Length * sizeof(char));
+                    }
                 }
             }
         }
@@ -296,6 +390,8 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             _logger.LogError(ex, "Unhandled exception in WebView message pump");
         }
     }
+
+    private readonly record struct QueuedWebMessage(string Payload, ulong Document, bool Hosted);
 
     protected override async ValueTask DisposeAsyncCore() {
         if (Interlocked.Exchange(ref _disposeStarted, 1) != 0) return;
