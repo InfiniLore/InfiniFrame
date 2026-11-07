@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!-- Focused tests for the external host/window provider contract. A separate test process is used because the
+         default-backend/host-provider selection is a process-wide latch. -->
+    <PropertyGroup>
+        <NoWarn>$(NoWarn);CS0105</NoWarn>
+        <!-- No native window or AppKit main-thread use: the shared macOS main-queue test host is not needed. -->
+        <InfiniFrameUseMacOsTestingPlatformHost>false</InfiniFrameUseMacOsTestingPlatformHost>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="TUnit"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../../src/InfiniFrame.Application/InfiniFrame.Application.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.BlazorWebView/InfiniFrame.BlazorWebView.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.Js/InfiniFrame.Js.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.Security/InfiniFrame.Security.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.Window/InfiniFrame.Window.csproj" />
+    </ItemGroup>
+</Project>

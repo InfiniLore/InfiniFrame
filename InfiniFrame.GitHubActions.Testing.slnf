@@ -17,6 +17,7 @@
             
             "tests\\InfiniTests\\InfiniTests.csproj",
             "tests\\InfiniTests.InfiniFrame.Application\\InfiniTests.InfiniFrame.Application.csproj",
+            "tests\\InfiniTests.InfiniFrame.Hosting\\InfiniTests.InfiniFrame.Hosting.csproj",
             "tests\\InfiniTests.InfiniFrame.Blazor\\InfiniTests.InfiniFrame.Blazor.csproj",
             "tests\\InfiniTests.InfiniFrame.BlazorWebView\\InfiniTests.InfiniFrame.BlazorWebView.csproj",
             "tests\\InfiniTests.InfiniFrame.Js\\InfiniTests.InfiniFrame.Js.csproj",

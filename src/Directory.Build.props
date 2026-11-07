@@ -54,6 +54,7 @@
 
         <InternalsVisibleTo Include="InfiniTests" />
         <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Application" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Hosting" />
         <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Window" />
         <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Blazor" />
         <InternalsVisibleTo Include="InfiniTests.InfiniFrame.BlazorWebView" />

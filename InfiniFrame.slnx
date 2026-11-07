@@ -147,6 +147,7 @@
     <Project Path="tests/InfiniTests.InfiniFrame.SingleFile/InfiniTests.InfiniFrame.SingleFile.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame.WebServer/InfiniTests.InfiniFrame.WebServer.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame.Application/InfiniTests.InfiniFrame.Application.csproj" />
+    <Project Path="tests/InfiniTests.InfiniFrame.Hosting/InfiniTests.InfiniFrame.Hosting.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame.Window/InfiniTests.InfiniFrame.Window.csproj" />
     <Project Path="tests/InfiniTests/InfiniTests.csproj" />
   </Folder>
