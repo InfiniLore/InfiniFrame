@@ -117,7 +117,9 @@ public sealed class InfiniFrameBlazorWebViewConfiguration {
             .AddScoped(sp => {
                 var handler = sp.GetRequiredService<InfiniFrameHttpHandler>();
                 Uri appBaseUri = sp.GetRequiredService<IOptions<InfiniFrameBlazorAppConfiguration>>().Value.AppBaseUri;
-                return new HttpClient(handler) { BaseAddress = appBaseUri };
+                // The handler is an application singleton, owned and disposed by the root provider. A page's client must
+                // not dispose it, or every later page's client fails with ObjectDisposedException after a reload.
+                return new HttpClient(handler, disposeHandler: false) { BaseAddress = appBaseUri };
             })
             .AddSingleton<IInfiniFrameWebViewManager, InfiniFrameWebViewManager>()
             .AddSingleton<IInfiniFrameJsComponentConfiguration, InfiniFrameJsComponentConfiguration>()
