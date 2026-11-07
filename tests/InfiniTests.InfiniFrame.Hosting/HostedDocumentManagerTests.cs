@@ -52,6 +52,7 @@ public sealed class HostedDocumentManagerTests {
         await Assert.That(d.LiveManagers).IsEqualTo(0);
         await Assert.That(d.DisposeFailures).IsEqualTo(0);
         await Assert.That(d.DisposeTimeouts).IsEqualTo(0);
+        await Assert.That(d.ShutdownTimeouts).IsEqualTo(0);
         await Assert.That(d.UnboundOutbound).IsEqualTo(0);
     }
 
@@ -79,6 +80,7 @@ public sealed class HostedDocumentManagerTests {
         await Assert.That(closed.ManagersRetired).IsEqualTo((long)last);
         await Assert.That(closed.ManagersDisposed).IsEqualTo((long)last);
         await Assert.That(closed.DisposeTimeouts).IsEqualTo(0);
+        await Assert.That(closed.ShutdownTimeouts).IsEqualTo(0);
     }
 
     [Test]

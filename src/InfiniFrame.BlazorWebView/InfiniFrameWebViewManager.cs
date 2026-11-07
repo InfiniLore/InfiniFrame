@@ -421,6 +421,9 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     Task<bool> IInfiniFrameWebViewManager.TryDispatchAsync(Action<IServiceProvider> workItem) =>
         _hosted.TryDispatchToCurrentAsync(workItem) ?? TryDispatchAsync(workItem);
 
+    /// <summary>The hosted per-document coordinator (internal: tests shorten its bounds through it).</summary>
+    internal HostedDocumentManagers HostedDocuments => _hosted;
+
     /// <summary>Bounded counters of the per-document managers of a hosted window.</summary>
     internal HostedDocumentDiagnostics GetHostedDocumentDiagnostics() =>
         _hosted.GetDiagnostics() with { SendsCancelledForRetiredDocument = Interlocked.Read(ref _hostedSendsCancelled) };

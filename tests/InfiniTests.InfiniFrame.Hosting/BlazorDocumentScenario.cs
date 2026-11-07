@@ -40,12 +40,17 @@ internal sealed class BlazorDocumentScenario {
     internal IInfiniFrameWindow Window { get; }
     internal PageRegistry Pages { get; }
 
-    internal static async Task<BlazorDocumentScenario> StartAsync(CancellationToken ct, Action<InfiniFrameBlazorWebViewConfiguration>? blazor = null) {
+    internal static async Task<BlazorDocumentScenario> StartAsync(
+        CancellationToken ct,
+        Action<InfiniFrameBlazorWebViewConfiguration>? blazor = null,
+        Action<IServiceCollection>? services = null
+    ) {
         InfiniFrameHostSelection.ResetForTests();
         var provider = new ScriptedHostProvider();
         InfiniFrameApplicationBuilder builder = InfiniFrameApplication.CreateBuilder();
         builder.Services.AddSingleton<PageRegistry>();
         builder.Services.AddScoped<PageScopeProbe>();
+        services?.Invoke(builder.Services);
         InfiniFrameApplication application = builder
             .UseHostProvider(provider)
             .WithWindow("main", static _ => {})

@@ -29,8 +29,8 @@ namespace InfiniFrame.BlazorWebView.Hosted;
 ///         <c>AttachPage</c>. The manager's output is permanently bound to its document, and only that document's
 ///         messages reach it, validated again after waiting on the Blazor dispatcher. Each manager gets the root
 ///         components registered through <see cref="IInfiniFrameWebViewManager" /> and its own service scope per page,
-///         while application singletons are shared. When the document's lifetime ends, the manager is retired and
-///         disposed exactly once; its later output is refused and counted, never sent to another document.
+///         while application singletons are shared. When the document's lifetime ends, the manager is retired and its
+///         disposal is started exactly once; its later output is refused and counted, never sent to another document.
 ///     </para>
 ///     <para>
 ///         A retired page's new JS interop calls are refused with <see cref="JSDisconnectedException" /> (seen at once by
@@ -40,9 +40,30 @@ namespace InfiniFrame.BlazorWebView.Hosted;
 ///         scope itself.
 ///     </para>
 ///     <para>
-///         Calls that its JS runtime still had pending when the document retired are not completed by this coordinator:
-///         completing them would invent a JS result. They end when their caller's cancellation token or timeout fires.
-///         A page disposal that waits on such a call is no longer tracked after a bound, and its scope is released.
+///         Calls that its JS runtime still had pending when the document retired are neither completed nor cancelled by
+///         this coordinator: completing them would invent a JS result. They end only when their caller's cancellation
+///         token or timeout fires, and without either they stay pending.
+///     </para>
+///     <para>
+///         Teardown policy: a retirement awaits the framework's page disposal for <see cref="RetirementTimeout" />. A
+///         disposal still running after that is not cancelled, and no longer awaited: the page scope is released (if it was
+///         captured), and that release is awaited for the same bound again. Disposal code that resumes later can therefore
+///         meet already-disposed scoped services. How such a disposal ends, if it ends, is counted
+///         (<c>LateDisposeCompletions</c>, <c>LateDisposeFaults</c>, <c>LateDisposeCancellations</c>) and logged. No longer
+///         awaiting it does not mean every continuation of it has ended, and the counters are not proof that its work and
+///         memory were reclaimed. Either way, none of the retired page's own output (render batches, JS calls,
+///         navigations) reaches another document.
+///     </para>
+///     <para>
+///         Only those two waits are bounded, not the dispatch that starts each of them: a component whose synchronous
+///         disposal blocks holds its retirement, and when the bound passes before the page's scope was captured, the scope
+///         is left to the framework's own disposal.
+///     </para>
+///     <para>
+///         At shutdown this coordinator's own disposal waits up to <see cref="ShutdownTimeout" /> for retirements in
+///         progress, but the application does not wait for it: the window-closed handler starts the manager's disposal
+///         without awaiting it (unchanged, as for default windows), so <c>Run()</c> can return, and the application's
+///         singletons be disposed, while a retirement is still running.
 ///     </para>
 /// </remarks>
 internal sealed class HostedDocumentManagers : IAsyncDisposable {
@@ -51,10 +72,6 @@ internal sealed class HostedDocumentManagers : IAsyncDisposable {
     private const string RenderBatchPrefix = "__bwv:[\"RenderBatch\"";
     private const string BeginInvokeJsPrefix = "__bwv:[\"BeginInvokeJS\"";
     private const string NavigatePrefix = "__bwv:[\"Navigate\"";
-    private static readonly TimeSpan DisposeTimeout = TimeSpan.FromSeconds(15);
-    // One retirement may not hold its page longer than this: a disposal can wait forever on a JS call that was already
-    // pending when the document retired (WebView sets no default interop timeout, and nothing completes the call).
-    private static readonly TimeSpan RetirementTimeout = TimeSpan.FromSeconds(10);
 
     private readonly InfiniFrameWebViewManager _owner;
     private readonly IServiceProvider _provider;
@@ -79,6 +96,12 @@ internal sealed class HostedDocumentManagers : IAsyncDisposable {
     private long _disposeFailures;
     private long _disposeTimeouts;
     private long _pageScopeFallbacks;
+    private long _lateDisposeCompletions;
+    private long _lateDisposeFaults;
+    private long _lateDisposeCancellations;
+    private long _shutdownTimeouts;
+    private TimeSpan _retirementTimeout = TimeSpan.FromSeconds(10);
+    private TimeSpan _shutdownTimeout = TimeSpan.FromSeconds(15);
     private long _attachMessages;
     private long _repeatedAttaches;
     private long _refusedInbound;
@@ -107,6 +130,24 @@ internal sealed class HostedDocumentManagers : IAsyncDisposable {
         _jsComponents = jsComponents;
         _hostPage = hostPage;
         _logger = logger;
+    }
+
+    /// <summary>
+    ///     How long one retirement waits for the framework's page disposal. On a timeout, the fallback release of the page
+    ///     scope is awaited for the same bound again. Each of those two waits is bounded by this; the dispatch that starts
+    ///     each wait is not (see the remarks). A disposal can otherwise wait forever on a JS call that was already pending
+    ///     when the document retired (WebView sets no default interop timeout, and nothing completes the call). Changed
+    ///     only by tests; it must be positive.
+    /// </summary>
+    internal TimeSpan RetirementTimeout {
+        get => _retirementTimeout;
+        set => _retirementTimeout = value > TimeSpan.Zero ? value : throw new ArgumentOutOfRangeException(nameof(value), value, "The bound must be positive.");
+    }
+
+    /// <summary>How long this coordinator's disposal waits for the retirements in progress. Changed only by tests; it must be positive.</summary>
+    internal TimeSpan ShutdownTimeout {
+        get => _shutdownTimeout;
+        set => _shutdownTimeout = value > TimeSpan.Zero ? value : throw new ArgumentOutOfRangeException(nameof(value), value, "The bound must be positive.");
     }
 
     /// <summary>True once a hosted window delivered a message, so the coordinator owns all Blazor pages.</summary>
@@ -362,16 +403,28 @@ internal sealed class HostedDocumentManagers : IAsyncDisposable {
             _logger.LogDebug("Disposed the Blazor manager of retired hosted document {Document}", manager.Document);
             return;
         }
-        catch (TimeoutException) {
+        catch (TimeoutException) when (!disposal.IsCompleted) {
+            // Supported teardown policy: the page's remaining disposal work is not cancelled, and no longer awaited. Its
+            // scope is released below, so disposal code that resumes later can meet already-disposed scoped services; how
+            // that disposal ends, if it ends, is counted and logged. None of the retired page's own output reaches another
+            // document.
             Interlocked.Increment(ref _disposeTimeouts);
-            Observe(disposal);
+            ObserveLateDisposal(disposal, manager.Document);
             _logger.LogWarning(
                 "The Blazor page of retired hosted document {Document} was still disposing after {Timeout} (it may wait for a JS call that can no longer complete); its page scope is released",
                 manager.Document, RetirementTimeout);
         }
         catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
+            // The disposal ended within the bound without completing (faulted or cancelled; a TimeoutException thrown by
+            // the disposal itself is such a failure, not the bound), or it completed just as the bound passed.
+            if (disposal.IsCompletedSuccessfully) {
+                Interlocked.Increment(ref _disposedManagers);
+                _logger.LogDebug("Disposed the Blazor manager of retired hosted document {Document} as its bound passed", manager.Document);
+                return;
+            }
             Interlocked.Increment(ref _disposeFailures);
-            _logger.LogWarning(exception, "Disposing the Blazor page of retired hosted document {Document} failed; its page scope is released", manager.Document);
+            _logger.LogWarning(disposal.Exception?.GetBaseException() ?? exception,
+                "Disposing the Blazor page of retired hosted document {Document} failed; its page scope is released", manager.Document);
         }
         await ReleasePageScopeAsync(Volatile.Read(ref pageServices), manager.Document).ConfigureAwait(false);
     }
@@ -396,7 +449,31 @@ internal sealed class HostedDocumentManagers : IAsyncDisposable {
         }
     }
 
-    /// <summary>Retires every manager and waits (bounded) until all are disposed.</summary>
+    /// <summary>A disposal that outlived its bound: counts and logs how it ends, if it ends (bounded logging).</summary>
+    private void ObserveLateDisposal(Task disposal, ulong document) =>
+        _ = disposal.ContinueWith(static (task, state) => {
+            (HostedDocumentManagers self, ulong document) = ((HostedDocumentManagers, ulong))state!;
+            if (task.IsCompletedSuccessfully) {
+                Interlocked.Increment(ref self._lateDisposeCompletions);
+                self._logger.LogDebug("The page disposal of retired hosted document {Document} completed after its bound", document);
+            }
+            else if (task.IsCanceled) {
+                // For example a JS call in a disposal path that its caller's token ended; a cancelled task carries no exception.
+                if (Interlocked.Increment(ref self._lateDisposeCancellations) <= 8)
+                    self._logger.LogWarning("The page disposal of retired hosted document {Document} was cancelled after its bound", document);
+            }
+            else {
+                Exception? fault = task.Exception?.GetBaseException();// observes the task's exception
+                if (Interlocked.Increment(ref self._lateDisposeFaults) <= 8)
+                    self._logger.LogWarning(fault, "The page disposal of retired hosted document {Document} faulted after its bound", document);
+            }
+        }, (this, document), CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+
+    /// <summary>
+    ///     Retires every manager and waits (bounded by <see cref="ShutdownTimeout" />) until all retirements end. A
+    ///     retirement still running after that continues in the background, no longer awaited. The application does not
+    ///     await this disposal (see the remarks).
+    /// </summary>
     public async ValueTask DisposeAsync() {
         if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
         HostedDocumentWebViewManager[] live;
@@ -406,11 +483,11 @@ internal sealed class HostedDocumentManagers : IAsyncDisposable {
         lock (_gate) pending = [.. _retirements];
         if (pending.Length == 0) return;
         try {
-            await Task.WhenAll(pending).WaitAsync(DisposeTimeout).ConfigureAwait(false);
+            await Task.WhenAll(pending).WaitAsync(ShutdownTimeout).ConfigureAwait(false);
         }
         catch (TimeoutException) {
-            Interlocked.Increment(ref _disposeTimeouts);
-            _logger.LogWarning("Hosted Blazor managers were still disposing after {Timeout}", DisposeTimeout);
+            Interlocked.Increment(ref _shutdownTimeouts);
+            _logger.LogWarning("Hosted Blazor managers were still disposing after {Timeout}", ShutdownTimeout);
         }
     }
 
@@ -432,6 +509,8 @@ internal sealed class HostedDocumentManagers : IAsyncDisposable {
             live, latest,
             Interlocked.Read(ref _created), Interlocked.Read(ref _retired), Interlocked.Read(ref _disposedManagers),
             Interlocked.Read(ref _disposeFailures), Interlocked.Read(ref _disposeTimeouts), Interlocked.Read(ref _pageScopeFallbacks),
+            Interlocked.Read(ref _lateDisposeCompletions), Interlocked.Read(ref _lateDisposeFaults), Interlocked.Read(ref _lateDisposeCancellations),
+            Interlocked.Read(ref _shutdownTimeouts),
             Interlocked.Read(ref _attachMessages), Interlocked.Read(ref _repeatedAttaches),
             Interlocked.Read(ref _refusedInbound), Interlocked.Read(ref _refusedOutbound),
             Interlocked.Read(ref _refusedRenderBatches), Interlocked.Read(ref _refusedJsCalls), Interlocked.Read(ref _refusedNavigations),
@@ -474,6 +553,10 @@ internal readonly record struct HostedDocumentDiagnostics(
     long DisposeFailures,
     long DisposeTimeouts,
     long PageScopeFallbacks,
+    long LateDisposeCompletions,
+    long LateDisposeFaults,
+    long LateDisposeCancellations,
+    long ShutdownTimeouts,
     long AttachMessages,
     long RepeatedAttaches,
     long RefusedInbound,
