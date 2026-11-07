@@ -46,6 +46,11 @@ internal sealed partial class InfiniFrameHostedWindow {
 
     public ulong? IncomingMessageDocument => _boundDocument.Value;
 
+    private static readonly CancellationToken RetiredLifetime = new(canceled: true);
+
+    public CancellationToken GetDocumentLifetime(ulong document) =>
+        TryGetDocumentLifetime(document, out CancellationToken lifetime) ? lifetime : RetiredLifetime;
+
     private bool TryGetDocumentLifetime(ulong document, out CancellationToken lifetime) {
         lock (_documentGate) {
             if (document != 0 && document == _currentDocument && !_documentsEnded) {

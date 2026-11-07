@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Threading.Channels;
+using InfiniFrame.BlazorWebView.Hosted;
 using InfiniFrame.Hosting;
 using InfiniFrame.Security;
 using InfiniFrame.Utilities;
@@ -20,6 +21,12 @@ namespace InfiniFrame.BlazorWebView;
 /// <summary>
 ///     Manages the Blazor web view lifecycle, resource serving, and custom URL scheme handling.
 /// </summary>
+/// <remarks>
+///     For a window driven by an external host provider, each browser document's page runs in its own internal manager,
+///     and this instance serves resources and coordinates them. Add or remove root components and dispatch work through
+///     <see cref="IInfiniFrameWebViewManager" /> (the registered service type): the inherited
+///     <see cref="WebViewManager" /> members act on this instance itself, which hosts no page for such a window.
+/// </remarks>
 public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewManager, IInfiniFrameStatusResourceSource {
 
     // BlazorWebView resources are always hosted on a dedicated app:// origin.
@@ -37,18 +44,18 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     private readonly Channel<QueuedWebMessage> _channel;
     private readonly CancellationTokenSource _messagePumpShutdown = new();
 
-    // Hosted windows only (external host providers). Blazor keeps one page context per AttachPage, and everything it
-    // sends belongs to that page. Each outbound message is therefore bound, when produced, to the browser document whose
-    // AttachPage created the current page context (recorded on Blazor's dispatcher, after work already queued for the
-    // previous page). Ambient execution context is deliberately not used: long-lived work started under one page (for
-    // example a singleton's timer) can later drive the next page. Work for a retired document is cancelled, never sent
-    // to a later document, and an over-full queue faults the window instead of dropping messages.
-    private const string AttachPageMessagePrefix = "__bwv:[\"AttachPage\"";
+    // Hosted windows only (external host providers). Microsoft's WebViewManager shares one IPC sender between all page
+    // contexts it creates and gives SendMessage no producer identity, so one manager cannot tell a retired page's late
+    // output from the current page's, and it routes every reply to its newest page. Hosted windows therefore run each
+    // browser document in its own framework manager (HostedDocumentManagers); this manager serves their resources and
+    // stays the public facade. Output is bound to the document of the manager that produced it. Ambient execution context
+    // is deliberately not used: long-lived work started under one page (for example a singleton's timer) can later drive
+    // the next page. Work for a retired document is cancelled, never sent to a later document, and an over-full queue
+    // faults the window instead of dropping messages.
     private const long HostedQueueByteCapacity = 64L * 1024 * 1024;
-    private readonly Dispatcher _blazorDispatcher;
-    private IInfiniFrameDocumentWindow? _documentWindow;
-    private ulong _pageDocument;
+    private readonly HostedDocumentManagers _hosted;
     private long _hostedQueuedBytes;
+    private long _hostedSendsCancelled;
     private readonly ILogger<InfiniFrameWebViewManager> _logger;
 
     private readonly Task _messagePumpTask;
@@ -81,7 +88,6 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     )
         : base(provider, dispatcher, config.Value.AppBaseUri, fileProvider, jsComponents, config.Value.HostPage) {
         _logger = logger;
-        _blazorDispatcher = dispatcher;
         InfiniFrameBlazorAppConfiguration configuration = config.Value;
         if (configuration.AppBaseUri is null
             || !configuration.AppBaseUri.IsAbsoluteUri
@@ -118,6 +124,8 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         _messageQueueFullMode = effectiveFullMode;
         _fallbackUriSecurityPolicy = InfiniFrameUriSecurityPolicy.Default
             .WithTrustedOrigin(configuration.AppBaseUri);
+        _hosted = new HostedDocumentManagers(
+            this, provider, dispatcher, configuration.AppBaseUri, fileProvider, jsComponents, configuration.HostPage, logger);
 
         // ReSharper disable once ConvertClosureToMethodGroup
         LazyWindow = new Lazy<IInfiniFrameWindow>(() => provider.GetRequiredService<IInfiniFrameWindow>());
@@ -280,28 +288,8 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             _logger.LogWarning("Rejected a web message from a superseded or unknown hosted document");
             return;
         }
-        Volatile.Write(ref _documentWindow, documentWindow);
-        if (!message.StartsWith(AttachPageMessagePrefix, StringComparison.Ordinal)) {
-            MessageReceived(messageOriginUrl, message);
-            return;
-        }
-        // Record the attaching document on Blazor's dispatcher, in order with the work already queued there, so output
-        // still pending for the previous page context stays bound to the previous document.
-        ulong document = incoming.Value;
-        Uri attachOrigin = messageOriginUrl;
-        _ = ObserveHostedAttachAsync(_blazorDispatcher.InvokeAsync(() => {
-            Volatile.Write(ref _pageDocument, document);
-            MessageReceived(attachOrigin, message);
-        }));
-    }
-
-    private async Task ObserveHostedAttachAsync(Task attach) {
-        try {
-            await attach.ConfigureAwait(false);
-        }
-        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-            _logger.LogWarning(ex, "Attaching a hosted Blazor page failed");
-        }
+        // Only this document's own manager receives it (validated again after waiting on Blazor's dispatcher).
+        _hosted.Receive(documentWindow, incoming.Value, messageOriginUrl, message);
     }
 
     private IInfiniFrameUriSecurityPolicy GetUriSecurityPolicy(IInfiniFrameWindow? window) =>
@@ -316,18 +304,22 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         LazyWindow.Value.Features.PageNavigation.Load(absoluteUri);
     }
 
+    /// <summary>Window navigation requested by a hosted document's manager (it navigates the window, not a page).</summary>
+    internal void NavigateWindow(Uri absoluteUri) => NavigateCore(absoluteUri);
+
     protected override void SendMessage(string message) {
         if (IsDisposingOrDisposed || _messagePumpShutdown.IsCancellationRequested) {
             _logger.LogTrace("Discarded outbound WebView message because the manager is shutting down");
             return;
         }
 
-        if (Volatile.Read(ref _documentWindow) is {} documentWindow) {
-            QueueHostedMessage(documentWindow, message);
+        // A hosted window's pages live in their documents' own managers; this manager never hosts one there.
+        if (_hosted.IsBound) {
+            _hosted.RefuseUnbound();
             return;
         }
 
-        if (_channel.Writer.TryWrite(new QueuedWebMessage(message, 0, false))) return;
+        if (_channel.Writer.TryWrite(new QueuedWebMessage(message, 0, null))) return;
 
         _logger.LogError(
             "Discarded outbound WebView message because the bounded queue is unavailable or full. " +
@@ -336,13 +328,22 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             _messageQueueFullMode);
     }
 
-    private void QueueHostedMessage(IInfiniFrameDocumentWindow documentWindow, string message) {
-        ulong document = Volatile.Read(ref _pageDocument);
+    /// <summary>Queues output of one hosted document's page, bound to that document (called by the document's manager).</summary>
+    internal void QueueHostedMessage(IInfiniFrameDocumentWindow documentWindow, string message, ulong document) {
+        if (IsDisposingOrDisposed || _messagePumpShutdown.IsCancellationRequested) {
+            _logger.LogTrace("Discarded outbound WebView message because the manager is shutting down");
+            return;
+        }
         long bytes = (long)message.Length * sizeof(char);
         long queued = Interlocked.Add(ref _hostedQueuedBytes, bytes);
-        if (queued <= HostedQueueByteCapacity && _channel.Writer.TryWrite(new QueuedWebMessage(message, document, true))) return;
+        if (queued <= HostedQueueByteCapacity && _channel.Writer.TryWrite(new QueuedWebMessage(message, document, documentWindow))) return;
 
         Interlocked.Add(ref _hostedQueuedBytes, -bytes);
+        if (IsDisposingOrDisposed || _messagePumpShutdown.IsCancellationRequested) {
+            // Closed by shutdown between the check above and the write, not full.
+            _logger.LogTrace("Discarded outbound WebView message because the manager is shutting down");
+            return;
+        }
         var exception = new InvalidOperationException(
             "The Blazor message queue of a hosted window is full; the window cannot continue without dropping messages.");
         _logger.LogError(exception,
@@ -359,17 +360,20 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
                 while (_channel.Reader.TryRead(out QueuedWebMessage message)) {
                     if (IsDisposingOrDisposed || _messagePumpShutdown.IsCancellationRequested) return;
 
-                    if (!message.Hosted) {
+                    if (message.Window is not {} documentWindow) {
                         await LazyWindow.Value.SendWebMessageAsync(message.Payload, _messagePumpShutdown.Token).ConfigureAwait(false);
                         continue;
                     }
                     try {
-                        await Volatile.Read(ref _documentWindow)!
+                        await documentWindow
                             .SendWebMessageForDocumentAsync(message.Payload, message.Document, _messagePumpShutdown.Token)
                             .ConfigureAwait(false);
                     }
                     catch (InfiniFrameHostDocumentRetiredException) {
-                        _logger.LogDebug("Cancelled outbound Blazor work for retired hosted document {Document}", message.Document);
+                        long cancelled = Interlocked.Increment(ref _hostedSendsCancelled);
+                        if (cancelled <= 8 || (cancelled & 1023) == 0)
+                            _logger.LogDebug("Cancelled outbound Blazor work for retired hosted document {Document} (cancelled so far: {Count})",
+                                message.Document, cancelled);
                     }
                     finally {
                         Interlocked.Add(ref _hostedQueuedBytes, -(long)message.Payload.Length * sizeof(char));
@@ -391,7 +395,35 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         }
     }
 
-    private readonly record struct QueuedWebMessage(string Payload, ulong Document, bool Hosted);
+    /// <summary>One outbound message; <paramref name="Window" /> is set for hosted output bound to <paramref name="Document" />.</summary>
+    private readonly record struct QueuedWebMessage(string Payload, ulong Document, IInfiniFrameDocumentWindow? Window);
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Root components and dispatch
+    // -----------------------------------------------------------------------------------------------------------------
+    // The inherited WebViewManager members keep acting on this manager itself, which hosts the pages of default windows.
+    // InfiniFrame registers root components through IInfiniFrameWebViewManager (its DI service type), so the same calls
+    // also record them for hosted windows, where every document's manager receives them.
+    Task IInfiniFrameWebViewManager.AddRootComponentAsync(Type componentType, string selector, ParameterView parameters) {
+        Task added = AddRootComponentAsync(componentType, selector, parameters);
+        Task forwarded = _hosted.OnRootAdded(componentType, selector, parameters);
+        return forwarded.IsCompletedSuccessfully ? added : Task.WhenAll(added, forwarded);
+    }
+
+    Task IInfiniFrameWebViewManager.RemoveRootComponentAsync(string selector) {
+        Task removed = RemoveRootComponentAsync(selector);
+        Task forwarded = _hosted.OnRootRemoved(selector);
+        return forwarded.IsCompletedSuccessfully ? removed : Task.WhenAll(removed, forwarded);
+    }
+
+    // Hosted windows dispatch to the page of the current document (false when none is attached, as for default windows).
+    // Argument validation stays inside the framework's method, so a null work item still faults the returned task.
+    Task<bool> IInfiniFrameWebViewManager.TryDispatchAsync(Action<IServiceProvider> workItem) =>
+        _hosted.TryDispatchToCurrentAsync(workItem) ?? TryDispatchAsync(workItem);
+
+    /// <summary>Bounded counters of the per-document managers of a hosted window.</summary>
+    internal HostedDocumentDiagnostics GetHostedDocumentDiagnostics() =>
+        _hosted.GetDiagnostics() with { SendsCancelledForRetiredDocument = Interlocked.Read(ref _hostedSendsCancelled) };
 
     protected override async ValueTask DisposeAsyncCore() {
         if (Interlocked.Exchange(ref _disposeStarted, 1) != 0) return;
@@ -400,6 +432,14 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         await _messagePumpShutdown.CancelAsync();
 
         try {
+            // Hosted windows: retire every document's manager and wait (bounded) until each is disposed, once.
+            try {
+                await _hosted.DisposeAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
+                _logger.LogWarning(ex, "Disposing the hosted Blazor document managers failed");
+            }
+
             // Some tests build and dispose of the app without ever creating a native window.
             // In that case, disposing the base WebView manager can flow through dispatch paths
             // that resolve IInfiniFrameWindow and initialize native resources during teardown.

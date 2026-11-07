@@ -20,6 +20,12 @@ internal interface IInfiniFrameDocumentWindow {
     /// <summary>Delivers to exactly <paramref name="document" /> or throws <see cref="InfiniFrameHostDocumentRetiredException" />.</summary>
     ValueTask SendWebMessageForDocumentAsync(string message, ulong document, CancellationToken cancellationToken);
 
+    /// <summary>
+    ///     The lifetime of <paramref name="document" />: cancelled when that document retires or the window ends, and
+    ///     already cancelled when it is not the current document. Work owned by a document is bound to this token.
+    /// </summary>
+    CancellationToken GetDocumentLifetime(ulong document);
+
     /// <summary>Faults the window because its delivery path cannot continue without losing messages.</summary>
     void FaultWindow(Exception exception);
 }
