@@ -217,11 +217,15 @@ internal sealed partial class InfiniFrameHostedWindow {
     }
 
     private async ValueTask<bool> OnHostCloseRequestedAsync(CancellationToken cancellationToken) {
+        cancellationToken.ThrowIfCancellationRequested();
         if (!_runtime.Capabilities.HasFlag(InfiniFrameHostCapabilities.CloseCancellation)) {
             _logger.LogDebug("CloseRequestedAsync from a provider without {Capability}; closing proceeds", InfiniFrameHostCapabilities.CloseCancellation);
             return true;
         }
-        if (Volatile.Read(ref _terminal) != 0 || !((IInfiniFrameWindow)this).RequestClose()) return true;
+        if (Volatile.Read(ref _terminal) != 0) return true;
+        // CloseRequested also means the first request's cancellable handlers may still be queued. A duplicate
+        // must never authorize native closure before that decision; the provider can ask again after a veto.
+        if (!((IInfiniFrameWindow)this).RequestClose()) return false;
         try {
             bool cancelled = await RunClosingHandlersAsync(raiseClosingRequested: false, cancellationToken).ConfigureAwait(false);
             return !cancelled;

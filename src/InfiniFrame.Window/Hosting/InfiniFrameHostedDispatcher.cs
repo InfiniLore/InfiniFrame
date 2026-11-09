@@ -70,22 +70,22 @@ internal sealed class InfiniFrameHostedDispatcher : IDisposable {
     internal bool IsDisposed => Volatile.Read(ref _disposed) != 0;
 
     /// <summary>Runs <paramref name="callback" /> on the dispatcher thread and blocks until it has run.</summary>
-    internal InfiniFrameDispatchResult Invoke(Action callback) {
+    internal InfiniFrameDispatchResult Invoke(Action callback, Func<bool>? canExecute = null) {
         ArgumentNullException.ThrowIfNull(callback);
-        if (CheckAccess) return RunInline(callback);
-        var work = new Work(callback, Lane.Application, captureContext: true, withCompletion: true);
+        if (CheckAccess) return RunInline(callback, canExecute);
+        var work = new Work(callback, Lane.Application, captureContext: true, withCompletion: true, canExecute);
         if (!TryEnqueue(work, payloadBytes: 0)) return InfiniFrameDispatchResult.Failed;
         // Safe to block: this thread is not the dispatcher thread, and the work never waits for the caller.
         return work.Completion!.Task.GetAwaiter().GetResult();
     }
 
     /// <summary>Runs <paramref name="callback" /> on the dispatcher thread; inline when already on it.</summary>
-    internal async ValueTask<InfiniFrameDispatchResult> DispatchAsync(Action callback, TimeSpan? timeout, CancellationToken cancellationToken) {
+    internal async ValueTask<InfiniFrameDispatchResult> DispatchAsync(Action callback, TimeSpan? timeout, CancellationToken cancellationToken, Func<bool>? canExecute = null) {
         ArgumentNullException.ThrowIfNull(callback);
         if (timeout is {} value && value <= TimeSpan.Zero) return InfiniFrameDispatchResult.TimedOut;
         if (cancellationToken.IsCancellationRequested) return InfiniFrameDispatchResult.Cancelled;
-        if (CheckAccess) return RunInline(callback);
-        var work = new Work(callback, Lane.Application, captureContext: true, withCompletion: true);
+        if (CheckAccess) return RunInline(callback, canExecute);
+        var work = new Work(callback, Lane.Application, captureContext: true, withCompletion: true, canExecute);
         if (!TryEnqueue(work, payloadBytes: 0)) return InfiniFrameDispatchResult.Failed;
         try {
             return await work.Completion!.Task.WaitAsync(timeout ?? DefaultDispatchTimeout, cancellationToken).ConfigureAwait(false);
@@ -180,8 +180,9 @@ internal sealed class InfiniFrameHostedDispatcher : IDisposable {
         }
     }
 
-    private InfiniFrameDispatchResult RunInline(Action callback) {
+    private InfiniFrameDispatchResult RunInline(Action callback, Func<bool>? canExecute) {
         try {
+            if (canExecute is not null && !canExecute()) return InfiniFrameDispatchResult.WindowClosed;
             callback();
             return InfiniFrameDispatchResult.Completed;
         }
@@ -211,7 +212,7 @@ internal sealed class InfiniFrameHostedDispatcher : IDisposable {
         else _logger.LogWarning("The hosted dispatcher thread did not finish draining within {Timeout}", JoinTimeout);
     }
 
-    private sealed class Work(Action callback, Lane lane, bool captureContext, bool withCompletion) {
+    private sealed class Work(Action callback, Lane lane, bool captureContext, bool withCompletion, Func<bool>? canExecute = null) {
         private readonly ExecutionContext? _context = captureContext ? ExecutionContext.Capture() : null;
         private int _state;
         internal readonly TaskCompletionSource<InfiniFrameDispatchResult>? Completion = withCompletion
@@ -225,6 +226,11 @@ internal sealed class InfiniFrameHostedDispatcher : IDisposable {
         internal void Execute(ILogger logger) {
             if (Interlocked.CompareExchange(ref _state, 1, 0) != 0) return;
             try {
+                // Window shutdown may win after admission while this item waits behind another callback.
+                if (canExecute is not null && !canExecute()) {
+                    Completion?.TrySetResult(InfiniFrameDispatchResult.WindowClosed);
+                    return;
+                }
                 if (_context is not null) ExecutionContext.Run(_context, static state => ((Action)state!)(), callback);
                 else callback();
                 Completion?.TrySetResult(InfiniFrameDispatchResult.Completed);

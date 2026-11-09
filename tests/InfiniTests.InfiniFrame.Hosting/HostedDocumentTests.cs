@@ -24,6 +24,8 @@ public sealed class HostedDocumentTests {
 
         await host.PostAsync(1, "__bwv:from-1");
         await host.PostAsync(2, "__bwv:from-unattached-2");
+        // PostAsync only queues delivery; finish document 1's positive case before replacing it.
+        await harness.DrainDispatcherAsync();
         await host.AttachAsync(2, "app://localhost/second.html");
         await host.PostAsync(1, "__bwv:from-retired-1");
         await host.PostAsync(2, "__bwv:from-2");

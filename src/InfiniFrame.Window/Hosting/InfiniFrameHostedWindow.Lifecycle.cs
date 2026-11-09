@@ -338,6 +338,9 @@ internal sealed partial class InfiniFrameHostedWindow {
     /// </summary>
     private async Task<bool> RunClosingHandlersAsync(bool raiseClosingRequested, CancellationToken cancellationToken) =>
         await _runtime.Dispatcher.InvokeAsync(() => {
+            // WaitAsync can abandon a native request while this control item is still queued. Do not let its
+            // stale handlers run against a later close attempt after cancellation restored the ready state.
+            cancellationToken.ThrowIfCancellationRequested();
             if (raiseClosingRequested) {
                 try { _events.OnWindowClosingRequested(); }
                 catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {

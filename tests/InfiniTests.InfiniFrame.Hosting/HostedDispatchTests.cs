@@ -91,6 +91,39 @@ public sealed class HostedDispatchTests {
     }
 
     [Test]
+    [Arguments(false)]
+    [Arguments(true)]
+    [Timeout(30_000)]
+    public async Task ApplicationDispatchQueuedBeforeClosed_IsSuppressedWhenShutdownWins(bool synchronous, CancellationToken ct) {
+        await using HostedHarness harness = await HostedHarness.StartAsync();
+        (InfiniFrameHostedWindow window, ScriptedWindowHostCore host) = await harness.CreateAttachedAsync(1);
+        using var release = new ManualResetEventSlim();
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        Task<InfiniFrameDispatchResult> blocker = window.DispatchAsync(() => {
+            entered.TrySetResult();
+            release.Wait(ct);
+        }, cancellationToken: ct).AsTask();
+        bool ran = false;
+        Task<InfiniFrameDispatchResult> queued;
+        try {
+            await entered.Task.WaitAsync(ct);
+            queued = synchronous
+                ? Task.Run(() => window.Invoke(() => ran = true), ct)
+                : window.DispatchAsync(() => ran = true, cancellationToken: ct).AsTask();
+            await Waits.UntilAsync(() => harness.Runtime.Dispatcher.QueuedApplicationItems == 2, "application callback queued behind blocker");
+            host.Events.Closed();
+        }
+        finally {
+            release.Set();
+        }
+
+        await Assert.That(await blocker).IsEqualTo(InfiniFrameDispatchResult.Completed);
+        await Assert.That(await queued).IsEqualTo(InfiniFrameDispatchResult.WindowClosed);
+        await Assert.That(ran).IsFalse();
+        await window.WaitForTeardownAsync(ct);
+    }
+
+    [Test]
     [Timeout(60_000)]
     public async Task DispatcherBudgetExhaustion_FaultsTheWindow_InsteadOfDroppingMessages(CancellationToken ct) {
         await using HostedHarness harness = await HostedHarness.StartAsync();

@@ -172,6 +172,80 @@ public sealed class HostedLifecycleTests {
 
     [Test]
     [Timeout(30_000)]
+    public async Task NativeCloseRequest_DuplicateCannotBypassPendingVeto(CancellationToken ct) {
+        await using HostedHarness harness = await HostedHarness.StartAsync();
+        int closingCalls = 0;
+        (InfiniFrameHostedWindow window, ScriptedWindowHostCore host) = await harness.CreateAsync(builder =>
+            builder.RegisterWindowClosingHandler((_, _) => {
+                Interlocked.Increment(ref closingCalls);
+                return WindowClosingResult.Cancel;
+            }));
+        await window.WaitForReadyAsync(ct);
+        using var release = new ManualResetEventSlim();
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        Task<InfiniFrameDispatchResult> blocker = window.DispatchAsync(() => {
+            entered.TrySetResult();
+            release.Wait(ct);
+        }, cancellationToken: ct).AsTask();
+        Task<bool> first;
+        Task<bool> duplicate;
+        try {
+            await entered.Task.WaitAsync(ct);
+            first = host.Events.CloseRequestedAsync(ct).AsTask();
+            duplicate = host.Events.CloseRequestedAsync(ct).AsTask();
+        }
+        finally {
+            release.Set();
+        }
+
+        await blocker;
+        await Assert.That(await first).IsFalse();
+        await Assert.That(await duplicate).IsFalse();
+        await Assert.That(closingCalls).IsEqualTo(1);
+        await Assert.That(window.LifecycleState).IsEqualTo(InfiniFrameWindowLifecycleState.Ready);
+    }
+
+    [Test]
+    [Timeout(30_000)]
+    public async Task NativeCloseRequest_CancellationSuppressesQueuedHandlers_AndAllowsRetry(CancellationToken ct) {
+        await using HostedHarness harness = await HostedHarness.StartAsync();
+        int closingCalls = 0;
+        (InfiniFrameHostedWindow window, ScriptedWindowHostCore host) = await harness.CreateAsync(builder =>
+            builder.RegisterWindowClosingHandler((_, _) => {
+                Interlocked.Increment(ref closingCalls);
+                return WindowClosingResult.Cancel;
+            }));
+        await window.WaitForReadyAsync(ct);
+        using var release = new ManualResetEventSlim();
+        using var cancelled = new CancellationTokenSource();
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        Task<InfiniFrameDispatchResult> blocker = window.DispatchAsync(() => {
+            entered.TrySetResult();
+            release.Wait(ct);
+        }, cancellationToken: ct).AsTask();
+        try {
+            await entered.Task.WaitAsync(ct);
+            Task<bool> first = host.Events.CloseRequestedAsync(cancelled.Token).AsTask();
+            await cancelled.CancelAsync();
+            await Assert.ThrowsAsync<OperationCanceledException>(async () => await first);
+            await Assert.That(window.LifecycleState).IsEqualTo(InfiniFrameWindowLifecycleState.Ready);
+            await Assert.ThrowsAsync<OperationCanceledException>(async () => await host.Events.CloseRequestedAsync(cancelled.Token));
+            await Assert.That(window.LifecycleState).IsEqualTo(InfiniFrameWindowLifecycleState.Ready);
+        }
+        finally {
+            release.Set();
+        }
+        await blocker;
+        await harness.DrainDispatcherAsync();
+        await Assert.That(closingCalls).IsEqualTo(0);
+
+        await Assert.That(await host.Events.CloseRequestedAsync(ct)).IsFalse();
+        await Assert.That(closingCalls).IsEqualTo(1);
+        await Assert.That(window.LifecycleState).IsEqualTo(InfiniFrameWindowLifecycleState.Ready);
+    }
+
+    [Test]
+    [Timeout(30_000)]
     public async Task DisposeOnDispatcherThread_DoesNotDeadlock_AndCompletesAfterTeardown(CancellationToken ct) {
         await using HostedHarness harness = await HostedHarness.StartAsync();
         (InfiniFrameHostedWindow window, ScriptedWindowHostCore host) = await harness.CreateAsync();

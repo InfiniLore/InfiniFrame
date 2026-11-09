@@ -144,16 +144,18 @@ internal sealed partial class InfiniFrameHostedWindow :
     public InfiniFrameDispatchResult Invoke(Action callback) {
         ArgumentNullException.ThrowIfNull(callback);
         if (IsClosedOrClosing()) return InfiniFrameDispatchResult.WindowClosed;
-        InfiniFrameDispatchResult result = _runtime.Dispatcher.Invoke(callback);
+        InfiniFrameDispatchResult result = _runtime.Dispatcher.Invoke(callback, CanExecuteApplicationCallback);
         return result == InfiniFrameDispatchResult.Failed && IsClosedOrClosing() ? InfiniFrameDispatchResult.WindowClosed : result;
     }
 
     public async ValueTask<InfiniFrameDispatchResult> DispatchAsync(Action callback, TimeSpan? timeout = null, CancellationToken cancellationToken = default) {
         ArgumentNullException.ThrowIfNull(callback);
         if (IsClosedOrClosing()) return InfiniFrameDispatchResult.WindowClosed;
-        InfiniFrameDispatchResult result = await _runtime.Dispatcher.DispatchAsync(callback, timeout, cancellationToken).ConfigureAwait(false);
+        InfiniFrameDispatchResult result = await _runtime.Dispatcher.DispatchAsync(callback, timeout, cancellationToken, CanExecuteApplicationCallback).ConfigureAwait(false);
         return result == InfiniFrameDispatchResult.Failed && IsClosedOrClosing() ? InfiniFrameDispatchResult.WindowClosed : result;
     }
+
+    private bool CanExecuteApplicationCallback() => Volatile.Read(ref _terminal) == 0 && !IsClosedOrClosing();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Helpers
