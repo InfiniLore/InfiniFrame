@@ -17,7 +17,6 @@ namespace InfiniFrame.Window.Hosting;
 ///     run completion and shutdown. It never builds a second service container: it borrows the application's.
 /// </summary>
 internal sealed class InfiniFrameHostedRuntime : IAsyncDisposable {
-    private static readonly TimeSpan ShutdownTimeout = TimeSpan.FromSeconds(30);
     private readonly TaskCompletionSource _shutdownRequested = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private InfiniFrameHostedDispatcher? _dispatcher;
     private ILoggerFactory _loggerFactory = NullLoggerFactory.Instance;
@@ -55,6 +54,9 @@ internal sealed class InfiniFrameHostedRuntime : IAsyncDisposable {
     ///     shorten it; no public setting exists.
     /// </summary>
     internal TimeSpan CloseTimeout { get; init; } = TimeSpan.FromSeconds(30);
+
+    /// <summary>Bound for each host shutdown/disposal wait. Tests shorten it; no public setting exists.</summary>
+    internal TimeSpan ShutdownTimeout { get; init; } = TimeSpan.FromSeconds(30);
 
     internal InfiniFrameHostCapabilities Capabilities { get; }
     internal IInfiniFrameHost Host { get; }
@@ -112,16 +114,29 @@ internal sealed class InfiniFrameHostedRuntime : IAsyncDisposable {
         if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
         try {
             if (IsStarted) {
+                var shutdownCancellation = new CancellationTokenSource();
+                Task shutdown = Task.CompletedTask;
+                Task cancellation = Task.CompletedTask;
                 try {
-                    await InfiniFrameProviderCall.Start(() => Host.ShutdownAsync(CancellationToken.None)).AsTask().WaitAsync(ShutdownTimeout).ConfigureAwait(false);
+                    shutdown = InfiniFrameProviderCall.Start(() => Host.ShutdownAsync(shutdownCancellation.Token)).AsTask();
+                    if (!await WaitForHostStopAsync(shutdown, "shut down").ConfigureAwait(false)) {
+                        // CancelAsync signals the token immediately but runs registered callbacks asynchronously.
+                        // A provider's blocking cancellation callback must not hold up host disposal.
+                        cancellation = ObserveLateHostStopAsync(shutdownCancellation.CancelAsync(), "cancel shutdown");
+                    }
                     await InfiniFrameProviderCall.ToThreadPool();
                 }
                 catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
                     _logger.LogWarning(exception, "External host provider {Provider} failed to shut down", DisplayName);
                 }
+                finally {
+                    // Both the shutdown operation and its cancellation callbacks may still be using the source.
+                    _ = DisposeShutdownCancellationAsync(shutdownCancellation, shutdown, cancellation);
+                }
             }
             try {
-                await InfiniFrameProviderCall.Start(Host.DisposeAsync).AsTask().WaitAsync(ShutdownTimeout).ConfigureAwait(false);
+                Task disposal = InfiniFrameProviderCall.Start(Host.DisposeAsync).AsTask();
+                await WaitForHostStopAsync(disposal, "dispose").ConfigureAwait(false);
                 await InfiniFrameProviderCall.ToThreadPool();
             }
             catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
@@ -130,6 +145,42 @@ internal sealed class InfiniFrameHostedRuntime : IAsyncDisposable {
         }
         finally {
             _dispatcher?.Dispose();
+        }
+    }
+
+    private async Task<bool> WaitForHostStopAsync(Task operation, string name) {
+        // Racing a separate timeout distinguishes our bound from the provider's own TimeoutException.
+        using var timeoutCancellation = new CancellationTokenSource();
+        Task timeout = Task.Delay(ShutdownTimeout, timeoutCancellation.Token);
+        if (await Task.WhenAny(operation, timeout).ConfigureAwait(false) == operation) {
+            timeoutCancellation.Cancel();
+            await operation.ConfigureAwait(false);
+            return true;
+        }
+        _logger.LogWarning("External host provider {Provider} did not {Operation} within {Timeout}; continuing cleanup",
+            DisplayName, name, ShutdownTimeout);
+        _ = ObserveLateHostStopAsync(operation, name);
+        return false;
+    }
+
+    private async Task ObserveLateHostStopAsync(Task operation, string name) {
+        try {
+            await operation.ConfigureAwait(false);
+        }
+        catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
+            _logger.LogWarning(exception, "External host provider {Provider} failed to {Operation} after its timeout", DisplayName, name);
+        }
+    }
+
+    private static async Task DisposeShutdownCancellationAsync(CancellationTokenSource source, Task shutdown, Task cancellation) {
+        try {
+            await Task.WhenAll(shutdown, cancellation).ConfigureAwait(false);
+        }
+        catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
+            // The bounded wait or late observer reports shutdown failures; cancellation has its own observer too.
+        }
+        finally {
+            source.Dispose();
         }
     }
 }

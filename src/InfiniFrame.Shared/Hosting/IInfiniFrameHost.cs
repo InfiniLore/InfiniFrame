@@ -10,9 +10,13 @@ namespace InfiniFrame.Hosting;
 /// </summary>
 /// <remarks>
 ///     Ownership: InfiniFrame calls <see cref="IAsyncDisposable.DisposeAsync" /> exactly once, after every window host
-///     has been disposed and after <see cref="ShutdownAsync" />, including when start-up fails part-way. InfiniFrame never
-///     calls <see cref="StartAsync" />, <see cref="CreateWindowAsync" /> or <see cref="ShutdownAsync" /> concurrently with
-///     each other or with disposal.
+///     has been disposed and after requesting <see cref="ShutdownAsync" />, including when start-up fails part-way.
+///     InfiniFrame never calls <see cref="StartAsync" />, <see cref="CreateWindowAsync" /> or <see cref="ShutdownAsync" />
+///     concurrently with each other, and start/window creation never overlap host disposal. Ordinarily shutdown completes
+///     before disposal. If shutdown exceeds InfiniFrame's bounded wait (currently 30 seconds), InfiniFrame cancels its token
+///     and proceeds to disposal without waiting for shutdown or its cancellation callbacks to finish. Providers must tolerate
+///     this narrow shutdown/disposal overlap. Disposal is also bounded; failures from either operation that arrive after its
+///     bound are observed and logged.
 /// </remarks>
 public interface IInfiniFrameHost : IAsyncDisposable {
     /// <summary>
@@ -40,6 +44,10 @@ public interface IInfiniFrameHost : IAsyncDisposable {
     /// </summary>
     Task Completion { get; }
 
-    /// <summary>Begins an orderly stop of the host after InfiniFrame has closed its windows. Idempotent.</summary>
+    /// <summary>
+    ///     Begins an orderly stop of the host after InfiniFrame has closed its windows. Idempotent. Honour
+    ///     <paramref name="cancellationToken" /> when InfiniFrame's shutdown wait expires; disposal may begin while shutdown
+    ///     or its cancellation callbacks are still running, as described in the ownership remarks.
+    /// </summary>
     ValueTask ShutdownAsync(CancellationToken cancellationToken);
 }
