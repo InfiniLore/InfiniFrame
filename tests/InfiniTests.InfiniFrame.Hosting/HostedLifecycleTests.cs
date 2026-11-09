@@ -246,6 +246,105 @@ public sealed class HostedLifecycleTests {
 
     [Test]
     [Timeout(30_000)]
+    [Arguments(false)]
+    [Arguments(true)]
+    public async Task NativeCloseRequest_CancelledActiveHandler_CannotRejectSuccessor(bool nativeRetry, CancellationToken ct) {
+        await using HostedHarness harness = await HostedHarness.StartAsync(new ScriptedHostProvider { AutoClose = false }, closeTimeout: TimeSpan.FromMilliseconds(500));
+        using var releaseFirst = new ManualResetEventSlim();
+        using var releaseSecond = new ManualResetEventSlim();
+        using var cancelled = new CancellationTokenSource();
+        var firstEntered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var secondEntered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        int closingCalls = 0;
+        int closingRequestedCalls = 0;
+        (InfiniFrameHostedWindow window, ScriptedWindowHostCore host) = await harness.CreateAsync(builder =>
+            builder.RegisterWindowClosingRequestedHandler(_ => Interlocked.Increment(ref closingRequestedCalls))
+            .RegisterWindowClosingHandler((_, _) => {
+                if (Interlocked.Increment(ref closingCalls) == 1) {
+                    firstEntered.TrySetResult();
+                    releaseFirst.Wait(ct);
+                    return WindowClosingResult.Cancel;
+                }
+                secondEntered.TrySetResult();
+                releaseSecond.Wait(ct);
+                return WindowClosingResult.Close;
+            }));
+        await window.WaitForReadyAsync(ct);
+        Task? applicationRetry = null;
+        Task<bool>? providerRetry = null;
+        try {
+            Task<bool> first = host.Events.CloseRequestedAsync(cancelled.Token).AsTask();
+            await firstEntered.Task.WaitAsync(ct);
+            await cancelled.CancelAsync();
+            await Assert.ThrowsAsync<OperationCanceledException>(async () => await first);
+            await Assert.That(window.LifecycleState).IsEqualTo(InfiniFrameWindowLifecycleState.Ready);
+
+            if (nativeRetry) providerRetry = host.Events.CloseRequestedAsync(ct).AsTask();
+            else applicationRetry = window.CloseAsync(ct).AsTask();
+            releaseFirst.Set();
+            await secondEntered.Task.WaitAsync(ct);
+            await Assert.That(window.LifecycleState).IsEqualTo(InfiniFrameWindowLifecycleState.CloseRequested);
+            if (applicationRetry is not null) await Assert.That(applicationRetry.IsCompleted).IsFalse();
+        }
+        finally {
+            releaseFirst.Set();
+            releaseSecond.Set();
+        }
+
+        if (providerRetry is not null) await Assert.That(await providerRetry).IsTrue();
+        else await Waits.UntilAsync(() => host.RequestCloseCalls == 1, "successor native close delivered");
+        await Assert.That(window.LifecycleState).IsEqualTo(InfiniFrameWindowLifecycleState.CloseRequested);
+        if (applicationRetry is not null) await Assert.That(applicationRetry.IsCompleted).IsFalse();
+        host.Events.Closed();
+        if (applicationRetry is not null) await applicationRetry;
+        await window.WaitForTeardownAsync(ct);
+        await Assert.That(closingCalls).IsEqualTo(2);
+        await Assert.That(closingRequestedCalls).IsEqualTo(nativeRetry ? 0 : 1);
+    }
+
+    [Test]
+    [Timeout(30_000)]
+    [Arguments(false)]
+    [Arguments(true)]
+    public async Task ApplicationClose_JoiningNativeAttempt_ObservesItsRejection(bool providerCancels, CancellationToken ct) {
+        await using HostedHarness harness = await HostedHarness.StartAsync();
+        using var release = new ManualResetEventSlim();
+        using var cancelled = new CancellationTokenSource();
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        int closingCalls = 0;
+        (InfiniFrameHostedWindow window, ScriptedWindowHostCore host) = await harness.CreateAsync(builder =>
+            builder.RegisterWindowClosingHandler((_, _) => {
+                Interlocked.Increment(ref closingCalls);
+                entered.TrySetResult();
+                release.Wait(ct);
+                return WindowClosingResult.Cancel;
+            }));
+        await window.WaitForReadyAsync(ct);
+        try {
+            Task<bool> native = host.Events.CloseRequestedAsync(cancelled.Token).AsTask();
+            await entered.Task.WaitAsync(ct);
+            Task joined = window.CloseAsync(ct).AsTask();
+            if (providerCancels) {
+                await cancelled.CancelAsync();
+                await Assert.ThrowsAsync<OperationCanceledException>(async () => await native);
+            }
+            else {
+                release.Set();
+                await Assert.That(await native).IsFalse();
+            }
+            await Assert.ThrowsAsync<InfiniFrameCloseRejectedException>(() => Waits.WithinAsync(joined, "joined native attempt rejection"));
+            await Assert.That(window.LifecycleState).IsEqualTo(InfiniFrameWindowLifecycleState.Ready);
+        }
+        finally {
+            release.Set();
+        }
+        await harness.DrainDispatcherAsync();
+        await Assert.That(closingCalls).IsEqualTo(1);
+        await Assert.That(host.RequestCloseCalls).IsEqualTo(0);
+    }
+
+    [Test]
+    [Timeout(30_000)]
     public async Task DisposeOnDispatcherThread_DoesNotDeadlock_AndCompletesAfterTeardown(CancellationToken ct) {
         await using HostedHarness harness = await HostedHarness.StartAsync();
         (InfiniFrameHostedWindow window, ScriptedWindowHostCore host) = await harness.CreateAsync();

@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Hosting;
 using InfiniFrame.Utilities;
+using InfiniFrame.Window.Events;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame.Window.Hosting;
@@ -314,29 +315,41 @@ internal sealed partial class InfiniFrameHostedWindow {
             return;
         }
 
-        TaskCompletionSource? attempt;
-        bool requested;
-        lock (_closeAttemptGate) {
-            requested = ((IInfiniFrameWindow)this).RequestClose();
-            if (requested) _closeAttempt = NewSignal();
-            attempt = _closeAttempt;
-        }
+        bool requested = TryBeginCloseAttempt(out TaskCompletionSource? attempt);
         if (!requested) {
             if (waitForCompletion) await (attempt?.Task ?? _closed.Task).WaitAsync(cancellationToken).ConfigureAwait(false);
             return;
         }
 
         // Same order as the default window: closing-requested notification, cancellable Closing handlers, native close.
-        bool cancelled = await RunClosingHandlersAsync(raiseClosingRequested: true, CancellationToken.None).ConfigureAwait(false);
+        bool cancelled = await RunClosingHandlersAsync(attempt!, raiseClosingRequested: true, CancellationToken.None).ConfigureAwait(false);
         if (!cancelled) await DeliverHostCloseAsync(cancellationToken).ConfigureAwait(false);
         if (waitForCompletion && attempt is not null) await attempt.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    private bool TryBeginCloseAttempt(out TaskCompletionSource? attempt) {
+        lock (_closeAttemptGate) {
+            bool requested = ((IInfiniFrameWindow)this).RequestClose();
+            if (requested) _closeAttempt = NewSignal();
+            attempt = _closeAttempt;
+            return requested;
+        }
+    }
+
+    private void RejectCloseAttempt(TaskCompletionSource attempt) {
+        lock (_closeAttemptGate) {
+            // Cancellation may have restored Ready and allowed a successor while this attempt's handler ran.
+            if (!ReferenceEquals(_closeAttempt, attempt)) return;
+            ((IInfiniFrameWindow)this).CancelCloseRequest();
+            if (attempt.TrySetException(new InfiniFrameCloseRejectedException())) _ = attempt.Task.Exception;
+        }
     }
 
     /// <summary>
     ///     Runs the closing handlers on the dispatcher. Like the default window, a failing handler does not cancel
     ///     closing. Returns <see langword="true" /> when a handler cancelled.
     /// </summary>
-    private async Task<bool> RunClosingHandlersAsync(bool raiseClosingRequested, CancellationToken cancellationToken) =>
+    private async Task<bool> RunClosingHandlersAsync(TaskCompletionSource attempt, bool raiseClosingRequested, CancellationToken cancellationToken) =>
         await _runtime.Dispatcher.InvokeAsync(() => {
             // WaitAsync can abandon a native request while this control item is still queued. Do not let its
             // stale handlers run against a later close attempt after cancellation restored the ready state.
@@ -347,7 +360,13 @@ internal sealed partial class InfiniFrameHostedWindow {
                     _logger.LogError(exception, "A WindowClosingRequested handler failed. Window: {WindowId}", Id);
                 }
             }
-            try { return _events.OnWindowClosing() != 0; }
+            try {
+                // The shared event facade cancels whichever close is current. Invoke the same handlers here so
+                // their result can instead be applied only to the attempt that actually ran them, outside the gate.
+                bool cancelled = EventsStore.Closing.Invoke(this, null).Any(result => result == WindowClosingResult.Cancel);
+                if (cancelled) RejectCloseAttempt(attempt);
+                return cancelled;
+            }
             catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
                 _logger.LogError(exception, "A window Closing handler failed; closing proceeds. Window: {WindowId}", Id);
                 return false;
