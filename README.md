@@ -103,6 +103,14 @@ var app = InfiniFrameApplication.CreateBuilder(args)
 app.Run();
 ```
 
+### Use an external browser host
+
+Applications can select an external host provider with `UseHostProvider` before `Build()`. InfiniFrame keeps its
+window facade, lifecycle, dispatcher, Blazor integration, and resource dispatch; the provider supplies native
+windows and the browser engine through the public `InfiniFrame.Hosting` contract. See the
+[external host provider guide](docs/docs/guides/external-host-providers.md) for setup, capabilities, document
+isolation, and lifecycle requirements.
+
 ## Architecture
 
 ```
