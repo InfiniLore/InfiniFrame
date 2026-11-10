@@ -14,24 +14,25 @@
     "@docusaurus/preset-classic": "^3.10.2",
     "clsx": "^2.1.1",
     "prism-react-renderer": "^2.4.1",
-    "serialize-javascript": "^7.1.1"
+    "serialize-javascript": "^7.1.4"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.10.2",
     "@docusaurus/types": "^3.10.2",
     "typescript": "^7.0.2"
   },
-    "overrides": {
-        "brace-expansion": "^5.0.9",
-        "webpack": "^5.109.2",
-        "serialize-javascript": "^7.1.1",
-        "uuid": "^14.0.1",
-        "image-size": "npm:image-size-next@^2.1.1"
-    },
-    "engines": {
-        "node": ">=20.0"
-    },
+  "overrides": {
+    "brace-expansion": "^5.0.9",
+    "webpack": "^5.109.2",
+    "serialize-javascript": "$serialize-javascript",
+    "uuid": "^14.0.1",
+    "image-size": "npm:image-size-next@^2.1.1",
+    "tinypool": "^2.2.0"
+  },
+  "engines": {
+    "node": ">=20.0"
+  },
   "allowScripts": {
-    "core-js@3.49.0": true
+    "core-js@3.51.0": true
   }
 }
