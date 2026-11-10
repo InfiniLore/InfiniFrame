@@ -8,7 +8,7 @@
 # .\scripts\js-updatedependencies.ps1 -AuditFix
 
 # To update dependency ranges in package.json to latest releases too—including majors, which can require code changes:
-#.\scripts\js-updatedependencies.ps1 -IncludeMajor -AuditFix
+# .\scripts\js-updatedependencies.ps1 -IncludeMajor -AuditFix
 
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
 param(
