@@ -60,36 +60,47 @@ runs:
                 set -euo pipefail
                 sudo apt-get update
 
+        -   name: Define Linux GUI dependencies
+            if: runner.os == 'Linux'
+            id: linux_gui_packages
+            shell: bash
+            run: |
+                set -euo pipefail
+
+                packages=(
+                  at-spi2-core
+                  dbus-x11
+                  fonts-liberation
+                  gsettings-desktop-schemas
+                  libatk1.0-dev
+                  libegl1
+                  libepoxy-dev
+                  libgdk-pixbuf-2.0-dev
+                  libgl1-mesa-dri
+                  libglib2.0-dev
+                  libgtk-3-dev
+                  libharfbuzz-dev
+                  libnotify-dev
+                  libnotify4
+                  libpango1.0-dev
+                  libwebkit2gtk-4.1-dev
+                  libx11-dev
+                  mesa-utils
+                  openbox
+                  pkg-config
+                  x11-utils
+                  x11-xserver-utils
+                  xfonts-base
+                  xvfb
+                )
+
+                printf 'packages=%s\n' "${packages[*]}" >> "$GITHUB_OUTPUT"
+
         -   name: Install cached Linux GUI dependencies
             if: runner.os == 'Linux'
-            id: linux-gui-cache
             uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9
             with:
-                packages: &linux-gui-packages >
-                    at-spi2-core
-                    dbus-x11
-                    fonts-liberation
-                    gsettings-desktop-schemas
-                    libatk1.0-dev
-                    libegl1
-                    libepoxy-dev
-                    libgdk-pixbuf-2.0-dev
-                    libgl1-mesa-dri
-                    libglib2.0-dev
-                    libgtk-3-dev
-                    libharfbuzz-dev
-                    libnotify-dev
-                    libnotify4
-                    libpango1.0-dev
-                    libwebkit2gtk-4.1-dev
-                    libx11-dev
-                    mesa-utils
-                    openbox
-                    pkg-config
-                    x11-utils
-                    x11-xserver-utils
-                    xfonts-base
-                    xvfb
+                packages: ${{ steps.linux_gui_packages.outputs.packages }}
                 version: 4.0
                 execute_install_scripts: true
 
@@ -97,7 +108,7 @@ runs:
             if: runner.os == 'Linux'
             shell: bash
             env:
-                LINUX_GUI_PACKAGES: *linux-gui-packages
+                LINUX_GUI_PACKAGES: ${{ steps.linux_gui_packages.outputs.packages }}
             run: |
                 set -euo pipefail
 
