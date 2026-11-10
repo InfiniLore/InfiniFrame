@@ -8,7 +8,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {InvokeInfiniFrameWindowFeature as Contract} from "../../Contracts";
+import type { InvokeInfiniFrameWindowFeature as Contract } from "../../Contracts";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -18,5 +18,4 @@ import type {InvokeInfiniFrameWindowFeature as Contract} from "../../Contracts";
  * handled by the messaging infrastructure; this class exists to satisfy the
  * feature contract.
  */
-export class InvokeInfiniFrameWindowFeature implements Contract {
-}
+export class InvokeInfiniFrameWindowFeature implements Contract {}

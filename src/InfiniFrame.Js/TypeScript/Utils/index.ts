@@ -7,4 +7,4 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 export * from "./BlankTargetHandler";
-export * from "./Observers"
+export * from "./Observers";

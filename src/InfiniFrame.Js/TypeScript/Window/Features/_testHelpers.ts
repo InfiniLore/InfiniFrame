@@ -5,20 +5,20 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-import {vi} from "vitest";
+import { vi } from "vitest";
 
 /**
  * Creates a mock messaging object with Vitest spy functions for all messaging methods.
  * @returns A mock messaging object suitable for injecting into feature constructors.
  */
 export function createMessagingMock() {
-    return {
-        sendMessageToHost: vi.fn(),
-        getMessageFromHostAsync: vi.fn(),
-        getMessageFromHostRawAsync: vi.fn(),
-        assignMessageReceivedHandler: vi.fn(),
-        unregisterMessageReceivedHandler: vi.fn()
-    };
+	return {
+		sendMessageToHost: vi.fn(),
+		getMessageFromHostAsync: vi.fn(),
+		getMessageFromHostRawAsync: vi.fn(),
+		assignMessageReceivedHandler: vi.fn(),
+		unregisterMessageReceivedHandler: vi.fn(),
+	};
 }
 
 /**
@@ -26,8 +26,8 @@ export function createMessagingMock() {
  * @returns The newly created messaging mock object.
  */
 export function setupFeature() {
-    vi.restoreAllMocks();
-    const messaging = createMessagingMock();
-    (window as any).infiniframe = {messaging};
-    return messaging;
+	vi.restoreAllMocks();
+	const messaging = createMessagingMock();
+	(window as any).infiniframe = { messaging };
+	return messaging;
 }

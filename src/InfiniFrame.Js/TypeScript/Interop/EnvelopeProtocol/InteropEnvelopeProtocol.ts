@@ -2,10 +2,15 @@
  * @file Envelope protocol implementation. Creates and parses the v2 JSON envelope format for web messaging.
  */
 // ---------------------------------------------------------------------------------------------------------------------
-import type {InteropEnvelopeCommand, InteropEnvelopeV1, InteropParseError, ParsedInteropMessage} from "../../Contracts";
+import type {
+	InteropEnvelopeCommand,
+	InteropEnvelopeV1,
+	InteropParseError,
+	ParsedInteropMessage,
+} from "../../Contracts";
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {SendToHostMessageIds} from "../../Contracts";
+import { SendToHostMessageIds } from "../../Contracts";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -35,24 +40,24 @@ export const InteropGetCommand: InteropEnvelopeCommand = "Get";
  * @throws {Error} If the provided `id` is empty or whitespace-only.
  */
 export function createEnvelope(
-    id: string,
-    data?: unknown,
-    channel?: string,
-    command: InteropEnvelopeCommand = InteropPostCommand,
-    requestId?: string
+	id: string,
+	data?: unknown,
+	channel?: string,
+	command: InteropEnvelopeCommand = InteropPostCommand,
+	requestId?: string,
 ): InteropEnvelopeV1 {
-    if (!id || id.trim().length === 0) {
-        throw new Error("Envelope 'id' is required.");
-    }
+	if (!id || id.trim().length === 0) {
+		throw new Error("Envelope 'id' is required.");
+	}
 
-    return {
-        id,
-        command,
-        requestId,
-        data,
-        version: InteropEnvelopeVersion,
-        channel
-    };
+	return {
+		id,
+		command,
+		requestId,
+		data,
+		version: InteropEnvelopeVersion,
+		channel,
+	};
 }
 
 /**
@@ -63,10 +68,15 @@ export function createEnvelope(
  * @returns A {@link InteropEnvelopeV1} configured for a get request.
  */
 export function createGetEnvelope(
-    command: string,
-    args?: unknown,
+	command: string,
+	args?: unknown,
 ): InteropEnvelopeV1 {
-    return createEnvelope(SendToHostMessageIds.getRequest, {command, args}, undefined, InteropGetCommand);
+	return createEnvelope(
+		SendToHostMessageIds.getRequest,
+		{ command, args },
+		undefined,
+		InteropGetCommand,
+	);
 }
 
 /**
@@ -81,15 +91,15 @@ export function createGetEnvelope(
  * @throws {Error} If the provided `id` is empty or whitespace-only.
  */
 export function createEnvelopeMessage(
-    id: string,
-    data?: unknown,
-    channel?: string,
-    command: InteropEnvelopeCommand = InteropPostCommand,
-    requestId?: string
+	id: string,
+	data?: unknown,
+	channel?: string,
+	command: InteropEnvelopeCommand = InteropPostCommand,
+	requestId?: string,
 ): string {
-    const envelope = createEnvelope(id, data, channel, command, requestId);
+	const envelope = createEnvelope(id, data, channel, command, requestId);
 
-    return JSON.stringify(envelope);
+	return JSON.stringify(envelope);
 }
 
 /**
@@ -99,52 +109,64 @@ export function createEnvelopeMessage(
  * @param message - The raw JSON string received from the host.
  * @returns A parsed message object or a parse error describing what went wrong.
  */
-export function parseIncomingMessage(message: string): ParsedInteropMessage | InteropParseError {
-    if (!message || message.trim().length === 0) {
-        return {error: "Message is empty."};
-    }
+export function parseIncomingMessage(
+	message: string,
+): ParsedInteropMessage | InteropParseError {
+	if (!message || message.trim().length === 0) {
+		return { error: "Message is empty." };
+	}
 
-    if (getUtf8ByteCount(message) > InteropMessageMaxSizeBytes) {
-        return {error: `Message exceeds max size of ${InteropMessageMaxSizeBytes} bytes.`};
-    }
+	if (getUtf8ByteCount(message) > InteropMessageMaxSizeBytes) {
+		return {
+			error: `Message exceeds max size of ${InteropMessageMaxSizeBytes} bytes.`,
+		};
+	}
 
-    try {
-        const parsed = JSON.parse(message) as unknown;
-        if (!isObject(parsed)) {
-            return {error: "Envelope root must be a JSON object."};
-        }
+	try {
+		const parsed = JSON.parse(message) as unknown;
+		if (!isObject(parsed)) {
+			return { error: "Envelope root must be a JSON object." };
+		}
 
-        if (typeof parsed.id !== "string" || parsed.id.trim().length === 0) {
-            return {error: "Envelope 'id' is required and must be a string."};
-        }
+		if (typeof parsed.id !== "string" || parsed.id.trim().length === 0) {
+			return { error: "Envelope 'id' is required and must be a string." };
+		}
 
-        if (typeof parsed.version !== "number" || !Number.isInteger(parsed.version)) {
-            return {error: "Envelope 'version' is required and must be an integer."};
-        }
+		if (
+			typeof parsed.version !== "number" ||
+			!Number.isInteger(parsed.version)
+		) {
+			return {
+				error: "Envelope 'version' is required and must be an integer.",
+			};
+		}
 
-        if (parsed.version !== InteropEnvelopeVersion) {
-            return {error: `Unsupported envelope version '${parsed.version}'.`};
-        }
+		if (parsed.version !== InteropEnvelopeVersion) {
+			return { error: `Unsupported envelope version '${parsed.version}'.` };
+		}
 
-        const payload = convertDataToPayload(parsed.data);
+		const payload = convertDataToPayload(parsed.data);
 
-        if (!isSupportedCommand(parsed.command)) {
-            return {error: "Envelope 'command' must be 'Post' or 'Get'."};
-        }
+		if (!isSupportedCommand(parsed.command)) {
+			return { error: "Envelope 'command' must be 'Post' or 'Get'." };
+		}
 
-        if (parsed.requestId !== undefined && typeof parsed.requestId !== "string") {
-            return {error: "Envelope 'requestId' must be a string."};
-        }
+		if (
+			parsed.requestId !== undefined &&
+			typeof parsed.requestId !== "string"
+		) {
+			return { error: "Envelope 'requestId' must be a string." };
+		}
 
-        return {
-            messageId: parsed.id,
-            payload,
-            command: parsed.command,
-            requestId: parsed.requestId
-        };
-    } catch {
-        return {error: "Envelope JSON is malformed."};
-    }
+		return {
+			messageId: parsed.id,
+			payload,
+			command: parsed.command,
+			requestId: parsed.requestId,
+		};
+	} catch {
+		return { error: "Envelope JSON is malformed." };
+	}
 }
 
 /**
@@ -154,15 +176,15 @@ export function parseIncomingMessage(message: string): ParsedInteropMessage | In
  * @returns The data as a string, or `undefined` if the data is null/undefined.
  */
 function convertDataToPayload(data: unknown): string | undefined {
-    if (data === null || data === undefined) {
-        return undefined;
-    }
+	if (data === null || data === undefined) {
+		return undefined;
+	}
 
-    if (typeof data === "string") {
-        return data;
-    }
+	if (typeof data === "string") {
+		return data;
+	}
 
-    return JSON.stringify(data);
+	return JSON.stringify(data);
 }
 
 /**
@@ -172,7 +194,7 @@ function convertDataToPayload(data: unknown): string | undefined {
  * @returns The number of UTF-8 bytes required to encode the string.
  */
 function getUtf8ByteCount(message: string): number {
-    return new TextEncoder().encode(message).length;
+	return new TextEncoder().encode(message).length;
 }
 
 /**
@@ -182,7 +204,7 @@ function getUtf8ByteCount(message: string): number {
  * @returns `true` if the value is a non-null object.
  */
 function isObject(value: unknown): value is Record<string, unknown> {
-    return typeof value === "object" && value !== null;
+	return typeof value === "object" && value !== null;
 }
 
 /**
@@ -191,6 +213,8 @@ function isObject(value: unknown): value is Record<string, unknown> {
  * @param command - The value to check.
  * @returns `true` if the value is either {@link InteropPostCommand} or {@link InteropGetCommand}.
  */
-function isSupportedCommand(command: unknown): command is InteropEnvelopeCommand {
-    return command === InteropPostCommand || command === InteropGetCommand;
+function isSupportedCommand(
+	command: unknown,
+): command is InteropEnvelopeCommand {
+	return command === InteropPostCommand || command === InteropGetCommand;
 }
