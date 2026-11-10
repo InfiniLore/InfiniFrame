@@ -1,0 +1,226 @@
+{
+  "version": 2,
+  "dependencies": {
+    "net10.0": {
+      "Microsoft.AspNetCore.App.Internal.Assets": {
+        "type": "Direct",
+        "requested": "[10.0.14, )",
+        "resolved": "10.0.14",
+        "contentHash": "T1IOYbID1msKjQEh684HebnN+Xnq/pocMXDukOMZtzzPTf9c4/30+/JndM/1txrqwuSYqWvLiAQWzu4U93cshw=="
+      },
+      "MudBlazor": {
+        "type": "Direct",
+        "requested": "[9.10.0, )",
+        "resolved": "9.10.0",
+        "contentHash": "1TzwlootgzINmTBJn03YAF8GStLz73oLQff383MSDIQexjhPnlryatsynYSvnQ9TJmUfAJo0wsnufyGY76oXOw=="
+      },
+      "Serilog": {
+        "type": "Direct",
+        "requested": "[4.4.0, )",
+        "resolved": "4.4.0",
+        "contentHash": "ZC6Le3rr4TVJJjS4KsQAesxeF1EhW9qcZmmG7eP5Y2G3+gTGkJEUXkq4+tZNPtyp05I0wWOxnIjwtxFweJsObw=="
+      },
+      "Serilog.AspNetCore": {
+        "type": "Direct",
+        "requested": "[10.0.0, )",
+        "resolved": "10.0.0",
+        "contentHash": "a/cNa1mY4On1oJlfGG1wAvxjp5g7OEzk/Jf/nm7NF9cWoE7KlZw1GldrifUBWm9oKibHkR7Lg/l5jy3y7ACR8w==",
+        "dependencies": {
+          "Serilog": "4.3.0",
+          "Serilog.Extensions.Hosting": "10.0.0",
+          "Serilog.Formatting.Compact": "3.0.0",
+          "Serilog.Settings.Configuration": "10.0.0",
+          "Serilog.Sinks.Console": "6.1.1",
+          "Serilog.Sinks.Debug": "3.0.0",
+          "Serilog.Sinks.File": "7.0.0"
+        }
+      },
+      "Serilog.Sinks.Async": {
+        "type": "Direct",
+        "requested": "[2.1.0, )",
+        "resolved": "2.1.0",
+        "contentHash": "SnmRknWsSMgyo9wDXeZZCqSp48kkQYy44taSM6vcpxfiRICzSf09oLKEmVr0RCwQnfd8mJQ2WNN6nvhqf0RowQ==",
+        "dependencies": {
+          "Serilog": "4.1.0"
+        }
+      },
+      "Serilog.Sinks.Console": {
+        "type": "Direct",
+        "requested": "[6.1.1, )",
+        "resolved": "6.1.1",
+        "contentHash": "8jbqgjUyZlfCuSTaJk6lOca465OndqOz3KZP6Cryt/IqZYybyBu7GP0fE/AXBzrrQB3EBmQntBFAvMVz1COvAA==",
+        "dependencies": {
+          "Serilog": "4.0.0"
+        }
+      },
+      "Microsoft.Extensions.DependencyModel": {
+        "type": "Transitive",
+        "resolved": "10.0.0",
+        "contentHash": "RFYJR7APio/BiqdQunRq6DB+nDB6nc2qhHr77mlvZ0q0BT8PubMXN7XicmfzCbrDE/dzhBnUKBRXLTcqUiZDGg=="
+      },
+      "Serilog.Extensions.Logging": {
+        "type": "Transitive",
+        "resolved": "10.0.0",
+        "contentHash": "vx0kABKl2dWbBhhqAfTOk53/i8aV/5VaT3a6il9gn72Wqs2pM7EK2OB6No6xdqK2IaY6Zf9gdjLuK9BVa2rT+Q==",
+        "dependencies": {
+          "Serilog": "4.2.0"
+        }
+      },
+      "Serilog.Formatting.Compact": {
+        "type": "Transitive",
+        "resolved": "3.0.0",
+        "contentHash": "wQsv14w9cqlfB5FX2MZpNsTawckN4a8dryuNGbebB/3Nh1pXnROHZov3swtu3Nj5oNG7Ba+xdu7Et/ulAUPanQ==",
+        "dependencies": {
+          "Serilog": "4.0.0"
+        }
+      },
+      "Serilog.Settings.Configuration": {
+        "type": "Transitive",
+        "resolved": "10.0.0",
+        "contentHash": "LNq+ibS1sbhTqPV1FIE69/9AJJbfaOhnaqkzcjFy95o+4U+STsta9mi97f1smgXsWYKICDeGUf8xUGzd/52/uA==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyModel": "10.0.0",
+          "Serilog": "4.3.0"
+        }
+      },
+      "Serilog.Sinks.Debug": {
+        "type": "Transitive",
+        "resolved": "3.0.0",
+        "contentHash": "4BzXcdrgRX7wde9PmHuYd9U6YqycCC28hhpKonK7hx0wb19eiuRj16fPcPSVp0o/Y1ipJuNLYQ00R3q2Zs8FDA==",
+        "dependencies": {
+          "Serilog": "4.0.0"
+        }
+      },
+      "Serilog.Sinks.File": {
+        "type": "Transitive",
+        "resolved": "7.0.0",
+        "contentHash": "fKL7mXv7qaiNBUC71ssvn/dU0k9t0o45+qm2XgKAlSt19xF+ijjxyA3R6HmCgfKEKwfcfkwWjayuQtRueZFkYw==",
+        "dependencies": {
+          "Serilog": "4.2.0"
+        }
+      },
+      "InfiniLore.InfiniFrame.Application": {
+        "type": "Project",
+        "dependencies": {
+          "FluentValidation": "[12.1.1, )",
+          "InfiniLore.InfiniFrame.NativeBridge": "[0.62.1, )",
+          "InfiniLore.InfiniFrame.Shared": "[0.62.1, )",
+          "InfiniLore.InfiniFrame.Window": "[0.62.1, )"
+        }
+      },
+      "InfiniLore.InfiniFrame.Blazor": {
+        "type": "Project",
+        "dependencies": {
+          "InfiniLore.InfiniFrame.Shared": "[0.62.1, )"
+        }
+      },
+      "InfiniLore.InfiniFrame.BlazorWebView": {
+        "type": "Project",
+        "dependencies": {
+          "InfiniLore.InfiniFrame.Application": "[0.62.1, )",
+          "InfiniLore.InfiniFrame.Blazor": "[0.62.1, )",
+          "InfiniLore.InfiniFrame.Security": "[0.62.1, )",
+          "InfiniLore.InfiniFrame.Shared": "[0.62.1, )",
+          "InfiniLore.InfiniFrame.StaticAssets": "[0.62.1, )",
+          "InfiniLore.InfiniFrame.Window": "[0.62.1, )",
+          "Microsoft.AspNetCore.Components.WebView": "[10.0.12, )"
+        }
+      },
+      "InfiniLore.InfiniFrame.Js": {
+        "type": "Project",
+        "dependencies": {
+          "InfiniLore.InfiniFrame.Shared": "[0.62.1, )"
+        }
+      },
+      "InfiniLore.InfiniFrame.NativeBridge": {
+        "type": "Project",
+        "dependencies": {
+          "FluentValidation": "[12.1.1, )"
+        }
+      },
+      "InfiniLore.InfiniFrame.Security": {
+        "type": "Project",
+        "dependencies": {
+          "InfiniLore.InfiniFrame.Shared": "[0.62.1, )"
+        }
+      },
+      "InfiniLore.InfiniFrame.Shared": {
+        "type": "Project",
+        "dependencies": {
+          "InfiniLore.InfiniFrame.NativeBridge": "[0.62.1, )",
+          "JetBrains.Annotations": "[2026.2.0, )"
+        }
+      },
+      "InfiniLore.InfiniFrame.SingleFile": {
+        "type": "Project",
+        "dependencies": {
+          "InfiniLore.InfiniFrame.BlazorWebView": "[0.62.1, )",
+          "InfiniLore.InfiniFrame.Window": "[0.62.1, )"
+        }
+      },
+      "InfiniLore.InfiniFrame.StaticAssets": {
+        "type": "Project",
+        "dependencies": {
+          "InfiniLore.InfiniFrame.Shared": "[0.62.1, )",
+          "Microsoft.Extensions.FileProviders.Embedded": "[10.0.12, )"
+        }
+      },
+      "InfiniLore.InfiniFrame.WebServer": {
+        "type": "Project",
+        "dependencies": {
+          "InfiniLore.InfiniFrame.Application": "[0.62.1, )",
+          "InfiniLore.InfiniFrame.Security": "[0.62.1, )"
+        }
+      },
+      "InfiniLore.InfiniFrame.Window": {
+        "type": "Project",
+        "dependencies": {
+          "FluentValidation": "[12.1.1, )",
+          "InfiniLore.InfiniFrame.Js": "[0.62.1, )",
+          "InfiniLore.InfiniFrame.NativeBridge": "[0.62.1, )",
+          "InfiniLore.InfiniFrame.Security": "[0.62.1, )",
+          "InfiniLore.InfiniFrame.Shared": "[0.62.1, )",
+          "InfiniLore.InfiniFrame.StaticAssets": "[0.62.1, )"
+        }
+      },
+      "FluentValidation": {
+        "type": "CentralTransitive",
+        "requested": "[12.1.1, )",
+        "resolved": "12.1.1",
+        "contentHash": "EPpkIe1yh1a0OXyC100oOA8WMbZvqUu5plwhvYcb7oSELfyUZzfxV48BLhvs3kKo4NwG7MGLNgy1RJiYtT8Dpw=="
+      },
+      "JetBrains.Annotations": {
+        "type": "CentralTransitive",
+        "requested": "[2026.2.0, )",
+        "resolved": "2026.2.0",
+        "contentHash": "drvAEaI7Xf4wU6dx4UTB9MoZWXZlraaQ0qoeThPQ411FxNhId7QdUTukIC9I8aUHP0ycAaGwZNKqSvfOZQvUlg=="
+      },
+      "Microsoft.AspNetCore.Components.WebView": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.12, )",
+        "resolved": "10.0.12",
+        "contentHash": "sapiTzLbSDmJhhCohiK/cVQGvyOi05CV1I4nF9WlVGC2qWLPlOkn5Ct8MZM+zxTe1nsv9jjRlgK+f4xtzUywuw==",
+        "dependencies": {
+          "Microsoft.Extensions.FileProviders.Embedded": "10.0.12"
+        }
+      },
+      "Microsoft.Extensions.FileProviders.Embedded": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.12, )",
+        "resolved": "10.0.12",
+        "contentHash": "u9y/tTPnkv+lsIqN4NRjhzh5XGv7pPCXjPEdbYVK9daidg+xFFEHv//gTlrjZJAKLMcHbArnCU/wVl0KrPJEJA=="
+      },
+      "Serilog.Extensions.Hosting": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.0, )",
+        "resolved": "10.0.0",
+        "contentHash": "E7juuIc+gzoGxgzFooFgAV8g9BfiSXNKsUok9NmEpyAXg2odkcPsMa/Yo4axkJRlh0se7mkYQ1GXDaBemR+b6w==",
+        "dependencies": {
+          "Serilog": "4.3.0",
+          "Serilog.Extensions.Logging": "10.0.0"
+        }
+      }
+    },
+    "net10.0/win-x64": {}
+  }
+}

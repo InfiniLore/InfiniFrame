@@ -89,6 +89,7 @@ jobs:
                       -t:InfiniFrameSingleFile \
                       -r "${{ matrix.rid }}" \
                       -c Release \
+                      -p:RestoreLockedMode=false \
                       -p:InfiniFrameSingleFileActive=true \
                       -p:InfiniFrameSingleFileRid="${{ matrix.rid }}" \
                       -p:InfiniFrameSingleFileSelfContained=true

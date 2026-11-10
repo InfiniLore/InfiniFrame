@@ -43,6 +43,7 @@ jobs:
                         **/*.csproj
                         **/*.props
                         **/Directory.Packages.props
+                        **/packages.lock.json
 
             -   name: Validate PackageId Prefix
                 run: |
