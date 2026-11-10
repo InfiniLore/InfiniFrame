@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import type { StateInfiniFrameWindowFeature } from "./StateInfiniFrameWindowFeature";
 import { setupFeature } from "./_testHelpers";
 
 describe("StateInfiniFrameWindowFeature", () => {
-	let feature: any;
+	let feature: StateInfiniFrameWindowFeature;
 	let messaging: ReturnType<
 		typeof import("./_testHelpers").createMessagingMock
 	>;
@@ -60,8 +61,8 @@ describe("StateInfiniFrameWindowFeature", () => {
 	});
 	it("setCachedPreFullScreenBounds posts command", () => {
 		feature.setCachedPreFullScreenBounds({
-			left: 0,
-			top: 0,
+			x: 0,
+			y: 0,
 			width: 800,
 			height: 600,
 		});
@@ -69,8 +70,8 @@ describe("StateInfiniFrameWindowFeature", () => {
 	});
 	it("setCachedPreMaximizedBounds posts command", () => {
 		feature.setCachedPreMaximizedBounds({
-			left: 0,
-			top: 0,
+			x: 0,
+			y: 0,
 			width: 800,
 			height: 600,
 		});
@@ -93,7 +94,7 @@ describe("StateInfiniFrameWindowFeature", () => {
 		expect(messaging.sendMessageToHost).toHaveBeenCalled();
 	});
 	it("setFocused posts command", () => {
-		feature.setFocused(true);
+		feature.setFocused();
 		expect(messaging.sendMessageToHost).toHaveBeenCalled();
 	});
 	it("setZoomFactor posts command", () => {

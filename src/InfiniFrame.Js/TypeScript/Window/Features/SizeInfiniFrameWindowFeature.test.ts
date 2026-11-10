@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import type { SizeInfiniFrameWindowFeature } from "./SizeInfiniFrameWindowFeature";
 import { setupFeature } from "./_testHelpers";
 
 describe("SizeInfiniFrameWindowFeature", () => {
-	let feature: any;
+	let feature: SizeInfiniFrameWindowFeature;
 	let messaging: ReturnType<
 		typeof import("./_testHelpers").createMessagingMock
 	>;
@@ -74,7 +75,7 @@ describe("SizeInfiniFrameWindowFeature", () => {
 		expect(messaging.sendMessageToHost).toHaveBeenCalled();
 	});
 	it("resize posts command", () => {
-		feature.resize(10, 20);
+		feature.resize(10, 20, "bottomRight");
 		expect(messaging.sendMessageToHost).toHaveBeenCalled();
 	});
 });

@@ -1,8 +1,20 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import type { JavaScriptInfiniFrameWindowFeature } from "./JavaScriptInfiniFrameWindowFeature";
 import { setupFeature } from "./_testHelpers";
 
+function getRequestId(data: unknown): string {
+	if (typeof data !== "object" || data === null) {
+		throw new Error("Expected an eval request object.");
+	}
+	const args = "args" in data ? data.args : data;
+	if (typeof args !== "object" || args === null || !("requestId" in args)) {
+		throw new Error("Expected an eval request ID.");
+	}
+	return String(args.requestId);
+}
+
 describe("JavaScriptInfiniFrameWindowFeature", () => {
-	let feature: any;
+	let feature: JavaScriptInfiniFrameWindowFeature;
 	let messaging: ReturnType<
 		typeof import("./_testHelpers").createMessagingMock
 	>;
@@ -17,11 +29,15 @@ describe("JavaScriptInfiniFrameWindowFeature", () => {
 		const { handleJavaScriptEvalResponse } = await import(
 			"./JavaScriptInfiniFrameWindowFeature"
 		);
-		messaging.sendMessageToHost.mockImplementation((_id: string, data: any) => {
-			const args = data.args || data;
-			const requestId = args.requestId;
-			handleJavaScriptEvalResponse({ requestId, result: JSON.stringify("42") });
-		});
+		messaging.sendMessageToHost.mockImplementation(
+			(_id: string, data: unknown) => {
+				const requestId = getRequestId(data);
+				handleJavaScriptEvalResponse({
+					requestId,
+					result: JSON.stringify("42"),
+				});
+			},
+		);
 		const result = await feature.evalAsync("1 + 1");
 		expect(result).toBe("42");
 	});
@@ -30,11 +46,12 @@ describe("JavaScriptInfiniFrameWindowFeature", () => {
 		const { handleJavaScriptEvalResponse } = await import(
 			"./JavaScriptInfiniFrameWindowFeature"
 		);
-		messaging.sendMessageToHost.mockImplementation((_id: string, data: any) => {
-			const args = data.args || data;
-			const requestId = args.requestId;
-			handleJavaScriptEvalResponse({ requestId, error: "Syntax error" });
-		});
+		messaging.sendMessageToHost.mockImplementation(
+			(_id: string, data: unknown) => {
+				const requestId = getRequestId(data);
+				handleJavaScriptEvalResponse({ requestId, error: "Syntax error" });
+			},
+		);
 		await expect(
 			feature.evalAsync("throw new Error('Syntax error')"),
 		).rejects.toThrow("Syntax error");
@@ -91,11 +108,12 @@ describe("JavaScriptInfiniFrameWindowFeature", () => {
 		const { handleJavaScriptEvalResponse } = await import(
 			"./JavaScriptInfiniFrameWindowFeature"
 		);
-		messaging.sendMessageToHost.mockImplementation((_id: string, data: any) => {
-			const args = data.args || data;
-			const requestId = args.requestId;
-			handleJavaScriptEvalResponse({ requestId, result: null });
-		});
+		messaging.sendMessageToHost.mockImplementation(
+			(_id: string, data: unknown) => {
+				const requestId = getRequestId(data);
+				handleJavaScriptEvalResponse({ requestId, result: null });
+			},
+		);
 		const result = await feature.evalAsync("undefined");
 		expect(result).toBeNull();
 	});

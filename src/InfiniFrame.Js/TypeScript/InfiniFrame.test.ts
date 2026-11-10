@@ -2,6 +2,11 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	deleteTestProperty,
+	getTestWindow,
+	type TestInfiniFrame,
+} from "./_testHelpers";
 import { InfiniFrame } from "./InfiniFrame";
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -9,7 +14,7 @@ import { InfiniFrame } from "./InfiniFrame";
 // ---------------------------------------------------------------------------------------------------------------------
 describe("InfiniFrame", () => {
 	beforeEach(() => {
-		const win = window as any;
+		const win = getTestWindow();
 		if (!win.infiniframe?.messaging) {
 			win.infiniframe = {
 				messaging: {
@@ -42,15 +47,19 @@ describe("InfiniFrame", () => {
 	});
 
 	it("replaces an incomplete preinitialized window API", () => {
-		const instance = new InfiniFrame({ window: {} as any });
+		const instance = new InfiniFrame({
+			window: {} as TestInfiniFrame["window"],
+		});
 
 		expect(instance.window.features).toBeDefined();
 		expect(instance.window.features.decorations).toBeDefined();
 	});
 
 	it("preserves existing window when features are already set", () => {
-		const existingWindow = { features: { decorations: {} } };
-		const instance = new InfiniFrame({ window: existingWindow as any });
+		const existingWindow = {
+			features: { decorations: {} },
+		} as TestInfiniFrame["window"];
+		const instance = new InfiniFrame({ window: existingWindow });
 
 		expect(instance.window).toBe(existingWindow);
 	});
@@ -58,17 +67,17 @@ describe("InfiniFrame", () => {
 	it("does not define a legacy window.__infiniframe host", async () => {
 		const setSpy = vi.spyOn(Object, "defineProperty");
 
-		const win = window as any;
+		const win = getTestWindow();
 
 		// ensure clean state
-		delete win.infiniframe;
-		delete win.__infiniframe;
+		deleteTestProperty(win, "infiniframe");
+		deleteTestProperty(win, "__infiniframe");
 
 		await import("./InfiniFrame");
 
 		// library should not define host via Object.defineProperty
 		const hostDefinitionCalls = setSpy.mock.calls.filter((call) =>
-			String(call[1])?.includes?.("host"),
+			String(call[1]).includes("host"),
 		);
 
 		expect(hostDefinitionCalls.length).toBe(0);

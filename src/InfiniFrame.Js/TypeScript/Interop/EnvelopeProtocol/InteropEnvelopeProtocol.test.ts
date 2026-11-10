@@ -1,11 +1,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-// @ts-expect-error
-import fs from "node:fs";
-// @ts-expect-error
-import path from "node:path";
 import { describe, expect, it } from "vitest";
+import vectors from "./interop-envelope-golden-vectors.json";
 import {
 	createEnvelopeMessage,
 	InteropMessageMaxSizeBytes,
@@ -37,12 +34,7 @@ type GoldenVectors = {
 };
 
 function loadGoldenVectors(): GoldenVectors {
-	// @ts-expect-error
-	const filePath = path.resolve(
-		__dirname,
-		"./interop-envelope-golden-vectors.json",
-	);
-	return JSON.parse(fs.readFileSync(filePath, "utf8")) as GoldenVectors;
+	return vectors as GoldenVectors;
 }
 
 describe("InteropEnvelopeProtocol", () => {

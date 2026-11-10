@@ -16,15 +16,15 @@
 		"rules": {
 			"preset": "recommended",
 			"suspicious": {
-				"noExplicitAny": "off",
-				"noApproximativeNumericConstant": "off"
+				"noExplicitAny": "error",
+				"noApproximativeNumericConstant": "error"
 			},
 			"style": {
-				"noNonNullAssertion": "off"
+				"noNonNullAssertion": "error"
 			},
 			"complexity": {
-				"noBannedTypes": "off",
-				"noUselessConstructor": "off"
+				"noBannedTypes": "error",
+				"noUselessConstructor": "error"
 			}
 		}
 	}

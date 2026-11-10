@@ -2,14 +2,18 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { getTestWindow, type TestInfiniFrame } from "../_testHelpers";
 import { SendToHostMessageIds } from "../Contracts";
-import { WindowChrome } from "./WindowChrome";
+import { WindowChrome, type WindowChromeConfig } from "./WindowChrome";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Test helpers
 // ---------------------------------------------------------------------------------------------------------------------
 function createMessagingMock() {
 	return {
+		ready: Promise.resolve(),
+		isReady: true,
+		getMessageFromHostRawAsync: vi.fn(),
 		sendMessageToHost: vi.fn(),
 		getMessageFromHostAsync: vi.fn(),
 		assignMessageReceivedHandler: vi.fn(),
@@ -20,11 +24,11 @@ function createMessagingMock() {
 function setupWindowInfiniframe(
 	messaging: ReturnType<typeof createMessagingMock>,
 ) {
-	window.infiniframe = {
+	getTestWindow().infiniframe = {
 		messaging,
-		window: { features: {} } as any,
+		window: { features: {} } as TestInfiniFrame["window"],
 		utils: { setPointerCapture: vi.fn(), releasePointerCapture: vi.fn() },
-	} as any;
+	} as unknown as TestInfiniFrame;
 }
 
 function createElement(
@@ -39,6 +43,13 @@ function createElement(
 	if (text) el.textContent = text;
 	document.body.appendChild(el);
 	return el;
+}
+
+function resetChromeConfigForTest(chrome: WindowChrome): void {
+	Reflect.set(chrome, "config", null);
+	const setup = Reflect.get(chrome, "setup");
+	if (typeof setup !== "function") throw new Error("Expected setup method.");
+	setup.call(chrome);
 }
 
 // jsdom doesn't support setPointerCapture, so we mock it on Element.prototype
@@ -64,7 +75,9 @@ describe("WindowChrome", () => {
 
 	describe("register", () => {
 		it("throws when config is null", () => {
-			expect(() => chrome.register(null as any)).toThrow("config is required");
+			expect(() => chrome.register(null as WindowChromeConfig | null)).toThrow(
+				"config is required",
+			);
 		});
 
 		it("sets up drag region from CSS selector", () => {
@@ -536,7 +549,12 @@ describe("WindowChrome", () => {
 			);
 
 			const restoreCalls = messaging.sendMessageToHost.mock.calls.filter(
-				(call: any[]) => call[1]?.command?.includes("restoreFromMaximized"),
+				(call) =>
+					typeof call[1] === "object" &&
+					call[1] !== null &&
+					"command" in call[1] &&
+					typeof call[1].command === "string" &&
+					call[1].command.includes("restoreFromMaximized"),
 			);
 			expect(restoreCalls).toHaveLength(1);
 		});
@@ -549,8 +567,7 @@ describe("WindowChrome", () => {
 		it("setup does nothing when config is null after register", () => {
 			chrome.register({ dragRegion: "#titlebar" });
 			// Manually set config to null to test guard
-			(chrome as any).config = null;
-			(chrome as any).setup();
+			resetChromeConfigForTest(chrome);
 		});
 	});
 
@@ -559,7 +576,7 @@ describe("WindowChrome", () => {
 			const consoleWarn = vi
 				.spyOn(console, "warn")
 				.mockImplementation(() => {});
-			(window.infiniframe as any).messaging = null;
+			getTestWindow().infiniframe.messaging = undefined;
 
 			const dragArea = createElement("div", { id: "titlebar" });
 			chrome.register({ dragRegion: "#titlebar" });

@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import type { DecorationsInfiniFrameWindowFeature } from "./DecorationsInfiniFrameWindowFeature";
 import { setupFeature } from "./_testHelpers";
 
 describe("DecorationsInfiniFrameWindowFeature", () => {
-	let feature: any;
+	let feature: DecorationsInfiniFrameWindowFeature;
 	let messaging: ReturnType<
 		typeof import("./_testHelpers").createMessagingMock
 	>;

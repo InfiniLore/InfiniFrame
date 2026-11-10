@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { BrowserInfiniFrameWindowFeature } from "./BrowserInfiniFrameWindowFeature";
+import { getTestWindow, requireValue } from "../../_testHelpers";
 import { setupFeature } from "./_testHelpers";
 
 describe("BrowserInfiniFrameWindowFeature", () => {
-	let feature: any;
+	let feature: BrowserInfiniFrameWindowFeature;
 	let messaging: ReturnType<
 		typeof import("./_testHelpers").createMessagingMock
 	>;
@@ -15,7 +17,7 @@ describe("BrowserInfiniFrameWindowFeature", () => {
 		}));
 		const mod = await import("./BrowserInfiniFrameWindowFeature");
 		feature = new mod.BrowserInfiniFrameWindowFeature();
-		(window as any).infiniframe.messaging = messaging;
+		getTestWindow().infiniframe.messaging = messaging;
 	});
 
 	it("constructs without error", () => {
@@ -142,74 +144,92 @@ describe("BrowserInfiniFrameWindowFeature", () => {
 		expect(messaging.sendMessageToHost).toHaveBeenCalled();
 	});
 	it("message handler updates contextMenuEnabled on valid payload", () => {
-		const handler = messaging.assignMessageReceivedHandler.mock.calls.find(
-			(call: any[]) =>
-				typeof call[0] === "string" &&
-				call[0].includes("setContextMenuEnabled"),
-		)?.[1];
+		const handler = requireValue(
+			messaging.assignMessageReceivedHandler.mock.calls.find(
+				(call: unknown[]) =>
+					typeof call[0] === "string" &&
+					call[0].includes("setContextMenuEnabled"),
+			),
+		)[1] as (payload: unknown) => void;
 		expect(handler).toBeDefined();
-		handler!(JSON.stringify({ enabled: false }));
+		handler(JSON.stringify({ enabled: false }));
 	});
 	it("message handler ignores null payload for contextMenu", () => {
-		const handler = messaging.assignMessageReceivedHandler.mock.calls.find(
-			(call: any[]) =>
-				typeof call[0] === "string" &&
-				call[0].includes("setContextMenuEnabled"),
-		)?.[1];
-		handler!(null);
+		const handler = requireValue(
+			messaging.assignMessageReceivedHandler.mock.calls.find(
+				(call: unknown[]) =>
+					typeof call[0] === "string" &&
+					call[0].includes("setContextMenuEnabled"),
+			),
+		)[1] as (payload: unknown) => void;
+		handler(null);
 	});
 	it("message handler ignores malformed JSON for contextMenu", () => {
-		const handler = messaging.assignMessageReceivedHandler.mock.calls.find(
-			(call: any[]) =>
-				typeof call[0] === "string" &&
-				call[0].includes("setContextMenuEnabled"),
-		)?.[1];
-		handler!("not-json");
+		const handler = requireValue(
+			messaging.assignMessageReceivedHandler.mock.calls.find(
+				(call: unknown[]) =>
+					typeof call[0] === "string" &&
+					call[0].includes("setContextMenuEnabled"),
+			),
+		)[1] as (payload: unknown) => void;
+		handler("not-json");
 	});
 	it("message handler updates zoomEnabled on valid payload", () => {
-		const handler = messaging.assignMessageReceivedHandler.mock.calls.find(
-			(call: any[]) =>
-				typeof call[0] === "string" && call[0].includes("setZoomEnabled"),
-		)?.[1];
-		handler!(JSON.stringify({ enabled: false }));
+		const handler = requireValue(
+			messaging.assignMessageReceivedHandler.mock.calls.find(
+				(call: unknown[]) =>
+					typeof call[0] === "string" && call[0].includes("setZoomEnabled"),
+			),
+		)[1] as (payload: unknown) => void;
+		handler(JSON.stringify({ enabled: false }));
 	});
 	it("message handler ignores null payload for zoom", () => {
-		const handler = messaging.assignMessageReceivedHandler.mock.calls.find(
-			(call: any[]) =>
-				typeof call[0] === "string" && call[0].includes("setZoomEnabled"),
-		)?.[1];
-		handler!(null);
+		const handler = requireValue(
+			messaging.assignMessageReceivedHandler.mock.calls.find(
+				(call: unknown[]) =>
+					typeof call[0] === "string" && call[0].includes("setZoomEnabled"),
+			),
+		)[1] as (payload: unknown) => void;
+		handler(null);
 	});
 	it("message handler ignores malformed JSON for zoom", () => {
-		const handler = messaging.assignMessageReceivedHandler.mock.calls.find(
-			(call: any[]) =>
-				typeof call[0] === "string" && call[0].includes("setZoomEnabled"),
-		)?.[1];
-		handler!("not-json");
+		const handler = requireValue(
+			messaging.assignMessageReceivedHandler.mock.calls.find(
+				(call: unknown[]) =>
+					typeof call[0] === "string" && call[0].includes("setZoomEnabled"),
+			),
+		)[1] as (payload: unknown) => void;
+		handler("not-json");
 	});
 	it("message handler updates browserShortcutsEnabled on valid payload", () => {
-		const handler = messaging.assignMessageReceivedHandler.mock.calls.find(
-			(call: any[]) =>
-				typeof call[0] === "string" &&
-				call[0].includes("setBrowserShortcutsEnabled"),
-		)?.[1];
-		handler!(JSON.stringify({ enabled: false }));
+		const handler = requireValue(
+			messaging.assignMessageReceivedHandler.mock.calls.find(
+				(call: unknown[]) =>
+					typeof call[0] === "string" &&
+					call[0].includes("setBrowserShortcutsEnabled"),
+			),
+		)[1] as (payload: unknown) => void;
+		handler(JSON.stringify({ enabled: false }));
 	});
 	it("message handler ignores null payload for browserShortcuts", () => {
-		const handler = messaging.assignMessageReceivedHandler.mock.calls.find(
-			(call: any[]) =>
-				typeof call[0] === "string" &&
-				call[0].includes("setBrowserShortcutsEnabled"),
-		)?.[1];
-		handler!(null);
+		const handler = requireValue(
+			messaging.assignMessageReceivedHandler.mock.calls.find(
+				(call: unknown[]) =>
+					typeof call[0] === "string" &&
+					call[0].includes("setBrowserShortcutsEnabled"),
+			),
+		)[1] as (payload: unknown) => void;
+		handler(null);
 	});
 	it("message handler ignores malformed JSON for browserShortcuts", () => {
-		const handler = messaging.assignMessageReceivedHandler.mock.calls.find(
-			(call: any[]) =>
-				typeof call[0] === "string" &&
-				call[0].includes("setBrowserShortcutsEnabled"),
-		)?.[1];
-		handler!("not-json");
+		const handler = requireValue(
+			messaging.assignMessageReceivedHandler.mock.calls.find(
+				(call: unknown[]) =>
+					typeof call[0] === "string" &&
+					call[0].includes("setBrowserShortcutsEnabled"),
+			),
+		)[1] as (payload: unknown) => void;
+		handler("not-json");
 	});
 	it("keydown guard blocks ctrl+shift+i", () => {
 		document.dispatchEvent(

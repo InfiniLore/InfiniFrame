@@ -2,6 +2,11 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	deleteTestProperty,
+	getTestWindow,
+	requireValue,
+} from "./_testHelpers";
 import { ReceiveFromHostMessageIds, SendToHostMessageIds } from "./Contracts";
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -9,17 +14,16 @@ import { ReceiveFromHostMessageIds, SendToHostMessageIds } from "./Contracts";
 // ---------------------------------------------------------------------------------------------------------------------
 type ReceiveMessageCallback = (message: string) => void;
 
-type TestWindow = Window & {
-	infiniframe: Window["infiniframe"] & {
-		host: {
-			postData: (message: unknown) => void;
-			receiveCallback: (callback: ReceiveMessageCallback) => void;
-		};
-	};
-};
+function invokeWithInvalidInput(callback: ReceiveMessageCallback): void {
+	(callback as (message: unknown) => void)(123);
+}
+
+function hasMessageId(message: unknown, id: string): boolean {
+	return typeof message === "object" && message !== null && "id" in message && message.id === id;
+}
 
 describe("InfiniFrameHostMessaging", () => {
-	const testWindow = window as TestWindow;
+	const testWindow = getTestWindow();
 
 	beforeEach(() => {
 		vi.restoreAllMocks();
@@ -33,7 +37,6 @@ describe("InfiniFrameHostMessaging", () => {
 			receiveCallbackInner = callback;
 		});
 
-		// @ts-expect-error
 		testWindow.infiniframe = {
 			host: {
 				postData,
@@ -57,7 +60,12 @@ describe("InfiniFrameHostMessaging", () => {
 			messaging,
 			postData,
 			receiveCallback,
-			getReceiveCallback: () => receiveCallbackInner!,
+			getReceiveCallback: () => {
+				if (!receiveCallbackInner) {
+					throw new Error("Receive callback was not registered.");
+				}
+				return receiveCallbackInner;
+			},
 			blankTargetHandler,
 			titleObserverObserve,
 		};
@@ -269,7 +277,7 @@ describe("InfiniFrameHostMessaging", () => {
 			.spyOn(console, "warn")
 			.mockImplementation(() => undefined);
 
-		getReceiveCallback()(123 as any);
+		invokeWithInvalidInput(getReceiveCallback());
 
 		warnSpy.mockRestore();
 	});
@@ -307,11 +315,11 @@ describe("InfiniFrameHostMessaging", () => {
 		);
 
 		const ackResponses = postData.mock.calls
-			.map((call: any[]) => call[0])
+			.map((call: unknown[]) => call[0])
 			.filter(
-				(msg: any) =>
+				(msg: unknown) =>
 					typeof msg === "object" &&
-					msg?.id === SendToHostMessageIds.webMessageAckResponse,
+					hasMessageId(msg, SendToHostMessageIds.webMessageAckResponse),
 			);
 		expect(ackResponses.length).toBe(1);
 	});
@@ -396,8 +404,8 @@ describe("InfiniFrameHostMessaging", () => {
 	it("getMessageFromHostAsync throws when getDataAsync not available", async () => {
 		const { messaging } = await setupHostMessaging();
 		// Access the real host object that was stored during construction
-		const host = testWindow.infiniframe?.host as any;
-		delete host?.getDataAsync;
+		const host = testWindow.infiniframe?.host;
+		if (host) deleteTestProperty(host, "getDataAsync");
 
 		await expect(messaging.getMessageFromHostAsync("test")).rejects.toThrow();
 	});
@@ -407,16 +415,15 @@ describe("InfiniFrameHostMessaging", () => {
 		const warnSpy = vi
 			.spyOn(console, "warn")
 			.mockImplementation(() => undefined);
-		(testWindow.infiniframe.host as any).postData = undefined;
+		requireValue(testWindow.infiniframe.host).postData = undefined;
 
-		messaging.sendMessageToHost("test" as any);
+		messaging.sendMessageToHost("test");
 
 		expect(warnSpy).toHaveBeenCalled();
 		warnSpy.mockRestore();
 	});
 
 	it("assignWebMessageReceiver warns when host bridge not available", async () => {
-		// @ts-expect-error
 		testWindow.infiniframe = { host: undefined };
 		const warnSpy = vi
 			.spyOn(console, "warn")
@@ -484,9 +491,11 @@ describe("InfiniFrameHostMessaging", () => {
 		);
 
 		// Find the fullscreenchange handler
-		const fullscreenHandler = addEventListenerSpy.mock.calls.find(
-			(call: any[]) => call[0] === "fullscreenchange",
-		)?.[1] as (e: Event) => void;
+		const fullscreenHandler = requireValue(
+			addEventListenerSpy.mock.calls.find(
+				(call: unknown[]) => call[0] === "fullscreenchange",
+			),
+		)[1] as (e: Event) => void;
 
 		if (fullscreenHandler) {
 			// Mock fullscreenElement to be truthy
@@ -497,11 +506,11 @@ describe("InfiniFrameHostMessaging", () => {
 			fullscreenHandler(new Event("fullscreenchange"));
 
 			const fullscreenMessages = postData.mock.calls
-				.map((call: any[]) => call[0])
+				.map((call: unknown[]) => call[0])
 				.filter(
-					(msg: any) =>
+					(msg: unknown) =>
 						typeof msg === "object" &&
-						msg?.id === SendToHostMessageIds.fullscreenEnter,
+						hasMessageId(msg, SendToHostMessageIds.fullscreenEnter),
 				);
 			expect(fullscreenMessages.length).toBe(1);
 
@@ -525,9 +534,11 @@ describe("InfiniFrameHostMessaging", () => {
 			}),
 		);
 
-		const fullscreenHandler = addEventListenerSpy.mock.calls.find(
-			(call: any[]) => call[0] === "fullscreenchange",
-		)?.[1] as (e: Event) => void;
+		const fullscreenHandler = requireValue(
+			addEventListenerSpy.mock.calls.find(
+				(call: unknown[]) => call[0] === "fullscreenchange",
+			),
+		)[1] as (e: Event) => void;
 
 		if (fullscreenHandler) {
 			Object.defineProperty(document, "fullscreenElement", {
@@ -537,11 +548,11 @@ describe("InfiniFrameHostMessaging", () => {
 			fullscreenHandler(new Event("fullscreenchange"));
 
 			const fullscreenMessages = postData.mock.calls
-				.map((call: any[]) => call[0])
+				.map((call: unknown[]) => call[0])
 				.filter(
-					(msg: any) =>
+					(msg: unknown) =>
 						typeof msg === "object" &&
-						msg?.id === SendToHostMessageIds.fullscreenExit,
+						hasMessageId(msg, SendToHostMessageIds.fullscreenExit),
 				);
 			expect(fullscreenMessages.length).toBe(1);
 		}
@@ -573,7 +584,7 @@ describe("InfiniFrameHostMessaging", () => {
 			.spyOn(console, "warn")
 			.mockImplementation(() => undefined);
 		const { getReceiveCallback } = await setupHostMessaging();
-		getReceiveCallback()(123 as any);
+		invokeWithInvalidInput(getReceiveCallback());
 		warnSpy.mockRestore();
 	});
 });

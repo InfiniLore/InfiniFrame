@@ -116,7 +116,7 @@ export interface InfiniFrameHostMessaging {
 	 * @param args - Optional arguments to include.
 	 * @returns The host's response as a string.
 	 */
-	getMessageFromHostAsync(message: string, args?: any): Promise<string>;
+	getMessageFromHostAsync(message: string, args?: unknown): Promise<string>;
 
 	/**
 	 * Registers a callback for a specific incoming message ID.

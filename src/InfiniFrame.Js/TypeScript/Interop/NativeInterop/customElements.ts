@@ -135,7 +135,7 @@ function autoRegisterMissingInitializerCustomElements(
 	const definitions = defs ?? {};
 	for (const id of Object.keys(definitions)) {
 		if (initialized[id]) continue;
-		window.registerBlazorCustomElement!(id, definitions[id]);
+		window.registerBlazorCustomElement?.(id, definitions[id]);
 	}
 }
 
@@ -252,8 +252,8 @@ export function initCustomElements(setup: InfiniFrameSetup): void {
 			connectedCallback(): void {
 				this._isDisconnected = false;
 
-				window
-					.Blazor!.rootComponents!.add(this, identifier, this._getParams())
+				window.Blazor?.rootComponents
+					?.add(this, identifier, this._getParams())
 					.then((c) => {
 						this._component = c;
 						if (this._isDisconnected && c) {

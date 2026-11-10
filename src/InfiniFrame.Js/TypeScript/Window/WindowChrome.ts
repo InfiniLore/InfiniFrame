@@ -100,11 +100,11 @@ export class WindowChrome {
 	private lastPointerId = 0;
 	private resizeOrigin: string | null = null;
 
-	private boundPointerDown: any;
-	private boundPointerUp: any;
-	private boundPointerMove: any;
-	private boundDblClick: any;
-	private boundClick: any;
+	private boundPointerDown: EventListener;
+	private boundPointerUp: EventListener;
+	private boundPointerMove: EventListener;
+	private boundDblClick: EventListener;
+	private boundClick: EventListener;
 
 	private mutationObserver: MutationObserver | null = null;
 
@@ -128,7 +128,7 @@ export class WindowChrome {
 	 * control buttons, and resize handles.
 	 * @throws {Error} If `config` is not provided.
 	 */
-	public register(config: WindowChromeConfig): void {
+	public register(config: WindowChromeConfig | null): void {
 		if (this.isRegistered) this.unregister();
 		if (!config) throw new Error("WindowChrome.register: config is required.");
 

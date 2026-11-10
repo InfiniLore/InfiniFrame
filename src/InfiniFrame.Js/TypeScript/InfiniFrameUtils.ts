@@ -22,7 +22,7 @@ export class InfiniFrameUtils implements InfiniFrameUtilsContract {
 	 * @param element - The DOM element to capture the pointer on.
 	 * @param pointerId - The pointer identifier returned by pointer events.
 	 */
-	setPointerCapture(element: Element, pointerId: number): void {
+	setPointerCapture(element: Element | null, pointerId: number | null): void {
 		if (element === null) return;
 		if (pointerId === null) return;
 
@@ -35,7 +35,10 @@ export class InfiniFrameUtils implements InfiniFrameUtilsContract {
 	 * @param element - The DOM element that currently holds the pointer capture.
 	 * @param pointerId - The pointer identifier to release.
 	 */
-	releasePointerCapture(element: Element, pointerId: number): void {
+	releasePointerCapture(
+		element: Element | null,
+		pointerId: number | null,
+	): void {
 		if (element === null) return;
 		if (pointerId === null) return;
 

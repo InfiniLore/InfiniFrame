@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import type { PositionInfiniFrameWindowFeature } from "./PositionInfiniFrameWindowFeature";
 import { setupFeature } from "./_testHelpers";
 
 describe("PositionInfiniFrameWindowFeature", () => {
-	let feature: any;
+	let feature: PositionInfiniFrameWindowFeature;
 	let messaging: ReturnType<
 		typeof import("./_testHelpers").createMessagingMock
 	>;
@@ -59,7 +60,7 @@ describe("PositionInfiniFrameWindowFeature", () => {
 		expect(messaging.sendMessageToHost).toHaveBeenCalled();
 	});
 	it("moveWithinCurrentMonitorArea posts command", () => {
-		feature.moveWithinCurrentMonitorArea();
+		feature.moveWithinCurrentMonitorArea(0, 0);
 		expect(messaging.sendMessageToHost).toHaveBeenCalled();
 	});
 });

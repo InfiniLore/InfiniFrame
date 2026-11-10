@@ -17,4 +17,4 @@
  * Invoke feature API for the InfiniFrame window.
  * Currently a placeholder interface as invoke operations are handled via web messaging.
  */
-export type InvokeInfiniFrameWindowFeature = {};
+export type InvokeInfiniFrameWindowFeature = object;

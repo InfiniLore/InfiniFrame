@@ -2,6 +2,11 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	deleteTestProperty,
+	getTestWindow,
+	requireValue,
+} from "../../_testHelpers";
 import type {
 	BlazorCallback,
 	InfiniFrameExternal,
@@ -12,14 +17,16 @@ import { initWindowExternalBridge } from "./blazorExternalBridge";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+const unavailable = <T>(): T => undefined as unknown as T;
+
 describe("blazorExternalBridge", () => {
 	let setup: InfiniFrameSetup;
 
 	beforeEach(() => {
 		setup = createSetup();
-		delete window.infiniframe;
-		delete (window as any).__blazorCallbacks;
-		delete (window as any).__blazorDispatchHooked;
+		deleteTestProperty(getTestWindow(), "infiniframe");
+		deleteTestProperty(getTestWindow(), "__blazorCallbacks");
+		deleteTestProperty(getTestWindow(), "__blazorDispatchHooked");
 		vi.restoreAllMocks();
 	});
 
@@ -30,16 +37,16 @@ describe("blazorExternalBridge", () => {
 				postData,
 				receiveCallback: vi.fn(),
 			},
-			messaging: undefined!,
-			window: undefined!,
-			utils: undefined!,
+			messaging: unavailable(),
+			window: unavailable(),
+			utils: unavailable(),
 		};
 
 		initWindowExternalBridge(setup);
 
 		const external = window.external as InfiniFrameExternal;
-		external.sendMessage!("message");
-		external.postMessage!("post-message");
+		requireValue(external.sendMessage)("message");
+		requireValue(external.postMessage)("post-message");
 
 		expect(postData).toHaveBeenCalledWith("message");
 		expect(postData).toHaveBeenCalledWith("post-message");
@@ -57,9 +64,9 @@ describe("blazorExternalBridge", () => {
 				postData: vi.fn(),
 				receiveCallback: vi.fn(),
 			},
-			messaging: undefined!,
-			window: undefined!,
-			utils: undefined!,
+			messaging: unavailable(),
+			window: unavailable(),
+			utils: unavailable(),
 		};
 
 		initWindowExternalBridge(setup);
@@ -79,17 +86,17 @@ describe("blazorExternalBridge", () => {
 					hostCallback = callback;
 				}),
 			},
-			messaging: undefined!,
-			window: undefined!,
-			utils: undefined!,
+			messaging: unavailable(),
+			window: unavailable(),
+			utils: unavailable(),
 		};
 
 		initWindowExternalBridge(setup);
 
 		const callback = vi.fn();
 		const external = window.external as InfiniFrameExternal;
-		external.receiveMessage!(callback);
-		hostCallback!("host-message");
+		requireValue(external.receiveMessage)(callback);
+		requireValue(hostCallback)("host-message");
 
 		expect(callback).toHaveBeenCalledWith("host-message");
 	});
@@ -101,9 +108,9 @@ describe("blazorExternalBridge", () => {
 				postData: vi.fn(),
 				receiveCallback,
 			},
-			messaging: undefined!,
-			window: undefined!,
-			utils: undefined!,
+			messaging: unavailable(),
+			window: unavailable(),
+			utils: unavailable(),
 		};
 
 		initWindowExternalBridge(setup);
@@ -116,18 +123,18 @@ describe("blazorExternalBridge", () => {
 		const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 		window.infiniframe = {
 			host: {
-				postData: undefined as any,
+				postData: undefined,
 				receiveCallback: vi.fn(),
 			},
-			messaging: undefined!,
-			window: undefined!,
-			utils: undefined!,
+			messaging: unavailable(),
+			window: unavailable(),
+			utils: unavailable(),
 		};
 
 		initWindowExternalBridge(setup);
 
 		const external = window.external as InfiniFrameExternal;
-		external.sendMessage!("test");
+		requireValue(external.sendMessage)("test");
 
 		expect(warnSpy).toHaveBeenCalled();
 		warnSpy.mockRestore();
@@ -136,16 +143,16 @@ describe("blazorExternalBridge", () => {
 	it("warns when host bridge is not available", () => {
 		const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 		window.infiniframe = {
-			host: undefined as any,
-			messaging: undefined!,
-			window: undefined!,
-			utils: undefined!,
+			host: undefined,
+			messaging: unavailable(),
+			window: unavailable(),
+			utils: unavailable(),
 		};
 
 		initWindowExternalBridge(setup);
 
 		const external = window.external as InfiniFrameExternal;
-		external.sendMessage!("test");
+		requireValue(external.sendMessage)("test");
 
 		expect(warnSpy).toHaveBeenCalled();
 		warnSpy.mockRestore();
@@ -160,9 +167,9 @@ describe("blazorExternalBridge", () => {
 					hostCallback = callback;
 				}),
 			},
-			messaging: undefined!,
-			window: undefined!,
-			utils: undefined!,
+			messaging: unavailable(),
+			window: unavailable(),
+			utils: unavailable(),
 		};
 
 		initWindowExternalBridge(setup);
@@ -172,18 +179,18 @@ describe("blazorExternalBridge", () => {
 		});
 		const normalCallback = vi.fn();
 		const external = window.external as InfiniFrameExternal;
-		external.receiveMessage!(throwingCallback);
-		external.receiveMessage!(normalCallback);
+		requireValue(external.receiveMessage)(throwingCallback);
+		requireValue(external.receiveMessage)(normalCallback);
 
 		// Should not throw even though first callback throws
-		hostCallback!("host-message");
+		requireValue(hostCallback)("host-message");
 
 		expect(throwingCallback).toHaveBeenCalled();
 		expect(normalCallback).toHaveBeenCalledWith("host-message");
 	});
 
 	it("uses existing window.external when available", () => {
-		const existingExternal = { sendMessage: vi.fn() } as any;
+		const existingExternal = { sendMessage: vi.fn() };
 		Object.defineProperty(window, "external", {
 			configurable: true,
 			value: existingExternal,
@@ -195,9 +202,9 @@ describe("blazorExternalBridge", () => {
 				postData: vi.fn(),
 				receiveCallback: vi.fn(),
 			},
-			messaging: undefined!,
-			window: undefined!,
-			utils: undefined!,
+			messaging: unavailable(),
+			window: unavailable(),
+			utils: unavailable(),
 		};
 
 		initWindowExternalBridge(setup);
@@ -213,9 +220,9 @@ describe("blazorExternalBridge", () => {
 				postData: vi.fn(),
 				receiveCallback,
 			},
-			messaging: undefined!,
-			window: undefined!,
-			utils: undefined!,
+			messaging: unavailable(),
+			window: unavailable(),
+			utils: unavailable(),
 		};
 
 		initWindowExternalBridge(setup);

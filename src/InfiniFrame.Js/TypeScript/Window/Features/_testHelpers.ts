@@ -6,6 +6,7 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 import { vi } from "vitest";
+import { getTestWindow } from "../../_testHelpers";
 
 /**
  * Creates a mock messaging object with Vitest spy functions for all messaging methods.
@@ -13,6 +14,8 @@ import { vi } from "vitest";
  */
 export function createMessagingMock() {
 	return {
+		ready: Promise.resolve(),
+		isReady: true,
 		sendMessageToHost: vi.fn(),
 		getMessageFromHostAsync: vi.fn(),
 		getMessageFromHostRawAsync: vi.fn(),
@@ -28,6 +31,7 @@ export function createMessagingMock() {
 export function setupFeature() {
 	vi.restoreAllMocks();
 	const messaging = createMessagingMock();
-	(window as any).infiniframe = { messaging };
+	const testWindow = getTestWindow();
+	testWindow.infiniframe = { messaging };
 	return messaging;
 }

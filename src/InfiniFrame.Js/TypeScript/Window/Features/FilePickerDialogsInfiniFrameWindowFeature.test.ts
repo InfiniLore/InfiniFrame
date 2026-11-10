@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import type { FilePickerDialogsInfiniFrameWindowFeature } from "./FilePickerDialogsInfiniFrameWindowFeature";
 import { setupFeature } from "./_testHelpers";
 
 describe("FilePickerDialogsInfiniFrameWindowFeature", () => {
-	let feature: any;
+	let feature: FilePickerDialogsInfiniFrameWindowFeature;
 	let messaging: ReturnType<
 		typeof import("./_testHelpers").createMessagingMock
 	>;
@@ -17,21 +18,21 @@ describe("FilePickerDialogsInfiniFrameWindowFeature", () => {
 		messaging.getMessageFromHostAsync.mockResolvedValue(
 			JSON.stringify("/selected/file.txt"),
 		);
-		await feature.showOpenFileAsync({ filters: [] });
+		await feature.showOpenFileAsync("Choose file");
 		expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
 	});
 	it("showOpenFolderAsync calls get", async () => {
 		messaging.getMessageFromHostAsync.mockResolvedValue(
 			JSON.stringify("/selected/folder"),
 		);
-		await feature.showOpenFolderAsync({ filters: [] });
+		await feature.showOpenFolderAsync("Select folder");
 		expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
 	});
 	it("showSaveFileAsync calls get", async () => {
 		messaging.getMessageFromHostAsync.mockResolvedValue(
 			JSON.stringify("/save/path.txt"),
 		);
-		await feature.showSaveFileAsync({ filters: [] });
+		await feature.showSaveFileAsync("Save file");
 		expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
 	});
 });

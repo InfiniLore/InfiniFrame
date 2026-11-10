@@ -20,12 +20,15 @@ export interface InfiniFrameUtils {
 	 * @param element - The DOM element to capture pointer events on.
 	 * @param pointerId - The pointer ID to capture.
 	 */
-	setPointerCapture(element: Element, pointerId: number): void;
+	setPointerCapture(element: Element | null, pointerId: number | null): void;
 
 	/**
 	 * Releases a previously captured pointer from the specified element.
 	 * @param element - The DOM element to release the pointer from.
 	 * @param pointerId - The pointer ID to release.
 	 */
-	releasePointerCapture(element: Element, pointerId: number): void;
+	releasePointerCapture(
+		element: Element | null,
+		pointerId: number | null,
+	): void;
 }

@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { DebuggingInfiniFrameWindowFeature } from "./DebuggingInfiniFrameWindowFeature";
 import { setupFeature } from "./_testHelpers";
 
 describe("DebuggingInfiniFrameWindowFeature", () => {
-	let feature: any;
+	let feature: DebuggingInfiniFrameWindowFeature;
 	let messaging: ReturnType<
 		typeof import("./_testHelpers").createMessagingMock
 	>;
@@ -15,7 +16,7 @@ describe("DebuggingInfiniFrameWindowFeature", () => {
 		}));
 		const mod = await import("./DebuggingInfiniFrameWindowFeature");
 		feature = new mod.DebuggingInfiniFrameWindowFeature();
-		(window as any).infiniframe.messaging = messaging;
+		getTestWindow().infiniframe.messaging = messaging;
 	});
 
 	it("isDevToolsEnabledAsync calls get", async () => {
@@ -68,7 +69,7 @@ describe("DebuggingInfiniFrameWindowFeature", () => {
 		messaging.getMessageFromHostAsync.mockResolvedValue(
 			JSON.stringify({ reachable: true }),
 		);
-		await feature.tryProbeEndpointAsync("http://localhost:9222");
+		await feature.tryProbeEndpointAsync();
 		expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
 	});
 	it("enableDevTools posts command", () => {
@@ -76,3 +77,5 @@ describe("DebuggingInfiniFrameWindowFeature", () => {
 		expect(messaging.sendMessageToHost).toHaveBeenCalled();
 	});
 });
+
+import { getTestWindow } from "../../_testHelpers";

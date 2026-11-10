@@ -210,7 +210,7 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
 	 */
 	public async getMessageFromHostAsync(
 		command: string,
-		args?: any,
+		args?: unknown,
 	): Promise<string> {
 		try {
 			return await window.infiniframe.messaging.getMessageFromHostRawAsync(
@@ -256,7 +256,7 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
 		}
 	}
 
-	private handleInteropMessage(message: any): boolean {
+	private handleInteropMessage(message: unknown): boolean {
 		if (typeof message !== "string") return false;
 		if (!message) return false;
 		// Route only messages that match the explicit interop envelope contract.
