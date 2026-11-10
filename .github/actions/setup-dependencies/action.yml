@@ -53,11 +53,19 @@ runs:
             with:
                 cmakeVersion: "4.4.0"
 
-        -   name: Install GTK3 Deps (Linux)
+        -   name: Refresh Linux package metadata
             if: runner.os == 'Linux'
+            shell: bash
+            run: |
+                set -euo pipefail
+                sudo apt-get update
+
+        -   name: Install cached Linux GUI dependencies
+            if: runner.os == 'Linux'
+            id: linux-gui-cache
             uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9
             with:
-                packages: >
+                packages: &linux-gui-packages >
                     at-spi2-core
                     dbus-x11
                     fonts-liberation
@@ -82,27 +90,41 @@ runs:
                     x11-xserver-utils
                     xfonts-base
                     xvfb
-                version: 3.0
+                version: 4.0
+                execute_install_scripts: true
 
-        -   name: Verify GTK3 Dependencies (Linux)
+        -   name: Verify Linux GUI dependencies
             if: runner.os == 'Linux'
             shell: bash
+            env:
+                LINUX_GUI_PACKAGES: *linux-gui-packages
             run: |
                 set -euo pipefail
 
-                if pkg-config --exists gtk+-3.0 webkit2gtk-4.1 libnotify; then
-                  echo "All GTK3 dependencies detected."
-                else
-                  echo "Missing GTK3 dependencies; running fallback installation."
+                missing_dependency=false
 
-                # Refresh runner package indexes and let APT configure every dependency.
-                sudo apt-get update
-                sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y \
-                    libgtk-3-dev \
-                    libwebkit2gtk-4.1-dev \
-                    libnotify-dev \
-                    pkg-config
+                for command in dbus-launch Xvfb xdpyinfo openbox; do
+                  if ! command -v "$command" >/dev/null; then
+                    echo "Missing command: $command"
+                    missing_dependency=true
+                  fi
+                done
+
+                if ! pkg-config --exists gtk+-3.0 webkit2gtk-4.1 libnotify; then
+                  echo "One or more required pkg-config modules are missing."
+                  missing_dependency=true
                 fi
+
+                if [ "$missing_dependency" = true ]; then
+                  echo "The APT cache was incomplete; installing dependencies with APT."
+                  read -r -a linux_gui_packages <<< "$LINUX_GUI_PACKAGES"
+                  sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+                    "${linux_gui_packages[@]}"
+                fi
+
+                for command in dbus-launch Xvfb xdpyinfo openbox; do
+                  command -v "$command"
+                done
 
                 pkg-config --print-errors --exists \
                   gtk+-3.0 \
