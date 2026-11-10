@@ -30,7 +30,7 @@
     "tinypool": "^2.2.0"
   },
   "engines": {
-    "node": ">=20.0"
+    "node": ">=26.0"
   },
   "allowScripts": {
     "core-js@3.51.0": true
