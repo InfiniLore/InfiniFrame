@@ -111,7 +111,6 @@ jobs:
                       --configuration Release `
                       --framework net10.0 `
                       --runtime win-x64 `
-                      -p:RestoreLockedMode=false `
                       -p:SolutionDir=$env:GITHUB_WORKSPACE/ `
                       -p:Platform=x64 `
                       -p:InfiniFrameSkipNativeBuild=true `
