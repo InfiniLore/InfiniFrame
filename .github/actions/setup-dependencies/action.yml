@@ -46,7 +46,9 @@ runs:
                     10.x
                 cache: ${{ inputs['cache-dotnet'] }}
                 cache-dependency-path: |
-                    **/packages.lock.json
+                    **/*.csproj
+                    **/*.props
+                    **/Directory.Packages.props
 
         -   name: Setup CMake
             uses: lukka/get-cmake@e6906078ebd1ccb8ce51ab4626ac46a1b5a517e3
