@@ -36,12 +36,12 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                    -   os: ubuntu-latest
+                    -   os: ubuntu-24.04
                         arch: x64
                         display_server: x11
                         libName: linux
                         rid: linux-x64
-                    -   os: ubuntu-latest
+                    -   os: ubuntu-24.04
                         arch: x64
                         display_server: wayland
                         libName: linux
@@ -95,8 +95,11 @@ jobs:
             -   name: Install Wayland compositor
                 if: matrix.display_server == 'wayland'
                 run: |
-                    sudo apt-get update
-                    sudo apt-get install -y weston
+                    timeout 300s sudo apt-get \
+                        -o Acquire::Retries=1 \
+                        -o Acquire::http::Timeout=15 \
+                        -o Acquire::https::Timeout=15 \
+                        install -y --no-install-recommends weston
 
             -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
@@ -110,11 +113,6 @@ jobs:
                       -p:NativeArch=${{ matrix.arch }} \
                       -p:InfiniFrameSkipNativeBuild=true \
                       -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
-
-            -   name: Install Native Debugging Tools
-                run: |
-                    sudo apt-get update
-                    sudo apt-get install -y gdb libc6-dbg
 
             -   name: Export Actions Runtime
                 uses: actions/github-script@v9
@@ -311,18 +309,22 @@ jobs:
                         echo
                       } > "$dump_file"
 
-                      gdb -q --batch \
-                        -ex "set pagination off" \
-                        -ex "set confirm off" \
-                        -ex "echo ===== INFO FILES =====\n" \
-                        -ex "info files" \
-                        -ex "echo \n===== THREAD BACKTRACES =====\n" \
-                        -ex "thread apply all bt full" \
-                        -ex "echo \n===== REGISTERS =====\n" \
-                        -ex "info registers" \
-                        -ex "echo \n===== SHARED LIBS =====\n" \
-                        -ex "info sharedlibrary" \
-                        "$exe_path" "$core_file" >> "$dump_file" 2>&1 || true
+                      if command -v gdb >/dev/null 2>&1; then
+                        gdb -q --batch \
+                          -ex "set pagination off" \
+                          -ex "set confirm off" \
+                          -ex "echo ===== INFO FILES =====\n" \
+                          -ex "info files" \
+                          -ex "echo \n===== THREAD BACKTRACES =====\n" \
+                          -ex "thread apply all bt full" \
+                          -ex "echo \n===== REGISTERS =====\n" \
+                          -ex "info registers" \
+                          -ex "echo \n===== SHARED LIBS =====\n" \
+                          -ex "info sharedlibrary" \
+                          "$exe_path" "$core_file" >> "$dump_file" 2>&1 || true
+                      else
+                        echo "gdb unavailable; skipping native backtrace." >> "$dump_file"
+                      fi
                     done
 
                     exit $exit_code

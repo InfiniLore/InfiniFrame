@@ -16,9 +16,9 @@
  * Provides methods to send messages to the native host via the web message channel.
  */
 export interface WebMessagingInfiniFrameWindowFeature {
-    /**
-     * Sends a web message to the native host.
-     * @param message - The message string to send.
-     */
-    sendWebMessage(message: string): void
+	/**
+	 * Sends a web message to the native host.
+	 * @param message - The message string to send.
+	 */
+	sendWebMessage(message: string): void;
 }

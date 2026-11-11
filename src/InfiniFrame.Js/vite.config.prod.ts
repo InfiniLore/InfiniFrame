@@ -1,30 +1,30 @@
-﻿import {defineConfig} from "vite";
-import {resolve} from "node:path";
+﻿import { resolve } from "node:path";
+import { defineConfig } from "vite";
 
 const entry = resolve(import.meta.dirname, "TypeScript/Index.ts");
 
 export default defineConfig({
-    build: {
-        emptyOutDir: true,
-        outDir: "wwwroot",
-        minify: "terser",
-        sourcemap: false,
+	build: {
+		emptyOutDir: true,
+		outDir: "wwwroot",
+		minify: "terser",
+		sourcemap: false,
 
-        lib: {
-            entry,
-            formats: ["iife"],
-            name: "InfiniFrameJs",
-            fileName: () => "InfiniFrame.js"
-        },
+		lib: {
+			entry,
+			formats: ["iife"],
+			name: "InfiniFrameJs",
+			fileName: () => "InfiniFrame.js",
+		},
 
-        terserOptions: {
-            compress: {
-                drop_debugger: true
-            },
-            format: {
-                comments: false
-            },
-            mangle: true
-        }
-    }
+		terserOptions: {
+			compress: {
+				drop_debugger: true,
+			},
+			format: {
+				comments: false,
+			},
+			mangle: true,
+		},
+	},
 });

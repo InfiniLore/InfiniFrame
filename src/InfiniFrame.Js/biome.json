@@ -1,0 +1,37 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.6.6/schema.json",
+	"files": {
+		"includes": [
+			"TypeScript/**",
+			"vite.config.prod.ts",
+			"vite.config.dev.ts",
+			"vitest.config.ts"
+		]
+	},
+	"formatter": {
+		"enabled": true
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"preset": "recommended",
+			"suspicious": {
+				"noExplicitAny": "error",
+				"noApproximativeNumericConstant": "error"
+			},
+			"style": {
+				"noNonNullAssertion": "error"
+			},
+			"complexity": {
+				"noBannedTypes": "error",
+				"noUselessConstructor": "error"
+			}
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double",
+			"operatorLinebreak": "before"
+		}
+	}
+}

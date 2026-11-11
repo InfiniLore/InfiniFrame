@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {WindowLifecycleState} from "./WindowFeatureTypes";
+import type { WindowLifecycleState } from "./WindowFeatureTypes";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -16,21 +16,21 @@ import type {WindowLifecycleState} from "./WindowFeatureTypes";
  * Provides methods to query the current lifecycle state and request window closure.
  */
 export interface LifecycleInfiniFrameWindowFeature {
-    /**
-     * Gets the current lifecycle state of the window.
-     * Note: WaitForClose cannot block the web-message/UI thread. A future JS wait API must be event-backed.
-     * @returns A promise resolving to the current lifecycle state.
-     */
-    getStateAsync(): Promise<WindowLifecycleState>;
+	/**
+	 * Gets the current lifecycle state of the window.
+	 * Note: WaitForClose cannot block the web-message/UI thread. A future JS wait API must be event-backed.
+	 * @returns A promise resolving to the current lifecycle state.
+	 */
+	getStateAsync(): Promise<WindowLifecycleState>;
 
-    /**
-     * Checks whether the window is closed or in the process of closing.
-     * @returns A promise resolving to true if the window is closed or closing.
-     */
-    isClosedOrClosingAsync(): Promise<boolean>;
+	/**
+	 * Checks whether the window is closed or in the process of closing.
+	 * @returns A promise resolving to true if the window is closed or closing.
+	 */
+	isClosedOrClosingAsync(): Promise<boolean>;
 
-    /**
-     * Requests the window to close. The actual close may be asynchronous.
-     */
-    close(): void;
+	/**
+	 * Requests the window to close. The actual close may be asynchronous.
+	 */
+	close(): void;
 }
