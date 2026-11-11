@@ -3,6 +3,7 @@ name: "CI: Full Test Suite"
 
 permissions:
     contents: read
+    packages: read
     statuses: write
     checks: write
 

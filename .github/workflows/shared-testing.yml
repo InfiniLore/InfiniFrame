@@ -2,6 +2,7 @@
 name: "Shared: tests"
 permissions:
     contents: read
+    packages: read
     statuses: write
     checks: write
 on:
