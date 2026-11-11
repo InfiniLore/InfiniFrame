@@ -25,7 +25,7 @@
         <InfiniFrameEnableTestExports Condition="'$(InfiniFrameEnableTestExports)'=='' and '$(Configuration)'=='Debug'">true</InfiniFrameEnableTestExports>
         <InfiniFrameEnableTestExports Condition="'$(InfiniFrameEnableTestExports)'==''">false</InfiniFrameEnableTestExports>
         <NativeStamp>$(NativeOutputRoot)/$(NativePlatform)/$(NativeArch)/$(Configuration)/.build.$(InfiniFrameEnableTestExports).stamp</NativeStamp>
-        <BeforePack>IncludeNativeArtifactsForPack;IncludeCurrentNativeArtifactsForCopyAndPack;$(BeforePack)</BeforePack>
+        <BeforePack>IncludeCurrentNativeArtifactsForCopyAndPack;$(BeforePack)</BeforePack>
 
         <WindowsX64>$(NativeOutputRoot)/windows/x64/$(Configuration)</WindowsX64>
         <WindowsArm64>$(NativeOutputRoot)/windows/arm64/$(Configuration)</WindowsArm64>
@@ -130,6 +130,13 @@
         </_NativeArtifactForPack>
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="@(_NativeArtifactForPack)">
+            <Pack>true</Pack>
+            <PackagePath>runtimes/%(_NativeArtifactForPack.RuntimeRid)/native/%(_NativeArtifactForPack.LinkName)</PackagePath>
+        </None>
+    </ItemGroup>
+
     <Target Name="BuildNative"
             BeforeTargets="DispatchToInnerBuilds;PrepareForBuild"
             Condition="'$(InfiniFrameSkipNativeBuild)' != 'true' and ('$(IsCrossTargetingBuild)' == 'true' or '$(TargetFramework)' != '')"
@@ -137,17 +144,6 @@
             Outputs="$(NativeStamp);$(CurrentNativeArtifact)">
         <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)native-build.ps1&quot; $(Configuration) $(NativeArch) $(InfiniFrameEnableTestExports)" />
         <Touch Files="$(NativeStamp)" AlwaysCreate="true" />
-    </Target>
-
-    <Target Name="IncludeNativeArtifactsForPack"
-            BeforeTargets="_GetPackageFiles"
-            Condition="'@(_NativeArtifactForPack)'!=''">
-        <ItemGroup>
-            <_PackageFiles Include="@(_NativeArtifactForPack)">
-                <PackagePath>runtimes/%(RuntimeRid)/native/%(LinkName)</PackagePath>
-                <BuildAction>Content</BuildAction>
-            </_PackageFiles>
-        </ItemGroup>
     </Target>
 
     <Target Name="IncludeCurrentNativeArtifactsForCopyAndPack"
