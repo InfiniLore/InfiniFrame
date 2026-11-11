@@ -22,7 +22,7 @@ docker run --rm --entrypoint /bin/bash "$image" -c '
         export XDG_RUNTIME_DIR=/tmp/runtime-ci
         mkdir -p "$XDG_RUNTIME_DIR"
         chmod 700 "$XDG_RUNTIME_DIR"
-        weston --backend=x11 --socket=wayland-0 >/tmp/weston.log 2>&1 &
+        weston --backend=x11 --renderer=pixman --socket=wayland-0 >/tmp/weston.log 2>&1 &
         timeout 30 bash -c "until [ -S \"$XDG_RUNTIME_DIR/wayland-0\" ]; do sleep 1; done"
     else
         openbox >/tmp/openbox.log 2>&1 &

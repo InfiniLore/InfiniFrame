@@ -151,7 +151,7 @@ jobs:
                       export WAYLAND_DISPLAY=wayland-0
 
                       echo "Launching Weston (x11 backend, nested in Xvfb)..."
-                      weston --backend=x11 --socket="$WAYLAND_DISPLAY" \
+                      weston --backend=x11 --renderer=pixman --socket="$WAYLAND_DISPLAY" \
                         --width=1920 --height=1080 \
                         &> compositor.log &
 
