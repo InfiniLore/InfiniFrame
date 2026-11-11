@@ -200,7 +200,7 @@ npm --prefix docs run build
 ## Linux CI Images
 
 Linux GUI tests run in the prebuilt GHCR image published by
-`.github/workflows/build-linux-ci-images.yml`. The image is built for x64 and
+`.github/workflows/ci-build-linux-images.yml`. The image is built for x64 and
 ARM64 from `.github/ci/linux-image/Dockerfile`; X11 and Wayland startup remains
 in `.github/workflows/shared-testing-linux.yml`.
 

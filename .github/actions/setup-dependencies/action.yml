@@ -22,10 +22,14 @@ inputs:
 runs:
     using: composite
     steps:
+        -   name: Read CI tool versions
+            id: versions
+            uses: ./.github/actions/read-tool-versions
+
         -   name: Setup Node
             uses: actions/setup-node@v7
             with:
-                node-version: 26
+                node-version: ${{ steps.versions.outputs.node }}
                 cache: npm
                 cache-dependency-path: |
                     package-lock.json
@@ -40,10 +44,7 @@ runs:
         -   name: Setup .NET
             uses: actions/setup-dotnet@v6
             with:
-                dotnet-version: |
-                    8.x
-                    9.x
-                    10.x
+                dotnet-version: ${{ steps.versions.outputs.dotnet }}
                 cache: ${{ inputs['cache-dotnet'] }}
                 cache-dependency-path: |
                     **/*.csproj
@@ -53,7 +54,7 @@ runs:
         -   name: Setup CMake
             uses: lukka/get-cmake@e6906078ebd1ccb8ce51ab4626ac46a1b5a517e3
             with:
-                cmakeVersion: "4.4.0"
+                cmakeVersion: ${{ steps.versions.outputs.cmake }}
 
         -   name: Cache Homebrew
             if: runner.os == 'macOS'

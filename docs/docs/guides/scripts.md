@@ -9,7 +9,7 @@ This page documents the repository scripts and what each command does.
 ## Linux CI Image
 
 The Linux test image is built and published by
-`.github/workflows/build-linux-ci-images.yml`. Validate its X11 or Wayland
+`.github/workflows/ci-build-linux-images.yml`. Validate its X11 or Wayland
 startup locally with:
 
 ```bash

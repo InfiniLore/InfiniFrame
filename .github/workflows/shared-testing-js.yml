@@ -38,9 +38,13 @@ jobs:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || env.TARGET_SHA }}
 
             -   name: Setup Node
+                id: versions
+                uses: ./.github/actions/read-tool-versions
+
+            -   name: Configure Node
                 uses: actions/setup-node@v7
                 with:
-                    node-version: 26
+                    node-version: ${{ steps.versions.outputs.node }}
 
             -   name: Install dependencies
                 shell: bash

@@ -14,7 +14,7 @@ for sdk in 8 9 10; do
     }
 done
 
-test "$(node --version | cut -d. -f1)" = "v26"
-test "$(cmake --version | sed -n '1s/^cmake version //p')" = "4.4.0"
+test "$(node --version | cut -d. -f1)" = "v$(jq -r '.nodeMajor' /usr/share/infiniframe/tool-versions.json)"
+test "$(cmake --version | sed -n '1s/^cmake version //p')" = "$(jq -r '.cmake' /usr/share/infiniframe/tool-versions.json)"
 pkg-config --exists gtk+-3.0 webkit2gtk-4.1 libnotify
 echo "Linux CI image smoke test passed for $(uname -m)."

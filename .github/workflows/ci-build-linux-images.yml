@@ -1,4 +1,4 @@
-name: Build Linux CI Images
+name: "CI: Build Linux Images"
 
 on:
     workflow_dispatch:
@@ -7,9 +7,11 @@ on:
     push:
         paths:
             - .github/ci/linux-image/**
+            - tool-versions.json
             - .github/workflows/build-linux-ci-images.yml
             - .github/workflows/shared-testing-linux.yml
             - .github/actions/setup-dependencies/action.yml
+            - .github/actions/read-tool-versions/**
 
 env:
     REGISTRY: ghcr.io

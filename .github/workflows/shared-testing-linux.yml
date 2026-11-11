@@ -31,7 +31,7 @@ jobs:
         runs-on: ${{ matrix.os }}
         container:
             # Configure these repository variables from the digest emitted by
-            # build-linux-ci-images.yml. Tags are intentionally not used here.
+            # ci-build-linux-images.yml. Tags are intentionally not used here.
             image: ghcr.io/infinilore/infiniframe-ci:${{ matrix.arch }}-${{ vars.LINUX_CI_IMAGE_VERSION }}@${{ matrix.arch == 'x64' && vars.LINUX_CI_IMAGE_DIGEST_X64 || vars.LINUX_CI_IMAGE_DIGEST_ARM64 }}
             credentials:
                 username: ${{ github.actor }}
