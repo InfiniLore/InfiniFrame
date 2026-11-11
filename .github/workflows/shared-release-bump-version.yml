@@ -12,6 +12,11 @@ on:
                 required: false
                 type: string
                 default: ''
+            dry_run:
+                description: 'Calculate the version without committing or tagging'
+                required: false
+                type: boolean
+                default: false
         outputs:
             new_version:
                 description: 'Calculated semantic version'
@@ -54,8 +59,8 @@ jobs:
                         tests/InfiniAutomationTests.WebApp.Vue/package.json
                     bump: ${{ inputs.version_bump }}
                     custom_version: ${{ inputs.custom_version }}
-                    commit: 'true'
-                    tag: 'true'
-                    push: 'true'
-                    floating_major_version: 'true'
-                    floating_minor_version: 'true'
+                    commit: ${{ inputs.dry_run && 'false' || 'true' }}
+                    tag: ${{ inputs.dry_run && 'false' || 'true' }}
+                    push: ${{ inputs.dry_run && 'false' || 'true' }}
+                    floating_major_version: ${{ inputs.dry_run && 'false' || 'true' }}
+                    floating_minor_version: ${{ inputs.dry_run && 'false' || 'true' }}

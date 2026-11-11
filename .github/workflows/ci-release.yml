@@ -26,6 +26,10 @@ on:
                 description: 'Publish documentation to GitHub Pages'
                 type: boolean
                 default: true
+            dry_run:
+                description: 'Validate the release without committing, tagging, or publishing'
+                type: boolean
+                default: false
 
 permissions:
     contents: write
@@ -70,6 +74,7 @@ jobs:
         with:
             version_bump: ${{ inputs.version_bump }}
             custom_version: ${{ inputs.custom_version }}
+            dry_run: ${{ inputs.dry_run }}
         secrets: inherit
 
     build:
@@ -77,7 +82,7 @@ jobs:
         needs: bump-version
         uses: ./.github/workflows/shared-release-build.yml
         with:
-            tag_name: ${{ needs.bump-version.outputs.tag_name }}
+            tag_name: ${{ inputs.dry_run && github.sha || needs.bump-version.outputs.tag_name }}
         secrets: inherit
 
     publish:
@@ -85,15 +90,16 @@ jobs:
         needs: [ build, bump-version ]
         uses: ./.github/workflows/shared-release-publish.yml
         with:
-            tag_name: ${{ needs.bump-version.outputs.tag_name }}
+            tag_name: ${{ inputs.dry_run && github.sha || needs.bump-version.outputs.tag_name }}
             new_version: ${{ needs.bump-version.outputs.new_version }}
             publish_to_nuget: ${{ inputs.publish_to_nuget }}
+            dry_run: ${{ inputs.dry_run }}
         secrets: inherit
 
     publish-docs:
         name: "CI: publish-docs"
         needs: [ publish, bump-version ]
-        if: inputs.publish_docs
+        if: inputs.publish_docs && !inputs.dry_run
         uses: ./.github/workflows/shared-release-publish-docs.yml
         with:
             checkout_ref: ${{ needs.bump-version.outputs.tag_name }}

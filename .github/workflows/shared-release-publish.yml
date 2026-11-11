@@ -15,6 +15,11 @@ on:
                 description: 'Publish packages to NuGet and GitHub Packages'
                 required: true
                 type: boolean
+            dry_run:
+                description: 'Validate packages without publishing a release or packages'
+                required: false
+                type: boolean
+                default: false
 
 jobs:
     release:
@@ -185,6 +190,7 @@ jobs:
                     fi
 
             -   name: Publish Release
+                if: ${{ !inputs.dry_run }}
                 uses: softprops/action-gh-release@v3
                 with:
                     tag_name: ${{ inputs.tag_name }}
@@ -194,7 +200,7 @@ jobs:
                     prerelease: ${{ contains(inputs.new_version, 'preview') }}
 
             -   name: Push to NuGet
-                if: inputs.publish_to_nuget
+                if: ${{ inputs.publish_to_nuget && !inputs.dry_run }}
                 shell: bash
                 env:
                     NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
@@ -210,7 +216,7 @@ jobs:
                     done
 
             -   name: Push GitHub Packages
-                if: inputs.publish_to_nuget
+                if: ${{ inputs.publish_to_nuget && !inputs.dry_run }}
                 shell: bash
                 env:
                     GITHUB_TOKEN: ${{ github.token }}
