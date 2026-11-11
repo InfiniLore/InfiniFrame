@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
 for command in dotnet node npm cmake ninja clang pwsh dbus-launch Xvfb weston openbox gdb x86_64-w64-mingw32-nm unzip zip; do
     command -v "$command" >/dev/null || {
         echo "Missing command: $command" >&2

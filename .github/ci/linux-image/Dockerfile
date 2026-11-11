@@ -1,5 +1,8 @@
 FROM ubuntu:26.04
 
+ARG TARGETARCH
+ARG POWERSHELL_VERSION=7.7.0
+
 ENV DEBIAN_FRONTEND=noninteractive \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     DOTNET_NOLOGO=true \
@@ -14,25 +17,32 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-venv \
     && mkdir -p /etc/apt/keyrings \
-    && curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg \
-    && echo "deb [signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/26.04/prod resolute main" > /etc/apt/sources.list.d/microsoft-prod.list \
     && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_26.x nodistro main"
+    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_26.x nodistro main" > /etc/apt/sources.list.d/nodesource.list
 
 # Language runtimes and native build tooling.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    dotnet-sdk-8.0 \
-    dotnet-sdk-9.0 \
-    dotnet-sdk-10.0 \
-    powershell \
     nodejs \
     build-essential \
     clang \
     binutils-mingw-w64-x86-64 \
     ninja-build \
     pkg-config \
+    tar \
     unzip \
-    zip
+    zip \
+    && curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh \
+    && bash /tmp/dotnet-install.sh --channel 8.0 --install-dir /usr/share/dotnet \
+    && bash /tmp/dotnet-install.sh --channel 9.0 --install-dir /usr/share/dotnet --skip-non-versioned-files \
+    && bash /tmp/dotnet-install.sh --channel 10.0 --install-dir /usr/share/dotnet --skip-non-versioned-files \
+    && ln -sf /usr/share/dotnet/dotnet /usr/local/bin/dotnet \
+    && case "$TARGETARCH" in amd64) pwsh_arch=x64 ;; arm64) pwsh_arch=arm64 ;; *) echo "Unsupported architecture: $TARGETARCH" >&2; exit 1 ;; esac \
+    && curl -fsSL "https://github.com/PowerShell/PowerShell/releases/download/v${POWERSHELL_VERSION}/powershell-${POWERSHELL_VERSION}-linux-${pwsh_arch}.tar.gz" -o /tmp/powershell.tar.gz \
+    && mkdir -p /opt/microsoft/powershell/7 \
+    && tar -xzf /tmp/powershell.tar.gz -C /opt/microsoft/powershell/7 \
+    && ln -sf /opt/microsoft/powershell/7/pwsh /usr/local/bin/pwsh \
+    && rm -f /tmp/powershell.tar.gz \
+    && rm -f /tmp/dotnet-install.sh
 
 # GTK/WebKit, X11, Wayland, and software-rendering dependencies.
 RUN apt-get install -y --no-install-recommends \
