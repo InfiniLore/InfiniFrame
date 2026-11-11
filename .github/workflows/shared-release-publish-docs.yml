@@ -21,7 +21,7 @@ concurrency:
 jobs:
     build:
         name: "CI: docs/build"
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
 
         steps:
             -   name: Checkout
@@ -57,7 +57,7 @@ jobs:
     deploy:
         name: "CI: docs/deploy"
         needs: build
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
         environment:
             name: github-pages
             url: ${{ steps.deployment.outputs.page_url }}

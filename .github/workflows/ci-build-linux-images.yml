@@ -31,10 +31,10 @@ jobs:
             matrix:
                 include:
                     - arch: x64
-                      runner: ubuntu-24.04
+                      runner: ubuntu-26.04
                       platform: linux/amd64
                     - arch: arm64
-                      runner: ubuntu-24.04-arm
+                      runner: ubuntu-26.04-arm
                       platform: linux/arm64
         steps:
             - uses: actions/checkout@v7
@@ -80,7 +80,7 @@ jobs:
     manifest:
         name: Publish multi-platform manifest
         needs: build
-        runs-on: ubuntu-24.04
+        runs-on: ubuntu-26.04
         steps:
             - uses: docker/setup-buildx-action@v4
             - name: Log in to GHCR

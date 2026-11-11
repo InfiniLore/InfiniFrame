@@ -56,7 +56,7 @@ jobs:
 
     prepare:
         name: Resolve Target SHA
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
         outputs:
             sha: ${{ steps.resolve.outputs.sha }}
 

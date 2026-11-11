@@ -23,7 +23,7 @@ on:
 jobs:
     changes:
         name: Detect Changed Areas
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
         
         permissions:
             contents: read
@@ -105,7 +105,7 @@ jobs:
     analyze-actions:
         name: Analyze Actions
         needs: changes
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
         timeout-minutes: 30
         
         if: >
@@ -144,7 +144,7 @@ jobs:
     analyze-csharp:
         name: Analyze C#
         needs: changes
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
         container:
             image: ghcr.io/infinilore/infiniframe-ci:x64-${{ vars.LINUX_CI_IMAGE_VERSION }}@${{ vars.LINUX_CI_IMAGE_DIGEST_X64 }}
             credentials:
@@ -285,7 +285,7 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                    - os: ubuntu-latest
+                    - os: ubuntu-26.04
                       arch: x64
         permissions:
             contents: read
@@ -318,7 +318,7 @@ jobs:
     analyze-javascript-typescript:
         name: Analyze JavaScript / TypeScript
         needs: changes
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
         timeout-minutes: 45
         
         if: >
@@ -357,7 +357,7 @@ jobs:
     analyze-python:
         name: Analyze Python
         needs: changes
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
         timeout-minutes: 45
         
         if: >

@@ -27,7 +27,7 @@ permissions:
 jobs:
     js-validation:
         name: "CI: js"
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
         

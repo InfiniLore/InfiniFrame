@@ -24,7 +24,7 @@ on:
 jobs:
     release:
         name: "CI: publish"
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
         container:
             image: ghcr.io/infinilore/infiniframe-ci:x64-${{ vars.LINUX_CI_IMAGE_VERSION }}@${{ vars.LINUX_CI_IMAGE_DIGEST_X64 }}
             credentials:

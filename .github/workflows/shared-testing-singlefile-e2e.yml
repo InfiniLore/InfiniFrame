@@ -31,10 +31,10 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                    - os: ubuntu-24.04
+                    - os: ubuntu-26.04
                       arch: x64
                       rid: linux-x64
-                    - os: ubuntu-24.04-arm
+                    - os: ubuntu-26.04-arm
                       arch: arm64
                       rid: linux-arm64
         steps:
