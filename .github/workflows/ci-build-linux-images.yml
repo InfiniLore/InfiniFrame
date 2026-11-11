@@ -16,7 +16,7 @@ on:
 env:
     REGISTRY: ghcr.io
     IMAGE_NAME: infinilore/infiniframe-ci
-    IMAGE_VERSION: v1.0.${{ github.run_number }}
+    IMAGE_VERSION: v1.0.${{ github.run_id }}
 
 permissions:
     contents: read
@@ -89,6 +89,11 @@ jobs:
                   registry: ${{ env.REGISTRY }}
                   username: ${{ github.actor }}
                   password: ${{ secrets.GITHUB_TOKEN }}
+            - name: Download architecture digests
+              uses: actions/download-artifact@v7
+              with:
+                  pattern: linux-ci-image-digest-*
+                  merge-multiple: true
             - name: Publish immutable manifest
               run: |
                   docker buildx imagetools create \
@@ -96,3 +101,20 @@ jobs:
                     "${REGISTRY}/${IMAGE_NAME}:x64-${IMAGE_VERSION}" \
                     "${REGISTRY}/${IMAGE_NAME}:arm64-${IMAGE_VERSION}"
                   docker buildx imagetools inspect "${REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION}"
+            - name: Print repository variable update commands
+              shell: bash
+              run: |
+                  x64_digest="$(sed -n 's/^x64=//p' linux-ci-image-x64.digest)"
+                  arm64_digest="$(sed -n 's/^arm64=//p' linux-ci-image-arm64.digest)"
+                  test -n "$x64_digest"
+                  test -n "$arm64_digest"
+                  {
+                    echo
+                    echo '## Repository Variable Update'
+                    echo
+                    echo '```bash'
+                    echo "gh variable set LINUX_CI_IMAGE_VERSION --repo \"${GITHUB_REPOSITORY}\" --body \"${IMAGE_VERSION}\""
+                    echo "gh variable set LINUX_CI_IMAGE_DIGEST_X64 --repo \"${GITHUB_REPOSITORY}\" --body \"${x64_digest}\""
+                    echo "gh variable set LINUX_CI_IMAGE_DIGEST_ARM64 --repo \"${GITHUB_REPOSITORY}\" --body \"${arm64_digest}\""
+                    echo '```'
+                  } >> "$GITHUB_STEP_SUMMARY"
