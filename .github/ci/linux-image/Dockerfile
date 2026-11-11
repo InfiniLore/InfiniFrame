@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 ENV DEBIAN_FRONTEND=noninteractive \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
@@ -18,7 +18,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && echo "deb [signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main" > /etc/apt/sources.list.d/microsoft-prod.list \
     && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
     && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_26.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
-    && apt-get update && apt-get install -y --no-install-recommends \
+
+# Language runtimes and native build tooling.
+RUN apt-get update && apt-get install -y --no-install-recommends \
     dotnet-sdk-8.0 \
     dotnet-sdk-9.0 \
     dotnet-sdk-10.0 \
@@ -30,12 +32,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ninja-build \
     pkg-config \
     unzip \
-    zip \
+    zip
+
+# GTK/WebKit, X11, Wayland, and software-rendering dependencies.
+RUN apt-get install -y --no-install-recommends \
     at-spi2-core \
     dbus-x11 \
-    file \
     fonts-liberation \
-    gdb \
     gsettings-desktop-schemas \
     libatk1.0-dev \
     libegl1 \
@@ -54,13 +57,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libx11-dev \
     mesa-utils \
     openbox \
-    libc6-dbg \
-    strace \
     weston \
     x11-utils \
     x11-xserver-utils \
     xfonts-base \
-    xvfb \
+    xvfb
+
+# Optional native crash diagnostics and the pinned CMake release.
+RUN apt-get install -y --no-install-recommends \
+    file \
+    gdb \
+    libc6-dbg \
+    strace \
     && python3 -m venv /opt/cmake \
     && /opt/cmake/bin/pip install --no-cache-dir --upgrade pip \
     && /opt/cmake/bin/pip install --no-cache-dir cmake==4.4.0 \
