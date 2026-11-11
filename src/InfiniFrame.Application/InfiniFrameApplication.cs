@@ -175,10 +175,12 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         try {
             if (_hosted is not null) {
                 // The provider owns its native loop; this thread only orchestrates and waits, so no STA is required.
-                // On the thread pool, so neither this caller's synchronization context nor its thread is captured by the
-                // provider's own awaits while this thread waits.
+                // Run() deliberately blocks. Use the default task scheduler rather than the blocked caller's context.
+                // Task.Run unwraps the returned task; GetResult propagates its exceptions.
+                // Asynchronous callers should await RunAsync().
                 InfiniFrameHostedRuntime hosted = _hosted;
-                Task.Run(() => RunHostedAsync(hosted, CancellationToken.None)).GetAwaiter().GetResult();
+                Task hostedRun = Task.Run(() => RunHostedAsync(hosted, CancellationToken.None));
+                hostedRun.GetAwaiter().GetResult();
                 return;
             }
             EnsureWindowsStaThread();

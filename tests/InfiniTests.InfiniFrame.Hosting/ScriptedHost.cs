@@ -32,6 +32,9 @@ internal sealed class ScriptedHostProvider(InfiniFrameHostCapabilities capabilit
     public bool ImplementCapabilityInterfaces { get; init; } = true;
     public Func<int, Exception?>? FailCreateWindow { get; init; }
 
+    /// <summary>Awaited inside StartAsync to simulate asynchronous provider startup.</summary>
+    public Func<CancellationToken, Task>? StartGate { get; init; }
+
     /// <summary>Awaited inside CreateWindowAsync before the window host exists (simulates slow native creation).</summary>
     public Func<int, Task>? CreateWindowGate { get; init; }
 
@@ -111,10 +114,10 @@ internal sealed class ScriptedHost : IInfiniFrameHost {
         foreach (Action action in _loop.GetConsumingEnumerable()) action();
     }
 
-    public ValueTask StartAsync(InfiniFrameHostStartContext context, CancellationToken cancellationToken) {
+    public async ValueTask StartAsync(InfiniFrameHostStartContext context, CancellationToken cancellationToken) {
         Interlocked.Increment(ref _startCalls);
         Services = context.Services;
-        return ValueTask.CompletedTask;
+        if (Provider.StartGate is {} gate) await gate(cancellationToken).ConfigureAwait(false);
     }
 
     public async ValueTask<IInfiniFrameWindowHost> CreateWindowAsync(

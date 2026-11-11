@@ -32,9 +32,13 @@ public static class HostedApplication {
 }
 ```
 
-Run the returned application with `Run()` or `RunAsync()` and dispose it when finished. Hosted windows need an
-absolute, trusted start URL. The provider may impose stricter browser policy or deployment requirements. Defaults
-accepted by a built-in backend are not necessarily accepted by an external provider.
+Use `await application.RunAsync(cancellationToken)` from asynchronous code. `Run()` is the blocking alternative.
+For an external provider, `Run()` starts hosted orchestration on the thread pool and waits for its completion;
+reported startup and host failures propagate to its caller. Dispose the application when finished. Hosted windows
+need an absolute, trusted start URL. The provider may impose stricter browser policy or deployment requirements.
+Defaults accepted by a built-in backend are not necessarily accepted by an external provider.
+
+Without `UseHostProvider`, InfiniFrame uses WebView2 on Windows, WebKitGTK on Linux and WKWebView on macOS.
 
 Select one provider per application builder. A process chooses either the default native backend or external
 hosting before native initialization; mixing the modes or switching between them is unsupported. Default-engine

@@ -71,8 +71,68 @@ public sealed class HostedApplicationTests {
     }
 
     [Test]
+    [Timeout(30_000)]
+    public async Task Run_FromABlockedCaller_UsesTheDefaultScheduler_AndRethrowsAsyncStartupFailure(CancellationToken ct) {
+        var callerScheduler = new HeldTaskScheduler();
+        var callerContext = new HeldCallerSynchronizationContext(callerScheduler);
+        var startupContext = new TaskCompletionSource<(SynchronizationContext? Context, TaskScheduler Scheduler)>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        var failure = new IOException("asynchronous provider startup failed");
+        var provider = new ScriptedHostProvider {
+            StartGate = async _ => {
+                startupContext.TrySetResult((SynchronizationContext.Current, TaskScheduler.Current));
+                // Deliberately capture ambient scheduling: a direct blocking bridge would queue this yield to the held caller.
+                await Task.Yield();
+                throw failure;
+            }
+        };
+        InfiniFrameApplication application = BuildHosted(provider, "main");
+
+        Task run = Task.Factory.StartNew(() => {
+            // One active caller blocks in Run; no additional caller-scheduler work can execute until cleanup releases it.
+            callerScheduler.Hold();
+            SynchronizationContext? previous = SynchronizationContext.Current;
+            SynchronizationContext.SetSynchronizationContext(callerContext);
+            try {
+                application.Run();
+            }
+            finally {
+                SynchronizationContext.SetSynchronizationContext(previous);
+            }
+        }, CancellationToken.None, TaskCreationOptions.DenyChildAttach, callerScheduler);
+
+        try {
+            (SynchronizationContext? context, TaskScheduler scheduler) =
+                await startupContext.Task.WaitAsync(TimeSpan.FromSeconds(5), ct);
+            await Assert.That(context).IsNull();
+            await Assert.That(scheduler).IsSameReferenceAs(TaskScheduler.Default);
+            IOException observed = await Expect.ThrowsAsync<IOException>(
+                () => run.WaitAsync(TimeSpan.FromSeconds(5), ct));
+            await Assert.That(observed).IsSameReferenceAs(failure);
+            await Assert.That(callerContext.Posts).IsEqualTo(0);
+            await Assert.That(provider.Host.StartCalls).IsEqualTo(1);
+            await Assert.That(provider.Host.Windows.Count).IsEqualTo(0);
+            await Assert.That(provider.Host.ShutdownCalls).IsEqualTo(1);
+            await Assert.That(provider.Host.DisposeCalls).IsEqualTo(1);
+        }
+        finally {
+            application.Shutdown();
+            // Failure-only escape: even a broken bridge must drain and dispose before the process-wide selection is reused.
+            callerScheduler.Release();
+            try {
+                await run.WaitAsync(TimeSpan.FromSeconds(10));
+            }
+            catch (IOException exception) when (ReferenceEquals(exception, failure)) {
+                // Expected startup failure, already asserted above; also observe it if an earlier assertion failed.
+            }
+        }
+    }
+
+    [Test]
+    [Arguments(false)]
+    [Arguments(true)]
     [Timeout(60_000)]
-    public async Task HostFailure_EndsTheRun_FaultsOpenWindowsOnce_AndIsRethrown(CancellationToken ct) {
+    public async Task HostFailure_EndsTheRun_FaultsOpenWindowsOnce_AndIsRethrown(bool useAsync, CancellationToken ct) {
         var provider = new ScriptedHostProvider();
         InfiniFrameHostSelection.ResetForTests();
         int closedCallbacks = 0;
@@ -84,12 +144,12 @@ public sealed class HostedApplicationTests {
             })
             .Build();
 
-        Task run = Task.Run(application.Run, ct);
+        Task run = useAsync ? application.RunAsync(ct) : Task.Run(application.Run, ct);
         await Waits.UntilAsync(() => provider.HasHost && provider.Host.Windows.Count == 1, "window requested");
         await application.GetWindow("main").Features.Lifecycle.WaitForReadyAsync(ct);
         provider.Host.FailHost(new IOException("companion process lost"));
 
-        InfiniFrameHostOperationException exception = await Expect.ThrowsAsync<InfiniFrameHostOperationException>(() => run);
+        InfiniFrameHostOperationException exception = await Expect.ThrowsAsync<InfiniFrameHostOperationException>(() => run.WaitAsync(TimeSpan.FromSeconds(10), ct));
         await Assert.That(exception.InnerException).IsTypeOf<IOException>();
         await Assert.That(closedCallbacks).IsEqualTo(1);
         await Assert.That(provider.Host.DisposeCalls).IsEqualTo(1);
@@ -158,5 +218,16 @@ public sealed class HostedApplicationTests {
         await Assert.That(exception.Message).Contains("DropOldest");
         await Assert.That(provider.Host.DisposeCalls).IsEqualTo(1);
         InfiniFrameHostSelection.ResetForTests();
+    }
+    // Posts stay queued with the blocked caller's scheduler. Release() in test cleanup also drains an accidental capture.
+    private sealed class HeldCallerSynchronizationContext(HeldTaskScheduler scheduler) : SynchronizationContext {
+        private int _posts;
+        internal int Posts => Volatile.Read(ref _posts);
+
+        public override void Post(SendOrPostCallback callback, object? state) {
+            Interlocked.Increment(ref _posts);
+            _ = Task.Factory.StartNew(() => callback(state), CancellationToken.None,
+                TaskCreationOptions.DenyChildAttach, scheduler);
+        }
     }
 }
