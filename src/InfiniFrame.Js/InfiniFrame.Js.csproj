@@ -67,6 +67,12 @@
         <Folder Include="wwwroot/"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <!-- The generated bridge is also embedded so external host providers receive it through the public
+             host contract (InfiniFrameHostWindowRequest.BridgeScript) instead of reading core's source tree. -->
+        <EmbeddedResource Include="$(FrontendProdFile)" LogicalName="InfiniFrame.Js.HostBridge.js" Visible="false"/>
+    </ItemGroup>
+
     <Target Name="BuildFrontend"
             BeforeTargets="DispatchToInnerBuilds;ResolveProjectStaticWebAssets;ResolveStaticWebAssets"
             Condition="'$(DesignTimeBuild)'!='true'

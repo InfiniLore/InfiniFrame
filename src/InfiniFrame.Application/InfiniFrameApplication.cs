@@ -4,9 +4,11 @@
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Handles;
 using FluentValidation;
+using InfiniFrame.Hosting;
 using InfiniFrame.NativeBridge.Parameters.Application;
 using InfiniFrame.Utilities;
 using InfiniFrame.Window.Builder;
+using InfiniFrame.Window.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -19,8 +21,11 @@ namespace InfiniFrame.Application;
 /// </summary>
 public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     private readonly ILogger<InfiniFrameApplication> logger;
-    private readonly NativeApplicationHandle _nativeHandle;
-    
+    private readonly NativeApplicationHandle? _nativeApplicationHandle;
+    private readonly InfiniFrameHostedRuntime? _hosted;
+    private NativeApplicationHandle _nativeHandle => _nativeApplicationHandle
+        ?? throw new InvalidOperationException("An application that uses an external host provider has no in-process native application handle.");
+
     #if NET9_0_OR_GREATER
     private readonly Lock _gate = new();
     #else
@@ -59,8 +64,24 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     }
 
 
-    private InfiniFrameApplication(ILogger<InfiniFrameApplication> logger, ApplicationConfiguration configuration) {
+    private InfiniFrameApplication(
+        ILogger<InfiniFrameApplication> logger,
+        ApplicationConfiguration configuration,
+        IInfiniFrameHostProvider? hostProvider = null
+    ) {
         this.logger = logger;
+        if (hostProvider is not null) {
+            // The default native application is never constructed (or loaded) for an external host provider.
+            if (configuration != new ApplicationConfiguration())
+                throw new InvalidOperationException(
+                    "Default-engine application settings (WebView2 runtime path, notification registration, AppUserModelId, " +
+                    "default notification icon) cannot be combined with an external host provider.");
+            InfiniFrameHostedRuntime.Validate(hostProvider);// reject an incompatible provider before latching the process
+            InfiniFrameHostSelection.Select(InfiniFrameHostSelection.Kind.Hosted);
+            _hosted = new InfiniFrameHostedRuntime(hostProvider, Id);
+            return;
+        }
+        InfiniFrameHostSelection.Select(InfiniFrameHostSelection.Kind.Default);
         InfiniFrameNativeApplicationParameters parameters = configuration.ToNativeParameters();
         new InfiniFrameNativeApplicationParametersValidator().ValidateAndThrow(parameters);
 
@@ -68,7 +89,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         if (status != InfiniFrameNativeInteropStatus.Success)
             throw new InfiniFrameNativeInteropException(InfiniFrameNative.GetLastErrorMessage() ?? "Could not create native application.");
 
-        _nativeHandle = new NativeApplicationHandle(handle);
+        _nativeApplicationHandle = new NativeApplicationHandle(handle);
         InfiniFrameNativeInteropStatus configureStatus = InfiniFrameNative.ApplicationConfigure(
             _nativeHandle.DangerousGetHandle(),
             in parameters
@@ -85,8 +106,8 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     public static InfiniFrameApplication Initialize()
         => new(NullLogger<InfiniFrameApplication>.Instance, new ApplicationConfiguration());
 
-    internal static InfiniFrameApplication Initialize(ApplicationConfiguration configuration)
-        => new(NullLogger<InfiniFrameApplication>.Instance, configuration);
+    internal static InfiniFrameApplication Initialize(ApplicationConfiguration configuration, IInfiniFrameHostProvider? hostProvider = null)
+        => new(NullLogger<InfiniFrameApplication>.Instance, configuration, hostProvider);
 
     public static InfiniFrameApplicationBuilder CreateBuilder(string[]? args = null)
         => new(args);
@@ -98,7 +119,10 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     }
 
     public Guid Id { get; } = Guid.NewGuid();
-    public IntPtr ApplicationHandle => _nativeHandle.DangerousGetHandle();
+    public IntPtr ApplicationHandle => _hosted is null ? _nativeHandle.DangerousGetHandle() : IntPtr.Zero;
+
+    /// <summary>The external host runtime, when the application selected a host provider.</summary>
+    internal InfiniFrameHostedRuntime? HostedRuntime => _hosted;
     public bool IsShutdownRequested => Volatile.Read(ref _shutdownRequested) != 0;
     public event Action<IInfiniFrameWindow>? WindowCreated;
     public event Action<IInfiniFrameWindow>? WindowDestroyed;
@@ -149,6 +173,16 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     public void Run() {
         BeginRun();
         try {
+            if (_hosted is not null) {
+                // The provider owns its native loop; this thread only orchestrates and waits, so no STA is required.
+                // Run() deliberately blocks. Use the default task scheduler rather than the blocked caller's context.
+                // Task.Run unwraps the returned task; GetResult propagates its exceptions.
+                // Asynchronous callers should await RunAsync().
+                InfiniFrameHostedRuntime hosted = _hosted;
+                Task hostedRun = Task.Run(() => RunHostedAsync(hosted, CancellationToken.None));
+                hostedRun.GetAwaiter().GetResult();
+                return;
+            }
             EnsureWindowsStaThread();
             if (HasRegisteredWindows() || OperatingSystem.IsMacOS())
                 RegisterNativeApplication();
@@ -167,6 +201,16 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     public async Task RunAsync(CancellationToken ct = default) {
         BeginRun();
         await using CancellationTokenRegistration registration = ct.Register(Shutdown);
+        if (_hosted is not null) {
+            try {
+                ct.ThrowIfCancellationRequested();
+                await RunHostedAsync(_hosted, ct).ConfigureAwait(false);
+            }
+            finally {
+                await DisposeAsync().ConfigureAwait(false);
+            }
+            return;
+        }
         Task? uiTask = null;
         try {
             ct.ThrowIfCancellationRequested();
@@ -269,7 +313,8 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     public void Shutdown() {
         if (Volatile.Read(ref _disposed) != 0) return;
         if (Interlocked.Exchange(ref _shutdownRequested, 1) != 0) return;
-        InfiniFrameNative.ApplicationShutdown(_nativeHandle.DangerousGetHandle());
+        if (_hosted is not null) _hosted.RequestShutdown();
+        else InfiniFrameNative.ApplicationShutdown(_nativeHandle.DangerousGetHandle());
         CloseAll();
     }
 
@@ -321,6 +366,8 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         DrainNaturalWindowTeardowns();
         logger.LogDebug("Application window disposal completed");
         if (windowDisposalFailure is not null) {
+            // The provider's host (and any companion process) must not outlive the application even then.
+            if (_hosted is not null) DisposeHostedRuntimeAfterFailure();
             Volatile.Write(ref _disposed, 0);
             throw new InvalidOperationException("The application could not dispose all windows.", windowDisposalFailure);
         }
@@ -328,9 +375,17 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             _windows.Clear();
             _registrations.Clear();
         }
-        ReleaseNativeHandleOrThrow();
-        logger.LogDebug("Application native disposal completed");
-        StopRegisteredComponents();
+        if (_hosted is not null) {
+            // Components stop while the host is still alive; the host is shut down and disposed before the services.
+            StopRegisteredComponents();
+            _hosted.DisposeAsync().AsTask().GetAwaiter().GetResult();
+            logger.LogDebug("External host provider disposal completed");
+        }
+        else {
+            ReleaseNativeHandleOrThrow();
+            logger.LogDebug("Application native disposal completed");
+            StopRegisteredComponents();
+        }
         if (_serviceProvider is IAsyncDisposable asyncServiceProvider)
             asyncServiceProvider.DisposeAsync().AsTask().GetAwaiter().GetResult();
         else (_serviceProvider as IDisposable)?.Dispose();
@@ -363,6 +418,12 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         }
         await DrainNaturalWindowTeardownsAsync().ConfigureAwait(false);
         if (windowDisposalFailure is not null) {
+            if (_hosted is not null) {
+                try { await _hosted.DisposeAsync().ConfigureAwait(false); }
+                catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException) {
+                    logger.LogWarning(ex, "Failed to dispose the external host provider after a window disposal failure");
+                }
+            }
             Volatile.Write(ref _disposed, 0);
             throw new InvalidOperationException("The application could not dispose all windows.", windowDisposalFailure);
         }
@@ -370,8 +431,14 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             _windows.Clear();
             _registrations.Clear();
         }
-        ReleaseNativeHandleOrThrow();
-        await StopRegisteredComponentsAsync().ConfigureAwait(false);
+        if (_hosted is not null) {
+            await StopRegisteredComponentsAsync().ConfigureAwait(false);
+            await _hosted.DisposeAsync().ConfigureAwait(false);
+        }
+        else {
+            ReleaseNativeHandleOrThrow();
+            await StopRegisteredComponentsAsync().ConfigureAwait(false);
+        }
         if (_serviceProvider is IAsyncDisposable asyncServiceProvider)
             await asyncServiceProvider.DisposeAsync().ConfigureAwait(false);
         else (_serviceProvider as IDisposable)?.Dispose();
@@ -477,8 +544,13 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 foreach ((string? id, Action<IInfiniFrameWindowBuilder>? configure, InfiniFrameWindowBuilder? registeredBuilder, IServiceProvider? provider) in _registrations) {
                     InfiniFrameWindowBuilder builder = registeredBuilder ?? new InfiniFrameWindowBuilder();
                     configure?.Invoke(builder);
-                    builder.SetApplicationHandle(_nativeHandle.DangerousGetHandle());
                     string windowId = id ?? Guid.NewGuid().ToString("N");
+                    if (_hosted is not null) {
+                        // Validated and mapped only; the provider is asked for native windows after registration.
+                        windows.Add((windowId, InfiniFrameHostedWindow.Create(_hosted, builder, provider ?? RootServiceProvider)));
+                        continue;
+                    }
+                    builder.SetApplicationHandle(_nativeHandle.DangerousGetHandle());
                     windows.Add((windowId, builder.Build(provider ?? _serviceProvider)));
                 }
 
@@ -572,6 +644,32 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         if (linuxStatus != InfiniFrameNativeInteropStatus.Success)
             throw new InfiniFrameNativeInteropException(
                 InfiniFrameNative.GetLastErrorMessage() ?? "Could not run the native application.");
+    }
+
+    /// <summary>
+    ///     Run sequence for an external host provider, mirroring the default one: start the host (instead of registering
+    ///     the native application), start components, build and register the window facades, ask the provider for the
+    ///     native windows, then wait for the windows, a shutdown request or the host to finish. Disposal follows in the caller.
+    /// </summary>
+    private async Task RunHostedAsync(InfiniFrameHostedRuntime hosted, CancellationToken cancellationToken) {
+        if (!HasRegisteredWindows()) return;
+        await hosted.StartAsync(RootServiceProvider, cancellationToken).ConfigureAwait(false);
+        if (IsShutdownRequested) return;
+        await StartRegisteredComponentsAsync().ConfigureAwait(false);
+        BuildAllWindows();
+        InfiniFrameHostedWindow[] windows = [.. Windows.OfType<InfiniFrameHostedWindow>()];
+        await hosted.CreateWindowsAsync(windows, cancellationToken).ConfigureAwait(false);
+        if (IsShutdownRequested) CloseAll();
+        Exception? fault = await hosted.WaitForRunCompletionAsync(windows).ConfigureAwait(false);
+        if (fault is not null)
+            throw new InfiniFrameHostOperationException($"The external host provider '{hosted.DisplayName}' failed.", fault);
+    }
+
+    private void DisposeHostedRuntimeAfterFailure() {
+        try { _hosted!.DisposeAsync().AsTask().GetAwaiter().GetResult(); }
+        catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException) {
+            logger.LogWarning(ex, "Failed to dispose the external host provider after a window disposal failure");
+        }
     }
 
     private static void EnsureWindowsStaThread() {

@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Hosting;
 using InfiniFrame.Window;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,7 +17,8 @@ public sealed class InfiniFrameApplicationBuilder {
     private string? _notificationRegistrationId;
     private string? _appUserModelId;
     private string? _defaultNotificationIcon;
-    
+    private IInfiniFrameHostProvider? _hostProvider;
+
     public IReadOnlyCollection<(string? Id, Action<IInfiniFrameWindowBuilder> Configure)> WindowRegistrations 
         => _windows.AsReadOnly();
 
@@ -47,27 +49,50 @@ public sealed class InfiniFrameApplicationBuilder {
     }
 
     public InfiniFrameApplicationBuilder WithWebView2RuntimePath(string path) {
+        ThrowIfHostProviderSelected(nameof(WithWebView2RuntimePath));
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
         _webView2RuntimePath = Path.GetFullPath(path);
         return this;
     }
 
     public InfiniFrameApplicationBuilder WithNotificationRegistrationId(string id) {
+        ThrowIfHostProviderSelected(nameof(WithNotificationRegistrationId));
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         _notificationRegistrationId = id;
         return this;
     }
 
     public InfiniFrameApplicationBuilder WithAppUserModelId(string id) {
+        ThrowIfHostProviderSelected(nameof(WithAppUserModelId));
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         _appUserModelId = id;
         return this;
     }
 
     public InfiniFrameApplicationBuilder WithDefaultNotificationIcon(string path) {
+        ThrowIfHostProviderSelected(nameof(WithDefaultNotificationIcon));
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
         _defaultNotificationIcon = Path.GetFullPath(path);
         return this;
+    }
+
+    /// <summary>The explicitly selected external host provider, if any.</summary>
+    internal IInfiniFrameHostProvider? HostProvider => _hostProvider;
+
+    internal void SetHostProvider(IInfiniFrameHostProvider provider) {
+        ArgumentNullException.ThrowIfNull(provider);
+        if (_hostProvider is not null)
+            throw new InvalidOperationException("A host provider is already selected for this application. Select exactly one before Build().");
+        if (_webView2RuntimePath is not null || _notificationRegistrationId is not null || _appUserModelId is not null || _defaultNotificationIcon is not null)
+            throw new InvalidOperationException(
+                "An external host provider cannot be combined with default-engine settings " +
+                "(WebView2 runtime path, notification registration id, AppUserModelId or default notification icon).");
+        _hostProvider = provider;
+    }
+
+    private void ThrowIfHostProviderSelected(string setting) {
+        if (_hostProvider is not null)
+            throw new InvalidOperationException($"{setting} configures the default native backend and cannot be combined with an external host provider.");
     }
 
     internal void AddIntegration(Action<InfiniFrameApplication> integration) {
@@ -85,7 +110,7 @@ public sealed class InfiniFrameApplicationBuilder {
                 _notificationRegistrationId,
                 _appUserModelId,
                 _defaultNotificationIcon
-            ));
+            ), _hostProvider);
 
             Services.AddSingleton<IInfiniFrameApplication>(application);
             serviceProvider = Services.BuildServiceProvider();
