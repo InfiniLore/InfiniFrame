@@ -36,12 +36,12 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                    -   os: ubuntu-latest
+                    -   os: ubuntu-24.04
                         arch: x64
                         display_server: x11
                         libName: linux
                         rid: linux-x64
-                    -   os: ubuntu-latest
+                    -   os: ubuntu-24.04
                         arch: x64
                         display_server: wayland
                         libName: linux
@@ -95,7 +95,11 @@ jobs:
             -   name: Install Wayland compositor
                 if: matrix.display_server == 'wayland'
                 run: |
-                    timeout 180s sudo apt-get install -y --no-install-recommends weston
+                    timeout 300s sudo apt-get \
+                        -o Acquire::Retries=1 \
+                        -o Acquire::http::Timeout=15 \
+                        -o Acquire::https::Timeout=15 \
+                        install -y --no-install-recommends weston
 
             -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
