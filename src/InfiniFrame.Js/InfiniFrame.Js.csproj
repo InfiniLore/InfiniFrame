@@ -37,6 +37,16 @@
                  CopyToOutputDirectory="Never"
                  CopyToPublishDirectory="Never"/>
 
+        <Content Update="tsconfig.test.json"
+                 Pack="false"
+                 CopyToOutputDirectory="Never"
+                 CopyToPublishDirectory="Never"/>
+
+        <Content Update="biome.json"
+                 Pack="false"
+                 CopyToOutputDirectory="Never"
+                 CopyToPublishDirectory="Never"/>
+
         <Content Update="vite.config.dev.ts"
                  Pack="false"
                  CopyToOutputDirectory="Never"
