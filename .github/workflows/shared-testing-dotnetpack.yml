@@ -108,6 +108,7 @@ jobs:
                     fi
 
             -   name: Verify NativeBridge Package Natives
+                shell: bash
                 run: |
                     PACKAGE=""
                     for candidate in ./release/InfiniLore.InfiniFrame.NativeBridge.*.nupkg; do

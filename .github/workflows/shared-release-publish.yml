@@ -143,6 +143,7 @@ jobs:
                     path: ./release/*.nupkg
 
             -   name: Verify Package Natives
+                shell: bash
                 run: |
                     PACKAGE=""
                     for candidate in ./release/InfiniLore.InfiniFrame.NativeBridge.*.nupkg; do
@@ -194,6 +195,7 @@ jobs:
 
             -   name: Push to NuGet
                 if: inputs.publish_to_nuget
+                shell: bash
                 env:
                     NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
                 run: |
@@ -209,6 +211,7 @@ jobs:
 
             -   name: Push GitHub Packages
                 if: inputs.publish_to_nuget
+                shell: bash
                 env:
                     GITHUB_TOKEN: ${{ github.token }}
                 run: |
