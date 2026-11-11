@@ -52,7 +52,13 @@ describe("getSetupGuard", () => {
 	it("should preserve existing setup values", () => {
 		// Arrange
 		getTestWindow().infiniframe = {
-			setup: { nativeInteropBridgeInitialized: true },
+			setup: {
+				nativeInteropBridgeInitialized: true,
+				windowExternalBridgeInitialized: false,
+				blazorModulesFetchPatchInitialized: false,
+				blazorCustomElementsPatchInitialized: false,
+				customElementsInitialized: false,
+			},
 		};
 
 		// Act

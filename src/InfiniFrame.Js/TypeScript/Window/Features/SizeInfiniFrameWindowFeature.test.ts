@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import type { SizeInfiniFrameWindowFeature } from "./SizeInfiniFrameWindowFeature";
 import { setupFeature } from "./_testHelpers";
+import type { SizeInfiniFrameWindowFeature } from "./SizeInfiniFrameWindowFeature";
 
 describe("SizeInfiniFrameWindowFeature", () => {
 	let feature: SizeInfiniFrameWindowFeature;

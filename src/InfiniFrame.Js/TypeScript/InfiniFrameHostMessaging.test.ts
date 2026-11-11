@@ -19,7 +19,12 @@ function invokeWithInvalidInput(callback: ReceiveMessageCallback): void {
 }
 
 function hasMessageId(message: unknown, id: string): boolean {
-	return typeof message === "object" && message !== null && "id" in message && message.id === id;
+	return (
+		typeof message === "object"
+		&& message !== null
+		&& "id" in message
+		&& message.id === id
+	);
 }
 
 describe("InfiniFrameHostMessaging", () => {
@@ -187,9 +192,10 @@ describe("InfiniFrameHostMessaging", () => {
 			.map((call) => call[0])
 			.filter(
 				(message) =>
-					typeof message === "object" &&
-					message !== null &&
-					(message as { id?: string }).id === SendToHostMessageIds.windowClose,
+					typeof message === "object"
+					&& message !== null
+					&& (message as { id?: string }).id
+						=== SendToHostMessageIds.windowClose,
 			);
 		expect(closeMessages.length).toBe(1);
 
@@ -318,8 +324,8 @@ describe("InfiniFrameHostMessaging", () => {
 			.map((call: unknown[]) => call[0])
 			.filter(
 				(msg: unknown) =>
-					typeof msg === "object" &&
-					hasMessageId(msg, SendToHostMessageIds.webMessageAckResponse),
+					typeof msg === "object"
+					&& hasMessageId(msg, SendToHostMessageIds.webMessageAckResponse),
 			);
 		expect(ackResponses.length).toBe(1);
 	});
@@ -509,8 +515,8 @@ describe("InfiniFrameHostMessaging", () => {
 				.map((call: unknown[]) => call[0])
 				.filter(
 					(msg: unknown) =>
-						typeof msg === "object" &&
-						hasMessageId(msg, SendToHostMessageIds.fullscreenEnter),
+						typeof msg === "object"
+						&& hasMessageId(msg, SendToHostMessageIds.fullscreenEnter),
 				);
 			expect(fullscreenMessages.length).toBe(1);
 
@@ -551,8 +557,8 @@ describe("InfiniFrameHostMessaging", () => {
 				.map((call: unknown[]) => call[0])
 				.filter(
 					(msg: unknown) =>
-						typeof msg === "object" &&
-						hasMessageId(msg, SendToHostMessageIds.fullscreenExit),
+						typeof msg === "object"
+						&& hasMessageId(msg, SendToHostMessageIds.fullscreenExit),
 				);
 			expect(fullscreenMessages.length).toBe(1);
 		}

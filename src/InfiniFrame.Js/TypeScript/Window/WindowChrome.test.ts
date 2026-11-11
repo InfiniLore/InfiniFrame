@@ -550,11 +550,11 @@ describe("WindowChrome", () => {
 
 			const restoreCalls = messaging.sendMessageToHost.mock.calls.filter(
 				(call) =>
-					typeof call[1] === "object" &&
-					call[1] !== null &&
-					"command" in call[1] &&
-					typeof call[1].command === "string" &&
-					call[1].command.includes("restoreFromMaximized"),
+					typeof call[1] === "object"
+					&& call[1] !== null
+					&& "command" in call[1]
+					&& typeof call[1].command === "string"
+					&& call[1].command.includes("restoreFromMaximized"),
 			);
 			expect(restoreCalls).toHaveLength(1);
 		});

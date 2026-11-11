@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { deleteTestProperty, requireValue } from "../../_testHelpers";
-import type { InfiniFrameSetup } from "../../Contracts";
+import type { BlazorComponent, InfiniFrameSetup } from "../../Contracts";
 import {
 	initBlazorCustomElementsPatch,
 	initCustomElements,
@@ -289,8 +289,8 @@ describe("customElements", () => {
 	});
 
 	it("connectedCallback disposes if disconnected before promise resolves", async () => {
-		let resolveAdd: (value: unknown) => void;
-		const addPromise = new Promise((resolve) => {
+		let resolveAdd: ((value: BlazorComponent) => void) | undefined;
+		const addPromise = new Promise<BlazorComponent>((resolve) => {
 			resolveAdd = resolve;
 		});
 		const dispose = vi.fn(() => Promise.resolve());
@@ -310,7 +310,7 @@ describe("customElements", () => {
 		await tick();
 
 		// Now resolve the add promise
-		requireValue(resolveAdd)({ dispose });
+		requireValue<(value: BlazorComponent) => void>(resolveAdd)({ dispose });
 		await tick();
 
 		expect(dispose).toHaveBeenCalled();

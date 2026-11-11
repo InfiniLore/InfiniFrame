@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import type { WebMessagingInfiniFrameWindowFeature } from "./WebMessagingInfiniFrameWindowFeature";
 import { setupFeature } from "./_testHelpers";
+import type { WebMessagingInfiniFrameWindowFeature } from "./WebMessagingInfiniFrameWindowFeature";
 
 describe("WebMessagingInfiniFrameWindowFeature", () => {
 	let feature: WebMessagingInfiniFrameWindowFeature;

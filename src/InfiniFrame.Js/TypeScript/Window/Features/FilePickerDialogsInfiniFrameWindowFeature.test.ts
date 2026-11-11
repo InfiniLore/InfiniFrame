@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import type { FilePickerDialogsInfiniFrameWindowFeature } from "./FilePickerDialogsInfiniFrameWindowFeature";
 import { setupFeature } from "./_testHelpers";
+import type { FilePickerDialogsInfiniFrameWindowFeature } from "./FilePickerDialogsInfiniFrameWindowFeature";
 
 describe("FilePickerDialogsInfiniFrameWindowFeature", () => {
 	let feature: FilePickerDialogsInfiniFrameWindowFeature;

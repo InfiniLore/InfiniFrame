@@ -22,7 +22,10 @@ describe("InfiniFrameWindow", () => {
 		getMessageFromHostAsync: (message: string) => Promise<string>,
 	): InfiniFrameHostMessaging {
 		return {
+			ready: Promise.resolve(),
+			isReady: true,
 			sendMessageToHost: vi.fn(),
+			getMessageFromHostRawAsync: vi.fn(),
 			getMessageFromHostAsync,
 			assignMessageReceivedHandler: vi.fn(),
 			unregisterMessageReceivedHandler: vi.fn(),

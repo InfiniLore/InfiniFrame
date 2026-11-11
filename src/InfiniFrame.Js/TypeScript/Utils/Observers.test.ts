@@ -2,25 +2,16 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { getTestWindow } from "../_testHelpers";
+import { DecorationsInfiniFrameWindowFeature } from "../Window/Features/DecorationsInfiniFrameWindowFeature";
+import { InfiniFrameWindow } from "../Window/InfiniFrameWindow";
 import { getTitleObserver, getTitleObserverTarget } from "./Observers";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-type TestWindow = Window & {
-	infiniframe?: {
-		window: {
-			features: {
-				decorations: {
-					setTitle: (title: string | null) => void;
-				};
-			};
-		};
-	};
-};
-
 describe("Observers", () => {
-	const testWindow = window as TestWindow;
+	const testWindow = getTestWindow();
 	const setTitle = vi.fn();
 	const OriginalMutationObserver = globalThis.MutationObserver;
 
@@ -53,15 +44,12 @@ describe("Observers", () => {
 
 		globalThis.MutationObserver =
 			FakeMutationObserver as unknown as typeof MutationObserver;
+		const decorations = new DecorationsInfiniFrameWindowFeature();
+		decorations.setTitle = setTitle;
+		const windowApi = new InfiniFrameWindow();
+		windowApi.features.decorations = decorations;
 		testWindow.infiniframe = {
-			// @ts-expect-error
-			window: {
-				features: {
-					decorations: {
-						setTitle,
-					},
-				},
-			},
+			window: windowApi,
 		};
 
 		const title = document.createElement("title");

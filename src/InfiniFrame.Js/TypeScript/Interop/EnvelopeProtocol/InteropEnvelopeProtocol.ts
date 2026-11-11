@@ -133,8 +133,8 @@ export function parseIncomingMessage(
 		}
 
 		if (
-			typeof parsed.version !== "number" ||
-			!Number.isInteger(parsed.version)
+			typeof parsed.version !== "number"
+			|| !Number.isInteger(parsed.version)
 		) {
 			return {
 				error: "Envelope 'version' is required and must be an integer.",
@@ -152,8 +152,8 @@ export function parseIncomingMessage(
 		}
 
 		if (
-			parsed.requestId !== undefined &&
-			typeof parsed.requestId !== "string"
+			parsed.requestId !== undefined
+			&& typeof parsed.requestId !== "string"
 		) {
 			return { error: "Envelope 'requestId' must be a string." };
 		}

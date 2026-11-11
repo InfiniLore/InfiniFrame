@@ -7,7 +7,7 @@ import type {
 export type TestHostBridge = Partial<InfiniFrameHostBridge>;
 export type TestMessaging = Partial<InfiniFrameHostMessaging>;
 
-type TestInfiniFrameFixture = Omit<
+export type TestInfiniFrameFixture = Omit<
 	Partial<InfiniFrame>,
 	"host" | "messaging"
 > & {
@@ -18,7 +18,7 @@ type TestInfiniFrameFixture = Omit<
 	existing?: boolean;
 };
 
-export type TestInfiniFrame = InfiniFrame;
+export type TestInfiniFrame = TestInfiniFrameFixture;
 
 export type TestBlazor = NonNullable<Window["Blazor"]>;
 

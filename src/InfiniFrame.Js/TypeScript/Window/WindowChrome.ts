@@ -296,9 +296,9 @@ export class WindowChrome {
 		for (const el of document.querySelectorAll(`[${DATA_WINDOW_ACTION}]`)) {
 			const action = el.getAttribute(DATA_WINDOW_ACTION);
 			if (
-				action === "minimize" ||
-				action === "maximize" ||
-				action === "close"
+				action === "minimize"
+				|| action === "maximize"
+				|| action === "close"
 			) {
 				el.addEventListener("click", this.boundClick);
 				this.controlElements.set(el, action);
@@ -336,11 +336,11 @@ export class WindowChrome {
 					break;
 				}
 				if (
-					mutation.type === "attributes" &&
-					mutation.attributeName &&
-					(mutation.attributeName === DATA_DRAG_REGION ||
-						mutation.attributeName === DATA_WINDOW_ACTION ||
-						mutation.attributeName === DATA_RESIZE)
+					mutation.type === "attributes"
+					&& mutation.attributeName
+					&& (mutation.attributeName === DATA_DRAG_REGION
+						|| mutation.attributeName === DATA_WINDOW_ACTION
+						|| mutation.attributeName === DATA_RESIZE)
 				) {
 					needsUpdate = true;
 					break;

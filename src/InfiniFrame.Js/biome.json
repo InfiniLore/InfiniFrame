@@ -27,5 +27,11 @@
 				"noUselessConstructor": "error"
 			}
 		}
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double",
+			"operatorLinebreak": "before"
+		}
 	}
 }

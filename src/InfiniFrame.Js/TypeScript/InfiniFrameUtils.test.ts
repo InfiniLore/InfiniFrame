@@ -5,7 +5,12 @@ import { describe, expect, it, vi } from "vitest";
 import { InfiniFrameUtils } from "./InfiniFrameUtils";
 
 function createElementMock(
-	methods: Partial<Pick<Element, "setPointerCapture" | "releasePointerCapture" | "hasPointerCapture">>,
+	methods: Partial<
+		Pick<
+			Element,
+			"setPointerCapture" | "releasePointerCapture" | "hasPointerCapture"
+		>
+	>,
 ): Element {
 	const element = document.createElement("div");
 	Object.assign(element, methods);

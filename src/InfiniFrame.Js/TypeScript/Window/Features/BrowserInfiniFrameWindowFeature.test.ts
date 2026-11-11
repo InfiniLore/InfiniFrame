@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { BrowserInfiniFrameWindowFeature } from "./BrowserInfiniFrameWindowFeature";
 import { getTestWindow, requireValue } from "../../_testHelpers";
 import { setupFeature } from "./_testHelpers";
+import type { BrowserInfiniFrameWindowFeature } from "./BrowserInfiniFrameWindowFeature";
 
 describe("BrowserInfiniFrameWindowFeature", () => {
 	let feature: BrowserInfiniFrameWindowFeature;
@@ -147,8 +147,8 @@ describe("BrowserInfiniFrameWindowFeature", () => {
 		const handler = requireValue(
 			messaging.assignMessageReceivedHandler.mock.calls.find(
 				(call: unknown[]) =>
-					typeof call[0] === "string" &&
-					call[0].includes("setContextMenuEnabled"),
+					typeof call[0] === "string"
+					&& call[0].includes("setContextMenuEnabled"),
 			),
 		)[1] as (payload: unknown) => void;
 		expect(handler).toBeDefined();
@@ -158,8 +158,8 @@ describe("BrowserInfiniFrameWindowFeature", () => {
 		const handler = requireValue(
 			messaging.assignMessageReceivedHandler.mock.calls.find(
 				(call: unknown[]) =>
-					typeof call[0] === "string" &&
-					call[0].includes("setContextMenuEnabled"),
+					typeof call[0] === "string"
+					&& call[0].includes("setContextMenuEnabled"),
 			),
 		)[1] as (payload: unknown) => void;
 		handler(null);
@@ -168,8 +168,8 @@ describe("BrowserInfiniFrameWindowFeature", () => {
 		const handler = requireValue(
 			messaging.assignMessageReceivedHandler.mock.calls.find(
 				(call: unknown[]) =>
-					typeof call[0] === "string" &&
-					call[0].includes("setContextMenuEnabled"),
+					typeof call[0] === "string"
+					&& call[0].includes("setContextMenuEnabled"),
 			),
 		)[1] as (payload: unknown) => void;
 		handler("not-json");
@@ -205,8 +205,8 @@ describe("BrowserInfiniFrameWindowFeature", () => {
 		const handler = requireValue(
 			messaging.assignMessageReceivedHandler.mock.calls.find(
 				(call: unknown[]) =>
-					typeof call[0] === "string" &&
-					call[0].includes("setBrowserShortcutsEnabled"),
+					typeof call[0] === "string"
+					&& call[0].includes("setBrowserShortcutsEnabled"),
 			),
 		)[1] as (payload: unknown) => void;
 		handler(JSON.stringify({ enabled: false }));
@@ -215,8 +215,8 @@ describe("BrowserInfiniFrameWindowFeature", () => {
 		const handler = requireValue(
 			messaging.assignMessageReceivedHandler.mock.calls.find(
 				(call: unknown[]) =>
-					typeof call[0] === "string" &&
-					call[0].includes("setBrowserShortcutsEnabled"),
+					typeof call[0] === "string"
+					&& call[0].includes("setBrowserShortcutsEnabled"),
 			),
 		)[1] as (payload: unknown) => void;
 		handler(null);
@@ -225,8 +225,8 @@ describe("BrowserInfiniFrameWindowFeature", () => {
 		const handler = requireValue(
 			messaging.assignMessageReceivedHandler.mock.calls.find(
 				(call: unknown[]) =>
-					typeof call[0] === "string" &&
-					call[0].includes("setBrowserShortcutsEnabled"),
+					typeof call[0] === "string"
+					&& call[0].includes("setBrowserShortcutsEnabled"),
 			),
 		)[1] as (payload: unknown) => void;
 		handler("not-json");

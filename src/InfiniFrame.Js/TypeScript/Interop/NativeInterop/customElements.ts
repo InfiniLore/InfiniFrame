@@ -148,8 +148,8 @@ function patchAttachWebRendererInteropIfAvailable(): boolean {
 	const blazor = window.Blazor;
 
 	if (
-		!blazor?._internal ||
-		typeof blazor._internal.attachWebRendererInterop !== "function"
+		!blazor?._internal
+		|| typeof blazor._internal.attachWebRendererInterop !== "function"
 	) {
 		return false;
 	}

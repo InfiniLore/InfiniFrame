@@ -25,9 +25,9 @@ initBlazorCustomElementsPatch(setup);
 initCustomElements(setup);
 
 if (
-	!window.infiniframe?.messaging ||
-	!window.infiniframe?.window?.features ||
-	!window.infiniframe?.utils
+	!window.infiniframe?.messaging
+	|| !window.infiniframe?.window?.features
+	|| !window.infiniframe?.utils
 ) {
 	window.infiniframe = new InfiniFrame(window.infiniframe);
 }

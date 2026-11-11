@@ -160,8 +160,8 @@ function requestMessageFromHost(
 		try {
 			const existingResult = existingGetData(normalizedMessage);
 			if (
-				existingResult &&
-				typeof (existingResult as Promise<string>).then === "function"
+				existingResult
+				&& typeof (existingResult as Promise<string>).then === "function"
 			) {
 				return existingResult as Promise<string>;
 			}
@@ -188,9 +188,9 @@ function requestMessageFromHost(
 		const responseCallback = (rawMessage: string) => {
 			const parsed = parseIncomingMessage(rawMessage);
 			if (
-				"error" in parsed ||
-				parsed.messageId !== GetMessageResponseId ||
-				!parsed.payload
+				"error" in parsed
+				|| parsed.messageId !== GetMessageResponseId
+				|| !parsed.payload
 			) {
 				return;
 			}
@@ -203,8 +203,8 @@ function requestMessageFromHost(
 			}
 
 			if (
-				!isGetMessageResponsePayload(payload) ||
-				payload.requestId !== requestId
+				!isGetMessageResponsePayload(payload)
+				|| payload.requestId !== requestId
 			) {
 				return;
 			}
@@ -346,9 +346,9 @@ function normalizeEnvelope(
 
 	// noinspection SuspiciousTypeOfGuard
 	if (
-		envelope.channel !== undefined &&
-		typeof envelope.channel === "string" &&
-		envelope.channel.trim().length > 0
+		envelope.channel !== undefined
+		&& typeof envelope.channel === "string"
+		&& envelope.channel.trim().length > 0
 	) {
 		normalized.channel = envelope.channel;
 	}
@@ -482,10 +482,10 @@ function isGetMessageResponsePayload(value: unknown): value is {
 	error?: string;
 } {
 	return (
-		isObject(value) &&
-		typeof value.requestId === "string" &&
-		typeof value.success === "boolean" &&
-		(value.data === undefined || typeof value.data === "string") &&
-		(value.error === undefined || typeof value.error === "string")
+		isObject(value)
+		&& typeof value.requestId === "string"
+		&& typeof value.success === "boolean"
+		&& (value.data === undefined || typeof value.data === "string")
+		&& (value.error === undefined || typeof value.error === "string")
 	);
 }

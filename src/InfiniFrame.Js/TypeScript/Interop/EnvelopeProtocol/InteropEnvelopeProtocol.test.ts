@@ -2,12 +2,12 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import { describe, expect, it } from "vitest";
-import vectors from "./interop-envelope-golden-vectors.json";
 import {
 	createEnvelopeMessage,
 	InteropMessageMaxSizeBytes,
 	parseIncomingMessage,
 } from "./InteropEnvelopeProtocol";
+import vectors from "./interop-envelope-golden-vectors.json";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

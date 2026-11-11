@@ -226,19 +226,19 @@ export class BrowserInfiniFrameWindowFeature
 				const ctrl = e.ctrlKey || e.metaKey;
 				const k = e.key.toLowerCase();
 				if (
-					ctrl &&
-					(k === "t" ||
-						k === "n" ||
-						k === "w" ||
-						k === "r" ||
-						k === "p" ||
-						k === "u" ||
-						k === "j" ||
-						k === "l" ||
-						k === "i" ||
-						k === "o" ||
-						k === "h" ||
-						(e.shiftKey && k === "i"))
+					ctrl
+					&& (k === "t"
+						|| k === "n"
+						|| k === "w"
+						|| k === "r"
+						|| k === "p"
+						|| k === "u"
+						|| k === "j"
+						|| k === "l"
+						|| k === "i"
+						|| k === "o"
+						|| k === "h"
+						|| (e.shiftKey && k === "i"))
 				) {
 					e.preventDefault();
 					e.stopPropagation();
@@ -281,8 +281,8 @@ export class BrowserInfiniFrameWindowFeature
 				const ctrl = e.ctrlKey || e.metaKey;
 				const k = e.key;
 				if (
-					(ctrl && (k === "+" || k === "-" || k === "=" || k === "0")) ||
-					k === "F5"
+					(ctrl && (k === "+" || k === "-" || k === "=" || k === "0"))
+					|| k === "F5"
 				) {
 					e.preventDefault();
 					e.stopPropagation();

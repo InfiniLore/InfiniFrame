@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import type { JavaScriptInfiniFrameWindowFeature } from "./JavaScriptInfiniFrameWindowFeature";
 import { setupFeature } from "./_testHelpers";
+import type { JavaScriptInfiniFrameWindowFeature } from "./JavaScriptInfiniFrameWindowFeature";
 
 function getRequestId(data: unknown): string {
 	if (typeof data !== "object" || data === null) {

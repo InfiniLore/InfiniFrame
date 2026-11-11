@@ -32,7 +32,7 @@ describe("blazorExternalBridge", () => {
 
 	it("routes Blazor outbound messages through the InfiniFrame host bridge", () => {
 		const postData = vi.fn();
-		window.infiniframe = {
+		getTestWindow().infiniframe = {
 			host: {
 				postData,
 				receiveCallback: vi.fn(),
@@ -96,7 +96,7 @@ describe("blazorExternalBridge", () => {
 		const callback = vi.fn();
 		const external = window.external as InfiniFrameExternal;
 		requireValue(external.receiveMessage)(callback);
-		requireValue(hostCallback)("host-message");
+		requireValue<BlazorCallback>(hostCallback)("host-message");
 
 		expect(callback).toHaveBeenCalledWith("host-message");
 	});
@@ -121,7 +121,7 @@ describe("blazorExternalBridge", () => {
 
 	it("warns when host bridge postData is not available", () => {
 		const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-		window.infiniframe = {
+		getTestWindow().infiniframe = {
 			host: {
 				postData: undefined,
 				receiveCallback: vi.fn(),
@@ -183,7 +183,7 @@ describe("blazorExternalBridge", () => {
 		requireValue(external.receiveMessage)(normalCallback);
 
 		// Should not throw even though first callback throws
-		requireValue(hostCallback)("host-message");
+		requireValue<BlazorCallback>(hostCallback)("host-message");
 
 		expect(throwingCallback).toHaveBeenCalled();
 		expect(normalCallback).toHaveBeenCalledWith("host-message");
