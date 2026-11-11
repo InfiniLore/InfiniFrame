@@ -6,112 +6,15 @@ title: Scripts Reference
 
 This page documents the repository scripts and what each command does.
 
-## Docker Wrapper Scripts
+## Linux CI Image
 
-Docker wrapper scripts now live in `docker/scripts/`.
-
-### Linux (x64)
-
-- Build images:
+The Linux test image is built and published by
+`.github/workflows/build-linux-ci-images.yml`. Validate its X11 or Wayland
+startup locally with:
 
 ```bash
-bash ./docker/scripts/docker-linux-compose.sh
-```
-
-- Run tests:
-
-```bash
-bash ./docker/scripts/docker-linux-run-tests.sh
-```
-
-- Run Playwright tests:
-
-```bash
-bash ./docker/scripts/docker-linux-run-playwrighttests.sh
-```
-
-- Run BlazorWebView example:
-
-```bash
-bash ./docker/scripts/docker-linux-run-blazorwebview.sh
-```
-
-### Linux (arm64)
-
-- Build images:
-
-```bash
-bash ./docker/scripts/docker-linux-arm64-compose.sh
-```
-
-- Run tests:
-
-```bash
-bash ./docker/scripts/docker-linux-arm64-run-tests.sh
-```
-
-- Run Playwright tests:
-
-```bash
-bash ./docker/scripts/docker-linux-arm64-run-playwrighttests.sh
-```
-
-- Run BlazorWebView example:
-
-```bash
-bash ./docker/scripts/docker-linux-arm64-run-blazorwebview.sh
-```
-
-### Linux (Wayland)
-
-- Build images:
-
-```bash
-bash ./docker/scripts/docker-linux-wayland-compose.sh
-```
-
-- Run tests:
-
-```bash
-bash ./docker/scripts/docker-linux-wayland-run-tests.sh
-```
-
-- Run Playwright tests:
-
-```bash
-bash ./docker/scripts/docker-linux-wayland-run-playwrighttests.sh
-```
-
-- Run BlazorWebView example:
-
-```bash
-bash ./docker/scripts/docker-linux-wayland-run-blazorwebview.sh
-```
-
-### Windows
-
-- Build images:
-
-```powershell
-.\docker\scripts\docker-windows-compose.ps1
-```
-
-- Run tests:
-
-```powershell
-.\docker\scripts\docker-windows-run-tests.ps1
-```
-
-- Run Playwright tests:
-
-```powershell
-.\docker\scripts\docker-windows-run-playwrighttests.ps1
-```
-
-- Run BlazorWebView example:
-
-```powershell
-.\docker\scripts\docker-windows-run-blazorwebview.ps1
+bash .github/ci/linux-image/validate.sh x11
+bash .github/ci/linux-image/validate.sh wayland
 ```
 
 ## NuGet Setup Script

@@ -20,6 +20,11 @@ jobs:
     release:
         name: "CI: publish"
         runs-on: ubuntu-latest
+        container:
+            image: ghcr.io/infinilore/infiniframe-ci:x64-${{ vars.LINUX_CI_IMAGE_VERSION }}@${{ vars.LINUX_CI_IMAGE_DIGEST_X64 }}
+            credentials:
+                username: ${{ github.actor }}
+                password: ${{ secrets.GITHUB_TOKEN }}
         permissions:
             contents: write
             packages: write
@@ -49,12 +54,6 @@ jobs:
                     python scripts/validate_package_id_prefix.py \
                       --slnf InfiniFrame.GitHubActions.Release.slnf \
                       --prefix InfiniLore
-
-            -   name: Setup dependencies
-                uses: ./.github/actions/setup-dependencies
-                with:
-                    brew-cache-key: ${{ runner.os }}-release-publish-brew-native-${{ hashFiles('.github/actions/setup-dependencies/action.yml', '.github/workflows/shared-release-publish.yml') }}
-                    brew-restore-key: ${{ runner.os }}-release-publish-brew-native-
 
             -   name: Download Release Native Build Artifacts
                 uses: ./.github/actions/download-native-binaries

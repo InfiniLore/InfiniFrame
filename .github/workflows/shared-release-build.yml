@@ -1,57 +1,75 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "Shared: release-build"
-
+name: "Shared: release build"
 on:
     workflow_call:
         inputs:
             tag_name:
-                description: "Git tag to checkout for native builds"
-                required: true
                 type: string
+                required: true
 
 permissions:
     contents: read
 
 jobs:
-    build:
-        name: "CI: ${{ matrix.os }}-${{ matrix.arch }}/build"
+    build-linux:
+        name: "CI: linux-${{ matrix.arch }}/build"
         runs-on: ${{ matrix.os }}
-        
+        container:
+            image: ghcr.io/infinilore/infiniframe-ci:${{ matrix.arch }}-${{ vars.LINUX_CI_IMAGE_VERSION }}@${{ matrix.arch == 'x64' && vars.LINUX_CI_IMAGE_DIGEST_X64 || vars.LINUX_CI_IMAGE_DIGEST_ARM64 }}
+            credentials:
+                username: ${{ github.actor }}
+                password: ${{ secrets.GITHUB_TOKEN }}
+        permissions:
+            contents: read
+            packages: read
         strategy:
             fail-fast: false
             matrix:
                 include:
-                    - os: ubuntu-latest
+                    - os: ubuntu-24.04
                       arch: x64
                       libName: linux
-
                     - os: ubuntu-24.04-arm
                       arch: arm64
                       libName: linux
+        steps:
+            - uses: actions/checkout@v7
+              with:
+                  ref: ${{ inputs.tag_name }}
+                  fetch-depth: 1
+            - name: Build Native
+              shell: pwsh
+              run: ./src/InfiniFrame.NativeBridge/native-build.ps1 "Release" "${{ matrix.arch }}" "false"
+            - uses: actions/upload-artifact@v7
+              with:
+                  name: native-${{ matrix.libName }}-${{ matrix.arch }}
+                  path: ${{ github.workspace }}/src/InfiniFrame.NativeBridge/artifacts/native/${{ matrix.libName }}/${{ matrix.arch }}/Release/**
 
+    build-other:
+        name: "CI: ${{ matrix.os }}-${{ matrix.arch }}/build"
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
                     - os: windows-latest
                       arch: x64
                       libName: windows
-
                     - os: windows-11-arm
                       arch: arm64
                       libName: windows
-
                     - os: macos-26-intel
                       arch: x64
                       libName: osx
-
                     - os: macos-latest
                       arch: arm64
                       libName: osx
-        
         steps:
             - name: Checkout
               uses: actions/checkout@v7
               with:
                   ref: ${{ inputs.tag_name }}
                   fetch-depth: 1
-
             - name: Setup dependencies
               uses: ./.github/actions/setup-dependencies
               with:
@@ -59,18 +77,10 @@ jobs:
                   brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies/action.yml', '.github/workflows/shared-release-build.yml') }}
                   brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
                   restore-nativebridge-packages: "true"
-
             - name: Build Native
               shell: pwsh
-              run: |
-                  ./src/InfiniFrame.NativeBridge/native-build.ps1 `
-                    "Release" `
-                    "${{ matrix.arch }}" `
-                    "false"
-
-            - name: Upload Build Artifact
-              uses: actions/upload-artifact@v7
+              run: ./src/InfiniFrame.NativeBridge/native-build.ps1 "Release" "${{ matrix.arch }}" "false"
+            - uses: actions/upload-artifact@v7
               with:
                   name: native-${{ matrix.libName }}-${{ matrix.arch }}
-                  path: |
-                      ${{ github.workspace }}/src/InfiniFrame.NativeBridge/artifacts/native/${{ matrix.libName }}/${{ matrix.arch }}/Release/**
+                  path: ${{ github.workspace }}/src/InfiniFrame.NativeBridge/artifacts/native/${{ matrix.libName }}/${{ matrix.arch }}/Release/**

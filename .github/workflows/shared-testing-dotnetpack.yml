@@ -21,6 +21,7 @@ on:
 
 permissions:
     contents: read
+    packages: read
     statuses: write
     checks: write
 
@@ -28,6 +29,11 @@ jobs:
     dotnet-pack-validation:
         name: "CI: linux-x64/dotnet-pack"
         runs-on: ubuntu-latest
+        container:
+            image: ghcr.io/infinilore/infiniframe-ci:x64-${{ vars.LINUX_CI_IMAGE_VERSION }}@${{ vars.LINUX_CI_IMAGE_DIGEST_X64 }}
+            credentials:
+                username: ${{ github.actor }}
+                password: ${{ secrets.GITHUB_TOKEN }}
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
 
@@ -37,11 +43,6 @@ jobs:
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || env.TARGET_SHA }}
                     fetch-depth: 1
-
-            -   name: Setup dependencies
-                uses: ./.github/actions/setup-dependencies
-                with:
-                    cache-dotnet: false
 
             -   name: Set Dotnet Pack Check Pending
                 env:
@@ -180,9 +181,6 @@ jobs:
                     mkdir -p ./tmp/native-check
 
                     unzip -p "$PACKAGE" "$DLL_PATH" > ./tmp/native-check/InfiniFrame.Native.dll
-
-                    sudo apt-get update
-                    sudo apt-get install -y binutils-mingw-w64-x86-64
 
                     DLL=./tmp/native-check/InfiniFrame.Native.dll
 

@@ -1,0 +1,77 @@
+name: Run SingleFile E2E
+description: Publish and validate the SingleFile example
+inputs:
+    arch:
+        description: ""
+        required: true
+    rid:
+        description: ""
+        required: true
+    main-output-name:
+        description: ""
+        required: false
+        default: InfiniFrameExample.SingleFileExe
+    target-sha:
+        description: ""
+        required: true
+    workflow-url:
+        description: ""
+        required: true
+    github-token:
+        description: ""
+        required: true
+runs:
+    using: composite
+    steps:
+        - name: Download Testing Native Build Artifacts
+          uses: ./.github/actions/download-native-binaries
+          with:
+              artifact-type: testing
+        - name: Set SingleFile E2E Check Pending
+          env:
+              GITHUB_TOKEN: ${{ inputs.github-token }}
+          uses: ./.github/actions/sync-check
+          with:
+              repo: ${{ github.repository }}
+              sha: ${{ inputs.target-sha }}
+              context: "CI: ${{ inputs.rid }}/singlefile"
+              state: pending
+              status-description: SingleFile E2E tests in progress
+              target-url: ${{ inputs.workflow-url }}
+              allow-status-422: 'true'
+        - name: Publish single-file via MSBuild target
+          shell: bash
+          run: |
+              set -euo pipefail
+              dotnet publish examples/SingleFileExe/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj \
+                -t:InfiniFrameSingleFile -r "${{ inputs.rid }}" -c Release \
+                -p:InfiniFrameSingleFileActive=true \
+                -p:InfiniFrameSingleFileRid="${{ inputs.rid }}" \
+                -p:InfiniFrameSingleFileSelfContained=true
+        - name: Locate and validate publish output
+          shell: bash
+          run: |
+              set -euo pipefail
+              project_dir="examples/SingleFileExe/InfiniFrameExample.SingleFileExe"
+              output_dir="artifacts/pack-e2e/InfiniFrameExample.SingleFileExe"
+              mkdir -p "$output_dir"
+              publish_dir=$(find "$project_dir/bin" -type d -name publish -path "*${{ inputs.rid }}*" | head -1)
+              [ -n "$publish_dir" ] || { echo "Could not find publish directory"; exit 1; }
+              cp -r "$publish_dir"/* "$output_dir/"
+              main_output="${output_dir}/${{ inputs.main-output-name }}"
+              [ -f "$main_output" ] || { echo "Expected single-file output is missing: $main_output"; exit 1; }
+              unexpected="$(find "$output_dir" -mindepth 1 -maxdepth 1 ! -name "${{ inputs.main-output-name }}" | sed 's|.*/||')"
+              [ -z "$unexpected" ] || { echo "Unexpected output: $unexpected"; exit 1; }
+        - name: Update SingleFile E2E Check
+          if: always()
+          env:
+              GITHUB_TOKEN: ${{ inputs.github-token }}
+          uses: ./.github/actions/sync-check
+          with:
+              repo: ${{ github.repository }}
+              sha: ${{ inputs.target-sha }}
+              context: "CI: ${{ inputs.rid }}/singlefile"
+              target-url: ${{ inputs.workflow-url }}
+              job-status: ${{ job.status }}
+              success-description: SingleFile E2E tests passed
+              failure-description: SingleFile E2E tests failed
