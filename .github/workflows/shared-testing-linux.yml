@@ -268,6 +268,17 @@ jobs:
                       framework_exit=0
                       dotnet "${test_args[@]}" 2>&1 | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g' | tee "artifacts/testresults/${framework}-output.log" || framework_exit=$?
 
+                      # A native test host can terminate without a failing assertion (for
+                      # example, exit code 7 from a WebKitGTK/window-process teardown race).
+                      # Retry once in that specific case; real test failures still fail the
+                      # job and are not hidden by the retry.
+                      if [ $framework_exit -ne 0 ] && \
+                         grep -qE '^\s*failed:\s+0\s*$' "artifacts/testresults/${framework}-output.log" 2>/dev/null; then
+                        echo "WARN: test host exited $framework_exit after all assertions passed; retrying ${framework} once"
+                        framework_exit=0
+                        dotnet "${test_args[@]}" 2>&1 | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g' | tee "artifacts/testresults/${framework}-retry-output.log" || framework_exit=$?
+                      fi
+
                       # WebKitGTK emits SIGABRT (exit 134) during process teardown on
                       # Linux after all tests pass. This is a known race between WebKit
                       # web-process cleanup and display-server teardown. Treat it as
