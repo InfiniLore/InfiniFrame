@@ -193,6 +193,11 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                             if (IsShutdownRequested)
                                 CloseAll();
 
+                            if (IsShutdownRequested) {
+                                completion.TrySetResult();
+                                return;
+                            }
+
                             var uiThread = new Thread(() => {
                                 try {
                                     RunNativeLoop();
@@ -234,6 +239,9 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                         BuildAllWindows();
                         if (IsShutdownRequested) {
                             CloseAll();
+
+                            completion.TrySetResult();
+                            return;
                         }
 
                         RunNativeLoop();
