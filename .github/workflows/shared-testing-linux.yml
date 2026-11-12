@@ -272,8 +272,8 @@ jobs:
                       # example, exit code 7 from a WebKitGTK/window-process teardown race).
                       # Retry once in that specific case; real test failures still fail the
                       # job and are not hidden by the retry.
-                      if [ $framework_exit -ne 0 ] && \
-                         grep -qE '^\s*failed:\s+0\s*$' "artifacts/testresults/${framework}-output.log" 2>/dev/null; then
+                      if [ $framework_exit -ne 0 ] && [ $framework_exit -ne 134 ] && \
+                         grep -qE '^[[:space:]]*failed:[[:space:]]+0[[:space:]]*$' "artifacts/testresults/${framework}-output.log" 2>/dev/null; then
                         echo "WARN: test host exited $framework_exit after all assertions passed; retrying ${framework} once"
                         framework_exit=0
                         dotnet "${test_args[@]}" 2>&1 | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g' | tee "artifacts/testresults/${framework}-retry-output.log" || framework_exit=$?
@@ -284,7 +284,7 @@ jobs:
                       # web-process cleanup and display-server teardown. Treat it as
                       # success when every test assertion passed (failed: 0 in output).
                       if [ $framework_exit -eq 134 ]; then
-                        if grep -qE '^\s*failed:\s+0\s*$' "artifacts/testresults/${framework}-output.log" 2>/dev/null; then
+                        if grep -qE '^[[:space:]]*failed:[[:space:]]+0[[:space:]]*$' "artifacts/testresults/${framework}-output.log" 2>/dev/null; then
                           echo "WARN: SIGABRT during teardown with all tests passing (WebKitGTK cleanup race) — ignoring"
                           framework_exit=0
                         fi
