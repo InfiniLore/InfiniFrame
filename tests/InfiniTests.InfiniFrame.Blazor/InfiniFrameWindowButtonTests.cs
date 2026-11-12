@@ -15,6 +15,7 @@ public class InfiniFrameWindowButtonTests : BunitContext {
     [Arguments(WindowAction.Minimize, "minimize")]
     [Arguments(WindowAction.Maximize, "maximize")]
     [Arguments(WindowAction.Close, "close")]
+    [Timeout(30_000)]
     public async Task HasCorrectDataAttribute(WindowAction action, string expectedAttribute, CancellationToken ct = default) {
         // Arrange
         IRenderedComponent<InfiniFrameWindowButton> cut = Render<InfiniFrameWindowButton>(parameters =>

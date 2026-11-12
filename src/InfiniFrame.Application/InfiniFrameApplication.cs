@@ -187,11 +187,17 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                         if (HasRegisteredWindows())
                             RegisterNativeApplication();
                         if (IsShutdownRequested) {
+                            // Shutdown may have been requested before the native application
+                            // was registered. Re-signal it now that the native handle is ready;
+                            // the first signal cannot wake a loop that did not exist yet.
+                            SignalNativeShutdown();
                             completion.TrySetResult();
                         } else {
                             BuildAllWindows();
-                            if (IsShutdownRequested)
+                            if (IsShutdownRequested) {
                                 CloseAll();
+                                SignalNativeShutdown();
+                            }
 
                             var uiThread = new Thread(() => {
                                 try {
@@ -227,6 +233,8 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                         if (HasRegisteredWindows())
                             RegisterNativeApplication();
                         if (IsShutdownRequested) {
+                            // Shutdown may have raced registration on the worker thread.
+                            SignalNativeShutdown();
                             completion.TrySetResult();
                             return;
                         }
@@ -234,6 +242,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                         BuildAllWindows();
                         if (IsShutdownRequested) {
                             CloseAll();
+                            SignalNativeShutdown();
                         }
 
                         RunNativeLoop();
@@ -269,8 +278,12 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     public void Shutdown() {
         if (Volatile.Read(ref _disposed) != 0) return;
         if (Interlocked.Exchange(ref _shutdownRequested, 1) != 0) return;
-        InfiniFrameNative.ApplicationShutdown(_nativeHandle.DangerousGetHandle());
+        SignalNativeShutdown();
         CloseAll();
+    }
+
+    private void SignalNativeShutdown() {
+        InfiniFrameNative.ApplicationShutdown(_nativeHandle.DangerousGetHandle());
     }
 
     /// <inheritdoc />
