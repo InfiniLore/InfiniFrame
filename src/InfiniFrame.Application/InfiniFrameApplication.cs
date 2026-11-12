@@ -43,6 +43,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     private int _runState;
     private bool _built;
     private int _shutdownRequested;
+    private int _nativeApplicationRegistered;
     
     /// <inheritdoc />
     public IReadOnlyList<IInfiniFrameWindow> Windows {
@@ -283,6 +284,10 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     }
 
     private void SignalNativeShutdown() {
+        // ApplicationShutdown is only valid after ApplicationRegister. Calling it on
+        // an unregistered native application can corrupt the native allocator while
+        // startup is racing an immediate managed Shutdown request.
+        if (Volatile.Read(ref _nativeApplicationRegistered) == 0) return;
         InfiniFrameNative.ApplicationShutdown(_nativeHandle.DangerousGetHandle());
     }
 
@@ -303,6 +308,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         if (status != InfiniFrameNativeInteropStatus.Success)
             throw new InfiniFrameNativeInteropException(
                 InfiniFrameNative.GetLastErrorMessage() ?? "Could not register native application.");
+        Volatile.Write(ref _nativeApplicationRegistered, 1);
     }
 
     private bool HasRegisteredWindows() {
