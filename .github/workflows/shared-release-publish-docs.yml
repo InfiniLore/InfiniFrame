@@ -21,7 +21,7 @@ concurrency:
 jobs:
     build:
         name: "CI: docs/build"
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
 
         steps:
             -   name: Checkout
@@ -29,10 +29,14 @@ jobs:
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || github.ref }}
 
+            -   name: Read CI tool versions
+                id: versions
+                uses: ./.github/actions/read-tool-versions
+
             -   name: Setup Node
                 uses: actions/setup-node@v7
                 with:
-                    node-version: 26
+                    node-version: ${{ steps.versions.outputs.node }}
 
             -   name: Install Docusaurus Dependencies
                 shell: bash
@@ -53,7 +57,7 @@ jobs:
     deploy:
         name: "CI: docs/deploy"
         needs: build
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
         environment:
             name: github-pages
             url: ${{ steps.deployment.outputs.page_url }}

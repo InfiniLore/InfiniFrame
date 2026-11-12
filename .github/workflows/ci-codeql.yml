@@ -23,7 +23,7 @@ on:
 jobs:
     changes:
         name: Detect Changed Areas
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
         
         permissions:
             contents: read
@@ -105,7 +105,7 @@ jobs:
     analyze-actions:
         name: Analyze Actions
         needs: changes
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
         timeout-minutes: 30
         
         if: >
@@ -144,7 +144,12 @@ jobs:
     analyze-csharp:
         name: Analyze C#
         needs: changes
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
+        container:
+            image: ghcr.io/infinilore/infiniframe-ci:x64-${{ vars.LINUX_CI_IMAGE_VERSION }}@${{ vars.LINUX_CI_IMAGE_DIGEST_X64 }}
+            credentials:
+                username: ${{ github.actor }}
+                password: ${{ secrets.GITHUB_TOKEN }}
         timeout-minutes: 60
         
         if: >
@@ -166,14 +171,6 @@ jobs:
         steps:
             -   name: Checkout
                 uses: actions/checkout@v7
-
-            -   name: Setup dependencies
-                uses: ./.github/actions/setup-dependencies
-                with:
-                    cache-dotnet: false
-                    brew-cache-key: ${{ runner.os }}-brew-codeql-${{ hashFiles('.github/actions/setup-dependencies/action.yml', '.github/workflows/shared-testing-macos.yml') }}
-                    brew-restore-key: ${{ runner.os }}-brew-codeql-
-                    restore-nativebridge-packages: 'true'
 
             -   name: Initialize CodeQL
                 uses: github/codeql-action/init@v4
@@ -218,9 +215,6 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                    -   os: ubuntu-latest
-                        arch: x64
-
                     -   os: windows-latest
                         arch: x64
 
@@ -269,11 +263,62 @@ jobs:
                 uses: github/codeql-action/analyze@v4
                 with:
                     category: "/language:c-cpp/${{ matrix.os }}-${{ matrix.arch }}"
+
+    analyze-cpp-linux:
+        name: Analyze C/C++ (linux / ${{ matrix.arch }})
+        needs: changes
+        runs-on: ${{ matrix.os }}
+        container:
+            image: ghcr.io/infinilore/infiniframe-ci:${{ matrix.arch }}-${{ vars.LINUX_CI_IMAGE_VERSION }}@${{ matrix.arch == 'x64' && vars.LINUX_CI_IMAGE_DIGEST_X64 || vars.LINUX_CI_IMAGE_DIGEST_ARM64 }}
+            credentials:
+                username: ${{ github.actor }}
+                password: ${{ secrets.GITHUB_TOKEN }}
+        timeout-minutes: 90
+        if: >
+            (
+              github.event_name == 'workflow_dispatch' &&
+              github.event.inputs.full_scan == 'true'
+            ) || (
+              needs.changes.outputs.cpp == 'true'
+            )
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - os: ubuntu-26.04
+                      arch: x64
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+            packages: read
+            pull-requests: write
+            checks: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v7
+            - name: Restore NativeBridge
+              timeout-minutes: 10
+              run: dotnet restore src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj --verbosity normal /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
+            - name: Initialize CodeQL
+              uses: github/codeql-action/init@v4
+              with:
+                  languages: c-cpp
+                  build-mode: manual
+                  queries: security-extended,security-and-quality
+                  config-file: ./.github/codeql-config.yml
+            - name: Build NativeBridge
+              timeout-minutes: 45
+              run: dotnet build src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj --configuration Release --no-restore /p:SolutionDir=${{ github.workspace }}/ /p:NativeArch=${{ matrix.arch }}
+            - name: Perform CodeQL Analysis
+              uses: github/codeql-action/analyze@v4
+              with:
+                  category: "/language:c-cpp/linux-${{ matrix.arch }}"
     
     analyze-javascript-typescript:
         name: Analyze JavaScript / TypeScript
         needs: changes
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
         timeout-minutes: 45
         
         if: >
@@ -312,7 +357,7 @@ jobs:
     analyze-python:
         name: Analyze Python
         needs: changes
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
         timeout-minutes: 45
         
         if: >

@@ -143,10 +143,27 @@
             BeforeTargets="_GetPackageFiles"
             Condition="'@(_NativeArtifactForPack)'!=''">
         <ItemGroup>
-            <_PackageFiles Include="@(_NativeArtifactForPack)">
+            <_NativeArtifactForPackWithoutLoaders Include="@(_NativeArtifactForPack)" />
+            <_NativeArtifactForPackWithoutLoaders Remove="$(WindowsX64)/WebView2Loader.dll;$(WindowsArm64)/WebView2Loader.dll" />
+            <_PackageFiles Include="@(_NativeArtifactForPackWithoutLoaders)">
                 <PackagePath>runtimes/%(RuntimeRid)/native/%(LinkName)</PackagePath>
                 <BuildAction>Content</BuildAction>
             </_PackageFiles>
+
+            <!-- WebView2Loader.dll is a loader rather than the bridge library. Keep
+                 explicit SDK pack items for it because the pack pipeline can omit
+                 these two Windows-only files when they arrive only through the
+                 internal _PackageFiles item list. -->
+            <Content Include="$(WindowsX64)/WebView2Loader.dll"
+                     Condition="Exists('$(WindowsX64)/WebView2Loader.dll')"
+                     Pack="true">
+                <PackagePath>runtimes/win-x64/native/WebView2Loader.dll</PackagePath>
+            </Content>
+            <Content Include="$(WindowsArm64)/WebView2Loader.dll"
+                     Condition="Exists('$(WindowsArm64)/WebView2Loader.dll')"
+                     Pack="true">
+                <PackagePath>runtimes/win-arm64/native/WebView2Loader.dll</PackagePath>
+            </Content>
         </ItemGroup>
     </Target>
 

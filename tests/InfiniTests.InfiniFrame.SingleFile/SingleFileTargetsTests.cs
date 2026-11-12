@@ -8,6 +8,11 @@ namespace InfiniTests.InfiniFrame.SingleFile;
 public class SingleFileTargetsTests {
 
     private static string GetRepoRoot() {
+        string? githubWorkspace = Environment.GetEnvironmentVariable("GITHUB_WORKSPACE");
+        if (!string.IsNullOrWhiteSpace(githubWorkspace) &&
+            File.Exists(Path.Join(githubWorkspace, "src", "InfiniFrame.SingleFile", "InfiniFrame.SingleFile.targets")))
+            return githubWorkspace;
+
         string? dir = AppContext.BaseDirectory;
         while (dir is not null) {
             if (Directory.Exists(Path.Join(dir, ".git")))

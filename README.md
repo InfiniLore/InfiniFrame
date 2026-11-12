@@ -197,65 +197,12 @@ npm --prefix docs run build
 | Linux    | WebKit2GTK          | GTK 3+                                |
 | macOS    | WKWebView           | macOS 10.15 Catalina or later         |
 
-## Run Linux GUI Tests In Docker
+## Linux CI Images
 
-Linux application lifecycle and WebKit tests run under WSL2/WSLg. Install the SDKs listed in `global.json`, CMake, Ninja, GCC/G++, Clang, `pkg-config`, GTK 3, WebKitGTK 4.1, libnotify, and X11 development packages in the WSL distribution. Run `bash ./docker/linux/run-linux-tests-wslg.sh` from WSL; the native library is built in Linux and is never taken from the Windows output.
-
-The full scripts reference lives in docs:
-
-- [Scripts Reference](https://docs.infiniframe.dev/guides/scripts)
-
-Local Docker wrappers are under `docker/scripts/` (Linux/Windows test runs and Playwright runs). Shared helper scripts
-(for example NuGet bootstrap) remain in `scripts/`.
-
-## Docker Matrix (Local)
-
-Additional compose targets and wrappers are available for local matrix validation:
-
-- `docker/compose/infiniframe-linux.yml` + `docker/scripts/docker-linux-*.sh`
-- `docker/compose/infiniframe-linux-arm64.yml` + `docker/scripts/docker-linux-arm64-*.sh`
-- `docker/compose/infiniframe-linux-wayland.yml` + `docker/scripts/docker-linux-wayland-*.sh`
-- `docker/compose/infiniframe-windows.yml` + `docker/scripts/docker-windows-*.ps1`
-
-## Local GitHub Actions Harness
-
-You can run a local CI harness with a dedicated `act` runner image:
-
-- `docker/compose/infiniframe-gha-local.yml`
-- `docker/gha-local/Dockerfile`
-- `docker/scripts/docker-gha-local-*.sh`
-
-Build the local runner image:
-
-```bash
-bash docker/scripts/docker-gha-local-compose.sh
-```
-
-```powershell
-.\docker\scripts\docker-gha-local-compose.ps1
-```
-
-Run Linux GitHub Actions test workflow locally with `act`:
-
-```bash
-bash docker/scripts/docker-gha-local-run-linux-actions.sh
-```
-
-```powershell
-.\docker\scripts\docker-gha-local-run-linux-actions.ps1
-```
-
-Run Windows workflow-equivalent validations in local Windows containers:
-
-```powershell
-.\docker\scripts\docker-windows-compose.ps1
-.\docker\scripts\docker-gha-local-run-windows-actions.ps1
-```
-
-Notes:
-
-- `act` cannot run native `runs-on: windows-*` jobs directly. Use the Windows Docker wrappers for local Windows parity.
-- By default local runs set `LOCAL_GHA_SKIP_STATUS=1` to skip GitHub status/check API updates.
+Linux GUI tests run in the prebuilt GHCR image published by
+`.github/workflows/ci-build-linux-images.yml`. The image is built for x64 and
+ARM64 from `.github/ci/linux-image/Dockerfile`; X11 and Wayland startup remains
+in `.github/workflows/shared-testing-linux.yml`.
 
 ## Repo History
 

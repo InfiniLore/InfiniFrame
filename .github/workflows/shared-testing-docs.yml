@@ -22,7 +22,7 @@ permissions:
 jobs:
     docs-validation:
         name: "CI: docs"
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
         
@@ -32,10 +32,14 @@ jobs:
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || env.TARGET_SHA }}
 
+            -   name: Read CI tool versions
+                id: versions
+                uses: ./.github/actions/read-tool-versions
+
             -   name: Setup Node
                 uses: actions/setup-node@v7
                 with:
-                    node-version: 26
+                    node-version: ${{ steps.versions.outputs.node }}
                     cache: npm
                     cache-dependency-path: |
                         docs/package-lock.json

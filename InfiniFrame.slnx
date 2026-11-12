@@ -13,22 +13,6 @@
     <File Path="badges/cs-coverage.json" />
     <File Path="badges/ts-coverage.json" />
   </Folder>
-  <Folder Name="/.dev-tools/devcontainer/">
-    <File Path=".devcontainer/devcontainer.json" />
-    <File Path=".devcontainer/docker-compose.yml" />
-    <File Path=".devcontainer/Dockerfile" />
-    <File Path=".devcontainer/postcreate.sh" />
-  </Folder>
-  <Folder Name="/.dev-tools/docker/" />
-  <Folder Name="/.dev-tools/docker/linux/">
-    <File Path="docker/linux/docker-compose.yml" />
-    <File Path="docker/linux/Dockerfile" />
-    <File Path="docker/linux/entrypoint.sh" />
-    <File Path="docker/linux/run-example-blazorwebview-wslg.ps1" />
-    <File Path="docker/linux/run-example-blazorwebview-wslg.sh" />
-    <File Path="docker/linux/run-linux-tests-wslg.ps1" />
-    <File Path="docker/linux/run-linux-tests-wslg.sh" />
-  </Folder>
   <Folder Name="/.dev-tools/filters/">
     <File Path="InfiniFrame.GitHubActions.Release.slnf" />
     <File Path="InfiniFrame.GitHubActions.slnf" />
