@@ -25,7 +25,7 @@
         <InfiniFrameEnableTestExports Condition="'$(InfiniFrameEnableTestExports)'=='' and '$(Configuration)'=='Debug'">true</InfiniFrameEnableTestExports>
         <InfiniFrameEnableTestExports Condition="'$(InfiniFrameEnableTestExports)'==''">false</InfiniFrameEnableTestExports>
         <NativeStamp>$(NativeOutputRoot)/$(NativePlatform)/$(NativeArch)/$(Configuration)/.build.$(InfiniFrameEnableTestExports).stamp</NativeStamp>
-        <BeforePack>IncludeCurrentNativeArtifactsForCopyAndPack;$(BeforePack)</BeforePack>
+        <BeforePack>IncludeNativeArtifactsForPack;IncludeCurrentNativeArtifactsForCopyAndPack;$(BeforePack)</BeforePack>
 
         <WindowsX64>$(NativeOutputRoot)/windows/x64/$(Configuration)</WindowsX64>
         <WindowsArm64>$(NativeOutputRoot)/windows/arm64/$(Configuration)</WindowsArm64>
@@ -130,40 +130,51 @@
         </_NativeArtifactForPack>
     </ItemGroup>
 
-    <ItemGroup>
-        <None Include="$(WindowsX64)/InfiniFrame.Native.dll"
-              Condition="Exists('$(WindowsX64)/InfiniFrame.Native.dll')"
-              Pack="true"
-              PackagePath="runtimes/win-x64/native/InfiniFrame.Native.dll" />
-        <None Include="$(WindowsX64)/WebView2Loader.dll"
-              Condition="Exists('$(WindowsX64)/WebView2Loader.dll')"
-              Pack="true"
-              PackagePath="runtimes/win-x64/native/WebView2Loader.dll" />
-        <None Include="$(WindowsArm64)/InfiniFrame.Native.dll"
-              Condition="Exists('$(WindowsArm64)/InfiniFrame.Native.dll')"
-              Pack="true"
-              PackagePath="runtimes/win-arm64/native/InfiniFrame.Native.dll" />
-        <None Include="$(WindowsArm64)/WebView2Loader.dll"
-              Condition="Exists('$(WindowsArm64)/WebView2Loader.dll')"
-              Pack="true"
-              PackagePath="runtimes/win-arm64/native/WebView2Loader.dll" />
-        <None Include="$(LinuxX64)/InfiniFrame.Native.so"
-              Condition="Exists('$(LinuxX64)/InfiniFrame.Native.so')"
-              Pack="true"
-              PackagePath="runtimes/linux-x64/native/InfiniFrame.Native.so" />
-        <None Include="$(LinuxArm64)/InfiniFrame.Native.so"
-              Condition="Exists('$(LinuxArm64)/InfiniFrame.Native.so')"
-              Pack="true"
-              PackagePath="runtimes/linux-arm64/native/InfiniFrame.Native.so" />
-        <None Include="$(MacOsX64)/InfiniFrame.Native.dylib"
-              Condition="Exists('$(MacOsX64)/InfiniFrame.Native.dylib')"
-              Pack="true"
-              PackagePath="runtimes/osx-x64/native/InfiniFrame.Native.dylib" />
-        <None Include="$(MacOsArm64)/InfiniFrame.Native.dylib"
-              Condition="Exists('$(MacOsArm64)/InfiniFrame.Native.dylib')"
-              Pack="true"
-              PackagePath="runtimes/osx-arm64/native/InfiniFrame.Native.dylib" />
-    </ItemGroup>
+    <Target Name="IncludeNativeArtifactsForPack"
+            BeforeTargets="_GetPackageFiles">
+        <ItemGroup>
+            <_PackageFiles Include="$(WindowsX64)/InfiniFrame.Native.dll"
+                           Condition="Exists('$(WindowsX64)/InfiniFrame.Native.dll')">
+                <PackagePath>runtimes/win-x64/native/InfiniFrame.Native.dll</PackagePath>
+                <BuildAction>Content</BuildAction>
+            </_PackageFiles>
+            <_PackageFiles Include="$(WindowsX64)/WebView2Loader.dll"
+                           Condition="Exists('$(WindowsX64)/WebView2Loader.dll')">
+                <PackagePath>runtimes/win-x64/native/WebView2Loader.dll</PackagePath>
+                <BuildAction>Content</BuildAction>
+            </_PackageFiles>
+            <_PackageFiles Include="$(WindowsArm64)/InfiniFrame.Native.dll"
+                           Condition="Exists('$(WindowsArm64)/InfiniFrame.Native.dll')">
+                <PackagePath>runtimes/win-arm64/native/InfiniFrame.Native.dll</PackagePath>
+                <BuildAction>Content</BuildAction>
+            </_PackageFiles>
+            <_PackageFiles Include="$(WindowsArm64)/WebView2Loader.dll"
+                           Condition="Exists('$(WindowsArm64)/WebView2Loader.dll')">
+                <PackagePath>runtimes/win-arm64/native/WebView2Loader.dll</PackagePath>
+                <BuildAction>Content</BuildAction>
+            </_PackageFiles>
+            <_PackageFiles Include="$(LinuxX64)/InfiniFrame.Native.so"
+                           Condition="Exists('$(LinuxX64)/InfiniFrame.Native.so')">
+                <PackagePath>runtimes/linux-x64/native/InfiniFrame.Native.so</PackagePath>
+                <BuildAction>Content</BuildAction>
+            </_PackageFiles>
+            <_PackageFiles Include="$(LinuxArm64)/InfiniFrame.Native.so"
+                           Condition="Exists('$(LinuxArm64)/InfiniFrame.Native.so')">
+                <PackagePath>runtimes/linux-arm64/native/InfiniFrame.Native.so</PackagePath>
+                <BuildAction>Content</BuildAction>
+            </_PackageFiles>
+            <_PackageFiles Include="$(MacOsX64)/InfiniFrame.Native.dylib"
+                           Condition="Exists('$(MacOsX64)/InfiniFrame.Native.dylib')">
+                <PackagePath>runtimes/osx-x64/native/InfiniFrame.Native.dylib</PackagePath>
+                <BuildAction>Content</BuildAction>
+            </_PackageFiles>
+            <_PackageFiles Include="$(MacOsArm64)/InfiniFrame.Native.dylib"
+                           Condition="Exists('$(MacOsArm64)/InfiniFrame.Native.dylib')">
+                <PackagePath>runtimes/osx-arm64/native/InfiniFrame.Native.dylib</PackagePath>
+                <BuildAction>Content</BuildAction>
+            </_PackageFiles>
+        </ItemGroup>
+    </Target>
 
     <Target Name="BuildNative"
             BeforeTargets="DispatchToInnerBuilds;PrepareForBuild"
@@ -208,7 +219,7 @@
                 <Pack>false</Pack>
             </None>
             <_PackageFiles Include="@(_CurrentNativeArtifactToPack)">
-                <PackagePath>runtimes/%(RuntimeRid)/native/%(LinkName)</PackagePath>
+                <PackagePath>runtimes/%(_CurrentNativeArtifactToPack.RuntimeRid)/native/%(_CurrentNativeArtifactToPack.LinkName)</PackagePath>
                 <BuildAction>Content</BuildAction>
             </_PackageFiles>
         </ItemGroup>
