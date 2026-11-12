@@ -133,46 +133,46 @@
     <Target Name="IncludeNativeArtifactsForPack"
             BeforeTargets="_GetPackageFiles">
         <ItemGroup>
-            <_PackageFiles Include="$(WindowsX64)/InfiniFrame.Native.dll"
-                           Condition="Exists('$(WindowsX64)/InfiniFrame.Native.dll')">
+            <None Include="$(WindowsX64)/InfiniFrame.Native.dll"
+                  Condition="Exists('$(WindowsX64)/InfiniFrame.Native.dll')"
+                  Pack="true">
                 <PackagePath>runtimes/win-x64/native/InfiniFrame.Native.dll</PackagePath>
-                <BuildAction>Content</BuildAction>
-            </_PackageFiles>
-            <_PackageFiles Include="$(WindowsX64)/WebView2Loader.dll"
-                           Condition="Exists('$(WindowsX64)/WebView2Loader.dll')">
+            </None>
+            <None Include="$(WindowsX64)/WebView2Loader.dll"
+                  Condition="Exists('$(WindowsX64)/WebView2Loader.dll')"
+                  Pack="true">
                 <PackagePath>runtimes/win-x64/native/WebView2Loader.dll</PackagePath>
-                <BuildAction>Content</BuildAction>
-            </_PackageFiles>
-            <_PackageFiles Include="$(WindowsArm64)/InfiniFrame.Native.dll"
-                           Condition="Exists('$(WindowsArm64)/InfiniFrame.Native.dll')">
+            </None>
+            <None Include="$(WindowsArm64)/InfiniFrame.Native.dll"
+                  Condition="Exists('$(WindowsArm64)/InfiniFrame.Native.dll')"
+                  Pack="true">
                 <PackagePath>runtimes/win-arm64/native/InfiniFrame.Native.dll</PackagePath>
-                <BuildAction>Content</BuildAction>
-            </_PackageFiles>
-            <_PackageFiles Include="$(WindowsArm64)/WebView2Loader.dll"
-                           Condition="Exists('$(WindowsArm64)/WebView2Loader.dll')">
+            </None>
+            <None Include="$(WindowsArm64)/WebView2Loader.dll"
+                  Condition="Exists('$(WindowsArm64)/WebView2Loader.dll')"
+                  Pack="true">
                 <PackagePath>runtimes/win-arm64/native/WebView2Loader.dll</PackagePath>
-                <BuildAction>Content</BuildAction>
-            </_PackageFiles>
-            <_PackageFiles Include="$(LinuxX64)/InfiniFrame.Native.so"
-                           Condition="Exists('$(LinuxX64)/InfiniFrame.Native.so')">
+            </None>
+            <None Include="$(LinuxX64)/InfiniFrame.Native.so"
+                  Condition="Exists('$(LinuxX64)/InfiniFrame.Native.so')"
+                  Pack="true">
                 <PackagePath>runtimes/linux-x64/native/InfiniFrame.Native.so</PackagePath>
-                <BuildAction>Content</BuildAction>
-            </_PackageFiles>
-            <_PackageFiles Include="$(LinuxArm64)/InfiniFrame.Native.so"
-                           Condition="Exists('$(LinuxArm64)/InfiniFrame.Native.so')">
+            </None>
+            <None Include="$(LinuxArm64)/InfiniFrame.Native.so"
+                  Condition="Exists('$(LinuxArm64)/InfiniFrame.Native.so')"
+                  Pack="true">
                 <PackagePath>runtimes/linux-arm64/native/InfiniFrame.Native.so</PackagePath>
-                <BuildAction>Content</BuildAction>
-            </_PackageFiles>
-            <_PackageFiles Include="$(MacOsX64)/InfiniFrame.Native.dylib"
-                           Condition="Exists('$(MacOsX64)/InfiniFrame.Native.dylib')">
+            </None>
+            <None Include="$(MacOsX64)/InfiniFrame.Native.dylib"
+                  Condition="Exists('$(MacOsX64)/InfiniFrame.Native.dylib')"
+                  Pack="true">
                 <PackagePath>runtimes/osx-x64/native/InfiniFrame.Native.dylib</PackagePath>
-                <BuildAction>Content</BuildAction>
-            </_PackageFiles>
-            <_PackageFiles Include="$(MacOsArm64)/InfiniFrame.Native.dylib"
-                           Condition="Exists('$(MacOsArm64)/InfiniFrame.Native.dylib')">
+            </None>
+            <None Include="$(MacOsArm64)/InfiniFrame.Native.dylib"
+                  Condition="Exists('$(MacOsArm64)/InfiniFrame.Native.dylib')"
+                  Pack="true">
                 <PackagePath>runtimes/osx-arm64/native/InfiniFrame.Native.dylib</PackagePath>
-                <BuildAction>Content</BuildAction>
-            </_PackageFiles>
+            </None>
         </ItemGroup>
     </Target>
 
