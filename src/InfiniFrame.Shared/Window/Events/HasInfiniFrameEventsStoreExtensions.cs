@@ -251,7 +251,7 @@ public static class HasInfiniFrameEventsStoreExtensions {
 
         ArgumentNullException.ThrowIfNull(handler);
 
-        string schemeLower = scheme.ToLower();
+        string schemeLower = scheme.ToLowerInvariant();
 
         if (builder.EventsStore.CustomScheme.Count > 15 && !builder.EventsStore.CustomScheme.ContainsKey(schemeLower))
             throw new ApplicationException("No more than 16 custom schemes can be set prior to initialization. Additional handlers can be added after initialization.");
@@ -271,7 +271,7 @@ public static class HasInfiniFrameEventsStoreExtensions {
     public static IInfiniFrameWindow RegisterCustomSchemeHandler(this IInfiniFrameWindow window, string scheme, Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler) {
         if (string.IsNullOrWhiteSpace(scheme)) throw new ArgumentException("A scheme must be provided. (for example 'app' or 'custom'");
 
-        string schemeLower = scheme.ToLower();
+        string schemeLower = scheme.ToLowerInvariant();
 
         ILogger logger = window.ServiceProvider?.GetService(typeof(ILogger)) as ILogger ?? NullLogger.Instance;
 
