@@ -178,8 +178,7 @@ namespace {
         TraceTeardown(L"WM_DESTROY end hwnd=%p instance=%p", hwnd, instance);
         if (application) {
             application->NotifyWindowClosed(instance);
-        }
-        else if (InfiniFrameApplication* currentApplication = InfiniFrameApplication::GetInstance())
+        } else if (InfiniFrameApplication* currentApplication = InfiniFrameApplication::GetInstance())
             currentApplication->NotifyWindowClosed(instance);
         else if (hwnd == GetMessageLoopRootWindowHandle())
             PostQuitMessage(0);
@@ -325,7 +324,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         }
         case WM_NCDESTROY: {
             if (auto* instance = LookupWindowInstance(hwnd))
-            cleanup_window_instance(hwnd, instance, InfiniFrameWindowAccess::Get(*instance));
+                cleanup_window_instance(hwnd, instance, InfiniFrameWindowAccess::Get(*instance));
             else
                 SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
             break;

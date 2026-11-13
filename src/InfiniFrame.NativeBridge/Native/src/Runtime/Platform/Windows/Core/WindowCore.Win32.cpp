@@ -178,7 +178,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) {
     if (webView2RuntimePath != nullptr && webView2RuntimePath[0] != '\0')
         m_impl->common._webView2RuntimePath = ToUTF16String(webView2RuntimePath);
 
-    const char* notificationRegistrationId = application == nullptr ? nullptr : application->GetNotificationRegistrationId();
+    const char* notificationRegistrationId = application == nullptr
+        ? nullptr
+        : application->GetNotificationRegistrationId();
     if (notificationRegistrationId != nullptr && notificationRegistrationId[0] != '\0')
         m_impl->_notificationRegistrationId = ToUTF16String(notificationRegistrationId);
     m_impl->common._remoteDebuggingPort = initParams->RemoteDebuggingPort;

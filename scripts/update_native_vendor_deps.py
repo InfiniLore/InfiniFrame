@@ -18,6 +18,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MANIFEST_PATH = REPO_ROOT / "native-vendor-deps.json"
 
+
 # ---------------------------------------------------------------------------------------------------------------------
 # Code
 # ---------------------------------------------------------------------------------------------------------------------
@@ -47,6 +48,7 @@ def download_file(url: str, destination: Path, token: str) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
     with urllib.request.urlopen(request, timeout=120) as response:
         destination.write_bytes(response.read())
+
 
 def get_latest_release(repo: str, token: str) -> tuple[str | None, dict[str, str]]:
     url = f"https://api.github.com/repos/{repo}/releases/latest"
@@ -139,16 +141,16 @@ def update_manifest(manifest_path: Path, check_only: bool) -> int:
             for asset_entry in assets:
                 if not isinstance(asset_entry, dict):
                     raise RuntimeError(f"Library {name} has invalid asset entry")
-    
+
                 asset_name = asset_entry.get("asset")
                 destination = asset_entry.get("destination")
                 if not isinstance(asset_name, str) or not isinstance(destination, str):
                     raise RuntimeError(f"Library {name} has invalid asset definition")
-    
+
                 download_url = latest_assets.get(asset_name)
                 if not download_url:
                     raise RuntimeError(f"Asset '{asset_name}' not found in latest release for {repo}")
-    
+
                 destination_path = REPO_ROOT / destination
                 print(f"  downloading {asset_name} -> {destination}")
                 download_file(download_url, destination_path, token)

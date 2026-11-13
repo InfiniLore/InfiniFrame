@@ -178,6 +178,7 @@ EXPORTED InteropStatus InfiniFrameNative_GetWebSecurityEnabled(InfiniFrameWindow
 /// @param enabled Output flag set to true if JavaScript clipboard access is enabled.
 /// @return InteropStatus
 EXPORTED InteropStatus
+
 InfiniFrameNative_GetJavascriptClipboardAccessEnabled(InfiniFrameWindow* instance, bool* enabled) {
     ResetOut(enabled, false);
     return RunWindowExportStatus(

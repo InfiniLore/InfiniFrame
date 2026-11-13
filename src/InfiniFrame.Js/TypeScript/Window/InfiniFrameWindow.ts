@@ -7,8 +7,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type { InfiniFrameWindow as InfiniFrameWindowContract } from "../Contracts";
-import { InfiniFrameWindowFeatures } from "./InfiniFrameWindowFeatures";
+import type {InfiniFrameWindow as InfiniFrameWindowContract} from "../Contracts";
+import {InfiniFrameWindowFeatures} from "./InfiniFrameWindowFeatures";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -18,6 +18,6 @@ import { InfiniFrameWindowFeatures } from "./InfiniFrameWindowFeatures";
  * Represents a native window and provides access to its features and messaging capabilities.
  */
 export class InfiniFrameWindow implements InfiniFrameWindowContract {
-	/** The collection of all window feature implementations (browser, debugging, decorations, etc.). */
-	readonly features = new InfiniFrameWindowFeatures();
+    /** The collection of all window feature implementations (browser, debugging, decorations, etc.). */
+    readonly features = new InfiniFrameWindowFeatures();
 }

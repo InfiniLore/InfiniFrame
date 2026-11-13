@@ -41,7 +41,7 @@ public class LifecycleInfiniFrameWindowFeature(
     private int _milestoneRootReleased;
     private int _nativeCallbackRootReleased;
     public InfiniFrameWindowLifecycleState State => window.LifecycleState;
-    
+
     /// <summary>Synchronization lock for thread-safe access to pending task state.</summary>
     private readonly Lock _closeAttemptLock = new();
 
@@ -105,7 +105,9 @@ public class LifecycleInfiniFrameWindowFeature(
 
             try {
                 if (OperatingSystem.IsWindows()) InfiniFrameNative.RegisterWin32(window.MainProgramHandle);
-                else if (OperatingSystem.IsMacOS()) { /* Application owns AppKit registration. */ }
+                else if (OperatingSystem.IsMacOS()) {
+                    /* Application owns AppKit registration. */
+                }
                 else if (OperatingSystem.IsLinux()) {}// No specific implementation for Linux
                 else throw new PlatformNotSupportedException();
 
@@ -249,7 +251,8 @@ public class LifecycleInfiniFrameWindowFeature(
     public ValueTask WaitForTeardownAsync(CancellationToken ct = default) {
         if (window.LifecycleState >= InfiniFrameWindowLifecycleState.TeardownComplete)
             return ValueTask.CompletedTask;
-        return new(_teardown.Task.WaitAsync(ct));
+
+        return new ValueTask(_teardown.Task.WaitAsync(ct));
     }
 
     /// <inheritdoc cref="ILifecycleInfiniFrameWindowFeature.Close" />

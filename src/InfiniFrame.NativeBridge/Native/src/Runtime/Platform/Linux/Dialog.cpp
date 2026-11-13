@@ -10,6 +10,7 @@
 #include "Runtime/Internal/Utilities/StringArrayCopy.h"
 
 struct InfiniFrameDialog::Impl {};
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -141,7 +142,8 @@ const char** ShowDialog(
     return arr;
 }
 
-InfiniFrameDialog::InfiniFrameDialog() : m_impl(std::make_unique<Impl>()) {}
+InfiniFrameDialog::InfiniFrameDialog() :
+    m_impl(std::make_unique<Impl>()) {}
 
 InfiniFrameDialog::~InfiniFrameDialog() {}
 

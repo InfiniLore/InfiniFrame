@@ -28,9 +28,11 @@ HRESULT InfiniFrameWindow::ApplyInitialWebViewSettings() {
         SetBrowserShortcutsEnabled(false);
     if (m_impl->common._transparentEnabled)
         SetTransparentEnabled(true);
-    if (m_impl->common._backgroundColorR != 0 || m_impl->common._backgroundColorG != 0 || m_impl->common._backgroundColorB != 0 || m_impl->common._backgroundColorA != 0)
+    if (m_impl->common._backgroundColorR != 0 || m_impl->common._backgroundColorG != 0 || m_impl->common.
+        _backgroundColorB != 0 || m_impl->common._backgroundColorA != 0)
         SetBackgroundColor(
-            m_impl->common._backgroundColorR, m_impl->common._backgroundColorG, m_impl->common._backgroundColorB, m_impl->common._backgroundColorA);
+            m_impl->common._backgroundColorR, m_impl->common._backgroundColorG, m_impl->common._backgroundColorB,
+            m_impl->common._backgroundColorA);
     if (m_impl->_zoom != 100)
         SetZoom(m_impl->_zoom);
 

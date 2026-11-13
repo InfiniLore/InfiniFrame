@@ -1,42 +1,42 @@
 ﻿<Project>
-  <PropertyGroup>
-    <!-- Enable central package management, https://learn.microsoft.com/en-us/nuget/consume-packages/Central-Package-Management -->
-    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-  </PropertyGroup>
-  <!-- .NET 10 -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
-    <PackageVersion Include="Microsoft.AspNetCore.Components.WebView" Version="[10.0.15]" />
-  </ItemGroup>
-  <!-- .NET 11 -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
-    <PackageVersion Include="Microsoft.AspNetCore.Components.WebView" Version="11.0.0" />
-  </ItemGroup>
-  <!-- Common packages for all frameworks -->
-  <ItemGroup>
-    <PackageVersion Include="FluentValidation" Version="12.2.0" />
-    <PackageVersion Include="JetBrains.Annotations" Version="2026.2.0" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="11.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.FileProviders.Abstractions" Version="11.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.FileProviders.Composite" Version="11.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="11.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.FileProviders.Physical" Version="11.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="11.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="11.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="11.0.0" />
-    <PackageVersion Include="Microsoft.Playwright" Version="1.64.1" />
-    <PackageVersion Include="Microsoft.Testing.Platform" Version="2.5.3" />
-    <PackageVersion Include="Microsoft.Web.WebView2" Version="1.0.4314.35" />
-    <PackageVersion Include="Microsoft.Windows.ImplementationLibrary" Version="1.0.260126.7" />
-    <PackageVersion Include="MudBlazor" Version="9.12.0" />
-    <PackageVersion Include="Serilog" Version="4.4.0" />
-    <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
-    <PackageVersion Include="Serilog.Sinks.Async" Version="2.1.0" />
-    <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
-    <PackageVersion Include="TUnit" Version="1.84.0" />
-    <PackageVersion Include="TUnit.Assertions" Version="1.84.0" />
-    <PackageVersion Include="TUnit.Core" Version="1.84.0" />
-    <PackageVersion Include="TUnit.Mocks" Version="1.84.0" />
-    <PackageVersion Include="TUnit.Playwright" Version="1.84.0" />
-    <PackageVersion Include="bUnit" Version="2.15.2" />
-  </ItemGroup>
+    <PropertyGroup>
+        <!-- Enable central package management, https://learn.microsoft.com/en-us/nuget/consume-packages/Central-Package-Management -->
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    </PropertyGroup>
+    <!-- .NET 10 -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+        <PackageVersion Include="Microsoft.AspNetCore.Components.WebView" Version="[10.0.15]"/>
+    </ItemGroup>
+    <!-- .NET 11 -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+        <PackageVersion Include="Microsoft.AspNetCore.Components.WebView" Version="11.0.0"/>
+    </ItemGroup>
+    <!-- Common packages for all frameworks -->
+    <ItemGroup>
+        <PackageVersion Include="FluentValidation" Version="12.2.0"/>
+        <PackageVersion Include="JetBrains.Annotations" Version="2026.2.0"/>
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="11.0.0"/>
+        <PackageVersion Include="Microsoft.Extensions.FileProviders.Abstractions" Version="11.0.0"/>
+        <PackageVersion Include="Microsoft.Extensions.FileProviders.Composite" Version="11.0.0"/>
+        <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="11.0.0"/>
+        <PackageVersion Include="Microsoft.Extensions.FileProviders.Physical" Version="11.0.0"/>
+        <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="11.0.0"/>
+        <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="11.0.0"/>
+        <PackageVersion Include="Microsoft.Extensions.Options" Version="11.0.0"/>
+        <PackageVersion Include="Microsoft.Playwright" Version="1.64.1"/>
+        <PackageVersion Include="Microsoft.Testing.Platform" Version="2.5.3"/>
+        <PackageVersion Include="Microsoft.Web.WebView2" Version="1.0.4314.35"/>
+        <PackageVersion Include="Microsoft.Windows.ImplementationLibrary" Version="1.0.260126.7"/>
+        <PackageVersion Include="MudBlazor" Version="9.12.0"/>
+        <PackageVersion Include="Serilog" Version="4.4.0"/>
+        <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0"/>
+        <PackageVersion Include="Serilog.Sinks.Async" Version="2.1.0"/>
+        <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1"/>
+        <PackageVersion Include="TUnit" Version="1.84.0"/>
+        <PackageVersion Include="TUnit.Assertions" Version="1.84.0"/>
+        <PackageVersion Include="TUnit.Core" Version="1.84.0"/>
+        <PackageVersion Include="TUnit.Mocks" Version="1.84.0"/>
+        <PackageVersion Include="TUnit.Playwright" Version="1.84.0"/>
+        <PackageVersion Include="bUnit" Version="2.15.2"/>
+    </ItemGroup>
 </Project>

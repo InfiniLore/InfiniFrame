@@ -104,7 +104,9 @@ void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameWindowInitPa
     common._parent = initParams->ParentInstance;
 }
 
-void InfiniFrameWindow::Impl::ConfigureInitialWindow(InfiniFrameWindow* window, InfiniFrameWindowInitParams* initParams) {
+void InfiniFrameWindow::Impl::ConfigureInitialWindow(
+    InfiniFrameWindow* window,
+    InfiniFrameWindowInitParams* initParams) {
     _window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     common._dialog = std::make_unique<InfiniFrameDialog>();
 
@@ -188,14 +190,14 @@ void InfiniFrameWindow::Impl::ConnectWindowSignals(InfiniFrameWindow* window) {
             G_OBJECT(_window), "drag-data-received",
             G_CALLBACK(
                 +[](
-                GtkWidget* /*widget*/,
-                GdkDragContext* context,
-                const gint x,
-                const gint y,
-                GtkSelectionData* data,
-                guint /*info*/,
-                const guint time,
-                const gpointer userData) {
+                    GtkWidget* /*widget*/,
+                    GdkDragContext* context,
+                    const gint x,
+                    const gint y,
+                    GtkSelectionData* data,
+                    guint /*info*/,
+                    const guint time,
+                    const gpointer userData) {
                     auto* instance = static_cast<InfiniFrameWindow*>(userData);
 
                     gchar** uris = gtk_selection_data_get_uris(data);

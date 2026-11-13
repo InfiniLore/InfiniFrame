@@ -112,7 +112,7 @@ internal static partial class NativeInvoke {
             logger,
             windowHandleOwner,
             managedThreadId,
-            callback: callback,
+            callback,
             access);
         EnsureSuccess(logger, status);
     }
@@ -330,7 +330,7 @@ internal static partial class NativeInvoke {
             logger,
             windowHandleOwner,
             managedThreadId,
-            callback: callback
+            callback
         );
 
         EnsureSuccess(logger, status);

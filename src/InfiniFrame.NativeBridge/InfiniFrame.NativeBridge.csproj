@@ -8,18 +8,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+        <PackageReference Include="FluentValidation"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
         <PackageReference Include="Microsoft.Web.WebView2"
                           Condition="$([MSBuild]::IsOSPlatform('Windows'))"
                           PrivateAssets="all"
-                          ExcludeAssets="all" />
+                          ExcludeAssets="all"/>
         <PackageReference Include="Microsoft.Windows.ImplementationLibrary"
                           Condition="$([MSBuild]::IsOSPlatform('Windows'))"
                           PrivateAssets="all"
-                          ExcludeAssets="all" />
+                          ExcludeAssets="all"/>
     </ItemGroup>
 
-    <Import Project="InfiniFrame.NativeBridge.Native.targets" />
+    <Import Project="InfiniFrame.NativeBridge.Native.targets"/>
 
 </Project>

@@ -37,24 +37,24 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                    - os: ubuntu-26.04
-                      arch: x64
-                      libName: linux
-                    - os: ubuntu-26.04-arm
-                      arch: arm64
-                      libName: linux
+                    -   os: ubuntu-26.04
+                        arch: x64
+                        libName: linux
+                    -   os: ubuntu-26.04-arm
+                        arch: arm64
+                        libName: linux
         steps:
-            - uses: actions/checkout@v7
-              with:
-                  ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || inputs.target_sha) }}
-                  fetch-depth: 1
-            - name: Build Native
-              shell: pwsh
-              run: ./src/InfiniFrame.NativeBridge/native-build.ps1 "Release" "${{ matrix.arch }}" "${{ inputs.enable_test_exports }}"
-            - uses: actions/upload-artifact@v7
-              with:
-                  name: native-testing-${{ matrix.libName }}-${{ matrix.arch }}
-                  path: ${{ github.workspace }}/src/InfiniFrame.NativeBridge/artifacts/native/${{ matrix.libName }}/${{ matrix.arch }}/Release/**
+            -   uses: actions/checkout@v7
+                with:
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || inputs.target_sha) }}
+                    fetch-depth: 1
+            -   name: Build Native
+                shell: pwsh
+                run: ./src/InfiniFrame.NativeBridge/native-build.ps1 "Release" "${{ matrix.arch }}" "${{ inputs.enable_test_exports }}"
+            -   uses: actions/upload-artifact@v7
+                with:
+                    name: native-testing-${{ matrix.libName }}-${{ matrix.arch }}
+                    path: ${{ github.workspace }}/src/InfiniFrame.NativeBridge/artifacts/native/${{ matrix.libName }}/${{ matrix.arch }}/Release/**
 
     build-other:
         name: "CI: ${{ matrix.os }}-${{ matrix.arch }}/build"
@@ -63,35 +63,35 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                    - os: windows-latest
-                      arch: x64
-                      libName: windows
-                    - os: windows-11-arm
-                      arch: arm64
-                      libName: windows
-                    - os: macos-26-intel
-                      arch: x64
-                      libName: osx
-                    - os: macos-latest
-                      arch: arm64
-                      libName: osx
+                    -   os: windows-latest
+                        arch: x64
+                        libName: windows
+                    -   os: windows-11-arm
+                        arch: arm64
+                        libName: windows
+                    -   os: macos-26-intel
+                        arch: x64
+                        libName: osx
+                    -   os: macos-latest
+                        arch: arm64
+                        libName: osx
         steps:
-            - name: Checkout
-              uses: actions/checkout@v7
-              with:
-                  ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || inputs.target_sha) }}
-                  fetch-depth: 1
-            - name: Setup dependencies
-              uses: ./.github/actions/setup-dependencies
-              with:
-                  cache-dotnet: false
-                  brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies/action.yml', '.github/workflows/shared-testing-build.yml') }}
-                  brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
-                  restore-nativebridge-packages: 'true'
-            - name: Build Native
-              shell: pwsh
-              run: ./src/InfiniFrame.NativeBridge/native-build.ps1 "Release" "${{ matrix.arch }}" "${{ inputs.enable_test_exports }}"
-            - uses: actions/upload-artifact@v7
-              with:
-                  name: native-testing-${{ matrix.libName }}-${{ matrix.arch }}
-                  path: ${{ github.workspace }}/src/InfiniFrame.NativeBridge/artifacts/native/${{ matrix.libName }}/${{ matrix.arch }}/Release/**
+            -   name: Checkout
+                uses: actions/checkout@v7
+                with:
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || inputs.target_sha) }}
+                    fetch-depth: 1
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies
+                with:
+                    cache-dotnet: false
+                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies/action.yml', '.github/workflows/shared-testing-build.yml') }}
+                    brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
+                    restore-nativebridge-packages: 'true'
+            -   name: Build Native
+                shell: pwsh
+                run: ./src/InfiniFrame.NativeBridge/native-build.ps1 "Release" "${{ matrix.arch }}" "${{ inputs.enable_test_exports }}"
+            -   uses: actions/upload-artifact@v7
+                with:
+                    name: native-testing-${{ matrix.libName }}-${{ matrix.arch }}
+                    path: ${{ github.workspace }}/src/InfiniFrame.NativeBridge/artifacts/native/${{ matrix.libName }}/${{ matrix.arch }}/Release/**

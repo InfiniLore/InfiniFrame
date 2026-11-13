@@ -53,38 +53,38 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Remove="Native/**/*" />
-        <EmbeddedResource Remove="Native/**/*" />
-        <Content Remove="Native/**/*" />
-        <None Remove="Native/**/*" />
+        <Compile Remove="Native/**/*"/>
+        <EmbeddedResource Remove="Native/**/*"/>
+        <Content Remove="Native/**/*"/>
+        <None Remove="Native/**/*"/>
         <None Include="Native/**/*.*"
               Exclude="Native/build/**/*;Native/packages/**/*;"
-              Pack="false" />
+              Pack="false"/>
 
-        <Compile Remove="build/**/*" />
-        <EmbeddedResource Remove="build/**/*" />
-        <Content Remove="build/**/*" />
-        <None Remove="build/**/*" />
+        <Compile Remove="build/**/*"/>
+        <EmbeddedResource Remove="build/**/*"/>
+        <Content Remove="build/**/*"/>
+        <None Remove="build/**/*"/>
 
         <NativeSource Include="Native/**/*.cpp"
-                      Exclude="Native/build/**/*;Native/packages/**/*;Native/src/Embedded/InfiniFrameJs/**/*" />
+                      Exclude="Native/build/**/*;Native/packages/**/*;Native/src/Embedded/InfiniFrameJs/**/*"/>
         <NativeSource Include="Native/**/*.h"
-                      Exclude="Native/build/**/*;Native/packages/**/*;Native/src/Embedded/InfiniFrameJs/**/*" />
+                      Exclude="Native/build/**/*;Native/packages/**/*;Native/src/Embedded/InfiniFrameJs/**/*"/>
         <NativeSource Include="Native/**/*.mm"
-                      Exclude="Native/build/**/*;Native/packages/**/*;Native/src/Embedded/InfiniFrameJs/**/*" />
-        <NativeBuildInput Include="@(NativeSource)" />
+                      Exclude="Native/build/**/*;Native/packages/**/*;Native/src/Embedded/InfiniFrameJs/**/*"/>
+        <NativeBuildInput Include="@(NativeSource)"/>
         <NativeBuildInput Include="Native/**/CMakeLists.txt"
-                          Exclude="Native/build/**/*;Native/packages/**/*" />
+                          Exclude="Native/build/**/*;Native/packages/**/*"/>
         <NativeBuildInput Include="Native/**/*.cmake"
-                          Exclude="Native/build/**/*;Native/packages/**/*" />
-        <NativeBuildInput Include="../InfiniFrame.Js/TypeScript/**/*.ts" />
-        <NativeBuildInput Include="../InfiniFrame.Js/package.json" />
-        <NativeBuildInput Include="../InfiniFrame.Js/package-lock.json" />
-        <NativeBuildInput Include="../InfiniFrame.Js/tsconfig.json" />
-        <NativeBuildInput Include="../InfiniFrame.Js/vite.config.dev.ts" />
-        <NativeBuildInput Include="../InfiniFrame.Js/vite.config.prod.ts" />
-        <NativeBuildInput Include="../../scripts/js-buildfrontend.mjs" />
-        <NativeBuildInput Include="native-build.ps1" />
+                          Exclude="Native/build/**/*;Native/packages/**/*"/>
+        <NativeBuildInput Include="../InfiniFrame.Js/TypeScript/**/*.ts"/>
+        <NativeBuildInput Include="../InfiniFrame.Js/package.json"/>
+        <NativeBuildInput Include="../InfiniFrame.Js/package-lock.json"/>
+        <NativeBuildInput Include="../InfiniFrame.Js/tsconfig.json"/>
+        <NativeBuildInput Include="../InfiniFrame.Js/vite.config.dev.ts"/>
+        <NativeBuildInput Include="../InfiniFrame.Js/vite.config.prod.ts"/>
+        <NativeBuildInput Include="../../scripts/js-buildfrontend.mjs"/>
+        <NativeBuildInput Include="native-build.ps1"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -135,8 +135,8 @@
             Condition="'$(InfiniFrameSkipNativeBuild)' != 'true' and ('$(IsCrossTargetingBuild)' == 'true' or '$(TargetFramework)' != '')"
             Inputs="@(NativeBuildInput)"
             Outputs="$(NativeStamp);$(CurrentNativeArtifact)">
-        <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)native-build.ps1&quot; $(Configuration) $(NativeArch) $(InfiniFrameEnableTestExports)" />
-        <Touch Files="$(NativeStamp)" AlwaysCreate="true" />
+        <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)native-build.ps1&quot; $(Configuration) $(NativeArch) $(InfiniFrameEnableTestExports)"/>
+        <Touch Files="$(NativeStamp)" AlwaysCreate="true"/>
     </Target>
 
     <Target Name="IncludeNativeArtifactsForPack"
@@ -207,7 +207,7 @@
                 <RuntimeRid>%(_CurrentNativeArtifact.RuntimeRid)</RuntimeRid>
                 <LinkName>%(_CurrentNativeArtifact.LinkName)</LinkName>
             </_CurrentNativeArtifactToPack>
-            <_CurrentNativeArtifactToPack Remove="@(_NativeArtifactForPack)" />
+            <_CurrentNativeArtifactToPack Remove="@(_NativeArtifactForPack)"/>
         </ItemGroup>
 
         <ItemGroup>
@@ -227,69 +227,69 @@
     </Target>
 
     <Target Name="CleanNative" AfterTargets="Clean">
-        <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)native-clean.ps1&quot;" />
+        <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)native-clean.ps1&quot;"/>
     </Target>
 
     <Target Name="CheckNativeDlls" AfterTargets="Build" Condition="'$(TargetFramework)' == '' or '$(TargetFrameworks)' == ''">
-        <Message Text="=== x64 ===" Importance="High" />
+        <Message Text="=== x64 ===" Importance="High"/>
 
         <Message Condition="Exists('$(WindowsX64)/InfiniFrame.Native.dll')"
                  Text="✅ Found InfiniFrame.Native.dll in $(WindowsX64)"
-                 Importance="High" />
+                 Importance="High"/>
         <Message Condition="!Exists('$(WindowsX64)/InfiniFrame.Native.dll')"
                  Text="❌ InfiniFrame.Native.dll not found at $(WindowsX64)!"
-                 Importance="High" />
+                 Importance="High"/>
 
         <Message Condition="Exists('$(WindowsX64)/WebView2Loader.dll')"
                  Text="✅ Found WebView2Loader.dll in $(WindowsX64)"
-                 Importance="High" />
+                 Importance="High"/>
         <Message Condition="!Exists('$(WindowsX64)/WebView2Loader.dll')"
                  Text="❌ WebView2Loader.dll not found at $(WindowsX64)!"
-                 Importance="High" />
+                 Importance="High"/>
 
         <Message Condition="Exists('$(LinuxX64)/InfiniFrame.Native.so')"
                  Text="✅ Found InfiniFrame.Native.so in $(LinuxX64)"
-                 Importance="High" />
+                 Importance="High"/>
         <Message Condition="!Exists('$(LinuxX64)/InfiniFrame.Native.so')"
                  Text="❌ InfiniFrame.Native.so not found at $(LinuxX64)!"
-                 Importance="High" />
+                 Importance="High"/>
 
         <Message Condition="Exists('$(MacOsX64)/InfiniFrame.Native.dylib')"
                  Text="✅ Found InfiniFrame.Native.dylib in $(MacOsX64)"
-                 Importance="High" />
+                 Importance="High"/>
         <Message Condition="!Exists('$(MacOsX64)/InfiniFrame.Native.dylib')"
                  Text="❌ InfiniFrame.Native.dylib not found at $(MacOsX64)!"
-                 Importance="High" />
+                 Importance="High"/>
 
-        <Message Text="=== arm64 ===" Importance="High" />
+        <Message Text="=== arm64 ===" Importance="High"/>
 
         <Message Condition="Exists('$(WindowsArm64)/InfiniFrame.Native.dll')"
                  Text="✅ Found InfiniFrame.Native.dll in $(WindowsArm64)"
-                 Importance="High" />
+                 Importance="High"/>
         <Message Condition="!Exists('$(WindowsArm64)/InfiniFrame.Native.dll')"
                  Text="❌ InfiniFrame.Native.dll not found at $(WindowsArm64)!"
-                 Importance="High" />
+                 Importance="High"/>
 
         <Message Condition="Exists('$(WindowsArm64)/WebView2Loader.dll')"
                  Text="✅ Found WebView2Loader.dll in $(WindowsArm64)"
-                 Importance="High" />
+                 Importance="High"/>
         <Message Condition="!Exists('$(WindowsArm64)/WebView2Loader.dll')"
                  Text="❌ WebView2Loader.dll not found at $(WindowsArm64)!"
-                 Importance="High" />
+                 Importance="High"/>
 
         <Message Condition="Exists('$(LinuxArm64)/InfiniFrame.Native.so')"
                  Text="✅ Found InfiniFrame.Native.so in $(LinuxArm64)"
-                 Importance="High" />
+                 Importance="High"/>
         <Message Condition="!Exists('$(LinuxArm64)/InfiniFrame.Native.so')"
                  Text="❌ InfiniFrame.Native.so not found at $(LinuxArm64)!"
-                 Importance="High" />
+                 Importance="High"/>
 
         <Message Condition="Exists('$(MacOsArm64)/InfiniFrame.Native.dylib')"
                  Text="✅ Found InfiniFrame.Native.dylib in $(MacOsArm64)"
-                 Importance="High" />
+                 Importance="High"/>
         <Message Condition="!Exists('$(MacOsArm64)/InfiniFrame.Native.dylib')"
                  Text="❌ InfiniFrame.Native.dylib not found at $(MacOsArm64)!"
-                 Importance="High" />
+                 Importance="High"/>
     </Target>
 
 </Project>

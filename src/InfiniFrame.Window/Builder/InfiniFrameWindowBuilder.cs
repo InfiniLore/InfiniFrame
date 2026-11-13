@@ -86,6 +86,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
                         parentConfiguration.ChildWindowsInternal.Add(window);
                 }
             }
+
             window.SetOwnsServiceProvider(ownsServiceProvider);
             return window;
         }

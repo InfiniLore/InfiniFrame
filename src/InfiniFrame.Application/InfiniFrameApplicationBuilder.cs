@@ -16,8 +16,8 @@ public sealed class InfiniFrameApplicationBuilder {
     private string? _notificationRegistrationId;
     private string? _appUserModelId;
     private string? _defaultNotificationIcon;
-    
-    public IReadOnlyCollection<(string? Id, Action<IInfiniFrameWindowBuilder> Configure)> WindowRegistrations 
+
+    public IReadOnlyCollection<(string? Id, Action<IInfiniFrameWindowBuilder> Configure)> WindowRegistrations
         => _windows.AsReadOnly();
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -42,6 +42,7 @@ public sealed class InfiniFrameApplicationBuilder {
         ArgumentNullException.ThrowIfNull(configure);
         if (_windows.Any(window => string.Equals(window.Id, id, StringComparison.Ordinal)))
             throw new ArgumentException($"A window with id '{id}' is already registered.", nameof(id));
+
         _windows.Add((id, configure));
         return this;
     }
@@ -94,10 +95,13 @@ public sealed class InfiniFrameApplicationBuilder {
                 if (id is null) application.RegisterWindow(configure);
                 else application.RegisterWindow(id, configure);
             }
+
             application.AttachServiceProvider(serviceProvider);
             serviceProviderAttached = true;
-            foreach (Action<InfiniFrameApplication> integration in _integrations)
+            foreach (Action<InfiniFrameApplication> integration in _integrations) {
                 integration(application);
+            }
+
             return application;
         }
         catch {

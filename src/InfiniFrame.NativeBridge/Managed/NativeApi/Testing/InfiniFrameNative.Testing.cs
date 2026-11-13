@@ -117,6 +117,7 @@ public static partial class InfiniFrameNativeTesting {
         }
 
         if (newParametersPtr == IntPtr.Zero) throw new InvalidOperationException("Native function returned null pointer");
+
         return status;
     }
 

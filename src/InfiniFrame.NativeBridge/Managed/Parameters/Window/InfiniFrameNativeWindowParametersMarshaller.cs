@@ -71,8 +71,8 @@ internal static class InfiniFrameNativeWindowParametersMarshaller {
         => values is not null && values.Length > index ? values[index] : IntPtr.Zero;
 
     /// <summary>
-///     Unmanaged layout of <see cref="InfiniFrameNativeWindowParameters" /> used for native interop.
-///     Field order must match the C++ InfiniFrameWindowInitParams struct exactly.
+    ///     Unmanaged layout of <see cref="InfiniFrameNativeWindowParameters" /> used for native interop.
+    ///     Field order must match the C++ InfiniFrameWindowInitParams struct exactly.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     internal struct Unmanaged {
@@ -184,7 +184,7 @@ internal static class InfiniFrameNativeWindowParametersMarshaller {
     }
 
     /// <summary>
-///     Marshals managed <see cref="InfiniFrameNativeWindowParameters" /> to the native <see cref="Unmanaged" /> layout.
+    ///     Marshals managed <see cref="InfiniFrameNativeWindowParameters" /> to the native <see cref="Unmanaged" /> layout.
     /// </summary>
     [SuppressMessage("ReSharper", "NotAccessedField.Local")]
     internal ref struct ManagedToUnmanagedIn {

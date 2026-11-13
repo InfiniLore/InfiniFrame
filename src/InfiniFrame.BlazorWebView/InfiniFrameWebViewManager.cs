@@ -80,6 +80,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
                 $"AppBaseUri must use the '{BlazorAppScheme}' scheme. Got '{configuration.AppBaseUri.Scheme}'.",
                 nameof(configuration.AppBaseUri));
         }
+
         _appBaseUri = configuration.AppBaseUri;
         if (configuration.WebMessageQueueCapacity <= 0) {
             throw new ArgumentOutOfRangeException(

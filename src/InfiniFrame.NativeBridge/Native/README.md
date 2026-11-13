@@ -1,6 +1,8 @@
 # InfiniFrame Native C++ Codebase
 
-This directory contains the native C++ implementation of InfiniFrame's window management layer. It provides the cross-platform browser engine integration (WebView2 on Windows, WebKitGTK on Linux, WKWebView on macOS) and exposes a C ABI that the .NET managed layer calls via P/Invoke.
+This directory contains the native C++ implementation of InfiniFrame's window management layer. It provides the
+cross-platform browser engine integration (WebView2 on Windows, WebKitGTK on Linux, WKWebView on macOS) and exposes a C
+ABI that the .NET managed layer calls via P/Invoke.
 
 ## Architecture
 
@@ -35,17 +37,20 @@ Native/
 
 ## Public C API
 
-The public API is defined in `src/Abi/` and consists of `extern "C"` functions with the prefix `InfiniFrameNative_`. These functions are called by the .NET managed layer via P/Invoke.
+The public API is defined in `src/Abi/` and consists of `extern "C"` functions with the prefix `InfiniFrameNative_`.
+These functions are called by the .NET managed layer via P/Invoke.
 
 ### String Ownership
 
 - **Input strings**: The caller owns strings passed to the native layer. The native layer copies them if needed.
-- **Output strings**: The native layer allocates strings returned to the caller. The caller must free them using `InfiniFrameNative_FreeString`.
+- **Output strings**: The native layer allocates strings returned to the caller. The caller must free them using
+  `InfiniFrameNative_FreeString`.
 - **String arrays**: Use `InfiniFrameNative_FreeStringArray` to free arrays returned by functions like `GetAllMonitors`.
 
 ### Error Handling
 
 All exported functions return `InteropStatus` (defined in `Types/InteropStatus.h`):
+
 - `Success` Operation completed successfully
 - `ErrorNullParameter` A required parameter was null
 - `ErrorInvalidState` The window is not in a valid state for this operation
@@ -100,4 +105,5 @@ cmake --build build --config Release
 
 ## Testing
 
-Test-only exports are enabled with `INFINIFRAME_BUILD_TEST_EXPORTS=ON` (defaults to ON in Debug builds). These provide access to internal state for verification.
+Test-only exports are enabled with `INFINIFRAME_BUILD_TEST_EXPORTS=ON` (defaults to ON in Debug builds). These provide
+access to internal state for verification.

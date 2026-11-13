@@ -16,7 +16,8 @@ EXPORTED InteropStatus InfiniFrameNativeApplication_ctor(InfiniFrameApplication*
     ResetOut(value, static_cast<InfiniFrameApplication*>(nullptr));
     return RunExportStatus(
         [&] {
-            if (!EnsureOutNotNull(value, "value")) return;
+            if (!EnsureOutNotNull(value, "value"))
+                return;
             auto instance = std::make_unique<InfiniFrameApplication>();
             *value = instance.release();
         });
@@ -26,7 +27,8 @@ EXPORTED InteropStatus InfiniFrameNativeApplication_ctor(InfiniFrameApplication*
 EXPORTED InteropStatus InfiniFrameNativeApplication_Register(InfiniFrameApplication* instance) {
     return RunExportStatus(
         [&] {
-            if (!EnsureNotNull(instance, "instance")) return;
+            if (!EnsureNotNull(instance, "instance"))
+                return;
             instance->Register();
         });
 }
@@ -34,11 +36,13 @@ EXPORTED InteropStatus InfiniFrameNativeApplication_Register(InfiniFrameApplicat
 EXPORTED InteropStatus InfiniFrameNativeApplication_Configure(
     InfiniFrameApplication* instance,
     InfiniFrameApplicationInitParams* parameters
-) {
+    ) {
     return RunExportStatus(
         [&] {
-            if (!EnsureNotNull(instance, "instance")) return;
-            if (!EnsureNotNull(parameters, "parameters")) return;
+            if (!EnsureNotNull(instance, "instance"))
+                return;
+            if (!EnsureNotNull(parameters, "parameters"))
+                return;
             if (parameters->StructSize != static_cast<int>(sizeof(InfiniFrameApplicationInitParams)))
                 throw std::invalid_argument("InfiniFrameApplicationInitParams.Size does not match native struct size.");
             instance->Configure(*parameters);
@@ -49,7 +53,8 @@ EXPORTED InteropStatus InfiniFrameNativeApplication_Configure(
 EXPORTED InteropStatus InfiniFrameNativeApplication_Run(InfiniFrameApplication* instance) {
     return RunExportStatus(
         [&] {
-            if (!EnsureNotNull(instance, "instance")) return;
+            if (!EnsureNotNull(instance, "instance"))
+                return;
             instance->Run();
         });
 }
@@ -58,7 +63,8 @@ EXPORTED InteropStatus InfiniFrameNativeApplication_Run(InfiniFrameApplication* 
 EXPORTED InteropStatus InfiniFrameNativeApplication_Shutdown(InfiniFrameApplication* instance) {
     return RunExportStatus(
         [&] {
-            if (!EnsureNotNull(instance, "instance")) return;
+            if (!EnsureNotNull(instance, "instance"))
+                return;
             instance->Shutdown();
         });
 }
@@ -67,7 +73,8 @@ EXPORTED InteropStatus InfiniFrameNativeApplication_Shutdown(InfiniFrameApplicat
 EXPORTED InteropStatus InfiniFrameNativeApplication_dtor(InfiniFrameApplication* instance) {
     return RunExportStatus(
         [&] {
-            if (!EnsureNotNull(instance, "instance")) return;
+            if (!EnsureNotNull(instance, "instance"))
+                return;
 #ifdef __APPLE__
             // macOS SafeHandle release is intentionally asynchronous. Keep the
             // application owner alive until deferred native window deletion has
@@ -84,11 +91,12 @@ EXPORTED InteropStatus InfiniFrameNativeApplication_dtor(InfiniFrameApplication*
 EXPORTED InteropStatus InfiniFrameNativeApplication_GetWindowCount(
     InfiniFrameApplication* instance,
     std::size_t* value
-) {
+    ) {
     ResetOut(value, static_cast<std::size_t>(0));
     return RunExportStatus(
         [&] {
-            if (!EnsureNotNull(instance, "instance") || !EnsureOutNotNull(value, "value")) return;
+            if (!EnsureNotNull(instance, "instance") || !EnsureOutNotNull(value, "value"))
+                return;
             *value = instance->GetWindowCount();
         });
 }

@@ -1,88 +1,88 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import {beforeEach, describe, expect, it, vi} from "vitest";
 import {
-	deleteTestProperty,
-	getTestWindow,
-	type TestInfiniFrame,
+    deleteTestProperty,
+    getTestWindow,
+    type TestInfiniFrame,
 } from "./_testHelpers";
-import { InfiniFrame } from "./InfiniFrame";
+import {InfiniFrame} from "./InfiniFrame";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 describe("InfiniFrame", () => {
-	beforeEach(() => {
-		const win = getTestWindow();
-		if (!win.infiniframe?.messaging) {
-			win.infiniframe = {
-				messaging: {
-					sendMessageToHost: vi.fn(),
-					getMessageFromHostAsync: vi.fn(),
-					assignMessageReceivedHandler: vi.fn(),
-					unregisterMessageReceivedHandler: vi.fn(),
-				},
-				utils: {
-					setPointerCapture: vi.fn(),
-					releasePointerCapture: vi.fn(),
-				},
-			};
-		}
-	});
+    beforeEach(() => {
+        const win = getTestWindow();
+        if (!win.infiniframe?.messaging) {
+            win.infiniframe = {
+                messaging: {
+                    sendMessageToHost: vi.fn(),
+                    getMessageFromHostAsync: vi.fn(),
+                    assignMessageReceivedHandler: vi.fn(),
+                    unregisterMessageReceivedHandler: vi.fn(),
+                },
+                utils: {
+                    setPointerCapture: vi.fn(),
+                    releasePointerCapture: vi.fn(),
+                },
+            };
+        }
+    });
 
-	it("initializes HostMessaging and Utils", () => {
-		const instance = new InfiniFrame();
+    it("initializes HostMessaging and Utils", () => {
+        const instance = new InfiniFrame();
 
-		expect(instance.messaging).toBeDefined();
-		expect(instance.utils).toBeDefined();
-	});
+        expect(instance.messaging).toBeDefined();
+        expect(instance.utils).toBeDefined();
+    });
 
-	it("creates independent instances", () => {
-		const a = new InfiniFrame();
-		const b = new InfiniFrame();
+    it("creates independent instances", () => {
+        const a = new InfiniFrame();
+        const b = new InfiniFrame();
 
-		expect(a.messaging).not.toBe(b.messaging);
-		expect(a.utils).not.toBe(b.utils);
-	});
+        expect(a.messaging).not.toBe(b.messaging);
+        expect(a.utils).not.toBe(b.utils);
+    });
 
-	it("replaces an incomplete preinitialized window API", () => {
-		const instance = new InfiniFrame({
-			window: {} as TestInfiniFrame["window"],
-		});
+    it("replaces an incomplete preinitialized window API", () => {
+        const instance = new InfiniFrame({
+            window: {} as TestInfiniFrame["window"],
+        });
 
-		expect(instance.window.features).toBeDefined();
-		expect(instance.window.features.decorations).toBeDefined();
-	});
+        expect(instance.window.features).toBeDefined();
+        expect(instance.window.features.decorations).toBeDefined();
+    });
 
-	it("preserves existing window when features are already set", () => {
-		const existingWindow = {
-			features: { decorations: {} },
-		} as TestInfiniFrame["window"];
-		const instance = new InfiniFrame({ window: existingWindow });
+    it("preserves existing window when features are already set", () => {
+        const existingWindow = {
+            features: {decorations: {}},
+        } as TestInfiniFrame["window"];
+        const instance = new InfiniFrame({window: existingWindow});
 
-		expect(instance.window).toBe(existingWindow);
-	});
+        expect(instance.window).toBe(existingWindow);
+    });
 
-	it("does not define a legacy window.__infiniframe host", async () => {
-		const setSpy = vi.spyOn(Object, "defineProperty");
+    it("does not define a legacy window.__infiniframe host", async () => {
+        const setSpy = vi.spyOn(Object, "defineProperty");
 
-		const win = getTestWindow();
+        const win = getTestWindow();
 
-		// ensure clean state
-		deleteTestProperty(win, "infiniframe");
-		deleteTestProperty(win, "__infiniframe");
+        // ensure clean state
+        deleteTestProperty(win, "infiniframe");
+        deleteTestProperty(win, "__infiniframe");
 
-		await import("./InfiniFrame");
+        await import("./InfiniFrame");
 
-		// library should not define host via Object.defineProperty
-		const hostDefinitionCalls = setSpy.mock.calls.filter((call) =>
-			String(call[1]).includes("host"),
-		);
+        // library should not define host via Object.defineProperty
+        const hostDefinitionCalls = setSpy.mock.calls.filter((call) =>
+            String(call[1]).includes("host"),
+        );
 
-		expect(hostDefinitionCalls.length).toBe(0);
-		expect(win.__infiniframe).toBeUndefined();
+        expect(hostDefinitionCalls.length).toBe(0);
+        expect(win.__infiniframe).toBeUndefined();
 
-		setSpy.mockRestore();
-	});
+        setSpy.mockRestore();
+    });
 });

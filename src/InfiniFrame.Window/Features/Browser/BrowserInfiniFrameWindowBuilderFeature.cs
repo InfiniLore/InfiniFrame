@@ -79,7 +79,7 @@ public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowB
         }
 
         // Strip control characters and limit length to prevent header injection.
-        string sanitized = new string(userAgent.Where(static c => !char.IsControl(c)).ToArray());
+        string sanitized = new(userAgent.Where(static c => !char.IsControl(c)).ToArray());
         UserAgent = sanitized.Length > 1024 ? sanitized[..1024] : sanitized;
     }
 

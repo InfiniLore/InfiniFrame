@@ -329,6 +329,7 @@ public sealed class InfiniFrameWindow(
             DetachFromParent();
             _disposeLock.Release();
         }
+
         if (ownedProvider is IDisposable disposable)
             disposable.Dispose();
         else if (ownedProvider is IAsyncDisposable asyncDisposable)
@@ -341,6 +342,7 @@ public sealed class InfiniFrameWindow(
         try {
             try {
                 if (LifecycleState == InfiniFrameWindowLifecycleState.Disposed) return;
+
                 if (!Features.Lifecycle.IsClosedOrClosing()) await Features.Lifecycle.CloseAsync().ConfigureAwait(false);
                 await Features.Lifecycle.WaitForTeardownAsync().ConfigureAwait(false);
             }
@@ -354,6 +356,7 @@ public sealed class InfiniFrameWindow(
             DetachFromParent();
             _disposeLock.Release();
         }
+
         if (ownedProvider is IAsyncDisposable asyncDisposable)
             await asyncDisposable.DisposeAsync().ConfigureAwait(false);
         else (ownedProvider as IDisposable)?.Dispose();
@@ -361,7 +364,9 @@ public sealed class InfiniFrameWindow(
 
     private void DetachFromParent() {
         if (Configuration.ParentWindow?.Configuration is not InfiniFrameWindowConfiguration parentConfiguration) return;
-        lock (parentConfiguration.ChildWindowsLock)
+
+        lock (parentConfiguration.ChildWindowsLock) {
             parentConfiguration.ChildWindowsInternal.Remove(this);
+        }
     }
 }

@@ -101,9 +101,9 @@ public class WebMessagingInfiniFrameWindowFeature : IWebMessagingInfiniFrameWind
             throw;
         }
         finally {
-            #pragma warning disable CS8601 // Possible null reference assignment.
+            #pragma warning disable CS8601// Possible null reference assignment.
             _acknowledgements.TryRemove(id, out _);
-            #pragma warning restore CS8601 // Possible null reference assignment.
+            #pragma warning restore CS8601// Possible null reference assignment.
             (window as InfiniFrameWindow)?.CompleteDiagnosticOperation(
                 diagnosticKey, finalState, failureReason: failureReason
             );

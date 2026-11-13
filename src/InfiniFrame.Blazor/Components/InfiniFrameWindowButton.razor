@@ -7,8 +7,9 @@
 @* ------------------------------------------------------------------------------------------------------------------ *@
 @* Html
 @* ------------------------------------------------------------------------------------------------------------------ *@
-<div class="@Class window-button window-button-@(WindowAction.ToString().ToLowerInvariant()) window-button-@GetOperatingSystem()"
-     data-infiniframe-window-action="@WindowAction.ToString().ToLowerInvariant()">
+<div
+    class="@Class window-button window-button-@(WindowAction.ToString().ToLowerInvariant()) window-button-@GetOperatingSystem()"
+    data-infiniframe-window-action="@WindowAction.ToString().ToLowerInvariant()">
     <span class="window-icon">@((MarkupString)GetIcon())</span>
 </div>
 

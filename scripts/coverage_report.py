@@ -23,6 +23,7 @@ NATIVE_EXTENSIONS = (".cpp", ".h", ".mm", ".c", ".hpp")
 BADGE_THRESHOLD_GREEN = 85
 BADGE_THRESHOLD_YELLOW = 60
 
+
 # ---------------------------------------------------------------------------------------------------------------------
 # Code
 # ---------------------------------------------------------------------------------------------------------------------
@@ -326,7 +327,8 @@ def main() -> None:
         f"{py_pct}%",
         badge_color(py_pct),
     )
-    print(f"Badges: TS={ts_pct}% ({badge_color(ts_pct)}), C#={cs_pct}% ({badge_color(cs_pct)}), Python={py_pct}% ({badge_color(py_pct)})")
+    print(
+        f"Badges: TS={ts_pct}% ({badge_color(ts_pct)}), C#={cs_pct}% ({badge_color(cs_pct)}), Python={py_pct}% ({badge_color(py_pct)})")
 
     # 7. Commit badge updates
     if args.badge_branch or args.ref_name:

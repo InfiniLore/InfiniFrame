@@ -28,5 +28,6 @@ struct CustomSchemeResponse {
     void* ReservedSeek;
 };
 
-static_assert(sizeof(uintptr_t) != 8 || sizeof(CustomSchemeResponse) == 72,
-              "Unexpected 64-bit response ABI layout");
+static_assert(
+    sizeof(uintptr_t) != 8 || sizeof(CustomSchemeResponse) == 72,
+    "Unexpected 64-bit response ABI layout");
