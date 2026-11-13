@@ -119,7 +119,9 @@ jobs:
                     mkdir -p artifacts/native-crash
                     exit_code=0
 
-                    for framework in net10.0 net11.0; do
+                    frameworks=$(jq -r '.dotnet[] | "net" + .' tool-versions.json)
+                    coverage_framework=$(jq -r '.dotnet[-1] | "net" + .' tool-versions.json)
+                    for framework in $frameworks; do
                         echo "=== Running $framework Tests ==="
                         mkdir -p "artifacts/testdiag/$framework"
                         mkdir -p "artifacts/testresults/$framework"
@@ -147,7 +149,7 @@ jobs:
                           --diagnostic-verbosity Warning
                         )
 
-                        if [ "${{ inputs.enable_coverage }}" = "true" ] && [ "$framework" = "net11.0" ]; then
+                        if [ "${{ inputs.enable_coverage }}" = "true" ] && [ "$framework" = "$coverage_framework" ]; then
                           test_args+=(--coverage --coverage-output-format cobertura)
                         fi
 
@@ -199,7 +201,7 @@ jobs:
                 uses: actions/upload-artifact@v7
                 with:
                     name: cs-coverage-macos-${{ matrix.arch }}
-                    path: artifacts/testresults/net11.0/**/*.cobertura.xml
+                    path: artifacts/testresults/**/*.cobertura.xml
                     if-no-files-found: warn
                     retention-days: 1
 
@@ -257,13 +259,15 @@ jobs:
 
             -   name: Build instrumented native bridge tests
                 run: |
+                    coverage_framework="net$(jq -r '.dotnet[-1]' tool-versions.json)"
                     dotnet restore tests/InfiniTests.InfiniFrame.NativeBridge/InfiniTests.InfiniFrame.NativeBridge.csproj -p:NativeArch=arm64
                     dotnet build tests/InfiniTests.InfiniFrame.NativeBridge/InfiniTests.InfiniFrame.NativeBridge.csproj \
-                      --configuration Debug --no-restore --framework net11.0 \
+                      --configuration Debug --no-restore --framework "$coverage_framework" \
                       -p:NativeArch=arm64 -p:InfiniFrameSkipNativeBuild=true -p:InfiniFrameEnableTestExports=true
 
             -   name: Run instrumented native bridge tests
                 run: |
+                    coverage_framework="net$(jq -r '.dotnet[-1]' tool-versions.json)"
                     set -o pipefail
                     mkdir -p artifacts/sanitizers artifacts/testresults/sanitizers
                     asan_runtime="$(clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib)"
@@ -277,7 +281,7 @@ jobs:
                     # implementation, which cannot diagnose our native code. WKWebView remains
                     # covered by the regular macOS integration lane; this lane exercises the
                     # Address/UBSan-instrumented InfiniFrame.Native bridge itself.
-                        test_app="tests/InfiniTests.InfiniFrame.NativeBridge/bin/Debug/net11.0/InfiniTests.InfiniFrame.NativeBridge"
+                    test_app="tests/InfiniTests.InfiniFrame.NativeBridge/bin/Debug/$coverage_framework/InfiniTests.InfiniFrame.NativeBridge"
                     if [ ! -x "$test_app" ]; then
                       echo "TUnit test application is missing or not executable: $test_app"
                       exit 1

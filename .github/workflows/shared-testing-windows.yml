@@ -179,8 +179,10 @@ jobs:
                 run: |
                     echo "Running tests on Windows..."
                     $exitCode = 0
+                    $frameworks = @(Get-Content tool-versions.json -Raw | ConvertFrom-Json).dotnet | ForEach-Object { "net$_" }
+                    $coverageFramework = $frameworks[-1]
 
-                    foreach ($framework in @("net10.0", "net11.0")) {
+                    foreach ($framework in $frameworks) {
                       $testArgs = @(
                         "test",
                         "--solution", "InfiniFrame.GitHubActions.Testing.slnf",
@@ -193,7 +195,7 @@ jobs:
                         "/p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}"
                       )
 
-                      if ("${{ inputs.enable_coverage }}" -eq "true" -and $framework -eq "net11.0") {
+                      if ("${{ inputs.enable_coverage }}" -eq "true" -and $framework -eq $coverageFramework) {
                         $testArgs += @(
                           "--coverage",
                           "--coverage-output-format", "cobertura",
