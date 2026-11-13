@@ -103,7 +103,9 @@ public class JavaScriptInfiniFrameWindowFeature : IJavaScriptInfiniFrameWindowFe
             throw;
         }
         finally {
-            _pendingEvals.TryRemove(requestId, out _);
+            #pragma warning disable CS8601 // Possible null reference assignment.
+            _pendingEvals.Remove(requestId, out _);
+            #pragma warning restore CS8601 // Possible null reference assignment.
             (window as InfiniFrameWindow)?.CompleteDiagnosticOperation(
                 diagnosticKey, finalState, failureReason: failureReason
             );
