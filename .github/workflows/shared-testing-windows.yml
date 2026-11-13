@@ -180,7 +180,7 @@ jobs:
                     echo "Running tests on Windows..."
                     $exitCode = 0
 
-                    foreach ($framework in @("net8.0", "net9.0", "net10.0")) {
+                    foreach ($framework in @("net10.0", "net11.0")) {
                       $testArgs = @(
                         "test",
                         "--solution", "InfiniFrame.GitHubActions.Testing.slnf",
@@ -193,7 +193,7 @@ jobs:
                         "/p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}"
                       )
 
-                      if ("${{ inputs.enable_coverage }}" -eq "true" -and $framework -eq "net10.0") {
+                      if ("${{ inputs.enable_coverage }}" -eq "true" -and $framework -eq "net11.0") {
                         $testArgs += @(
                           "--coverage",
                           "--coverage-output-format", "cobertura",

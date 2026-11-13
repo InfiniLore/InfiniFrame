@@ -13,8 +13,8 @@ This guide walks you through installing InfiniFrame and creating your first nati
 
 ## Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download) or later (.NET 8, 9, and 10 are all supported)
-- A console or class library project targeting `net8.0`, `net9.0`, or `net10.0`
+- [.NET 11 SDK](https://dotnet.microsoft.com/download) or later (.NET 10 and 11 are supported)
+- A console or class library project targeting `net10.0` or `net11.0`
 
 ### Platform-specific requirements
 

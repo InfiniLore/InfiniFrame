@@ -184,7 +184,7 @@ Cross-platform tests cover concurrent close coalescing, cancellation of one clos
 
 Platform tests cover WebView2 initialization/navigation IDs and late callbacks, AppKit nested-run-loop/common-mode scheduling, GTK owning-context signals/idle teardown, and async dialog response/owner-close behavior. macOS stress tests await `WaitForTeardownAsync`/`DisposeAsync` and contain no teardown sleeps or UI-thread blocking waits.
 
-On timeout or crash diagnostics print the window ID, last lifecycle transition with timestamp/thread, and every outstanding operation's name, ID, age, state, and last failure. CI should collect these logs on all net8.0, net9.0, and net10.0 jobs for Windows, Linux, macOS x64, and macOS arm64.
+On timeout or crash diagnostics print the window ID, last lifecycle transition with timestamp/thread, and every outstanding operation's name, ID, age, state, and last failure. CI should collect these logs on all net10.0 and net11.0 jobs for Windows, Linux, macOS x64, and macOS arm64.
 
 ## Implementation sequence
 

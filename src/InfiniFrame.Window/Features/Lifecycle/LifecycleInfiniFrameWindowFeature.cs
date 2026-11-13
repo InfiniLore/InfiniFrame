@@ -42,13 +42,8 @@ public class LifecycleInfiniFrameWindowFeature(
     private int _nativeCallbackRootReleased;
     public InfiniFrameWindowLifecycleState State => window.LifecycleState;
     
-    #if NET9_0_OR_GREATER
     /// <summary>Synchronization lock for thread-safe access to pending task state.</summary>
     private readonly Lock _closeAttemptLock = new();
-    #else
-    /// <summary>Synchronization lock for thread-safe access to pending task state.</summary>
-    private readonly object _closeAttemptLock = new();
-    #endif
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
