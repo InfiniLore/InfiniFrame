@@ -7,8 +7,9 @@ for command in dotnet node npm cmake ninja clang pwsh dbus-launch Xvfb weston op
     }
 done
 
-for sdk in 8 9 10; do
-    dotnet --list-sdks | grep -E "^${sdk}\." >/dev/null || {
+for sdk in $(jq -r '.dotnet[]' /usr/share/infiniframe/tool-versions.json); do
+    sdk_major="${sdk%%.*}"
+    dotnet --list-sdks | grep -E "^${sdk_major}\." >/dev/null || {
         echo "Missing .NET SDK ${sdk}" >&2
         exit 1
     }
