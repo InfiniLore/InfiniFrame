@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
-using InfiniFrame.NativeBridge.Handles;
+using InfiniFrame.NativeBridge.NativeHandles;
 using FluentValidation;
 using InfiniFrame.NativeBridge.Parameters.Application;
 using InfiniFrame.Utilities;
@@ -158,7 +158,6 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             StartRegisteredComponents();
             BuildAllWindows();
             RunNativeLoop();
-            logger.LogDebug("Native application loop returned");
         }
         finally {
             Dispose();
@@ -349,7 +348,6 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         }
 
         DrainNaturalWindowTeardowns();
-        logger.LogDebug("Application window disposal completed");
         if (windowDisposalFailure is not null) {
             Volatile.Write(ref _disposed, 0);
             throw new InvalidOperationException("The application could not dispose all windows.", windowDisposalFailure);
@@ -361,7 +359,6 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         }
 
         ReleaseNativeHandleOrThrow();
-        logger.LogDebug("Application native disposal completed");
         StopRegisteredComponents();
         if (_serviceProvider is IAsyncDisposable asyncServiceProvider)
             asyncServiceProvider.DisposeAsync().AsTask().GetAwaiter().GetResult();
@@ -480,7 +477,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         }
     }
 
-    private IReadOnlyList<int> GetIntegrationTargets(IReadOnlyList<string>? ids, string integrationName) {
+    private List<int> GetIntegrationTargets(IReadOnlyList<string>? ids, string integrationName) {
         if (ids is null || ids.Count == 0) {
             if (_registrations.Count == 0)
                 throw new InvalidOperationException(

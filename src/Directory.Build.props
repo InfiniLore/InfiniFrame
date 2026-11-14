@@ -8,6 +8,7 @@
 
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <AnalysisLevel>latest</AnalysisLevel>
+        <AnalysisMode>Recommended</AnalysisMode>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
         <ExcludeByFile>**/*.g.cs;**/*.g.props;**/*.g.targets;**/obj/**;**/bin/**</ExcludeByFile>

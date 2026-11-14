@@ -46,20 +46,20 @@ internal static class InfiniFrameNativeWindowParametersMarshaller {
     private static IntPtr ToFunctionPtr(Delegate? callback) => callback is null
         ? IntPtr.Zero
         : callback switch {
-            CppClosedDelegate closed => Marshal.GetFunctionPointerForDelegate(closed),
-            CppClosingDelegate closing => Marshal.GetFunctionPointerForDelegate(closing),
-            CppFocusInDelegate focusIn => Marshal.GetFunctionPointerForDelegate(focusIn),
-            CppFocusOutDelegate focusOut => Marshal.GetFunctionPointerForDelegate(focusOut),
-            CppMaximizedDelegate maximized => Marshal.GetFunctionPointerForDelegate(maximized),
-            CppMinimizedDelegate minimized => Marshal.GetFunctionPointerForDelegate(minimized),
-            CppMovedDelegate moved => Marshal.GetFunctionPointerForDelegate(moved),
-            CppResizedDelegate resized => Marshal.GetFunctionPointerForDelegate(resized),
-            CppRestoredDelegate restored => Marshal.GetFunctionPointerForDelegate(restored),
-            CppWebMessageReceivedDelegate webMessageReceived => Marshal.GetFunctionPointerForDelegate(webMessageReceived),
-            CppDebugEventDelegate debugEvent => Marshal.GetFunctionPointerForDelegate(debugEvent),
-            CppWebResourceRequestedDelegate webResourceRequested => Marshal.GetFunctionPointerForDelegate(webResourceRequested),
-            CppNavigationStartingDelegate navigationStarting => Marshal.GetFunctionPointerForDelegate(navigationStarting),
-            CppFileDroppedDelegate fileDropped => Marshal.GetFunctionPointerForDelegate(fileDropped),
+            CppClosedCallback closed => Marshal.GetFunctionPointerForDelegate(closed),
+            CppClosingCallback closing => Marshal.GetFunctionPointerForDelegate(closing),
+            CppFocusInCallback focusIn => Marshal.GetFunctionPointerForDelegate(focusIn),
+            CppFocusOutCallback focusOut => Marshal.GetFunctionPointerForDelegate(focusOut),
+            CppMaximizedCallback maximized => Marshal.GetFunctionPointerForDelegate(maximized),
+            CppMinimizedCallback minimized => Marshal.GetFunctionPointerForDelegate(minimized),
+            CppMovedCallback moved => Marshal.GetFunctionPointerForDelegate(moved),
+            CppResizedCallback resized => Marshal.GetFunctionPointerForDelegate(resized),
+            CppRestoredCallback restored => Marshal.GetFunctionPointerForDelegate(restored),
+            CppWebMessageReceivedCallback webMessageReceived => Marshal.GetFunctionPointerForDelegate(webMessageReceived),
+            CppDebugEventCallback debugEvent => Marshal.GetFunctionPointerForDelegate(debugEvent),
+            CppWebResourceRequestedCallback webResourceRequested => Marshal.GetFunctionPointerForDelegate(webResourceRequested),
+            CppNavigationStartingCallback navigationStarting => Marshal.GetFunctionPointerForDelegate(navigationStarting),
+            CppFileDroppedCallback fileDropped => Marshal.GetFunctionPointerForDelegate(fileDropped),
             _ => throw new ArgumentOutOfRangeException(nameof(callback), callback.GetType(), "Unsupported callback delegate type.")
         };
 

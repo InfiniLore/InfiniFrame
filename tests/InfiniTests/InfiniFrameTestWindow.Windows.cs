@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.Versioning;
 using InfiniFrame;
-using InfiniFrame.NativeBridge.Handles;
+using InfiniFrame.NativeBridge.NativeHandles;
 using InfiniFrame.Utilities;
 using InfiniFrame.Window.Builder;
 using JetBrains.Annotations;

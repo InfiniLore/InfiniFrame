@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge;
-using InfiniFrame.NativeBridge.Handles;
+using InfiniFrame.NativeBridge.NativeHandles;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame.Window;

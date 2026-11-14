@@ -12,7 +12,7 @@ public class NavigationStartingEventArgsTests {
     [Test]
     public async Task Constructor_SetsAllProperties(CancellationToken ct = default) {
         // Arrange & Act
-        var args = new NavigationStartingEventArgs(
+        var args = new NavigationStartingEvent(
             "https://example.com",
             true,
             false,
@@ -29,8 +29,8 @@ public class NavigationStartingEventArgsTests {
     [Test]
     public async Task Equality_SameValues_ReturnsTrue(CancellationToken ct = default) {
         // Arrange
-        var args1 = new NavigationStartingEventArgs("https://example.com", true, false, true);
-        var args2 = new NavigationStartingEventArgs("https://example.com", true, false, true);
+        var args1 = new NavigationStartingEvent("https://example.com", true, false, true);
+        var args2 = new NavigationStartingEvent("https://example.com", true, false, true);
 
         // Act & Assert
         await Assert.That(args1).IsEqualTo(args2);
@@ -39,8 +39,8 @@ public class NavigationStartingEventArgsTests {
     [Test]
     public async Task Equality_DifferentValues_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
-        var args1 = new NavigationStartingEventArgs("https://example.com", true, false, true);
-        var args2 = new NavigationStartingEventArgs("https://other.com", true, false, true);
+        var args1 = new NavigationStartingEvent("https://example.com", true, false, true);
+        var args2 = new NavigationStartingEvent("https://other.com", true, false, true);
 
         // Act & Assert
         await Assert.That(args1).IsNotEqualTo(args2);
@@ -49,10 +49,10 @@ public class NavigationStartingEventArgsTests {
     [Test]
     public async Task WithExpression_CreatesNewInstance(CancellationToken ct = default) {
         // Arrange
-        var original = new NavigationStartingEventArgs("https://example.com", true, false, true);
+        var original = new NavigationStartingEvent("https://example.com", true, false, true);
 
         // Act
-        NavigationStartingEventArgs modified = original with { Url = "https://modified.com" };
+        NavigationStartingEvent modified = original with { Url = "https://modified.com" };
 
         // Assert
         await Assert.That(modified.Url).IsEqualTo("https://modified.com");

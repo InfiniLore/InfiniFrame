@@ -11,7 +11,7 @@ namespace InfiniFrame.BlazorWebView;
 /// </summary>
 public class InfiniFrameSynchronizationState {
     /// <summary>Synchronization lock for thread-safe access to pending task state.</summary>
-    public readonly Lock Lock = new();
+    public Lock Lock { get; } = new();
 
     /// <summary>Gets or sets the tail of the task chain used to serialize work items.</summary>
     public Task Task { get; set; } = Task.CompletedTask;

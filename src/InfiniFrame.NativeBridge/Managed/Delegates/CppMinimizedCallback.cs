@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.InteropServices;
@@ -8,10 +8,7 @@ namespace InfiniFrame.NativeBridge.Delegates;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Represents a native callback invoked for each monitor during monitor enumeration.
-///     Return non-zero to continue enumeration, zero to stop.
+///     Represents a native callback invoked when the native window is minimized.
 /// </summary>
-/// <param name="monitor">The monitor information.</param>
-/// <returns>Non-zero to continue enumeration, zero to stop.</returns>
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-public delegate int CppGetAllMonitorsDelegate(in NativeMonitor monitor);
+public delegate void CppMinimizedCallback();

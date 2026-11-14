@@ -18,7 +18,7 @@ public partial class InfiniFrameNative {
     /// <returns>A status code indicating success or failure.</returns>
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetClosingCallback", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial InfiniFrameNativeInteropStatus SetClosingCallback(IntPtr instance, CppClosingDelegate callback);
+    internal static partial InfiniFrameNativeInteropStatus SetClosingCallback(IntPtr instance, CppClosingCallback callback);
 
     /// <summary>
     ///     Sets the callback invoked when the native window has been closed.
@@ -28,7 +28,7 @@ public partial class InfiniFrameNative {
     /// <returns>A status code indicating success or failure.</returns>
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetClosedCallback", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial InfiniFrameNativeInteropStatus SetClosedCallback(IntPtr instance, CppClosedDelegate callback);
+    internal static partial InfiniFrameNativeInteropStatus SetClosedCallback(IntPtr instance, CppClosedCallback callback);
 
     /// <summary>
     ///     Sets the callback invoked when the native window receives focus.
@@ -38,7 +38,7 @@ public partial class InfiniFrameNative {
     /// <returns>A status code indicating success or failure.</returns>
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetFocusInCallback", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial InfiniFrameNativeInteropStatus SetFocusInCallback(IntPtr instance, CppFocusInDelegate callback);
+    internal static partial InfiniFrameNativeInteropStatus SetFocusInCallback(IntPtr instance, CppFocusInCallback callback);
 
     /// <summary>
     ///     Sets the callback invoked when the native window loses focus.
@@ -48,7 +48,7 @@ public partial class InfiniFrameNative {
     /// <returns>A status code indicating success or failure.</returns>
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetFocusOutCallback", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial InfiniFrameNativeInteropStatus SetFocusOutCallback(IntPtr instance, CppFocusOutDelegate callback);
+    internal static partial InfiniFrameNativeInteropStatus SetFocusOutCallback(IntPtr instance, CppFocusOutCallback callback);
 
     /// <summary>
     ///     Sets the callback invoked when the native window is moved.
@@ -58,7 +58,7 @@ public partial class InfiniFrameNative {
     /// <returns>A status code indicating success or failure.</returns>
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetMovedCallback", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial InfiniFrameNativeInteropStatus SetMovedCallback(IntPtr instance, CppMovedDelegate callback);
+    internal static partial InfiniFrameNativeInteropStatus SetMovedCallback(IntPtr instance, CppMovedCallback callback);
 
     /// <summary>
     ///     Sets the callback invoked when the native window is resized.
@@ -68,7 +68,7 @@ public partial class InfiniFrameNative {
     /// <returns>A status code indicating success or failure.</returns>
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetResizedCallback", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial InfiniFrameNativeInteropStatus SetResizedCallback(IntPtr instance, CppResizedDelegate callback);
+    internal static partial InfiniFrameNativeInteropStatus SetResizedCallback(IntPtr instance, CppResizedCallback callback);
 
     /// <summary>
     ///     Sets the callback invoked when files are dropped onto the window.
@@ -78,7 +78,7 @@ public partial class InfiniFrameNative {
     /// <returns>A status code indicating success or failure.</returns>
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_SetFileDroppedCallback", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial InfiniFrameNativeInteropStatus SetFileDroppedCallback(IntPtr instance, CppFileDroppedDelegate callback);
+    internal static partial InfiniFrameNativeInteropStatus SetFileDroppedCallback(IntPtr instance, CppFileDroppedCallback callback);
 
     /// <summary>
     ///     Enables or disables file drag-and-drop on the window.

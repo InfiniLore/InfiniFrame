@@ -134,7 +134,6 @@ internal static partial class RemoteDebuggingUtility {
         try {
             using var listener = new TcpListener(IPAddress.Loopback, normalizedPort);
             listener.Start();
-            logger.LogDebug("Remote debugging startup preflight succeeded for loopback port {RemoteDebuggingPort}", normalizedPort);
         }
         catch (SocketException ex) {
             logger.LogError(ex, "Remote debugging startup preflight failed for loopback port {RemoteDebuggingPort}", normalizedPort);

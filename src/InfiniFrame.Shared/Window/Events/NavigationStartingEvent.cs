@@ -12,7 +12,7 @@ namespace InfiniFrame;
 /// <param name="IsUserInitiated">True if the user initiated the navigation (e.g., link click, form submission).</param>
 /// <param name="IsRedirect">True if the navigation is the result of a redirect.</param>
 /// <param name="IsMainFrame">True if the navigation is in the main frame; false for sub-frame navigations.</param>
-public sealed record NavigationStartingEventArgs(
+public sealed record NavigationStartingEvent(
     string Url,
     bool IsUserInitiated,
     bool IsRedirect,

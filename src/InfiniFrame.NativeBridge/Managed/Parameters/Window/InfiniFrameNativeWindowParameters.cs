@@ -96,47 +96,47 @@ public struct InfiniFrameNativeWindowParameters() {
 
     ///<summary>Set by InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
-    internal CppClosingDelegate? ClosingHandler;
+    internal CppClosingCallback? ClosingHandler;
 
     ///<summary>Set by InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
-    internal CppClosedDelegate? ClosedHandler;
+    internal CppClosedCallback? ClosedHandler;
 
     ///<summary>Set by InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
-    internal CppFocusInDelegate? FocusInHandler;
+    internal CppFocusInCallback? FocusInHandler;
 
     ///<summary>Set by InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
-    internal CppFocusOutDelegate? FocusOutHandler;
+    internal CppFocusOutCallback? FocusOutHandler;
 
     ///<summary>Set by InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
-    internal CppResizedDelegate? ResizedHandler;
+    internal CppResizedCallback? ResizedHandler;
 
     ///<summary>Set by InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
-    internal CppMaximizedDelegate? MaximizedHandler;
+    internal CppMaximizedCallback? MaximizedHandler;
 
     ///<summary>Set by InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
-    internal CppRestoredDelegate? RestoredHandler;
+    internal CppRestoredCallback? RestoredHandler;
 
     ///<summary>Set by InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
-    internal CppMinimizedDelegate? MinimizedHandler;
+    internal CppMinimizedCallback? MinimizedHandler;
 
     ///<summary>Set by InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
-    internal CppMovedDelegate? MovedHandler;
+    internal CppMovedCallback? MovedHandler;
 
     ///<summary>Set by InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
-    internal CppWebMessageReceivedDelegate? WebMessageReceivedHandler;
+    internal CppWebMessageReceivedCallback? WebMessageReceivedHandler;
 
     ///<summary>Set by InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
-    internal CppDebugEventDelegate? DebugEventHandler;
+    internal CppDebugEventCallback? DebugEventHandler;
 
     //  Custom scheme support 
 
@@ -146,17 +146,17 @@ public struct InfiniFrameNativeWindowParameters() {
 
     ///<summary>Set by InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
-    internal CppWebResourceRequestedDelegate? CustomSchemeHandler;
+    internal CppWebResourceRequestedCallback? CustomSchemeHandler;
 
     ///<summary>Set by InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
-    internal CppNavigationStartingDelegate? NavigationStartingHandler;
+    internal CppNavigationStartingCallback? NavigationStartingHandler;
 
     //  Drag-and-drop 
 
     ///<summary>Set by InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
-    internal CppFileDroppedDelegate? FileDroppedHandler;
+    internal CppFileDroppedCallback? FileDroppedHandler;
 
     ///<summary>OPTIONAL: Enables native drag-and-drop file handling. Default is false.</summary>
     [MarshalAs(UnmanagedType.I1)]

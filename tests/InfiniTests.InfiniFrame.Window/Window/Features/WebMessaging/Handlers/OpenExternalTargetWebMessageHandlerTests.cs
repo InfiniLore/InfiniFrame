@@ -4,7 +4,7 @@
 using System.Diagnostics;
 using InfiniFrame;
 using InfiniFrame.Js.Interop;
-using InfiniFrame.NativeBridge.Handles;
+using InfiniFrame.NativeBridge.NativeHandles;
 using InfiniFrame.NativeBridge.Parameters.Window;
 using InfiniFrame.Window.Builder;
 using InfiniFrame.Window.Events;

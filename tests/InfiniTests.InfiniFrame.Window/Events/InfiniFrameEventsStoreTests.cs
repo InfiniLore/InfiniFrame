@@ -301,7 +301,7 @@ public class InfiniFrameEventsStoreTests {
 
         // Assert
         IInfiniFrameWindow window = MockFactory.CreateWindowMock().Object;
-        var args = new NavigationStartingEventArgs("https://example.com", false, false, true);
+        var args = new NavigationStartingEvent("https://example.com", false, false, true);
         target.NavigationStarting.Invoke(window, args);
         await Assert.That(handlerCalled).IsTrue();
     }

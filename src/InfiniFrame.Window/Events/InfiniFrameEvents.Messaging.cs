@@ -16,7 +16,9 @@ public partial class InfiniFrameEvents {
     ///     Invokes registered user-defined handler methods when the native window sends a message.
     /// </summary>
     public void OnWebMessageReceived(string message, string? origin = null) {
-        IInfiniFrameWindow sender = Sender ?? throw new ArgumentNullException(nameof(Sender));
+        // Sender is a property of the events instance rather than a parameter of this method, so the failure is
+        // reported as an invalid state instead of an ArgumentNullException with a misleading parameter name.
+        IInfiniFrameWindow sender = Sender ?? throw new InvalidOperationException("The events instance is not attached to a window.");
         ArgumentNullException.ThrowIfNull(message);
 
         InfiniFrameWindowLifecycleState state = sender.LifecycleState;
@@ -25,7 +27,6 @@ public partial class InfiniFrameEvents {
         // delivery itself proves that the transport is live; only reject work
         // before creation or once close has been requested.
         if (state is < InfiniFrameWindowLifecycleState.Creating or >= InfiniFrameWindowLifecycleState.CloseRequested) {
-            Logger.LogDebug("Skipping web message handling because window is closed");
             return;
         }
 
@@ -45,10 +46,6 @@ public partial class InfiniFrameEvents {
                 return;
 
             case { IsIgnored: true }:
-                Logger.LogDebug(
-                    "Ignored web message with ID '{MessageId}' due to parsing rules. Defaulting to WebMessageReceived",
-                    parseResult.MessageId
-                );
                 EventsStore.WebMessageReceived.Invoke(
                     sender,
                     new InfiniFrameWebMessageReceivedEvent(message, origin)

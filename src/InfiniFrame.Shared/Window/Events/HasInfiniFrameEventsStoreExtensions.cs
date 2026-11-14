@@ -159,7 +159,7 @@ public static class HasInfiniFrameEventsStoreExtensions {
     /// </param>
     /// <typeparam name="T">The type of the object with an events store.</typeparam>
     /// <returns>The same instance for chaining.</returns>
-    public static T RegisterNavigationStartingHandler<T>(this T obj, Func<IInfiniFrameWindow, NavigationStartingEventArgs, NavigationStartingResult> handler) where T : IHasInfiniFrameEventsStore {
+    public static T RegisterNavigationStartingHandler<T>(this T obj, Func<IInfiniFrameWindow, NavigationStartingEvent, NavigationStartingResult> handler) where T : IHasInfiniFrameEventsStore {
         obj.EventsStore.NavigationStarting.Add(handler);
         return obj;
     }
@@ -245,7 +245,7 @@ public static class HasInfiniFrameEventsStoreExtensions {
     ///     <see cref="EventHandler" />
     /// </param>
     /// <exception cref="ArgumentException">Thrown if no scheme or handler was provided</exception>
-    /// <exception cref="ApplicationException">Thrown if more than 16 custom schemes were set</exception>
+    /// <exception cref="InvalidOperationException">Thrown if more than 16 custom schemes were set</exception>
     public static IInfiniFrameWindowBuilder RegisterCustomSchemeHandler(this IInfiniFrameWindowBuilder builder, string scheme, Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> handler) {
         if (string.IsNullOrWhiteSpace(scheme)) throw new ArgumentException("A scheme must be provided. (for example 'app' or 'custom'");
 
@@ -254,7 +254,7 @@ public static class HasInfiniFrameEventsStoreExtensions {
         string schemeLower = scheme.ToLowerInvariant();
 
         if (builder.EventsStore.CustomScheme.Count > 15 && !builder.EventsStore.CustomScheme.ContainsKey(schemeLower))
-            throw new ApplicationException("No more than 16 custom schemes can be set prior to initialization. Additional handlers can be added after initialization.");
+            throw new InvalidOperationException("No more than 16 custom schemes can be set prior to initialization. Additional handlers can be added after initialization.");
 
         builder.EventsStore.CustomScheme.Add(schemeLower, handler);
 

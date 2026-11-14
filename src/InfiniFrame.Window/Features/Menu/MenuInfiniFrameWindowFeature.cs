@@ -45,8 +45,6 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
     // -----------------------------------------------------------------------------------------------------------------
     /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.SetMenuBar" />
     public void SetMenuBar(InfiniFrameMenuBar? menuBar) {
-        _logger.LogDebug(".SetMenuBar()");
-
         MenuBar = menuBar ?? new InfiniFrameMenuBar();
 
         string? json = MenuBar.Items.IsEmpty
@@ -64,8 +62,6 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
 
     /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.SetMenuItemEnabled" />
     public void SetMenuItemEnabled(string menuItemId, bool enabled) {
-        _logger.LogDebug(".SetMenuItemEnabled({MenuItemId}, {Enabled})", menuItemId, enabled);
-
         MenuBar = UpdateMenuItemProperty(MenuBar, menuItemId, updater: item => item with { IsEnabled = enabled });
 
         NativeInvoke.InvokeSyncWithValidation(
@@ -80,8 +76,6 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
 
     /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.SetMenuItemVisible" />
     public void SetMenuItemVisible(string menuItemId, bool visible) {
-        _logger.LogDebug(".SetMenuItemVisible({MenuItemId}, {Visible})", menuItemId, visible);
-
         MenuBar = UpdateMenuItemProperty(MenuBar, menuItemId, updater: item => item with { IsVisible = visible });
 
         NativeInvoke.InvokeSyncWithValidation(
@@ -96,8 +90,6 @@ public sealed class MenuInfiniFrameWindowFeature : IMenuInfiniFrameWindowFeature
 
     /// <inheritdoc cref="IMenuInfiniFrameWindowFeature.ClickMenuItem" />
     public void ClickMenuItem(string menuItemId) {
-        _logger.LogDebug(".ClickMenuItem({MenuItemId})", menuItemId);
-
         NativeInvoke.InvokeSyncWithValidation(
             _logger,
             _window,

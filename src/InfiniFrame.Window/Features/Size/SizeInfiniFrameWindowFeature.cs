@@ -128,8 +128,6 @@ public class SizeInfiniFrameWindowFeature(
     // -----------------------------------------------------------------------------------------------------------------
     /// <inheritdoc cref="ISizeInfiniFrameWindowFeature.SetSize(int, int)" />
     public void SetSize(int width, int height) {
-        logger.LogDebug(".SetSize({Width}, {Height})", width, height);
-
         NativeInvoke.InvokeSyncWithValidation(
             logger,
             window,
@@ -147,8 +145,6 @@ public class SizeInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="ISizeInfiniFrameWindowFeature.SetHeight" />
     public void SetHeight(int height) {
-        logger.LogDebug(".SetHeight({Height})", height);
-
         (int width, int _) = NativeInvoke.InvokeSyncWithValidation<int, int>(
             logger,
             window,
@@ -168,8 +164,6 @@ public class SizeInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="ISizeInfiniFrameWindowFeature.SetMaxSize(int, int)" />
     public void SetMaxSize(int maxWidth, int maxHeight) {
-        logger.LogDebug(".SetMaxSize({MaxWidth}, {MaxHeight})", maxWidth, maxHeight);
-
         NativeInvoke.InvokeSyncWithValidation(
             logger,
             window,
@@ -202,8 +196,6 @@ public class SizeInfiniFrameWindowFeature(
         => SetMaxSize(maxWidth, MaxHeight);
 
     public void SetMinSize(int minWidth, int minHeight) {
-        logger.LogDebug(".SetMinSize({MinWidth}, {MinHeight})", minWidth, minHeight);
-
         NativeInvoke.InvokeSyncWithValidation(
             logger,
             window,
@@ -240,8 +232,6 @@ public class SizeInfiniFrameWindowFeature(
     /// </summary>
     /// <param name="width">The new width to set.</param>
     public void SetWidth(int width) {
-        logger.LogDebug(".SetWidth({Width})", width);
-
         (int _, int height) = NativeInvoke.InvokeSyncWithValidation<int, int>(
             logger,
             window,
