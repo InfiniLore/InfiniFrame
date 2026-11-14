@@ -4,7 +4,13 @@
     "description": "JavaScript/TypeScript interop library for InfiniFrame Blazor applications. Provides the client-side bridge between C# and the browser.",
     "author": "InfiniLore",
     "license": "Apache-2.0",
-    "keywords": ["infiniframe", "blazor", "interop", "webview", "desktop"],
+    "keywords": [
+        "infiniframe",
+        "blazor",
+        "interop",
+        "webview",
+        "desktop"
+    ],
     "type": "module",
     "engines": {
         "node": ">=24.15.0"

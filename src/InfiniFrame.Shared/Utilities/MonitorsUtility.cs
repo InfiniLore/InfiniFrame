@@ -31,7 +31,7 @@ internal static class MonitorsUtility {
             window,
             window.ManagedThreadId,
             InfiniFrameNative.GetAllMonitors,
-            (CppGetAllMonitorsDelegate)Callback
+            (CppGetAllMonitorsCallback)Callback
         );
         return builder.ToImmutable();
 

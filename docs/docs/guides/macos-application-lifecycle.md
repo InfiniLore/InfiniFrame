@@ -53,7 +53,7 @@ the repository macOS workflow or on a self-hosted Mac:
 ```sh
 dotnet restore InfiniFrame.GitHubActions.Testing.slnf -p:NativeArch=arm64
 dotnet build InfiniFrame.GitHubActions.Testing.slnf --configuration Release --no-restore -p:NativeArch=arm64
-dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf --configuration Release --no-build --no-restore --framework net10.0 -p:NativeArch=arm64
+dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf --configuration Release --no-build --no-restore --framework net11.0 -p:NativeArch=arm64
 ```
 
 The macOS workflow also builds x64 and arm64 native artifacts and runs the full

@@ -14,9 +14,9 @@ public class CustomSchemeResponseAbiTests {
     public async Task ReversePInvokeStrings_UsePlatformNativeEncoding(CancellationToken ct = default) {
         // Arrange
         Type[] delegates = [
-            typeof(CppWebMessageReceivedDelegate),
-            typeof(CppWebResourceRequestedDelegate),
-            typeof(CppDebugEventDelegate)
+            typeof(CppWebMessageReceivedCallback),
+            typeof(CppWebResourceRequestedCallback),
+            typeof(CppDebugEventCallback)
         ];
 
         // Act & Assert
@@ -33,7 +33,7 @@ public class CustomSchemeResponseAbiTests {
     [Test]
     public async Task ClosingCallback_UsesOneByteCancellationResult(CancellationToken ct = default) {
         // Act
-        Type returnType = typeof(CppClosingDelegate).GetMethod("Invoke")!.ReturnType;
+        Type returnType = typeof(CppClosingCallback).GetMethod("Invoke")!.ReturnType;
 
         // Assert
         await Assert.That(returnType).IsEqualTo(typeof(byte));
@@ -70,14 +70,14 @@ public class CustomSchemeResponseAbiTests {
         // Arrange
         const int requestCount = 10_000;
         int releaseCount = 0;
-        CppReleaseCustomSchemeResponseDelegate release = ownerContext => {
+        CppReleaseCustomSchemeResponseCallback release = ownerContext => {
             Marshal.FreeCoTaskMem(ownerContext);
 
             // ReSharper disable once AccessToModifiedClosure
             Interlocked.Increment(ref releaseCount);
         };
         IntPtr releaseCallback = Marshal.GetFunctionPointerForDelegate(release);
-        CppWebResourceRequestedDelegate responseDelegate = Response;
+        CppWebResourceRequestedCallback responseDelegate = Response;
         IntPtr callback = Marshal.GetFunctionPointerForDelegate(responseDelegate);
 
         // Act
@@ -107,14 +107,14 @@ public class CustomSchemeResponseAbiTests {
         // Arrange
         const int requestCount = 1_024;
         int releaseCount = 0;
-        CppReleaseCustomSchemeResponseDelegate release = ownerContext => {
+        CppReleaseCustomSchemeResponseCallback release = ownerContext => {
             Marshal.FreeCoTaskMem(ownerContext);
 
             // ReSharper disable once AccessToModifiedClosure
             Interlocked.Increment(ref releaseCount);
         };
         IntPtr releaseCallback = Marshal.GetFunctionPointerForDelegate(release);
-        CppWebResourceRequestedDelegate responseDelegate = Response;
+        CppWebResourceRequestedCallback responseDelegate = Response;
         IntPtr callback = Marshal.GetFunctionPointerForDelegate(responseDelegate);
 
         Task[] requests = [

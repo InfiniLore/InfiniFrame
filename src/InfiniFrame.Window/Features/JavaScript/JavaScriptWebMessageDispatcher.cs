@@ -31,7 +31,15 @@ internal sealed class JavaScriptWebMessageDispatcher : WindowFeatureWebMessageDi
     }
 
     protected override object? Get(IJavaScriptInfiniFrameWindowFeature feature, string command, JsonElement? args) => command switch {
-        "eval" => feature.ExecuteJavaScriptAsync<string>(Required<string>(args, "script")).GetAwaiter().GetResult(),
+        "eval" => ExecuteEvalAsync(feature, Required<string>(args, "script")).GetAwaiter().GetResult(),
         _ => throw Unsupported(command)
     };
+
+    /// <summary>
+    ///     Awaits the evaluation on a <see cref="Task" /> instead of blocking on the <see cref="ValueTask" /> directly.
+    ///     Reading the result of an incomplete <see cref="ValueTask" /> is undefined behaviour, so the value task is
+    ///     awaited inside an asynchronous helper first.
+    /// </summary>
+    private static async Task<string?> ExecuteEvalAsync(IJavaScriptInfiniFrameWindowFeature feature, string script)
+        => await feature.ExecuteJavaScriptAsync<string>(script).ConfigureAwait(false);
 }

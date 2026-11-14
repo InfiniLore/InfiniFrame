@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.InteropServices;
@@ -18,7 +18,7 @@ namespace InfiniFrame.NativeBridge.Delegates;
 /// <param name="timestampUnixMillisecondsUtc">The event timestamp in UTC milliseconds.</param>
 /// <param name="platformPayload">Optional platform-specific payload.</param>
 [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-public delegate void CppDebugEventDelegate(
+public delegate void CppDebugEventCallback(
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     string kind,
     [MarshalAs(UnmanagedType.LPUTF8Str)]

@@ -25,13 +25,15 @@ public sealed class InfiniFrameWebServerConfiguration {
     }
 
     internal void Apply(WebApplication application) {
-        foreach (Action<WebApplication> configure in _applicationConfiguration)
+        foreach (Action<WebApplication> configure in _applicationConfiguration) {
             configure(application);
+        }
     }
 
     internal void AddRootServices() {
-        foreach (ServiceDescriptor descriptor in RootServices)
+        foreach (ServiceDescriptor descriptor in RootServices) {
             _webApplicationBuilder.Services.Add(descriptor);
+        }
     }
 
     internal WebApplication Build() => _webApplicationBuilder.Build();

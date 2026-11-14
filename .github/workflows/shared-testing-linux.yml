@@ -243,7 +243,9 @@ jobs:
 
                     exit_code=0
 
-                    for framework in net8.0 net9.0 net10.0; do
+                    frameworks=$(jq -r '.dotnet[] | "net" + .' tool-versions.json)
+                    coverage_framework=$(jq -r '.dotnet[-1] | "net" + .' tool-versions.json)
+                    for framework in $frameworks; do
                       echo "=== Running ${framework} ==="
 
                       test_args=(
@@ -261,7 +263,7 @@ jobs:
                         --maximum-parallel-tests 1
                       )
 
-                      if [ "${{ inputs.enable_coverage }}" = "true" ] && [ "$framework" = "net10.0" ]; then
+                      if [ "${{ inputs.enable_coverage }}" = "true" ] && [ "$framework" = "$coverage_framework" ]; then
                         test_args+=(--results-directory "artifacts/testresults/$framework" --coverage --coverage-output-format cobertura)
                       fi
 
@@ -350,7 +352,7 @@ jobs:
                 uses: actions/upload-artifact@v7
                 with:
                     name: cs-coverage-linux-${{ matrix.arch }}-${{ matrix.display_server }}
-                    path: artifacts/testresults/net10.0/**/*.cobertura.xml
+                    path: artifacts/testresults/**/*.cobertura.xml
                     if-no-files-found: warn
                     retention-days: 1
 

@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.InteropServices;
@@ -56,7 +56,7 @@ public struct CustomSchemeResponse {
 /// <param name="response">Caller-owned descriptor, initially zeroed.</param>
 /// <returns>Non-zero when a response was produced; zero for not found or handler failure.</returns>
 [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-public delegate int CppWebResourceRequestedDelegate(
+public delegate int CppWebResourceRequestedCallback(
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     string url,
     ref CustomSchemeResponse response

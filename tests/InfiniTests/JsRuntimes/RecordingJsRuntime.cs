@@ -15,7 +15,14 @@ public sealed class RecordingJsRuntime : IJSRuntime {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args) => InvokeAsync<TValue>(identifier, CancellationToken.None, args);
+    public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args) {
+        try {
+            return InvokeAsync<TValue>(identifier, CancellationToken.None, args);
+        }
+        catch (Exception ex) {
+            return ValueTask.FromException<TValue>(ex);
+        }
+    }
 
     public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args) {
         var invocation = new Invocation(identifier, args ?? [], cancellationToken);

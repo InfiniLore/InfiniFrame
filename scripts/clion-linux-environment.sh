@@ -18,13 +18,12 @@ sudo apt install -y \
     x11-apps
     
 # ----------------------------------------------------------------------------------------------------------------------
-# .NET SDKs (8, 9, 10)
+# .NET SDKs (10, 11)
 # ----------------------------------------------------------------------------------------------------------------------
 echo "Installing/updating .NET SDKs..."
 
-curl -fsSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 8.0
-curl -fsSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 9.0
 curl -fsSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 10.0
+curl -fsSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 11.0
 
 echo ".NET SDKs installed:"
 dotnet --list-sdks || true
@@ -33,11 +32,11 @@ echo ".NET runtimes installed:"
 dotnet --list-runtimes || true
 
 # ----------------------------------------------------------------------------------------------------------------------
-# Node.js 24
+# Node.js 26
 # ----------------------------------------------------------------------------------------------------------------------
-echo "Installing Node.js 24..."
+echo "Installing Node.js 26..."
 
-curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_26.x | sudo -E bash -
 
 sudo apt install -y nodejs
 

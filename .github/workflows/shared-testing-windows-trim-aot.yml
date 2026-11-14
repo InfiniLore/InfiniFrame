@@ -70,81 +70,73 @@ jobs:
 
             -   name: Trim Analyzer Builds
                 run: |
-                    dotnet build src/InfiniFrame.Shared/InfiniFrame.Shared.csproj `
-                      --configuration Release `
-                      --framework net10.0 `
-                      -p:SolutionDir=$env:GITHUB_WORKSPACE/ `
-                      -p:Platform=x64 `
-                      -p:InfiniFrameSkipNativeBuild=true `
-                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} `
-                      -p:EnableTrimAnalyzer=true `
-                      -p:EnableAotAnalyzer=true `
-                      -p:GeneratePackageOnBuild=false
+                    $frameworks = @(Get-Content tool-versions.json -Raw | ConvertFrom-Json).dotnet | ForEach-Object { "net$_" }
+                    foreach ($framework in $frameworks) {
+                      dotnet build src/InfiniFrame.Shared/InfiniFrame.Shared.csproj `
+                        --configuration Release --framework $framework `
+                        -p:SolutionDir=$env:GITHUB_WORKSPACE/ -p:Platform=x64 `
+                        -p:InfiniFrameSkipNativeBuild=true `
+                        -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} `
+                        -p:EnableTrimAnalyzer=true -p:EnableAotAnalyzer=true `
+                        -p:GeneratePackageOnBuild=false
 
-                    dotnet build src/InfiniFrame.BlazorWebView/InfiniFrame.BlazorWebView.csproj `
-                      --configuration Release `
-                      --framework net10.0 `
-                      -p:SolutionDir=$env:GITHUB_WORKSPACE/ `
-                      -p:Platform=x64 `
-                      -p:InfiniFrameSkipNativeBuild=true `
-                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} `
-                      -p:EnableTrimAnalyzer=true `
-                      -p:EnableAotAnalyzer=true `
-                      -p:GeneratePackageOnBuild=false `
-                      -p:SkipTypeScriptBuild=true
+                      dotnet build src/InfiniFrame.BlazorWebView/InfiniFrame.BlazorWebView.csproj `
+                        --configuration Release --framework $framework `
+                        -p:SolutionDir=$env:GITHUB_WORKSPACE/ -p:Platform=x64 `
+                        -p:InfiniFrameSkipNativeBuild=true `
+                        -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} `
+                        -p:EnableTrimAnalyzer=true -p:EnableAotAnalyzer=true `
+                        -p:GeneratePackageOnBuild=false -p:SkipTypeScriptBuild=true
 
-                    dotnet build src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj `
-                      --configuration Release `
-                      --framework net10.0 `
-                      -p:SolutionDir=$env:GITHUB_WORKSPACE/ `
-                      -p:Platform=x64 `
-                      -p:InfiniFrameSkipNativeBuild=true `
-                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} `
-                      -p:EnableTrimAnalyzer=true `
-                      -p:EnableAotAnalyzer=true `
-                      -p:GeneratePackageOnBuild=false `
-                      -p:SkipTypeScriptBuild=true
+                      dotnet build src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj `
+                        --configuration Release --framework $framework `
+                        -p:SolutionDir=$env:GITHUB_WORKSPACE/ -p:Platform=x64 `
+                        -p:InfiniFrameSkipNativeBuild=true `
+                        -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} `
+                        -p:EnableTrimAnalyzer=true -p:EnableAotAnalyzer=true `
+                        -p:GeneratePackageOnBuild=false -p:SkipTypeScriptBuild=true
+                    }
 
             -   name: NativeAOT Smoke Publish (Consumer Example)
                 run: |
-                    dotnet publish examples/InfiniFrameExample.TrimAotSmoke/InfiniFrameExample.TrimAotSmoke.csproj `
-                      --configuration Release `
-                      --framework net10.0 `
-                      --runtime win-x64 `
-                      -p:SolutionDir=$env:GITHUB_WORKSPACE/ `
-                      -p:Platform=x64 `
-                      -p:InfiniFrameSkipNativeBuild=true `
-                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} `
-                      -p:GeneratePackageOnBuild=false `
-                      -p:SkipTypeScriptBuild=true
+                    $frameworks = @(Get-Content tool-versions.json -Raw | ConvertFrom-Json).dotnet | ForEach-Object { "net$_" }
+                    foreach ($framework in $frameworks) {
+                      dotnet publish examples/InfiniFrameExample.TrimAotSmoke/InfiniFrameExample.TrimAotSmoke.csproj `
+                        --configuration Release --framework $framework --runtime win-x64 `
+                        -p:SolutionDir=$env:GITHUB_WORKSPACE/ -p:Platform=x64 `
+                        -p:InfiniFrameSkipNativeBuild=true `
+                        -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} `
+                        -p:GeneratePackageOnBuild=false -p:SkipTypeScriptBuild=true
+                    }
 
             -   name: Validate NativeAOT Output
                 run: |
-                    $publishDirs = @(
-                      "examples/InfiniFrameExample.TrimAotSmoke/bin/x64/Release/net10.0/win-x64/publish",
-                      "examples/InfiniFrameExample.TrimAotSmoke/bin/Release/net10.0/win-x64/publish"
-                    )
                     $outputName = "InfiniFrameExample.TrimAotSmoke.exe"
+                    $frameworks = @(Get-Content tool-versions.json -Raw | ConvertFrom-Json).dotnet | ForEach-Object { "net$_" }
+                    $missing = @()
 
-                    foreach ($publishDir in $publishDirs) {
-                      $output = Join-Path $publishDir $outputName
-                      if (Test-Path $output) {
-                        Write-Host "✅ NativeAOT smoke output validated: $output"
-                        Exit 0
+                    foreach ($framework in $frameworks) {
+                      $publishDirs = @(
+                        "examples/InfiniFrameExample.TrimAotSmoke/bin/x64/Release/$framework/win-x64/publish",
+                        "examples/InfiniFrameExample.TrimAotSmoke/bin/Release/$framework/win-x64/publish"
+                      )
+                      $found = $false
+                      foreach ($publishDir in $publishDirs) {
+                        $output = Join-Path $publishDir $outputName
+                        if (Test-Path $output) {
+                          Write-Host "✅ NativeAOT $framework output validated: $output"
+                          $found = $true
+                          break
+                        }
+                      }
+                      if (-not $found) {
+                        $missing += $framework
                       }
                     }
 
-                    Write-Host "❌ Expected NativeAOT output not found. Checked:"
-                    foreach ($publishDir in $publishDirs) {
-                      Write-Host "  - $publishDir"
-                      if (Test-Path $publishDir) {
-                        $availableExeNames = Get-ChildItem -Path $publishDir -Filter *.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
-                        Write-Host "    Available *.exe: $($availableExeNames -join ', ')"
-                      } else {
-                        Write-Host "    Directory does not exist."
-                      }
+                    if ($missing.Count -gt 0) {
+                      throw "Expected NativeAOT output not found for: $($missing -join ', ')"
                     }
-                    Exit 1
 
             -   name: Complete Trim/AOT Check
                 if: always()

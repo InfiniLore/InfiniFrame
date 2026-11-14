@@ -5,9 +5,9 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import type {
-	BlazorCallback,
-	InfiniFrameExternal,
-	InfiniFrameSetup,
+    BlazorCallback,
+    InfiniFrameExternal,
+    InfiniFrameSetup,
 } from "../../Contracts";
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -22,47 +22,47 @@ import type {
  * @returns {void}
  */
 export function initWindowExternalBridge(setup: InfiniFrameSetup): void {
-	if (setup.windowExternalBridgeInitialized) return;
-	setup.windowExternalBridgeInitialized = true;
+    if (setup.windowExternalBridgeInitialized) return;
+    setup.windowExternalBridgeInitialized = true;
 
-	const external = ensureWindowExternal();
-	window.infiniframe = window.infiniframe ?? ({} as Window["infiniframe"]);
-	const callbacks: BlazorCallback[] = [];
-	(window.infiniframe as unknown as Record<string, unknown>).__blazorCallbacks =
-		callbacks;
+    const external = ensureWindowExternal();
+    window.infiniframe = window.infiniframe ?? ({} as Window["infiniframe"]);
+    const callbacks: BlazorCallback[] = [];
+    (window.infiniframe as unknown as Record<string, unknown>).__blazorCallbacks =
+        callbacks;
 
-	external.receiveMessage = (callback: BlazorCallback): void => {
-		callbacks.push(callback);
-	};
+    external.receiveMessage = (callback: BlazorCallback): void => {
+        callbacks.push(callback);
+    };
 
-	external.receiveCallback = external.receiveMessage;
+    external.receiveCallback = external.receiveMessage;
 
-	external.sendMessage = (message: string): void => {
-		if (!window.infiniframe?.host?.postData) {
-			console.warn(
-				"Message to host failed. Host bridge API is not initialized.",
-			);
-			return;
-		}
+    external.sendMessage = (message: string): void => {
+        if (!window.infiniframe?.host?.postData) {
+            console.warn(
+                "Message to host failed. Host bridge API is not initialized.",
+            );
+            return;
+        }
 
-		window.infiniframe.host.postData(message);
-	};
+        window.infiniframe.host.postData(message);
+    };
 
-	external.postMessage = external.sendMessage;
+    external.postMessage = external.sendMessage;
 
-	if (!window.__blazorDispatchHooked) {
-		window.__blazorDispatchHooked = true;
+    if (!window.__blazorDispatchHooked) {
+        window.__blazorDispatchHooked = true;
 
-		window.infiniframe?.host?.receiveCallback((message: string) => {
-			for (const callback of callbacks) {
-				try {
-					callback(message);
-				} catch {
-					// Blazor callbacks are user code. Keep the host dispatch path alive.
-				}
-			}
-		});
-	}
+        window.infiniframe?.host?.receiveCallback((message: string) => {
+            for (const callback of callbacks) {
+                try {
+                    callback(message);
+                } catch {
+                    // Blazor callbacks are user code. Keep the host dispatch path alive.
+                }
+            }
+        });
+    }
 }
 
 /**
@@ -71,17 +71,17 @@ export function initWindowExternalBridge(setup: InfiniFrameSetup): void {
  * @returns The {@link InfiniFrameExternal} object attached to `window.external`.
  */
 function ensureWindowExternal(): InfiniFrameExternal {
-	if (window.external) {
-		return window.external as InfiniFrameExternal;
-	}
+    if (window.external) {
+        return window.external as InfiniFrameExternal;
+    }
 
-	const external = {} as InfiniFrameExternal;
-	Object.defineProperty(window, "external", {
-		configurable: true,
-		enumerable: true,
-		value: external,
-		writable: true,
-	});
+    const external = {} as InfiniFrameExternal;
+    Object.defineProperty(window, "external", {
+        configurable: true,
+        enumerable: true,
+        value: external,
+        writable: true,
+    });
 
-	return external;
+    return external;
 }

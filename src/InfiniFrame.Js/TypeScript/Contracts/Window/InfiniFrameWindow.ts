@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type { InfiniFrameWindowFeatures } from "./InfiniFrameWindowFeatures";
+import type {InfiniFrameWindowFeatures} from "./InfiniFrameWindowFeatures";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -16,6 +16,6 @@ import type { InfiniFrameWindowFeatures } from "./InfiniFrameWindowFeatures";
  * Provides access to all window feature groups via the {@link features} property.
  */
 export interface InfiniFrameWindow {
-	/** Collection of all window feature groups (browser, position, size, state, etc.). */
-	features: InfiniFrameWindowFeatures;
+    /** Collection of all window feature groups (browser, position, size, state, etc.). */
+    features: InfiniFrameWindowFeatures;
 }

@@ -117,7 +117,6 @@ public class PageNavigationInfiniFrameWindowFeature(
     /// </remarks>
     public void LoadRawString([StringSyntax("Html")] string content) {
         if (window.IsClosedOrClosing()) {
-            logger.LogDebug("Skipping navigation because window is closing");
             return;
         }
 

@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.InteropServices;
@@ -8,7 +8,9 @@ namespace InfiniFrame.NativeBridge.Delegates;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Represents a native callback invoked when the native window receives focus.
+///     Represents a native callback invoked when the native window is resized.
 /// </summary>
+/// <param name="width">The new width of the window.</param>
+/// <param name="height">The new height of the window.</param>
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-public delegate void CppFocusInDelegate();
+public delegate void CppResizedCallback(int width, int height);

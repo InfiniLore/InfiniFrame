@@ -13,7 +13,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
+        <ProjectReference Include="../InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

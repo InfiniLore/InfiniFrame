@@ -14,7 +14,6 @@
             "src\\InfiniFrame.StaticAssets\\InfiniFrame.StaticAssets.csproj",
             "src\\InfiniFrame.WebServer\\InfiniFrame.WebServer.csproj",
             "src\\InfiniFrame.Window\\InfiniFrame.Window.csproj",
-            
             "tests\\InfiniTests\\InfiniTests.csproj",
             "tests\\InfiniTests.InfiniFrame.Application\\InfiniTests.InfiniFrame.Application.csproj",
             "tests\\InfiniTests.InfiniFrame.Window\\InfiniTests.InfiniFrame.Window.csproj",
@@ -25,8 +24,6 @@
             "tests\\InfiniTests.InfiniFrame.Shared\\InfiniTests.InfiniFrame.Shared.csproj",
             "tests\\InfiniTests.InfiniFrame.SingleFile\\InfiniTests.InfiniFrame.SingleFile.csproj",
             "tests\\InfiniTests.InfiniFrame.WebServer\\InfiniTests.InfiniFrame.WebServer.csproj",
-            
-            
             "tests\\InfiniAutomationTests\\InfiniAutomationTests.csproj",
             "tests\\InfiniAutomationTests.BlazorWebView.MudBlazor\\InfiniAutomationTests.BlazorWebView.MudBlazor.csproj",
             "tests\\InfiniAutomationTests.WebApp.React\\InfiniAutomationTests.WebApp.React.csproj",

@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Globalization;
 using InfiniFrame.NativeBridge.Parameters.Window;
 
 namespace InfiniFrame.Window.Features.Browser;
@@ -55,7 +56,7 @@ public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowB
     public string TemporaryFilesPath { get; private set; } = Path.Join(
         Path.GetTempPath(),
         "infiniframe",
-        Environment.ProcessId.ToString()
+        Environment.ProcessId.ToString(CultureInfo.InvariantCulture)
     );
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -79,7 +80,7 @@ public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowB
         }
 
         // Strip control characters and limit length to prevent header injection.
-        string sanitized = new string(userAgent.Where(static c => !char.IsControl(c)).ToArray());
+        string sanitized = new(userAgent.Where(static c => !char.IsControl(c)).ToArray());
         UserAgent = sanitized.Length > 1024 ? sanitized[..1024] : sanitized;
     }
 
@@ -144,9 +145,9 @@ public class BrowserInfiniFrameWindowBuilderFeature : IBrowserInfiniFrameWindowB
     }
 
     /// <inheritdoc cref="IBrowserInfiniFrameWindowBuilderFeature.SetTemporaryFilesPath" />
-    public void SetTemporaryFilesPath(string path) {
-        ArgumentException.ThrowIfNullOrWhiteSpace(path);
-        TemporaryFilesPath = Path.GetFullPath(path);
+    public void SetTemporaryFilesPath(string parameters) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(parameters);
+        TemporaryFilesPath = Path.GetFullPath(parameters);
     }
 
     /// <summary>

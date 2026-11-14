@@ -12,76 +12,90 @@
 
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
 param(
-    # Also rewrite package.json version ranges to the latest releases. This can introduce breaking changes.
+# Also rewrite package.json version ranges to the latest releases. This can introduce breaking changes.
     [switch] $IncludeMajor,
 
-    # Run npm audit fix after updating each project. Findings without an upstream fix remain reported by npm.
+# Run npm audit fix after updating each project. Findings without an upstream fix remain reported by npm.
     [switch] $AuditFix
 )
 
 $ErrorActionPreference = 'Stop'
 $RepositoryRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 
-if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
+if (-not (Get-Command npm -ErrorAction SilentlyContinue))
+{
     throw 'npm was not found on PATH. Install Node.js (including npm) and try again.'
 }
 
-function Invoke-Npm {
+function Invoke-Npm
+{
     param(
         [Parameter(Mandatory)] [string] $ProjectDirectory,
         [Parameter(Mandatory)] [string[]] $Arguments
     )
 
     & npm --prefix $ProjectDirectory @Arguments
-    if ($LASTEXITCODE -ne 0) {
-        throw "npm $($Arguments -join ' ') failed for $ProjectDirectory (exit code $LASTEXITCODE)."
+    if ($LASTEXITCODE -ne 0)
+    {
+        throw "npm $( $Arguments -join ' ' ) failed for $ProjectDirectory (exit code $LASTEXITCODE)."
     }
 }
 
 # Git respects .gitignore, so nested node_modules package.json files are never treated as projects.
 $PackageFiles = @(
     & git -C $RepositoryRoot ls-files --cached --others --exclude-standard -- '**/package.json'
-    if ($LASTEXITCODE -ne 0) {
-        throw "git ls-files failed (exit code $LASTEXITCODE)."
-    }
+if ($LASTEXITCODE -ne 0)
+{
+    throw "git ls-files failed (exit code $LASTEXITCODE)."
+}
 ) | ForEach-Object { Join-Path $RepositoryRoot $_ } | Sort-Object -Unique
 
-if ($PackageFiles.Count -eq 0) {
+if ($PackageFiles.Count -eq 0)
+{
     throw "No package.json files were found under $RepositoryRoot."
 }
 
-foreach ($PackageFile in $PackageFiles) {
+foreach ($PackageFile in $PackageFiles)
+{
     $ProjectDirectory = Split-Path -Parent $PackageFile
     # GetRelativePath is unavailable in Windows PowerShell's .NET Framework runtime.
     $RelativePath = $PackageFile.Substring($RepositoryRoot.Length).TrimStart([char[]]@('\', '/'))
     Write-Host "`n==> $RelativePath" -ForegroundColor Cyan
 
-    if ($IncludeMajor) {
-        if ($PSCmdlet.ShouldProcess($RelativePath, 'upgrade package.json version ranges with npm-check-updates')) {
+    if ($IncludeMajor)
+    {
+        if ( $PSCmdlet.ShouldProcess($RelativePath, 'upgrade package.json version ranges with npm-check-updates'))
+        {
             Push-Location $ProjectDirectory
-            try {
+            try
+            {
                 & npx --yes npm-check-updates@latest --upgrade
-                if ($LASTEXITCODE -ne 0) {
+                if ($LASTEXITCODE -ne 0)
+                {
                     throw "npm-check-updates failed for $RelativePath (exit code $LASTEXITCODE)."
                 }
             }
-            finally {
+            finally
+            {
                 Pop-Location
             }
         }
     }
 
-    if ($PSCmdlet.ShouldProcess($RelativePath, 'update dependencies within declared version ranges')) {
+    if ( $PSCmdlet.ShouldProcess($RelativePath, 'update dependencies within declared version ranges'))
+    {
         Invoke-Npm -ProjectDirectory $ProjectDirectory -Arguments @('update', '--include=dev')
     }
 
-    if ($PSCmdlet.ShouldProcess($RelativePath, 'synchronize package-lock.json with package.json')) {
+    if ( $PSCmdlet.ShouldProcess($RelativePath, 'synchronize package-lock.json with package.json'))
+    {
         Invoke-Npm -ProjectDirectory $ProjectDirectory -Arguments @('install', '--package-lock-only', '--include=dev')
     }
 
-    if ($AuditFix -and $PSCmdlet.ShouldProcess($RelativePath, 'apply npm audit fixes')) {
+    if ($AuditFix -and $PSCmdlet.ShouldProcess($RelativePath, 'apply npm audit fixes'))
+    {
         Invoke-Npm -ProjectDirectory $ProjectDirectory -Arguments @('audit', 'fix', '--include=dev')
     }
 }
 
-Write-Host "`nUpdated $($PackageFiles.Count) JavaScript project(s)." -ForegroundColor Green
+Write-Host "`nUpdated $( $PackageFiles.Count ) JavaScript project(s)." -ForegroundColor Green

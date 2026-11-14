@@ -57,8 +57,6 @@ public sealed class DebuggingInfiniFrameWindowFeature(
     // -----------------------------------------------------------------------------------------------------------------
     /// <inheritdoc cref="IDebuggingInfiniFrameWindowFeature.EnableDevTools" />
     public void EnableDevTools(bool enabled) {
-        logger.LogDebug(".Debug.SetDevToolsEnabled({Enabled})", enabled);
-
         bool originalValue = NativeInvoke.InvokeSyncWithValidation<bool>(
             logger,
             window,
@@ -114,7 +112,6 @@ public sealed class DebuggingInfiniFrameWindowFeature(
         }
 
         if (RemoteDebuggingUtility.TryProbeEndpoint(endpoint, out string? probeFailure)) {
-            logger.LogDebug("Debug endpoint probe succeeded for {Endpoint}", endpoint);
             return true;
         }
 

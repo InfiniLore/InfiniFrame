@@ -45,8 +45,8 @@ Python unit tests for repository scripts (in `tests/scripts/`):
 
 ### Prerequisites
 
-- .NET 8, 9, and 10 SDKs
-- Node.js 24 (for JS interop tests)
+- .NET 10 and 11 SDKs
+- Node.js 26 (for JS interop tests)
 - Platform-specific dependencies (see [Getting Started](../docs/docs/guides/getting-started.md))
 
 ### Run All Tests
@@ -76,7 +76,7 @@ The Windows integration test provisions a pinned WebView2 runtime automatically.
 - **Unit tests:** [TUnit](https://github.com/thomhurst/TUnit)
 - **Mocking:** TUnit.Mocks
 - **Browser automation:** Playwright
-- **Multi-target:** `net8.0`, `net9.0`, `net10.0`
+- **Multi-target:** `net10.0`, `net11.0`
 
 ## Docker
 

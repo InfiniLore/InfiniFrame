@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using FluentValidation;
 using InfiniFrame.NativeBridge;
-using InfiniFrame.NativeBridge.Handles;
+using InfiniFrame.NativeBridge.NativeHandles;
 using InfiniFrame.NativeBridge.Parameters.Window;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
@@ -41,14 +41,9 @@ public class LifecycleInfiniFrameWindowFeature(
     private int _milestoneRootReleased;
     private int _nativeCallbackRootReleased;
     public InfiniFrameWindowLifecycleState State => window.LifecycleState;
-    
-    #if NET9_0_OR_GREATER
+
     /// <summary>Synchronization lock for thread-safe access to pending task state.</summary>
     private readonly Lock _closeAttemptLock = new();
-    #else
-    /// <summary>Synchronization lock for thread-safe access to pending task state.</summary>
-    private readonly object _closeAttemptLock = new();
-    #endif
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -97,7 +92,6 @@ public class LifecycleInfiniFrameWindowFeature(
                 }
             }
             else {
-                logger.LogDebug("Remote debugging is disabled");
             }
 
             RemoteDebuggingUtility.EnsureSupportedPlatform(startupParameters.RemoteDebuggingPort);
@@ -110,7 +104,9 @@ public class LifecycleInfiniFrameWindowFeature(
 
             try {
                 if (OperatingSystem.IsWindows()) InfiniFrameNative.RegisterWin32(window.MainProgramHandle);
-                else if (OperatingSystem.IsMacOS()) { /* Application owns AppKit registration. */ }
+                else if (OperatingSystem.IsMacOS()) {
+                    /* Application owns AppKit registration. */
+                }
                 else if (OperatingSystem.IsLinux()) {}// No specific implementation for Linux
                 else throw new PlatformNotSupportedException();
 
@@ -168,7 +164,6 @@ public class LifecycleInfiniFrameWindowFeature(
         // Closing is not terminal. Close() may have queued the native close request before the
         // owning thread entered its message loop; that loop must still run to deliver the request.
         if (IsClosed()) {
-            logger.LogDebug("Skipping WaitForClose because the window is already closed");
             return;
         }
 
@@ -191,7 +186,6 @@ public class LifecycleInfiniFrameWindowFeature(
         }
 
         try {
-            logger.LogDebug("Starting message loop for window");
             if (OperatingSystem.IsLinux()) {
                 Volatile.Write(ref _messageLoopStarted, 1);
                 NativeHandleLease lease;
@@ -254,7 +248,8 @@ public class LifecycleInfiniFrameWindowFeature(
     public ValueTask WaitForTeardownAsync(CancellationToken ct = default) {
         if (window.LifecycleState >= InfiniFrameWindowLifecycleState.TeardownComplete)
             return ValueTask.CompletedTask;
-        return new(_teardown.Task.WaitAsync(ct));
+
+        return new ValueTask(_teardown.Task.WaitAsync(ct));
     }
 
     /// <inheritdoc cref="ILifecycleInfiniFrameWindowFeature.Close" />
@@ -267,11 +262,9 @@ public class LifecycleInfiniFrameWindowFeature(
         }
 
         if (!requested) {
-            logger.LogDebug("Skipping Close during shutdown");
             return;
         }
 
-        logger.LogDebug(".Close()");
         window.Events.OnWindowClosingRequested();
 
         try {

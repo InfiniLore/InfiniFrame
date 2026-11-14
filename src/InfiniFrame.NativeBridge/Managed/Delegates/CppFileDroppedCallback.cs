@@ -15,4 +15,4 @@ namespace InfiniFrame.NativeBridge.Delegates;
 /// <param name="x">Screen X coordinate of the drop location.</param>
 /// <param name="y">Screen Y coordinate of the drop location.</param>
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-public delegate void CppFileDroppedDelegate(IntPtr paths, int count, int x, int y);
+public delegate void CppFileDroppedCallback(IntPtr paths, int count, int x, int y);

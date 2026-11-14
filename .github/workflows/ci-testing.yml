@@ -11,7 +11,7 @@ on:
     push:
         branches:
             - core
-        
+    
     workflow_dispatch:
         inputs:
             pr_number:
@@ -80,7 +80,7 @@ jobs:
 
     coverage:
         name: "CI: coverage"
-        needs: [run]
+        needs: [ run ]
         if: ${{ github.event_name == 'push' || inputs.enable_coverage }}
         uses: ./.github/workflows/shared-coverage.yml
         with:

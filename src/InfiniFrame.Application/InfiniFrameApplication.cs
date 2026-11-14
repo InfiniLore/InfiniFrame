@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
-using InfiniFrame.NativeBridge.Handles;
+using InfiniFrame.NativeBridge.NativeHandles;
 using FluentValidation;
 using InfiniFrame.NativeBridge.Parameters.Application;
 using InfiniFrame.Utilities;
@@ -20,20 +20,14 @@ namespace InfiniFrame.Application;
 public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     private readonly ILogger<InfiniFrameApplication> logger;
     private readonly NativeApplicationHandle _nativeHandle;
-    
-    #if NET9_0_OR_GREATER
     private readonly Lock _gate = new();
-    #else
-    // ReSharper disable once ChangeFieldTypeToSystemThreadingLock
-    private readonly object _gate = new();
-    #endif
-    
+
     private readonly List<(
         string? Id,
         Action<IInfiniFrameWindowBuilder>? Configure,
         InfiniFrameWindowBuilder? Builder,
         IServiceProvider? Provider
-    )> _registrations = [];
+        )> _registrations = [];
     private readonly List<Func<Task>> _shutdownActions = [];
     private readonly List<Func<Task>> _startupActions = [];
     private readonly List<Task> _naturalWindowTeardowns = [];
@@ -44,18 +38,22 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     private bool _built;
     private int _shutdownRequested;
     private int _nativeApplicationRegistered;
-    
+
     /// <inheritdoc />
     public IReadOnlyList<IInfiniFrameWindow> Windows {
         get {
-            lock (_gate) return _windows.Values.ToArray();
+            lock (_gate) {
+                return _windows.Values.ToArray();
+            }
         }
     }
-    
+
     /// <inheritdoc />
     public IReadOnlyList<string?> WindowRegistrations {
         get {
-            lock (_gate) return _registrations.Select(r => r.Id).ToArray();
+            lock (_gate) {
+                return _registrations.Select(r => r.Id).ToArray();
+            }
         }
     }
 
@@ -74,7 +72,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             _nativeHandle.DangerousGetHandle(),
             in parameters
         );
-        
+
         if (configureStatus == InfiniFrameNativeInteropStatus.Success) return;
 
         _nativeHandle.Dispose();
@@ -143,9 +141,11 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     /// <inheritdoc />
     public IInfiniFrameWindow? TryGetWindow(string id) {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
-        lock (_gate) return _built && _windows.TryGetValue(id, out IInfiniFrameWindow? window) ? window : null;
+        lock (_gate) {
+            return _built && _windows.TryGetValue(id, out IInfiniFrameWindow? window) ? window : null;
+        }
     }
-    
+
     /// <inheritdoc />
     public void Run() {
         BeginRun();
@@ -154,10 +154,10 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             if (HasRegisteredWindows() || OperatingSystem.IsMacOS())
                 RegisterNativeApplication();
             if (IsShutdownRequested) return;
+
             StartRegisteredComponents();
             BuildAllWindows();
             RunNativeLoop();
-            logger.LogDebug("Native application loop returned");
         }
         finally {
             Dispose();
@@ -184,7 +184,8 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 try {
                     if (IsShutdownRequested) {
                         completion.TrySetResult();
-                    } else {
+                    }
+                    else {
                         if (HasRegisteredWindows())
                             RegisterNativeApplication();
                         if (IsShutdownRequested) {
@@ -193,7 +194,8 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                             // the first signal cannot wake a loop that did not exist yet.
                             SignalNativeShutdown();
                             completion.TrySetResult();
-                        } else {
+                        }
+                        else {
                             BuildAllWindows();
                             if (IsShutdownRequested) {
                                 CloseAll();
@@ -222,7 +224,8 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
 
                 uiTask = completion.Task;
                 await uiTask.ConfigureAwait(false);
-            } else {
+            }
+            else {
                 var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
                 var uiThread = new Thread(() => {
                     try {
@@ -279,6 +282,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
     public void Shutdown() {
         if (Volatile.Read(ref _disposed) != 0) return;
         if (Interlocked.Exchange(ref _shutdownRequested, 1) != 0) return;
+
         SignalNativeShutdown();
         CloseAll();
     }
@@ -288,6 +292,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         // an unregistered native application can corrupt the native allocator while
         // startup is racing an immediate managed Shutdown request.
         if (Volatile.Read(ref _nativeApplicationRegistered) == 0) return;
+
         InfiniFrameNative.ApplicationShutdown(_nativeHandle.DangerousGetHandle());
     }
 
@@ -308,11 +313,14 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         if (status != InfiniFrameNativeInteropStatus.Success)
             throw new InfiniFrameNativeInteropException(
                 InfiniFrameNative.GetLastErrorMessage() ?? "Could not register native application.");
+
         Volatile.Write(ref _nativeApplicationRegistered, 1);
     }
 
     private bool HasRegisteredWindows() {
-        lock (_gate) return _registrations.Count != 0;
+        lock (_gate) {
+            return _registrations.Count != 0;
+        }
     }
 
     /// <inheritdoc />
@@ -330,6 +338,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 (window as IDisposable)?.Dispose();
                 if (window.LifecycleState != InfiniFrameWindowLifecycleState.Disposed)
                     throw new InvalidOperationException("A window did not complete native disposal.");
+
                 RemoveTrackedWindow(window);
             }
             catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException) {
@@ -337,18 +346,19 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 windowDisposalFailure ??= ex;
             }
         }
+
         DrainNaturalWindowTeardowns();
-        logger.LogDebug("Application window disposal completed");
         if (windowDisposalFailure is not null) {
             Volatile.Write(ref _disposed, 0);
             throw new InvalidOperationException("The application could not dispose all windows.", windowDisposalFailure);
         }
+
         lock (_gate) {
             _windows.Clear();
             _registrations.Clear();
         }
+
         ReleaseNativeHandleOrThrow();
-        logger.LogDebug("Application native disposal completed");
         StopRegisteredComponents();
         if (_serviceProvider is IAsyncDisposable asyncServiceProvider)
             asyncServiceProvider.DisposeAsync().AsTask().GetAwaiter().GetResult();
@@ -373,6 +383,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 else (window as IDisposable)?.Dispose();
                 if (window.LifecycleState != InfiniFrameWindowLifecycleState.Disposed)
                     throw new InvalidOperationException("A window did not complete native disposal.");
+
                 RemoveTrackedWindow(window);
             }
             catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException) {
@@ -380,15 +391,18 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 windowDisposalFailure ??= ex;
             }
         }
+
         await DrainNaturalWindowTeardownsAsync().ConfigureAwait(false);
         if (windowDisposalFailure is not null) {
             Volatile.Write(ref _disposed, 0);
             throw new InvalidOperationException("The application could not dispose all windows.", windowDisposalFailure);
         }
+
         lock (_gate) {
             _windows.Clear();
             _registrations.Clear();
         }
+
         ReleaseNativeHandleOrThrow();
         await StopRegisteredComponentsAsync().ConfigureAwait(false);
         if (_serviceProvider is IAsyncDisposable asyncServiceProvider)
@@ -434,12 +448,16 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
 
     internal void RegisterShutdownAction(Func<Task> action) {
         ArgumentNullException.ThrowIfNull(action);
-        lock (_gate) _shutdownActions.Add(action);
+        lock (_gate) {
+            _shutdownActions.Add(action);
+        }
     }
 
     internal void RegisterStartupAction(Func<Task> action) {
         ArgumentNullException.ThrowIfNull(action);
-        lock (_gate) _startupActions.Add(action);
+        lock (_gate) {
+            _startupActions.Add(action);
+        }
     }
 
     private void RegisterWindowCore(
@@ -454,11 +472,12 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 throw new InvalidOperationException("Cannot register windows after the application run has started.");
             if (id is not null && _registrations.Any(registration => registration.Id == id))
                 throw new ArgumentException($"A window with id '{id}' is already registered.", nameof(id));
+
             _registrations.Add((id, configure, builder, provider));
         }
     }
 
-    private IReadOnlyList<int> GetIntegrationTargets(IReadOnlyList<string>? ids, string integrationName) {
+    private List<int> GetIntegrationTargets(IReadOnlyList<string>? ids, string integrationName) {
         if (ids is null || ids.Count == 0) {
             if (_registrations.Count == 0)
                 throw new InvalidOperationException(
@@ -466,6 +485,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             if (_registrations.Count != 1)
                 throw new InvalidOperationException(
                     $"Cannot bind {integrationName}: {_registrations.Count} windows are registered. Specify explicit window IDs.");
+
             return [0];
         }
 
@@ -480,8 +500,10 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             if (index < 0)
                 throw new InvalidOperationException(
                     $"Cannot bind {integrationName}: no registered window has ID '{id}'.");
+
             targets.Add(index);
         }
+
         return targets;
     }
 
@@ -504,6 +526,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
                 foreach ((string id, IInfiniFrameWindow window) in windows) {
                     _windows.Add(id, window);
                 }
+
                 _registrations.Clear();
                 _built = true;
                 built = [.. windows];
@@ -514,10 +537,15 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             }
         }
 
-        foreach ((_, IInfiniFrameWindow window) in built)
+        foreach ((_, IInfiniFrameWindow window) in built) {
             WindowCreated?.Invoke(window);
-        foreach ((string id, IInfiniFrameWindow window) in built)
-            lock (_gate) _naturalWindowTeardowns.Add(TrackNaturalWindowCloseAsync(id, window));
+        }
+
+        foreach ((string id, IInfiniFrameWindow window) in built) {
+            lock (_gate) {
+                _naturalWindowTeardowns.Add(TrackNaturalWindowCloseAsync(id, window));
+            }
+        }
     }
 
     private async Task TrackNaturalWindowCloseAsync(string id, IInfiniFrameWindow window) {
@@ -538,16 +566,20 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         lock (_gate) {
             id = _windows.FirstOrDefault(pair => ReferenceEquals(pair.Value, window)).Key;
             if (id is null) return;
+
             _windows.Remove(id);
         }
+
         WindowDestroyed?.Invoke(window);
     }
 
     private void RemoveTrackedWindow(string id, IInfiniFrameWindow window) {
         lock (_gate) {
             if (!_windows.TryGetValue(id, out IInfiniFrameWindow? tracked) || !ReferenceEquals(tracked, window)) return;
+
             _windows.Remove(id);
         }
+
         WindowDestroyed?.Invoke(window);
     }
 
@@ -571,8 +603,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         await Task.WhenAll(teardowns).ConfigureAwait(false);
     }
 
-    private void EnsureBuilt()
-    {
+    private void EnsureBuilt() {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
         if (!_built) throw new InvalidOperationException("Windows have not been built yet. Call Run() or RunAsync() first.");
     }
@@ -619,13 +650,19 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
 
     private void StartRegisteredComponents() {
         Func<Task>[] actions;
-        lock (_gate) actions = _startupActions.ToArray();
+        lock (_gate) {
+            actions = _startupActions.ToArray();
+        }
+
         foreach (Func<Task> action in actions) action().GetAwaiter().GetResult();
     }
 
     private async Task StartRegisteredComponentsAsync() {
         Func<Task>[] actions;
-        lock (_gate) actions = _startupActions.ToArray();
+        lock (_gate) {
+            actions = _startupActions.ToArray();
+        }
+
         foreach (Func<Task> action in actions) await action().ConfigureAwait(false);
     }
 

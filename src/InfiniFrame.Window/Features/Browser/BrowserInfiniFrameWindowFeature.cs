@@ -156,8 +156,6 @@ public class BrowserInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IBrowserInfiniFrameWindowFeature.EnableContextMenu" />
     public void EnableContextMenu(bool enabled = true) {
-        logger.LogDebug(".EnableContextMenu({Enabled})", enabled);
-
         bool originalValue = NativeInvoke.InvokeSyncWithValidation<bool>(
             logger,
             window,

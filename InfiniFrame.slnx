@@ -8,6 +8,7 @@
     <File Path="README.md" />
     <File Path=".editorconfig" />
     <File Path="global.json" />
+    <File Path="tool-versions.json" />
   </Folder>
   <Folder Name="/.dev-tools/badges/">
     <File Path="badges/cs-coverage.json" />
@@ -31,6 +32,14 @@
   </Folder>
   <Folder Name="/.dev-tools/github/actions/sync-check/">
     <File Path=".github/actions/sync-check/action.yml" />
+  </Folder>
+  <Folder Name="/.dev-tools/github/ci/">
+    <File Path=".github/ci/linux-image-pinning.md" />
+  </Folder>
+  <Folder Name="/.dev-tools/github/ci/linux-image/">
+    <File Path=".github/ci/linux-image/Dockerfile" />
+    <File Path=".github/ci/linux-image/smoke-test.sh" />
+    <File Path=".github/ci/linux-image/validate.sh" />
   </Folder>
   <Folder Name="/.dev-tools/github/workflows/">
     <File Path=".github/workflows/ci-release-docs.yml" />

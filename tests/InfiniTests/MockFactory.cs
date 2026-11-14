@@ -40,7 +40,7 @@ public static class MockFactory {
     public static Mock<ILogger<T>> CreateLoggerMock<T>() => Mock.Of<ILogger<T>>();
     public static Mock<Dispatcher> CreateDispatcherMock() => Mock.Of<Dispatcher>();
     public static Mock<IInfiniFrameWebViewManager> CreateWebViewManagerMock() => Mock.Of<IInfiniFrameWebViewManager>();
-    public static Mock<CppReleaseCustomSchemeResponseDelegate> CreateReleaseDelegateMock() => Mock.Of<CppReleaseCustomSchemeResponseDelegate>();
+    public static Mock<CppReleaseCustomSchemeResponseCallback> CreateReleaseDelegateMock() => Mock.Of<CppReleaseCustomSchemeResponseCallback>();
     public static Mock<IServiceProvider> CreateServiceProviderMock() => Mock.Of<IServiceProvider>();
     public static Mock<IDisposable> CreateDisposableMock() => Mock.Of<IDisposable>();
     public static Mock<IValidator<InfiniFrameNativeWindowParameters>> CreateValidatorMock() => Mock.Of<IValidator<InfiniFrameNativeWindowParameters>>();

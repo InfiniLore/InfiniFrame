@@ -179,7 +179,7 @@ jobs:
                     build-mode: manual
                     queries: security-extended,security-and-quality
                     config-file: ./.github/codeql-config.yml
-                    
+
             -   name: Restore Dotnet
                 run: |
                     dotnet restore
@@ -285,8 +285,8 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                    - os: ubuntu-26.04
-                      arch: x64
+                    -   os: ubuntu-26.04
+                        arch: x64
         permissions:
             contents: read
             security-events: write
@@ -295,25 +295,25 @@ jobs:
             pull-requests: write
             checks: write
         steps:
-            - name: Checkout
-              uses: actions/checkout@v7
-            - name: Restore NativeBridge
-              timeout-minutes: 10
-              run: dotnet restore src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj --verbosity normal /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
-            - name: Initialize CodeQL
-              uses: github/codeql-action/init@v4
-              with:
-                  languages: c-cpp
-                  build-mode: manual
-                  queries: security-extended,security-and-quality
-                  config-file: ./.github/codeql-config.yml
-            - name: Build NativeBridge
-              timeout-minutes: 45
-              run: dotnet build src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj --configuration Release --no-restore /p:SolutionDir=${{ github.workspace }}/ /p:NativeArch=${{ matrix.arch }}
-            - name: Perform CodeQL Analysis
-              uses: github/codeql-action/analyze@v4
-              with:
-                  category: "/language:c-cpp/linux-${{ matrix.arch }}"
+            -   name: Checkout
+                uses: actions/checkout@v7
+            -   name: Restore NativeBridge
+                timeout-minutes: 10
+                run: dotnet restore src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj --verbosity normal /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
+            -   name: Initialize CodeQL
+                uses: github/codeql-action/init@v4
+                with:
+                    languages: c-cpp
+                    build-mode: manual
+                    queries: security-extended,security-and-quality
+                    config-file: ./.github/codeql-config.yml
+            -   name: Build NativeBridge
+                timeout-minutes: 45
+                run: dotnet build src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj --configuration Release --no-restore /p:SolutionDir=${{ github.workspace }}/ /p:NativeArch=${{ matrix.arch }}
+            -   name: Perform CodeQL Analysis
+                uses: github/codeql-action/analyze@v4
+                with:
+                    category: "/language:c-cpp/linux-${{ matrix.arch }}"
     
     analyze-javascript-typescript:
         name: Analyze JavaScript / TypeScript

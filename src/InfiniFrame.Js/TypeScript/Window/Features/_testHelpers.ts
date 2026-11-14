@@ -5,23 +5,23 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-import { vi } from "vitest";
-import { getTestWindow } from "../../_testHelpers";
+import {vi} from "vitest";
+import {getTestWindow} from "../../_testHelpers";
 
 /**
  * Creates a mock messaging object with Vitest spy functions for all messaging methods.
  * @returns A mock messaging object suitable for injecting into feature constructors.
  */
 export function createMessagingMock() {
-	return {
-		ready: Promise.resolve(),
-		isReady: true,
-		sendMessageToHost: vi.fn(),
-		getMessageFromHostAsync: vi.fn(),
-		getMessageFromHostRawAsync: vi.fn(),
-		assignMessageReceivedHandler: vi.fn(),
-		unregisterMessageReceivedHandler: vi.fn(),
-	};
+    return {
+        ready: Promise.resolve(),
+        isReady: true,
+        sendMessageToHost: vi.fn(),
+        getMessageFromHostAsync: vi.fn(),
+        getMessageFromHostRawAsync: vi.fn(),
+        assignMessageReceivedHandler: vi.fn(),
+        unregisterMessageReceivedHandler: vi.fn(),
+    };
 }
 
 /**
@@ -29,9 +29,9 @@ export function createMessagingMock() {
  * @returns The newly created messaging mock object.
  */
 export function setupFeature() {
-	vi.restoreAllMocks();
-	const messaging = createMessagingMock();
-	const testWindow = getTestWindow();
-	testWindow.infiniframe = { messaging };
-	return messaging;
+    vi.restoreAllMocks();
+    const messaging = createMessagingMock();
+    const testWindow = getTestWindow();
+    testWindow.infiniframe = {messaging};
+    return messaging;
 }

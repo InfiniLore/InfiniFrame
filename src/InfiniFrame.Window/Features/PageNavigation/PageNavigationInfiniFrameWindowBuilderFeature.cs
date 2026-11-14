@@ -20,8 +20,8 @@ public class PageNavigationInfiniFrameWindowBuilderFeature : IPageNavigationInfi
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     /// <inheritdoc cref="IPageNavigationInfiniFrameWindowBuilderFeature.SetStartPageContent" />
-    public void SetStartPageContent(string? startString) {
-        StartString = startString;
+    public void SetStartPageContent(string? content) {
+        StartString = content;
     }
 
     /// <inheritdoc cref="IPageNavigationInfiniFrameWindowBuilderFeature.SetStartPageUrl" />

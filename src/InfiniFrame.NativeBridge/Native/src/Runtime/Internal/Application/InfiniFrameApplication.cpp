@@ -62,9 +62,11 @@ namespace {
 #ifdef _WIN32
 namespace {
     std::wstring ToWindowsString(const char* value) {
-        if (value == nullptr || value[0] == '\0') return {};
+        if (value == nullptr || value[0] == '\0')
+            return {};
         const int length = MultiByteToWideChar(CP_UTF8, 0, value, -1, nullptr, 0);
-        if (length <= 1) return {};
+        if (length <= 1)
+            return {};
         std::wstring result(static_cast<std::size_t>(length), L'\0');
         MultiByteToWideChar(CP_UTF8, 0, value, -1, result.data(), length);
         result.resize(static_cast<std::size_t>(length - 1));
@@ -73,9 +75,9 @@ namespace {
 }
 #endif
 
-InfiniFrameApplication::InfiniFrameApplication()
-    : _impl(std::make_unique<InfiniFrameApplicationImpl>()) {
-    InfiniFrameApplication* expected = nullptr;
+InfiniFrameApplication::InfiniFrameApplication() :
+    _impl(std::make_unique<InfiniFrameApplicationImpl>()) {
+    InfiniFrameApplication * expected = nullptr;
     if (!applicationInstance.compare_exchange_strong(expected, this, std::memory_order_acq_rel))
         throw std::runtime_error("Only one InfiniFrameApplication may exist per process.");
 }
@@ -98,12 +100,13 @@ InfiniFrameApplication::~InfiniFrameApplication() {
     if ([NSThread isMainThread]) {
         DrainPooledMacHosts();
     } else {
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            DrainPooledMacHosts();
-        });
+        dispatch_sync(
+            dispatch_get_main_queue(), ^{
+                DrainPooledMacHosts();
+            });
     }
 #endif
-    InfiniFrameApplication* expected = this;
+    InfiniFrameApplication * expected = this;
     applicationInstance.compare_exchange_strong(expected, nullptr, std::memory_order_acq_rel);
 }
 
@@ -115,7 +118,8 @@ void InfiniFrameApplication::Register() {
     std::lock_guard lock(_impl->mutex);
 #ifdef _WIN32
     InfiniFrameWindow::Register(GetModuleHandle(nullptr));
-    if (_impl->registered) return;
+    if (_impl->registered)
+        return;
     if (!_impl->appUserModelId.empty()) {
         const std::wstring appUserModelId = ToWindowsString(_impl->appUserModelId.c_str());
         const HRESULT result = SetCurrentProcessExplicitAppUserModelID(appUserModelId.c_str());
@@ -140,19 +144,26 @@ void InfiniFrameApplication::Register() {
 void InfiniFrameApplication::Configure(const InfiniFrameApplicationInitParams& parameters) {
     std::lock_guard lock(_impl->mutex);
     _impl->webView2RuntimePath = parameters.WebView2RuntimePath == nullptr ? "" : parameters.WebView2RuntimePath;
-    _impl->notificationRegistrationId = parameters.NotificationRegistrationId == nullptr ? "" : parameters.NotificationRegistrationId;
+    _impl->notificationRegistrationId = parameters.NotificationRegistrationId == nullptr
+        ? ""
+        : parameters.NotificationRegistrationId;
     _impl->appUserModelId = parameters.AppUserModelId == nullptr ? "" : parameters.AppUserModelId;
-    _impl->defaultNotificationIcon = parameters.DefaultNotificationIcon == nullptr ? "" : parameters.DefaultNotificationIcon;
+    _impl->defaultNotificationIcon = parameters.DefaultNotificationIcon == nullptr
+        ? ""
+        : parameters.DefaultNotificationIcon;
 }
 
 #ifdef _WIN32
 void InfiniFrameApplication::EnsureNotificationsInitialized(const char* appName) {
     std::lock_guard lock(_impl->mutex);
-    if (_impl->notificationsRegistered) return;
+    if (_impl->notificationsRegistered)
+        return;
     const std::string identity = !_impl->notificationRegistrationId.empty()
         ? _impl->notificationRegistrationId
-        : !_impl->appUserModelId.empty() ? _impl->appUserModelId
-        : appName != nullptr && appName[0] != '\0' ? appName
+        : !_impl->appUserModelId.empty()
+        ? _impl->appUserModelId
+        : appName != nullptr && appName[0] != '\0'
+        ? appName
         : "InfiniFrame";
 
     const char* effectiveAppName = appName != nullptr && appName[0] != '\0' ? appName : identity.c_str();
@@ -170,9 +181,7 @@ void InfiniFrameApplication::EnsureNotificationsInitialized(const char* appName)
 void InfiniFrameApplication::Run() noexcept {
 #ifdef _WIN32
     MSG message = {};
-    PeekMessage(&message, nullptr, WM_USER, WM_USER, PM_NOREMOVE);
-
-    {
+    PeekMessage(&message, nullptr, WM_USER, WM_USER, PM_NOREMOVE); {
         std::lock_guard lock(_impl->mutex);
         _impl->runThreadId = GetCurrentThreadId();
         _impl->running = true;
@@ -188,7 +197,8 @@ void InfiniFrameApplication::Run() noexcept {
     while (true) {
         {
             std::lock_guard lock(_impl->mutex);
-            if (_impl->shutdownRequested && _impl->windows.empty()) break;
+            if (_impl->shutdownRequested && _impl->windows.empty())
+                break;
         }
 
         MsgWaitForMultipleObjectsEx(0, nullptr, 50, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
@@ -225,10 +235,12 @@ void InfiniFrameApplication::Run() noexcept {
         }
         lock.unlock();
     }
-    infiniframe::linux_gtk::ui_thread::EnsureInitialized();
-    {
+    infiniframe::linux_gtk::ui_thread::EnsureInitialized(); {
         std::unique_lock lock(_impl->mutex);
-        _impl->runCompleted.wait(lock, [this] { return _impl->windows.empty(); });
+        _impl->runCompleted.wait(
+            lock, [this] {
+                return _impl->windows.empty();
+            });
         _impl->running = false;
     }
 #endif
@@ -244,20 +256,24 @@ void InfiniFrameApplication::Run() noexcept {
 
     auto stopWhenComplete = [this] {
         std::unique_lock lock(_impl->mutex);
-        _impl->runCompleted.wait(lock, [this] { return _impl->windows.empty() || _impl->liveWindows.empty(); });
+        _impl->runCompleted.wait(
+            lock, [this] {
+                return _impl->windows.empty() || _impl->liveWindows.empty();
+            });
         _impl->running = false;
     };
 
-    void (^pumpMainRunLoop)() = ^{
+    void(^pumpMainRunLoop)() = ^{
         while (true) {
             {
                 std::lock_guard lock(_impl->mutex);
-                if (_impl->liveWindows.empty()) break;
+                if (_impl->liveWindows.empty())
+                    break;
             }
 
-            @autoreleasepool {
+            @ autoreleasepool{
                 [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode
-                                      beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.05]];
+                beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.05]];
             }
         }
     };
@@ -289,16 +305,17 @@ void InfiniFrameApplication::Shutdown() noexcept {
     {
         std::lock_guard lock(_impl->mutex);
         if (_impl->runThreadId != 0) {
-        PostThreadMessage(_impl->runThreadId, WM_QUIT, 0, 0);
+            PostThreadMessage(_impl->runThreadId, WM_QUIT, 0, 0);
         }
     }
 #elif defined(__linux__)
     (void)windows;
 #elif defined(__APPLE__)
-    dispatch_async(dispatch_get_main_queue(), ^{
-        for (InfiniFrameWindow* window : windows)
+    dispatch_async(
+        dispatch_get_main_queue(), ^{
+        for (InfiniFrameWindow * window: windows)
             window->Close();
-    });
+        });
 #endif
 }
 
@@ -311,28 +328,33 @@ void InfiniFrameApplication::WaitForWindowDestruction() noexcept {
 
     if ([NSThread isMainThread]) {
         while (windowsRemain()) {
-            @autoreleasepool {
+            @ autoreleasepool{
                 [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode
-                                      beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.05]];
+                beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.05]];
             }
         }
         return;
     }
 
     std::unique_lock lock(_impl->mutex);
-    _impl->runCompleted.wait(lock, [this] { return _impl->windows.empty(); });
+    _impl->runCompleted.wait(
+        lock, [this] {
+            return _impl->windows.empty();
+        });
 }
 #endif
 
 void InfiniFrameApplication::TrackWindow(InfiniFrameWindow* window) {
-    if (window == nullptr) return;
+    if (window == nullptr)
+        return;
     std::lock_guard lock(_impl->mutex);
     _impl->windows.insert(window);
     _impl->liveWindows.insert(window);
 }
 
 void InfiniFrameApplication::UntrackWindow(InfiniFrameWindow* window) noexcept {
-    if (window == nullptr) return;
+    if (window == nullptr)
+        return;
     bool becameEmpty = false;
     {
         std::lock_guard lock(_impl->mutex);
@@ -345,13 +367,15 @@ void InfiniFrameApplication::UntrackWindow(InfiniFrameWindow* window) noexcept {
     // after it has unregistered itself so the GTK loop cannot be joined while
     // managed teardown still owns the native window.
     window->DetachApplication();
-    if (becameEmpty) _impl->runCompleted.notify_all();
+    if (becameEmpty)
+        _impl->runCompleted.notify_all();
 #endif
 #ifdef __APPLE__
     // Deferred destruction can outlive the logical close, but never let the
     // window retain a pointer to an application that has unregistered it.
     window->DetachApplication();
-    if (becameEmpty) _impl->runCompleted.notify_all();
+    if (becameEmpty)
+        _impl->runCompleted.notify_all();
 #endif
 #ifndef __linux__
     (void)becameEmpty;
@@ -359,7 +383,8 @@ void InfiniFrameApplication::UntrackWindow(InfiniFrameWindow* window) noexcept {
 }
 
 void InfiniFrameApplication::NotifyWindowClosed(InfiniFrameWindow* window) noexcept {
-    if (window == nullptr) return;
+    if (window == nullptr)
+        return;
 
     std::lock_guard lock(_impl->mutex);
     _impl->liveWindows.erase(window);

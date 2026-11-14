@@ -54,20 +54,20 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     private Guid CallbackRootId { get; set; } = Guid.Empty;
 
     // Keep callback delegates rooted for the native callback lifetime.
-    private CppClosedDelegate ClosedHandler { get; }
-    private CppClosingDelegate ClosingHandler { get; }
-    private CppDebugEventDelegate DebugEventHandler { get; }
-    private CppFocusInDelegate FocusInHandler { get; }
-    private CppFocusOutDelegate FocusOutHandler { get; }
-    private CppMaximizedDelegate MaximizedHandler { get; }
-    private CppMinimizedDelegate MinimizedHandler { get; }
-    private CppMovedDelegate MovedHandler { get; }
-    private CppResizedDelegate ResizedHandler { get; }
-    private CppRestoredDelegate RestoredHandler { get; }
-    private CppWebMessageReceivedDelegate WebMessageReceivedHandler { get; }
-    private CppWebResourceRequestedDelegate CustomSchemeHandler { get; }
-    private CppNavigationStartingDelegate NavigationStartingHandler { get; }
-    private CppFileDroppedDelegate FileDroppedHandler { get; }
+    private CppClosedCallback ClosedHandler { get; }
+    private CppClosingCallback ClosingHandler { get; }
+    private CppDebugEventCallback DebugEventHandler { get; }
+    private CppFocusInCallback FocusInHandler { get; }
+    private CppFocusOutCallback FocusOutHandler { get; }
+    private CppMaximizedCallback MaximizedHandler { get; }
+    private CppMinimizedCallback MinimizedHandler { get; }
+    private CppMovedCallback MovedHandler { get; }
+    private CppResizedCallback ResizedHandler { get; }
+    private CppRestoredCallback RestoredHandler { get; }
+    private CppWebMessageReceivedCallback WebMessageReceivedHandler { get; }
+    private CppWebResourceRequestedCallback CustomSchemeHandler { get; }
+    private CppNavigationStartingCallback NavigationStartingHandler { get; }
+    private CppFileDroppedCallback FileDroppedHandler { get; }
 
     /// <inheritdoc cref="IHasInfiniFrameEventsStore.EventsStore" />
     public IInfiniFrameEventsStore EventsStore { get; }
@@ -93,33 +93,33 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     /// <summary>
     ///     Copies event handlers from a builder's event store into this instance's event store.
     /// </summary>
-    /// <param name="eventStore">The builder event store to copy handlers from.</param>
-    public void PopulateFromBuilderEventStore(IInfiniFrameEventsStore eventStore) {
-        eventStore.CopyTo(EventsStore);
+    /// <param name="builder">The builder event store to copy handlers from.</param>
+    public void PopulateFromBuilderEventStore(IInfiniFrameEventsStore builder) {
+        builder.CopyTo(EventsStore);
     }
 
     /// <summary>
     ///     Binds all native callback delegates to the native startup parameters for window creation.
     /// </summary>
-    /// <param name="parameters">The native parameters to populate with callback delegates.</param>
-    public void AssignToNativeParameters(ref InfiniFrameNativeWindowParameters parameters) {
+    /// <param name="nativeParameters">The native parameters to populate with callback delegates.</param>
+    public void AssignToNativeParameters(ref InfiniFrameNativeWindowParameters nativeParameters) {
         // Rebind callbacks to the per-window event instance that has Sender set via CompleteSetup.
-        parameters.ClosedHandler = ClosedHandler;
-        parameters.ClosingHandler = ClosingHandler;
-        parameters.CustomSchemeHandler = CustomSchemeHandler;
-        parameters.DebugEventHandler = DebugEventHandler;
-        parameters.FocusInHandler = FocusInHandler;
-        parameters.FocusOutHandler = FocusOutHandler;
-        parameters.MaximizedHandler = MaximizedHandler;
-        parameters.MinimizedHandler = MinimizedHandler;
-        parameters.MovedHandler = MovedHandler;
-        parameters.ResizedHandler = ResizedHandler;
-        parameters.RestoredHandler = RestoredHandler;
-        parameters.WebMessageReceivedHandler = WebMessageReceivedHandler;
-        parameters.NavigationStartingHandler = NavigationStartingHandler;
-        parameters.FileDroppedHandler = FileDroppedHandler;
+        nativeParameters.ClosedHandler = ClosedHandler;
+        nativeParameters.ClosingHandler = ClosingHandler;
+        nativeParameters.CustomSchemeHandler = CustomSchemeHandler;
+        nativeParameters.DebugEventHandler = DebugEventHandler;
+        nativeParameters.FocusInHandler = FocusInHandler;
+        nativeParameters.FocusOutHandler = FocusOutHandler;
+        nativeParameters.MaximizedHandler = MaximizedHandler;
+        nativeParameters.MinimizedHandler = MinimizedHandler;
+        nativeParameters.MovedHandler = MovedHandler;
+        nativeParameters.ResizedHandler = ResizedHandler;
+        nativeParameters.RestoredHandler = RestoredHandler;
+        nativeParameters.WebMessageReceivedHandler = WebMessageReceivedHandler;
+        nativeParameters.NavigationStartingHandler = NavigationStartingHandler;
+        nativeParameters.FileDroppedHandler = FileDroppedHandler;
 
-        ApplyCustomSchemeNames(ref parameters);
+        ApplyCustomSchemeNames(ref nativeParameters);
     }
 
     /// <inheritdoc cref="IInfiniFrameEvents.OnLocationChanged" />
@@ -211,7 +211,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         Logger.LogDebug("Navigation starting: {Url}", url);
 
         NavigationStartingResult[] results = EventsStore.NavigationStarting.Invoke(
-            Sender, new NavigationStartingEventArgs(url, isUserInitiated != 0, isRedirect != 0, isMainFrame != 0)
+            Sender, new NavigationStartingEvent(url, isUserInitiated != 0, isRedirect != 0, isMainFrame != 0)
         );
 
         if (results.Any(r => r == NavigationStartingResult.Cancel)) {

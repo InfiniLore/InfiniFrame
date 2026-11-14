@@ -1,12 +1,13 @@
 using Microsoft.Win32.SafeHandles;
 
-namespace InfiniFrame.NativeBridge.Handles;
-
+namespace InfiniFrame.NativeBridge.NativeHandles;
 /// <summary>Owns a native InfiniFrame application instance.</summary>
 public sealed class NativeApplicationHandle : SafeHandleZeroOrMinusOneIsInvalid {
     private int _releaseStatus = (int)InfiniFrameNativeInteropStatus.Success;
 
-    internal NativeApplicationHandle(IntPtr handle) : base(true) => SetHandle(handle);
+    internal NativeApplicationHandle(IntPtr handle) : base(true) {
+        SetHandle(handle);
+    }
 
     internal InfiniFrameNativeInteropStatus ReleaseStatus
         => (InfiniFrameNativeInteropStatus)Volatile.Read(ref _releaseStatus);

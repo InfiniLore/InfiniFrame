@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.InteropServices;
@@ -13,7 +13,7 @@ namespace InfiniFrame.NativeBridge.Delegates;
 /// <param name="message">The message content.</param>
 /// <param name="origin">The origin of the message.</param>
 [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-public delegate void CppWebMessageReceivedDelegate(
+public delegate void CppWebMessageReceivedCallback(
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     string message,
     [MarshalAs(UnmanagedType.LPUTF8Str)]

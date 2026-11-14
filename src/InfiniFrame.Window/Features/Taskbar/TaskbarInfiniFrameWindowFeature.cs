@@ -54,8 +54,6 @@ public sealed class TaskbarInfiniFrameWindowFeature(
     // -----------------------------------------------------------------------------------------------------------------
     /// <inheritdoc cref="ITaskbarInfiniFrameWindowFeature.SetProgress" />
     public void SetProgress(TaskbarProgressState state, ulong current, ulong total) {
-        logger.LogDebug(".SetTaskbarProgress({State}, {Current}, {Total})", state, current, total);
-
         NativeInvoke.InvokeSyncWithValidation(
             logger,
             window,
@@ -70,8 +68,6 @@ public sealed class TaskbarInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="ITaskbarInfiniFrameWindowFeature.ClearProgress" />
     public void ClearProgress() {
-        logger.LogDebug(".ClearTaskbarProgress()");
-
         NativeInvoke.InvokeSyncWithValidation(
             logger,
             window,
@@ -83,8 +79,6 @@ public sealed class TaskbarInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="ITaskbarInfiniFrameWindowFeature.SetFlash" />
     public void SetFlash(TaskbarFlashMode mode, uint count) {
-        logger.LogDebug(".SetTaskbarFlash({Mode}, {Count})", mode, count);
-
         NativeInvoke.InvokeSyncWithValidation(
             logger,
             window,
@@ -97,8 +91,6 @@ public sealed class TaskbarInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="ITaskbarInfiniFrameWindowFeature.StopFlash" />
     public void StopFlash() {
-        logger.LogDebug(".StopTaskbarFlash()");
-
         NativeInvoke.InvokeSyncWithValidation(
             logger,
             window,

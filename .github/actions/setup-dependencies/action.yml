@@ -52,7 +52,7 @@ runs:
                     **/Directory.Packages.props
 
         -   name: Setup CMake
-            uses: lukka/get-cmake@e6906078ebd1ccb8ce51ab4626ac46a1b5a517e3
+            uses: lukka/get-cmake@16e8153a8b4918849d92aad131befe67a3705daa
             with:
                 cmakeVersion: ${{ steps.versions.outputs.cmake }}
 

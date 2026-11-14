@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.InteropServices;
@@ -7,10 +7,7 @@ namespace InfiniFrame.NativeBridge.Delegates;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-/// <summary>
-///     Represents a native callback invoked when the native window is resized.
-/// </summary>
-/// <param name="width">The new width of the window.</param>
-/// <param name="height">The new height of the window.</param>
+/// <summary>Releases all storage owned by one custom-scheme response.</summary>
+/// <remarks>The native consumer must invoke this exactly once when <c>OwnerContext</c> is non-zero.</remarks>
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-public delegate void CppResizedDelegate(int width, int height);
+public delegate void CppReleaseCustomSchemeResponseCallback(IntPtr ownerContext);

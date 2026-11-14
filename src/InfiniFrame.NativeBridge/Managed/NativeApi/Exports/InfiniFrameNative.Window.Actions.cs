@@ -116,6 +116,7 @@ public partial class InfiniFrameNative {
     internal static partial InfiniFrameNativeInteropStatus CancelNotification(
         IntPtr instance,
         ulong operationId,
-        [MarshalAs(UnmanagedType.I1)] out bool canceled
+        [MarshalAs(UnmanagedType.I1)]
+        out bool canceled
     );
 }

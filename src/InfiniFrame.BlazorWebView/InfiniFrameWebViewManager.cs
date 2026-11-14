@@ -68,22 +68,24 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         : base(provider, dispatcher, config.Value.AppBaseUri, fileProvider, jsComponents, config.Value.HostPage) {
         _logger = logger;
         InfiniFrameBlazorAppConfiguration configuration = config.Value;
+        // The validated values are configuration properties rather than method parameters, so no
+        // ArgumentException.ParamName is supplied; naming a property there would be misleading.
         if (configuration.AppBaseUri is null
             || !configuration.AppBaseUri.IsAbsoluteUri
             || string.IsNullOrWhiteSpace(configuration.AppBaseUri.Scheme)
             || string.IsNullOrWhiteSpace(configuration.AppBaseUri.Host)) {
-            throw new ArgumentException("AppBaseUri must be an absolute URI with a scheme and host.", nameof(configuration.AppBaseUri));
+            throw new ArgumentException("AppBaseUri must be an absolute URI with a scheme and host.");
         }
 
         if (!string.Equals(configuration.AppBaseUri.Scheme, BlazorAppScheme, StringComparison.OrdinalIgnoreCase)) {
             throw new ArgumentException(
-                $"AppBaseUri must use the '{BlazorAppScheme}' scheme. Got '{configuration.AppBaseUri.Scheme}'.",
-                nameof(configuration.AppBaseUri));
+                $"AppBaseUri must use the '{BlazorAppScheme}' scheme. Got '{configuration.AppBaseUri.Scheme}'.");
         }
+
         _appBaseUri = configuration.AppBaseUri;
         if (configuration.WebMessageQueueCapacity <= 0) {
             throw new ArgumentOutOfRangeException(
-                nameof(configuration.WebMessageQueueCapacity),
+                null,
                 configuration.WebMessageQueueCapacity,
                 "The WebView message queue capacity must be positive.");
         }
@@ -194,8 +196,6 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
 
         if (IsDisposingOrDisposed) return;
 
-        _logger.LogTrace("Web message callback received from native. Origin: {Origin}, Length: {Length}", origin, message.Length);
-
         try {
             HandleWebMessageCore(window, message, origin);
         }
@@ -290,7 +290,6 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             _logger.LogDebug(ex, "WebView message channel closed; stopping message pump");
         }
         catch (OperationCanceledException) {
-            _logger.LogDebug("WebView message pump cancellation requested");
         }
         catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
             _logger.LogError(ex, "Unhandled exception in WebView message pump");
@@ -322,7 +321,6 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             finally {
                 _messagePumpShutdown.Dispose();
                 Volatile.Write(ref _disposed, 1);
-                _logger.LogDebug("WebView manager disposal completed after the message pump stopped");
             }
         }
     }

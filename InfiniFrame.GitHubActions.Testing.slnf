@@ -14,7 +14,6 @@
             "src\\InfiniFrame.StaticAssets\\InfiniFrame.StaticAssets.csproj",
             "src\\InfiniFrame.WebServer\\InfiniFrame.WebServer.csproj",
             "src\\InfiniFrame.Window\\InfiniFrame.Window.csproj",
-            
             "tests\\InfiniTests\\InfiniTests.csproj",
             "tests\\InfiniTests.InfiniFrame.Application\\InfiniTests.InfiniFrame.Application.csproj",
             "tests\\InfiniTests.InfiniFrame.Blazor\\InfiniTests.InfiniFrame.Blazor.csproj",

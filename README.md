@@ -26,7 +26,7 @@ Supports **Windows** (WebView2), **Linux** (WebKit2GTK), and **macOS** (WKWebVie
 | Full Blazor app integration inside a native window   | [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.BlazorWebView?label=InfiniLore.InfiniFrame.BlazorWebView)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.BlazorWebView) |
 | ASP.NET Core web app running inside a native window  | [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.WebServer?label=InfiniLore.InfiniFrame.WebServer)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.WebServer)             |
 | JavaScript and Blazor interop utilities              | [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.Js?label=InfiniLore.InfiniFrame.Js)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.Js)                                  |
-| Single-file executable packaging                    | [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.SingleFile?label=InfiniLore.InfiniFrame.SingleFile)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.SingleFile)       |
+| Single-file executable packaging                     | [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.SingleFile?label=InfiniLore.InfiniFrame.SingleFile)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.SingleFile)          |
 
 ## Quick Start
 
@@ -124,9 +124,9 @@ they are independent integration paths
 
 ## Examples
 
-| Example                                                     | What it demonstrates                                        |
-|-------------------------------------------------------------|-------------------------------------------------------------|
-| [BlazorWebView](examples/InfiniFrameExample.BlazorWebView/) | Basic Blazor app in a native window                         |
+| Example                                                            | What it demonstrates                                        |
+|--------------------------------------------------------------------|-------------------------------------------------------------|
+| [BlazorWebView](examples/InfiniFrameExample.BlazorWebView/)        | Basic Blazor app in a native window                         |
 | [WebApp.Blazor](examples/WebApp/InfiniFrameExample.WebApp.Blazor/) | Blazor Server hosted via ASP.NET Core                       |
 | [WebApp.React](examples/WebApp/InfiniFrameExample.WebApp.React/)   | React frontend with custom scheme handler and web messaging |
 | [WebApp.Vue](examples/WebApp/InfiniFrameExample.WebApp.Vue/)       | Vue.js frontend with all built-in JS message handlers       |
