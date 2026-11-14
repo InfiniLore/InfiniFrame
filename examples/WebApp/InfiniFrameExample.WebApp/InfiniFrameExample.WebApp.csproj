@@ -2,7 +2,7 @@
     <PropertyGroup>
         <TargetFramework>net11.0</TargetFramework>
         <OutputType>Exe</OutputType>
-        <LangVersion>14.0</LangVersion>
+        <LangVersion>15.0</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>

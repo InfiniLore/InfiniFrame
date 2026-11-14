@@ -2,7 +2,7 @@
     <PropertyGroup>
         <TargetFramework>net11.0</TargetFramework>
         <OutputType>WinExe</OutputType>
-        <LangVersion>14.0</LangVersion>
+        <LangVersion>15.0</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <UseAppHost>true</UseAppHost>

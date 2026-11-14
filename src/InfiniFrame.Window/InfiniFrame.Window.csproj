@@ -14,8 +14,5 @@
 
     <ItemGroup>
         <PackageReference Include="FluentValidation"/>
-        <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions"/>
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
-        <PackageReference Include="Microsoft.Extensions.Logging.Console"/>
     </ItemGroup>
 </Project>

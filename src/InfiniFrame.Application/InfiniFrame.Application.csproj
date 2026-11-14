@@ -6,7 +6,6 @@
 
     <ItemGroup>
         <PackageReference Include="FluentValidation"/>
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
     </ItemGroup>
 
     <ItemGroup>
