@@ -153,7 +153,7 @@ public sealed class HostedCapabilityTests {
         await using HostedHarness harness = await HostedHarness.StartAsync(provider);
         InfiniFrameHostedWindow window = harness.Build();
 
-        InvalidOperationException exception = await Expect.ThrowsAsync<InvalidOperationException>(() => harness.Runtime.CreateWindowsAsync([window], ct));
+        InvalidOperationException exception = await Expect.ThrowsAsync<InvalidOperationException>(() => InfiniFrameHostedRuntime.CreateWindowsAsync([window], ct));
         await Assert.That(exception.Message).Contains(nameof(IInfiniFrameWindowHostBounds));
         ScriptedWindowHostCore host = harness.Host.Windows[0];
         await Assert.That(host.RequestCloseCalls).IsEqualTo(1);

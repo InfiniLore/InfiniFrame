@@ -379,7 +379,7 @@ public sealed class HostedLifecycleTests {
         int closedCallbacks = 0;
         InfiniFrameHostedWindow window = harness.Build(builder => builder.RegisterWindowClosedHandler(_ => Interlocked.Increment(ref closedCallbacks)));
 
-        await Assert.ThrowsAsync<NotSupportedException>(() => harness.Runtime.CreateWindowsAsync([window], ct));
+        await Assert.ThrowsAsync<NotSupportedException>(() => InfiniFrameHostedRuntime.CreateWindowsAsync([window], ct));
         await harness.DrainDispatcherAsync();
         await Assert.That(window.LifecycleState).IsEqualTo(InfiniFrameWindowLifecycleState.Disposed);
         await Assert.That(closedCallbacks).IsEqualTo(0);

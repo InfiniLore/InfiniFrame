@@ -316,9 +316,10 @@ internal sealed class HostedDocumentManagers : IAsyncDisposable {
         if (!manager.IsRetired && (window is null || window.GetDocumentLifetime(manager.Document).IsCancellationRequested)) Retire(manager);
         if (manager.IsRetired) {
             // A refused JS call fails as it would on a disconnected Blazor Server circuit, so framework and component
-            // DisposeAsync code that already handles JSDisconnectedException completes. Callers on the Blazor dispatcher
-            // observe it at once; the framework's IPC sender keeps a refusal from other threads to itself, so such a
-            // call stays pending until its caller cancels it. Nothing is sent to any document either way.
+            // DisposeAsync code that already handles JSDisconnectedException completes. Nothing is sent to any document.
+            // On .NET 10 callers on the Blazor dispatcher observe it at once, while the framework's IPC sender keeps a
+            // refusal from other threads to itself, so such a call stays pending until its caller cancels it. From
+            // .NET 11 the framework refuses a disposed page's calls itself, on any thread, before they reach this gate.
             if (RefuseOutbound(manager, message))
                 throw new JSDisconnectedException(
                     "The browser document of this Blazor page has retired, so its JavaScript interop calls cannot be delivered.");

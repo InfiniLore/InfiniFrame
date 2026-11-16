@@ -26,7 +26,7 @@ public sealed class HostedEdgeCaseTests {
             .RegisterWindowCreatingHandler(static creating => creating.Close())
             .RegisterWindowClosedHandler(_ => Interlocked.Increment(ref closedCallbacks)));
 
-        await Waits.WithinAsync(harness.Runtime.CreateWindowsAsync([window], ct), "creation with Close() called from WindowCreating");
+        await Waits.WithinAsync(InfiniFrameHostedRuntime.CreateWindowsAsync([window], ct), "creation with Close() called from WindowCreating");
         await Waits.WithinAsync(window.WaitForTeardownAsync(ct).AsTask(), "teardown after the deferred close");
         ScriptedWindowHostCore host = harness.Host.Windows[0];
         await Assert.That(host.RequestCloseCalls).IsEqualTo(1);
@@ -192,7 +192,7 @@ public sealed class HostedEdgeCaseTests {
         await using HostedHarness harness = await HostedHarness.StartAsync(new ScriptedHostProvider { CreateWindowGate = _ => gate.Task },
             closeTimeout: TimeSpan.FromSeconds(1));
         InfiniFrameHostedWindow window = harness.Build();
-        Task creation = harness.Runtime.CreateWindowsAsync([window], ct);
+        Task creation = InfiniFrameHostedRuntime.CreateWindowsAsync([window], ct);
         await Waits.UntilAsync(() => harness.Host.CreateWindowCalls == 1, "CreateWindowAsync entered");
 
         // Disposal gives up waiting for the slow provider and finishes the window.
@@ -226,7 +226,7 @@ public sealed class HostedEdgeCaseTests {
             catch (Exception exception) { handlerFailure = exception; }
         }));
 
-        Task creation = harness.Runtime.CreateWindowsAsync([window], ct);
+        Task creation = InfiniFrameHostedRuntime.CreateWindowsAsync([window], ct);
         await createdReported.Task.WaitAsync(TimeSpan.FromSeconds(5), ct);
         await Task.Delay(100, ct);
         await harness.DrainDispatcherAsync();
@@ -305,7 +305,7 @@ public sealed class HostedEdgeCaseTests {
         await using HostedHarness harness = await HostedHarness.StartAsync(new ScriptedHostProvider { CreateWindowGate = _ => gate.Task });
         int closedCallbacks = 0;
         InfiniFrameHostedWindow window = harness.Build(builder => builder.RegisterWindowClosedHandler(_ => Interlocked.Increment(ref closedCallbacks)));
-        Task creation = harness.Runtime.CreateWindowsAsync([window], ct);
+        Task creation = InfiniFrameHostedRuntime.CreateWindowsAsync([window], ct);
         await Waits.UntilAsync(() => harness.Host.CreateWindowCalls == 1, "CreateWindowAsync entered");
 
         using var callerGivesUp = new CancellationTokenSource();

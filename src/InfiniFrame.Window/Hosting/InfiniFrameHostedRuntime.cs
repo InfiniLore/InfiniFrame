@@ -80,7 +80,7 @@ internal sealed class InfiniFrameHostedRuntime : IAsyncDisposable {
     }
 
     /// <summary>Requests the native windows in registration order. The first failure stops creation and is rethrown.</summary>
-    internal async Task CreateWindowsAsync(IReadOnlyList<InfiniFrameHostedWindow> windows, CancellationToken cancellationToken) {
+    internal static async Task CreateWindowsAsync(IReadOnlyList<InfiniFrameHostedWindow> windows, CancellationToken cancellationToken) {
         foreach (InfiniFrameHostedWindow window in windows)
             await window.StartAsync(cancellationToken).ConfigureAwait(false);
     }

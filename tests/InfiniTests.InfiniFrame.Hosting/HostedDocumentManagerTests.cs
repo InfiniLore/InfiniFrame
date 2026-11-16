@@ -117,7 +117,11 @@ public sealed class HostedDocumentManagerTests {
         HostedDocumentIsolationTests.DisposalJs run = await HostedDocumentIsolationTests.RunDisposalJsAsync(catchesDisconnect, ct);
         HostedDocumentDiagnostics d = ManagerOf(run.Scenario).GetHostedDocumentDiagnostics();
         Console.WriteLine($"MANAGERS after the reload (component catches: {catchesDisconnect}): {d}");
+        // From .NET 11 the framework refuses the disposed page's call before it reaches the manager, so only the
+        // outcomes below show the refusal there.
+        #if !NET11_0_OR_GREATER
         await Assert.That(d.RefusedJsCalls >= 1).IsTrue();
+        #endif
         if (catchesDisconnect) {
             // The component handles the refusal, as on Blazor Server: the framework's disposal completes normally.
             await Assert.That(run.Scenario.Pages.DisposeJsCaught).IsEqualTo(1);
@@ -173,7 +177,10 @@ public sealed class HostedDocumentManagerTests {
         HostedDocumentIsolationTests.LateWork run = await HostedDocumentIsolationTests.RunRetiredPagesLateWorkAsync(ct);
         HostedDocumentDiagnostics d = ManagerOf(run.Scenario).GetHostedDocumentDiagnostics();
         Console.WriteLine($"MANAGERS after page 1's late work: {d}");
+        // From .NET 11 the framework refuses the retired page's JS call before it reaches the manager.
+        #if !NET11_0_OR_GREATER
         await Assert.That(d.RefusedJsCalls >= 1).IsTrue();
+        #endif
         await Assert.That(d.RefusedNavigations >= 1).IsTrue();
         await Assert.That(d.RefusedOutbound >= d.RefusedJsCalls + d.RefusedNavigations).IsTrue();
         await Assert.That(d.UnboundOutbound).IsEqualTo(0);

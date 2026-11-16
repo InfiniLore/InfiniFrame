@@ -177,7 +177,7 @@ internal sealed partial class InfiniFrameHostedWindow :
     ///     core dispatcher, so this is safe on the dispatcher thread; the operation starts with no ambient synchronization
     ///     context (for example Blazor's), and the wait is bounded so a stuck provider cannot hang the caller.
     /// </summary>
-    private T WaitForHost<T>(Func<CancellationToken, ValueTask<T>> operation, string name) {
+    private static T WaitForHost<T>(Func<CancellationToken, ValueTask<T>> operation, string name) {
         using var timeout = new CancellationTokenSource(OperationTimeout);
         try {
             return InfiniFrameProviderCall.Start(() => operation(timeout.Token)).AsTask().WaitAsync(OperationTimeout).GetAwaiter().GetResult();
@@ -187,7 +187,7 @@ internal sealed partial class InfiniFrameHostedWindow :
         }
     }
 
-    private void WaitForHost(Func<CancellationToken, ValueTask> operation, string name) =>
+    private static void WaitForHost(Func<CancellationToken, ValueTask> operation, string name) =>
         WaitForHost(async token => {
             await operation(token).ConfigureAwait(false);
             return true;

@@ -353,8 +353,14 @@ public sealed class HostedDocumentIsolationTests {
         await Assert.That(beforeWithToken!.IsCanceled).IsTrue();
         await Assert.That(onNoToken!.Exception?.GetBaseException()).IsTypeOf<JSDisconnectedException>();
         await Assert.That(onWithToken!.Exception?.GetBaseException()).IsTypeOf<JSDisconnectedException>();
+        #if NET11_0_OR_GREATER
+        // The framework refuses a disposed page's calls itself, whichever thread they come from.
+        await Assert.That(offNoToken.Exception?.GetBaseException()).IsTypeOf<JSDisconnectedException>();
+        await Assert.That(offWithToken.Exception?.GetBaseException()).IsTypeOf<JSDisconnectedException>();
+        #else
         await Assert.That(offNoToken.IsCompleted).IsFalse();// residual: the framework keeps the refusal from this caller
         await Assert.That(offWithToken.IsCanceled).IsTrue();
+        #endif
         await s.CloseAsync(ct);
     }
 

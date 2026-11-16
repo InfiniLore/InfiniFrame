@@ -57,7 +57,7 @@ internal sealed class HostedHarness : IAsyncDisposable {
 
     internal async Task<(InfiniFrameHostedWindow Window, ScriptedWindowHostCore Host)> CreateAsync(Action<IInfiniFrameWindowBuilder>? configure = null) {
         InfiniFrameHostedWindow window = Build(configure);
-        await Runtime.CreateWindowsAsync([window], CancellationToken.None);
+        await InfiniFrameHostedRuntime.CreateWindowsAsync([window], CancellationToken.None);
         return (window, Host.Windows[^1]);
     }
 

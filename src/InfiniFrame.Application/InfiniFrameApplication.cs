@@ -709,7 +709,7 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         await StartRegisteredComponentsAsync().ConfigureAwait(false);
         BuildAllWindows();
         InfiniFrameHostedWindow[] windows = [.. Windows.OfType<InfiniFrameHostedWindow>()];
-        await hosted.CreateWindowsAsync(windows, cancellationToken).ConfigureAwait(false);
+        await InfiniFrameHostedRuntime.CreateWindowsAsync(windows, cancellationToken).ConfigureAwait(false);
         if (IsShutdownRequested) CloseAll();
         Exception? fault = await hosted.WaitForRunCompletionAsync(windows).ConfigureAwait(false);
         if (fault is not null)

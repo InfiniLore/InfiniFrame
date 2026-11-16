@@ -2,7 +2,9 @@
     <!-- Focused tests for the external host/window provider contract. A separate test process is used because the
          default-backend/host-provider selection is a process-wide latch. -->
     <PropertyGroup>
-        <NoWarn>$(NoWarn);CS0105</NoWarn>
+        <!-- BL0016: these tests call JS interop against a scripted host and assert on the outcome, including failures,
+             so an unguarded call that throws is the intended test failure. -->
+        <NoWarn>$(NoWarn);CS0105;BL0016</NoWarn>
         <!-- No native window or AppKit main-thread use: the shared macOS main-queue test host is not needed. -->
         <InfiniFrameUseMacOsTestingPlatformHost>false</InfiniFrameUseMacOsTestingPlatformHost>
     </PropertyGroup>
