@@ -13,14 +13,14 @@ export default defineConfig({
             exclude: [
                 "TypeScript/Contracts/**",
                 "TypeScript/Window/Features/index.ts",
-                "TypeScript/Utils/index.ts"
+                "TypeScript/Utils/index.ts",
             ],
             thresholds: {
                 lines: 85,
                 branches: 65,
                 functions: 90,
-                statements: 84
-            }
-        }
-    }
+                statements: 84,
+            },
+        },
+    },
 });

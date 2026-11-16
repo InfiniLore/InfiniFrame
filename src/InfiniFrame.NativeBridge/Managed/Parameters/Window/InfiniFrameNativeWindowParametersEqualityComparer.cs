@@ -20,7 +20,7 @@ internal sealed class InfiniFrameNativeWindowParametersEqualityComparer : IEqual
     private InfiniFrameNativeWindowParametersEqualityComparer() {}
 
     /// <summary>
-///     Determines whether two <see cref="InfiniFrameNativeWindowParameters" /> instances are equal
+    ///     Determines whether two <see cref="InfiniFrameNativeWindowParameters" /> instances are equal
     ///     by comparing all value fields.
     /// </summary>
     /// <param name="x">The first instance.</param>
@@ -123,7 +123,7 @@ internal sealed class InfiniFrameNativeWindowParametersEqualityComparer : IEqual
     }
 
     /// <summary>
-///     Returns a hash code for the specified <see cref="InfiniFrameNativeWindowParameters" /> instance
+    ///     Returns a hash code for the specified <see cref="InfiniFrameNativeWindowParameters" /> instance
     ///     based on its value fields.
     /// </summary>
     /// <param name="obj">The instance to hash.</param>

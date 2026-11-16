@@ -96,7 +96,7 @@ public interface IInfiniFrameEventsStore {
     /// <summary>
     ///     Gets the event that fires when navigation is starting, allowing cancellation.
     /// </summary>
-    OrderedResultEvent<NavigationStartingEventArgs, NavigationStartingResult> NavigationStarting { get; }
+    OrderedResultEvent<NavigationStartingEvent, NavigationStartingResult> NavigationStarting { get; }
 
     /// <summary>
     ///     Gets the event that fires when files are dropped onto the window.

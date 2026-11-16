@@ -2,20 +2,37 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {beforeEach, describe, expect, it, vi} from "vitest";
+import {
+    deleteTestProperty,
+    getTestWindow,
+    requireValue,
+    type TestInfiniFrame,
+} from "../../_testHelpers";
 import type {InfiniFrameSetup} from "../../Contracts";
-import {installNativeInteropBridge, resetNativeInteropBridgeState} from "./NativeInteropBridge";
+import {
+    installNativeInteropBridge,
+    resetNativeInteropBridgeState,
+} from "./NativeInteropBridge";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+function invokeInvalidHostPayload(
+    postData: (payload: never) => void,
+    payload: unknown,
+): void {
+    (postData as (payload: unknown) => void)(payload);
+}
+
 describe("NativeInteropBridge", () => {
     let setup: InfiniFrameSetup;
 
     beforeEach(() => {
         setup = createSetup();
-        delete (window as any).infiniframe;
-        delete (window as any).chrome;
-        delete (window as any).webkit;
+        const testWindow = getTestWindow();
+        deleteTestProperty(testWindow, "infiniframe");
+        deleteTestProperty(testWindow, "chrome");
+        deleteTestProperty(testWindow, "webkit");
         resetNativeInteropBridgeState();
         vi.restoreAllMocks();
     });
@@ -24,7 +41,7 @@ describe("NativeInteropBridge", () => {
         it("does nothing if already initialized", () => {
             setup.nativeInteropBridgeInitialized = true;
             installNativeInteropBridge(setup);
-            expect((window as any).infiniframe).toBeUndefined();
+            expect(getTestWindow().infiniframe).toBeUndefined();
         });
 
         it("sets nativeInteropBridgeInitialized to true", () => {
@@ -38,19 +55,21 @@ describe("NativeInteropBridge", () => {
         });
 
         it("preserves existing window.infiniframe properties", () => {
-            (window as any).infiniframe = {existing: true};
+            getTestWindow().infiniframe = {existing: true};
             installNativeInteropBridge(setup);
-            expect((window as any).infiniframe.existing).toBe(true);
+            expect(getTestWindow().infiniframe.existing).toBe(true);
         });
     });
 
     describe("postData - string payload", () => {
         it("dispatches string payload via existing postData", () => {
             const existingPostData = vi.fn();
-            window.infiniframe = {host: {postData: existingPostData, receiveCallback: vi.fn()}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData: existingPostData, receiveCallback: vi.fn()},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
-            window.infiniframe.host!.postData("hello world");
+            requireValue(window.infiniframe.host).postData("hello world");
 
             expect(existingPostData).toHaveBeenCalledWith("hello world");
         });
@@ -59,32 +78,40 @@ describe("NativeInteropBridge", () => {
             const existingPostData = vi.fn();
             const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {
             });
-            window.infiniframe = {host: {postData: existingPostData, receiveCallback: vi.fn()}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData: existingPostData, receiveCallback: vi.fn()},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
-            window.infiniframe.host!.postData("   ");
+            requireValue(window.infiniframe.host).postData("   ");
 
             expect(existingPostData).not.toHaveBeenCalled();
-            expect(warnSpy).toHaveBeenCalledWith("Ignoring empty host bridge payload.");
+            expect(warnSpy).toHaveBeenCalledWith(
+                "Ignoring empty host bridge payload.",
+            );
             warnSpy.mockRestore();
         });
 
         it("falls back to chrome.webview.postMessage when no existing bridge", () => {
             const postData = vi.fn();
-            window.chrome = {webview: {postMessage: postData, addEventListener: vi.fn()}} as any;
+            window.chrome = {
+                webview: {postMessage: postData, addEventListener: vi.fn()},
+            } as unknown as Window["chrome"];
 
             installNativeInteropBridge(setup);
-            window.infiniframe.host!.postData("test message");
+            requireValue(window.infiniframe.host).postData("test message");
 
             expect(postData).toHaveBeenCalledWith("test message");
         });
 
         it("falls back to webKit when no chrome.webview", () => {
             const postData = vi.fn();
-            window.webkit = {messageHandlers: {infiniFrameInterop: {postMessage: postData}}} as any;
+            window.webkit = {
+                messageHandlers: {infiniFrameInterop: {postMessage: postData}},
+            } as unknown as Window["webkit"];
 
             installNativeInteropBridge(setup);
-            window.infiniframe.host!.postData("test message");
+            requireValue(window.infiniframe.host).postData("test message");
 
             expect(postData).toHaveBeenCalledWith("test message");
         });
@@ -92,10 +119,10 @@ describe("NativeInteropBridge", () => {
         it("warns when no platform transport available", () => {
             const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {
             });
-            window.infiniframe = {host: {receiveCallback: vi.fn()}} as any;
+            getTestWindow().infiniframe = {host: {receiveCallback: vi.fn()}};
 
             installNativeInteropBridge(setup);
-            window.infiniframe.host!.postData("test");
+            requireValue(window.infiniframe.host).postData("test");
 
             expect(warnSpy).toHaveBeenCalled();
             warnSpy.mockRestore();
@@ -106,11 +133,15 @@ describe("NativeInteropBridge", () => {
                 if (typeof payload === "string") throw new Error("No strings");
             });
             const chromePost = vi.fn();
-            window.chrome = {webview: {postMessage: chromePost, addEventListener: vi.fn()}} as any;
-            window.infiniframe = {host: {postData: existingPostData, receiveCallback: vi.fn()}} as any;
+            window.chrome = {
+                webview: {postMessage: chromePost, addEventListener: vi.fn()},
+            } as unknown as Window["chrome"];
+            getTestWindow().infiniframe = {
+                host: {postData: existingPostData, receiveCallback: vi.fn()},
+            };
 
             installNativeInteropBridge(setup);
-            window.infiniframe.host!.postData("hello");
+            requireValue(window.infiniframe.host).postData("hello");
 
             expect(chromePost).toHaveBeenCalledWith("hello");
         });
@@ -119,35 +150,64 @@ describe("NativeInteropBridge", () => {
     describe("postData - envelope payload", () => {
         it("normalizes object envelopes to string for existing postData handlers", () => {
             const existingPostData = vi.fn();
-            window.infiniframe = {host: {postData: existingPostData, receiveCallback: vi.fn()}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData: existingPostData, receiveCallback: vi.fn()},
+            };
 
             installNativeInteropBridge(setup);
-            window.infiniframe.host!.postData({id: "ping", command: "Post", data: "hello", version: 2});
+            requireValue(window.infiniframe.host).postData({
+                id: "ping",
+                command: "Post",
+                data: "hello",
+                version: 2,
+            });
 
             expect(existingPostData).toHaveBeenCalledTimes(1);
-            expect(existingPostData.mock.calls[0][0]).toBe("{\"id\":\"ping\",\"command\":\"Post\",\"data\":\"hello\",\"version\":2}");
+            expect(existingPostData.mock.calls[0][0]).toBe(
+                '{"id":"ping","command":"Post","data":"hello","version":2}',
+            );
         });
 
         it("falls back to object payload when existing postData rejects string", () => {
             const existingPostData = vi.fn((payload: unknown) => {
-                if (typeof payload === "string") throw new Error("String payloads not supported.");
+                if (typeof payload === "string")
+                    throw new Error("String payloads not supported.");
             });
-            window.infiniframe = {host: {postData: existingPostData, receiveCallback: vi.fn()}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData: existingPostData, receiveCallback: vi.fn()},
+            };
 
             installNativeInteropBridge(setup);
-            window.infiniframe.host!.postData({id: "ping", command: "Post", data: "hello", version: 2});
+            requireValue(window.infiniframe.host).postData({
+                id: "ping",
+                command: "Post",
+                data: "hello",
+                version: 2,
+            });
 
             expect(existingPostData).toHaveBeenCalledTimes(2);
             expect(typeof existingPostData.mock.calls[0][0]).toBe("string");
-            expect(existingPostData.mock.calls[1][0]).toEqual({id: "ping", command: "Post", data: "hello", version: 2});
+            expect(existingPostData.mock.calls[1][0]).toEqual({
+                id: "ping",
+                command: "Post",
+                data: "hello",
+                version: 2,
+            });
         });
 
         it("uses platform transport when no existing bridge callback", () => {
             const postData = vi.fn();
-            window.chrome = {webview: {postMessage: postData, addEventListener: vi.fn()}} as any;
+            window.chrome = {
+                webview: {postMessage: postData, addEventListener: vi.fn()},
+            } as unknown as Window["chrome"];
 
             installNativeInteropBridge(setup);
-            window.infiniframe.host!.postData({id: "ping", command: "Post", data: "hello", version: 2});
+            requireValue(window.infiniframe.host).postData({
+                id: "ping",
+                command: "Post",
+                data: "hello",
+                version: 2,
+            });
 
             expect(postData).toHaveBeenCalledTimes(1);
         });
@@ -156,10 +216,16 @@ describe("NativeInteropBridge", () => {
             const existingPostData = vi.fn();
             const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {
             });
-            window.infiniframe = {host: {postData: existingPostData, receiveCallback: vi.fn()}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData: existingPostData, receiveCallback: vi.fn()},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
-            window.infiniframe.host!.postData({id: "", command: "Post"} as any);
+            requireValue(window.infiniframe.host).postData({
+                id: "",
+                command: "Post",
+                version: 2,
+            });
 
             expect(existingPostData).not.toHaveBeenCalled();
             warnSpy.mockRestore();
@@ -169,10 +235,15 @@ describe("NativeInteropBridge", () => {
             const existingPostData = vi.fn();
             const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {
             });
-            window.infiniframe = {host: {postData: existingPostData, receiveCallback: vi.fn()}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData: existingPostData, receiveCallback: vi.fn()},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
-            window.infiniframe.host!.postData(null as any);
+            invokeInvalidHostPayload(
+                requireValue(window.infiniframe.host).postData,
+                null,
+            );
 
             expect(existingPostData).not.toHaveBeenCalled();
             expect(warnSpy).toHaveBeenCalled();
@@ -181,10 +252,17 @@ describe("NativeInteropBridge", () => {
 
         it("preserves channel field in normalized envelope", () => {
             const existingPostData = vi.fn();
-            window.infiniframe = {host: {postData: existingPostData, receiveCallback: vi.fn()}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData: existingPostData, receiveCallback: vi.fn()},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
-            window.infiniframe.host!.postData({id: "test", command: "Post", channel: "myChannel", version: 2});
+            requireValue(window.infiniframe.host).postData({
+                id: "test",
+                command: "Post",
+                channel: "myChannel",
+                version: 2,
+            });
 
             const parsed = JSON.parse(existingPostData.mock.calls[0][0]);
             expect(parsed.channel).toBe("myChannel");
@@ -192,10 +270,17 @@ describe("NativeInteropBridge", () => {
 
         it("ignores empty channel string", () => {
             const existingPostData = vi.fn();
-            window.infiniframe = {host: {postData: existingPostData, receiveCallback: vi.fn()}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData: existingPostData, receiveCallback: vi.fn()},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
-            window.infiniframe.host!.postData({id: "test", command: "Post", channel: "  ", version: 2});
+            requireValue(window.infiniframe.host).postData({
+                id: "test",
+                command: "Post",
+                channel: "  ",
+                version: 2,
+            });
 
             const parsed = JSON.parse(existingPostData.mock.calls[0][0]);
             expect(parsed.channel).toBeUndefined();
@@ -205,67 +290,87 @@ describe("NativeInteropBridge", () => {
     describe("receiveCallback", () => {
         it("registers existing receive callback", () => {
             const existingReceive = vi.fn();
-            window.infiniframe = {host: {postData: vi.fn(), receiveCallback: existingReceive}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData: vi.fn(), receiveCallback: existingReceive},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
             const cb = vi.fn();
-            window.infiniframe.host!.receiveCallback(cb);
+            requireValue(window.infiniframe.host).receiveCallback(cb);
 
             expect(existingReceive).toHaveBeenCalled();
         });
 
         it("defines __infiniframe_dispatch on window for webkit path", () => {
             const alreadyDefined = "__infiniframe_dispatch" in window;
-            window.webkit = {messageHandlers: {infiniFrameInterop: {postMessage: vi.fn()}}} as any;
+            window.webkit = {
+                messageHandlers: {infiniFrameInterop: {postMessage: vi.fn()}},
+            } as unknown as Window["webkit"];
 
             installNativeInteropBridge(setup);
             if (!alreadyDefined) {
-                window.infiniframe.host!.receiveCallback(vi.fn());
+                requireValue(window.infiniframe.host).receiveCallback(vi.fn());
             }
 
-            expect((window as any).__infiniframe_dispatch).toBeDefined();
-            expect(typeof (window as any).__infiniframe_dispatch).toBe("function");
+            expect(getTestWindow().__infiniframe_dispatch).toBeDefined();
+            expect(typeof getTestWindow().__infiniframe_dispatch).toBe("function");
         });
 
         it("does NOT define __dispatchMessageCallback on window for webkit path", () => {
             const alreadyDefined = "__infiniframe_dispatch" in window;
-            window.webkit = {messageHandlers: {infiniFrameInterop: {postMessage: vi.fn()}}} as any;
+            window.webkit = {
+                messageHandlers: {infiniFrameInterop: {postMessage: vi.fn()}},
+            } as unknown as Window["webkit"];
 
             installNativeInteropBridge(setup);
             if (!alreadyDefined) {
-                window.infiniframe.host!.receiveCallback(vi.fn());
+                requireValue(window.infiniframe.host).receiveCallback(vi.fn());
             }
 
-            expect((window as any).__dispatchMessageCallback).toBeUndefined();
+            expect(getTestWindow().__dispatchMessageCallback).toBeUndefined();
         });
 
         it("dispatches messages to registered callbacks via __infiniframe_dispatch", () => {
-            window.webkit = {messageHandlers: {infiniFrameInterop: {postMessage: vi.fn()}}} as any;
+            window.webkit = {
+                messageHandlers: {infiniFrameInterop: {postMessage: vi.fn()}},
+            } as unknown as Window["webkit"];
 
             installNativeInteropBridge(setup);
             const cb = vi.fn();
             try {
-                window.infiniframe.host!.receiveCallback(cb);
+                requireValue(window.infiniframe.host).receiveCallback(cb);
             } catch {
                 // __infiniframe_dispatch is non-configurable; re-register may throw on re-defineProperty.
                 // The callback is still added to receiveCallbacks before the error.
             }
 
-            (window as any).__infiniframe_dispatch("test-message");
+            requireValue(getTestWindow().__infiniframe_dispatch)("test-message");
 
             expect(cb).toHaveBeenCalledWith("test-message");
         });
 
         it("dispatches to multiple callbacks via __infiniframe_dispatch", () => {
-            window.webkit = {messageHandlers: {infiniFrameInterop: {postMessage: vi.fn()}}} as any;
+            window.webkit = {
+                messageHandlers: {infiniFrameInterop: {postMessage: vi.fn()}},
+            } as unknown as Window["webkit"];
 
             installNativeInteropBridge(setup);
             const cb1 = vi.fn();
             const cb2 = vi.fn();
-            try { window.infiniframe.host!.receiveCallback(cb1); } catch { /* non-configurable property */ }
-            try { window.infiniframe.host!.receiveCallback(cb2); } catch { /* non-configurable property */ }
+            try {
+                requireValue(window.infiniframe.host).receiveCallback(cb1);
+            } catch {
+                /* non-configurable property */
+            }
+            try {
+                requireValue(window.infiniframe.host).receiveCallback(cb2);
+            } catch {
+                /* non-configurable property */
+            }
 
-            (window as any).__infiniframe_dispatch("multi-callback-message");
+            requireValue(getTestWindow().__infiniframe_dispatch)(
+                "multi-callback-message",
+            );
 
             expect(cb1).toHaveBeenCalledWith("multi-callback-message");
             expect(cb2).toHaveBeenCalledWith("multi-callback-message");
@@ -274,47 +379,59 @@ describe("NativeInteropBridge", () => {
 
     describe("getDataAsync", () => {
         it("returns promise rejection for invalid payload", async () => {
-            window.infiniframe = {host: {postData: vi.fn(), receiveCallback: vi.fn()}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData: vi.fn(), receiveCallback: vi.fn()},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
-            await expect(window.infiniframe.host!.getDataAsync("")).rejects.toThrow("invalid");
+            await expect(
+                requireValue(requireValue(window.infiniframe.host).getDataAsync)(""),
+            ).rejects.toThrow("invalid");
         });
 
         it("returns promise rejection for empty string", async () => {
-            window.infiniframe = {host: {postData: vi.fn(), receiveCallback: vi.fn()}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData: vi.fn(), receiveCallback: vi.fn()},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
-            await expect(window.infiniframe.host!.getDataAsync("  ")).rejects.toThrow("invalid");
+            await expect(
+                requireValue(requireValue(window.infiniframe.host).getDataAsync)("  "),
+            ).rejects.toThrow("invalid");
         });
 
         it("delegates to existing getDataAsync when available (sync result)", async () => {
             const existingGetData = vi.fn(() => "sync-result");
-            window.infiniframe = {
+            getTestWindow().infiniframe = {
                 host: {
                     postData: vi.fn(),
                     receiveCallback: vi.fn(),
-                    getDataAsync: existingGetData
-                }
-            } as any;
+                    getDataAsync: existingGetData,
+                },
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
-            const result = await window.infiniframe.host!.getDataAsync("test-message");
+            const result = await requireValue(
+                requireValue(window.infiniframe.host).getDataAsync,
+            )("test-message");
 
             expect(result).toBe("sync-result");
         });
 
         it("delegates to existing getDataAsync when available (promise result)", async () => {
             const existingGetData = vi.fn(() => Promise.resolve("async-result"));
-            window.infiniframe = {
+            getTestWindow().infiniframe = {
                 host: {
                     postData: vi.fn(),
                     receiveCallback: vi.fn(),
-                    getDataAsync: existingGetData
-                }
-            } as any;
+                    getDataAsync: existingGetData,
+                },
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
-            const result = await window.infiniframe.host!.getDataAsync("test-message");
+            const result = await requireValue(
+                requireValue(window.infiniframe.host).getDataAsync,
+            )("test-message");
 
             expect(result).toBe("async-result");
         });
@@ -324,12 +441,18 @@ describe("NativeInteropBridge", () => {
                 throw new Error("bridge failed");
             });
             const chromePost = vi.fn();
-            window.chrome = {webview: {postMessage: chromePost, addEventListener: vi.fn()}} as any;
-            window.infiniframe = {host: {receiveCallback: vi.fn(), getDataAsync: existingGetData}} as any;
+            window.chrome = {
+                webview: {postMessage: chromePost, addEventListener: vi.fn()},
+            } as unknown as Window["chrome"];
+            getTestWindow().infiniframe = {
+                host: {receiveCallback: vi.fn(), getDataAsync: existingGetData},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
             vi.useFakeTimers();
-            const promise = window.infiniframe.host!.getDataAsync("test");
+            const promise = requireValue(
+                requireValue(window.infiniframe.host).getDataAsync,
+            )("test");
             vi.advanceTimersByTime(11000);
 
             await expect(promise).rejects.toThrow();
@@ -338,11 +461,18 @@ describe("NativeInteropBridge", () => {
 
         it("sends get request envelope via postData", async () => {
             const postData = vi.fn();
-            window.infiniframe = {host: {postData, receiveCallback: vi.fn()}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData, receiveCallback: vi.fn()},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
             vi.useFakeTimers();
-            const promise = window.infiniframe.host!.getDataAsync({id: "test-envelope", version: 2});
+            const promise = requireValue(
+                requireValue(window.infiniframe.host).getDataAsync,
+            )({
+                id: "test-envelope",
+                version: 2,
+            });
             vi.advanceTimersByTime(11000);
 
             expect(postData).toHaveBeenCalled();
@@ -356,11 +486,15 @@ describe("NativeInteropBridge", () => {
 
         it("parses JSON string as envelope for get request", async () => {
             const postData = vi.fn();
-            window.infiniframe = {host: {postData, receiveCallback: vi.fn()}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData, receiveCallback: vi.fn()},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
             vi.useFakeTimers();
-            const promise = window.infiniframe.host!.getDataAsync('{"id":"test","version":2}');
+            const promise = requireValue(
+                requireValue(window.infiniframe.host).getDataAsync,
+            )('{"id":"test","version":2}');
             vi.advanceTimersByTime(11000);
 
             const envelope = JSON.parse(postData.mock.calls[0][0]);
@@ -373,11 +507,15 @@ describe("NativeInteropBridge", () => {
 
         it("treats plain string as message id for get request", async () => {
             const postData = vi.fn();
-            window.infiniframe = {host: {postData, receiveCallback: vi.fn()}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData, receiveCallback: vi.fn()},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
             vi.useFakeTimers();
-            const promise = window.infiniframe.host!.getDataAsync("my-message-id");
+            const promise = requireValue(
+                requireValue(window.infiniframe.host).getDataAsync,
+            )("my-message-id");
             vi.advanceTimersByTime(11000);
 
             const envelope = JSON.parse(postData.mock.calls[0][0]);
@@ -389,11 +527,15 @@ describe("NativeInteropBridge", () => {
         });
 
         it("times out when no response received", async () => {
-            window.infiniframe = {host: {postData: vi.fn(), receiveCallback: vi.fn()}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData: vi.fn(), receiveCallback: vi.fn()},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
             vi.useFakeTimers();
-            const promise = window.infiniframe.host!.getDataAsync("test");
+            const promise = requireValue(
+                requireValue(window.infiniframe.host).getDataAsync,
+            )("test");
             vi.advanceTimersByTime(11000);
 
             await expect(promise).rejects.toThrow("Timed out");
@@ -406,11 +548,15 @@ describe("NativeInteropBridge", () => {
                 receiveCallbackFn = cb;
             });
             const postData = vi.fn();
-            window.infiniframe = {host: {postData, receiveCallback}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData, receiveCallback},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
 
-            const promise = window.infiniframe.host!.getDataAsync("test");
+            const promise = requireValue(
+                requireValue(window.infiniframe.host).getDataAsync,
+            )("test");
 
             const envelope = JSON.parse(postData.mock.calls[0][0]);
             const requestId = envelope.requestId;
@@ -419,9 +565,9 @@ describe("NativeInteropBridge", () => {
                 id: "__infiniframe:get:response",
                 command: "Post",
                 data: JSON.stringify({requestId, success: true, data: "result-data"}),
-                version: 2
+                version: 2,
             });
-            receiveCallbackFn!(response);
+            requireValue<(msg: string) => void>(receiveCallbackFn)(response);
 
             const result = await promise;
             expect(result).toBe("result-data");
@@ -433,11 +579,15 @@ describe("NativeInteropBridge", () => {
                 receiveCallbackFn = cb;
             });
             const postData = vi.fn();
-            window.infiniframe = {host: {postData, receiveCallback}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData, receiveCallback},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
 
-            const promise = window.infiniframe.host!.getDataAsync("test");
+            const promise = requireValue(
+                requireValue(window.infiniframe.host).getDataAsync,
+            )("test");
 
             const envelope = JSON.parse(postData.mock.calls[0][0]);
             const requestId = envelope.requestId;
@@ -445,10 +595,14 @@ describe("NativeInteropBridge", () => {
             const response = JSON.stringify({
                 id: "__infiniframe:get:response",
                 command: "Post",
-                data: JSON.stringify({requestId, success: false, error: "host error"}),
-                version: 2
+                data: JSON.stringify({
+                    requestId,
+                    success: false,
+                    error: "host error",
+                }),
+                version: 2,
             });
-            receiveCallbackFn!(response);
+            requireValue<(msg: string) => void>(receiveCallbackFn)(response);
 
             await expect(promise).rejects.toThrow("host error");
         });
@@ -459,20 +613,28 @@ describe("NativeInteropBridge", () => {
                 receiveCallbackFn = cb;
             });
             const postData = vi.fn();
-            window.infiniframe = {host: {postData, receiveCallback}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData, receiveCallback},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
 
             vi.useFakeTimers();
-            const promise = window.infiniframe.host!.getDataAsync("test");
+            const promise = requireValue(
+                requireValue(window.infiniframe.host).getDataAsync,
+            )("test");
 
             const response = JSON.stringify({
                 id: "__infiniframe:get:response",
                 command: "Post",
-                data: JSON.stringify({requestId: "wrong-id", success: true, data: "data"}),
-                version: 2
+                data: JSON.stringify({
+                    requestId: "wrong-id",
+                    success: true,
+                    data: "data",
+                }),
+                version: 2,
             });
-            receiveCallbackFn!(response);
+            requireValue<(msg: string) => void>(receiveCallbackFn)(response);
 
             vi.advanceTimersByTime(11000);
             await expect(promise).rejects.toThrow("Timed out");
@@ -485,20 +647,24 @@ describe("NativeInteropBridge", () => {
                 receiveCallbackFn = cb;
             });
             const postData = vi.fn();
-            window.infiniframe = {host: {postData, receiveCallback}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData, receiveCallback},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
 
             vi.useFakeTimers();
-            const promise = window.infiniframe.host!.getDataAsync("test");
+            const promise = requireValue(
+                requireValue(window.infiniframe.host).getDataAsync,
+            )("test");
 
             const response = JSON.stringify({
                 id: "__infiniframe:get:response",
                 command: "Post",
                 data: "not-valid-json{{{",
-                version: 2
+                version: 2,
             });
-            receiveCallbackFn!(response);
+            requireValue<(msg: string) => void>(receiveCallbackFn)(response);
 
             vi.advanceTimersByTime(11000);
             await expect(promise).rejects.toThrow("Timed out");
@@ -511,11 +677,15 @@ describe("NativeInteropBridge", () => {
                 receiveCallbackFn = cb;
             });
             const postData = vi.fn();
-            window.infiniframe = {host: {postData, receiveCallback}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData, receiveCallback},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
 
-            const promise = window.infiniframe.host!.getDataAsync("test");
+            const promise = requireValue<(message: string) => Promise<string>>(
+                requireValue(window.infiniframe.host).getDataAsync,
+            )("test");
 
             const envelope = JSON.parse(postData.mock.calls[0][0]);
             const requestId = envelope.requestId;
@@ -524,9 +694,9 @@ describe("NativeInteropBridge", () => {
                 id: "__infiniframe:get:response",
                 command: "Post",
                 data: JSON.stringify({requestId, success: true}),
-                version: 2
+                version: 2,
             });
-            receiveCallbackFn!(response);
+            requireValue<(msg: string) => void>(receiveCallbackFn)(response);
 
             const result = await promise;
             expect(result).toBe("");
@@ -538,20 +708,24 @@ describe("NativeInteropBridge", () => {
                 receiveCallbackFn = cb;
             });
             const postData = vi.fn();
-            window.infiniframe = {host: {postData, receiveCallback}} as any;
+            getTestWindow().infiniframe = {
+                host: {postData, receiveCallback},
+            } as unknown as TestInfiniFrame;
 
             installNativeInteropBridge(setup);
 
             vi.useFakeTimers();
-            const promise = window.infiniframe.host!.getDataAsync("test");
+            const promise = requireValue(
+                requireValue(window.infiniframe.host).getDataAsync,
+            )("test");
 
             const response = JSON.stringify({
                 id: "__infiniframe:get:response",
                 command: "Post",
                 data: JSON.stringify({notRequestId: true}),
-                version: 2
+                version: 2,
             });
-            receiveCallbackFn!(response);
+            requireValue<(msg: string) => void>(receiveCallbackFn)(response);
 
             vi.advanceTimersByTime(11000);
             await expect(promise).rejects.toThrow("Timed out");
@@ -566,6 +740,6 @@ function createSetup(): InfiniFrameSetup {
         windowExternalBridgeInitialized: false,
         blazorModulesFetchPatchInitialized: false,
         blazorCustomElementsPatchInitialized: false,
-        customElementsInitialized: false
+        customElementsInitialized: false,
     };
 }

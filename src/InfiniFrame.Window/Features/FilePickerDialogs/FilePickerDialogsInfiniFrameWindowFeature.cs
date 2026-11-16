@@ -145,7 +145,7 @@ public class FilePickerDialogsInfiniFrameWindowFeature(
         if (!empty && filters is { Length: > 0 }) {
             nativeFilters = OperatingSystem.IsMacOS()
                 ? [.. filters.SelectMany(t => t.Extensions.Select(s => s == "*" ? s : s.TrimStart('*', '.')))]
-                : [.. filters.Select(t => $"{t.Name}|{t.Extensions.Select(s => s.StartsWith('.') ? $"*{s}" : !s.StartsWith("*.") ? $"*.{s}" : s).Aggregate((e1, e2) => $"{e1};{e2}")}")];
+                : [.. filters.Select(t => $"{t.Name}|{t.Extensions.Select(s => s.StartsWith('.') ? $"*{s}" : !s.StartsWith("*.", StringComparison.Ordinal) ? $"*.{s}" : s).Aggregate((e1, e2) => $"{e1};{e2}")}")];
         }
 
         return nativeFilters;

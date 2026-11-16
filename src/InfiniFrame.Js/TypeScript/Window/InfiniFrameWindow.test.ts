@@ -2,7 +2,10 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {beforeEach, describe, expect, it, vi} from "vitest";
-import {InfiniFrameHostMessaging, SendToHostMessageIds} from "../Contracts";
+import {
+    type InfiniFrameHostMessaging,
+    SendToHostMessageIds,
+} from "../Contracts";
 import {InfiniFrameWindow} from "./InfiniFrameWindow";
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -15,12 +18,17 @@ describe("InfiniFrameWindow", () => {
         vi.restoreAllMocks();
     });
 
-    function createMessagingMocks(getMessageFromHostAsync: (message: string) => Promise<string>): InfiniFrameHostMessaging {
+    function createMessagingMocks(
+        getMessageFromHostAsync: (message: string) => Promise<string>,
+    ): InfiniFrameHostMessaging {
         return {
+            ready: Promise.resolve(),
+            isReady: true,
             sendMessageToHost: vi.fn(),
+            getMessageFromHostRawAsync: vi.fn(),
             getMessageFromHostAsync,
             assignMessageReceivedHandler: vi.fn(),
-            unregisterMessageReceivedHandler: vi.fn()
+            unregisterMessageReceivedHandler: vi.fn(),
         };
     }
 
@@ -31,8 +39,8 @@ describe("InfiniFrameWindow", () => {
             window: windowApi,
             utils: {
                 setPointerCapture: vi.fn(),
-                releasePointerCapture: vi.fn()
-            }
+                releasePointerCapture: vi.fn(),
+            },
         };
         return windowApi;
     }
@@ -48,13 +56,15 @@ describe("InfiniFrameWindow", () => {
             SendToHostMessageIds.windowFeatureRequest,
             {
                 command: "__infiniframe:window:features:decorations:setTitle",
-                args: {title: "Hello"}
-            }
+                args: {title: "Hello"},
+            },
         );
     });
 
     it("getTitleAsync requests generic get envelope and returns host payload", async () => {
-        const messaging = createMessagingMocks(vi.fn().mockResolvedValue('"Native Title"'));
+        const messaging = createMessagingMocks(
+            vi.fn().mockResolvedValue('"Native Title"'),
+        );
         assignInfiniFrame(messaging);
 
         const infiniFrameWindow = new InfiniFrameWindow();
@@ -62,7 +72,7 @@ describe("InfiniFrameWindow", () => {
 
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalledWith(
             "__infiniframe:window:features:decorations:title",
-            undefined
+            undefined,
         );
         expect(title).toBe("Native Title");
     });
@@ -87,7 +97,7 @@ describe("InfiniFrameWindow", () => {
             "size",
             "state",
             "webMessaging",
-            "javaScript"
+            "javaScript",
         ]);
     });
 });

@@ -14,3 +14,11 @@ node_modules/
 **/*.log
 **/*.tmp
 **/*.user
+
+# The CI image smoke test is copied into the image; keep the rest of .github excluded.
+!.github/
+.github/*
+!.github/ci/
+.github/ci/*
+!.github/ci/linux-image/
+!.github/ci/linux-image/*

@@ -1,0 +1,31 @@
+name: Read CI Tool Versions
+description: Read shared CI tool versions from tool-versions.json
+outputs:
+    node:
+        description: Node.js major version
+        value: ${{ steps.read.outputs.node }}
+    cmake:
+        description: CMake version
+        value: ${{ steps.read.outputs.cmake }}
+    dotnet:
+        description: .NET SDK channels
+        value: ${{ steps.read.outputs.dotnet }}
+    powershell:
+        description: PowerShell version
+        value: ${{ steps.read.outputs.powershell }}
+runs:
+    using: composite
+    steps:
+        - name: Read versions
+          id: read
+          shell: bash
+          run: |
+              node <<'NODE'
+              const fs = require('fs');
+              const versions = JSON.parse(fs.readFileSync('tool-versions.json', 'utf8'));
+              const output = process.env.GITHUB_OUTPUT;
+              fs.appendFileSync(output, `node=${versions.nodeMajor}\n`);
+              fs.appendFileSync(output, `cmake=${versions.cmake}\n`);
+              fs.appendFileSync(output, `powershell=${versions.powershell}\n`);
+              fs.appendFileSync(output, `dotnet<<VERSION_EOF\n${versions.dotnet.join('\n')}\nVERSION_EOF\n`);
+              NODE

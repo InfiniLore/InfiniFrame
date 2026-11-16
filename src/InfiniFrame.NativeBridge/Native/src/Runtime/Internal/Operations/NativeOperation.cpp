@@ -262,7 +262,8 @@ bool InfiniFrameWindow::CancelNavigation(const uint64_t operationId) {
     std::unique_ptr<NavigationOperation> cancelled;
     {
         std::lock_guard lock(GetCommonWindowState(this)->_navigationMutex);
-        if (!GetCommonWindowState(this)->_navigationOperation || GetCommonWindowState(this)->_navigationOperation->id != operationId)
+        if (!GetCommonWindowState(this)->_navigationOperation || GetCommonWindowState(this)->_navigationOperation->id !=
+            operationId)
             return false;
         cancelled = std::move(GetCommonWindowState(this)->_navigationOperation);
     }
@@ -272,7 +273,8 @@ bool InfiniFrameWindow::CancelNavigation(const uint64_t operationId) {
 
 void InfiniFrameWindow::BindNavigationBackendId(const uint64_t backendId) {
     std::lock_guard lock(GetCommonWindowState(this)->_navigationMutex);
-    if (GetCommonWindowState(this)->_navigationOperation && GetCommonWindowState(this)->_navigationOperation->backendId == 0)
+    if (GetCommonWindowState(this)->_navigationOperation && GetCommonWindowState(this)->_navigationOperation->backendId
+        == 0)
         GetCommonWindowState(this)->_navigationOperation->backendId = backendId;
 }
 

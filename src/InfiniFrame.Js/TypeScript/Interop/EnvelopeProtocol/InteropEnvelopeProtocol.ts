@@ -2,7 +2,12 @@
  * @file Envelope protocol implementation. Creates and parses the v2 JSON envelope format for web messaging.
  */
 // ---------------------------------------------------------------------------------------------------------------------
-import type {InteropEnvelopeCommand, InteropEnvelopeV1, InteropParseError, ParsedInteropMessage} from "../../Contracts";
+import type {
+    InteropEnvelopeCommand,
+    InteropEnvelopeV1,
+    InteropParseError,
+    ParsedInteropMessage,
+} from "../../Contracts";
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {SendToHostMessageIds} from "../../Contracts";
@@ -39,7 +44,7 @@ export function createEnvelope(
     data?: unknown,
     channel?: string,
     command: InteropEnvelopeCommand = InteropPostCommand,
-    requestId?: string
+    requestId?: string,
 ): InteropEnvelopeV1 {
     if (!id || id.trim().length === 0) {
         throw new Error("Envelope 'id' is required.");
@@ -51,7 +56,7 @@ export function createEnvelope(
         requestId,
         data,
         version: InteropEnvelopeVersion,
-        channel
+        channel,
     };
 }
 
@@ -66,7 +71,12 @@ export function createGetEnvelope(
     command: string,
     args?: unknown,
 ): InteropEnvelopeV1 {
-    return createEnvelope(SendToHostMessageIds.getRequest, {command, args}, undefined, InteropGetCommand);
+    return createEnvelope(
+        SendToHostMessageIds.getRequest,
+        {command, args},
+        undefined,
+        InteropGetCommand,
+    );
 }
 
 /**
@@ -85,7 +95,7 @@ export function createEnvelopeMessage(
     data?: unknown,
     channel?: string,
     command: InteropEnvelopeCommand = InteropPostCommand,
-    requestId?: string
+    requestId?: string,
 ): string {
     const envelope = createEnvelope(id, data, channel, command, requestId);
 
@@ -99,13 +109,17 @@ export function createEnvelopeMessage(
  * @param message - The raw JSON string received from the host.
  * @returns A parsed message object or a parse error describing what went wrong.
  */
-export function parseIncomingMessage(message: string): ParsedInteropMessage | InteropParseError {
+export function parseIncomingMessage(
+    message: string,
+): ParsedInteropMessage | InteropParseError {
     if (!message || message.trim().length === 0) {
         return {error: "Message is empty."};
     }
 
     if (getUtf8ByteCount(message) > InteropMessageMaxSizeBytes) {
-        return {error: `Message exceeds max size of ${InteropMessageMaxSizeBytes} bytes.`};
+        return {
+            error: `Message exceeds max size of ${InteropMessageMaxSizeBytes} bytes.`,
+        };
     }
 
     try {
@@ -118,8 +132,13 @@ export function parseIncomingMessage(message: string): ParsedInteropMessage | In
             return {error: "Envelope 'id' is required and must be a string."};
         }
 
-        if (typeof parsed.version !== "number" || !Number.isInteger(parsed.version)) {
-            return {error: "Envelope 'version' is required and must be an integer."};
+        if (
+            typeof parsed.version !== "number"
+            || !Number.isInteger(parsed.version)
+        ) {
+            return {
+                error: "Envelope 'version' is required and must be an integer.",
+            };
         }
 
         if (parsed.version !== InteropEnvelopeVersion) {
@@ -132,7 +151,10 @@ export function parseIncomingMessage(message: string): ParsedInteropMessage | In
             return {error: "Envelope 'command' must be 'Post' or 'Get'."};
         }
 
-        if (parsed.requestId !== undefined && typeof parsed.requestId !== "string") {
+        if (
+            parsed.requestId !== undefined
+            && typeof parsed.requestId !== "string"
+        ) {
             return {error: "Envelope 'requestId' must be a string."};
         }
 
@@ -140,7 +162,7 @@ export function parseIncomingMessage(message: string): ParsedInteropMessage | In
             messageId: parsed.id,
             payload,
             command: parsed.command,
-            requestId: parsed.requestId
+            requestId: parsed.requestId,
         };
     } catch {
         return {error: "Envelope JSON is malformed."};
@@ -191,6 +213,8 @@ function isObject(value: unknown): value is Record<string, unknown> {
  * @param command - The value to check.
  * @returns `true` if the value is either {@link InteropPostCommand} or {@link InteropGetCommand}.
  */
-function isSupportedCommand(command: unknown): command is InteropEnvelopeCommand {
+function isSupportedCommand(
+    command: unknown,
+): command is InteropEnvelopeCommand {
     return command === InteropPostCommand || command === InteropGetCommand;
 }

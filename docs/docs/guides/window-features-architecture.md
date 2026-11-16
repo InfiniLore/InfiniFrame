@@ -69,7 +69,7 @@ These features have a builder configuration phase **and** a runtime mutation pha
 | [Position](position-feature.md) | Initial location, centering | Runtime move/center | Full runtime control |
 | [Size](size-feature.md) | Initial size, min/max, resizable | Runtime resize | Full runtime control |
 | [State](state-feature.md) | Initial state (maximized, fullscreen, etc.) | Runtime state changes | Full runtime control |
-| [Taskbar](#taskbar-progress-and-flash) | (empty pattern consistency) | Progress indicators, flash | Builder exists for pattern consistency |
+| [Taskbar](core-window.md#taskbar-progress-and-flash) | (empty pattern consistency) | Progress indicators, flash | Builder exists for pattern consistency |
 
 ### Builder-only features
 

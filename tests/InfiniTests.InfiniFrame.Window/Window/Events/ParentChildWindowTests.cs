@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -14,7 +14,7 @@ public class ParentChildWindowTests {
 
     [Test]
     [SkipOnWindowsArm]
-    // Rider can schedule the net8 test host last while all target frameworks are cold-starting WebView2.
+    // Rider can schedule the last test host last while all target frameworks are cold-starting WebView2.
     // This integration test creates two native browser windows, so use a 30-second total budget.
     [DefaultTimeout(20_000)]
     [NotInParallelInfiniTests]

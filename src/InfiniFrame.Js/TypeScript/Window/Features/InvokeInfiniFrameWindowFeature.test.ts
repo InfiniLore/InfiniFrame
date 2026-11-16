@@ -7,9 +7,7 @@ describe("InvokeInfiniFrameWindowFeature", () => {
         setupFeature();
         vi.doMock("../InfiniFrameHostMessaging", () => ({
             default: class {
-                constructor() {
-                }
-            }
+            },
         }));
         const mod = await import("./InvokeInfiniFrameWindowFeature");
         const feature = new mod.InvokeInfiniFrameWindowFeature();

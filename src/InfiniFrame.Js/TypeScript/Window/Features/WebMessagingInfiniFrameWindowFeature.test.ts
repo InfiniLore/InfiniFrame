@@ -1,9 +1,12 @@
 import {beforeEach, describe, expect, it} from "vitest";
 import {setupFeature} from "./_testHelpers";
+import type {WebMessagingInfiniFrameWindowFeature} from "./WebMessagingInfiniFrameWindowFeature";
 
 describe("WebMessagingInfiniFrameWindowFeature", () => {
-    let feature: any;
-    let messaging: ReturnType<typeof import("./_testHelpers").createMessagingMock>;
+    let feature: WebMessagingInfiniFrameWindowFeature;
+    let messaging: ReturnType<
+        typeof import("./_testHelpers").createMessagingMock
+    >;
 
     beforeEach(async () => {
         messaging = setupFeature();

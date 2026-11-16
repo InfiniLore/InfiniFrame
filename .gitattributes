@@ -2,4 +2,3 @@
 src/InfiniFrame.NativeBridge/Native/src/Dependencies/**/* linguist-vendored
 
 *.sh text eol=lf
-.devcontainer/devcontainer.json text working-tree-encoding=UTF-8 eol=lf

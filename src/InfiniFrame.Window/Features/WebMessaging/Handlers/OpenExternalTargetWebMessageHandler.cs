@@ -78,16 +78,18 @@ public static class OpenExternalTargetWebMessageHandler {
 
     private static bool IsLoopbackOrPrivateIp(string host) {
         if (string.Equals(host, "localhost", StringComparison.OrdinalIgnoreCase)) return true;
+
         if (IPAddress.TryParse(host, out IPAddress? ip)) {
             return IPAddress.IsLoopback(ip) || IsPrivateIp(ip);
         }
+
         return false;
     }
 
     private static bool IsPrivateIp(IPAddress ip) {
         byte[] bytes = ip.GetAddressBytes();
-        return bytes[0] == 10 // 10.0.0.0/8
-            || (bytes[0] == 172 && bytes[1] >= 16 && bytes[1] <= 31) // 172.16.0.0/12
-            || (bytes[0] == 192 && bytes[1] == 168); // 192.168.0.0/16
+        return bytes[0] == 10// 10.0.0.0/8
+            || bytes[0] == 172 && bytes[1] >= 16 && bytes[1] <= 31// 172.16.0.0/12
+            || bytes[0] == 192 && bytes[1] == 168;// 192.168.0.0/16
     }
 }

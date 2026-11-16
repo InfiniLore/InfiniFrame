@@ -16,7 +16,9 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 /**
  * Provides a fire-and-forget mechanism for sending web messages to the C# host.
  */
-export class WebMessagingInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
+export class WebMessagingInfiniFrameWindowFeature
+    extends InfiniFrameWindowFeature
+    implements Contract {
     /**
      * Creates a new web messaging feature instance.
      */

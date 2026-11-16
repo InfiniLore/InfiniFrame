@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {InfiniFrameWindowFeatures} from "./InfiniFrameWindowFeatures";
+import type {InfiniFrameWindowFeatures} from "./InfiniFrameWindowFeatures";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -17,5 +17,5 @@ import {InfiniFrameWindowFeatures} from "./InfiniFrameWindowFeatures";
  */
 export interface InfiniFrameWindow {
     /** Collection of all window feature groups (browser, position, size, state, etc.). */
-    features: InfiniFrameWindowFeatures
+    features: InfiniFrameWindowFeatures;
 }

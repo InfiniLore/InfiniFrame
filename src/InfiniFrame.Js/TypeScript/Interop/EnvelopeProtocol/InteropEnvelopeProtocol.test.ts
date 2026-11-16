@@ -1,12 +1,13 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-// @ts-ignore
-import fs from "node:fs";
-// @ts-ignore
-import path from "node:path";
 import {describe, expect, it} from "vitest";
-import {createEnvelopeMessage, InteropMessageMaxSizeBytes, parseIncomingMessage} from "./InteropEnvelopeProtocol";
+import {
+    createEnvelopeMessage,
+    InteropMessageMaxSizeBytes,
+    parseIncomingMessage,
+} from "./InteropEnvelopeProtocol";
+import vectors from "./interop-envelope-golden-vectors.json";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -33,9 +34,7 @@ type GoldenVectors = {
 };
 
 function loadGoldenVectors(): GoldenVectors {
-    // @ts-ignore
-    const filePath = path.resolve(__dirname, "./interop-envelope-golden-vectors.json");
-    return JSON.parse(fs.readFileSync(filePath, "utf8")) as GoldenVectors;
+    return vectors as GoldenVectors;
 }
 
 describe("InteropEnvelopeProtocol", () => {
@@ -53,7 +52,10 @@ describe("InteropEnvelopeProtocol", () => {
             const result = parseIncomingMessage(vector.message);
             if ("error" in result) {
                 expect(vector.success, vector.name).toBe(false);
-                expect(result.error.includes(vector.errorContains ?? ""), vector.name).toBe(true);
+                expect(
+                    result.error.includes(vector.errorContains ?? ""),
+                    vector.name,
+                ).toBe(true);
                 continue;
             }
 

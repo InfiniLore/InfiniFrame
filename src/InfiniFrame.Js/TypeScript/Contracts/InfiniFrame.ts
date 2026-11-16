@@ -3,15 +3,15 @@
  * @module InfiniFrame
  */
 
+import type {WindowChrome} from "../Window/WindowChrome";
+import type {InfiniFrameHostBridge} from "./InfiniFrameHostBridge";
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import type {InfiniFrameHostMessaging} from "./InfiniFrameHostMessaging";
+import type {InfiniFrameSetup} from "./InfiniFrameSetup";
 import type {InfiniFrameUtils} from "./InfiniFrameUtils";
 import type {InfiniFrameWindow} from "./Window/InfiniFrameWindow";
-import type {InfiniFrameHostBridge} from "./InfiniFrameHostBridge";
-import type {InfiniFrameSetup} from "./InfiniFrameSetup";
-import type {WindowChrome} from "../Window/WindowChrome";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

@@ -20,5 +20,5 @@ export interface WebMessagingInfiniFrameWindowFeature {
      * Sends a web message to the native host.
      * @param message - The message string to send.
      */
-    sendWebMessage(message: string): void
+    sendWebMessage(message: string): void;
 }

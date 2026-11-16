@@ -6,170 +6,161 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Fluent extension methods for <see cref="IBrowserInfiniFrameWindowBuilderFeature"/> on <see cref="IInfiniFrameWindowBuilder"/>.
+///     Fluent extension methods for <see cref="IBrowserInfiniFrameWindowBuilderFeature" /> on
+///     <see cref="IInfiniFrameWindowBuilder" />.
 /// </summary>
 public static class IBrowserInfiniFrameWindowBuilderFeatureExtensions {
-    /// <summary>
-    ///     Enables or disables the context menu for the builder.
-    /// </summary>
     /// <param name="builder">The builder instance.</param>
-    /// <param name="enabled">Whether the context menu should be enabled.</param>
-    /// <returns>The builder instance for chaining.</returns>
-    public static IInfiniFrameWindowBuilder EnableContextMenu(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
-        builder.Features.Browser.EnableContextMenu(enabled);
-        return builder;
+    extension(IInfiniFrameWindowBuilder builder) {
+        /// <summary>
+        ///     Enables or disables the context menu for the builder.
+        /// </summary>
+        /// <param name="enabled">Whether the context menu should be enabled.</param>
+        /// <returns>The builder instance for chaining.</returns>
+        public IInfiniFrameWindowBuilder EnableContextMenu(bool enabled = true) {
+            builder.Features.Browser.EnableContextMenu(enabled);
+            return builder;
+        }
+
+        /// <summary>
+        ///     Enables or disables media autoplay for the builder.
+        /// </summary>
+        /// <param name="enabled">Whether media autoplay should be enabled.</param>
+        /// <returns>The builder instance for chaining.</returns>
+        public IInfiniFrameWindowBuilder EnableMediaAutoplay(bool enabled = true) {
+            builder.Features.Browser.EnableMediaAutoplay(enabled);
+            return builder;
+        }
+
+        /// <summary>
+        ///     Sets the user agent string for the builder.
+        /// </summary>
+        /// <param name="userAgent">The user agent string to set.</param>
+        /// <returns>The builder instance for chaining.</returns>
+        public IInfiniFrameWindowBuilder SetUserAgent(string? userAgent) {
+            builder.Features.Browser.SetUserAgent(userAgent);
+            return builder;
+        }
+
+        /// <summary>
+        ///     Enables or disables file system access for the builder.
+        /// </summary>
+        /// <param name="enabled">Whether file system access should be enabled.</param>
+        /// <returns>The builder instance for chaining.</returns>
+        public IInfiniFrameWindowBuilder EnableFileSystemAccess(bool enabled = true) {
+            builder.Features.Browser.EnableFileSystemAccess(enabled);
+            return builder;
+        }
+
+        /// <summary>
+        ///     Enables or disables web security for the builder.
+        /// </summary>
+        /// <param name="enabled">Whether web security should be enabled.</param>
+        /// <returns>The builder instance for chaining.</returns>
+        public IInfiniFrameWindowBuilder EnableWebSecurity(bool enabled = true) {
+            builder.Features.Browser.EnableWebSecurity(enabled);
+            return builder;
+        }
+
+        /// <summary>
+        ///     Enables or disables JavaScript clipboard access for the builder.
+        /// </summary>
+        /// <param name="enabled">Whether JavaScript clipboard access should be enabled.</param>
+        /// <returns>The builder instance for chaining.</returns>
+        public IInfiniFrameWindowBuilder EnableJavascriptClipboardAccess(bool enabled = true) {
+            builder.Features.Browser.EnableJavascriptClipboardAccess(enabled);
+            return builder;
+        }
+
+        /// <summary>
+        ///     Enables or disables media stream for the builder.
+        /// </summary>
+        /// <param name="enabled">Whether media stream should be enabled.</param>
+        /// <returns>The builder instance for chaining.</returns>
+        public IInfiniFrameWindowBuilder EnableMediaStream(bool enabled = true) {
+            builder.Features.Browser.EnableMediaStream(enabled);
+            return builder;
+        }
+
+        /// <summary>
+        ///     Enables or disables ignoring certificate errors for the builder.
+        ///     <para>
+        ///         ⚠️ Security Warning: Enabling this feature bypasses SSL/TLS certificate validation. Only use in controlled
+        ///         development/test scenarios. Never enable in production applications handling sensitive data.
+        ///     </para>
+        ///     <para>This is a startup-only configuration and cannot be changed at runtime.</para>
+        ///     <para>
+        ///         Platform-specific behavior: Windows passes --ignore-certificate-errors Chromium flag to WebView2; Linux sets
+        ///         WEBKIT_TLS_ERRORS_POLICY_IGNORE on WebKit data manager; macOS trusts all server certificates in
+        ///         didReceiveAuthenticationChallenge: delegate.
+        ///     </para>
+        /// </summary>
+        /// <param name="enabled">Whether certificate errors should be ignored.</param>
+        /// <returns>The builder instance for chaining.</returns>
+        public IInfiniFrameWindowBuilder EnableIgnoreCertificateErrors(bool enabled = true) {
+            builder.Features.Browser.EnableIgnoreCertificateErrors(enabled);
+            return builder;
+        }
+
+        /// <summary>
+        ///     Enables or disables browser permissions for the builder.
+        /// </summary>
+        /// <param name="enabled">Whether browser permissions should be granted.</param>
+        /// <returns>The builder instance for chaining.</returns>
+        public IInfiniFrameWindowBuilder EnableBrowserPermissions(bool enabled = true) {
+            builder.Features.Browser.EnableBrowserPermissions(enabled);
+            return builder;
+        }
+
+        /// <summary>
+        ///     Enables or disables smooth scrolling for the builder.
+        /// </summary>
+        /// <param name="enabled">Whether smooth scrolling should be enabled.</param>
+        /// <returns>The builder instance for chaining.</returns>
+        public IInfiniFrameWindowBuilder EnableSmoothScrolling(bool enabled = true) {
+            builder.Features.Browser.EnableSmoothScrolling(enabled);
+            return builder;
+        }
+
+        /// <summary>
+        ///     Enables or disables the status bar (URL hover indicator) for the builder.
+        /// </summary>
+        /// <param name="enabled">Whether the status bar should be enabled.</param>
+        /// <returns>The builder instance for chaining.</returns>
+        public IInfiniFrameWindowBuilder EnableStatusBar(bool enabled = true) {
+            builder.Features.Browser.EnableStatusBar(enabled);
+            return builder;
+        }
+
+        /// <summary>
+        ///     Enables or disables browser keyboard shortcuts (e.g. Ctrl+T, Ctrl+W, F11) for the builder.
+        /// </summary>
+        /// <param name="enabled">Whether browser shortcuts should be enabled.</param>
+        /// <returns>The builder instance for chaining.</returns>
+        public IInfiniFrameWindowBuilder EnableBrowserShortcuts(bool enabled = true) {
+            builder.Features.Browser.EnableBrowserShortcuts(enabled);
+            return builder;
+        }
+
+        /// <summary>
+        ///     Sets the browser control initialization parameters for the builder.
+        /// </summary>
+        /// <param name="parameters">The initialization parameters.</param>
+        /// <returns>The builder instance for chaining.</returns>
+        public IInfiniFrameWindowBuilder SetBrowserControlInitParameters(string? parameters) {
+            builder.Features.Browser.SetBrowserControlInitParameters(parameters);
+            return builder;
+        }
+
+        /// <summary>
+        ///     Sets the temporary files path for the builder.
+        /// </summary>
+        /// <param name="parameters">The temporary files path.</param>
+        /// <returns>The builder instance for chaining.</returns>
+        public IInfiniFrameWindowBuilder SetTemporaryFilesPath(string parameters) {
+            builder.Features.Browser.SetTemporaryFilesPath(parameters);
+            return builder;
+        }
     }
 
-    /// <summary>
-    ///     Enables or disables media autoplay for the builder.
-    /// </summary>
-    /// <param name="builder">The builder instance.</param>
-    /// <param name="enabled">Whether media autoplay should be enabled.</param>
-    /// <returns>The builder instance for chaining.</returns>
-    public static IInfiniFrameWindowBuilder EnableMediaAutoplay(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
-        builder.Features.Browser.EnableMediaAutoplay(enabled);
-        return builder;
-    }
-
-    /// <summary>
-    ///     Sets the user agent string for the builder.
-    /// </summary>
-    /// <param name="builder">The builder instance.</param>
-    /// <param name="userAgent">The user agent string to set.</param>
-    /// <returns>The builder instance for chaining.</returns>
-    public static IInfiniFrameWindowBuilder SetUserAgent(this IInfiniFrameWindowBuilder builder, string? userAgent) {
-        builder.Features.Browser.SetUserAgent(userAgent);
-        return builder;
-    }
-
-    /// <summary>
-    ///     Enables or disables file system access for the builder.
-    /// </summary>
-    /// <param name="builder">The builder instance.</param>
-    /// <param name="enabled">Whether file system access should be enabled.</param>
-    /// <returns>The builder instance for chaining.</returns>
-    public static IInfiniFrameWindowBuilder EnableFileSystemAccess(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
-        builder.Features.Browser.EnableFileSystemAccess(enabled);
-        return builder;
-    }
-
-    /// <summary>
-    ///     Enables or disables web security for the builder.
-    /// </summary>
-    /// <param name="builder">The builder instance.</param>
-    /// <param name="enabled">Whether web security should be enabled.</param>
-    /// <returns>The builder instance for chaining.</returns>
-    public static IInfiniFrameWindowBuilder EnableWebSecurity(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
-        builder.Features.Browser.EnableWebSecurity(enabled);
-        return builder;
-    }
-
-    /// <summary>
-    ///     Enables or disables JavaScript clipboard access for the builder.
-    /// </summary>
-    /// <param name="builder">The builder instance.</param>
-    /// <param name="enabled">Whether JavaScript clipboard access should be enabled.</param>
-    /// <returns>The builder instance for chaining.</returns>
-    public static IInfiniFrameWindowBuilder EnableJavascriptClipboardAccess(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
-        builder.Features.Browser.EnableJavascriptClipboardAccess(enabled);
-        return builder;
-    }
-
-    /// <summary>
-    ///     Enables or disables media stream for the builder.
-    /// </summary>
-    /// <param name="builder">The builder instance.</param>
-    /// <param name="enabled">Whether media stream should be enabled.</param>
-    /// <returns>The builder instance for chaining.</returns>
-    public static IInfiniFrameWindowBuilder EnableMediaStream(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
-        builder.Features.Browser.EnableMediaStream(enabled);
-        return builder;
-    }
-
-    /// <summary>
-    ///     Enables or disables ignoring certificate errors for the builder.
-    ///     <para>
-    ///         ⚠️ Security Warning: Enabling this feature bypasses SSL/TLS certificate validation. Only use in controlled
-    ///         development/test scenarios. Never enable in production applications handling sensitive data.
-    ///     </para>
-    ///     <para>This is a startup-only configuration and cannot be changed at runtime.</para>
-    ///     <para>
-    ///         Platform-specific behavior: Windows passes --ignore-certificate-errors Chromium flag to WebView2; Linux sets
-    ///         WEBKIT_TLS_ERRORS_POLICY_IGNORE on WebKit data manager; macOS trusts all server certificates in
-    ///         didReceiveAuthenticationChallenge: delegate.
-    ///     </para>
-    /// </summary>
-    /// <param name="builder">The builder instance.</param>
-    /// <param name="enabled">Whether certificate errors should be ignored.</param>
-    /// <returns>The builder instance for chaining.</returns>
-    public static IInfiniFrameWindowBuilder EnableIgnoreCertificateErrors(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
-        builder.Features.Browser.EnableIgnoreCertificateErrors(enabled);
-        return builder;
-    }
-
-    /// <summary>
-    ///     Enables or disables browser permissions for the builder.
-    /// </summary>
-    /// <param name="builder">The builder instance.</param>
-    /// <param name="enabled">Whether browser permissions should be granted.</param>
-    /// <returns>The builder instance for chaining.</returns>
-    public static IInfiniFrameWindowBuilder EnableBrowserPermissions(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
-        builder.Features.Browser.EnableBrowserPermissions(enabled);
-        return builder;
-    }
-
-    /// <summary>
-    ///     Enables or disables smooth scrolling for the builder.
-    /// </summary>
-    /// <param name="builder">The builder instance.</param>
-    /// <param name="enabled">Whether smooth scrolling should be enabled.</param>
-    /// <returns>The builder instance for chaining.</returns>
-    public static IInfiniFrameWindowBuilder EnableSmoothScrolling(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
-        builder.Features.Browser.EnableSmoothScrolling(enabled);
-        return builder;
-    }
-
-    /// <summary>
-    ///     Enables or disables the status bar (URL hover indicator) for the builder.
-    /// </summary>
-    /// <param name="builder">The builder instance.</param>
-    /// <param name="enabled">Whether the status bar should be enabled.</param>
-    /// <returns>The builder instance for chaining.</returns>
-    public static IInfiniFrameWindowBuilder EnableStatusBar(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
-        builder.Features.Browser.EnableStatusBar(enabled);
-        return builder;
-    }
-
-    /// <summary>
-    ///     Enables or disables browser keyboard shortcuts (e.g. Ctrl+T, Ctrl+W, F11) for the builder.
-    /// </summary>
-    /// <param name="builder">The builder instance.</param>
-    /// <param name="enabled">Whether browser shortcuts should be enabled.</param>
-    /// <returns>The builder instance for chaining.</returns>
-    public static IInfiniFrameWindowBuilder EnableBrowserShortcuts(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
-        builder.Features.Browser.EnableBrowserShortcuts(enabled);
-        return builder;
-    }
-
-    /// <summary>
-    ///     Sets the browser control initialization parameters for the builder.
-    /// </summary>
-    /// <param name="builder">The builder instance.</param>
-    /// <param name="parameters">The initialization parameters.</param>
-    /// <returns>The builder instance for chaining.</returns>
-    public static IInfiniFrameWindowBuilder SetBrowserControlInitParameters(this IInfiniFrameWindowBuilder builder, string? parameters) {
-        builder.Features.Browser.SetBrowserControlInitParameters(parameters);
-        return builder;
-    }
-
-    /// <summary>
-    ///     Sets the temporary files path for the builder.
-    /// </summary>
-    /// <param name="builder">The builder instance.</param>
-    /// <param name="parameters">The temporary files path.</param>
-    /// <returns>The builder instance for chaining.</returns>
-    public static IInfiniFrameWindowBuilder SetTemporaryFilesPath(this IInfiniFrameWindowBuilder builder, string parameters) {
-        builder.Features.Browser.SetTemporaryFilesPath(parameters);
-        return builder;
-    }
 }

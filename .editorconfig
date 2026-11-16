@@ -225,3 +225,11 @@ tab_width = 4
 
 [*.razor]
 csharp_space_after_keywords_in_control_flow_statements = true
+
+# The strongly typed [LoggerMessage] source generated wrappers are deliberately not used: the concise
+# LoggerExtensions API is preferred and the log statements that only echoed a method call have been
+# removed instead. CA1848 (use LoggerMessage delegates) and CA1873 (avoid evaluating arguments when
+# logging is disabled) therefore do not apply to this codebase.
+[*.cs]
+dotnet_diagnostic.CA1848.severity = none
+dotnet_diagnostic.CA1873.severity = none

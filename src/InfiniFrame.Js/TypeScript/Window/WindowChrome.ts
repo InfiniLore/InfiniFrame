@@ -66,18 +66,18 @@ const DATA_WINDOW_ACTION = "data-infiniframe-window-action";
 const DATA_RESIZE = "data-infiniframe-resize";
 
 const RESIZE_ORIGIN_MAP: Record<string, string> = {
-    "top": "top",
-    "right": "right",
-    "bottom": "bottom",
-    "left": "left",
+    top: "top",
+    right: "right",
+    bottom: "bottom",
+    left: "left",
     "top-left": "topLeft",
     "top-right": "topRight",
     "bottom-left": "bottomLeft",
     "bottom-right": "bottomRight",
-    "topLeft": "topLeft",
-    "topRight": "topRight",
-    "bottomLeft": "bottomLeft",
-    "bottomRight": "bottomRight"
+    topLeft: "topLeft",
+    topRight: "topRight",
+    bottomLeft: "bottomLeft",
+    bottomRight: "bottomRight",
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -100,16 +100,11 @@ export class WindowChrome {
     private lastPointerId = 0;
     private resizeOrigin: string | null = null;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private boundPointerDown: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private boundPointerUp: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private boundPointerMove: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private boundDblClick: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private boundClick: any;
+    private boundPointerDown: EventListener;
+    private boundPointerUp: EventListener;
+    private boundPointerMove: EventListener;
+    private boundDblClick: EventListener;
+    private boundClick: EventListener;
 
     private mutationObserver: MutationObserver | null = null;
 
@@ -133,7 +128,7 @@ export class WindowChrome {
      * control buttons, and resize handles.
      * @throws {Error} If `config` is not provided.
      */
-    public register(config: WindowChromeConfig): void {
+    public register(config: WindowChromeConfig | null): void {
         if (this.isRegistered) this.unregister();
         if (!config) throw new Error("WindowChrome.register: config is required.");
 
@@ -216,7 +211,7 @@ export class WindowChrome {
         const entries: [string, string][] = [
             controls.minimize ? [controls.minimize, "minimize"] : [],
             controls.maximize ? [controls.maximize, "maximize"] : [],
-            controls.close ? [controls.close, "close"] : []
+            controls.close ? [controls.close, "close"] : [],
         ].filter((e): e is [string, string] => e.length === 2);
 
         for (const [sel, action] of entries) {
@@ -226,7 +221,9 @@ export class WindowChrome {
                     this.controlElements.set(el, action);
                 }
             } catch {
-                console.warn(`WindowChrome: invalid selector "${sel}" for ${action} control.`);
+                console.warn(
+                    `WindowChrome: invalid selector "${sel}" for ${action} control.`,
+                );
             }
         }
     }
@@ -252,7 +249,7 @@ export class WindowChrome {
             resize.topLeft ? [resize.topLeft, "topLeft"] : [],
             resize.topRight ? [resize.topRight, "topRight"] : [],
             resize.bottomLeft ? [resize.bottomLeft, "bottomLeft"] : [],
-            resize.bottomRight ? [resize.bottomRight, "bottomRight"] : []
+            resize.bottomRight ? [resize.bottomRight, "bottomRight"] : [],
         ].filter((e): e is [string, string] => e.length === 2);
 
         for (const [sel, origin] of entries) {
@@ -262,7 +259,9 @@ export class WindowChrome {
                     this.resizeElements.set(el, origin);
                 }
             } catch {
-                console.warn(`WindowChrome: invalid selector "${sel}" for ${origin} resize zone.`);
+                console.warn(
+                    `WindowChrome: invalid selector "${sel}" for ${origin} resize zone.`,
+                );
             }
         }
     }
@@ -296,7 +295,11 @@ export class WindowChrome {
     private setupDataAttributeControls(): void {
         for (const el of document.querySelectorAll(`[${DATA_WINDOW_ACTION}]`)) {
             const action = el.getAttribute(DATA_WINDOW_ACTION);
-            if (action === "minimize" || action === "maximize" || action === "close") {
+            if (
+                action === "minimize"
+                || action === "maximize"
+                || action === "close"
+            ) {
                 el.addEventListener("click", this.boundClick);
                 this.controlElements.set(el, action);
             }
@@ -310,7 +313,9 @@ export class WindowChrome {
 
             const origin = RESIZE_ORIGIN_MAP[value];
             if (!origin) {
-                console.warn(`WindowChrome: unknown data-infiniframe-resize value "${value}".`);
+                console.warn(
+                    `WindowChrome: unknown data-infiniframe-resize value "${value}".`,
+                );
                 continue;
             }
 
@@ -330,11 +335,13 @@ export class WindowChrome {
                     needsUpdate = true;
                     break;
                 }
-                if (mutation.type === "attributes" &&
-                    mutation.attributeName &&
-                    (mutation.attributeName === DATA_DRAG_REGION ||
-                        mutation.attributeName === DATA_WINDOW_ACTION ||
-                        mutation.attributeName === DATA_RESIZE)) {
+                if (
+                    mutation.type === "attributes"
+                    && mutation.attributeName
+                    && (mutation.attributeName === DATA_DRAG_REGION
+                        || mutation.attributeName === DATA_WINDOW_ACTION
+                        || mutation.attributeName === DATA_RESIZE)
+                ) {
                     needsUpdate = true;
                     break;
                 }
@@ -350,7 +357,7 @@ export class WindowChrome {
             childList: true,
             subtree: true,
             attributes: true,
-            attributeFilter: [DATA_DRAG_REGION, DATA_WINDOW_ACTION, DATA_RESIZE]
+            attributeFilter: [DATA_DRAG_REGION, DATA_WINDOW_ACTION, DATA_RESIZE],
         });
     }
 
@@ -396,9 +403,16 @@ export class WindowChrome {
         this.isDragging = true;
         this.lastPointerId = e.pointerId;
 
-        this.postToHost("restoreFromMaximized", {screenX: e.screenX, screenY: e.screenY});
+        this.postToHost("restoreFromMaximized", {
+            screenX: e.screenX,
+            screenY: e.screenY,
+        });
         target.setPointerCapture(e.pointerId);
-        target.addEventListener("lostpointercapture", () => this.onDragLostCapture(), {once: true});
+        target.addEventListener(
+            "lostpointercapture",
+            () => this.onDragLostCapture(),
+            {once: true},
+        );
     }
 
     private onDragLostCapture(): void {
@@ -457,7 +471,11 @@ export class WindowChrome {
         this.resizeOrigin = this.resizeElements.get(target) ?? null;
         target.setPointerCapture(e.pointerId);
         target.addEventListener("pointermove", this.boundPointerMove);
-        target.addEventListener("lostpointercapture", () => this.onResizeLostCapture(target), {once: true});
+        target.addEventListener(
+            "lostpointercapture",
+            () => this.onResizeLostCapture(target),
+            {once: true},
+        );
     }
 
     private onResizeLostCapture(target: Element): void {
@@ -474,7 +492,7 @@ export class WindowChrome {
         this.postToHost("resize", {
             widthOffset: e.movementX,
             heightOffset: e.movementY,
-            origin: this.resizeOrigin
+            origin: this.resizeOrigin,
         });
     }
 
@@ -487,7 +505,8 @@ export class WindowChrome {
             if (target.hasPointerCapture(this.lastPointerId)) {
                 target.releasePointerCapture(this.lastPointerId);
             }
-        } catch { /* Element may no longer exist */
+        } catch {
+            /* Element may no longer exist */
         }
         this.lastPointerId = 0;
     }
@@ -499,13 +518,16 @@ export class WindowChrome {
         }
         window.infiniframe.messaging.sendMessageToHost(
             SendToHostMessageIds.windowFeatureRequest,
-            {command: `__infiniframe:window:features:windowChrome:${command}`, args}
+            {
+                command: `__infiniframe:window:features:windowChrome:${command}`,
+                args,
+            },
         );
     }
 }
 
 function isMessagingReady(): boolean {
-    return !!(window.infiniframe?.messaging);
+    return !!window.infiniframe?.messaging;
 }
 
 const windowChrome = new WindowChrome();

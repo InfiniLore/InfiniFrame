@@ -6,7 +6,11 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {DialogButtons, DialogIcon, DialogResult} from "./WindowFeatureTypes";
+import type {
+    DialogButtons,
+    DialogIcon,
+    DialogResult,
+} from "./WindowFeatureTypes";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -31,5 +35,10 @@ export interface NotificationsInfiniFrameWindowFeature {
      * @param icon - Icon to display in the dialog.
      * @returns A promise resolving to the button clicked by the user.
      */
-    showMessageAsync(title: string, text?: string | null, buttons?: DialogButtons, icon?: DialogIcon): Promise<DialogResult>;
+    showMessageAsync(
+        title: string,
+        text?: string | null,
+        buttons?: DialogButtons,
+        icon?: DialogIcon,
+    ): Promise<DialogResult>;
 }

@@ -48,7 +48,10 @@ export async function blankTargetHandler(e: MouseEvent) {
         }
 
         const target = anchor.getAttribute("target");
-        const shouldHandle = target === "_blank" || anchor.hasAttribute("data-external") || isExternalLink(anchor.href);
+        const shouldHandle =
+            target === "_blank"
+            || anchor.hasAttribute("data-external")
+            || isExternalLink(anchor.href);
 
         if (!shouldHandle) {
             el = el.parentElement;
@@ -56,7 +59,10 @@ export async function blankTargetHandler(e: MouseEvent) {
         }
 
         e.preventDefault();
-        window.infiniframe.messaging.sendMessageToHost(SendToHostMessageIds.openExternalLink, anchor.href);
+        window.infiniframe.messaging.sendMessageToHost(
+            SendToHostMessageIds.openExternalLink,
+            anchor.href,
+        );
         return;
     }
 }

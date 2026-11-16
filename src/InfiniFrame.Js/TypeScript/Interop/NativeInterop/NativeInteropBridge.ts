@@ -4,12 +4,17 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {InfiniFrameHostBridge, InfiniFrameSetup, InteropEnvelopeCommand, InteropEnvelopeV1} from "../../Contracts";
+import type {
+    InfiniFrameHostBridge,
+    InfiniFrameSetup,
+    InteropEnvelopeCommand,
+    InteropEnvelopeV1,
+} from "../../Contracts";
 import {
     InteropEnvelopeVersion,
     InteropGetCommand,
     InteropPostCommand,
-    parseIncomingMessage
+    parseIncomingMessage,
 } from "../EnvelopeProtocol/InteropEnvelopeProtocol";
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -42,7 +47,7 @@ export function installNativeInteropBridge(setup: InfiniFrameSetup): void {
     if (setup.nativeInteropBridgeInitialized) return;
     setup.nativeInteropBridgeInitialized = true;
 
-    window.infiniframe = window.infiniframe ?? {} as Window["infiniframe"];
+    window.infiniframe = window.infiniframe ?? ({} as Window["infiniframe"]);
     const host = (window.infiniframe.host ?? {}) as InfiniFrameHostBridge;
     const existingPostData = host.postData;
     const existingReceiveCallback = host.receiveCallback;
@@ -55,7 +60,12 @@ export function installNativeInteropBridge(setup: InfiniFrameSetup): void {
         registerWebMessageReceiver(callback, existingReceiveCallback);
     };
     host.getDataAsync = (message: InteropEnvelopeV1 | string) => {
-        return requestMessageFromHost(message, host, existingGetData, existingReceiveCallback);
+        return requestMessageFromHost(
+            message,
+            host,
+            existingGetData,
+            existingReceiveCallback,
+        );
     };
 
     window.infiniframe.host = host;
@@ -70,7 +80,7 @@ export function installNativeInteropBridge(setup: InfiniFrameSetup): void {
  */
 function dispatchEnvelopeToHost(
     envelope: InteropEnvelopeV1 | string,
-    existingPostData?: ((envelope: InteropEnvelopeV1 | string) => void)
+    existingPostData?: (envelope: InteropEnvelopeV1 | string) => void,
 ): void {
     if (typeof envelope === "string") {
         const rawMessage = envelope.trim();
@@ -84,7 +94,10 @@ function dispatchEnvelopeToHost(
                 existingPostData(rawMessage);
                 return;
             } catch (error) {
-                console.warn("Existing InfiniFrame host bridge failed. Falling back to platform adapters.", error);
+                console.warn(
+                    "Existing InfiniFrame host bridge failed. Falling back to platform adapters.",
+                    error,
+                );
             }
         }
 
@@ -110,7 +123,10 @@ function dispatchEnvelopeToHost(
                 existingPostData(normalized);
                 return;
             } catch {
-                console.warn("Existing InfiniFrame host bridge failed. Falling back to platform adapters.", error);
+                console.warn(
+                    "Existing InfiniFrame host bridge failed. Falling back to platform adapters.",
+                    error,
+                );
             }
         }
     }
@@ -130,8 +146,10 @@ function dispatchEnvelopeToHost(
 function requestMessageFromHost(
     message: InteropEnvelopeV1 | string,
     host: InfiniFrameHostBridge,
-    existingGetData?: ((message: InteropEnvelopeV1 | string) => Promise<string> | string),
-    existingReceiveCallback?: (callback: (message: string) => void) => void
+    existingGetData?: (
+        message: InteropEnvelopeV1 | string,
+    ) => Promise<string> | string,
+    existingReceiveCallback?: (callback: (message: string) => void) => void,
 ): Promise<string> {
     const normalizedMessage = normalizeGetMessageInput(message);
     if (!normalizedMessage) {
@@ -141,13 +159,19 @@ function requestMessageFromHost(
     if (existingGetData) {
         try {
             const existingResult = existingGetData(normalizedMessage);
-            if (existingResult && typeof (existingResult as Promise<string>).then === "function") {
+            if (
+                existingResult
+                && typeof (existingResult as Promise<string>).then === "function"
+            ) {
                 return existingResult as Promise<string>;
             }
 
             return Promise.resolve(String(existingResult ?? ""));
         } catch (error) {
-            console.warn("Existing InfiniFrame getDataAsync bridge failed. Falling back to request/response transport.", error);
+            console.warn(
+                "Existing InfiniFrame getDataAsync bridge failed. Falling back to request/response transport.",
+                error,
+            );
         }
     }
 
@@ -156,12 +180,18 @@ function requestMessageFromHost(
     return new Promise<string>((resolve, reject) => {
         const timeout = window.setTimeout(() => {
             unregisterWebMessageReceiver(responseCallback);
-            reject(new Error("Timed out waiting for getDataAsync response from host."));
+            reject(
+                new Error("Timed out waiting for getDataAsync response from host."),
+            );
         }, GetMessageTimeoutMs);
 
         const responseCallback = (rawMessage: string) => {
             const parsed = parseIncomingMessage(rawMessage);
-            if ("error" in parsed || parsed.messageId !== GetMessageResponseId || !parsed.payload) {
+            if (
+                "error" in parsed
+                || parsed.messageId !== GetMessageResponseId
+                || !parsed.payload
+            ) {
                 return;
             }
 
@@ -172,7 +202,10 @@ function requestMessageFromHost(
                 return;
             }
 
-            if (!isGetMessageResponsePayload(payload) || payload.requestId !== requestId) {
+            if (
+                !isGetMessageResponsePayload(payload)
+                || payload.requestId !== requestId
+            ) {
                 return;
             }
 
@@ -188,7 +221,10 @@ function requestMessageFromHost(
         };
 
         registerWebMessageReceiver(responseCallback, existingReceiveCallback);
-        const requestEnvelope = createGetRequestEnvelope(normalizedMessage, requestId);
+        const requestEnvelope = createGetRequestEnvelope(
+            normalizedMessage,
+            requestId,
+        );
 
         if (!requestEnvelope) {
             window.clearTimeout(timeout);
@@ -208,7 +244,10 @@ function requestMessageFromHost(
  * @param requestId - The unique request identifier to include in the envelope.
  * @returns A normalized {@link InteropEnvelopeV1} for a get request, or null if the input is invalid.
  */
-function createGetRequestEnvelope(normalizedMessage: InteropEnvelopeV1 | string, requestId: string): InteropEnvelopeV1 | null {
+function createGetRequestEnvelope(
+    normalizedMessage: InteropEnvelopeV1 | string,
+    requestId: string,
+): InteropEnvelopeV1 | null {
     if (typeof normalizedMessage !== "string") {
         return normalizeEnvelope(normalizedMessage, InteropGetCommand, requestId);
     }
@@ -216,13 +255,21 @@ function createGetRequestEnvelope(normalizedMessage: InteropEnvelopeV1 | string,
     try {
         const parsed = JSON.parse(normalizedMessage) as unknown;
         if (isObject(parsed)) {
-            return normalizeEnvelope(parsed as unknown as InteropEnvelopeV1, InteropGetCommand, requestId);
+            return normalizeEnvelope(
+                parsed as unknown as InteropEnvelopeV1,
+                InteropGetCommand,
+                requestId,
+            );
         }
     } catch {
         // A plain string is treated as the message id for a get request.
     }
 
-    return normalizeEnvelope({id: normalizedMessage, version: InteropEnvelopeVersion}, InteropGetCommand, requestId);
+    return normalizeEnvelope(
+        {id: normalizedMessage, version: InteropEnvelopeVersion},
+        InteropGetCommand,
+        requestId,
+    );
 }
 
 /**
@@ -231,7 +278,9 @@ function createGetRequestEnvelope(normalizedMessage: InteropEnvelopeV1 | string,
  * @param message - The raw message input (string or envelope object).
  * @returns The trimmed string or normalized envelope, or null if the input is invalid.
  */
-function normalizeGetMessageInput(message: InteropEnvelopeV1 | string): InteropEnvelopeV1 | string | null {
+function normalizeGetMessageInput(
+    message: InteropEnvelopeV1 | string,
+): InteropEnvelopeV1 | string | null {
     if (typeof message === "string") {
         const trimmed = message.trim();
         if (trimmed.length === 0) {
@@ -257,7 +306,9 @@ function normalizeGetMessageInput(message: InteropEnvelopeV1 | string): InteropE
 function createRequestId(): string {
     const randomBytes = new Uint8Array(16);
     crypto.getRandomValues(randomBytes);
-    const randomHex = Array.from(randomBytes, b => b.toString(16).padStart(2, '0')).join('');
+    const randomHex = Array.from(randomBytes, (b) =>
+        b.toString(16).padStart(2, "0"),
+    ).join("");
     return `if_req_${Date.now().toString(36)}_${randomHex}`;
 }
 
@@ -272,7 +323,7 @@ function createRequestId(): string {
 function normalizeEnvelope(
     envelope: InteropEnvelopeV1,
     command?: InteropEnvelopeCommand,
-    requestId?: string
+    requestId?: string,
 ): InteropEnvelopeV1 | null {
     if (!envelope || typeof envelope !== "object") {
         console.warn("Host bridge payload must be an envelope object.");
@@ -290,11 +341,15 @@ function normalizeEnvelope(
         command: command ?? envelope.command ?? InteropPostCommand,
         requestId: requestId ?? envelope.requestId,
         data: envelope.data,
-        version: InteropEnvelopeVersion
+        version: InteropEnvelopeVersion,
     };
 
     // noinspection SuspiciousTypeOfGuard
-    if (envelope.channel !== undefined && typeof envelope.channel === "string" && envelope.channel.trim().length > 0) {
+    if (
+        envelope.channel !== undefined
+        && typeof envelope.channel === "string"
+        && envelope.channel.trim().length > 0
+    ) {
         normalized.channel = envelope.channel;
     }
 
@@ -310,7 +365,7 @@ function normalizeEnvelope(
  */
 function registerWebMessageReceiver(
     callback: (message: string) => void,
-    existingReceiveCallback?: (callback: (message: string) => void) => void
+    existingReceiveCallback?: (callback: (message: string) => void) => void,
 ): void {
     receiveCallbacks.add(callback);
     attachReceiveBridgeOnce(existingReceiveCallback);
@@ -322,7 +377,9 @@ function registerWebMessageReceiver(
  * @param callback - The callback function to remove from the receive set.
  * @returns {void}
  */
-function unregisterWebMessageReceiver(callback: (message: string) => void): void {
+function unregisterWebMessageReceiver(
+    callback: (message: string) => void,
+): void {
     receiveCallbacks.delete(callback);
 }
 
@@ -332,7 +389,9 @@ function unregisterWebMessageReceiver(callback: (message: string) => void): void
  * @param existingReceiveCallback - Optional previously-installed receive callback handler to try first.
  * @returns {void}
  */
-function attachReceiveBridgeOnce(existingReceiveCallback?: (callback: (message: string) => void) => void): void {
+function attachReceiveBridgeOnce(
+    existingReceiveCallback?: (callback: (message: string) => void) => void,
+): void {
     if (receiveBridgeAttached) {
         return;
     }
@@ -349,28 +408,35 @@ function attachReceiveBridgeOnce(existingReceiveCallback?: (callback: (message: 
             receiveBridgeAttached = true;
             return;
         } catch (error) {
-            console.warn("Existing InfiniFrame host receive bridge failed. Falling back to platform adapters.", error);
+            console.warn(
+                "Existing InfiniFrame host receive bridge failed. Falling back to platform adapters.",
+                error,
+            );
         }
     }
 
     if (window.chrome?.webview?.addEventListener) {
-        window.chrome.webview.addEventListener("message", event => dispatch(event.data));
+        window.chrome.webview.addEventListener("message", (event) =>
+            dispatch(event.data),
+        );
         receiveBridgeAttached = true;
         return;
     }
 
     if (window.webkit?.messageHandlers?.infiniFrameInterop) {
-        Object.defineProperty(window, '__infiniframe_dispatch', {
+        Object.defineProperty(window, "__infiniframe_dispatch", {
             value: dispatch,
             writable: false,
             configurable: false,
-            enumerable: false
+            enumerable: false,
         });
         receiveBridgeAttached = true;
         return;
     }
 
-    console.warn("Receive message registration failed. No supported host receive transport was found.");
+    console.warn(
+        "Receive message registration failed. No supported host receive transport was found.",
+    );
 }
 
 /**
@@ -415,9 +481,11 @@ function isGetMessageResponsePayload(value: unknown): value is {
     data?: string;
     error?: string;
 } {
-    return isObject(value)
+    return (
+        isObject(value)
         && typeof value.requestId === "string"
         && typeof value.success === "boolean"
         && (value.data === undefined || typeof value.data === "string")
-        && (value.error === undefined || typeof value.error === "string");
+        && (value.error === undefined || typeof value.error === "string")
+    );
 }

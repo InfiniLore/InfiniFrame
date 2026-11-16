@@ -1,9 +1,12 @@
 import {beforeEach, describe, expect, it} from "vitest";
 import {setupFeature} from "./_testHelpers";
+import type {SizeInfiniFrameWindowFeature} from "./SizeInfiniFrameWindowFeature";
 
 describe("SizeInfiniFrameWindowFeature", () => {
-    let feature: any;
-    let messaging: ReturnType<typeof import("./_testHelpers").createMessagingMock>;
+    let feature: SizeInfiniFrameWindowFeature;
+    let messaging: ReturnType<
+        typeof import("./_testHelpers").createMessagingMock
+    >;
 
     beforeEach(async () => {
         messaging = setupFeature();
@@ -12,7 +15,9 @@ describe("SizeInfiniFrameWindowFeature", () => {
     });
 
     it("getSizeAsync calls get", async () => {
-        messaging.getMessageFromHostAsync.mockResolvedValue(JSON.stringify({width: 800, height: 600}));
+        messaging.getMessageFromHostAsync.mockResolvedValue(
+            JSON.stringify({width: 800, height: 600}),
+        );
         await feature.getSizeAsync();
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });
@@ -27,12 +32,16 @@ describe("SizeInfiniFrameWindowFeature", () => {
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });
     it("getMaxSizeAsync calls get", async () => {
-        messaging.getMessageFromHostAsync.mockResolvedValue(JSON.stringify({width: 1920, height: 1080}));
+        messaging.getMessageFromHostAsync.mockResolvedValue(
+            JSON.stringify({width: 1920, height: 1080}),
+        );
         await feature.getMaxSizeAsync();
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });
     it("getMinSizeAsync calls get", async () => {
-        messaging.getMessageFromHostAsync.mockResolvedValue(JSON.stringify({width: 200, height: 150}));
+        messaging.getMessageFromHostAsync.mockResolvedValue(
+            JSON.stringify({width: 200, height: 150}),
+        );
         await feature.getMinSizeAsync();
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });
@@ -66,7 +75,7 @@ describe("SizeInfiniFrameWindowFeature", () => {
         expect(messaging.sendMessageToHost).toHaveBeenCalled();
     });
     it("resize posts command", () => {
-        feature.resize(10, 20);
+        feature.resize(10, 20, "bottomRight");
         expect(messaging.sendMessageToHost).toHaveBeenCalled();
     });
 });

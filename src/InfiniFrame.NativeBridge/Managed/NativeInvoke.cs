@@ -4,7 +4,7 @@
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using InfiniFrame.NativeBridge.Handles;
+using InfiniFrame.NativeBridge.NativeHandles;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame.NativeBridge;
@@ -58,7 +58,6 @@ internal static partial class NativeInvoke {
         // On Windows/macOS, same-thread execution is still valid and avoids extra dispatch overhead.
         if (!OperatingSystem.IsLinux() && Environment.CurrentManagedThreadId == managedThreadId) {
             try {
-                logger.LogTrace("Executing callback on same thread");
                 result = callback(nativeHandle);
             }
             catch (Exception ex) when (ex is not (ApplicationException or OutOfMemoryException or AccessViolationException or StackOverflowException or ThreadAbortException or OperationCanceledException)) {
@@ -71,7 +70,6 @@ internal static partial class NativeInvoke {
 
         // Otherwise, we need to execute it on the window thread.
         else {
-            logger.LogTrace("Executing callback on window thread. Marshalling to C++ native cobebase");
             string? nativeErrorMessage = null;
             InfiniFrameNative.Invoke(nativeHandle, callback: () => {
                 try {
@@ -112,7 +110,7 @@ internal static partial class NativeInvoke {
             logger,
             windowHandleOwner,
             managedThreadId,
-            callback: callback,
+            callback,
             access);
         EnsureSuccess(logger, status);
     }
@@ -141,7 +139,6 @@ internal static partial class NativeInvoke {
             // The explicit interop status is authoritative. A managed callback executed inside a native dispatch can
             // leave an unrelated Win32 last-error value on the thread even though the enclosing operation succeeded.
             Marshal.SetLastPInvokeError(0);
-            logger.LogTrace("Native interop call succeeded");
             return;
         }
 
@@ -159,11 +156,9 @@ internal static partial class NativeInvoke {
         }
 
         if (foundMessage is not null) {
-            logger.LogTrace("Native interop call failed with error: {FoundMessage}", foundMessage);
             message = foundMessage;
         }
         else {
-            logger.LogTrace("Native interop call failed with no error message");
             message = NoNativeMessage;
         }
 
@@ -330,7 +325,7 @@ internal static partial class NativeInvoke {
             logger,
             windowHandleOwner,
             managedThreadId,
-            callback: callback
+            callback
         );
 
         EnsureSuccess(logger, status);

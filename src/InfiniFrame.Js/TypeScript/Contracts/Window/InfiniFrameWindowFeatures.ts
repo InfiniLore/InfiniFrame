@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {
+import type {
     BrowserInfiniFrameWindowFeature,
     DebuggingInfiniFrameWindowFeature,
     DecorationsInfiniFrameWindowFeature,
@@ -19,7 +19,7 @@ import {
     PositionInfiniFrameWindowFeature,
     SizeInfiniFrameWindowFeature,
     StateInfiniFrameWindowFeature,
-    WebMessagingInfiniFrameWindowFeature
+    WebMessagingInfiniFrameWindowFeature,
 } from "./Features";
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -32,29 +32,29 @@ import {
  */
 export interface InfiniFrameWindowFeatures {
     /** Browser-level settings: context menu, media autoplay, user agent, web security, etc. */
-    browser: BrowserInfiniFrameWindowFeature
+    browser: BrowserInfiniFrameWindowFeature;
     /** Debugging tools: dev tools, remote debugging endpoint, web inspector, diagnostics. */
-    debugging: DebuggingInfiniFrameWindowFeature
+    debugging: DebuggingInfiniFrameWindowFeature;
     /** Window decorations: title, icon, background color, transparency, chromeless mode. */
-    decorations: DecorationsInfiniFrameWindowFeature
+    decorations: DecorationsInfiniFrameWindowFeature;
     /** Native file picker dialogs: open file, open folder, save file. */
-    filePickerDialogs: FilePickerDialogsInfiniFrameWindowFeature
+    filePickerDialogs: FilePickerDialogsInfiniFrameWindowFeature;
     /** Direct method invocation on the native host (reserved for future use). */
-    invoke: InvokeInfiniFrameWindowFeature
+    invoke: InvokeInfiniFrameWindowFeature;
     /** Window lifecycle management: state queries, close, and lifecycle events. */
-    lifecycle: LifecycleInfiniFrameWindowFeature
+    lifecycle: LifecycleInfiniFrameWindowFeature;
     /** Multi-monitor support: enumerate monitors, get DPI, query work areas. */
-    monitors: MonitorsInfiniFrameWindowFeature
+    monitors: MonitorsInfiniFrameWindowFeature;
     /** Notifications and dialog boxes: toast notifications, message dialogs. */
-    notifications: NotificationsInfiniFrameWindowFeature
+    notifications: NotificationsInfiniFrameWindowFeature;
     /** Page navigation: load URIs, load paths, load raw HTML, get current URL. */
-    pageNavigation: PageNavigationInfiniFrameWindowFeature
+    pageNavigation: PageNavigationInfiniFrameWindowFeature;
     /** Window position: get/set location, center, offset, and monitor-aware placement. */
-    position: PositionInfiniFrameWindowFeature
+    position: PositionInfiniFrameWindowFeature;
     /** Window size: get/set dimensions, min/max constraints, resize, and resizable flag. */
-    size: SizeInfiniFrameWindowFeature
+    size: SizeInfiniFrameWindowFeature;
     /** Window state: fullscreen, maximize, minimize, topmost, focus, zoom. */
-    state: StateInfiniFrameWindowFeature
+    state: StateInfiniFrameWindowFeature;
     /** Web messaging: send web messages to the native host. */
-    webMessaging: WebMessagingInfiniFrameWindowFeature
+    webMessaging: WebMessagingInfiniFrameWindowFeature;
 }

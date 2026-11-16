@@ -16,7 +16,7 @@ import type {InfiniFrameSetup} from "../../Contracts";
  * @returns The {@link InfiniFrameSetup} object attached to `window.infiniframe.setup`.
  */
 export function getSetupGuard(): InfiniFrameSetup {
-    window.infiniframe = window.infiniframe ?? {} as Window["infiniframe"];
+    window.infiniframe = window.infiniframe ?? ({} as Window["infiniframe"]);
     window.infiniframe.setup = window.infiniframe.setup ?? {
         nativeInteropBridgeInitialized: false,
         windowExternalBridgeInitialized: false,

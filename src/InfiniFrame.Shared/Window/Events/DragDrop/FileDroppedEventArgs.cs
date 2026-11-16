@@ -10,7 +10,7 @@ namespace InfiniFrame.DragDrop;
 /// <summary>
 ///     Provides data for file drop events.
 /// </summary>
-public sealed class FileDroppedEventArgs {
+public sealed class FileDroppedEventArgs : EventArgs {
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="FileDroppedEventArgs"/> class.

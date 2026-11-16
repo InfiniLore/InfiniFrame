@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Diagnostics.CodeAnalysis;
-using InfiniFrame.NativeBridge.Handles;
+using InfiniFrame.NativeBridge.NativeHandles;
 
 namespace InfiniTests.InfiniFrame.NativeBridge.Managed;
 // ---------------------------------------------------------------------------------------------------------------------

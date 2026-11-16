@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using InfiniFrame.Hosting;
 using InfiniFrame.Js.Interop;
-using InfiniFrame.NativeBridge.Handles;
+using InfiniFrame.NativeBridge.NativeHandles;
 using InfiniFrame.NativeBridge.Parameters.Window;
 using InfiniFrame.Security;
 using InfiniFrame.Window.Builder;

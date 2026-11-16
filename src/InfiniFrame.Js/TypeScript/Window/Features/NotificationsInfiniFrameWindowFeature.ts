@@ -8,10 +8,10 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import type {
+    NotificationsInfiniFrameWindowFeature as Contract,
     DialogButtons,
     DialogIcon,
     DialogResult,
-    NotificationsInfiniFrameWindowFeature as Contract
 } from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
@@ -21,7 +21,9 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 /**
  * Provides desktop notification display and native message box dialog functionality.
  */
-export class NotificationsInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
+export class NotificationsInfiniFrameWindowFeature
+    extends InfiniFrameWindowFeature
+    implements Contract {
     /**
      * Creates a new notifications feature instance.
      */
@@ -48,7 +50,17 @@ export class NotificationsInfiniFrameWindowFeature extends InfiniFrameWindowFeat
      * @param icon - The dialog icon. Defaults to `"info"`.
      * @returns A promise that resolves to the {@link DialogResult} indicating which button was clicked.
      */
-    showMessageAsync(title: string, text: string | null = null, buttons: DialogButtons = "ok", icon: DialogIcon = "info") {
-        return this.get<DialogResult>("showMessage", {title, text, buttons, icon});
+    showMessageAsync(
+        title: string,
+        text: string | null = null,
+        buttons: DialogButtons = "ok",
+        icon: DialogIcon = "info",
+    ) {
+        return this.get<DialogResult>("showMessage", {
+            title,
+            text,
+            buttons,
+            icon,
+        });
     }
 }

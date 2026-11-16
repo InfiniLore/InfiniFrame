@@ -18,7 +18,7 @@ public sealed class InfiniFrameNativeWindowParametersValidator
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
     /// <summary>
-///     Initializes a new instance of <see cref="InfiniFrameNativeWindowParametersValidator" />
+    ///     Initializes a new instance of <see cref="InfiniFrameNativeWindowParametersValidator" />
     ///     and configures all validation rules.
     /// </summary>
     public InfiniFrameNativeWindowParametersValidator() {

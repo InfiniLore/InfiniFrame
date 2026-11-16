@@ -2,8 +2,12 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {beforeEach, describe, expect, it, vi} from "vitest";
-import type {InfiniFrameSetup} from "../../Contracts";
-import {initBlazorCustomElementsPatch, initCustomElements} from "./customElements";
+import {deleteTestProperty, requireValue} from "../../_testHelpers";
+import type {BlazorComponent, InfiniFrameSetup} from "../../Contracts";
+import {
+    initBlazorCustomElementsPatch,
+    initCustomElements,
+} from "./customElements";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -19,8 +23,12 @@ describe("customElements", () => {
     beforeEach(() => {
         setup = createSetup();
         document.body.innerHTML = "";
-        Object.defineProperty(window, "Blazor", {configurable: true, value: undefined, writable: true});
-        delete window.registerBlazorCustomElement;
+        Object.defineProperty(window, "Blazor", {
+            configurable: true,
+            value: undefined,
+            writable: true,
+        });
+        deleteTestProperty(window, "registerBlazorCustomElement");
         vi.useRealTimers();
         vi.restoreAllMocks();
         vi.resetModules();
@@ -34,16 +42,16 @@ describe("customElements", () => {
 
         window.Blazor = {
             rootComponents: {
-                add
-            }
+                add,
+            },
         };
 
         initCustomElements(setup);
-        window.registerBlazorCustomElement!(identifier, [
+        requireValue(window.registerBlazorCustomElement)(identifier, [
             {name: "TitleText", type: "string"},
             {name: "Count", type: "int"},
             {name: "Enabled", type: "bool"},
-            {name: "Changed", type: "EventCallback"}
+            {name: "Changed", type: "EventCallback"},
         ]);
 
         const element = document.createElement(identifier);
@@ -56,7 +64,7 @@ describe("customElements", () => {
         expect(add).toHaveBeenCalledWith(element, identifier, {
             TitleText: "Hello",
             Count: 4,
-            Enabled: true
+            Enabled: true,
         });
 
         element.setAttribute("count", "5");
@@ -81,22 +89,24 @@ describe("customElements", () => {
         window.registerBlazorCustomElement = registerBlazorCustomElement;
         window.Blazor = {
             _internal: {
-                attachWebRendererInterop
-            }
+                attachWebRendererInterop,
+            },
         };
 
         initBlazorCustomElementsPatch(setup);
 
-        const result = window.Blazor._internal!.attachWebRendererInterop!(
+        const result = requireValue(
+            requireValue(window.Blazor._internal).attachWebRendererInterop,
+        )(
             {},
             {},
             {
                 "initialized-element": [{name: "Value"}],
-                "missing-element": [{name: "OtherValue"}]
+                "missing-element": [{name: "OtherValue"}],
             },
             {
-                initializer: ["initialized-element"]
-            }
+                initializer: ["initialized-element"],
+            },
         );
 
         vi.runAllTimers();
@@ -105,47 +115,60 @@ describe("customElements", () => {
         expect(registerBlazorCustomElement).toHaveBeenCalledTimes(1);
         expect(registerBlazorCustomElement).toHaveBeenCalledWith(
             "missing-element",
-            [{name: "OtherValue"}]
+            [{name: "OtherValue"}],
         );
     });
 
     it("registerBlazorCustomElement returns early if Blazor.rootComponents not available", () => {
-        window.Blazor = {} as any;
+        window.Blazor = {};
         initCustomElements(setup);
 
         // Should not throw
-        window.registerBlazorCustomElement!("test-element", [{name: "Value"}]);
+        requireValue(window.registerBlazorCustomElement)("test-element", [
+            {name: "Value"},
+        ]);
     });
 
     it("registerBlazorCustomElement returns early if customElements.define not available", () => {
-        window.Blazor = {rootComponents: {add: vi.fn()}} as any;
+        window.Blazor = {rootComponents: {add: vi.fn()}};
         initCustomElements(setup);
 
         // In jsdom, customElements.define exists, so this branch may not be hit
         // But we can verify the element is defined
-        window.registerBlazorCustomElement!("test-element-no-define", [{name: "Value"}]);
+        requireValue(window.registerBlazorCustomElement)("test-element-no-define", [
+            {name: "Value"},
+        ]);
     });
 
     it("registerBlazorCustomElement returns early if element already defined", () => {
-        window.Blazor = {rootComponents: {add: vi.fn()}} as any;
+        window.Blazor = {rootComponents: {add: vi.fn()}};
         initCustomElements(setup);
 
-        window.registerBlazorCustomElement!("test-element-defined", [{name: "Value"}]);
+        requireValue(window.registerBlazorCustomElement)("test-element-defined", [
+            {name: "Value"},
+        ]);
         // Registering same name again should not throw
-        window.registerBlazorCustomElement!("test-element-defined", [{name: "Value"}]);
+        requireValue(window.registerBlazorCustomElement)("test-element-defined", [
+            {name: "Value"},
+        ]);
     });
 
     it("handles numeric type conversions (int, float, double, decimal)", async () => {
-        const add = vi.fn(() => Promise.resolve({setParameters: vi.fn(() => Promise.resolve()), dispose: vi.fn()}));
+        const add = vi.fn(() =>
+            Promise.resolve({
+                setParameters: vi.fn(() => Promise.resolve()),
+                dispose: vi.fn(),
+            }),
+        );
         const identifier = `infiniframe-test-numeric-${++elementCounter}`;
 
         window.Blazor = {rootComponents: {add}};
         initCustomElements(setup);
-        window.registerBlazorCustomElement!(identifier, [
+        requireValue(window.registerBlazorCustomElement)(identifier, [
             {name: "IntVal", type: "int"},
             {name: "FloatVal", type: "float"},
             {name: "DoubleVal", type: "double"},
-            {name: "DecimalVal", type: "decimal"}
+            {name: "DecimalVal", type: "decimal"},
         ]);
 
         const element = document.createElement(identifier);
@@ -159,19 +182,25 @@ describe("customElements", () => {
         expect(add).toHaveBeenCalledWith(element, identifier, {
             IntVal: 42,
             FloatVal: 3.14,
+            // biome-ignore lint/suspicious/noApproximativeNumericConstant: preserve the explicit test value.
             DoubleVal: 2.718,
-            DecimalVal: 99.99
+            DecimalVal: 99.99,
         });
     });
 
     it("handles non-numeric NaN values as strings", async () => {
-        const add = vi.fn(() => Promise.resolve({setParameters: vi.fn(() => Promise.resolve()), dispose: vi.fn()}));
+        const add = vi.fn(() =>
+            Promise.resolve({
+                setParameters: vi.fn(() => Promise.resolve()),
+                dispose: vi.fn(),
+            }),
+        );
         const identifier = `infiniframe-test-nan-${++elementCounter}`;
 
         window.Blazor = {rootComponents: {add}};
         initCustomElements(setup);
-        window.registerBlazorCustomElement!(identifier, [
-            {name: "Val", type: "number"}
+        requireValue(window.registerBlazorCustomElement)(identifier, [
+            {name: "Val", type: "number"},
         ]);
 
         const element = document.createElement(identifier);
@@ -180,18 +209,23 @@ describe("customElements", () => {
         await tick();
 
         expect(add).toHaveBeenCalledWith(element, identifier, {
-            Val: "not-a-number"
+            Val: "not-a-number",
         });
     });
 
     it("handles bool false value", async () => {
-        const add = vi.fn(() => Promise.resolve({setParameters: vi.fn(() => Promise.resolve()), dispose: vi.fn()}));
+        const add = vi.fn(() =>
+            Promise.resolve({
+                setParameters: vi.fn(() => Promise.resolve()),
+                dispose: vi.fn(),
+            }),
+        );
         const identifier = `infiniframe-test-bool-${++elementCounter}`;
 
         window.Blazor = {rootComponents: {add}};
         initCustomElements(setup);
-        window.registerBlazorCustomElement!(identifier, [
-            {name: "Flag", type: "boolean"}
+        requireValue(window.registerBlazorCustomElement)(identifier, [
+            {name: "Flag", type: "boolean"},
         ]);
 
         const element = document.createElement(identifier);
@@ -200,19 +234,21 @@ describe("customElements", () => {
         await tick();
 
         expect(add).toHaveBeenCalledWith(element, identifier, {
-            Flag: false
+            Flag: false,
         });
     });
 
     it("attributeChangedCallback ignores unchanged values", async () => {
         const setParameters = vi.fn(() => Promise.resolve());
-        const add = vi.fn(() => Promise.resolve({setParameters, dispose: vi.fn()}));
+        const add = vi.fn(() =>
+            Promise.resolve({setParameters, dispose: vi.fn()}),
+        );
         const identifier = `infiniframe-test-unchanged-${++elementCounter}`;
 
         window.Blazor = {rootComponents: {add}};
         initCustomElements(setup);
-        window.registerBlazorCustomElement!(identifier, [
-            {name: "Value", type: "string"}
+        requireValue(window.registerBlazorCustomElement)(identifier, [
+            {name: "Value", type: "string"},
         ]);
 
         const element = document.createElement(identifier);
@@ -229,13 +265,15 @@ describe("customElements", () => {
 
     it("attributeChangedCallback ignores unknown attributes", async () => {
         const setParameters = vi.fn(() => Promise.resolve());
-        const add = vi.fn(() => Promise.resolve({setParameters, dispose: vi.fn()}));
+        const add = vi.fn(() =>
+            Promise.resolve({setParameters, dispose: vi.fn()}),
+        );
         const identifier = `infiniframe-test-unknown-${++elementCounter}`;
 
         window.Blazor = {rootComponents: {add}};
         initCustomElements(setup);
-        window.registerBlazorCustomElement!(identifier, [
-            {name: "Known", type: "string"}
+        requireValue(window.registerBlazorCustomElement)(identifier, [
+            {name: "Known", type: "string"},
         ]);
 
         const element = document.createElement(identifier);
@@ -251,8 +289,8 @@ describe("customElements", () => {
     });
 
     it("connectedCallback disposes if disconnected before promise resolves", async () => {
-        let resolveAdd: (value: any) => void;
-        const addPromise = new Promise(resolve => {
+        let resolveAdd: ((value: BlazorComponent) => void) | undefined;
+        const addPromise = new Promise<BlazorComponent>((resolve) => {
             resolveAdd = resolve;
         });
         const dispose = vi.fn(() => Promise.resolve());
@@ -261,7 +299,7 @@ describe("customElements", () => {
 
         window.Blazor = {rootComponents: {add}};
         initCustomElements(setup);
-        window.registerBlazorCustomElement!(identifier, []);
+        requireValue(window.registerBlazorCustomElement)(identifier, []);
 
         const element = document.createElement(identifier);
         document.body.appendChild(element);
@@ -272,7 +310,7 @@ describe("customElements", () => {
         await tick();
 
         // Now resolve the add promise
-        resolveAdd!({dispose});
+        requireValue<(value: BlazorComponent) => void>(resolveAdd)({dispose});
         await tick();
 
         expect(dispose).toHaveBeenCalled();
@@ -297,11 +335,9 @@ describe("customElements", () => {
 
         initBlazorCustomElementsPatch(setup);
 
-        window.Blazor._internal!.attachWebRendererInterop!(
-            {}, {},
-            {"auto-element": [{name: "Val"}]},
-            {}
-        );
+        requireValue(
+            requireValue(window.Blazor._internal).attachWebRendererInterop,
+        )({}, {}, {"auto-element": [{name: "Val"}]}, {});
 
         vi.runAllTimers();
 
@@ -312,16 +348,14 @@ describe("customElements", () => {
     it("flushAutoRegister does nothing if registerBlazorCustomElement not available", () => {
         vi.useFakeTimers();
         const attachWebRendererInterop = vi.fn();
-        window.registerBlazorCustomElement = undefined as any;
+        window.registerBlazorCustomElement = undefined;
         window.Blazor = {_internal: {attachWebRendererInterop}};
 
         initBlazorCustomElementsPatch(setup);
 
-        window.Blazor._internal!.attachWebRendererInterop!(
-            {}, {},
-            {"auto-element": [{name: "Val"}]},
-            {}
-        );
+        requireValue(
+            requireValue(window.Blazor._internal).attachWebRendererInterop,
+        )({}, {}, {"auto-element": [{name: "Val"}]}, {});
 
         vi.runAllTimers();
         vi.useRealTimers();
@@ -336,11 +370,9 @@ describe("customElements", () => {
 
         initBlazorCustomElementsPatch(setup);
 
-        window.Blazor._internal!.attachWebRendererInterop!(
-            {}, {},
-            undefined as any,
-            undefined as any
-        );
+        requireValue(
+            requireValue(window.Blazor._internal).attachWebRendererInterop,
+        )({}, {}, undefined, undefined);
 
         vi.runAllTimers();
 
@@ -350,8 +382,10 @@ describe("customElements", () => {
 
     it("autoRegister handles errors in registerBlazorCustomElement gracefully", () => {
         vi.useFakeTimers();
-        const consoleError = vi.spyOn(console, "error").mockImplementation(() => {
-        });
+        const consoleError = vi
+            .spyOn(console, "error")
+            .mockImplementation(() => {
+            });
         const register = vi.fn(() => {
             throw new Error("registration failed");
         });
@@ -361,11 +395,9 @@ describe("customElements", () => {
 
         initBlazorCustomElementsPatch(setup);
 
-        window.Blazor._internal!.attachWebRendererInterop!(
-            {}, {},
-            {"failing-element": [{name: "Value"}]},
-            {}
-        );
+        requireValue(
+            requireValue(window.Blazor._internal).attachWebRendererInterop,
+        )({}, {}, {"failing-element": [{name: "Value"}]}, {});
 
         vi.runAllTimers();
 
@@ -379,14 +411,14 @@ describe("customElements", () => {
         Object.defineProperty(window, "customElements", {
             configurable: true,
             value: {define: vi.fn(), get: vi.fn(() => undefined)},
-            writable: true
+            writable: true,
         });
 
         initCustomElements(setup);
-        window.registerBlazorCustomElement!("test-element", [
+        requireValue(window.registerBlazorCustomElement)("test-element", [
             {name: "Title", type: "string"},
             {name: "OnClick", type: "EventCallback"},
-            {name: "Count", type: "int"}
+            {name: "Count", type: "int"},
         ]);
 
         expect(window.customElements.define).toHaveBeenCalled();
@@ -397,13 +429,13 @@ describe("customElements", () => {
         Object.defineProperty(window, "customElements", {
             configurable: true,
             value: {define: vi.fn(), get: vi.fn(() => undefined)},
-            writable: true
+            writable: true,
         });
 
         initCustomElements(setup);
-        window.registerBlazorCustomElement!("test-element", [
-            {name: undefined as any, type: "string"},
-            {name: "Valid", type: "string"}
+        requireValue(window.registerBlazorCustomElement)("test-element", [
+            {name: undefined, type: "string"},
+            {name: "Valid", type: "string"},
         ]);
 
         expect(window.customElements.define).toHaveBeenCalled();
@@ -414,11 +446,13 @@ describe("customElements", () => {
         Object.defineProperty(window, "customElements", {
             configurable: true,
             value: {define: vi.fn(), get: vi.fn(() => ({}))},
-            writable: true
+            writable: true,
         });
 
         initCustomElements(setup);
-        window.registerBlazorCustomElement!("existing-element", [{name: "Value", type: "string"}]);
+        requireValue(window.registerBlazorCustomElement)("existing-element", [
+            {name: "Value", type: "string"},
+        ]);
 
         expect(window.customElements.define).not.toHaveBeenCalled();
     });
@@ -430,6 +464,6 @@ function createSetup(): InfiniFrameSetup {
         windowExternalBridgeInitialized: false,
         blazorModulesFetchPatchInitialized: false,
         blazorCustomElementsPatchInitialized: false,
-        customElementsInitialized: false
+        customElementsInitialized: false,
     };
 }

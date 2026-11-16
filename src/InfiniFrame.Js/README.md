@@ -1,10 +1,13 @@
 # InfiniFrame.Js
 
-JavaScript/TypeScript interop library for InfiniFrame Blazor applications. Provides the client-side bridge between C# and the browser, including pointer capture utilities, built-in window management message handlers, and the envelope protocol for web messaging.
+JavaScript/TypeScript interop library for InfiniFrame Blazor applications. Provides the client-side bridge between C#
+and the browser, including pointer capture utilities, built-in window management message handlers, and the envelope
+protocol for web messaging.
 
 ## Package
 
-This is an internal build package (`infinilore.infiniframe.js-build`). It is not published to npm. The compiled output is consumed by `InfiniLore.InfiniFrame.Js` (the .NET package) as embedded static assets.
+This is an internal build package (`infinilore.infiniframe.js-build`). It is not published to npm. The compiled output
+is consumed by `InfiniLore.InfiniFrame.Js` (the .NET package) as embedded static assets.
 
 ## Architecture
 
@@ -53,6 +56,7 @@ npm run build
 ```
 
 Produces two bundles:
+
 - `wwwroot/InfiniFrame.js` production (minified)
 - `wwwroot/InfiniFrame.dev.js` development (with source maps)
 
@@ -79,6 +83,7 @@ Include the script in your HTML host page:
 ```
 
 The script registers itself on `window.infiniframe` and provides:
+
 - `window.infiniframe.host` messaging bridge to C#
 - `window.infiniframe.window.features` runtime window feature access
 - `window.infiniframe.windowChrome` custom window chrome registration

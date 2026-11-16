@@ -94,7 +94,6 @@ public class StateInfiniFrameWindowFeature(
     // -----------------------------------------------------------------------------------------------------------------
     /// <inheritdoc cref="IStateInfiniFrameWindowFeature.SetMaximized" />
     public void SetMaximized(bool maximized = true) {
-        logger.LogDebug(".SetMaximized({Maximized})", maximized);
         if (!window.Features.Decorations.IsChromeless) {
             NativeInvoke.InvokeSyncWithValidation(
                 logger,
@@ -158,7 +157,6 @@ public class StateInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IStateInfiniFrameWindowFeature.ToggleMaximized" />
     public void ToggleMaximized() {
-        logger.LogDebug(".ToggleMaximized()");
         bool maximized = NativeInvoke.InvokeSyncWithValidation<bool>(
             logger,
             window,
@@ -228,7 +226,6 @@ public class StateInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IStateInfiniFrameWindowFeature.SetMinimized" />
     public void SetMinimized(bool minimized = true) {
-        logger.LogDebug(".SetMinimized({Minimized})", minimized);
         NativeInvoke.InvokeSyncWithValidation(
             logger,
             window,
@@ -240,7 +237,6 @@ public class StateInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IStateInfiniFrameWindowFeature.SetFullScreen" />
     public void SetFullScreen(bool fullScreen = true) {
-        logger.LogDebug(".SetFullScreen({FullScreen})", fullScreen);
         // AppKit owns the asynchronous fullscreen transition and restores the original
         // frame when leaving fullscreen. Moving or resizing during that animation races
         // the Space transition and can leave the window on the wrong display. Always pass
@@ -388,8 +384,6 @@ public class StateInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IStateInfiniFrameWindowFeature.SetTopMost" />
     public void SetTopMost(bool topMost = true) {
-        logger.LogDebug(".SetTopMost({TopMost})", topMost);
-
         NativeInvoke.InvokeSyncWithValidation(
             logger,
             window,

@@ -6,43 +6,52 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-function Invoke-ExternalCommand {
+function Invoke-ExternalCommand
+{
     param(
         [Parameter(Mandatory = $true)][string]$FilePath,
         [string[]]$Arguments = @()
     )
 
     & $FilePath @Arguments
-    if ($LASTEXITCODE -ne 0) {
-        throw "Command failed with exit code ${LASTEXITCODE}: $FilePath $($Arguments -join ' ')"
+    if ($LASTEXITCODE -ne 0)
+    {
+        throw "Command failed with exit code ${LASTEXITCODE}: $FilePath $( $Arguments -join ' ' )"
     }
 }
 
-function Get-VsInstallationPath {
+function Get-VsInstallationPath
+{
     $vsWhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
-    if (-not (Test-Path $vsWhere)) {
+    if (-not (Test-Path $vsWhere))
+    {
         return $null
     }
 
     $path = & $vsWhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
-    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($path)) {
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($path))
+    {
         return $null
     }
 
     return $path.Trim()
 }
 
-function Import-VsDevEnvironment {
+function Import-VsDevEnvironment
+{
     param([Parameter(Mandatory = $true)][string]$VsDevCmdPath)
 
     $envDump = & cmd.exe /s /c "`"$VsDevCmdPath`" -arch=x64 -host_arch=x64 >nul && set"
-    if ($LASTEXITCODE -ne 0) {
+    if ($LASTEXITCODE -ne 0)
+    {
         throw "Failed to initialize Visual Studio developer environment using '$VsDevCmdPath'."
     }
 
-    foreach ($line in $envDump) {
+    foreach ($line in $envDump)
+    {
         $separatorIndex = $line.IndexOf("=")
-        if ($separatorIndex -lt 1) {
+        if ($separatorIndex -lt 1)
+        {
             continue
         }
 
@@ -58,23 +67,28 @@ $DependenciesRoot = Join-Path $NativeRoot "Dependencies"
 
 Push-Location $NativeRoot
 
-try {
-    if ($FixErrors -and -not $ApplyFixes) {
+try
+{
+    if ($FixErrors -and -not $ApplyFixes)
+    {
         $ApplyFixes = $true
     }
 
     $clangTidy = Get-Command clang-tidy -ErrorAction SilentlyContinue
-    if (-not $clangTidy) {
+    if (-not $clangTidy)
+    {
         throw "clang-tidy was not found on PATH."
     }
 
     $vsInstallPath = Get-VsInstallationPath
-    if (-not $vsInstallPath) {
+    if (-not $vsInstallPath)
+    {
         throw "Could not locate a Visual Studio installation with C++ tools."
     }
 
     $vsDevCmd = Join-Path $vsInstallPath "Common7\Tools\VsDevCmd.bat"
-    if (-not (Test-Path $vsDevCmd)) {
+    if (-not (Test-Path $vsDevCmd))
+    {
         throw "VsDevCmd.bat not found at '$vsDevCmd'."
     }
 
@@ -82,7 +96,8 @@ try {
     Import-VsDevEnvironment -VsDevCmdPath $vsDevCmd
 
     $ninja = Get-Command ninja -ErrorAction SilentlyContinue
-    if (-not $ninja) {
+    if (-not $ninja)
+    {
         throw "ninja was not found on PATH after VsDevCmd initialization."
     }
 
@@ -92,7 +107,7 @@ try {
         "-B", $BuildDirectory,
         "--fresh",
         "-G", "Ninja",
-        "-DCMAKE_MAKE_PROGRAM=$($ninja.Source)",
+        "-DCMAKE_MAKE_PROGRAM=$( $ninja.Source )",
         "-DCMAKE_BUILD_TYPE=Debug",
         "-DCMAKE_DISABLE_PRECOMPILE_HEADERS=ON",
         "-DCMAKE_CXX_SCAN_FOR_MODULES=OFF",
@@ -100,7 +115,8 @@ try {
     )
 
     $compileCommandsPath = Join-Path $BuildDirectory "compile_commands.json"
-    if (-not (Test-Path $compileCommandsPath)) {
+    if (-not (Test-Path $compileCommandsPath))
+    {
         throw "compile_commands.json was not generated at '$compileCommandsPath'."
     }
 
@@ -111,8 +127,9 @@ try {
             $_.FullName -notmatch '\\(build($|[-_][^\\]+)?|out|bin|obj|vcpkg|Dependencies|packages)\\'
         }
 
-    foreach ($sourceFile in $sourceFiles) {
-        Write-Host "Running clang-tidy on $($sourceFile.FullName)"
+    foreach ($sourceFile in $sourceFiles)
+    {
+        Write-Host "Running clang-tidy on $( $sourceFile.FullName )"
 
         $tidyArgs = @(
             $sourceFile.FullName,
@@ -123,11 +140,13 @@ try {
             "--extra-arg=-Wno-c++11-narrowing"
         )
 
-        if ($ApplyFixes) {
+        if ($ApplyFixes)
+        {
             $tidyArgs += "--fix"
         }
 
-        if ($ApplyFixes -and $FixErrors) {
+        if ($ApplyFixes -and $FixErrors)
+        {
             $tidyArgs += "--fix-errors"
         }
 
@@ -136,6 +155,7 @@ try {
 
     Write-Host "clang-tidy complete."
 }
-finally {
+finally
+{
     Pop-Location
 }

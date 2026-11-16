@@ -24,10 +24,12 @@ void InfiniFrameWindow::Impl::set_webkit_settings() {
         "enable_mock_capture_devices", TRUE, "enable_page_cache", TRUE, "enable_webrtc", TRUE,
         "javascript_can_open_windows_automatically", TRUE,
 
-        "allow_file_access_from_file_urls", common._fileSystemAccessEnabled, "disable_web_security", !common._webSecurityEnabled,
+        "allow_file_access_from_file_urls", common._fileSystemAccessEnabled, "disable_web_security",
+        !common._webSecurityEnabled,
         "enable_developer_extras", enableDeveloperExtras, "enable_media_stream", common._mediaStreamEnabled,
         "enable_smooth_scrolling", common._smoothScrollingEnabled, "javascript_can_access_clipboard",
-        common._javascriptClipboardAccessEnabled, "media_playback_requires_user_gesture", !common._mediaAutoplayEnabled, "user_agent",
+        common._javascriptClipboardAccessEnabled, "media_playback_requires_user_gesture", !common._mediaAutoplayEnabled,
+        "user_agent",
         common._userAgent.c_str(),
 
         NULL

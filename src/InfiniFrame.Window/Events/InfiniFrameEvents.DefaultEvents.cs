@@ -29,7 +29,6 @@ public partial class InfiniFrameEvents {
             childWindows = [.. config.ChildWindowsInternal];
         }
 
-        Logger.LogDebug("Lifecycle child windows");
         foreach (IInfiniFrameWindow childWindow in childWindows) {
             childWindow.Close();
 

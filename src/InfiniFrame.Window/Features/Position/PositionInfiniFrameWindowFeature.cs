@@ -59,8 +59,6 @@ public class PositionInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IPositionInfiniFrameWindowFeature.SetLocation(int, int)" />
     public void SetLocation(int left, int top) {
-        logger.LogDebug(".SetLocation({Left}, {Right})", left, top);
-
         (int oldLeft, int oldTop) = NativeInvoke.InvokeSyncWithValidation<int, int>(
             logger,
             window,
@@ -85,8 +83,6 @@ public class PositionInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IPositionInfiniFrameWindowFeature.SetLeft" />
     public void SetLeft(int left) {
-        logger.LogDebug(".SetLeft({Left})", left);
-
         (int oldLeft, int top) = NativeInvoke.InvokeSyncWithValidation<int, int>(
             logger,
             window,
@@ -107,8 +103,6 @@ public class PositionInfiniFrameWindowFeature(
     }
     /// <inheritdoc cref="IPositionInfiniFrameWindowFeature.SetTop" />
     public void SetTop(int top) {
-        logger.LogDebug(".SetTop({Top})", top);
-
         (int left, int oldTop) = NativeInvoke.InvokeSyncWithValidation<int, int>(
             logger,
             window,
@@ -129,8 +123,6 @@ public class PositionInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IPositionInfiniFrameWindowFeature.Offset(int, int)" />
     public void Offset(int left, int top) {
-        logger.LogDebug(".Offset({Left}, {Top})", left, top);
-
         (int oldLeft, int oldTop) = NativeInvoke.InvokeSyncWithValidation<int, int>(
             logger,
             window,
@@ -158,7 +150,6 @@ public class PositionInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IPositionInfiniFrameWindowFeature.Center" />
     public void Center() {
-        logger.LogDebug(".Center()");
         NativeInvoke.InvokeSyncWithValidation(
             logger,
             window,

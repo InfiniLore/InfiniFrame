@@ -31,14 +31,17 @@ export function initBlazorModulesFetchPatch(setup: InfiniFrameSetup): void {
 
     const originalFetch = window.fetch;
 
-    window.fetch = function (input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+    window.fetch = function (
+        input: RequestInfo | URL,
+        init?: RequestInit,
+    ): Promise<Response> {
         try {
             const requestUrl =
                 typeof input === "string"
                     ? input
                     : input instanceof URL
                         ? input.href
-                        : (input as Request).url ?? "";
+                        : ((input as Request).url ?? "");
 
             if (requestUrl) {
                 const absoluteUrl = new URL(requestUrl, window.location.href).href;
@@ -49,7 +52,7 @@ export function initBlazorModulesFetchPatch(setup: InfiniFrameSetup): void {
                             status: 200,
                             statusText: "OK",
                             headers: {"Content-Type": "application/json"},
-                        })
+                        }),
                     );
                 }
             }

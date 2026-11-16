@@ -81,7 +81,8 @@ std::shared_ptr<DialogOperation> InfiniFrameWindow::RegisterFileDialogOperation(
     ) {
     auto operation = std::make_shared<DialogOperation>(id, name, completion, context);
     std::lock_guard lock(GetCommonWindowState(this)->_dialogOperationMutex);
-    for (auto it = GetCommonWindowState(this)->_dialogOperations.begin(); it != GetCommonWindowState(this)->_dialogOperations.end();) {
+    for (auto it = GetCommonWindowState(this)->_dialogOperations.begin(); it != GetCommonWindowState(this)->
+         _dialogOperations.end();) {
         if (it->second->terminal.load(std::memory_order_acquire))
             it = GetCommonWindowState(this)->_dialogOperations.erase(it);
         else

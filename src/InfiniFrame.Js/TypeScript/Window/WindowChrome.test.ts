@@ -2,30 +2,40 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {beforeEach, describe, expect, it, vi} from "vitest";
-import {WindowChrome} from "./WindowChrome";
+import {getTestWindow, type TestInfiniFrame} from "../_testHelpers";
 import {SendToHostMessageIds} from "../Contracts";
+import {WindowChrome, type WindowChromeConfig} from "./WindowChrome";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Test helpers
 // ---------------------------------------------------------------------------------------------------------------------
 function createMessagingMock() {
     return {
+        ready: Promise.resolve(),
+        isReady: true,
+        getMessageFromHostRawAsync: vi.fn(),
         sendMessageToHost: vi.fn(),
         getMessageFromHostAsync: vi.fn(),
         assignMessageReceivedHandler: vi.fn(),
-        unregisterMessageReceivedHandler: vi.fn()
+        unregisterMessageReceivedHandler: vi.fn(),
     };
 }
 
-function setupWindowInfiniframe(messaging: ReturnType<typeof createMessagingMock>) {
-    window.infiniframe = {
+function setupWindowInfiniframe(
+    messaging: ReturnType<typeof createMessagingMock>,
+) {
+    getTestWindow().infiniframe = {
         messaging,
-        window: {features: {}} as any,
-        utils: {setPointerCapture: vi.fn(), releasePointerCapture: vi.fn()}
-    } as any;
+        window: {features: {}} as TestInfiniFrame["window"],
+        utils: {setPointerCapture: vi.fn(), releasePointerCapture: vi.fn()},
+    } as unknown as TestInfiniFrame;
 }
 
-function createElement(tag: string, attrs: Record<string, string> = {}, text?: string): HTMLElement {
+function createElement(
+    tag: string,
+    attrs: Record<string, string> = {},
+    text?: string,
+): HTMLElement {
     const el = document.createElement(tag);
     for (const [key, value] of Object.entries(attrs)) {
         el.setAttribute(key, value);
@@ -33,6 +43,13 @@ function createElement(tag: string, attrs: Record<string, string> = {}, text?: s
     if (text) el.textContent = text;
     document.body.appendChild(el);
     return el;
+}
+
+function resetChromeConfigForTest(chrome: WindowChrome): void {
+    Reflect.set(chrome, "config", null);
+    const setup = Reflect.get(chrome, "setup");
+    if (typeof setup !== "function") throw new Error("Expected setup method.");
+    setup.call(chrome);
 }
 
 // jsdom doesn't support setPointerCapture, so we mock it on Element.prototype
@@ -58,55 +75,77 @@ describe("WindowChrome", () => {
 
     describe("register", () => {
         it("throws when config is null", () => {
-            expect(() => chrome.register(null as any)).toThrow("config is required");
+            expect(() => chrome.register(null as WindowChromeConfig | null)).toThrow(
+                "config is required",
+            );
         });
 
         it("sets up drag region from CSS selector", () => {
             const dragArea = createElement("div", {id: "titlebar"});
             chrome.register({dragRegion: "#titlebar"});
 
-            const pointerDown = new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0});
+            const pointerDown = new PointerEvent("pointerdown", {
+                bubbles: true,
+                pointerId: 1,
+                button: 0,
+            });
             dragArea.dispatchEvent(pointerDown);
 
             expect(messaging.sendMessageToHost).toHaveBeenCalledWith(
                 SendToHostMessageIds.windowFeatureRequest,
                 expect.objectContaining({
-                    command: expect.stringContaining("restoreFromMaximized")
-                })
+                    command: expect.stringContaining("restoreFromMaximized"),
+                }),
             );
         });
 
         it("sets up window controls from CSS selectors", () => {
-            const minimizeBtn = createElement("button", {"data-role": "minimize"}, "Min");
-            const maximizeBtn = createElement("button", {"data-role": "maximize"}, "Max");
-            const closeBtn = createElement("button", {"data-role": "close"}, "Close");
+            const minimizeBtn = createElement(
+                "button",
+                {"data-role": "minimize"},
+                "Min",
+            );
+            const maximizeBtn = createElement(
+                "button",
+                {"data-role": "maximize"},
+                "Max",
+            );
+            const closeBtn = createElement(
+                "button",
+                {"data-role": "close"},
+                "Close",
+            );
 
             chrome.register({
                 controls: {
                     minimize: "[data-role=minimize]",
                     maximize: "[data-role=maximize]",
-                    close: "[data-role=close]"
-                }
+                    close: "[data-role=close]",
+                },
             });
 
             minimizeBtn.click();
             expect(messaging.sendMessageToHost).toHaveBeenCalledWith(
                 SendToHostMessageIds.windowFeatureRequest,
-                expect.objectContaining({command: expect.stringContaining("minimize")})
+                expect.objectContaining({
+                    command: expect.stringContaining("minimize"),
+                }),
             );
 
             vi.clearAllMocks();
             maximizeBtn.click();
             expect(messaging.sendMessageToHost).toHaveBeenCalledWith(
                 SendToHostMessageIds.windowFeatureRequest,
-                expect.objectContaining({command: expect.stringContaining("toggleMaximize")})
+                expect.objectContaining({
+                    command: expect.stringContaining("toggleMaximize"),
+                }),
             );
 
             vi.clearAllMocks();
             closeBtn.click();
             expect(messaging.sendMessageToHost).toHaveBeenCalledWith(
                 SendToHostMessageIds.windowFeatureRequest,
-                expect.objectContaining({command: expect.stringContaining(":close")})
+                expect.objectContaining({command: expect.stringContaining(":close")}),
             );
         });
 
@@ -114,7 +153,11 @@ describe("WindowChrome", () => {
             const resizeRight = createElement("div", {id: "resize-right"});
             chrome.register({resize: {right: "#resize-right"}});
 
-            const pointerDown = new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0});
+            const pointerDown = new PointerEvent("pointerdown", {
+                bubbles: true,
+                pointerId: 1,
+                button: 0,
+            });
             resizeRight.dispatchEvent(pointerDown);
 
             expect(resizeRight.setPointerCapture).toHaveBeenCalledWith(1);
@@ -124,7 +167,7 @@ describe("WindowChrome", () => {
                 bubbles: true,
                 pointerId: 1,
                 movementX: 5,
-                movementY: 3
+                movementY: 3,
             });
             resizeRight.dispatchEvent(pointerMove);
 
@@ -132,39 +175,55 @@ describe("WindowChrome", () => {
                 SendToHostMessageIds.windowFeatureRequest,
                 expect.objectContaining({
                     command: expect.stringContaining("resize"),
-                    args: {widthOffset: 5, heightOffset: 3, origin: "right"}
-                })
+                    args: {widthOffset: 5, heightOffset: 3, origin: "right"},
+                }),
             );
         });
     });
 
     describe("data attributes", () => {
         it("detects data-infiniframe-drag-region attribute", () => {
-            const dragArea = createElement("div", {"data-infiniframe-drag-region": ""});
+            const dragArea = createElement("div", {
+                "data-infiniframe-drag-region": "",
+            });
             chrome.register({});
 
-            const pointerDown = new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0});
+            const pointerDown = new PointerEvent("pointerdown", {
+                bubbles: true,
+                pointerId: 1,
+                button: 0,
+            });
             dragArea.dispatchEvent(pointerDown);
 
             expect(messaging.sendMessageToHost).toHaveBeenCalled();
         });
 
         it("detects data-infiniframe-window-action attribute", () => {
-            const minimizeBtn = createElement("button", {"data-infiniframe-window-action": "minimize"});
+            const minimizeBtn = createElement("button", {
+                "data-infiniframe-window-action": "minimize",
+            });
             chrome.register({});
 
             minimizeBtn.click();
             expect(messaging.sendMessageToHost).toHaveBeenCalledWith(
                 SendToHostMessageIds.windowFeatureRequest,
-                expect.objectContaining({command: expect.stringContaining("minimize")})
+                expect.objectContaining({
+                    command: expect.stringContaining("minimize"),
+                }),
             );
         });
 
         it("detects data-infiniframe-resize attribute", () => {
-            const resizeBottom = createElement("div", {"data-infiniframe-resize": "bottom"});
+            const resizeBottom = createElement("div", {
+                "data-infiniframe-resize": "bottom",
+            });
             chrome.register({});
 
-            const pointerDown = new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0});
+            const pointerDown = new PointerEvent("pointerdown", {
+                bubbles: true,
+                pointerId: 1,
+                button: 0,
+            });
             resizeBottom.dispatchEvent(pointerDown);
 
             expect(resizeBottom.setPointerCapture).toHaveBeenCalled();
@@ -172,20 +231,33 @@ describe("WindowChrome", () => {
 
         it("maps data-infiniframe-resize values correctly", () => {
             const testCases = [
-                ["top", "top"], ["right", "right"], ["bottom", "bottom"], ["left", "left"],
-                ["top-left", "topLeft"], ["top-right", "topRight"],
-                ["bottom-left", "bottomLeft"], ["bottom-right", "bottomRight"],
-                ["topLeft", "topLeft"], ["topRight", "topRight"],
-                ["bottomLeft", "bottomLeft"], ["bottomRight", "bottomRight"]
+                ["top", "top"],
+                ["right", "right"],
+                ["bottom", "bottom"],
+                ["left", "left"],
+                ["top-left", "topLeft"],
+                ["top-right", "topRight"],
+                ["bottom-left", "bottomLeft"],
+                ["bottom-right", "bottomRight"],
+                ["topLeft", "topLeft"],
+                ["topRight", "topRight"],
+                ["bottomLeft", "bottomLeft"],
+                ["bottomRight", "bottomRight"],
             ];
 
             for (const [attrValue, expectedOrigin] of testCases) {
                 document.body.innerHTML = "";
-                const el = createElement("div", {"data-infiniframe-resize": attrValue});
+                const el = createElement("div", {
+                    "data-infiniframe-resize": attrValue,
+                });
                 const testChrome = new WindowChrome();
                 testChrome.register({});
 
-                const pointerDown = new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0});
+                const pointerDown = new PointerEvent("pointerdown", {
+                    bubbles: true,
+                    pointerId: 1,
+                    button: 0,
+                });
                 el.dispatchEvent(pointerDown);
 
                 vi.clearAllMocks();
@@ -193,13 +265,15 @@ describe("WindowChrome", () => {
                     bubbles: true,
                     pointerId: 1,
                     movementX: 10,
-                    movementY: 5
+                    movementY: 5,
                 });
                 el.dispatchEvent(pointerMove);
 
                 expect(messaging.sendMessageToHost).toHaveBeenCalledWith(
                     SendToHostMessageIds.windowFeatureRequest,
-                    expect.objectContaining({args: expect.objectContaining({origin: expectedOrigin})})
+                    expect.objectContaining({
+                        args: expect.objectContaining({origin: expectedOrigin}),
+                    }),
                 );
 
                 testChrome.unregister();
@@ -238,15 +312,27 @@ describe("WindowChrome", () => {
             chrome.register({
                 dragRegion: "#titlebar",
                 controls: {minimize: "[data-role=minimize]"},
-                resize: {right: "#resize-right"}
+                resize: {right: "#resize-right"},
             });
 
             chrome.unregister();
 
             vi.clearAllMocks();
-            dragArea.dispatchEvent(new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0}));
+            dragArea.dispatchEvent(
+                new PointerEvent("pointerdown", {
+                    bubbles: true,
+                    pointerId: 1,
+                    button: 0,
+                }),
+            );
             minimizeBtn.click();
-            resizeEl.dispatchEvent(new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0}));
+            resizeEl.dispatchEvent(
+                new PointerEvent("pointerdown", {
+                    bubbles: true,
+                    pointerId: 1,
+                    button: 0,
+                }),
+            );
 
             expect(messaging.sendMessageToHost).not.toHaveBeenCalled();
         });
@@ -258,7 +344,13 @@ describe("WindowChrome", () => {
 
             vi.clearAllMocks();
             chrome.register({dragRegion: "#titlebar"});
-            dragArea.dispatchEvent(new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0}));
+            dragArea.dispatchEvent(
+                new PointerEvent("pointerdown", {
+                    bubbles: true,
+                    pointerId: 1,
+                    button: 0,
+                }),
+            );
 
             expect(messaging.sendMessageToHost).toHaveBeenCalled();
         });
@@ -277,7 +369,9 @@ describe("WindowChrome", () => {
 
             expect(messaging.sendMessageToHost).toHaveBeenCalledWith(
                 SendToHostMessageIds.windowFeatureRequest,
-                expect.objectContaining({command: expect.stringContaining("toggleMaximize")})
+                expect.objectContaining({
+                    command: expect.stringContaining("toggleMaximize"),
+                }),
             );
         });
     });
@@ -287,7 +381,11 @@ describe("WindowChrome", () => {
             const dragArea = createElement("div", {id: "titlebar"});
             chrome.register({dragRegion: "#titlebar"});
 
-            const rightClick = new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 2});
+            const rightClick = new PointerEvent("pointerdown", {
+                bubbles: true,
+                pointerId: 1,
+                button: 2,
+            });
             dragArea.dispatchEvent(rightClick);
 
             expect(messaging.sendMessageToHost).not.toHaveBeenCalled();
@@ -299,7 +397,10 @@ describe("WindowChrome", () => {
             const dragArea = createElement("div", {id: "titlebar"});
             chrome.register({dragRegion: "#titlebar"});
 
-            const pointerMove = new PointerEvent("pointermove", {bubbles: true, pointerId: 1});
+            const pointerMove = new PointerEvent("pointermove", {
+                bubbles: true,
+                pointerId: 1,
+            });
             dragArea.dispatchEvent(pointerMove);
         });
     });
@@ -309,7 +410,10 @@ describe("WindowChrome", () => {
             const dragArea = createElement("div", {id: "titlebar"});
             chrome.register({dragRegion: "#titlebar"});
 
-            const pointerUp = new PointerEvent("pointerup", {bubbles: true, pointerId: 1});
+            const pointerUp = new PointerEvent("pointerup", {
+                bubbles: true,
+                pointerId: 1,
+            });
             dragArea.dispatchEvent(pointerUp);
         });
 
@@ -318,11 +422,18 @@ describe("WindowChrome", () => {
             chrome.register({dragRegion: "#titlebar"});
 
             // Start drag
-            const pointerDown = new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0});
+            const pointerDown = new PointerEvent("pointerdown", {
+                bubbles: true,
+                pointerId: 1,
+                button: 0,
+            });
             dragArea.dispatchEvent(pointerDown);
 
             // End drag
-            const pointerUp = new PointerEvent("pointerup", {bubbles: true, pointerId: 1});
+            const pointerUp = new PointerEvent("pointerup", {
+                bubbles: true,
+                pointerId: 1,
+            });
             dragArea.dispatchEvent(pointerUp);
         });
     });
@@ -332,7 +443,11 @@ describe("WindowChrome", () => {
             const resizeEl = createElement("div", {id: "resize-right"});
             chrome.register({resize: {right: "#resize-right"}});
 
-            const pointerDown = new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0});
+            const pointerDown = new PointerEvent("pointerdown", {
+                bubbles: true,
+                pointerId: 1,
+                button: 0,
+            });
             resizeEl.dispatchEvent(pointerDown);
 
             // Simulate lostpointercapture
@@ -346,7 +461,11 @@ describe("WindowChrome", () => {
             const dragArea = createElement("div", {id: "titlebar"});
             chrome.register({dragRegion: "#titlebar"});
 
-            const pointerDown = new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0});
+            const pointerDown = new PointerEvent("pointerdown", {
+                bubbles: true,
+                pointerId: 1,
+                button: 0,
+            });
             dragArea.dispatchEvent(pointerDown);
 
             // Simulate lostpointercapture
@@ -362,7 +481,11 @@ describe("WindowChrome", () => {
             chrome.register({dragRegion: "#titlebar"});
 
             // Start drag to set lastPointerId
-            const pointerDown = new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0});
+            const pointerDown = new PointerEvent("pointerdown", {
+                bubbles: true,
+                pointerId: 1,
+                button: 0,
+            });
             dragArea.dispatchEvent(pointerDown);
 
             // Double-click triggers releasePointerCaptureIfHeld
@@ -385,21 +508,29 @@ describe("WindowChrome", () => {
     describe("edge cases", () => {
         it("handles register called before DOM ready", () => {
             const originalReadyState = document.readyState;
-            Object.defineProperty(document, "readyState", {value: "loading", writable: true});
+            Object.defineProperty(document, "readyState", {
+                value: "loading",
+                writable: true,
+            });
 
             chrome.register({dragRegion: "#titlebar"});
 
-            Object.defineProperty(document, "readyState", {value: originalReadyState, writable: true});
+            Object.defineProperty(document, "readyState", {
+                value: originalReadyState,
+                writable: true,
+            });
         });
 
         it("handles invalid selectors gracefully", () => {
-            const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {
-            });
+            const consoleWarn = vi
+                .spyOn(console, "warn")
+                .mockImplementation(() => {
+                });
 
             chrome.register({
                 dragRegion: "///invalid///",
                 controls: {minimize: "///invalid///"},
-                resize: {top: "///invalid///"}
+                resize: {top: "///invalid///"},
             });
 
             expect(chrome).toBeDefined();
@@ -411,10 +542,21 @@ describe("WindowChrome", () => {
             chrome.register({dragRegion: "#titlebar"});
             chrome.register({dragRegion: "#titlebar"});
 
-            dragArea.dispatchEvent(new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0}));
+            dragArea.dispatchEvent(
+                new PointerEvent("pointerdown", {
+                    bubbles: true,
+                    pointerId: 1,
+                    button: 0,
+                }),
+            );
 
             const restoreCalls = messaging.sendMessageToHost.mock.calls.filter(
-                (call: any[]) => call[1]?.command?.includes("restoreFromMaximized")
+                (call) =>
+                    typeof call[1] === "object"
+                    && call[1] !== null
+                    && "command" in call[1]
+                    && typeof call[1].command === "string"
+                    && call[1].command.includes("restoreFromMaximized"),
             );
             expect(restoreCalls).toHaveLength(1);
         });
@@ -427,24 +569,31 @@ describe("WindowChrome", () => {
         it("setup does nothing when config is null after register", () => {
             chrome.register({dragRegion: "#titlebar"});
             // Manually set config to null to test guard
-            (chrome as any).config = null;
-            (chrome as any).setup();
+            resetChromeConfigForTest(chrome);
         });
     });
 
     describe("messaging not ready", () => {
         it("warns when messaging bridge is not available", () => {
-            const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {
-            });
-            (window.infiniframe as any).messaging = null;
+            const consoleWarn = vi
+                .spyOn(console, "warn")
+                .mockImplementation(() => {
+                });
+            getTestWindow().infiniframe.messaging = undefined;
 
             const dragArea = createElement("div", {id: "titlebar"});
             chrome.register({dragRegion: "#titlebar"});
 
-            dragArea.dispatchEvent(new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0}));
+            dragArea.dispatchEvent(
+                new PointerEvent("pointerdown", {
+                    bubbles: true,
+                    pointerId: 1,
+                    button: 0,
+                }),
+            );
 
             expect(consoleWarn).toHaveBeenCalledWith(
-                expect.stringContaining("messaging bridge not ready")
+                expect.stringContaining("messaging bridge not ready"),
             );
             consoleWarn.mockRestore();
         });
@@ -459,7 +608,10 @@ describe("WindowChrome", () => {
 
             expect(messaging.sendMessageToHost).toHaveBeenCalledWith(
                 SendToHostMessageIds.windowFeatureRequest,
-                {command: "__infiniframe:window:features:windowChrome:minimize", args: undefined}
+                {
+                    command: "__infiniframe:window:features:windowChrome:minimize",
+                    args: undefined,
+                },
             );
         });
 
@@ -467,22 +619,30 @@ describe("WindowChrome", () => {
             const resizeEl = createElement("div", {id: "resize"});
             chrome.register({resize: {bottom: "#resize"}});
 
-            resizeEl.dispatchEvent(new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0}));
+            resizeEl.dispatchEvent(
+                new PointerEvent("pointerdown", {
+                    bubbles: true,
+                    pointerId: 1,
+                    button: 0,
+                }),
+            );
 
             vi.clearAllMocks();
-            resizeEl.dispatchEvent(new PointerEvent("pointermove", {
-                bubbles: true,
-                pointerId: 1,
-                movementX: 15,
-                movementY: -8
-            }));
+            resizeEl.dispatchEvent(
+                new PointerEvent("pointermove", {
+                    bubbles: true,
+                    pointerId: 1,
+                    movementX: 15,
+                    movementY: -8,
+                }),
+            );
 
             expect(messaging.sendMessageToHost).toHaveBeenCalledWith(
                 SendToHostMessageIds.windowFeatureRequest,
                 {
                     command: "__infiniframe:window:features:windowChrome:resize",
-                    args: {widthOffset: 15, heightOffset: -8, origin: "bottom"}
-                }
+                    args: {widthOffset: 15, heightOffset: -8, origin: "bottom"},
+                },
             );
         });
     });
@@ -511,11 +671,18 @@ describe("WindowChrome", () => {
             chrome.register({dragRegion: "#titlebar"});
 
             // Start drag
-            const pointerDown = new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0});
+            const pointerDown = new PointerEvent("pointerdown", {
+                bubbles: true,
+                pointerId: 1,
+                button: 0,
+            });
             dragArea.dispatchEvent(pointerDown);
 
             // End drag
-            const pointerUp = new PointerEvent("pointerup", {bubbles: true, pointerId: 1});
+            const pointerUp = new PointerEvent("pointerup", {
+                bubbles: true,
+                pointerId: 1,
+            });
             dragArea.dispatchEvent(pointerUp);
         });
 
@@ -524,11 +691,18 @@ describe("WindowChrome", () => {
             chrome.register({resize: {right: "#resize-right"}});
 
             // Start resize
-            const pointerDown = new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0});
+            const pointerDown = new PointerEvent("pointerdown", {
+                bubbles: true,
+                pointerId: 1,
+                button: 0,
+            });
             resizeEl.dispatchEvent(pointerDown);
 
             // End resize
-            const pointerUp = new PointerEvent("pointerup", {bubbles: true, pointerId: 1});
+            const pointerUp = new PointerEvent("pointerup", {
+                bubbles: true,
+                pointerId: 1,
+            });
             resizeEl.dispatchEvent(pointerUp);
         });
 
@@ -537,7 +711,11 @@ describe("WindowChrome", () => {
             chrome.register({resize: {right: "#resize-right"}});
 
             // Start resize
-            const pointerDown = new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0});
+            const pointerDown = new PointerEvent("pointerdown", {
+                bubbles: true,
+                pointerId: 1,
+                button: 0,
+            });
             resizeEl.dispatchEvent(pointerDown);
 
             // Move during resize
@@ -545,7 +723,7 @@ describe("WindowChrome", () => {
                 bubbles: true,
                 pointerId: 1,
                 movementX: 5,
-                movementY: 3
+                movementY: 3,
             });
             resizeEl.dispatchEvent(pointerMove);
 
@@ -561,7 +739,7 @@ describe("WindowChrome", () => {
                 bubbles: true,
                 pointerId: 1,
                 movementX: 5,
-                movementY: 3
+                movementY: 3,
             });
             resizeEl.dispatchEvent(pointerMove);
         });
@@ -570,7 +748,11 @@ describe("WindowChrome", () => {
             const resizeEl = createElement("div", {id: "resize-bottom"});
             chrome.register({resize: {bottom: "#resize-bottom"}});
 
-            const pointerDown = new PointerEvent("pointerdown", {bubbles: true, pointerId: 1, button: 0});
+            const pointerDown = new PointerEvent("pointerdown", {
+                bubbles: true,
+                pointerId: 1,
+                button: 0,
+            });
             resizeEl.dispatchEvent(pointerDown);
 
             expect(resizeEl.setPointerCapture).toHaveBeenCalled();

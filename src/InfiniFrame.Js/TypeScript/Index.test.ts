@@ -2,17 +2,17 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {beforeEach, describe, expect, it, vi} from "vitest";
+import {deleteTestProperty} from "./_testHelpers";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 describe("Index", () => {
     beforeEach(() => {
-        delete window.__blazorCallbacks;
-        delete window.__blazorDispatchHooked;
-        // @ts-ignore
-        delete window.infiniframe;
-        delete window.chrome;
+        deleteTestProperty(window, "__blazorCallbacks");
+        deleteTestProperty(window, "__blazorDispatchHooked");
+        deleteTestProperty(window, "infiniframe");
+        deleteTestProperty(window, "chrome");
         vi.restoreAllMocks();
         vi.resetModules();
     });
@@ -22,8 +22,8 @@ describe("Index", () => {
         window.chrome = {
             webview: {
                 postMessage,
-                addEventListener: vi.fn()
-            }
+                addEventListener: vi.fn(),
+            },
         };
 
         await import("./Index");

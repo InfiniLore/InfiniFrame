@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {beforeEach, describe, expect, it} from "vitest";
+import {deleteTestProperty, getTestWindow} from "../../_testHelpers";
 import {getSetupGuard} from "./setupGuard";
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -9,7 +10,7 @@ import {getSetupGuard} from "./setupGuard";
 // ---------------------------------------------------------------------------------------------------------------------
 describe("getSetupGuard", () => {
     beforeEach(() => {
-        delete (window as any).infiniframe;
+        deleteTestProperty(getTestWindow(), "infiniframe");
     });
 
     it("should initialize window.infiniframe if missing", () => {
@@ -50,7 +51,15 @@ describe("getSetupGuard", () => {
 
     it("should preserve existing setup values", () => {
         // Arrange
-        window.infiniframe = {setup: {nativeInteropBridgeInitialized: true}} as any;
+        getTestWindow().infiniframe = {
+            setup: {
+                nativeInteropBridgeInitialized: true,
+                windowExternalBridgeInitialized: false,
+                blazorModulesFetchPatchInitialized: false,
+                blazorCustomElementsPatchInitialized: false,
+                customElementsInitialized: false,
+            },
+        };
 
         // Act
         const guard = getSetupGuard();
@@ -62,12 +71,12 @@ describe("getSetupGuard", () => {
     it("should preserve existing window.infiniframe properties", () => {
         // Arrange
         const existing = {custom: "value"};
-        (window as any).infiniframe = existing;
+        getTestWindow().infiniframe = existing;
 
         // Act
         getSetupGuard();
 
         // Assert
-        expect((window as any).infiniframe.custom).toBe("value");
+        expect(getTestWindow().infiniframe.custom).toBe("value");
     });
 });

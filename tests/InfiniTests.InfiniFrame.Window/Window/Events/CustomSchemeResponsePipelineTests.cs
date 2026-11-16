@@ -145,7 +145,7 @@ public class CustomSchemeResponsePipelineTests {
     private static void Release(ref CustomSchemeResponse response) {
         if (response.OwnerContext == IntPtr.Zero) return;
 
-        var release = Marshal.GetDelegateForFunctionPointer<CppReleaseCustomSchemeResponseDelegate>(response.Release);
+        var release = Marshal.GetDelegateForFunctionPointer<CppReleaseCustomSchemeResponseCallback>(response.Release);
         release(response.OwnerContext);
         response = default;
     }

@@ -7,7 +7,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {FilePickerDialogsInfiniFrameWindowFeature as Contract, FilePickerFilter} from "../../Contracts";
+import type {
+    FilePickerDialogsInfiniFrameWindowFeature as Contract,
+    FilePickerFilter,
+} from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -16,7 +19,9 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 /**
  * Provides native file and folder picker dialogs for open, folder-select, and save operations.
  */
-export class FilePickerDialogsInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
+export class FilePickerDialogsInfiniFrameWindowFeature
+    extends InfiniFrameWindowFeature
+    implements Contract {
     /**
      * Creates a new file picker dialogs feature instance.
      */
@@ -33,8 +38,18 @@ export class FilePickerDialogsInfiniFrameWindowFeature extends InfiniFrameWindow
      * @param filters - Optional array of file type filters.
      * @returns A promise that resolves to an array of selected file paths, or an array containing `null` if cancelled.
      */
-    showOpenFileAsync(title = "Choose file", defaultPath: string | null = null, multiSelect = false, filters: FilePickerFilter[] | null = null) {
-        return this.get<(string | null)[]>("showOpenFile", {title, defaultPath, multiSelect, filters});
+    showOpenFileAsync(
+        title = "Choose file",
+        defaultPath: string | null = null,
+        multiSelect = false,
+        filters: FilePickerFilter[] | null = null,
+    ) {
+        return this.get<(string | null)[]>("showOpenFile", {
+            title,
+            defaultPath,
+            multiSelect,
+            filters,
+        });
     }
 
     /**
@@ -45,8 +60,16 @@ export class FilePickerDialogsInfiniFrameWindowFeature extends InfiniFrameWindow
      * @param multiSelect - Whether multiple folders can be selected. Defaults to `false`.
      * @returns A promise that resolves to an array of selected folder paths, or an array containing `null` if cancelled.
      */
-    showOpenFolderAsync(title = "Select folder", defaultPath: string | null = null, multiSelect = false) {
-        return this.get<(string | null)[]>("showOpenFolder", {title, defaultPath, multiSelect});
+    showOpenFolderAsync(
+        title = "Select folder",
+        defaultPath: string | null = null,
+        multiSelect = false,
+    ) {
+        return this.get<(string | null)[]>("showOpenFolder", {
+            title,
+            defaultPath,
+            multiSelect,
+        });
     }
 
     /**
@@ -58,7 +81,17 @@ export class FilePickerDialogsInfiniFrameWindowFeature extends InfiniFrameWindow
      * @param defaultFileName - Optional default file name to suggest.
      * @returns A promise that resolves to the selected file path, or `null` if cancelled.
      */
-    showSaveFileAsync(title = "Save file", defaultPath: string | null = null, filters: FilePickerFilter[] | null = null, defaultFileName: string | null = null) {
-        return this.get<string | null>("showSaveFile", {title, defaultPath, filters, defaultFileName});
+    showSaveFileAsync(
+        title = "Save file",
+        defaultPath: string | null = null,
+        filters: FilePickerFilter[] | null = null,
+        defaultFileName: string | null = null,
+    ) {
+        return this.get<string | null>("showSaveFile", {
+            title,
+            defaultPath,
+            filters,
+            defaultFileName,
+        });
     }
 }

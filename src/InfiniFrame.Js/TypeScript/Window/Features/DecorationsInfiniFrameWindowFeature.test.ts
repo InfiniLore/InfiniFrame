@@ -1,9 +1,12 @@
 import {beforeEach, describe, expect, it} from "vitest";
 import {setupFeature} from "./_testHelpers";
+import type {DecorationsInfiniFrameWindowFeature} from "./DecorationsInfiniFrameWindowFeature";
 
 describe("DecorationsInfiniFrameWindowFeature", () => {
-    let feature: any;
-    let messaging: ReturnType<typeof import("./_testHelpers").createMessagingMock>;
+    let feature: DecorationsInfiniFrameWindowFeature;
+    let messaging: ReturnType<
+        typeof import("./_testHelpers").createMessagingMock
+    >;
 
     beforeEach(async () => {
         messaging = setupFeature();
@@ -22,17 +25,23 @@ describe("DecorationsInfiniFrameWindowFeature", () => {
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });
     it("backgroundColorAsync calls get", async () => {
-        messaging.getMessageFromHostAsync.mockResolvedValue(JSON.stringify("#ffffff"));
+        messaging.getMessageFromHostAsync.mockResolvedValue(
+            JSON.stringify("#ffffff"),
+        );
         await feature.backgroundColorAsync();
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });
     it("getTitleAsync calls get", async () => {
-        messaging.getMessageFromHostAsync.mockResolvedValue(JSON.stringify("Test Title"));
+        messaging.getMessageFromHostAsync.mockResolvedValue(
+            JSON.stringify("Test Title"),
+        );
         await feature.getTitleAsync();
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });
     it("getIconFilePathAsync calls get", async () => {
-        messaging.getMessageFromHostAsync.mockResolvedValue(JSON.stringify("/icon.png"));
+        messaging.getMessageFromHostAsync.mockResolvedValue(
+            JSON.stringify("/icon.png"),
+        );
         await feature.getIconFilePathAsync();
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });

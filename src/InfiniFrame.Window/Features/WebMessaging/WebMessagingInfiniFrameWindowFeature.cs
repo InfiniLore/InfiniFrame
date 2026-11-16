@@ -2,11 +2,12 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using InfiniFrame.Js.Interop;
 using InfiniFrame.NativeBridge;
-using InfiniFrame.NativeBridge.Handles;
+using InfiniFrame.NativeBridge.NativeHandles;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame.Window.Features.WebMessaging;
@@ -83,7 +84,10 @@ public class WebMessagingInfiniFrameWindowFeature : IWebMessagingInfiniFrameWind
             string envelope = InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.WebMessageAckRequest, payload);
             await SendLocallyAsync(envelope, ct).ConfigureAwait(false);
 
-            Task closed = window.WaitForCloseAsync().AsTask();
+            // The close wait is deliberately not bound to the operation token: the token already cancels the
+            // whole operation through WaitAsync(ct) below, and cancelling the close wait as well would turn a
+            // cancellation into a spurious "window closed" failure.
+            Task closed = window.WaitForCloseAsync(CancellationToken.None).AsTask();
             Task terminal = await Task.WhenAny(completion.Task, closed).WaitAsync(ct).ConfigureAwait(false);
             if (terminal == closed)
                 throw new ObjectDisposedException(window.GetType().Name, "The window closed before JavaScript acknowledged the message.");
@@ -101,7 +105,9 @@ public class WebMessagingInfiniFrameWindowFeature : IWebMessagingInfiniFrameWind
             throw;
         }
         finally {
+            #pragma warning disable CS8601// Possible null reference assignment.
             _acknowledgements.TryRemove(id, out _);
+            #pragma warning restore CS8601// Possible null reference assignment.
             (window as InfiniFrameWindow)?.CompleteDiagnosticOperation(
                 diagnosticKey, finalState, failureReason: failureReason
             );
@@ -131,7 +137,7 @@ public class WebMessagingInfiniFrameWindowFeature : IWebMessagingInfiniFrameWind
         using var stream = new MemoryStream();
         using (var writer = new Utf8JsonWriter(stream)) {
             writer.WriteStartObject();
-            writer.WriteString("OperationId", id.ToString());
+            writer.WriteString("OperationId", id.ToString(CultureInfo.InvariantCulture));
             writer.WriteString("Message", message);
             writer.WriteEndObject();
         }

@@ -4,7 +4,11 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {BlazorCallback, InfiniFrameExternal, InfiniFrameSetup} from "../../Contracts";
+import type {
+    BlazorCallback,
+    InfiniFrameExternal,
+    InfiniFrameSetup,
+} from "../../Contracts";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -22,9 +26,10 @@ export function initWindowExternalBridge(setup: InfiniFrameSetup): void {
     setup.windowExternalBridgeInitialized = true;
 
     const external = ensureWindowExternal();
-    window.infiniframe = window.infiniframe ?? {} as Window["infiniframe"];
+    window.infiniframe = window.infiniframe ?? ({} as Window["infiniframe"]);
     const callbacks: BlazorCallback[] = [];
-    (window.infiniframe as unknown as Record<string, unknown>).__blazorCallbacks = callbacks;
+    (window.infiniframe as unknown as Record<string, unknown>).__blazorCallbacks =
+        callbacks;
 
     external.receiveMessage = (callback: BlazorCallback): void => {
         callbacks.push(callback);
@@ -34,7 +39,9 @@ export function initWindowExternalBridge(setup: InfiniFrameSetup): void {
 
     external.sendMessage = (message: string): void => {
         if (!window.infiniframe?.host?.postData) {
-            console.warn("Message to host failed. Host bridge API is not initialized.");
+            console.warn(
+                "Message to host failed. Host bridge API is not initialized.",
+            );
             return;
         }
 
@@ -73,7 +80,7 @@ function ensureWindowExternal(): InfiniFrameExternal {
         configurable: true,
         enumerable: true,
         value: external,
-        writable: true
+        writable: true,
     });
 
     return external;

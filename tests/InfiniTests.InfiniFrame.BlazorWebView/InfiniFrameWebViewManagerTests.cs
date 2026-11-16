@@ -442,6 +442,7 @@ public class InfiniFrameWebViewManagerTests {
         IFileProvider fileProvider,
         JSComponentConfigurationStore jsComponents,
         IOptions<InfiniFrameBlazorAppConfiguration> config,
+        // ReSharper disable once ContextualLoggerProblem
         ILogger<InfiniFrameWebViewManager> logger
     ) : InfiniFrameWebViewManager(provider, dispatcher, fileProvider, jsComponents, config, logger) {
         public void SendMessageForTest(string message) => SendMessage(message);

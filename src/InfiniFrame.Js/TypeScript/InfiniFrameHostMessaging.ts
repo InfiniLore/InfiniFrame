@@ -8,7 +8,7 @@ import type {
     InfiniFrameHostMessaging as InfiniFrameHostMessagingContract,
     InteropEnvelopeV1,
     MessageCallback,
-    SendToHostMessageId
+    SendToHostMessageId,
 } from "./Contracts";
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
@@ -17,12 +17,16 @@ import {
     createEnvelope,
     createGetEnvelope,
     InteropGetCommand,
-    parseIncomingMessage
+    parseIncomingMessage,
 } from "./Interop/EnvelopeProtocol/InteropEnvelopeProtocol";
-import {blankTargetHandler, getTitleObserver, getTitleObserverTarget} from "./Utils";
+import {
+    blankTargetHandler,
+    getTitleObserver,
+    getTitleObserverTarget,
+} from "./Utils";
 import {
     handleJavaScriptEvalRequest,
-    handleJavaScriptEvalResponse
+    handleJavaScriptEvalResponse,
 } from "./Window/Features/JavaScriptInfiniFrameWindowFeature";
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -58,61 +62,92 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
      * and fires the ready handshake.
      */
     constructor() {
-        this.ready = new Promise<void>(resolve => {
+        this.ready = new Promise<void>((resolve) => {
             this.resolveReady = resolve;
         });
 
         this.assignWebMessageReceiver();
 
-        this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.registerOpenExternal, _ => {
-            this.registerOpenExternal();
-        })
+        this.assignMessageReceivedHandler(
+            ReceiveFromHostMessageIds.registerOpenExternal,
+            (_) => {
+                this.registerOpenExternal();
+            },
+        );
 
-        this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.registerFullscreenChange, _ => {
-            this.registerFullscreenChange();
-        })
+        this.assignMessageReceivedHandler(
+            ReceiveFromHostMessageIds.registerFullscreenChange,
+            (_) => {
+                this.registerFullscreenChange();
+            },
+        );
 
-        this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.registerTitleChange, _ => {
-            this.registerTitleChange();
-        })
+        this.assignMessageReceivedHandler(
+            ReceiveFromHostMessageIds.registerTitleChange,
+            (_) => {
+                this.registerTitleChange();
+            },
+        );
 
-        this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.registerWindowClose, _ => {
-            this.registerWindowClose();
-        })
+        this.assignMessageReceivedHandler(
+            ReceiveFromHostMessageIds.registerWindowClose,
+            (_) => {
+                this.registerWindowClose();
+            },
+        );
 
-        this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.readyAck, _ => {
-            this.markReadyHandshakeAcknowledged();
-        })
+        this.assignMessageReceivedHandler(
+            ReceiveFromHostMessageIds.readyAck,
+            (_) => {
+                this.markReadyHandshakeAcknowledged();
+            },
+        );
 
-        this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.webMessageAckRequest, payload => {
-            if (!payload) return;
-            try {
-                const request = JSON.parse(payload) as { OperationId?: string; Message?: string };
-                if (!request.OperationId || typeof request.Message !== "string") return;
-                if (!this.handleInteropMessage(request.Message)) return;
-                this.sendMessageToHost(SendToHostMessageIds.webMessageAckResponse, request.OperationId);
-            } catch (error) {
-                console.warn("Could not process acknowledged host message.", error);
-            }
-        })
+        this.assignMessageReceivedHandler(
+            ReceiveFromHostMessageIds.webMessageAckRequest,
+            (payload) => {
+                if (!payload) return;
+                try {
+                    const request = JSON.parse(payload) as {
+                        OperationId?: string;
+                        Message?: string;
+                    };
+                    if (!request.OperationId || typeof request.Message !== "string")
+                        return;
+                    if (!this.handleInteropMessage(request.Message)) return;
+                    this.sendMessageToHost(
+                        SendToHostMessageIds.webMessageAckResponse,
+                        request.OperationId,
+                    );
+                } catch (error) {
+                    console.warn("Could not process acknowledged host message.", error);
+                }
+            },
+        );
 
-        this.assignMessageReceivedHandler("__infiniframe:javascript:eval:response", payload => {
-            if (!payload) return;
-            try {
-                handleJavaScriptEvalResponse(JSON.parse(payload));
-            } catch (error) {
-                console.warn("Could not process JavaScript eval response.", error);
-            }
-        })
+        this.assignMessageReceivedHandler(
+            "__infiniframe:javascript:eval:response",
+            (payload) => {
+                if (!payload) return;
+                try {
+                    handleJavaScriptEvalResponse(JSON.parse(payload));
+                } catch (error) {
+                    console.warn("Could not process JavaScript eval response.", error);
+                }
+            },
+        );
 
-        this.assignMessageReceivedHandler("__infiniframe:javascript:eval", payload => {
-            if (!payload) return;
-            try {
-                handleJavaScriptEvalRequest(JSON.parse(payload));
-            } catch (error) {
-                console.warn("Could not process JavaScript eval request.", error);
-            }
-        })
+        this.assignMessageReceivedHandler(
+            "__infiniframe:javascript:eval",
+            (payload) => {
+                if (!payload) return;
+                try {
+                    handleJavaScriptEvalRequest(JSON.parse(payload));
+                } catch (error) {
+                    console.warn("Could not process JavaScript eval request.", error);
+                }
+            },
+        );
 
         this.sendReadyHandshake();
     }
@@ -136,7 +171,9 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
         if (window.infiniframe?.host?.postData) {
             window.infiniframe.host.postData(envelope);
         } else {
-            console.warn("Message to host failed. Host bridge API is not initialized.");
+            console.warn(
+                "Message to host failed. Host bridge API is not initialized.",
+            );
             return;
         }
     }
@@ -147,13 +184,19 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
      * @returns A promise that resolves with the raw response string from the host.
      * @throws If the host `getDataAsync` API is not initialised.
      */
-    public async getMessageFromHostRawAsync(message: InteropEnvelopeV1 | string): Promise<string> {
+    public async getMessageFromHostRawAsync(
+        message: InteropEnvelopeV1 | string,
+    ): Promise<string> {
         const host = window.infiniframe?.host;
-        if (!host?.getDataAsync) throw new Error("Message to host failed. Host getDataAsync API is not initialized.");
+        if (!host?.getDataAsync)
+            throw new Error(
+                "Message to host failed. Host getDataAsync API is not initialized.",
+            );
 
-        const envelope = typeof message === "string"
-            ? createEnvelope(message, undefined, undefined, InteropGetCommand)
-            : message;
+        const envelope =
+            typeof message === "string"
+                ? createEnvelope(message, undefined, undefined, InteropGetCommand)
+                : message;
 
         return await host.getDataAsync(envelope);
     }
@@ -165,10 +208,13 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
      * @param args - Optional arguments serialised into the request envelope.
      * @returns A promise that resolves with the response string from the host.
      */
-    public async getMessageFromHostAsync(command: string, args?: any): Promise<string> {
+    public async getMessageFromHostAsync(
+        command: string,
+        args?: unknown,
+    ): Promise<string> {
         try {
             return await window.infiniframe.messaging.getMessageFromHostRawAsync(
-                createGetEnvelope(command, args)
+                createGetEnvelope(command, args),
             );
         } catch (e) {
             console.error("Failed to get response message from host.", e);
@@ -182,7 +228,10 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
      * @param messageId - The message identifier to listen for.
      * @param callback - Handler that receives the optional message payload.
      */
-    public assignMessageReceivedHandler(messageId: string, callback: MessageCallback) {
+    public assignMessageReceivedHandler(
+        messageId: string,
+        callback: MessageCallback,
+    ) {
         this.messageHandlers.set(messageId, callback);
     }
 
@@ -200,13 +249,15 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
                 this.handleInteropMessage(message);
             });
         } else {
-            console.warn("Web message receiver failed. Host bridge API is not initialized.");
+            console.warn(
+                "Web message receiver failed. Host bridge API is not initialized.",
+            );
             return;
         }
     }
 
-    private handleInteropMessage(message: any): boolean {
-        if (typeof message !== 'string') return false;
+    private handleInteropMessage(message: unknown): boolean {
+        if (typeof message !== "string") return false;
         if (!message) return false;
         // Route only messages that match the explicit interop envelope contract.
         const parsedMessage = parseIncomingMessage(message);
@@ -214,14 +265,18 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
 
         // Blazor WebView internal transport messages are routed by blazor.webview.js.
         // They are not InfiniFrame host-message contracts and should not emit warnings.
-        if (parsedMessage.messageId.startsWith(InfiniFrameHostMessaging.BlazorWebViewMessagePrefix)) {
+        if (
+            parsedMessage.messageId.startsWith(
+                InfiniFrameHostMessaging.BlazorWebViewMessagePrefix,
+            )
+        ) {
             return true;
         }
 
         // Execute registered handler
         const handler = this.messageHandlers.get(parsedMessage.messageId);
         if (!handler) {
-            console.warn('No handler registered for message:', parsedMessage);
+            console.warn("No handler registered for message:", parsedMessage);
             return false;
         }
 
@@ -239,7 +294,8 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
         if (this.fullscreenRegistered) return;
         this.fullscreenRegistered = true;
         document.addEventListener("fullscreenchange", (_: Event) => {
-            if (document.fullscreenElement) this.sendMessageToHost(SendToHostMessageIds.fullscreenEnter);
+            if (document.fullscreenElement)
+                this.sendMessageToHost(SendToHostMessageIds.fullscreenEnter);
             else this.sendMessageToHost(SendToHostMessageIds.fullscreenExit);
         });
 
@@ -294,4 +350,4 @@ class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
     }
 }
 
-export default InfiniFrameHostMessaging
+export default InfiniFrameHostMessaging;

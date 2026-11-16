@@ -1,5 +1,5 @@
-﻿import {defineConfig} from "vite";
-import {resolve} from "node:path";
+﻿import {resolve} from "node:path";
+import {defineConfig} from "vite";
 
 const entry = resolve(import.meta.dirname, "TypeScript/Index.ts");
 
@@ -14,7 +14,7 @@ export default defineConfig({
             entry,
             formats: ["iife"],
             name: "InfiniFrameJs",
-            fileName: () => "InfiniFrame.dev.js"
-        }
-    }
+            fileName: () => "InfiniFrame.dev.js",
+        },
+    },
 });

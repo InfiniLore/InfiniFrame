@@ -15,7 +15,7 @@ namespace InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 public partial class InfiniFrameEvents {
     private const int StreamCopyBufferSize = 81920;
-    private static readonly CppReleaseCustomSchemeResponseDelegate ReleaseCustomSchemeResponse = ReleaseResponseStorage;
+    private static readonly CppReleaseCustomSchemeResponseCallback ReleaseCustomSchemeResponse = ReleaseResponseStorage;
     private static long _activeCustomSchemeResponseAllocations;
 
     /// <inheritdoc cref="IInfiniFrameEvents.OnCustomScheme" />
@@ -27,7 +27,6 @@ public partial class InfiniFrameEvents {
             ArgumentNullException.ThrowIfNull(Sender);
             ArgumentNullException.ThrowIfNull(url);
 
-            Logger.LogDebug("Custom scheme request: {Url}", url);
             int colonPos = url.IndexOf(':');
             if (colonPos <= 0) {
                 Logger.LogWarning("Ignoring malformed custom scheme URL: {Url}", url);
@@ -49,10 +48,6 @@ public partial class InfiniFrameEvents {
                 response = BufferResponse(result.Data, result.ContentType);
             }
 
-            Logger.LogDebug(
-                "Custom scheme response for {Url}. {NumBytes} bytes, ContentType={ContentType}",
-                url, response.ContentLength, result.ContentType ?? "application/octet-stream"
-            );
             return 1;
         }
         catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
@@ -185,7 +180,7 @@ public partial class InfiniFrameEvents {
         int allocationSize = checked(bodyLength + contentTypeLength + 1);
         IntPtr storage = Marshal.AllocCoTaskMem(allocationSize);
         if (storage == IntPtr.Zero)
-            throw new OutOfMemoryException($"Failed to allocate {allocationSize} bytes for custom scheme response.");
+            throw new InsufficientMemoryException($"Failed to allocate {allocationSize} bytes for custom scheme response.");
 
         Interlocked.Increment(ref _activeCustomSchemeResponseAllocations);
         return storage;

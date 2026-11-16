@@ -82,7 +82,6 @@ public interface IBrowserInfiniFrameWindowBuilderFeature : IInfiniFrameWindowBui
     /// <summary>
     ///     Gets the fixed-version WebView2 runtime path used on Windows.
     /// </summary>
-
     /// <summary>
     ///     Enables or disables the context menu.
     /// </summary>

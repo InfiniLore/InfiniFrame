@@ -1,22 +1,24 @@
 import {beforeEach, describe, expect, it, vi} from "vitest";
+import {getTestWindow, requireValue} from "../../_testHelpers";
 import {setupFeature} from "./_testHelpers";
+import type {BrowserInfiniFrameWindowFeature} from "./BrowserInfiniFrameWindowFeature";
 
 describe("BrowserInfiniFrameWindowFeature", () => {
-    let feature: any;
-    let messaging: ReturnType<typeof import("./_testHelpers").createMessagingMock>;
+    let feature: BrowserInfiniFrameWindowFeature;
+    let messaging: ReturnType<
+        typeof import("./_testHelpers").createMessagingMock
+    >;
 
     beforeEach(async () => {
         vi.resetModules();
         messaging = setupFeature();
         vi.doMock("../InfiniFrameHostMessaging", () => ({
             default: class {
-                constructor() {
-                }
-            }
+            },
         }));
         const mod = await import("./BrowserInfiniFrameWindowFeature");
         feature = new mod.BrowserInfiniFrameWindowFeature();
-        (window as any).infiniframe.messaging = messaging;
+        getTestWindow().infiniframe.messaging = messaging;
     });
 
     it("constructs without error", () => {
@@ -36,7 +38,9 @@ describe("BrowserInfiniFrameWindowFeature", () => {
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });
     it("getUserAgentAsync calls get", async () => {
-        messaging.getMessageFromHostAsync.mockResolvedValue(JSON.stringify("test-agent"));
+        messaging.getMessageFromHostAsync.mockResolvedValue(
+            JSON.stringify("test-agent"),
+        );
         await feature.getUserAgentAsync();
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });
@@ -61,11 +65,20 @@ describe("BrowserInfiniFrameWindowFeature", () => {
         expect(messaging.sendMessageToHost).toHaveBeenCalled();
     });
     it("keydown guard blocks ctrl+key browser shortcuts", () => {
-        const event = new KeyboardEvent("keydown", {key: "t", ctrlKey: true, bubbles: true, cancelable: true});
+        const event = new KeyboardEvent("keydown", {
+            key: "t",
+            ctrlKey: true,
+            bubbles: true,
+            cancelable: true,
+        });
         document.dispatchEvent(event);
     });
     it("keydown guard blocks F11 key", () => {
-        const event = new KeyboardEvent("keydown", {key: "F11", bubbles: true, cancelable: true});
+        const event = new KeyboardEvent("keydown", {
+            key: "F11",
+            bubbles: true,
+            cancelable: true,
+        });
         document.dispatchEvent(event);
     });
     it("contextmenu guard blocks right-click when disabled", () => {
@@ -73,7 +86,12 @@ describe("BrowserInfiniFrameWindowFeature", () => {
         document.dispatchEvent(event);
     });
     it("wheel guard blocks ctrl+wheel zoom", () => {
-        const event = new WheelEvent("wheel", {ctrlKey: true, deltaY: 100, bubbles: true, cancelable: true});
+        const event = new WheelEvent("wheel", {
+            ctrlKey: true,
+            deltaY: 100,
+            bubbles: true,
+            cancelable: true,
+        });
         document.dispatchEvent(event);
     });
     it("isFileSystemAccessEnabledAsync calls get", async () => {
@@ -112,7 +130,9 @@ describe("BrowserInfiniFrameWindowFeature", () => {
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });
     it("getBrowserControlInitParametersAsync calls get", async () => {
-        messaging.getMessageFromHostAsync.mockResolvedValue(JSON.stringify("--flag"));
+        messaging.getMessageFromHostAsync.mockResolvedValue(
+            JSON.stringify("--flag"),
+        );
         await feature.getBrowserControlInitParametersAsync();
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });
@@ -125,177 +145,250 @@ describe("BrowserInfiniFrameWindowFeature", () => {
         expect(messaging.sendMessageToHost).toHaveBeenCalled();
     });
     it("message handler updates contextMenuEnabled on valid payload", () => {
-        const handler = messaging.assignMessageReceivedHandler.mock.calls.find(
-            (call: any[]) => typeof call[0] === "string" && call[0].includes("setContextMenuEnabled")
-        )?.[1];
+        const handler = requireValue(
+            messaging.assignMessageReceivedHandler.mock.calls.find(
+                (call: unknown[]) =>
+                    typeof call[0] === "string"
+                    && call[0].includes("setContextMenuEnabled"),
+            ),
+        )[1] as (payload: unknown) => void;
         expect(handler).toBeDefined();
-        handler!(JSON.stringify({enabled: false}));
+        handler(JSON.stringify({enabled: false}));
     });
     it("message handler ignores null payload for contextMenu", () => {
-        const handler = messaging.assignMessageReceivedHandler.mock.calls.find(
-            (call: any[]) => typeof call[0] === "string" && call[0].includes("setContextMenuEnabled")
-        )?.[1];
-        handler!(null);
+        const handler = requireValue(
+            messaging.assignMessageReceivedHandler.mock.calls.find(
+                (call: unknown[]) =>
+                    typeof call[0] === "string"
+                    && call[0].includes("setContextMenuEnabled"),
+            ),
+        )[1] as (payload: unknown) => void;
+        handler(null);
     });
     it("message handler ignores malformed JSON for contextMenu", () => {
-        const handler = messaging.assignMessageReceivedHandler.mock.calls.find(
-            (call: any[]) => typeof call[0] === "string" && call[0].includes("setContextMenuEnabled")
-        )?.[1];
-        handler!("not-json");
+        const handler = requireValue(
+            messaging.assignMessageReceivedHandler.mock.calls.find(
+                (call: unknown[]) =>
+                    typeof call[0] === "string"
+                    && call[0].includes("setContextMenuEnabled"),
+            ),
+        )[1] as (payload: unknown) => void;
+        handler("not-json");
     });
     it("message handler updates zoomEnabled on valid payload", () => {
-        const handler = messaging.assignMessageReceivedHandler.mock.calls.find(
-            (call: any[]) => typeof call[0] === "string" && call[0].includes("setZoomEnabled")
-        )?.[1];
-        handler!(JSON.stringify({enabled: false}));
+        const handler = requireValue(
+            messaging.assignMessageReceivedHandler.mock.calls.find(
+                (call: unknown[]) =>
+                    typeof call[0] === "string" && call[0].includes("setZoomEnabled"),
+            ),
+        )[1] as (payload: unknown) => void;
+        handler(JSON.stringify({enabled: false}));
     });
     it("message handler ignores null payload for zoom", () => {
-        const handler = messaging.assignMessageReceivedHandler.mock.calls.find(
-            (call: any[]) => typeof call[0] === "string" && call[0].includes("setZoomEnabled")
-        )?.[1];
-        handler!(null);
+        const handler = requireValue(
+            messaging.assignMessageReceivedHandler.mock.calls.find(
+                (call: unknown[]) =>
+                    typeof call[0] === "string" && call[0].includes("setZoomEnabled"),
+            ),
+        )[1] as (payload: unknown) => void;
+        handler(null);
     });
     it("message handler ignores malformed JSON for zoom", () => {
-        const handler = messaging.assignMessageReceivedHandler.mock.calls.find(
-            (call: any[]) => typeof call[0] === "string" && call[0].includes("setZoomEnabled")
-        )?.[1];
-        handler!("not-json");
+        const handler = requireValue(
+            messaging.assignMessageReceivedHandler.mock.calls.find(
+                (call: unknown[]) =>
+                    typeof call[0] === "string" && call[0].includes("setZoomEnabled"),
+            ),
+        )[1] as (payload: unknown) => void;
+        handler("not-json");
     });
     it("message handler updates browserShortcutsEnabled on valid payload", () => {
-        const handler = messaging.assignMessageReceivedHandler.mock.calls.find(
-            (call: any[]) => typeof call[0] === "string" && call[0].includes("setBrowserShortcutsEnabled")
-        )?.[1];
-        handler!(JSON.stringify({enabled: false}));
+        const handler = requireValue(
+            messaging.assignMessageReceivedHandler.mock.calls.find(
+                (call: unknown[]) =>
+                    typeof call[0] === "string"
+                    && call[0].includes("setBrowserShortcutsEnabled"),
+            ),
+        )[1] as (payload: unknown) => void;
+        handler(JSON.stringify({enabled: false}));
     });
     it("message handler ignores null payload for browserShortcuts", () => {
-        const handler = messaging.assignMessageReceivedHandler.mock.calls.find(
-            (call: any[]) => typeof call[0] === "string" && call[0].includes("setBrowserShortcutsEnabled")
-        )?.[1];
-        handler!(null);
+        const handler = requireValue(
+            messaging.assignMessageReceivedHandler.mock.calls.find(
+                (call: unknown[]) =>
+                    typeof call[0] === "string"
+                    && call[0].includes("setBrowserShortcutsEnabled"),
+            ),
+        )[1] as (payload: unknown) => void;
+        handler(null);
     });
     it("message handler ignores malformed JSON for browserShortcuts", () => {
-        const handler = messaging.assignMessageReceivedHandler.mock.calls.find(
-            (call: any[]) => typeof call[0] === "string" && call[0].includes("setBrowserShortcutsEnabled")
-        )?.[1];
-        handler!("not-json");
+        const handler = requireValue(
+            messaging.assignMessageReceivedHandler.mock.calls.find(
+                (call: unknown[]) =>
+                    typeof call[0] === "string"
+                    && call[0].includes("setBrowserShortcutsEnabled"),
+            ),
+        )[1] as (payload: unknown) => void;
+        handler("not-json");
     });
     it("keydown guard blocks ctrl+shift+i", () => {
-        document.dispatchEvent(new KeyboardEvent("keydown", {
-            key: "i",
-            ctrlKey: true,
-            shiftKey: true,
-            bubbles: true,
-            cancelable: true
-        }));
+        document.dispatchEvent(
+            new KeyboardEvent("keydown", {
+                key: "i",
+                ctrlKey: true,
+                shiftKey: true,
+                bubbles: true,
+                cancelable: true,
+            }),
+        );
     });
     it("keydown guard blocks ctrl+n", () => {
-        document.dispatchEvent(new KeyboardEvent("keydown", {
-            key: "n",
-            ctrlKey: true,
-            bubbles: true,
-            cancelable: true
-        }));
+        document.dispatchEvent(
+            new KeyboardEvent("keydown", {
+                key: "n",
+                ctrlKey: true,
+                bubbles: true,
+                cancelable: true,
+            }),
+        );
     });
     it("keydown guard blocks ctrl+w", () => {
-        document.dispatchEvent(new KeyboardEvent("keydown", {
-            key: "w",
-            ctrlKey: true,
-            bubbles: true,
-            cancelable: true
-        }));
+        document.dispatchEvent(
+            new KeyboardEvent("keydown", {
+                key: "w",
+                ctrlKey: true,
+                bubbles: true,
+                cancelable: true,
+            }),
+        );
     });
     it("keydown guard blocks ctrl+r", () => {
-        document.dispatchEvent(new KeyboardEvent("keydown", {
-            key: "r",
-            ctrlKey: true,
-            bubbles: true,
-            cancelable: true
-        }));
+        document.dispatchEvent(
+            new KeyboardEvent("keydown", {
+                key: "r",
+                ctrlKey: true,
+                bubbles: true,
+                cancelable: true,
+            }),
+        );
     });
     it("keydown guard blocks ctrl+p", () => {
-        document.dispatchEvent(new KeyboardEvent("keydown", {
-            key: "p",
-            ctrlKey: true,
-            bubbles: true,
-            cancelable: true
-        }));
+        document.dispatchEvent(
+            new KeyboardEvent("keydown", {
+                key: "p",
+                ctrlKey: true,
+                bubbles: true,
+                cancelable: true,
+            }),
+        );
     });
     it("keydown guard blocks ctrl+u", () => {
-        document.dispatchEvent(new KeyboardEvent("keydown", {
-            key: "u",
-            ctrlKey: true,
-            bubbles: true,
-            cancelable: true
-        }));
+        document.dispatchEvent(
+            new KeyboardEvent("keydown", {
+                key: "u",
+                ctrlKey: true,
+                bubbles: true,
+                cancelable: true,
+            }),
+        );
     });
     it("keydown guard blocks ctrl+j", () => {
-        document.dispatchEvent(new KeyboardEvent("keydown", {
-            key: "j",
-            ctrlKey: true,
-            bubbles: true,
-            cancelable: true
-        }));
+        document.dispatchEvent(
+            new KeyboardEvent("keydown", {
+                key: "j",
+                ctrlKey: true,
+                bubbles: true,
+                cancelable: true,
+            }),
+        );
     });
     it("keydown guard blocks ctrl+l", () => {
-        document.dispatchEvent(new KeyboardEvent("keydown", {
-            key: "l",
-            ctrlKey: true,
-            bubbles: true,
-            cancelable: true
-        }));
+        document.dispatchEvent(
+            new KeyboardEvent("keydown", {
+                key: "l",
+                ctrlKey: true,
+                bubbles: true,
+                cancelable: true,
+            }),
+        );
     });
     it("keydown guard blocks ctrl+o", () => {
-        document.dispatchEvent(new KeyboardEvent("keydown", {
-            key: "o",
-            ctrlKey: true,
-            bubbles: true,
-            cancelable: true
-        }));
+        document.dispatchEvent(
+            new KeyboardEvent("keydown", {
+                key: "o",
+                ctrlKey: true,
+                bubbles: true,
+                cancelable: true,
+            }),
+        );
     });
     it("keydown guard blocks ctrl+h", () => {
-        document.dispatchEvent(new KeyboardEvent("keydown", {
-            key: "h",
-            ctrlKey: true,
-            bubbles: true,
-            cancelable: true
-        }));
+        document.dispatchEvent(
+            new KeyboardEvent("keydown", {
+                key: "h",
+                ctrlKey: true,
+                bubbles: true,
+                cancelable: true,
+            }),
+        );
     });
     it("keydown guard allows non-shortcut keys", () => {
-        document.dispatchEvent(new KeyboardEvent("keydown", {key: "a", bubbles: true, cancelable: true}));
+        document.dispatchEvent(
+            new KeyboardEvent("keydown", {
+                key: "a",
+                bubbles: true,
+                cancelable: true,
+            }),
+        );
     });
     it("zoom guard blocks ctrl+plus", () => {
-        document.dispatchEvent(new KeyboardEvent("keydown", {
-            key: "+",
-            ctrlKey: true,
-            bubbles: true,
-            cancelable: true
-        }));
+        document.dispatchEvent(
+            new KeyboardEvent("keydown", {
+                key: "+",
+                ctrlKey: true,
+                bubbles: true,
+                cancelable: true,
+            }),
+        );
     });
     it("zoom guard blocks ctrl+minus", () => {
-        document.dispatchEvent(new KeyboardEvent("keydown", {
-            key: "-",
-            ctrlKey: true,
-            bubbles: true,
-            cancelable: true
-        }));
+        document.dispatchEvent(
+            new KeyboardEvent("keydown", {
+                key: "-",
+                ctrlKey: true,
+                bubbles: true,
+                cancelable: true,
+            }),
+        );
     });
     it("zoom guard blocks ctrl+equal", () => {
-        document.dispatchEvent(new KeyboardEvent("keydown", {
-            key: "=",
-            ctrlKey: true,
-            bubbles: true,
-            cancelable: true
-        }));
+        document.dispatchEvent(
+            new KeyboardEvent("keydown", {
+                key: "=",
+                ctrlKey: true,
+                bubbles: true,
+                cancelable: true,
+            }),
+        );
     });
     it("zoom guard blocks ctrl+0", () => {
-        document.dispatchEvent(new KeyboardEvent("keydown", {
-            key: "0",
-            ctrlKey: true,
-            bubbles: true,
-            cancelable: true
-        }));
+        document.dispatchEvent(
+            new KeyboardEvent("keydown", {
+                key: "0",
+                ctrlKey: true,
+                bubbles: true,
+                cancelable: true,
+            }),
+        );
     });
     it("zoom guard blocks F5", () => {
-        document.dispatchEvent(new KeyboardEvent("keydown", {key: "F5", bubbles: true, cancelable: true}));
+        document.dispatchEvent(
+            new KeyboardEvent("keydown", {
+                key: "F5",
+                bubbles: true,
+                cancelable: true,
+            }),
+        );
     });
 });

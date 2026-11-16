@@ -1,9 +1,12 @@
 import {beforeEach, describe, expect, it} from "vitest";
 import {setupFeature} from "./_testHelpers";
+import type {PositionInfiniFrameWindowFeature} from "./PositionInfiniFrameWindowFeature";
 
 describe("PositionInfiniFrameWindowFeature", () => {
-    let feature: any;
-    let messaging: ReturnType<typeof import("./_testHelpers").createMessagingMock>;
+    let feature: PositionInfiniFrameWindowFeature;
+    let messaging: ReturnType<
+        typeof import("./_testHelpers").createMessagingMock
+    >;
 
     beforeEach(async () => {
         messaging = setupFeature();
@@ -12,7 +15,9 @@ describe("PositionInfiniFrameWindowFeature", () => {
     });
 
     it("getLocationAsync calls get", async () => {
-        messaging.getMessageFromHostAsync.mockResolvedValue(JSON.stringify({left: 100, top: 200}));
+        messaging.getMessageFromHostAsync.mockResolvedValue(
+            JSON.stringify({left: 100, top: 200}),
+        );
         await feature.getLocationAsync();
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });
@@ -55,7 +60,7 @@ describe("PositionInfiniFrameWindowFeature", () => {
         expect(messaging.sendMessageToHost).toHaveBeenCalled();
     });
     it("moveWithinCurrentMonitorArea posts command", () => {
-        feature.moveWithinCurrentMonitorArea();
+        feature.moveWithinCurrentMonitorArea(0, 0);
         expect(messaging.sendMessageToHost).toHaveBeenCalled();
     });
 });

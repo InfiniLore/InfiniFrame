@@ -120,7 +120,6 @@
 
     private async Task OnSaveFileAsync() {
         _saveFileLoading = true;
-        StateHasChanged();
 
         try {
             LogEvent("Opening Save File dialog...");
@@ -142,13 +141,11 @@
         }
         finally {
             _saveFileLoading = false;
-            StateHasChanged();
         }
     }
 
     private async Task OnOpenFileAsync() {
         _openFileLoading = true;
-        StateHasChanged();
 
         try {
             LogEvent("Opening Open File dialog...");
@@ -173,13 +170,11 @@
         }
         finally {
             _openFileLoading = false;
-            StateHasChanged();
         }
     }
 
     private async Task OnOpenFolderAsync() {
         _openFolderLoading = true;
-        StateHasChanged();
 
         try {
             LogEvent("Opening Open Folder dialog...");
@@ -199,7 +194,6 @@
         }
         finally {
             _openFolderLoading = false;
-            StateHasChanged();
         }
     }
 

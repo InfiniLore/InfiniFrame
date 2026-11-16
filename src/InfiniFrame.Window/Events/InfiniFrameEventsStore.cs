@@ -53,29 +53,29 @@ public class InfiniFrameEventsStore : IInfiniFrameEventsStore {
     /// <inheritdoc cref="IInfiniFrameEventsStore.CustomScheme" />
     public KeyedResultEvent<string, string, (Stream? Data, string? ContentType)> CustomScheme { get; } = new();
     /// <inheritdoc cref="IInfiniFrameEventsStore.NavigationStarting" />
-    public OrderedResultEvent<NavigationStartingEventArgs, NavigationStartingResult> NavigationStarting { get; } = new();
+    public OrderedResultEvent<NavigationStartingEvent, NavigationStartingResult> NavigationStarting { get; } = new();
     /// <inheritdoc cref="IInfiniFrameEventsStore.CopyTo" />
-    public void CopyTo(IInfiniFrameEventsStore target) {
-        CopyHandlers(WebMessageReceived.Snapshot, target.WebMessageReceived.Add);
-        CopyHandlers(DebuggingEvent.Snapshot, target.DebuggingEvent.Add);
-        CopyHandlers(WebMessagePostData.Snapshot, addHandler: static (t, item) => t.WebMessagePostData.Add(item.Key, item.Value), target);
-        CopyHandlers(WebMessageGetData.Snapshot, addHandler: static (t, item) => t.WebMessageGetData.Add(item.Key, item.Value), target);
-        CopyHandlers(CustomScheme.Snapshot, addHandler: static (t, item) => t.CustomScheme.Add(item.Key, item.Value), target);
+    public void CopyTo(IInfiniFrameEventsStore eventsStore) {
+        CopyHandlers(WebMessageReceived.Snapshot, eventsStore.WebMessageReceived.Add);
+        CopyHandlers(DebuggingEvent.Snapshot, eventsStore.DebuggingEvent.Add);
+        CopyHandlers(WebMessagePostData.Snapshot, addHandler: static (t, item) => t.WebMessagePostData.Add(item.Key, item.Value), eventsStore);
+        CopyHandlers(WebMessageGetData.Snapshot, addHandler: static (t, item) => t.WebMessageGetData.Add(item.Key, item.Value), eventsStore);
+        CopyHandlers(CustomScheme.Snapshot, addHandler: static (t, item) => t.CustomScheme.Add(item.Key, item.Value), eventsStore);
 
-        CopyHandlers(WindowClosed.Snapshot, target.WindowClosed.Add);
-        CopyHandlers(Closing.Snapshot, target.Closing.Add);
-        CopyHandlers(WindowClosingRequested.Snapshot, target.WindowClosingRequested.Add);
-        CopyHandlers(WindowCreated.Snapshot, target.WindowCreated.Add);
-        CopyHandlers(WindowCreating.Snapshot, target.WindowCreating.Add);
-        CopyHandlers(WindowFocusIn.Snapshot, target.WindowFocusIn.Add);
-        CopyHandlers(WindowFocusOut.Snapshot, target.WindowFocusOut.Add);
-        CopyHandlers(WindowLocationChanged.Snapshot, target.WindowLocationChanged.Add);
-        CopyHandlers(WindowMaximized.Snapshot, target.WindowMaximized.Add);
-        CopyHandlers(WindowMinimized.Snapshot, target.WindowMinimized.Add);
-        CopyHandlers(WindowRestored.Snapshot, target.WindowRestored.Add);
-        CopyHandlers(WindowSizeChanged.Snapshot, target.WindowSizeChanged.Add);
-        CopyHandlers(NavigationStarting.Snapshot, target.NavigationStarting.Add);
-        CopyHandlers(FileDropped.Snapshot, target.FileDropped.Add);
+        CopyHandlers(WindowClosed.Snapshot, eventsStore.WindowClosed.Add);
+        CopyHandlers(Closing.Snapshot, eventsStore.Closing.Add);
+        CopyHandlers(WindowClosingRequested.Snapshot, eventsStore.WindowClosingRequested.Add);
+        CopyHandlers(WindowCreated.Snapshot, eventsStore.WindowCreated.Add);
+        CopyHandlers(WindowCreating.Snapshot, eventsStore.WindowCreating.Add);
+        CopyHandlers(WindowFocusIn.Snapshot, eventsStore.WindowFocusIn.Add);
+        CopyHandlers(WindowFocusOut.Snapshot, eventsStore.WindowFocusOut.Add);
+        CopyHandlers(WindowLocationChanged.Snapshot, eventsStore.WindowLocationChanged.Add);
+        CopyHandlers(WindowMaximized.Snapshot, eventsStore.WindowMaximized.Add);
+        CopyHandlers(WindowMinimized.Snapshot, eventsStore.WindowMinimized.Add);
+        CopyHandlers(WindowRestored.Snapshot, eventsStore.WindowRestored.Add);
+        CopyHandlers(WindowSizeChanged.Snapshot, eventsStore.WindowSizeChanged.Add);
+        CopyHandlers(NavigationStarting.Snapshot, eventsStore.NavigationStarting.Add);
+        CopyHandlers(FileDropped.Snapshot, eventsStore.FileDropped.Add);
     }
 
     // -----------------------------------------------------------------------------------------------------------------

@@ -17,7 +17,9 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
  * Provides access to window decoration properties including chromeless mode,
  * transparency, background color, title, and icon file.
  */
-export class DecorationsInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
+export class DecorationsInfiniFrameWindowFeature
+    extends InfiniFrameWindowFeature
+    implements Contract {
     /**
      * Creates a new decorations feature instance.
      */

@@ -1,9 +1,12 @@
 import {beforeEach, describe, expect, it} from "vitest";
 import {setupFeature} from "./_testHelpers";
+import type {PageNavigationInfiniFrameWindowFeature} from "./PageNavigationInfiniFrameWindowFeature";
 
 describe("PageNavigationInfiniFrameWindowFeature", () => {
-    let feature: any;
-    let messaging: ReturnType<typeof import("./_testHelpers").createMessagingMock>;
+    let feature: PageNavigationInfiniFrameWindowFeature;
+    let messaging: ReturnType<
+        typeof import("./_testHelpers").createMessagingMock
+    >;
 
     beforeEach(async () => {
         messaging = setupFeature();
@@ -34,12 +37,16 @@ describe("PageNavigationInfiniFrameWindowFeature", () => {
         expect(messaging.sendMessageToHost).toHaveBeenCalled();
     });
     it("getCurrentUrlAsync calls get", async () => {
-        messaging.getMessageFromHostAsync.mockResolvedValue(JSON.stringify("https://example.com"));
+        messaging.getMessageFromHostAsync.mockResolvedValue(
+            JSON.stringify("https://example.com"),
+        );
         await feature.getCurrentUrlAsync();
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });
     it("getCurrentUriAsync calls get", async () => {
-        messaging.getMessageFromHostAsync.mockResolvedValue(JSON.stringify("app://localhost/page"));
+        messaging.getMessageFromHostAsync.mockResolvedValue(
+            JSON.stringify("app://localhost/page"),
+        );
         await feature.getCurrentUriAsync();
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
     });

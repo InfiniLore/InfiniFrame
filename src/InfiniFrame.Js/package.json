@@ -4,7 +4,13 @@
     "description": "JavaScript/TypeScript interop library for InfiniFrame Blazor applications. Provides the client-side bridge between C# and the browser.",
     "author": "InfiniLore",
     "license": "Apache-2.0",
-    "keywords": ["infiniframe", "blazor", "interop", "webview", "desktop"],
+    "keywords": [
+        "infiniframe",
+        "blazor",
+        "interop",
+        "webview",
+        "desktop"
+    ],
     "type": "module",
     "engines": {
         "node": ">=24.15.0"
@@ -13,7 +19,8 @@
         "fsevents@2.3.3": true
     },
     "scripts": {
-        "typecheck": "tsc --noEmit",
+        "lint": "biome check --write .",
+        "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
         "build": "npm run typecheck && vite build --config vite.config.prod.ts && vite build --config vite.config.dev.ts",
         "watch": "concurrently \"vite build --watch --config vite.config.prod.ts\" \"vite build --watch --config vite.config.dev.ts\"",
         "test": "vitest run",
@@ -21,10 +28,11 @@
         "test:coverage": "vitest run --coverage"
     },
     "devDependencies": {
+        "@biomejs/biome": "^2.6.6",
         "@types/node": "^26.6.2",
         "@vitest/coverage-v8": "^5.0.1",
         "concurrently": "^10.0.5",
-        "jsdom": "^30.1.0",
+        "jsdom": "^31.0.0",
         "terser": "^5.51.2",
         "typescript": "^7.0.2",
         "vite": "^8.3.0",

@@ -13,15 +13,15 @@ This guide walks you through installing InfiniFrame and creating your first nati
 
 ## Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download) or later (.NET 8, 9, and 10 are all supported)
-- A console or class library project targeting `net8.0`, `net9.0`, or `net10.0`
+- [.NET 11 SDK](https://dotnet.microsoft.com/download) or later (.NET 10 and 11 are supported)
+- A console or class library project targeting `net10.0` or `net11.0`
 
 ### Platform-specific requirements
 
 | Platform | Requirement                                                                                                                                                       |
 |----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Windows  | [WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/); pre-installed on Windows 11 and available as a redistributable for Windows 10 |
-| Linux    | WebKitGTK 4.1, GTK 3, libnotify, X11 development headers, `pkg-config`, and a WSLg/X11 display for GUI tests |
+| Linux    | WebKitGTK 4.1, GTK 3, libnotify, X11 development headers, `pkg-config`, and an X11/Wayland display for GUI tests |
 | macOS    | macOS 10.15 Catalina or later (WKWebView is built into the OS)                                                                                                    |
 
 ## Choose Your Integration

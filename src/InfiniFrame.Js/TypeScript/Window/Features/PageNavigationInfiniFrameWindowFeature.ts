@@ -17,7 +17,9 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
  * Provides navigation capabilities including loading URIs, local paths,
  * raw HTML strings, and querying the current URL/URI.
  */
-export class PageNavigationInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
+export class PageNavigationInfiniFrameWindowFeature
+    extends InfiniFrameWindowFeature
+    implements Contract {
     /**
      * Creates a new page navigation feature instance.
      */

@@ -12,7 +12,6 @@ import type {
     DebuggingInfiniFrameWindowFeature as InfiniFrameWindowFeatureDebuggingContract,
     DecorationsInfiniFrameWindowFeature as InfiniFrameWindowFeatureDecorationsContract,
     FilePickerDialogsInfiniFrameWindowFeature as InfiniFrameWindowFeatureFilePickerDialogsContract,
-    InfiniFrameWindowFeatures as InfiniFrameWindowFeaturesContract,
     InvokeInfiniFrameWindowFeature as InfiniFrameWindowFeatureInvokeContract,
     JavaScriptInfiniFrameWindowFeature as InfiniFrameWindowFeatureJavaScriptContract,
     LifecycleInfiniFrameWindowFeature as InfiniFrameWindowFeatureLifecycleContract,
@@ -22,7 +21,8 @@ import type {
     PositionInfiniFrameWindowFeature as InfiniFrameWindowFeaturePositionContract,
     SizeInfiniFrameWindowFeature as InfiniFrameWindowFeatureSizeContract,
     StateInfiniFrameWindowFeature as InfiniFrameWindowFeatureStateContract,
-    WebMessagingInfiniFrameWindowFeature as InfiniFrameWindowFeatureWebMessagingContract
+    InfiniFrameWindowFeatures as InfiniFrameWindowFeaturesContract,
+    WebMessagingInfiniFrameWindowFeature as InfiniFrameWindowFeatureWebMessagingContract,
 } from "../Contracts";
 import {
     BrowserInfiniFrameWindowFeature,
@@ -38,7 +38,7 @@ import {
     PositionInfiniFrameWindowFeature,
     SizeInfiniFrameWindowFeature,
     StateInfiniFrameWindowFeature,
-    WebMessagingInfiniFrameWindowFeature
+    WebMessagingInfiniFrameWindowFeature,
 } from "./Features";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -46,7 +46,8 @@ import {
 /**
  * Container for all runtime window features (Browser, Debugging, Decorations, Size, State, Position, etc.).
  */
-export class InfiniFrameWindowFeatures implements InfiniFrameWindowFeaturesContract {
+export class InfiniFrameWindowFeatures
+    implements InfiniFrameWindowFeaturesContract {
     /** Browser settings: context menu, media autoplay, web security, user agent. */
     browser: InfiniFrameWindowFeatureBrowserContract;
     /** Debug settings: dev tools, remote debugging, diagnostics. */
@@ -95,5 +96,4 @@ export class InfiniFrameWindowFeatures implements InfiniFrameWindowFeaturesContr
         this.webMessaging = new WebMessagingInfiniFrameWindowFeature();
         this.javaScript = new JavaScriptInfiniFrameWindowFeature();
     }
-
 }

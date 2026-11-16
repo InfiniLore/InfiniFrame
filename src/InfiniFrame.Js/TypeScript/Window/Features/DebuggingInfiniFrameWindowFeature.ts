@@ -8,10 +8,10 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import type {
+    DebuggingInfiniFrameWindowFeature as Contract,
     DebugCapabilities,
     DebugDiagnostics,
     DebugEndpointResult,
-    DebuggingInfiniFrameWindowFeature as Contract
 } from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
@@ -22,7 +22,9 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
  * Provides access to debugging capabilities including dev tools, web inspector,
  * remote debugging endpoints, and diagnostic information.
  */
-export class DebuggingInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
+export class DebuggingInfiniFrameWindowFeature
+    extends InfiniFrameWindowFeature
+    implements Contract {
     /**
      * Creates a new debugging feature instance.
      */

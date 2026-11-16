@@ -41,18 +41,20 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) :
             if (initParams->Transparent)
                 SetTransparentEnabled(true);
 
-            if (m_impl->common._backgroundColorR != 0 || m_impl->common._backgroundColorG != 0 || m_impl->common._backgroundColorB != 0 ||
+            if (m_impl->common._backgroundColorR != 0 || m_impl->common._backgroundColorG != 0 || m_impl->common.
+                _backgroundColorB != 0 ||
                 m_impl->common._backgroundColorA != 0)
                 SetBackgroundColor(
-                    m_impl->common._backgroundColorR, m_impl->common._backgroundColorG, m_impl->common._backgroundColorB,
+                    m_impl->common._backgroundColorR, m_impl->common._backgroundColorG,
+                    m_impl->common._backgroundColorB,
                     m_impl->common._backgroundColorA);
 
-             if (m_impl->_zoom != 100.0)
-                 SetZoom(m_impl->_zoom);
+            if (m_impl->_zoom != 100.0)
+                SetZoom(m_impl->_zoom);
 
-              if (_application != nullptr)
-                  _application->TrackWindow(this);
-         });
+            if (_application != nullptr)
+                _application->TrackWindow(this);
+        });
 }
 
 InfiniFrameWindow::~InfiniFrameWindow() {
@@ -80,9 +82,10 @@ InfiniFrameWindow::~InfiniFrameWindow() {
 
     if (!infiniframe::linux_gtk::ui_thread::IsCurrentThread()) {
         std::unique_lock lock(m_impl->_lifecycleMutex);
-        m_impl->_lifecycleClosed.wait(lock, [this] {
-            return m_impl->_teardownCompleted || m_impl->_webviewFinalized;
-        });
+        m_impl->_lifecycleClosed.wait(
+            lock, [this] {
+                return m_impl->_teardownCompleted || m_impl->_webviewFinalized;
+            });
     }
 }
 

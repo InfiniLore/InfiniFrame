@@ -2,8 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {beforeEach, describe, expect, it, vi} from "vitest";
-import {blankTargetHandler} from "./BlankTargetHandler";
 import {SendToHostMessageIds} from "../Contracts";
+import {blankTargetHandler} from "./BlankTargetHandler";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -24,10 +24,10 @@ describe("blankTargetHandler", () => {
         document.body.innerHTML = "";
         sendMessageToHost.mockReset();
         testWindow.infiniframe = {
-            // @ts-ignore
+            // @ts-expect-error
             messaging: {
-                sendMessageToHost
-            }
+                sendMessageToHost,
+            },
         };
     });
 
@@ -44,7 +44,10 @@ describe("blankTargetHandler", () => {
         await blankTargetHandler(event);
 
         expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
-        expect(sendMessageToHost).toHaveBeenCalledWith(SendToHostMessageIds.openExternalLink, anchor.href);
+        expect(sendMessageToHost).toHaveBeenCalledWith(
+            SendToHostMessageIds.openExternalLink,
+            anchor.href,
+        );
     });
 
     it("walks up to parent anchor when click target is nested element", async () => {
@@ -61,7 +64,10 @@ describe("blankTargetHandler", () => {
         await blankTargetHandler(event);
 
         expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
-        expect(sendMessageToHost).toHaveBeenCalledWith(SendToHostMessageIds.openExternalLink, anchor.href);
+        expect(sendMessageToHost).toHaveBeenCalledWith(
+            SendToHostMessageIds.openExternalLink,
+            anchor.href,
+        );
     });
 
     it("ignores internal links without _blank or data-external", async () => {

@@ -22,5 +22,5 @@ export interface JavaScriptInfiniFrameWindowFeature {
      * @param script - The JavaScript source code to execute.
      * @returns A promise resolving to the stringified result, or null if the expression has no value.
      */
-    evalAsync(script: string): Promise<string | null>
+    evalAsync(script: string): Promise<string | null>;
 }

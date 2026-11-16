@@ -7,7 +7,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {LifecycleInfiniFrameWindowFeature as Contract, WindowLifecycleState} from "../../Contracts";
+import type {
+    LifecycleInfiniFrameWindowFeature as Contract,
+    WindowLifecycleState,
+} from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -16,7 +19,9 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 /**
  * Provides access to the window lifecycle state and allows initiating window close.
  */
-export class LifecycleInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
+export class LifecycleInfiniFrameWindowFeature
+    extends InfiniFrameWindowFeature
+    implements Contract {
     /**
      * Creates a new lifecycle feature instance.
      */

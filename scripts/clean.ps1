@@ -4,18 +4,21 @@
 
 $Root = Join-Path $PSScriptRoot ".."
 
-if ($KillProcesses) {
+if ($KillProcesses)
+{
     Write-Host "Stopping dotnet/MSBuild/vstest/playwright/node processes..."
     Get-Process dotnet,MSBuild,vstest,playwright,node -ErrorAction SilentlyContinue |
         Stop-Process -Force -ErrorAction SilentlyContinue
-} else {
+}
+else
+{
     Write-Host "Skipping process cleanup (use -KillProcesses to stop dotnet/MSBuild/vstest/playwright/node)"
 }
 
 Get-ChildItem -Path $Root -Directory -Recurse |
     Where-Object { $_.Name -in @('bin', 'obj') } |
     ForEach-Object {
-        Write-Host "Deleting $($_.FullName)"
+        Write-Host "Deleting $( $_.FullName )"
         Remove-Item $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
     }
 
@@ -27,10 +30,12 @@ $ExtraPaths = @(
     "../src/InfiniFrame.NativeBridge/Native/packages"
 )
 
-foreach ($RelativePath in $ExtraPaths) {
+foreach ($RelativePath in $ExtraPaths)
+{
     $FullPath = Join-Path $Root $RelativePath
 
-    if (Test-Path $FullPath) {
+    if (Test-Path $FullPath)
+    {
         Write-Host "Deleting $FullPath"
         Remove-Item $FullPath -Recurse -Force -ErrorAction SilentlyContinue
     }

@@ -10,10 +10,14 @@
 // ---------------------------------------------------------------------------------------------------------------------
 import type {JavaScriptInfiniFrameWindowFeature as Contract} from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-const pendingEvals = new Map<string, { resolve: (value: string | null) => void, reject: (reason: Error) => void }>();
+const pendingEvals = new Map<
+    string,
+    { resolve: (value: string | null) => void; reject: (reason: Error) => void }
+>();
 let evalCounter = 0;
 
 /**
@@ -24,7 +28,10 @@ let evalCounter = 0;
  */
 export function handleJavaScriptEvalRequest(payload: unknown) {
     if (!payload || typeof payload !== "object") return;
-    const {requestId, script} = payload as { requestId?: string, script?: string };
+    const {requestId, script} = payload as {
+        requestId?: string;
+        script?: string;
+    };
     if (!requestId || !script) return;
 
     try {
@@ -32,13 +39,13 @@ export function handleJavaScriptEvalRequest(payload: unknown) {
         const resultJson = result === undefined ? null : JSON.stringify(result);
         window.infiniframe.messaging.sendMessageToHost(
             "__infiniframe:javascript:eval:result",
-            {requestId, result: resultJson}
+            {requestId, result: resultJson},
         );
     } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
         window.infiniframe.messaging.sendMessageToHost(
             "__infiniframe:javascript:eval:result",
-            {requestId, error: message}
+            {requestId, error: message},
         );
     }
 }
@@ -51,14 +58,19 @@ export function handleJavaScriptEvalRequest(payload: unknown) {
  */
 export function handleJavaScriptEvalResponse(payload: unknown) {
     if (!payload || typeof payload !== "object") return;
-    const {requestId, result, error} = payload as { requestId?: string, result?: string | null, error?: string };
+    const {requestId, result, error} = payload as {
+        requestId?: string;
+        result?: string | null;
+        error?: string;
+    };
     if (!requestId) return;
     const pending = pendingEvals.get(requestId);
     if (!pending) return;
     pendingEvals.delete(requestId);
     if (error) pending.reject(new Error(error));
     else {
-        const parsed = result !== null && result !== undefined ? JSON.parse(result) : null;
+        const parsed =
+            result !== null && result !== undefined ? JSON.parse(result) : null;
         pending.resolve(parsed as string | null);
     }
 }
@@ -67,7 +79,9 @@ export function handleJavaScriptEvalResponse(payload: unknown) {
  * Provides JavaScript execution capabilities in the browser context, enabling the
  * C# host to evaluate arbitrary scripts and retrieve results.
  */
-export class JavaScriptInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
+export class JavaScriptInfiniFrameWindowFeature
+    extends InfiniFrameWindowFeature
+    implements Contract {
     /**
      * Creates a new JavaScript feature instance.
      */

@@ -13,7 +13,7 @@ permissions:
 jobs:
     update-native-vendor-deps:
         name: "CI: update-native-deps"
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-26.04
         
         steps:
             -   name: Checkout

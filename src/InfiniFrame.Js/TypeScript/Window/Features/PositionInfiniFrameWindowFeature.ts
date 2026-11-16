@@ -7,7 +7,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {Point, PositionInfiniFrameWindowFeature as Contract} from "../../Contracts";
+import type {
+    PositionInfiniFrameWindowFeature as Contract,
+    Point,
+} from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -17,7 +20,9 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
  * Provides access to window position properties and methods for moving, offsetting,
  * and centering the window across monitors.
  */
-export class PositionInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
+export class PositionInfiniFrameWindowFeature
+    extends InfiniFrameWindowFeature
+    implements Contract {
     /**
      * Creates a new position feature instance.
      */

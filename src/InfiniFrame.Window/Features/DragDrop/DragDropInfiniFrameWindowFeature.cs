@@ -31,8 +31,6 @@ public class DragDropInfiniFrameWindowFeature(
     // -----------------------------------------------------------------------------------------------------------------
     /// <inheritdoc cref="IDragDropInfiniFrameWindowFeature.SetEnabled" />
     public void SetEnabled(bool enabled) {
-        logger.LogDebug(".SetDragDropEnabled({Enabled})", enabled);
-
         NativeInvoke.InvokeSyncWithValidation(
             logger,
             window,

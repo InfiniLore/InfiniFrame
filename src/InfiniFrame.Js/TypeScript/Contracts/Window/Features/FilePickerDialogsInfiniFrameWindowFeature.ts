@@ -25,7 +25,12 @@ export interface FilePickerDialogsInfiniFrameWindowFeature {
      * @param filters - Array of file type filters, or null for all files.
      * @returns A promise resolving to an array of selected file paths (empty if cancelled).
      */
-    showOpenFileAsync(title?: string, defaultPath?: string | null, multiSelect?: boolean, filters?: FilePickerFilter[] | null): Promise<(string | null)[]>;
+    showOpenFileAsync(
+        title?: string,
+        defaultPath?: string | null,
+        multiSelect?: boolean,
+        filters?: FilePickerFilter[] | null,
+    ): Promise<(string | null)[]>;
 
     /**
      * Shows a native open folder dialog.
@@ -34,7 +39,11 @@ export interface FilePickerDialogsInfiniFrameWindowFeature {
      * @param multiSelect - Whether multiple folders can be selected.
      * @returns A promise resolving to an array of selected folder paths (empty if cancelled).
      */
-    showOpenFolderAsync(title?: string, defaultPath?: string | null, multiSelect?: boolean): Promise<(string | null)[]>;
+    showOpenFolderAsync(
+        title?: string,
+        defaultPath?: string | null,
+        multiSelect?: boolean,
+    ): Promise<(string | null)[]>;
 
     /**
      * Shows a native save file dialog.
@@ -44,5 +53,10 @@ export interface FilePickerDialogsInfiniFrameWindowFeature {
      * @param defaultFileName - Pre-filled file name, or null for none.
      * @returns A promise resolving to the selected file path, or null if cancelled.
      */
-    showSaveFileAsync(title?: string, defaultPath?: string | null, filters?: FilePickerFilter[] | null, defaultFileName?: string | null): Promise<string | null>;
+    showSaveFileAsync(
+        title?: string,
+        defaultPath?: string | null,
+        filters?: FilePickerFilter[] | null,
+        defaultFileName?: string | null,
+    ): Promise<string | null>;
 }

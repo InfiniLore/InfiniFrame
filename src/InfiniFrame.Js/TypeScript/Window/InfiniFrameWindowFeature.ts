@@ -35,7 +35,7 @@ export abstract class InfiniFrameWindowFeature {
     protected post(command: string, args?: unknown): void {
         window.infiniframe.messaging.sendMessageToHost(
             SendToHostMessageIds.windowFeatureRequest,
-            {command: this.command(command), args}
+            {command: this.command(command), args},
         );
     }
 
@@ -48,7 +48,10 @@ export abstract class InfiniFrameWindowFeature {
      * @returns A promise that resolves with the deserialized response of type `T`.
      */
     protected async get<T>(command: string, args?: unknown): Promise<T> {
-        const response = await window.infiniframe.messaging.getMessageFromHostAsync(this.command(command), args);
+        const response = await window.infiniframe.messaging.getMessageFromHostAsync(
+            this.command(command),
+            args,
+        );
         return JSON.parse(response) as T;
     }
 

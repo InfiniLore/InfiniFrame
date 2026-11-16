@@ -21,7 +21,9 @@ public sealed class MultiWindowLifecycleTests {
 
             Task runTask = application.RunAsync(ct);
             try {
-                for (int attempt = 0; attempt < 100; attempt++) {
+                // WebView2 can take longer to publish the initial file URL when a
+                // second window is being created on a busy hosted runner.
+                for (int attempt = 0; attempt < 200; attempt++) {
                     if (runTask.IsFaulted) await runTask;
 
                     Uri? fileUri = application.TryGetWindow("file")?.Features.PageNavigation.GetCurrentUri();

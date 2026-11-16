@@ -8,7 +8,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {Rectangle, StateInfiniFrameWindowFeature as Contract} from "../../Contracts";
+import type {
+    StateInfiniFrameWindowFeature as Contract,
+    Rectangle,
+} from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -18,7 +21,9 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
  * Provides access to and control over window state including maximized, minimized,
  * fullscreen, topmost, focused, and zoom properties.
  */
-export class StateInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
+export class StateInfiniFrameWindowFeature
+    extends InfiniFrameWindowFeature
+    implements Contract {
     /**
      * Creates a new state feature instance.
      */

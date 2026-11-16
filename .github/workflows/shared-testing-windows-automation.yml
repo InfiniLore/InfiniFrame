@@ -130,7 +130,8 @@ jobs:
             -   name: Install Playwright Browsers
                 shell: pwsh
                 run: |
-                    $script = "tests/${{ matrix.project.path }}/bin/Release/net10.0/playwright.ps1"
+                    $framework = "net$((Get-Content tool-versions.json -Raw | ConvertFrom-Json).dotnet[-1])"
+                    $script = "tests/${{ matrix.project.path }}/bin/Release/$framework/playwright.ps1"
                     
                     if (-not (Test-Path $script)) {
                       throw "Playwright script not found: $script"
@@ -140,7 +141,8 @@ jobs:
             -   name: Verify Native Binaries
                 shell: pwsh
                 run: |
-                    $binPath = "tests/${{ matrix.project.path }}/bin/Release/net10.0"
+                    $framework = "net$((Get-Content tool-versions.json -Raw | ConvertFrom-Json).dotnet[-1])"
+                    $binPath = "tests/${{ matrix.project.path }}/bin/Release/$framework"
                     $dlls = @("InfiniFrame.Native.dll", "WebView2Loader.dll")
 
                     foreach ($dll in $dlls) {
@@ -157,41 +159,20 @@ jobs:
                         core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
                         core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
 
-            -   name: Run Playwright tests NET 8.0
+            -   name: Run Playwright tests
                 shell: pwsh
                 run: |
-                    dotnet test `
-                      --project tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
-                      --configuration Release `
-                      --no-build `
-                      --no-restore `
-                      --framework net8.0 `
-                      /p:InfiniFrameSkipNativeBuild=true `
-                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
-
-            -   name: Run Playwright tests NET 9.0
-                shell: pwsh
-                run: |
-                    dotnet test `
-                      --project tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
-                      --configuration Release `
-                      --no-build `
-                      --no-restore `
-                      --framework net9.0 `
-                      /p:InfiniFrameSkipNativeBuild=true `
-                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
-
-            -   name: Run Playwright tests NET 10.0
-                shell: pwsh
-                run: |
-                    dotnet test `
-                      --project tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
-                      --configuration Release `
-                      --no-build `
-                      --no-restore `
-                      --framework net10.0 `
-                      /p:InfiniFrameSkipNativeBuild=true `
-                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
+                    $frameworks = @(Get-Content tool-versions.json -Raw | ConvertFrom-Json).dotnet | ForEach-Object { "net$_" }
+                    foreach ($framework in $frameworks) {
+                      dotnet test `
+                        --project tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
+                        --configuration Release `
+                        --no-build `
+                        --no-restore `
+                        --framework $framework `
+                        /p:InfiniFrameSkipNativeBuild=true `
+                        /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
+                    }
 
             -   name: Update Playwright Check
                 if: always()

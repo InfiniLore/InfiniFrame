@@ -3,15 +3,16 @@
  * @module global
  */
 
+import type {
+    BlazorCallback,
+    BlazorComponent,
+    BlazorCustomElementParameterDefinition,
+} from "./BlazorInterop";
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import type {InfiniFrame} from "./InfiniFrame";
-import type {BlazorCallback, BlazorComponent, BlazorCustomElementParameterDefinition} from "./BlazorInterop";
-// ---------------------------------------------------------------------------------------------------------------------
-// Code
-// ---------------------------------------------------------------------------------------------------------------------
-export {}
+
 declare global {
     // noinspection JSUnusedGlobalSymbols
 
@@ -42,7 +43,10 @@ declare global {
                  * @param type - Event type (must be "message").
                  * @param listener - Callback invoked with incoming message events.
                  */
-                addEventListener(type: "message", listener: (event: { data: string }) => void): void;
+                addEventListener(
+                    type: "message",
+                    listener: (event: { data: string }) => void,
+                ): void;
             };
         };
 
@@ -80,7 +84,7 @@ declare global {
                 add: (
                     element: HTMLElement,
                     identifier: string,
-                    params: Record<string, unknown>
+                    params: Record<string, unknown>,
                 ) => Promise<BlazorComponent>;
             };
             _internal?: {
@@ -99,7 +103,7 @@ declare global {
          */
         registerBlazorCustomElement?: (
             identifier: string,
-            parameterDefinitions: BlazorCustomElementParameterDefinition[]
+            parameterDefinitions: BlazorCustomElementParameterDefinition[],
         ) => void;
     }
 }

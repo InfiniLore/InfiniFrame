@@ -4,7 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using InfiniFrame.NativeBridge;
-using InfiniFrame.NativeBridge.Handles;
+using InfiniFrame.NativeBridge.NativeHandles;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -12,7 +12,7 @@ namespace InfiniFrame.Window.Features.Invoke;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal sealed class InfiniDispatchOperation {
+internal sealed class InfiniDispatchOperation : IDisposable {
     private static long _nextOperationId;
     private static readonly InfiniFrameNative.ContextAction InvokeCallback = Invoke;
     private static readonly InfiniFrameNative.OperationCompletedCallback CompletionCallback = Complete;
@@ -29,6 +29,7 @@ internal sealed class InfiniDispatchOperation {
     private CancellationTokenRegistration _cancellationRegistration;
     private int _cleanupQueued;
     private int _completed;
+    private int _disposed;
     private NativeHandleLease? _lease;
     private int _pendingCancellation = -1;
     private GCHandle _selfHandle;
@@ -125,7 +126,7 @@ internal sealed class InfiniDispatchOperation {
             dispatchResult = InfiniFrameDispatchResult.Failed;
         else if (dispatchResult == InfiniFrameDispatchResult.Failed) {
             string failure = Marshal.PtrToStringUTF8(failureUtf8) ?? "Native dispatch failed.";
-            exception = new ApplicationException($"{failure} Native code: {nativeCode}.");
+            exception = new InfiniFrameNativeInteropException($"{failure} Native code: {nativeCode}.");
         }
 
         operation.Finish(dispatchResult, exception);
@@ -138,8 +139,6 @@ internal sealed class InfiniDispatchOperation {
         if (exception is not null)
             _logger.LogError(exception, "Native-window dispatch {OperationId} failed. WindowId={WindowId}", Id, _window.Id);
         else if (result is not InfiniFrameDispatchResult.Completed)
-            _logger.LogDebug("Native-window dispatch {OperationId} ended with {DispatchResult}. WindowId={WindowId}", Id, result, _window.Id);
-
         (_window as InfiniFrameWindow)?.CompleteDiagnosticOperation(
             _diagnosticKey, result.ToString(), failureReason: exception?.Message
         );
@@ -156,18 +155,30 @@ internal sealed class InfiniDispatchOperation {
     }
 
     private void Cleanup() {
-        _cancellationRegistration.Dispose();
-        _timeoutTimer?.Dispose();
-        _timeoutTimer = null;
+        Dispose();
         if (_selfHandle.IsAllocated)
             _selfHandle.Free();
         Interlocked.Exchange(ref _lease, null)?.Dispose();
     }
 
-    private Exception GetNativeFailure(string operation) {
+    /// <summary>
+    ///     Releases the resources this operation owns. The native handle lease and the self handle are released
+    ///     separately in <see cref="Cleanup" /> because the native side can still reference them until the reverse
+    ///     callback has run.
+    /// </summary>
+    public void Dispose() {
+        if (Interlocked.Exchange(ref _disposed, 1) != 0)
+            return;
+
+        _cancellationRegistration.Dispose();
+        _timeoutTimer?.Dispose();
+        _timeoutTimer = null;
+    }
+
+    private static InfiniFrameNativeInteropException GetNativeFailure(string operation) {
         int error = Marshal.GetLastPInvokeError();
         string message = InfiniFrameNative.GetLastErrorMessage() ?? "No native error message provided.";
-        return new ApplicationException($"Could not {operation}. Error #{error}. {message}");
+        return new InfiniFrameNativeInteropException($"Could not {operation}. Error #{error}. {message}");
     }
 
     private static bool TryGet(IntPtr context, [NotNullWhen(true)] out InfiniDispatchOperation? operation) {

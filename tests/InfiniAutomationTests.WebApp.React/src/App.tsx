@@ -1,5 +1,5 @@
-import WindowFeatureTestPanel from './generated/WindowFeatureTestPanel'
+import WindowFeatureTestPanel from "./generated/WindowFeatureTestPanel";
 
 export default function App() {
-    return <WindowFeatureTestPanel/>
+	return <WindowFeatureTestPanel />;
 }

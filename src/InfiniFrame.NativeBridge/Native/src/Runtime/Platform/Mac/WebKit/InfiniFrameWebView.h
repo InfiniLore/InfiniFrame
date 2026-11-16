@@ -16,6 +16,7 @@ interface InfiniFrameWebView :
 
 -
 (
+
 void
 )
 setInfiniFrameContextMenuEnabled :
@@ -24,6 +25,7 @@ setInfiniFrameContextMenuEnabled :
 enabled;
 -
 (
+
 void
 )
 setInfiniFrameZoomEnabled :

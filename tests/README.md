@@ -45,8 +45,8 @@ Python unit tests for repository scripts (in `tests/scripts/`):
 
 ### Prerequisites
 
-- .NET 8, 9, and 10 SDKs
-- Node.js 24 (for JS interop tests)
+- .NET 10 and 11 SDKs
+- Node.js 26 (for JS interop tests)
 - Platform-specific dependencies (see [Getting Started](../docs/docs/guides/getting-started.md))
 
 ### Run All Tests
@@ -76,21 +76,15 @@ The Windows integration test provisions a pinned WebView2 runtime automatically.
 - **Unit tests:** [TUnit](https://github.com/thomhurst/TUnit)
 - **Mocking:** TUnit.Mocks
 - **Browser automation:** Playwright
-- **Multi-target:** `net8.0`, `net9.0`, `net10.0`
+- **Multi-target:** `net10.0`, `net11.0`
 
 ## Docker
 
-Tests can also be run in Docker. See [Docker README](../docker/README.md) for details.
+## Linux Build Requirements
 
-## Linux From WSL2
-
-Use Windows 11 with WSL2 and WSLg, preferably Ubuntu 24.04. The WSL distribution needs .NET SDKs from `global.json` (8, 9, and 10.0.400), Node.js 24, CMake, Ninja, GCC/G++, Clang, `pkg-config`, GTK 3, WebKitGTK 4.1, libnotify, X11 development packages, and Docker Desktop integration if using the container harness. WSLg must provide `/mnt/wslg`, `DISPLAY`, and `WAYLAND_DISPLAY`.
-
-From WSL, run the complete Linux test harness with:
-
-```bash
-bash ./docker/linux/run-linux-tests-wslg.sh
-```
+Linux CI uses the prebuilt image under `.github/ci/linux-image`. For a local
+container smoke test, run `.github/ci/linux-image/validate.sh` with `x11` or
+`wayland`.
 
 The focused native build is:
 

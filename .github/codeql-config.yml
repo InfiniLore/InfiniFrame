@@ -2,29 +2,29 @@ name: "InfiniFrame CodeQL Config"
 
 # Keep analysis focused on source roots.
 paths:
-  - "src/**"
-  - ".github/actions/**"
-  - ".github/workflows/**"
-  - "scripts/**"
+    - "src/**"
+    - ".github/actions/**"
+    - ".github/workflows/**"
+    - "scripts/**"
 
 # Exclude third-party and generated content from CodeQL alerting.
 paths-ignore:
-  - "src/InfiniFrame.NativeBridge/artifacts/**"
-  - "src/InfiniFrame.NativeBridge/build/**"
-  - "src/InfiniFrame.NativeBridge/Native/cmake-build-debug/**"
-  - "src/InfiniFrame.NativeBridge/Native/cmake-build-debug-linux/**"
-  - "src/InfiniFrame.NativeBridge/Native/cmake-build-debug-windows/**"
-  - "src/InfiniFrame.NativeBridge/Native/cmake-build-release/**"
-  - "src/InfiniFrame.NativeBridge/Native/cmake-build-release-linux/**"
-  - "src/InfiniFrame.NativeBridge/Native/cmake-build-release-windows/**"
-  - "src/InfiniFrame.NativeBridge/Native/src/Dependencies/**"
-  - "src/InfiniFrame.NativeBridge/Native/packages/**"
-  - "tests/**"
-  - "**/node_modules/**"
-  - "**/dist/**"
-  - "**/bin/**"
-  - "**/obj/**"
+    - "src/InfiniFrame.NativeBridge/artifacts/**"
+    - "src/InfiniFrame.NativeBridge/build/**"
+    - "src/InfiniFrame.NativeBridge/Native/cmake-build-debug/**"
+    - "src/InfiniFrame.NativeBridge/Native/cmake-build-debug-linux/**"
+    - "src/InfiniFrame.NativeBridge/Native/cmake-build-debug-windows/**"
+    - "src/InfiniFrame.NativeBridge/Native/cmake-build-release/**"
+    - "src/InfiniFrame.NativeBridge/Native/cmake-build-release-linux/**"
+    - "src/InfiniFrame.NativeBridge/Native/cmake-build-release-windows/**"
+    - "src/InfiniFrame.NativeBridge/Native/src/Dependencies/**"
+    - "src/InfiniFrame.NativeBridge/Native/packages/**"
+    - "tests/**"
+    - "**/node_modules/**"
+    - "**/dist/**"
+    - "**/bin/**"
+    - "**/obj/**"
 
 query-filters:
-    - exclude:
-        id: cs/call-to-unmanaged-code
+    -   exclude:
+            id: cs/call-to-unmanaged-code

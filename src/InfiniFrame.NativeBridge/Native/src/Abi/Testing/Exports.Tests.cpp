@@ -21,6 +21,7 @@
 
 extern "C" {
 
+
 #ifdef __APPLE__
 EXPORTED InteropStatus InfiniFrameNativeTests_MacPooledHostCount(size_t* value) {
     return RunExportStatus(
@@ -174,7 +175,8 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeApplicationParametersReturnA
     const InfiniFrameApplicationInitParams* params,
     InfiniFrameApplicationInitParams** new_params
     ) {
-    if (new_params != nullptr) *new_params = nullptr;
+    if (new_params != nullptr)
+        *new_params = nullptr;
 
     return RunExportStatus(
         [&] {
@@ -183,7 +185,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeApplicationParametersReturnA
                 return;
             }
 
-            *new_params = new InfiniFrameApplicationInitParams {
+            *new_params = new InfiniFrameApplicationInitParams{
                 DuplicateString(params->WebView2RuntimePath),
                 DuplicateString(params->NotificationRegistrationId),
                 DuplicateString(params->AppUserModelId),
@@ -196,7 +198,8 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeApplicationParametersReturnA
 EXPORTED InteropStatus InfiniFrameNativeTests_FreeApplicationParameters(InfiniFrameApplicationInitParams* params) {
     return RunExportStatus(
         [&] {
-            if (!EnsureNotNull(params, "params")) return;
+            if (!EnsureNotNull(params, "params"))
+                return;
             delete[] params->WebView2RuntimePath;
             delete[] params->NotificationRegistrationId;
             delete[] params->AppUserModelId;

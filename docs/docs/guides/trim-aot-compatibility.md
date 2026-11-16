@@ -1,6 +1,6 @@
 # Trimming and NativeAOT Compatibility
 
-InfiniFrame includes CI validation lanes for trimming and NativeAOT compatibility against modern .NET runtimes (`net8.0`, `net9.0`, and `net10.0`).
+InfiniFrame includes CI validation lanes for trimming and NativeAOT compatibility against modern .NET runtimes (`net10.0` and `net11.0`).
 
 ## Compatibility Guarantees
 

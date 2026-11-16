@@ -243,7 +243,8 @@ void InfiniFrameWindow::AttachWebView() {
                                         if (message.get() != nullptr && message.get()[0] != L'\0') {
                                             auto msgUtf8 = WideToUtf8(message.get());
                                             auto srcUtf8 = WideToUtf8(source.get());
-                                            m_impl->common._webMessageReceivedCallback(msgUtf8.c_str(), srcUtf8.c_str());
+                                            m_impl->common._webMessageReceivedCallback(
+                                                msgUtf8.c_str(), srcUtf8.c_str());
                                         }
                                         return S_OK;
                                     }

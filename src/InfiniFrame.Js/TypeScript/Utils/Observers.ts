@@ -16,7 +16,7 @@
  * @returns The `<title>` element, or `null`.
  */
 export function getTitleObserverTarget(): HTMLTitleElement | null {
-    return document.querySelector('title');
+    return document.querySelector("title");
 }
 
 /**
@@ -29,6 +29,6 @@ export function getTitleObserver(): MutationObserver {
         mutations.forEach((mutation) => {
             if (mutation.type !== "childList") return;
             window.infiniframe.window.features.decorations.setTitle(document.title);
-        })
-    })
+        });
+    });
 }

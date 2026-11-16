@@ -37,7 +37,7 @@ struct ICoreWebView2EnvironmentOptions;
 #endif
 #ifdef __APPLE__
 #ifdef __OBJC__
-@class NSWindow;
+@ class NSWindow;
 #else
 class NSWindow;
 #endif
@@ -701,8 +701,14 @@ class InfiniFrameWindow {
 
     /** @brief Tear down the WebView control while keeping the native window alive */
     void CloseWebView();
-    [[nodiscard]] InfiniFrameApplication* GetApplication() const noexcept { return _application; }
-    void DetachApplication() noexcept { _application = nullptr; }
+
+    [[nodiscard]] InfiniFrameApplication* GetApplication() const noexcept {
+        return _application;
+    }
+
+    void DetachApplication() noexcept {
+        _application = nullptr;
+    }
 
 #ifdef __APPLE__
     /**

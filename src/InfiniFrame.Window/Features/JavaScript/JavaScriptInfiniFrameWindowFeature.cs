@@ -84,7 +84,10 @@ public class JavaScriptInfiniFrameWindowFeature : IJavaScriptInfiniFrameWindowFe
             string envelope = CreateEvalRequestEnvelope(requestId, script);
             await window.Features.WebMessaging.SendWebMessageAsync(envelope, ct).ConfigureAwait(false);
 
-            Task closed = window.WaitForCloseAsync().AsTask();
+            // The close wait is deliberately not bound to the operation token: the token already cancels the
+            // whole operation through WaitAsync(ct) below, and cancelling the close wait as well would turn a
+            // cancellation into a spurious "window closed" failure.
+            Task closed = window.WaitForCloseAsync(CancellationToken.None).AsTask();
             Task terminal = await Task.WhenAny(completion.Task, closed).WaitAsync(ct).ConfigureAwait(false);
             if (terminal == closed)
                 throw new ObjectDisposedException(window.GetType().Name, "The window closed before JavaScript evaluation completed.");
@@ -103,7 +106,9 @@ public class JavaScriptInfiniFrameWindowFeature : IJavaScriptInfiniFrameWindowFe
             throw;
         }
         finally {
-            _pendingEvals.TryRemove(requestId, out _);
+            #pragma warning disable CS8601// Possible null reference assignment.
+            _pendingEvals.Remove(requestId, out _);
+            #pragma warning restore CS8601// Possible null reference assignment.
             (window as InfiniFrameWindow)?.CompleteDiagnosticOperation(
                 diagnosticKey, finalState, failureReason: failureReason
             );

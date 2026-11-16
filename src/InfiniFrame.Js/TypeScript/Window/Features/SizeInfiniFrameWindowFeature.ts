@@ -7,7 +7,11 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {ResizeOrigin, Size, SizeInfiniFrameWindowFeature as Contract} from "../../Contracts";
+import type {
+    SizeInfiniFrameWindowFeature as Contract,
+    ResizeOrigin,
+    Size,
+} from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -16,7 +20,9 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 /**
  * Provides access to window size, min/max constraints, and resize behavior control.
  */
-export class SizeInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
+export class SizeInfiniFrameWindowFeature
+    extends InfiniFrameWindowFeature
+    implements Contract {
     /**
      * Creates a new size feature instance.
      */

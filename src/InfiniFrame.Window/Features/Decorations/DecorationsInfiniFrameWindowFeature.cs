@@ -78,7 +78,6 @@ public class DecorationsInfiniFrameWindowFeature(
             return;
         }
 
-        logger.LogDebug("Invoking InfiniFrameNative.SetTransparentEnabled({Value})", enabled);
         NativeInvoke.InvokeSyncWithoutValidation(
             logger,
             window,
@@ -96,7 +95,6 @@ public class DecorationsInfiniFrameWindowFeature(
 
         ColorUtility.ParseBackgroundColor(color, out byte r, out byte g, out byte b, out byte a);
 
-        logger.LogDebug("Invoking InfiniFrameNative.SetBackgroundColor({R}, {G}, {B}, {A})", r, g, b, a);
         NativeInvoke.InvokeSyncWithoutValidation(
             logger,
             window,
@@ -120,7 +118,6 @@ public class DecorationsInfiniFrameWindowFeature(
 
         if (title == oldTitle) return;
 
-        logger.LogDebug("Invoking InfiniFrameNative.SetTitle({Title})", title);
         string? newTitle = TitleStringUtility.Validate(title, LimitLinuxWindowTitleLength);
 
         NativeInvoke.InvokeSyncWithValidation(
@@ -135,8 +132,6 @@ public class DecorationsInfiniFrameWindowFeature(
 
     /// <inheritdoc cref="IDecorationsInfiniFrameWindowFeature.SetIconFile" />
     public void SetIconFile(string iconFilePath) {
-        logger.LogDebug(".SetIconFile({IconFile})", iconFilePath);
-
         if (!IconFileUtility.TryResolveIconFilePath(iconFilePath, out string? resolvedIconFilePath)) {
             logger.LogWarning("Icon file {IconFile} does not exist or is an invalid file path", iconFilePath);
             return;

@@ -10,7 +10,7 @@ import type {
     BlazorCustomElementInitMap,
     BlazorCustomElementParameterDefinition,
     InfiniFrameSetup,
-    PendingBlazorCustomElementRegistration
+    PendingBlazorCustomElementRegistration,
 } from "../../Contracts";
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -62,7 +62,8 @@ function isNumericType(typeName: string): boolean {
     return ["number", "int", "float", "double", "decimal"].indexOf(typeName) >= 0;
 }
 
-const pendingAutoCustomElementRegistrations: PendingBlazorCustomElementRegistration[] = [];
+const pendingAutoCustomElementRegistrations: PendingBlazorCustomElementRegistration[] =
+    [];
 let autoCustomElementRegistrationScheduled = false;
 
 /**
@@ -74,7 +75,7 @@ let autoCustomElementRegistrationScheduled = false;
  */
 function scheduleAutoRegisterMissingInitializerCustomElements(
     defs: Record<string, BlazorCustomElementParameterDefinition[]>,
-    initMap: BlazorCustomElementInitMap
+    initMap: BlazorCustomElementInitMap,
 ): void {
     if (!defs) return;
 
@@ -120,7 +121,7 @@ function flushAutoRegisterMissingInitializerCustomElements(): void {
  */
 function autoRegisterMissingInitializerCustomElements(
     defs: Record<string, BlazorCustomElementParameterDefinition[]>,
-    initMap: BlazorCustomElementInitMap
+    initMap: BlazorCustomElementInitMap,
 ): void {
     const initialized: Record<string, boolean> = {};
 
@@ -134,7 +135,7 @@ function autoRegisterMissingInitializerCustomElements(
     const definitions = defs ?? {};
     for (const id of Object.keys(definitions)) {
         if (initialized[id]) continue;
-        window.registerBlazorCustomElement!(id, definitions[id]);
+        window.registerBlazorCustomElement?.(id, definitions[id]);
     }
 }
 
@@ -147,13 +148,14 @@ function patchAttachWebRendererInteropIfAvailable(): boolean {
     const blazor = window.Blazor;
 
     if (
-        !blazor?._internal ||
-        typeof blazor._internal.attachWebRendererInterop !== "function"
+        !blazor?._internal
+        || typeof blazor._internal.attachWebRendererInterop !== "function"
     ) {
         return false;
     }
 
-    if (blazor._internal.__infiniframeAttachWebRendererInteropPatched) return true;
+    if (blazor._internal.__infiniframeAttachWebRendererInteropPatched)
+        return true;
 
     const original = blazor._internal.attachWebRendererInterop;
 
@@ -161,7 +163,7 @@ function patchAttachWebRendererInteropIfAvailable(): boolean {
         const result = original.apply(this, args);
         scheduleAutoRegisterMissingInitializerCustomElements(
             args[2] as Record<string, BlazorCustomElementParameterDefinition[]>,
-            args[3] as BlazorCustomElementInitMap
+            args[3] as BlazorCustomElementInitMap,
         );
         return result;
     };
@@ -215,15 +217,17 @@ export function initCustomElements(setup: InfiniFrameSetup): void {
     if (setup.customElementsInitialized) return;
     setup.customElementsInitialized = true;
 
-    window.registerBlazorCustomElement = function (
+    window.registerBlazorCustomElement = (
         identifier: string,
-        parameterDefinitions: BlazorCustomElementParameterDefinition[]
-    ): void {
+        parameterDefinitions: BlazorCustomElementParameterDefinition[],
+    ): void => {
         if (!window.Blazor?.rootComponents?.add) return;
         if (!window.customElements?.define) return;
         if (window.customElements.get(identifier)) return;
 
-        const defs = Array.isArray(parameterDefinitions) ? parameterDefinitions : [];
+        const defs = Array.isArray(parameterDefinitions)
+            ? parameterDefinitions
+            : [];
         const map: Record<string, BlazorCustomElementAttributeInfo> = {};
 
         for (const def of defs) {
@@ -248,7 +252,8 @@ export function initCustomElements(setup: InfiniFrameSetup): void {
             connectedCallback(): void {
                 this._isDisconnected = false;
 
-                window.Blazor!.rootComponents!.add(this, identifier, this._getParams())
+                window.Blazor?.rootComponents
+                    ?.add(this, identifier, this._getParams())
                     .then((c) => {
                         this._component = c;
                         if (this._isDisconnected && c) {
@@ -270,7 +275,7 @@ export function initCustomElements(setup: InfiniFrameSetup): void {
             attributeChangedCallback(
                 name: string,
                 oldValue: string | null,
-                newValue: string | null
+                newValue: string | null,
             ): void {
                 if (oldValue === newValue) return;
                 if (!this._component?.setParameters) return;

@@ -24,7 +24,9 @@ describe("blazorFetchPatch", () => {
 
         initBlazorModulesFetchPatch(setup);
 
-        const response = await window.fetch("https://localhost/_framework/blazor.modules.json");
+        const response = await window.fetch(
+            "https://localhost/_framework/blazor.modules.json",
+        );
 
         expect(fetch).not.toHaveBeenCalled();
         expect(response.status).toBe(200);
@@ -49,7 +51,9 @@ describe("blazorFetchPatch", () => {
 
         initBlazorModulesFetchPatch(setup);
 
-        const response = await window.fetch("http://localhost/_framework/blazor.modules.json");
+        const response = await window.fetch(
+            "http://localhost/_framework/blazor.modules.json",
+        );
 
         expect(fetch).not.toHaveBeenCalled();
         expect(response.status).toBe(200);
@@ -61,7 +65,9 @@ describe("blazorFetchPatch", () => {
 
         initBlazorModulesFetchPatch(setup);
 
-        const response = await window.fetch("app://localhost/_framework/blazor.modules.json");
+        const response = await window.fetch(
+            "app://localhost/_framework/blazor.modules.json",
+        );
 
         expect(fetch).not.toHaveBeenCalled();
         expect(response.status).toBe(200);
@@ -73,7 +79,9 @@ describe("blazorFetchPatch", () => {
 
         initBlazorModulesFetchPatch(setup);
 
-        const response = await window.fetch("https://localhost/_framework/blazor.modules.json/");
+        const response = await window.fetch(
+            "https://localhost/_framework/blazor.modules.json/",
+        );
 
         expect(fetch).not.toHaveBeenCalled();
         expect(response.status).toBe(200);
@@ -85,7 +93,9 @@ describe("blazorFetchPatch", () => {
 
         initBlazorModulesFetchPatch(setup);
 
-        const request = new Request("https://localhost/_framework/blazor.modules.json");
+        const request = new Request(
+            "https://localhost/_framework/blazor.modules.json",
+        );
         const response = await window.fetch(request);
 
         expect(fetch).not.toHaveBeenCalled();
@@ -113,7 +123,9 @@ describe("blazorFetchPatch", () => {
 
         await window.fetch("https://localhost/api/data", {method: "POST"});
 
-        expect(fetch).toHaveBeenCalledWith("https://localhost/api/data", {method: "POST"});
+        expect(fetch).toHaveBeenCalledWith("https://localhost/api/data", {
+            method: "POST",
+        });
     });
 
     it("does nothing if already initialized", () => {
@@ -133,7 +145,7 @@ describe("blazorFetchPatch", () => {
         initBlazorModulesFetchPatch(setup);
 
         // An invalid relative URL that will cause new URL() to throw
-        const response = await window.fetch("");
+        const _response = await window.fetch("");
 
         expect(fetch).toHaveBeenCalled();
     });
@@ -145,6 +157,6 @@ function createSetup(): InfiniFrameSetup {
         windowExternalBridgeInitialized: false,
         blazorModulesFetchPatchInitialized: false,
         blazorCustomElementsPatchInitialized: false,
-        customElementsInitialized: false
+        customElementsInitialized: false,
     };
 }

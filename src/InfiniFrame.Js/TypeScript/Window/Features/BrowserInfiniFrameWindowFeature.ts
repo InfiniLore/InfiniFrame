@@ -19,7 +19,9 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
  * Provides access to browser-level settings such as context menu visibility,
  * media autoplay, user agent, web security, and browser shortcut blocking.
  */
-export class BrowserInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
+export class BrowserInfiniFrameWindowFeature
+    extends InfiniFrameWindowFeature
+    implements Contract {
     private contextMenuEnabled = true;
     private zoomEnabled = true;
     private browserShortcutsEnabled = true;
@@ -32,36 +34,42 @@ export class BrowserInfiniFrameWindowFeature extends InfiniFrameWindowFeature im
         super("browser");
 
         window.infiniframe?.messaging?.assignMessageReceivedHandler(
-            ReceiveFromHostMessageIds.setContextMenuEnabled, payload => {
+            ReceiveFromHostMessageIds.setContextMenuEnabled,
+            (payload) => {
                 if (!payload) return;
                 try {
                     const {enabled} = JSON.parse(payload);
                     this.contextMenuEnabled = !!enabled;
-                } catch { /* ignore malformed payload */
+                } catch {
+                    /* ignore malformed payload */
                 }
-            }
+            },
         );
 
         window.infiniframe?.messaging?.assignMessageReceivedHandler(
-            ReceiveFromHostMessageIds.setZoomEnabled, payload => {
+            ReceiveFromHostMessageIds.setZoomEnabled,
+            (payload) => {
                 if (!payload) return;
                 try {
                     const {enabled} = JSON.parse(payload);
                     this.zoomEnabled = !!enabled;
-                } catch { /* ignore malformed payload */
+                } catch {
+                    /* ignore malformed payload */
                 }
-            }
+            },
         );
 
         window.infiniframe?.messaging?.assignMessageReceivedHandler(
-            ReceiveFromHostMessageIds.setBrowserShortcutsEnabled, payload => {
+            ReceiveFromHostMessageIds.setBrowserShortcutsEnabled,
+            (payload) => {
                 if (!payload) return;
                 try {
                     const {enabled} = JSON.parse(payload);
                     this.browserShortcutsEnabled = !!enabled;
-                } catch { /* ignore malformed payload */
+                } catch {
+                    /* ignore malformed payload */
                 }
-            }
+            },
         );
 
         this.installGuards();
@@ -210,45 +218,76 @@ export class BrowserInfiniFrameWindowFeature extends InfiniFrameWindowFeature im
     }
 
     private installGuards(): void {
-        document.addEventListener("keydown", (e: KeyboardEvent) => {
-            if (this.browserShortcutsEnabled) return;
-            const ctrl = e.ctrlKey || e.metaKey;
-            const k = e.key.toLowerCase();
-            if (ctrl && (k === "t" || k === "n" || k === "w" || k === "r" || k === "p"
-                || k === "u" || k === "j" || k === "l" || k === "i" || k === "o"
-                || k === "h" || (e.shiftKey && k === "i"))) {
-                e.preventDefault();
-                e.stopPropagation();
-                return;
-            }
-            if (k === "f11") {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-        }, true);
+        document.addEventListener(
+            "keydown",
+            (e: KeyboardEvent) => {
+                if (this.browserShortcutsEnabled) return;
+                const ctrl = e.ctrlKey || e.metaKey;
+                const k = e.key.toLowerCase();
+                if (
+                    ctrl
+                    && (k === "t"
+                        || k === "n"
+                        || k === "w"
+                        || k === "r"
+                        || k === "p"
+                        || k === "u"
+                        || k === "j"
+                        || k === "l"
+                        || k === "i"
+                        || k === "o"
+                        || k === "h"
+                        || (e.shiftKey && k === "i"))
+                ) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
+                if (k === "f11") {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            },
+            true,
+        );
 
-        document.addEventListener("contextmenu", (e: Event) => {
-            if (!this.contextMenuEnabled) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-        }, true);
+        document.addEventListener(
+            "contextmenu",
+            (e: Event) => {
+                if (!this.contextMenuEnabled) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            },
+            true,
+        );
 
-        document.addEventListener("wheel", (e: WheelEvent) => {
-            if (!this.zoomEnabled && (e.ctrlKey || e.metaKey)) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-        }, {capture: true, passive: false});
+        document.addEventListener(
+            "wheel",
+            (e: WheelEvent) => {
+                if (!this.zoomEnabled && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            },
+            {capture: true, passive: false},
+        );
 
-        document.addEventListener("keydown", (e: KeyboardEvent) => {
-            if (this.zoomEnabled) return;
-            const ctrl = e.ctrlKey || e.metaKey;
-            const k = e.key;
-            if ((ctrl && (k === "+" || k === "-" || k === "=" || k === "0")) || k === "F5") {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-        }, true);
+        document.addEventListener(
+            "keydown",
+            (e: KeyboardEvent) => {
+                if (this.zoomEnabled) return;
+                const ctrl = e.ctrlKey || e.metaKey;
+                const k = e.key;
+                if (
+                    (ctrl && (k === "+" || k === "-" || k === "=" || k === "0"))
+                    || k === "F5"
+                ) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            },
+            true,
+        );
     }
 }

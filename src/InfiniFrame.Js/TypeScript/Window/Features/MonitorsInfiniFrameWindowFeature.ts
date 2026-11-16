@@ -8,7 +8,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {InfiniMonitor, MonitorsInfiniFrameWindowFeature as Contract} from "../../Contracts";
+import type {
+    MonitorsInfiniFrameWindowFeature as Contract,
+    InfiniMonitor,
+} from "../../Contracts";
 import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -17,7 +20,9 @@ import {InfiniFrameWindowFeature} from "../InfiniFrameWindowFeature";
 /**
  * Provides access to display monitor enumeration and screen DPI information.
  */
-export class MonitorsInfiniFrameWindowFeature extends InfiniFrameWindowFeature implements Contract {
+export class MonitorsInfiniFrameWindowFeature
+    extends InfiniFrameWindowFeature
+    implements Contract {
     /**
      * Creates a new monitors feature instance.
      */

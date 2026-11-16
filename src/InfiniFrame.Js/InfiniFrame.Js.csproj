@@ -13,7 +13,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
+        <ProjectReference Include="../InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -33,6 +33,16 @@
                  CopyToPublishDirectory="Never"/>
 
         <Content Update="tsconfig.json"
+                 Pack="false"
+                 CopyToOutputDirectory="Never"
+                 CopyToPublishDirectory="Never"/>
+
+        <Content Update="tsconfig.test.json"
+                 Pack="false"
+                 CopyToOutputDirectory="Never"
+                 CopyToPublishDirectory="Never"/>
+
+        <Content Update="biome.json"
                  Pack="false"
                  CopyToOutputDirectory="Never"
                  CopyToPublishDirectory="Never"/>

@@ -18,7 +18,7 @@ export interface Point {
     /** Horizontal coordinate. */
     x: number;
     /** Vertical coordinate. */
-    y: number
+    y: number;
 }
 
 /**
@@ -28,7 +28,7 @@ export interface Size {
     /** Horizontal dimension. */
     width: number;
     /** Vertical dimension. */
-    height: number
+    height: number;
 }
 
 /**
@@ -47,7 +47,7 @@ export interface InfiniMonitor {
     /** Usable work area excluding taskbar and dock. */
     workArea: Rectangle;
     /** Display scale factor (e.g. 1.0, 1.5, 2.0). */
-    scale: number
+    scale: number;
 }
 
 /**
@@ -57,18 +57,32 @@ export interface FilePickerFilter {
     /** Display name for the filter (e.g. "Images"). */
     name: string;
     /** File extensions allowed by this filter (e.g. ["png", "jpg"]). */
-    extensions: string[]
+    extensions: string[];
 }
 
 /**
  * Origin anchor point for resize operations.
  */
-export type ResizeOrigin = "topLeft" | "top" | "topRight" | "right" | "bottomRight" | "bottom" | "bottomLeft" | "left";
+export type ResizeOrigin =
+    | "topLeft"
+    | "top"
+    | "topRight"
+    | "right"
+    | "bottomRight"
+    | "bottom"
+    | "bottomLeft"
+    | "left";
 
 /**
  * Predefined button combinations for message dialogs.
  */
-export type DialogButtons = "ok" | "okCancel" | "yesNo" | "yesNoCancel" | "retryCancel" | "abortRetryIgnore";
+export type DialogButtons =
+    | "ok"
+    | "okCancel"
+    | "yesNo"
+    | "yesNoCancel"
+    | "retryCancel"
+    | "abortRetryIgnore";
 
 /**
  * Standard icon types for message dialogs.
@@ -78,14 +92,21 @@ export type DialogIcon = "info" | "warning" | "error" | "question";
 /**
  * Possible return values from a message dialog.
  */
-export type DialogResult = "cancel" | "ok" | "yes" | "no" | "abort" | "retry" | "ignore";
+export type DialogResult =
+    | "cancel"
+    | "ok"
+    | "yes"
+    | "no"
+    | "abort"
+    | "retry"
+    | "ignore";
 
 /**
  * Lifecycle states of an InfiniFrame window.
  */
 export type WindowLifecycleState =
-    /** Window has been created but not yet initialized. */
-    "created"
+/** Window has been created but not yet initialized. */
+    | "created"
     /** Window is performing initialization. */
     | "initializing"
     /** Window is running and interactive. */
@@ -101,8 +122,8 @@ export type WindowLifecycleState =
  * Status of a remote debugging endpoint.
  */
 export type DebugEndpointStatus =
-    /** Platform does not support remote debugging endpoints. */
-    "notSupported"
+/** Platform does not support remote debugging endpoints. */
+    | "notSupported"
     /** Remote debugging is disabled in configuration. */
     | "disabled"
     /** Endpoint is not available (e.g. port not open). */
@@ -171,5 +192,5 @@ export interface DebugEndpointResult {
     /** Endpoint URL if the probe succeeded, or null. */
     endpoint: string | null;
     /** Failure reason if the probe failed, or null. */
-    reason: string | null
+    reason: string | null;
 }

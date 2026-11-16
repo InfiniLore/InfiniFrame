@@ -96,8 +96,8 @@ public class SizeInfiniFrameWindowBuilderFeature : ISizeInfiniFrameWindowBuilder
         StartWithOsDefaultSize = enabled;
     }
     /// <inheritdoc cref="ISizeInfiniFrameWindowBuilderFeature.SetResizable" />
-    public void SetResizable(bool enabled = true) {
-        IsResizable = enabled;
+    public void SetResizable(bool resizable = true) {
+        IsResizable = resizable;
     }
 
     public void ApplyToNativeParameters(ref InfiniFrameNativeWindowParameters parameters) {

@@ -4,7 +4,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using InfiniFrame.NativeBridge;
-using InfiniFrame.NativeBridge.Handles;
+using InfiniFrame.NativeBridge.NativeHandles;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniTests.InfiniFrame.NativeBridge;

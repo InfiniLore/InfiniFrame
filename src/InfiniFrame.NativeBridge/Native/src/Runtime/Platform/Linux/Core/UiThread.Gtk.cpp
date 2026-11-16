@@ -79,8 +79,10 @@ namespace {
 
     void AtexitShutdown() {
         std::lock_guard lock(initializeMutex);
-        if (!initialized || gtkThread == nullptr || !gtkThread->joinable()) return;
-        if (mainLoop != nullptr) g_main_loop_quit(mainLoop);
+        if (!initialized || gtkThread == nullptr || !gtkThread->joinable())
+            return;
+        if (mainLoop != nullptr)
+            g_main_loop_quit(mainLoop);
 
         // Detach rather than join. During process exit GLib/GDK objects may already be
         // half-torn-down and the thread could be stuck in a GLib call. Joining here risks
@@ -93,66 +95,77 @@ namespace {
 namespace infiniframe::linux_gtk::ui_thread {
     void EnsureInitialized() {
         std::unique_lock lock(initializeMutex);
-        if (initialized) return;
-        std::call_once(atexitRegistered, [] { std::atexit(AtexitShutdown); });
+        if (initialized)
+            return;
+        std::call_once(
+            atexitRegistered, [] {
+                std::atexit(AtexitShutdown);
+            });
         gtkThread = std::make_unique<std::thread>(
-                    [] {
-                        linux_gtk::ConfigureGraphicsEnvironment();
-                        XInitThreads();
-                        gtk_init(nullptr, nullptr);
-                        notify_init(NotifyAppName);
+            [] {
+                linux_gtk::ConfigureGraphicsEnvironment();
+                XInitThreads();
+                gtk_init(nullptr, nullptr);
+                notify_init(NotifyAppName);
 
-                        {
-                            std::lock_guard stateLock(initializeMutex);
-                            ownerThreadId = std::this_thread::get_id();
-                            ownerContext = g_main_context_default();
-                            mainLoop = g_main_loop_new(ownerContext, FALSE);
-                            initialized = true;
-                            initializeCompleted.notify_all();
-                        }
+                {
+                    std::lock_guard stateLock(initializeMutex);
+                    ownerThreadId = std::this_thread::get_id();
+                    ownerContext = g_main_context_default();
+                    mainLoop = g_main_loop_new(ownerContext, FALSE);
+                    initialized = true;
+                    initializeCompleted.notify_all();
+                }
 
-                        g_main_loop_run(mainLoop);
+                g_main_loop_run(mainLoop);
 
-                        // Drain pending sources (e.g. WebKit web-process cleanup idle
-                        // callbacks) so they complete while the X11 display connection
-                        // is still valid. Without this, they fire later during process
-                        // teardown when GLib/GDK/X11 objects are half-torn-down,
-                        // causing SIGABRT on libwebkit2gtk-4.1.
-                        while (g_main_context_pending(ownerContext)) {
-                            g_main_context_iteration(ownerContext, FALSE);
-                        }
+                // Drain pending sources (e.g. WebKit web-process cleanup idle
+                // callbacks) so they complete while the X11 display connection
+                // is still valid. Without this, they fire later during process
+                // teardown when GLib/GDK/X11 objects are half-torn-down,
+                // causing SIGABRT on libwebkit2gtk-4.1.
+                while (g_main_context_pending(ownerContext)) {
+                    g_main_context_iteration(ownerContext, FALSE);
+                }
 
-                        g_main_loop_unref(mainLoop);
-                        {
-                            std::lock_guard stateLock(initializeMutex);
-                            mainLoop = nullptr;
-                            initialized = false;
-                            ownerThreadId = {};
-                            ownerContext = nullptr;
-                        }
+                g_main_loop_unref(mainLoop);
+                {
+                    std::lock_guard stateLock(initializeMutex);
+                    mainLoop = nullptr;
+                    initialized = false;
+                    ownerThreadId = {};
+                    ownerContext = nullptr;
+                }
 
-                        notify_uninit();
-                    });
+                notify_uninit();
+            });
         lock.unlock();
         std::unique_lock waitLock(initializeMutex);
-        initializeCompleted.wait(waitLock, [] { return initialized; });
+        initializeCompleted.wait(
+            waitLock, [] {
+                return initialized;
+            });
     }
 
     void RequestShutdown() {
         std::lock_guard lock(initializeMutex);
-        if (mainLoop != nullptr) g_main_loop_quit(mainLoop);
+        if (mainLoop != nullptr)
+            g_main_loop_quit(mainLoop);
     }
 
     void Shutdown() {
         std::thread thread;
         {
             std::lock_guard lock(initializeMutex);
-            if (!initialized && (gtkThread == nullptr || !gtkThread->joinable())) return;
-            if (mainLoop != nullptr) g_main_loop_quit(mainLoop);
+            if (!initialized && (gtkThread == nullptr || !gtkThread->joinable()))
+                return;
+            if (mainLoop != nullptr)
+                g_main_loop_quit(mainLoop);
             thread = std::move(*gtkThread);
             gtkThread.reset();
         }
-        if (thread.joinable()) thread.join();
+        if (thread.joinable())
+            thread.join();
         std::lock_guard lock(initializeMutex);
         initialized = false;
         ownerThreadId = {};

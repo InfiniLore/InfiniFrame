@@ -1,8 +1,21 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {describe, expect, it, vi} from "vitest";
 import {InfiniFrameUtils} from "./InfiniFrameUtils";
+
+function createElementMock(
+    methods: Partial<
+        Pick<
+            Element,
+            "setPointerCapture" | "releasePointerCapture" | "hasPointerCapture"
+        >
+    >,
+): Element {
+    const element = document.createElement("div");
+    Object.assign(element, methods);
+    return element;
+}
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -13,7 +26,10 @@ describe("InfiniFrameUtils", () => {
             const utils = new InfiniFrameUtils();
             const setPointerCapture = vi.fn();
             const hasPointerCapture = vi.fn(() => false);
-            const element = {setPointerCapture, hasPointerCapture} as unknown as Element;
+            const element = createElementMock({
+                setPointerCapture,
+                hasPointerCapture,
+            });
 
             utils.setPointerCapture(element, 10);
 
@@ -22,13 +38,16 @@ describe("InfiniFrameUtils", () => {
 
         it("skips when element is null", () => {
             const utils = new InfiniFrameUtils();
-            utils.setPointerCapture(null as any, 10);
+            utils.setPointerCapture(null, 10);
         });
 
         it("skips when pointerId is null", () => {
             const utils = new InfiniFrameUtils();
-            const element = {setPointerCapture: vi.fn(), hasPointerCapture: vi.fn()} as unknown as Element;
-            utils.setPointerCapture(element, null as any);
+            const element = createElementMock({
+                setPointerCapture: vi.fn(),
+                hasPointerCapture: vi.fn(),
+            });
+            utils.setPointerCapture(element, null);
             expect(element.setPointerCapture).not.toHaveBeenCalled();
         });
 
@@ -36,7 +55,10 @@ describe("InfiniFrameUtils", () => {
             const utils = new InfiniFrameUtils();
             const setPointerCapture = vi.fn();
             const hasPointerCapture = vi.fn(() => true);
-            const element = {setPointerCapture, hasPointerCapture} as unknown as Element;
+            const element = createElementMock({
+                setPointerCapture,
+                hasPointerCapture,
+            });
 
             utils.setPointerCapture(element, 10);
 
@@ -49,7 +71,10 @@ describe("InfiniFrameUtils", () => {
             const utils = new InfiniFrameUtils();
             const releasePointerCapture = vi.fn();
             const hasPointerCapture = vi.fn(() => true);
-            const element = {releasePointerCapture, hasPointerCapture} as unknown as Element;
+            const element = createElementMock({
+                releasePointerCapture,
+                hasPointerCapture,
+            });
 
             utils.releasePointerCapture(element, 10);
 
@@ -59,13 +84,16 @@ describe("InfiniFrameUtils", () => {
 
         it("skips when element is null", () => {
             const utils = new InfiniFrameUtils();
-            utils.releasePointerCapture(null as any, 10);
+            utils.releasePointerCapture(null, 10);
         });
 
         it("skips when pointerId is null", () => {
             const utils = new InfiniFrameUtils();
-            const element = {releasePointerCapture: vi.fn(), hasPointerCapture: vi.fn()} as unknown as Element;
-            utils.releasePointerCapture(element, null as any);
+            const element = createElementMock({
+                releasePointerCapture: vi.fn(),
+                hasPointerCapture: vi.fn(),
+            });
+            utils.releasePointerCapture(element, null);
             expect(element.releasePointerCapture).not.toHaveBeenCalled();
         });
 
@@ -73,7 +101,10 @@ describe("InfiniFrameUtils", () => {
             const utils = new InfiniFrameUtils();
             const releasePointerCapture = vi.fn();
             const hasPointerCapture = vi.fn(() => false);
-            const element = {releasePointerCapture, hasPointerCapture} as unknown as Element;
+            const element = createElementMock({
+                releasePointerCapture,
+                hasPointerCapture,
+            });
 
             utils.releasePointerCapture(element, 10);
 

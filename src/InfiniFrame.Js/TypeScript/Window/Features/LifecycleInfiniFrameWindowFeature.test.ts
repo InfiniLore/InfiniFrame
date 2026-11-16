@@ -1,9 +1,12 @@
 import {beforeEach, describe, expect, it} from "vitest";
 import {setupFeature} from "./_testHelpers";
+import type {LifecycleInfiniFrameWindowFeature} from "./LifecycleInfiniFrameWindowFeature";
 
 describe("LifecycleInfiniFrameWindowFeature", () => {
-    let feature: any;
-    let messaging: ReturnType<typeof import("./_testHelpers").createMessagingMock>;
+    let feature: LifecycleInfiniFrameWindowFeature;
+    let messaging: ReturnType<
+        typeof import("./_testHelpers").createMessagingMock
+    >;
 
     beforeEach(async () => {
         messaging = setupFeature();
@@ -15,7 +18,9 @@ describe("LifecycleInfiniFrameWindowFeature", () => {
         expect(feature).toBeDefined();
     });
     it("getStateAsync sends get request", async () => {
-        messaging.getMessageFromHostAsync.mockResolvedValue(JSON.stringify("Running"));
+        messaging.getMessageFromHostAsync.mockResolvedValue(
+            JSON.stringify("Running"),
+        );
         const result = await feature.getStateAsync();
         expect(messaging.getMessageFromHostAsync).toHaveBeenCalled();
         expect(result).toBe("Running");

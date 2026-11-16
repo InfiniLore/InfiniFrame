@@ -39,7 +39,7 @@ public class NavigationStartingEventTests {
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
         // ReSharper disable once ConvertToLocalFunction
-        Func<IInfiniFrameWindow, NavigationStartingEventArgs, NavigationStartingResult> handler =
+        Func<IInfiniFrameWindow, NavigationStartingEvent, NavigationStartingResult> handler =
             (_, _) => NavigationStartingResult.Allow;
 
         // Act
@@ -82,7 +82,7 @@ public class NavigationStartingEventTests {
         // Act - simulate the callback
         NavigationStartingResult[] results = window.Events.EventsStore.NavigationStarting.Invoke(
             window,
-            new NavigationStartingEventArgs("https://example.com", true, false, true)
+            new NavigationStartingEvent("https://example.com", true, false, true)
         );
 
         // Assert
