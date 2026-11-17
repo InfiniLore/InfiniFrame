@@ -22,6 +22,6 @@ public class InfiniFrameApplicationBuilderTests {
         // Assert
         await Assert.That(builder.WindowRegistrations)
             .IsNotEmpty()
-            .Count().IsEqualTo(1);
+            .And.Count().IsEqualTo(1);
     }
 }

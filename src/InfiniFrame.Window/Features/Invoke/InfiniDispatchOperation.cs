@@ -138,10 +138,11 @@ internal sealed class InfiniDispatchOperation : IDisposable {
 
         if (exception is not null)
             _logger.LogError(exception, "Native-window dispatch {OperationId} failed. WindowId={WindowId}", Id, _window.Id);
-        else if (result is not InfiniFrameDispatchResult.Completed)
-        (_window as InfiniFrameWindow)?.CompleteDiagnosticOperation(
-            _diagnosticKey, result.ToString(), failureReason: exception?.Message
-        );
+        else if (result is not InfiniFrameDispatchResult.Completed) {
+            (_window as InfiniFrameWindow)?.CompleteDiagnosticOperation(
+                _diagnosticKey, result.ToString(), failureReason: exception?.Message
+            );
+        }
 
         _completion.TrySetResult(result);
         QueueCleanupAfterReverseCallback();

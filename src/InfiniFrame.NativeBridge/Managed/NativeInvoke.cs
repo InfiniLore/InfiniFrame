@@ -30,14 +30,12 @@ internal static partial class NativeInvoke {
     ///     Executes a synchronous native invoking, marshaling to the window thread if necessary.
     /// </summary>
     /// <typeparam name="TResult">The return type of the callback.</typeparam>
-    /// <param name="logger">The logger instance.</param>
     /// <param name="windowHandleOwner">The owner of the native window handle.</param>
     /// <param name="managedThreadId">The managed thread ID of the window thread.</param>
     /// <param name="callback">The function to execute.</param>
     /// <param name="access">The access level required for the native window handle.</param>
     /// <returns>The result of the callback.</returns>
     private static TResult? ExecuteInvokeSync<TResult>(
-        ILogger logger,
         INativeWindowHandleOwner windowHandleOwner,
         int managedThreadId,
         Func<IntPtr, TResult> callback,
@@ -106,9 +104,7 @@ internal static partial class NativeInvoke {
         Func<IntPtr, InfiniFrameNativeInteropStatus> callback
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback,
             access);
@@ -123,7 +119,7 @@ internal static partial class NativeInvoke {
         Action callback
     ) {
         ArgumentNullException.ThrowIfNull(callback);
-        _ = ExecuteInvokeSync<object?>(logger, windowHandleOwner, managedThreadId, callback: _ => {
+        _ = ExecuteInvokeSync<object?>(windowHandleOwner, managedThreadId, callback: _ => {
             callback();
             return null;
         }, access);
@@ -293,9 +289,7 @@ internal static partial class NativeInvoke {
         ArgumentNullException.ThrowIfNull(callback);
         ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: _ => {
                 callback();
@@ -321,9 +315,7 @@ internal static partial class NativeInvoke {
         ArgumentNullException.ThrowIfNull(callback);
         ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback
         );
@@ -347,9 +339,7 @@ internal static partial class NativeInvoke {
         ArgumentNullException.ThrowIfNull(callback);
         ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: _ => callback());
 
@@ -374,9 +364,7 @@ internal static partial class NativeInvoke {
         ArgumentNullException.ThrowIfNull(callback);
         ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
-        (InfiniFrameNativeInteropStatus Status, T? Value) result = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        (InfiniFrameNativeInteropStatus Status, T? Value) result = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: handle => {
                 InfiniFrameNativeInteropStatus status = callback(handle, out T value);
@@ -406,9 +394,7 @@ internal static partial class NativeInvoke {
         ArgumentNullException.ThrowIfNull(callback);
         ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: handle => callback(handle, arg)
         );
@@ -438,9 +424,7 @@ internal static partial class NativeInvoke {
         ArgumentNullException.ThrowIfNull(callback);
         ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: handle => callback(handle, arg1, arg2)
         );
@@ -469,9 +453,7 @@ internal static partial class NativeInvoke {
 
         T1? arg1 = default;
         T2? arg2 = default;
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: handle => callback(handle, out arg1, out arg2)
         );
@@ -506,9 +488,7 @@ internal static partial class NativeInvoke {
         ArgumentNullException.ThrowIfNull(callback);
         ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: handle => callback(handle, arg1, arg2, arg3)
         );
@@ -544,9 +524,7 @@ internal static partial class NativeInvoke {
         ArgumentNullException.ThrowIfNull(callback);
         ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: handle => callback(handle, arg1, arg2, arg3, arg4)
         );
@@ -583,9 +561,7 @@ internal static partial class NativeInvoke {
 
         T4? arg4 = default;
 
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: handle => callback(handle, arg1, arg2, arg3, out arg4)
         );
@@ -620,9 +596,7 @@ internal static partial class NativeInvoke {
         T3? arg3 = default;
         T4? arg4 = default;
 
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: handle => callback(handle, out arg1, out arg2, out arg3, out arg4)
         );
@@ -662,9 +636,7 @@ internal static partial class NativeInvoke {
         ArgumentNullException.ThrowIfNull(callback);
         ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: handle => callback(handle, arg1, arg2, arg3, arg4, arg5)
         );
@@ -706,9 +678,7 @@ internal static partial class NativeInvoke {
         arg5 = default;
         T5? arg5Temp = default;
 
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: handle => callback(handle, arg1, arg2, arg3, arg4, out arg5Temp)
         );
@@ -751,9 +721,7 @@ internal static partial class NativeInvoke {
         ArgumentNullException.ThrowIfNull(callback);
         ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: handle => callback(handle, arg1, arg2, arg3, arg4, arg5, arg6)
         );
@@ -795,9 +763,7 @@ internal static partial class NativeInvoke {
         ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
         T6? arg6 = default;
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: handle => callback(handle, arg1, arg2, arg3, arg4, arg5, out arg6));
 
@@ -842,9 +808,7 @@ internal static partial class NativeInvoke {
         ArgumentNullException.ThrowIfNull(callback);
         ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: handle => callback(handle, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
         );
@@ -892,9 +856,7 @@ internal static partial class NativeInvoke {
         ArgumentNullException.ThrowIfNull(callback);
         ArgumentNullException.ThrowIfNull(windowHandleOwner);
 
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: handle => callback(
                 handle,
@@ -927,9 +889,7 @@ internal static partial class NativeInvoke {
     ) {
         ArgumentNullException.ThrowIfNull(callback);
 
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: _ => {
                 callback();
@@ -955,9 +915,7 @@ internal static partial class NativeInvoke {
     ) {
         ArgumentNullException.ThrowIfNull(callback);
 
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: handle => callback(handle)
         );
@@ -980,9 +938,7 @@ internal static partial class NativeInvoke {
     ) {
         ArgumentNullException.ThrowIfNull(callback);
 
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: _ => callback()
         );
@@ -1007,9 +963,7 @@ internal static partial class NativeInvoke {
     ) {
         ArgumentNullException.ThrowIfNull(callback);
 
-        (InfiniFrameNativeInteropStatus Status, T? Value) result = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        (InfiniFrameNativeInteropStatus Status, T? Value) result = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: handle => {
                 InfiniFrameNativeInteropStatus status = callback(handle, out T value);
@@ -1038,9 +992,7 @@ internal static partial class NativeInvoke {
     ) {
         ArgumentNullException.ThrowIfNull(callback);
 
-        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
-            logger,
-            windowHandleOwner,
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(windowHandleOwner,
             managedThreadId,
             callback: handle => callback(handle, arg)
         );
