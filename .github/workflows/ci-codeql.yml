@@ -20,6 +20,16 @@ on:
                     - "false"
                     - "true"
 
+# The .NET 11 SDK enables the MSBuild Server by default for `dotnet build`/`dotnet restore`.
+# The server executes builds inside a long-lived daemon process, so a build started by an
+# earlier step (the restore steps run before "Initialize CodeQL") no longer runs in the
+# process tree of the current build command. The CodeQL build tracer only observes
+# compiler invocations in that tree, so the C/C++ database ends up empty and
+# `codeql database finalize` fails with "this run didn't build any of it".
+# Disabling the server keeps every build in the process tree of the step that runs it.
+env:
+    DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER: 1
+
 jobs:
     changes:
         name: Detect Changed Areas

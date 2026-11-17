@@ -19,12 +19,29 @@ paths-ignore:
     - "src/InfiniFrame.NativeBridge/Native/cmake-build-release-windows/**"
     - "src/InfiniFrame.NativeBridge/Native/src/Dependencies/**"
     - "src/InfiniFrame.NativeBridge/Native/packages/**"
+    - "src/InfiniFrame.Js/wwwroot/**"
+    - "src/InfiniFrame.Js/coverage/**"
     - "tests/**"
     - "**/node_modules/**"
     - "**/dist/**"
     - "**/bin/**"
     - "**/obj/**"
+    - "**/TestResults/**"
+    - "**/__pycache__/**"
+    - "**/.pytest_cache/**"
 
 query-filters:
+    # P/Invoke into the native bridge is by design; this query only ever fires on the
+    # compiler-generated interop stubs under `src/**/obj/**/generated/**`.
     -   exclude:
-            id: cs/call-to-unmanaged-code
+            id: cs/unmanaged-code
+
+    # The following quality queries fire on Roslyn source-generator output
+    # (System.Text.Json.SourceGeneration, Microsoft.Interop.LibraryImportGenerator,
+    # System.Text.RegularExpressions.Generator) that is written to
+    # `src/**/obj/**/generated/**` and compiled into the assemblies. They never fire on
+    # hand-written code in this repository.
+    -   exclude:
+            id: cs/useless-cast-to-self
+    -   exclude:
+            id: cs/useless-assignment-to-local
