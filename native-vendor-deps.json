@@ -34,10 +34,6 @@
                 {
                     "asset": "simdutf.cpp",
                     "destination": "src/InfiniFrame.NativeBridge/Native/src/Dependencies/simdutf/simdutf.cpp"
-                },
-                {
-                    "asset": "simdutf_c.h",
-                    "destination": "src/InfiniFrame.NativeBridge/Native/src/Dependencies/simdutf/simdutf_c.h"
                 }
             ],
             "source_files": [],

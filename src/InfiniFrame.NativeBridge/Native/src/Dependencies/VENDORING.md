@@ -14,7 +14,7 @@
 Run:
 
 ```bash
-python .github/scripts/update_native_vendor_deps.py
+python scripts/update_native_vendor_deps.py
 ```
 
 The dependency manifest is at `native-vendor-deps.json` in the repository root. A scheduled GitHub Action also runs
