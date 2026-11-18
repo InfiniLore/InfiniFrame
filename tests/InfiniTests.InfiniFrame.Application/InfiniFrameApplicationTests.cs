@@ -195,8 +195,7 @@ public sealed partial class InfiniFrameApplicationTests {
                 if (runTask.IsFaulted) await runTask;
 
                 if (application.TryGetWindow("main") is not null
-                    && MacOsNative.IsApplicationRunning()
-                    && MacOsNative.IsApplicationFinishedLaunching()
+                    && MacOsNative.IsApplicationRegisteredWithAppKit()
                     && MacOsNative.GetVisibleApplicationWindowCount() > 0)
                     break;
 
@@ -204,8 +203,7 @@ public sealed partial class InfiniFrameApplicationTests {
             }
 
             await Assert.That(application.TryGetWindow("main")).IsNotNull();
-            await Assert.That(MacOsNative.IsApplicationRunning()).IsTrue();
-            await Assert.That(MacOsNative.IsApplicationFinishedLaunching()).IsTrue();
+            await Assert.That(MacOsNative.IsApplicationRegisteredWithAppKit()).IsTrue();
             await Assert.That(MacOsNative.GetApplicationWindowCount()).IsGreaterThan(0);
             await Assert.That(MacOsNative.GetVisibleApplicationWindowCount()).IsGreaterThan(0);
         }
@@ -231,8 +229,7 @@ public sealed partial class InfiniFrameApplicationTests {
             try {
                 for (int attempt = 0; attempt < 300; attempt++) {
                     if (application.TryGetWindow("main") is not null
-                        && MacOsNative.IsApplicationRunning()
-                        && MacOsNative.IsApplicationFinishedLaunching()
+                        && MacOsNative.IsApplicationRegisteredWithAppKit()
                         && MacOsNative.GetVisibleApplicationWindowCount() > 0) {
                         observed.TrySetResult(true);
                         application.Shutdown();

@@ -178,8 +178,7 @@ public sealed class InfiniFrameApplicationWebServerTests {
 
                 if (responseBody?.Contains("InfiniFrame loaded", StringComparison.Ordinal) == true
                     && application.TryGetWindow("server") is not null
-                    && MacOsNative.IsApplicationRunning()
-                    && MacOsNative.IsApplicationFinishedLaunching()
+                    && MacOsNative.IsApplicationRegisteredWithAppKit()
                     && MacOsNative.GetVisibleApplicationWindowCount() > 0)
                     break;
 
@@ -190,8 +189,7 @@ public sealed class InfiniFrameApplicationWebServerTests {
             await Assert.That(application.TryGetWindow("server")).IsNotNull();
             await Assert.That(application.GetWindow("server").Features.PageNavigation.GetCurrentUri()?.Port)
                 .IsEqualTo(port);
-            await Assert.That(MacOsNative.IsApplicationRunning()).IsTrue();
-            await Assert.That(MacOsNative.IsApplicationFinishedLaunching()).IsTrue();
+            await Assert.That(MacOsNative.IsApplicationRegisteredWithAppKit()).IsTrue();
             await Assert.That(MacOsNative.GetVisibleApplicationWindowCount()).IsGreaterThan(0);
         }
         finally {
@@ -233,8 +231,7 @@ public sealed class InfiniFrameApplicationWebServerTests {
                         if (response.IsSuccessStatusCode
                             && body.Contains("InfiniFrame loaded", StringComparison.Ordinal)
                             && application.TryGetWindow("server") is not null
-                            && MacOsNative.IsApplicationRunning()
-                            && MacOsNative.IsApplicationFinishedLaunching()
+                            && MacOsNative.IsApplicationRegisteredWithAppKit()
                             && MacOsNative.GetVisibleApplicationWindowCount() > 0) {
                             observed.TrySetResult(true);
                             application.Shutdown();

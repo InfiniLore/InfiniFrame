@@ -50,37 +50,46 @@ public static partial class MacOsNative {
     [LibraryImport(LibSystem, EntryPoint = "pthread_main_np")]
     public static partial int IsMainThread();
 
-    public static bool IsApplicationRunning() {
-        IntPtr application = SendObject(
+    /// <summary>
+    ///     Returns the shared <c>NSApplication</c> instance.
+    /// </summary>
+    /// <remarks>
+    ///     Only call this after the native host registered the application: the shared instance is
+    ///     created on the thread that performs the AppKit registration.
+    /// </remarks>
+    private static IntPtr GetSharedApplication()
+        => SendObject(
             GetClass("NSApplication"),
             RegisterSelector("sharedApplication")
         );
-        return SendBool(application, RegisterSelector("isRunning"));
-    }
 
-    public static bool IsApplicationFinishedLaunching() {
-        IntPtr application = SendObject(
-            GetClass("NSApplication"),
-            RegisterSelector("sharedApplication")
-        );
-        return SendBool(application, RegisterSelector("isFinishedLaunching"));
-    }
+    /// <summary>
+    ///     Determines whether the native host registered the application with AppKit.
+    /// </summary>
+    /// <remarks>
+    ///     The native host installs an application menu while it registers the shared
+    ///     <c>NSApplication</c>, so a non-nil main menu is the public AppKit signal that the host
+    ///     bootstrapped the application. AppKit's <c>-[NSApplication isRunning]</c> cannot be used
+    ///     for this: InfiniFrame never enters <c>-[NSApplication run]</c> (the native host pumps the
+    ///     shared main run loop instead, because test hosts and embedding applications can already
+    ///     own it), so <c>isRunning</c> stays <c>NO</c> for the whole lifetime of the process.
+    /// </remarks>
+    public static bool IsApplicationRegisteredWithAppKit()
+        => SendObject(GetSharedApplication(), RegisterSelector("mainMenu")) != IntPtr.Zero;
 
+    /// <summary>
+    ///     Returns the number of windows AppKit currently tracks for the shared application.
+    /// </summary>
     public static int GetApplicationWindowCount() {
-        IntPtr application = SendObject(
-            GetClass("NSApplication"),
-            RegisterSelector("sharedApplication")
-        );
-        IntPtr windows = SendObject(application, RegisterSelector("windows"));
+        IntPtr windows = SendObject(GetSharedApplication(), RegisterSelector("windows"));
         return checked((int)SendCount(windows, RegisterSelector("count")));
     }
 
+    /// <summary>
+    ///     Returns the number of visible windows AppKit currently tracks for the shared application.
+    /// </summary>
     public static int GetVisibleApplicationWindowCount() {
-        IntPtr application = SendObject(
-            GetClass("NSApplication"),
-            RegisterSelector("sharedApplication")
-        );
-        IntPtr windows = SendObject(application, RegisterSelector("windows"));
+        IntPtr windows = SendObject(GetSharedApplication(), RegisterSelector("windows"));
         int count = checked((int)SendCount(windows, RegisterSelector("count")));
         IntPtr objectAtIndex = RegisterSelector("objectAtIndex:");
         IntPtr isVisible = RegisterSelector("isVisible");
