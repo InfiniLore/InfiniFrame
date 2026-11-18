@@ -4,7 +4,10 @@
 using InfiniFrame;
 using InfiniFrame.Application;
 using InfiniFrame.WebServer;
+using InfiniTests.Native;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 
 namespace InfiniTests.InfiniFrame.WebServer;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -133,5 +136,130 @@ public sealed class InfiniFrameApplicationWebServerTests {
             try { await runTask.WaitAsync(TimeSpan.FromSeconds(30), CancellationToken.None); }
             catch (OperationCanceledException) { }
         }
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    [Timeout(60_000)]
+    [OnlyRunOnMacOs]
+    public async Task WithWebServer_MacOsRunAsync_PresentsWindowAndServesContent(CancellationToken ct = default) {
+        int port = PortUtils.GetOpenPortValue();
+        await using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
+            .WithWindow("server", static builder => builder.SetTitle("InfiniFrame macOS WebServer regression"))
+            .UseWebServer("server", server => {
+                server.WebHost.UseUrls($"http://127.0.0.1:{port}");
+                server.ConfigureWebApplication(static webApplication =>
+                    webApplication.MapGet("/", static () => Results.Content(
+                        "<html><body>InfiniFrame loaded</body></html>",
+                        "text/html"
+                    )));
+            })
+            .Build();
+
+        Task runTask = application.RunAsync(ct);
+        try {
+            using var client = new HttpClient();
+            string? responseBody = null;
+
+            for (int attempt = 0; attempt < 300; attempt++) {
+                if (runTask.IsFaulted) await runTask;
+
+                try {
+                    using HttpResponseMessage response = await client.GetAsync(
+                        $"http://127.0.0.1:{port}/",
+                        ct
+                    );
+                    if (response.IsSuccessStatusCode)
+                        responseBody = await response.Content.ReadAsStringAsync(ct);
+                }
+                catch (HttpRequestException) {
+                    // Kestrel may not be listening during the first few startup turns.
+                }
+
+                if (responseBody?.Contains("InfiniFrame loaded", StringComparison.Ordinal) == true
+                    && application.TryGetWindow("server") is not null
+                    && MacOsNative.IsApplicationRunning()
+                    && MacOsNative.IsApplicationFinishedLaunching()
+                    && MacOsNative.GetVisibleApplicationWindowCount() > 0)
+                    break;
+
+                await Task.Delay(100, ct);
+            }
+
+            await Assert.That(responseBody).Contains("InfiniFrame loaded");
+            await Assert.That(application.TryGetWindow("server")).IsNotNull();
+            await Assert.That(application.GetWindow("server").Features.PageNavigation.GetCurrentUri()?.Port)
+                .IsEqualTo(port);
+            await Assert.That(MacOsNative.IsApplicationRunning()).IsTrue();
+            await Assert.That(MacOsNative.IsApplicationFinishedLaunching()).IsTrue();
+            await Assert.That(MacOsNative.GetVisibleApplicationWindowCount()).IsGreaterThan(0);
+        }
+        finally {
+            application.Shutdown();
+            try { await runTask.WaitAsync(TimeSpan.FromSeconds(30), CancellationToken.None); }
+            catch (OperationCanceledException) { }
+        }
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    [Timeout(60_000)]
+    [OnlyRunOnMacOs]
+    public async Task WithWebServer_MacOsRun_PresentsWindowAndServesContent(CancellationToken ct = default) {
+        int port = PortUtils.GetOpenPortValue();
+        using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
+            .WithWindow("server", static builder => builder.SetTitle("InfiniFrame macOS WebServer synchronous regression"))
+            .UseWebServer("server", server => {
+                server.WebHost.UseUrls($"http://127.0.0.1:{port}");
+                server.ConfigureWebApplication(static webApplication =>
+                    webApplication.MapGet("/", static () => Results.Content(
+                        "<html><body>InfiniFrame loaded</body></html>",
+                        "text/html"
+                    )));
+            })
+            .Build();
+
+        var observed = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _ = Task.Run(async () => {
+            try {
+                using var client = new HttpClient();
+                for (int attempt = 0; attempt < 300; attempt++) {
+                    try {
+                        using HttpResponseMessage response = await client.GetAsync(
+                            $"http://127.0.0.1:{port}/",
+                            ct
+                        );
+                        string body = await response.Content.ReadAsStringAsync(ct);
+                        if (response.IsSuccessStatusCode
+                            && body.Contains("InfiniFrame loaded", StringComparison.Ordinal)
+                            && application.TryGetWindow("server") is not null
+                            && MacOsNative.IsApplicationRunning()
+                            && MacOsNative.IsApplicationFinishedLaunching()
+                            && MacOsNative.GetVisibleApplicationWindowCount() > 0) {
+                            observed.TrySetResult(true);
+                            application.Shutdown();
+                            return;
+                        }
+                    }
+                    catch (HttpRequestException) {
+                        // Kestrel may not be listening during the first startup turns.
+                    }
+
+                    await Task.Delay(100, ct);
+                }
+
+                observed.TrySetResult(false);
+                application.Shutdown();
+            }
+            catch (Exception exception) {
+                observed.TrySetException(exception);
+                application.Shutdown();
+            }
+        }, ct);
+
+        application.Run();
+
+        await observed.Task;
+        await Assert.That(observed.Task.Result).IsTrue();
     }
 }

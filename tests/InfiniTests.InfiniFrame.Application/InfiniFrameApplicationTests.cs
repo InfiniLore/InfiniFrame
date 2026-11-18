@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Application;
+using InfiniTests.Native;
 
 namespace InfiniTests.InfiniFrame.Application;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -176,6 +177,84 @@ public sealed partial class InfiniFrameApplicationTests {
     public async Task RunAsyncWithNoWindows_CompletesWithoutBlockingMainThread(CancellationToken ct = default) {
         await using InfiniFrameApplication application = InfiniFrameApplication.Initialize();
         await application.RunAsync(ct);
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    [Timeout(60_000)]
+    [OnlyRunOnMacOs]
+    public async Task MacOsRunAsync_StartsAppKitAndShowsTheNativeWindow(CancellationToken ct = default) {
+        await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
+            .WithWindow("main", static builder => builder
+                .SetTitle("InfiniFrame macOS lifecycle regression")
+                .SetStartPageContent("<html><body>InfiniFrame loaded</body></html>"));
+
+        Task runTask = application.RunAsync(ct);
+        try {
+            for (int attempt = 0; attempt < 300; attempt++) {
+                if (runTask.IsFaulted) await runTask;
+
+                if (application.TryGetWindow("main") is not null
+                    && MacOsNative.IsApplicationRunning()
+                    && MacOsNative.IsApplicationFinishedLaunching()
+                    && MacOsNative.GetVisibleApplicationWindowCount() > 0)
+                    break;
+
+                await Task.Delay(100, ct);
+            }
+
+            await Assert.That(application.TryGetWindow("main")).IsNotNull();
+            await Assert.That(MacOsNative.IsApplicationRunning()).IsTrue();
+            await Assert.That(MacOsNative.IsApplicationFinishedLaunching()).IsTrue();
+            await Assert.That(MacOsNative.GetApplicationWindowCount()).IsGreaterThan(0);
+            await Assert.That(MacOsNative.GetVisibleApplicationWindowCount()).IsGreaterThan(0);
+        }
+        finally {
+            application.Shutdown();
+            try { await runTask.WaitAsync(TimeSpan.FromSeconds(30), CancellationToken.None); }
+            catch (OperationCanceledException) { }
+        }
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    [Timeout(60_000)]
+    [OnlyRunOnMacOs]
+    public async Task MacOsRun_StartsAppKitAndShowsTheNativeWindow(CancellationToken ct = default) {
+        using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
+            .WithWindow("main", static builder => builder
+                .SetTitle("InfiniFrame macOS synchronous lifecycle regression")
+                .SetStartPageContent("<html><body>InfiniFrame loaded</body></html>"));
+
+        var observed = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _ = Task.Run(async () => {
+            try {
+                for (int attempt = 0; attempt < 300; attempt++) {
+                    if (application.TryGetWindow("main") is not null
+                        && MacOsNative.IsApplicationRunning()
+                        && MacOsNative.IsApplicationFinishedLaunching()
+                        && MacOsNative.GetVisibleApplicationWindowCount() > 0) {
+                        observed.TrySetResult(true);
+                        application.Shutdown();
+                        return;
+                    }
+
+                    await Task.Delay(100, ct);
+                }
+
+                observed.TrySetResult(false);
+                application.Shutdown();
+            }
+            catch (Exception exception) {
+                observed.TrySetException(exception);
+                application.Shutdown();
+            }
+        }, ct);
+
+        application.Run();
+
+        await observed.Task;
+        await Assert.That(observed.Task.Result).IsTrue();
     }
 
     [Test]
