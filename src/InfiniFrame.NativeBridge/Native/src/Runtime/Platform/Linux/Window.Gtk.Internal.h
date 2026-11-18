@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <vector>
 #include <gtk/gtk.h>
-#include <webkit2/webkit2.h>
+#include <webkit/webkit.h>
 
 #include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
 #include "Runtime/Internal/Window/CommonWindowState.h"
@@ -47,7 +47,11 @@ struct InfiniFrameWindow::Impl {
     int _maxWidth = INT_MAX;
     int _maxHeight = INT_MAX;
 
-    GdkGeometry _hints = {};
+    // GTK4 has no window-positioning API; a requested move before the surface is
+    // realized is stored here and applied from OnSurfaceRealized (X11 only).
+    bool _hasPendingMove = false;
+    int _pendingMoveX = 0;
+    int _pendingMoveY = 0;
 
     int _lastLeft = 0;
     int _lastTop = 0;
@@ -71,4 +75,9 @@ struct InfiniFrameWindow::Impl {
     void ApplyInitialWindowState(InfiniFrameWindow* window, const InfiniFrameWindowInitParams* initParams);
     void ConnectWindowSignals(InfiniFrameWindow* window);
     void ConnectWebViewSignals(InfiniFrameWindow* window);
+
+    // GTK4 window primitives (see 01-migration-matrix.md and blockers-resolution.md B1/B2).
+    void ApplySizeConstraints();
+    void MoveTo(int x, int y);
+    bool TryGetPosition(int* x, int* y) const;
 };

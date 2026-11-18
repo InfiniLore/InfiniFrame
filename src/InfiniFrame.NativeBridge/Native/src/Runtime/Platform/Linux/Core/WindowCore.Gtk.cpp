@@ -67,7 +67,7 @@ InfiniFrameWindow::~InfiniFrameWindow() {
 
             if (m_impl->_window != nullptr) {
                 g_signal_handlers_disconnect_by_data(m_impl->_window, this);
-                gtk_widget_destroy(m_impl->_window);
+                gtk_window_destroy(GTK_WINDOW(m_impl->_window));
                 m_impl->_window = nullptr;
             }
 

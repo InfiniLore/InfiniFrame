@@ -1,6 +1,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+#include <gdk/x11/gdkx.h>
+
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
 #include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
 #include "Runtime/Internal/Application/InfiniFrameApplication.h"
@@ -39,43 +41,48 @@ void InfiniFrameWindow::WaitUntilDestroyed() {
 }
 
 void InfiniFrameWindow::Center() {
-    gint windowWidth, windowHeight;
-    gtk_window_get_size(GTK_WINDOW(m_impl->_window), &windowWidth, &windowHeight);
-
-    GdkRectangle screen = {};
+    int windowWidth = 0;
+    int windowHeight = 0;
+    GetSize(&windowWidth, &windowHeight);
 
     GdkDisplay* display = gdk_display_get_default();
     if (display == nullptr) {
-        GtkWidget* dialog = gtk_message_dialog_new(
-            nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
-            "gdk_display_get_default() returned NULL"
-            );
-        gtk_dialog_run(GTK_DIALOG(dialog));
-        gtk_widget_destroy(dialog);
+        // GTK4 removed gtk_dialog_run; a nested-loop error dialog is not permitted.
+        g_warning("gdk_display_get_default() returned NULL; cannot center the window.");
         return;
     }
 
-    GdkMonitor* monitor = gdk_display_get_monitor_at_window(
-        display, GDK_WINDOW(gtk_widget_get_window(m_impl->_window)));
+    GdkRectangle screen = {};
+
+    GdkSurface* surface = gtk_native_get_surface(GTK_NATIVE(m_impl->_window));
+    GdkMonitor* monitor = surface != nullptr
+        ? gdk_display_get_monitor_at_surface(display, surface)
+        : nullptr;
     if (monitor == nullptr) {
-        monitor = gdk_display_get_primary_monitor(display);
-        if (monitor == nullptr) {
-            monitor = gdk_display_get_monitor(display, 0);
+        // GTK4 removed gdk_display_get_primary_monitor; the X11 backend still exposes it
+        // (deprecated 4.18, no core replacement — see blockers-resolution.md B5).
+        if (GDK_IS_X11_DISPLAY(display)) {
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+            monitor = gdk_x11_display_get_primary_monitor(GDK_X11_DISPLAY(display));
+G_GNUC_END_IGNORE_DEPRECATIONS
         }
-        if (monitor == nullptr) {
-            GtkWidget* dialog = gtk_message_dialog_new(
-                nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
-                "No display monitor found for centering."
-                );
-            gtk_dialog_run(GTK_DIALOG(dialog));
-            gtk_widget_destroy(dialog);
+    }
+    if (monitor == nullptr) {
+        GListModel* monitors = gdk_display_get_monitors(display);
+        if (g_list_model_get_n_items(monitors) > 0) {
+            GdkMonitor* first = GDK_MONITOR(g_list_model_get_item(monitors, 0));
+            gdk_monitor_get_geometry(first, &screen);
+            g_object_unref(first);
+            m_impl->MoveTo((screen.width - windowWidth) / 2, (screen.height - windowHeight) / 2);
             return;
         }
+        g_warning("No display monitor found for centering.");
+        return;
     }
 
     gdk_monitor_get_geometry(monitor, &screen);
 
-    gtk_window_move(GTK_WINDOW(m_impl->_window), (screen.width - windowWidth) / 2, (screen.height - windowHeight) / 2);
+    m_impl->MoveTo((screen.width - windowWidth) / 2, (screen.height - windowHeight) / 2);
 }
 
 void InfiniFrameWindow::ClearBrowserAutoFill() {
@@ -116,7 +123,7 @@ void InfiniFrameWindow::CloseWebView() {
             g_signal_handler_disconnect(contentManager, m_impl->_webMessageSignalHandlerId);
             m_impl->_webMessageSignalHandlerId = 0;
         }
-        webkit_user_content_manager_unregister_script_message_handler(contentManager, "infiniFrameInterop");
+        webkit_user_content_manager_unregister_script_message_handler(contentManager, "infiniFrameInterop", nullptr);
     }
 
     // The window's destroy signal runs before GtkContainer's default handler destroys its WebKit child. Retain this

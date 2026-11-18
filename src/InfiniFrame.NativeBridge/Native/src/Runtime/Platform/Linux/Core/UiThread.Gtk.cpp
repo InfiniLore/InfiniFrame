@@ -105,7 +105,7 @@ namespace infiniframe::linux_gtk::ui_thread {
             [] {
                 linux_gtk::ConfigureGraphicsEnvironment();
                 XInitThreads();
-                gtk_init(nullptr, nullptr);
+                gtk_init();
                 notify_init(NotifyAppName);
 
                 {
@@ -123,7 +123,7 @@ namespace infiniframe::linux_gtk::ui_thread {
                 // callbacks) so they complete while the X11 display connection
                 // is still valid. Without this, they fire later during process
                 // teardown when GLib/GDK/X11 objects are half-torn-down,
-                // causing SIGABRT on libwebkit2gtk-4.1.
+                // causing SIGABRT in WebKitGTK teardown.
                 while (g_main_context_pending(ownerContext)) {
                     g_main_context_iteration(ownerContext, FALSE);
                 }

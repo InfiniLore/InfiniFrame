@@ -45,25 +45,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -f /tmp/powershell.tar.gz \
     && rm -f /tmp/dotnet-install.sh
 
-# GTK/WebKit, X11, Wayland, and software-rendering dependencies.
+# GTK4/WebKitGTK6, X11, Wayland, and software-rendering dependencies.
 RUN apt-get install -y --no-install-recommends \
     at-spi2-core \
     dbus-x11 \
     fonts-liberation \
     gsettings-desktop-schemas \
-    libatk1.0-dev \
     libegl1 \
     libepoxy-dev \
     libgdk-pixbuf-2.0-dev \
     libgl1-mesa-dri \
     libglib2.0-bin \
     libglib2.0-dev \
-    libgtk-3-dev \
+    libgtk-4-dev \
     libharfbuzz-dev \
     libnotify-dev \
     libnotify4 \
     libpango1.0-dev \
-    libwebkit2gtk-4.1-dev \
+    libwebkitgtk-6.0-dev \
     libwayland-dev \
     libx11-dev \
     mesa-utils \

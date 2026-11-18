@@ -934,8 +934,16 @@ class InfiniFrameWindow {
     /// @param height New window height.
     void OnConfigureEvent(int x, int y, int width, int height);
     /// Handle a GTK window-state-changed event.
-    /// @param newState The new set of GdkWindowState flags.
-    void OnWindowStateEvent(GdkWindowState newState);
+    /// @brief Handles surface layout changes (GTK4 replacement for size/configure events).
+    /// @param width The new surface width.
+    /// @param height The new surface height.
+    void OnSurfaceLayout(int width, int height);
+
+    /// @brief Handles surface realization (applies pending move, size constraints, icon).
+    void OnSurfaceRealized();
+
+    /// @param newState The new set of GdkToplevelState flags.
+    void OnWindowStateEvent(GdkToplevelState newState);
     /// Flush any queued web messages that have not yet been delivered.
     void FlushPendingWebMessages();
     /// Mark the window as destroyed (called after the GTK widget is finalized).

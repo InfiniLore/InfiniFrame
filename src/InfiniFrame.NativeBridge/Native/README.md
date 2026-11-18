@@ -93,8 +93,8 @@ cmake --build build --config Release
 
 ### Linux (WebKitGTK)
 
-- Uses WebKit2GTK 4.1 for web rendering
-- GTK3 for window management
+- Uses WebKitGTK 6.0 (`webkitgtk-6.0`) for web rendering
+- GTK4 (`gtk4`) for window management
 - X11/Wayland display server support
 
 ### macOS (WKWebView)

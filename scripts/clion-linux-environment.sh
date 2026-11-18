@@ -127,8 +127,8 @@ which gdb || true
 echo "Installing GTK/WebKit dependencies..."
 
 sudo apt install -y \
-    libgtk-3-dev \
-    libwebkit2gtk-4.1-dev \
+    libgtk-4-dev \
+    libwebkitgtk-6.0-dev \
     libssl-dev \
     libcurl4-openssl-dev \
     zlib1g-dev \
