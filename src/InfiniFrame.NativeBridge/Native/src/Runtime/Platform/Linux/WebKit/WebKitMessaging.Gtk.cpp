@@ -1,8 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#include <webkit2/webkit2.h>
-
 #include "Runtime/Platform/Linux/Core/GtkCallbackGuard.h"
 #include "Runtime/Internal/Interop/Types/Basic.h"
 #include "Runtime/Internal/Interop/Types/Callbacks.h"
@@ -43,16 +41,14 @@ namespace gtk_webkit {
 
     void HandleWebMessage(
         WebKitUserContentManager* contentManager,
-        WebKitJavascriptResult* jsResult,
+        JSCValue* jsValue,
         const gpointer userData
         ) {
         infiniframe::linux_gtk::RunGtkCallbackNoThrow(
             "script-message-received", [&] {
                 (void)contentManager;
-                if (jsResult == nullptr)
-                    return;
-
-                JSCValue* jsValue = webkit_javascript_result_get_js_value(jsResult);
+                // WebKitGTK 6.0 delivers the message payload as a JSCValue directly
+                // (WebKitJavascriptResult was removed).
                 if (jsValue == nullptr || !jsc_value_is_string(jsValue))
                     return;
 

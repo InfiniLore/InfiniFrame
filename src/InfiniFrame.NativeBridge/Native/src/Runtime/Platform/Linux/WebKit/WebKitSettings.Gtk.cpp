@@ -38,11 +38,13 @@ void InfiniFrameWindow::Impl::set_webkit_settings() {
     if (!common._browserControlInitParameters.empty())
         set_webkit_customsettings(settings);
 
-    WebKitWebsiteDataManager* manager = webkit_web_view_get_website_data_manager(WEBKIT_WEB_VIEW(_webview));
+    // WebKitGTK 6.0 moved TLS-error policy from the website data manager to the
+    // network session; each window owns a session (see WebKitHost.Gtk.cpp).
+    WebKitNetworkSession* networkSession = webkit_web_view_get_network_session(WEBKIT_WEB_VIEW(_webview));
     if (common._ignoreCertificateErrorsEnabled)
-        webkit_website_data_manager_set_tls_errors_policy(manager, WEBKIT_TLS_ERRORS_POLICY_IGNORE);
+        webkit_network_session_set_tls_errors_policy(networkSession, WEBKIT_TLS_ERRORS_POLICY_IGNORE);
     else
-        webkit_website_data_manager_set_tls_errors_policy(manager, WEBKIT_TLS_ERRORS_POLICY_FAIL);
+        webkit_network_session_set_tls_errors_policy(networkSession, WEBKIT_TLS_ERRORS_POLICY_FAIL);
 
     webkit_web_view_set_settings(WEBKIT_WEB_VIEW(_webview), settings);
 }

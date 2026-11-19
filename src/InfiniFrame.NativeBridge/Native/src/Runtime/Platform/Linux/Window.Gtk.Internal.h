@@ -24,10 +24,15 @@ struct InfiniFrameWindow::Impl {
     gulong _webMessageSignalHandlerId = 0;
     std::string _temporaryFilesPath;
 
-    GtkWidget* _menuBar = nullptr;
+    GtkWidget* _menuBar = nullptr; // GtkPopoverMenuBar (GTK4 model-based menu bar)
+    GtkWidget* _menuBox = nullptr; // vertical layout container: menu bar + webview
+    GMenu* _menuModel = nullptr;
+    GSimpleActionGroup* _menuActions = nullptr;
     std::string _menuBarJson;
     std::unordered_map<std::string, guint> _menuItemIdToCommandId;
     std::unordered_map<guint, std::string> _menuCommandIdToItemId;
+    std::unordered_map<std::string, bool> _menuEnabledOverrides;
+    std::unordered_map<std::string, bool> _menuVisibleOverrides;
     guint _nextMenuCommandId = 1;
     std::vector<void*> _menuActivateDataList;
 
@@ -80,4 +85,8 @@ struct InfiniFrameWindow::Impl {
     void ApplySizeConstraints();
     void MoveTo(int x, int y);
     bool TryGetPosition(int* x, int* y) const;
+
+    // (Re)builds the window content layout: vertical box [menu bar, webview] when a
+    // menu bar exists, otherwise the webview becomes the window child directly.
+    void RelayoutWindow();
 };

@@ -1,6 +1,11 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+#include <condition_variable>
+#include <mutex>
+#include <string>
+#include <vector>
+
 #include <gtk/gtk.h>
 
 #include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
@@ -14,6 +19,13 @@ struct InfiniFrameDialog::Impl {};
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+// GTK4 removed gtk_dialog_run (nested-loop dialogs). All dialogs now run on the
+// asynchronous response model: widgets emit "response"/"destroy" and operations
+// complete exactly once. The synchronous InfiniFrameDialog facade waits on that same
+// model (owner-context modal wait on the GTK thread, condition-variable wait elsewhere).
+// Note: GtkFileChooserDialog/GtkMessageDialog are deprecated in favor of GtkFileDialog/
+// GtkAlertDialog (which are portal-based); the widget dialogs are kept because their
+// lifecycle semantics match the existing operation model exactly.
 /** @brief Distinguishes which GtkFileChooserAction to configure in ShowDialog */
 enum DialogType {
     OpenFile, /// GTK_FILE_CHOOSER_ACTION_OPEN, select one or more files
@@ -25,11 +37,12 @@ enum DialogType {
  * @brief Attach file-type filters to a GtkFileChooser.
  *
  * Each filter string must be in the format "Display Name|*.ext1;*.ext2"
- * @param dialog Target GtkFileChooserDialog widget
+ * @param chooser Target chooser
  * @param filters UTF-8 filter strings (array of length filterCount)
  * @param filterCount Number of filters
  */
-void AddFilters(GtkWidget* dialog, const char** filters, const int filterCount) {
+void AddFilters(GtkFileChooser* chooser, const char** filters, const int filterCount) {
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
     for (int i = 0; i < filterCount; i++) {
         GtkFileFilter* filter = gtk_file_filter_new();
 
@@ -46,16 +59,164 @@ void AddFilters(GtkWidget* dialog, const char** filters, const int filterCount) 
                 pattern = strtok_r(nullptr, ";", &patternSavePtr);
             }
         }
-        gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
+        gtk_file_chooser_add_filter(chooser, filter);
         g_free(filterCopy); // Free the duplicated string
+    }
+G_GNUC_END_IGNORE_DEPRECATIONS
+}
+
+/**
+ * @brief Builds a GtkFileChooserDialog configured for the requested type.
+ *
+ * @param type Kind of dialog to show (OpenFile, OpenFolder, SaveFile)
+ * @param title UTF-8 dialog title
+ * @param parent Transient parent window; may be null
+ * @param defaultPath UTF-8 initial directory; may be null
+ * @param multiSelect Allow selecting multiple items (ignored for SaveFile)
+ * @param filters File-type filters; may be null
+ * @param filterCount Number of entries in filters
+ * @param defaultFileName UTF-8 pre-filled filename for SaveFile; may be null
+ */
+GtkWidget* BuildFileDialogWidget(
+    const DialogType type,
+    const char* title,
+    GtkWindow* parent,
+    const char* defaultPath,
+    const bool multiSelect,
+    const char** filters,
+    const int filterCount,
+    const char* defaultFileName
+    ) {
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+    const GtkFileChooserAction action = type == OpenFile
+        ? GTK_FILE_CHOOSER_ACTION_OPEN
+        : type == OpenFolder
+        ? GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER
+        : GTK_FILE_CHOOSER_ACTION_SAVE;
+    const char* accept = type == SaveFile ? "_Save" : type == OpenFolder ? "_Select" : "_Open";
+    GtkWidget* dialog = gtk_file_chooser_dialog_new(
+        title, parent, action, "_Cancel", GTK_RESPONSE_CANCEL, accept, GTK_RESPONSE_ACCEPT, nullptr
+        );
+    if (parent != nullptr)
+        gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
+
+    if (defaultPath != nullptr && defaultPath[0] != '\0') {
+        GFile* folder = g_file_new_for_path(defaultPath);
+        gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), folder, nullptr);
+        g_object_unref(folder);
+    }
+    if (type != SaveFile)
+        gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), multiSelect);
+    else if (defaultFileName != nullptr && defaultFileName[0] != '\0')
+        gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog), defaultFileName);
+    if (type != OpenFolder)
+        AddFilters(GTK_FILE_CHOOSER(dialog), filters, filterCount);
+G_GNUC_END_IGNORE_DEPRECATIONS
+    return dialog;
+}
+
+/**
+ * @brief Extracts the selected paths from a GtkFileChooserDialog.
+ *
+ * @param dialog Target dialog (after GTK_RESPONSE_ACCEPT)
+ * @param values Output: heap-allocated UTF-8 string array
+ * @param count Output: number of paths returned
+ */
+void ExtractSelectedPaths(GtkWidget* dialog, const char*** values, int* count) {
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+    GListModel* files = gtk_file_chooser_get_files(GTK_FILE_CHOOSER(dialog));
+G_GNUC_END_IGNORE_DEPRECATIONS
+    const guint n = files != nullptr ? g_list_model_get_n_items(files) : 0;
+    auto* results = AllocateStringArray(static_cast<int>(n));
+    for (guint i = 0; i < n; i++) {
+        GFile* file = G_FILE(g_list_model_get_item(files, i));
+        gchar* path = g_file_get_path(file);
+        results[i] = AllocateStringCopy(std::string(path != nullptr ? path : ""));
+        g_free(path);
+        g_object_unref(file);
+    }
+    if (files != nullptr)
+        g_object_unref(files);
+    *values = results;
+    *count = static_cast<int>(n);
+}
+
+/**
+ * @brief Synchronous modal wait over the asynchronous dialog response model.
+ *
+ * The managed layer marshals synchronous dialog calls onto the GTK owner thread
+ * (NativeInvoke.InvokeSyncWithValidation), where waiting for completion requires
+ * pumping the owner context while the dialog is open. From other threads the wait
+ * blocks on a condition variable. Every dialog completes exactly once: the
+ * response/destroy handlers are one-shot and disconnected on completion.
+ */
+namespace {
+    struct SyncDialogWaiter {
+        GtkWidget* dialog = nullptr;
+        std::mutex mutex;
+        std::condition_variable completion;
+        bool done = false;
+        gint response = GTK_RESPONSE_CANCEL;
+    };
+
+    void CompleteSyncDialog(SyncDialogWaiter* waiter, const gint response) {
+        {
+            std::lock_guard lock(waiter->mutex);
+            if (waiter->done)
+                return;
+            waiter->done = true;
+            waiter->response = response;
+        }
+        g_signal_handlers_disconnect_by_data(waiter->dialog, waiter);
+        waiter->completion.notify_all();
+    }
+
+    void OnSyncDialogResponse(GtkDialog*, const gint response, const gpointer userData) {
+        CompleteSyncDialog(static_cast<SyncDialogWaiter*>(userData), response);
+    }
+
+    void OnSyncDialogDestroyed(GtkWidget*, const gpointer userData) {
+        CompleteSyncDialog(static_cast<SyncDialogWaiter*>(userData), GTK_RESPONSE_CANCEL);
+    }
+
+    gint RunDialogModal(GtkWidget* dialog) {
+        SyncDialogWaiter waiter;
+        waiter.dialog = dialog;
+        g_signal_connect(dialog, "response", G_CALLBACK(OnSyncDialogResponse), &waiter);
+        g_signal_connect(dialog, "destroy", G_CALLBACK(OnSyncDialogDestroyed), &waiter);
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+        gtk_window_present(GTK_WINDOW(dialog));
+G_GNUC_END_IGNORE_DEPRECATIONS
+
+        if (infiniframe::linux_gtk::ui_thread::IsCurrentThread()) {
+            // Modal wait on the GTK owner thread: pump the owner context until the
+            // asynchronous dialog completes (the gtk_dialog_run replacement).
+            for (;;) {
+                {
+                    std::lock_guard lock(waiter.mutex);
+                    if (waiter.done)
+                        break;
+                }
+                g_main_context_iteration(g_main_context_default(), TRUE);
+            }
+        } else {
+            std::unique_lock lock(waiter.mutex);
+            waiter.completion.wait(
+                lock, [&] {
+                    return waiter.done;
+                });
+        }
+
+        std::lock_guard lock(waiter.mutex);
+        return waiter.response;
     }
 }
 
 /**
- * @brief Shared implementation for all GTK file-chooser dialogs.
+ * @brief Shared implementation for all synchronous GTK file dialogs.
  *
- * Constructs a GtkFileChooserDialog configured for the requested type, runs it
- * modally, and returns the selected path(s) as a heap-allocated array
+ * Builds the dialog and runs it modally through the asynchronous response model,
+ * returning the selected path(s) as a heap-allocated array
  *
  * @param type Kind of dialog to show (OpenFile, OpenFolder, SaveFile)
  * @param title UTF-8 dialog title
@@ -77,69 +238,26 @@ const char** ShowDialog(
     int* resultCount,
     const char* defaultFileName = nullptr
     ) {
-    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
-    auto buttonText = "_Open";
-    switch (type) {
-        case OpenFile:
-            action = GTK_FILE_CHOOSER_ACTION_OPEN;
-            buttonText = "_Open";
-            break;
-        case OpenFolder:
-            action = GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER;
-            buttonText = "_Select";
-            break;
-        case SaveFile:
-            action = GTK_FILE_CHOOSER_ACTION_SAVE;
-            buttonText = "_Save";
-            break;
-    }
-
-    GtkWidget* dialog = gtk_file_chooser_dialog_new(
-        title, nullptr, action, "_Cancel", GTK_RESPONSE_CANCEL, buttonText, GTK_RESPONSE_ACCEPT, nullptr
+    GtkWidget* dialog = BuildFileDialogWidget(
+        type, title, nullptr, defaultPath, multiSelect, filters, filterCount, defaultFileName
         );
 
-    if (defaultPath != nullptr) {
-        gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), defaultPath);
-    }
-    if (type == OpenFile || type == OpenFolder) {
-        gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), multiSelect);
-    }
-    if (type == SaveFile) {
-        gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dialog), TRUE);
-        if (defaultFileName != nullptr)
-            gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog), defaultFileName);
-    }
-    if (type == OpenFile || type == SaveFile) {
-        AddFilters(dialog, filters, filterCount);
-    }
+    const gint res = RunDialogModal(dialog);
 
-    gint res = gtk_dialog_run(GTK_DIALOG(dialog));
-
-    if (res != GTK_RESPONSE_ACCEPT) {
-        if (type == OpenFile || type == OpenFolder)
+    const char** results = nullptr;
+    if (res == GTK_RESPONSE_ACCEPT) {
+        int count = 0;
+        ExtractSelectedPaths(dialog, &results, &count);
+        if (resultCount != nullptr)
+            *resultCount = count;
+    } else if (type == OpenFile || type == OpenFolder) {
+        if (resultCount != nullptr)
             *resultCount = 0;
-
-        gtk_widget_destroy(dialog);
-        return nullptr;
     }
 
-    if (type == OpenFile || type == OpenFolder) {
-        GSList* pathList = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(dialog));
-        int count = g_slist_length(pathList);
-        auto* results = AllocateStringArray(count);
-        for (int i = 0; i < count; i++) {
-            results[i] = AllocateStringCopy(std::string(static_cast<char*>(g_slist_nth_data(pathList, i))));
-        }
-        g_slist_free_full(pathList, g_free);
-        *resultCount = count;
-        gtk_widget_destroy(dialog);
-        return results;
-    }
-    char* result = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-    gtk_widget_destroy(dialog);
-    auto* arr = AllocateStringArray(1);
-    arr[0] = result;
-    return arr;
+    if (!gtk_widget_in_destruction(dialog))
+        gtk_window_destroy(GTK_WINDOW(dialog));
+    return results;
 }
 
 InfiniFrameDialog::InfiniFrameDialog() :
@@ -184,122 +302,18 @@ const char* InfiniFrameDialog::ShowSaveFile(
     return nullptr;
 }
 
-DialogResult InfiniFrameDialog::ShowMessage(
-    const char* title,
-    const char* text,
-    const DialogButtons buttons,
-    const DialogIcon icon
-    ) {
-    GtkWidget* dialog;
-    GtkMessageType type;
-
-    switch (icon) {
-        case DialogIcon::Info:
-            type = GTK_MESSAGE_INFO;
-            break;
-        case DialogIcon::Warning:
-            type = GTK_MESSAGE_WARNING;
-            break;
-        case DialogIcon::Error:
-            type = GTK_MESSAGE_ERROR;
-            break;
-        case DialogIcon::Question:
-            type = GTK_MESSAGE_QUESTION;
-            break;
-        default:
-            type = GTK_MESSAGE_OTHER;
-            break;
-    }
-
-    dialog = gtk_message_dialog_new(nullptr, GTK_DIALOG_MODAL, type, GTK_BUTTONS_NONE, "%s", title);
-    gtk_message_dialog_set_markup(GTK_MESSAGE_DIALOG(dialog), text);
-
-    switch (buttons) {
-        case DialogButtons::Ok:
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ok", static_cast<gint>(DialogResult::Ok));
-            break;
-        case DialogButtons::OkCancel:
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ok", static_cast<gint>(DialogResult::Ok));
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Cancel", static_cast<gint>(DialogResult::Cancel));
-            break;
-        case DialogButtons::YesNo:
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Yes", static_cast<gint>(DialogResult::Yes));
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_No", static_cast<gint>(DialogResult::No));
-            break;
-        case DialogButtons::YesNoCancel:
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Yes", static_cast<gint>(DialogResult::Yes));
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_No", static_cast<gint>(DialogResult::No));
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Cancel", static_cast<gint>(DialogResult::Cancel));
-            break;
-        case DialogButtons::RetryCancel:
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Retry", static_cast<gint>(DialogResult::Retry));
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Cancel", static_cast<gint>(DialogResult::Cancel));
-            break;
-        case DialogButtons::AbortRetryIgnore:
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Abort", static_cast<gint>(DialogResult::Abort));
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Retry", static_cast<gint>(DialogResult::Retry));
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ignore", static_cast<gint>(DialogResult::Ignore));
-            break;
-        default:
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ok", static_cast<gint>(DialogResult::Ok));
-            break;
-    }
-
-    gint result = gtk_dialog_run(GTK_DIALOG(dialog));
-    gtk_widget_destroy(dialog);
-
-    switch (result) {
-        case GTK_RESPONSE_CLOSE:
-            return DialogResult::Cancel;
-        case static_cast<gint>(DialogResult::Ok):
-            return DialogResult::Ok;
-        case static_cast<gint>(DialogResult::Yes):
-            return DialogResult::Yes;
-        case static_cast<gint>(DialogResult::No):
-            return DialogResult::No;
-        case static_cast<gint>(DialogResult::Cancel):
-            return DialogResult::Cancel;
-        case static_cast<gint>(DialogResult::Abort):
-            return DialogResult::Abort;
-        case static_cast<gint>(DialogResult::Retry):
-            return DialogResult::Retry;
-        case static_cast<gint>(DialogResult::Ignore):
-            return DialogResult::Ignore;
-        default:
-            return DialogResult::Cancel;
-    }
-}
-
 namespace {
-    void ScheduleDialogCancellation(GtkWidget* dialog, const gint response) {
-        if (!GTK_IS_DIALOG(dialog))
-            return;
-
-        // gtk_dialog_response emits the response signal synchronously. Defer it by one
-        // owner-context turn so cancellation never invokes a managed completion callback
-        // reentrantly from inside the native dispatch operation that requested cancellation.
-        auto* retainedDialog = GTK_WIDGET(g_object_ref(dialog));
-        const bool scheduled = infiniframe::linux_gtk::ui_thread::InvokeAsync(
-            [retainedDialog, response] {
-                if (GTK_IS_DIALOG(retainedDialog) && !gtk_widget_in_destruction(retainedDialog))
-                    gtk_dialog_response(GTK_DIALOG(retainedDialog), response);
-                g_object_unref(retainedDialog);
-            }
-            );
-        if (!scheduled) {
-            g_object_unref(retainedDialog);
-            if (!gtk_widget_in_destruction(dialog))
-                gtk_dialog_response(GTK_DIALOG(dialog), response);
-        }
-    }
-
-    GtkWidget* CreateAsyncMessageDialog(
-        InfiniFrameWindow* owner,
+    /**
+     * @brief Builds a GtkMessageDialog with the requested buttons.
+     */
+    GtkWidget* BuildMessageDialogWidget(
+        GtkWindow* parent,
         const char* title,
         const char* text,
         const DialogButtons buttons,
         const DialogIcon icon
         ) {
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
         GtkMessageType type = GTK_MESSAGE_OTHER;
         switch (icon) {
             case DialogIcon::Info:
@@ -316,7 +330,7 @@ namespace {
                 break;
         }
         GtkWidget* dialog = gtk_message_dialog_new(
-            GTK_WINDOW(owner->getGtkWindow()), GTK_DIALOG_MODAL, type, GTK_BUTTONS_NONE, "%s", title
+            parent, GTK_DIALOG_MODAL, type, GTK_BUTTONS_NONE, "%s", title
             );
         gtk_message_dialog_set_markup(GTK_MESSAGE_DIALOG(dialog), text);
         const auto add = [dialog](const char* label, const DialogResult result) {
@@ -349,8 +363,83 @@ namespace {
                 add("_Ignore", DialogResult::Ignore);
                 break;
         }
-        gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
+        if (parent != nullptr)
+            gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
+G_GNUC_END_IGNORE_DEPRECATIONS
         return dialog;
+    }
+
+    DialogResult MapDialogResult(const gint response) {
+        switch (response) {
+            case GTK_RESPONSE_CLOSE:
+                return DialogResult::Cancel;
+            case static_cast<gint>(DialogResult::Ok):
+                return DialogResult::Ok;
+            case static_cast<gint>(DialogResult::Yes):
+                return DialogResult::Yes;
+            case static_cast<gint>(DialogResult::No):
+                return DialogResult::No;
+            case static_cast<gint>(DialogResult::Cancel):
+                return DialogResult::Cancel;
+            case static_cast<gint>(DialogResult::Abort):
+                return DialogResult::Abort;
+            case static_cast<gint>(DialogResult::Retry):
+                return DialogResult::Retry;
+            case static_cast<gint>(DialogResult::Ignore):
+                return DialogResult::Ignore;
+            default:
+                return DialogResult::Cancel;
+        }
+    }
+}
+
+DialogResult InfiniFrameDialog::ShowMessage(
+    const char* title,
+    const char* text,
+    const DialogButtons buttons,
+    const DialogIcon icon
+    ) {
+    GtkWidget* dialog = BuildMessageDialogWidget(nullptr, title, text, buttons, icon);
+    const gint result = RunDialogModal(dialog);
+    if (!gtk_widget_in_destruction(dialog))
+        gtk_window_destroy(GTK_WINDOW(dialog));
+    return MapDialogResult(result);
+}
+
+namespace {
+    void ScheduleDialogCancellation(GtkWidget* dialog, const gint response) {
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+        if (!GTK_IS_DIALOG(dialog))
+            return;
+
+        // gtk_dialog_response emits the response signal synchronously. Defer it by one
+        // owner-context turn so cancellation never invokes a managed completion callback
+        // reentrantly from inside the native dispatch operation that requested cancellation.
+        auto* retainedDialog = GTK_WIDGET(g_object_ref(dialog));
+        const bool scheduled = infiniframe::linux_gtk::ui_thread::InvokeAsync(
+            [retainedDialog, response] {
+                if (GTK_IS_DIALOG(retainedDialog) && !gtk_widget_in_destruction(retainedDialog))
+                    gtk_dialog_response(GTK_DIALOG(retainedDialog), response);
+                g_object_unref(retainedDialog);
+            }
+            );
+        if (!scheduled) {
+            g_object_unref(retainedDialog);
+            if (!gtk_widget_in_destruction(dialog))
+                gtk_dialog_response(GTK_DIALOG(dialog), response);
+        }
+G_GNUC_END_IGNORE_DEPRECATIONS
+    }
+
+    GtkWidget* CreateAsyncMessageDialog(
+        InfiniFrameWindow* owner,
+        const char* title,
+        const char* text,
+        const DialogButtons buttons,
+        const DialogIcon icon
+        ) {
+        return BuildMessageDialogWidget(
+            GTK_WINDOW(owner->getGtkWindow()), title, text, buttons, icon);
     }
 
     struct AsyncFileDialogState {
@@ -367,18 +456,12 @@ namespace {
         const char** values = nullptr;
         int count = 0;
         if (response == GTK_RESPONSE_ACCEPT) {
-            GSList* paths = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(state->dialog));
-            count = g_slist_length(paths);
-            values = AllocateStringArray(count);
-            int index = 0;
-            for (GSList* item = paths; item != nullptr; item = item->next)
-                values[index++] = AllocateStringCopy(std::string(static_cast<char*>(item->data)));
-            g_slist_free_full(paths, g_free);
+            ExtractSelectedPaths(state->dialog, &values, &count);
         }
 
         g_signal_handlers_disconnect_by_data(state->dialog, state);
-        if (!destroyed)
-            gtk_widget_destroy(state->dialog);
+        if (!destroyed && !gtk_widget_in_destruction(state->dialog))
+            gtk_window_destroy(GTK_WINDOW(state->dialog));
         state->operation->CompleteFile(response == GTK_RESPONSE_ACCEPT ? 0 : 2, count, values);
         FreeStringArray(values, count);
         delete state;
@@ -407,8 +490,8 @@ namespace {
             return;
         state->completed = true;
         g_signal_handlers_disconnect_by_data(state->dialog, state);
-        if (!destroyed)
-            gtk_widget_destroy(state->dialog);
+        if (!destroyed && !gtk_widget_in_destruction(state->dialog))
+            gtk_window_destroy(GTK_WINDOW(state->dialog));
         state->operation->CompleteMessage(result);
         delete state;
     }
@@ -426,41 +509,6 @@ namespace {
             );
     }
 
-    GtkWidget* CreateAsyncFileDialog(
-        InfiniFrameWindow* owner,
-        const DialogType type,
-        const char* title,
-        const char* defaultPath,
-        const bool multiSelect,
-        const char** filters,
-        const int filterCount,
-        const char* defaultFileName
-        ) {
-        const GtkFileChooserAction action = type == OpenFile
-            ? GTK_FILE_CHOOSER_ACTION_OPEN
-            : type == OpenFolder
-            ? GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER
-            : GTK_FILE_CHOOSER_ACTION_SAVE;
-        const char* accept = type == SaveFile ? "_Save" : type == OpenFolder ? "_Select" : "_Open";
-        GtkWidget* dialog = gtk_file_chooser_dialog_new(
-            title, GTK_WINDOW(owner->getGtkWindow()), action,
-            "_Cancel", GTK_RESPONSE_CANCEL, accept, GTK_RESPONSE_ACCEPT, nullptr
-            );
-        gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
-        if (defaultPath != nullptr && defaultPath[0] != '\0')
-            gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), defaultPath);
-        if (type != SaveFile)
-            gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), multiSelect);
-        else {
-            gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dialog), TRUE);
-            if (defaultFileName != nullptr && defaultFileName[0] != '\0')
-                gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog), defaultFileName);
-        }
-        if (type != OpenFolder)
-            AddFilters(dialog, filters, filterCount);
-        return dialog;
-    }
-
     void BeginAsyncFileDialog(
         InfiniFrameWindow* owner,
         const DialogType type,
@@ -474,8 +522,9 @@ namespace {
         const FileDialogCompletedCallback completion,
         void* completionContext
         ) {
-        GtkWidget* dialog = CreateAsyncFileDialog(
-            owner, type, title, defaultPath, multiSelect, filters, filterCount, defaultFileName
+        GtkWidget* dialog = BuildFileDialogWidget(
+            type, title, GTK_WINDOW(owner->getGtkWindow()), defaultPath, multiSelect,
+            filters, filterCount, defaultFileName
             );
         const char* name = type == OpenFile ? "ShowOpenFile" : type == OpenFolder ? "ShowOpenFolder" : "ShowSaveFile";
         auto operation = owner->RegisterFileDialogOperation(operationId, name, completion, completionContext);
@@ -486,7 +535,9 @@ namespace {
             [dialog] {
                 ScheduleDialogCancellation(dialog, GTK_RESPONSE_CANCEL);
             });
-        gtk_widget_show(dialog);
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+        gtk_window_present(GTK_WINDOW(dialog));
+G_GNUC_END_IGNORE_DEPRECATIONS
     }
 }
 
@@ -508,7 +559,9 @@ void InfiniFrameWindow::BeginShowMessage(
         [dialog] {
             ScheduleDialogCancellation(dialog, static_cast<gint>(DialogResult::Cancel));
         });
-    gtk_widget_show(dialog);
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+    gtk_window_present(GTK_WINDOW(dialog));
+G_GNUC_END_IGNORE_DEPRECATIONS
 }
 
 void InfiniFrameWindow::BeginShowOpenFile(

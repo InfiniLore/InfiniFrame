@@ -10,9 +10,26 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using namespace infiniframe::exports;
 
+namespace {
+    // GTK4 removed gtk_window_get_icon. The window icon file (kept by SetIconFile) is
+    // loaded into a pixbuf for the notification icon instead.
+    GdkPixbuf* LoadNotificationIcon(const std::string& iconFileName) {
+        if (iconFileName.empty())
+            return nullptr;
+        return gdk_pixbuf_new_from_file(iconFileName.c_str(), nullptr);
+    }
+
+    void ApplyNotificationIcon(NotifyNotification* notification, const std::string& iconFileName) {
+        GdkPixbuf* icon = LoadNotificationIcon(iconFileName);
+        notify_notification_set_icon_from_pixbuf(notification, icon);
+        if (icon != nullptr)
+            g_object_unref(G_OBJECT(icon));
+    }
+}
+
 void InfiniFrameWindow::ShowNotification(const char* title, const char* message) {
     NotifyNotification* notification = notify_notification_new(title, message, nullptr);
-    notify_notification_set_icon_from_pixbuf(notification, gtk_window_get_icon(GTK_WINDOW(m_impl->_window)));
+    ApplyNotificationIcon(notification, m_impl->common._iconFileName);
     notify_notification_show(notification, nullptr);
     g_object_unref(G_OBJECT(notification));
 }
@@ -28,7 +45,7 @@ void InfiniFrameWindow::ShowNotificationWithOptions(
     (void)urgency;
     (void)tag;
     NotifyNotification* notification = notify_notification_new(title, body, nullptr);
-    notify_notification_set_icon_from_pixbuf(notification, gtk_window_get_icon(GTK_WINDOW(m_impl->_window)));
+    ApplyNotificationIcon(notification, m_impl->common._iconFileName);
 
     NotifyUrgency libnotifyUrgency = NOTIFY_URGENCY_NORMAL;
     switch (urgency) {
