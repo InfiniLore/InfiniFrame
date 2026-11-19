@@ -10,6 +10,22 @@ namespace InfiniTests.InfiniFrame.Window.Features.State;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class MaximizedTests {
+    // The maximize state is applied at map time and echoed back through the GTK4 toplevel
+    // state notification once the compositor acknowledges it. Assert the echoed state with a
+    // bounded wait instead of synchronously (Wayland acks can land a few frames later).
+    private static async Task<bool> WaitForMaximizedStateAsync(
+        IInfiniFrameWindow window,
+        bool expected,
+        CancellationToken ct
+        ) {
+        DateTime deadline = DateTime.UtcNow + TimeSpan.FromSeconds(5);
+        bool observed = window.Features.State.IsMaximized;
+        while (observed != expected && DateTime.UtcNow < deadline) {
+            await Task.Delay(25, ct);
+            observed = window.Features.State.IsMaximized;
+        }
+        return observed;
+    }
 
     [Test]
     [Arguments(true)]
@@ -58,7 +74,8 @@ public class MaximizedTests {
         window.Features.State.SetMaximized(value);
 
         // Assert
-        await Assert.That(window.Features.State.IsMaximized).IsEqualTo(value);
+        bool observed = await WaitForMaximizedStateAsync(window, value, ct);
+        await Assert.That(observed).IsEqualTo(value);
     }
 
     [Test]
@@ -75,7 +92,8 @@ public class MaximizedTests {
         IInfiniFrameWindow returnedWindow = window.SetMaximized(value);
 
         // Assert
-        await Assert.That(window.Features.State.IsMaximized).IsEqualTo(value);
+        bool observed = await WaitForMaximizedStateAsync(window, value, ct);
+        await Assert.That(observed).IsEqualTo(value);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }
 
@@ -95,6 +113,7 @@ public class MaximizedTests {
 
         // Assert
         await Assert.That(builder.Features.State.StartMaximized).IsEqualTo(value);
-        await Assert.That(window.Features.State.IsMaximized).IsEqualTo(value);
+        bool observed = await WaitForMaximizedStateAsync(window, value, ct);
+        await Assert.That(observed).IsEqualTo(value);
     }
 }
