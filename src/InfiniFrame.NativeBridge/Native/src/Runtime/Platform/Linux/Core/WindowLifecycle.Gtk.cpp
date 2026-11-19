@@ -112,10 +112,13 @@ void InfiniFrameWindow::CloseWebView() {
 
     // Disconnect every signal whose user_data is this instance so our callbacks can't fire after the window starts
     // tearing down. The webview itself is destroyed implicitly by GTK when the parent window is destroyed.
-    // Explicit destruction here (gtk_widget_destroy, terminate_web_process, pumping events) triggers WebKit's web
-    // process cleanup from inside a GTK signal handler, which causes SIGABRT on libwebkit2gtk-4.1.
-    // Do not unref _webContext here either. CloseWebView runs from the GTK delete-event path, and releasing the
-    // context from this re-entrant teardown path can trigger the same WebKitGTK abort.
+    // Explicit destruction here (destroying the webview, terminating the web process, pumping events) triggers
+    // WebKit's web-process cleanup from inside a GTK signal handler, which caused SIGABRT on WebKitGTK 4.1 and
+    // remains unsafe on WebKitGTK 6.0 (revalidated in Phase 07: the teardown stress suite passes these close
+    // paths only with this sequencing preserved; the deferred-teardown guard in the destructor covers the
+    // remaining finalization races).
+    // Do not unref _webContext here either. CloseWebView runs from the GTK delete/close path, and releasing
+    // the context from this re-entrant teardown path can trigger the same WebKitGTK abort.
     WebKitUserContentManager* contentManager =
         webkit_web_view_get_user_content_manager(WEBKIT_WEB_VIEW(webview));
     if (contentManager != nullptr) {
@@ -143,6 +146,15 @@ void InfiniFrameWindow::NotifyWebViewFinalized() {
     ScheduleTeardownCompletion();
 }
 
+void InfiniFrameWindow::DetachWebviewFinalizeWatch() {
+    // Detach the finalization weak watch so a late webview finalize can never call back into
+    // a destroyed window object (the destructor detaches before completing teardown).
+    if (!m_impl->_webviewFinalized && m_impl->_webview != nullptr) {
+        g_object_weak_unref(G_OBJECT(m_impl->_webview), on_webview_finalized, this);
+        m_impl->_webview = nullptr;
+    }
+}
+
 void InfiniFrameWindow::ScheduleTeardownCompletion() {
     if (!m_impl->_windowDestroyed || !m_impl->_webviewFinalized || m_impl->_teardownCompletionScheduled)
         return;
@@ -151,8 +163,16 @@ void InfiniFrameWindow::ScheduleTeardownCompletion() {
     CompleteOperationsForClose();
     CompleteNavigationForClose();
     CompleteDialogsForClose();
+    // The deferred completion captures `this`; the shared guard deduplicates execution and
+    // serializes against the destructor's inline flush so the completion work (teardown
+    // callback + application notification) runs exactly once and never on a freed object.
+    std::shared_ptr<Impl::TeardownGuard> guard = m_impl->_teardownGuard;
     if (!infiniframe::linux_gtk::ui_thread::InvokeIdle(
-        [this] {
+        [this, guard] {
+            std::lock_guard held(guard->mutex);
+            if (guard->completed)
+                return;
+            guard->completed = true;
             SignalTeardown();
             if (!m_impl->_applicationNotified && _application != nullptr) {
                 m_impl->_applicationNotified = true;
@@ -164,6 +184,10 @@ void InfiniFrameWindow::ScheduleTeardownCompletion() {
             }
             m_impl->_lifecycleClosed.notify_all();
         })) {
+        std::lock_guard held(guard->mutex);
+        if (guard->completed)
+            return;
+        guard->completed = true;
         SignalTeardown();
         if (!m_impl->_applicationNotified && _application != nullptr) {
             m_impl->_applicationNotified = true;

@@ -942,6 +942,9 @@ class InfiniFrameWindow {
     /// @brief Handles surface realization (applies pending move, size constraints, icon).
     void OnSurfaceRealized();
 
+    /// @brief Detaches the webview finalization weak watch (destructor path; Linux).
+    void DetachWebviewFinalizeWatch();
+
     /// @param newState The new set of GdkToplevelState flags.
     void OnWindowStateEvent(GdkToplevelState newState);
     /// Flush any queued web messages that have not yet been delivered.

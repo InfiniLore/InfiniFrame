@@ -4,6 +4,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #include <climits>
 #include <condition_variable>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <unordered_map>
@@ -58,6 +59,13 @@ struct InfiniFrameWindow::Impl {
     int _pendingMoveX = 0;
     int _pendingMoveY = 0;
 
+    // gtk_window_set_default_size is silently clobbered when it lands while the first
+    // map/size negotiation is in flight (widget unallocated). The request is kept here and
+    // re-asserted once from the first layout callback, when the toplevel is fully allocated
+    // (Phase 07: SetSize flake fix).
+    int _pendingResizeWidth = 0;
+    int _pendingResizeHeight = 0;
+
     int _lastLeft = 0;
     int _lastTop = 0;
     int _lastWidth = 0;
@@ -66,6 +74,16 @@ struct InfiniFrameWindow::Impl {
     std::mutex _lifecycleMutex;
     std::condition_variable _lifecycleClosed;
     bool _destroyed = false;
+
+    // Serializes the deferred teardown completion (ScheduleTeardownCompletion's idle)
+    // against the window object's destruction, while preserving exactly-once notification:
+    // whichever runs first performs SignalTeardown/NotifyWindowClosed and marks `completed`;
+    // the loser observes `completed` and returns without touching the object.
+    struct TeardownGuard {
+        std::mutex mutex;
+        bool completed = false;
+    };
+    std::shared_ptr<TeardownGuard> _teardownGuard = std::make_shared<TeardownGuard>();
 
     // Messages queued while WebKit is still loading (e.g. sent from WindowCreated handler). 
     // Flushed on the first WEBKIT_LOAD_FINISHED event.

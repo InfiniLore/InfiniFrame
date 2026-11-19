@@ -270,28 +270,12 @@ jobs:
                       framework_exit=0
                       dotnet "${test_args[@]}" 2>&1 | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g' | tee "artifacts/testresults/${framework}-output.log" || framework_exit=$?
 
-                      # A native test host can terminate without a failing assertion (for
-                      # example, exit code 7 from a WebKitGTK/window-process teardown race).
-                      # Retry once in that specific case; real test failures still fail the
-                      # job and are not hidden by the retry.
-                      if [ $framework_exit -ne 0 ] && [ $framework_exit -ne 134 ] && \
-                         grep -qE '^[[:space:]]*failed:[[:space:]]+0[[:space:]]*$' "artifacts/testresults/${framework}-output.log" 2>/dev/null; then
-                        echo "WARN: test host exited $framework_exit after all assertions passed; retrying ${framework} once"
-                        framework_exit=0
-                        dotnet "${test_args[@]}" 2>&1 | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g' | tee "artifacts/testresults/${framework}-retry-output.log" || framework_exit=$?
-                      fi
-
-                      # WebKitGTK emits SIGABRT (exit 134) during process teardown on
-                      # Linux after all tests pass. This is a known race between WebKit
-                      # web-process cleanup and display-server teardown. Treat it as
-                      # success when every test assertion passed (failed: 0 in output).
-                      if [ $framework_exit -eq 134 ]; then
-                        if grep -qE '^[[:space:]]*failed:[[:space:]]+0[[:space:]]*$' "artifacts/testresults/${framework}-output.log" 2>/dev/null; then
-                          echo "WARN: SIGABRT during teardown with all tests passing (WebKitGTK cleanup race) — ignoring"
-                          framework_exit=0
-                        fi
-                      fi
-
+                      # Crash-after-passing workarounds (exit 134 tolerance and the retry-once
+                      # path) were removed in Phase 07 after root-causing both races in the
+                      # native lifecycle (deferred-teardown use-after-free and UI-thread restart
+                      # destroying a joinable std::thread) and fixing them. If a native crash
+                      # reappears, the crash artifacts below preserve the evidence; restore the
+                      # tolerances from git history only with a fresh reproduction.
                       if [ $framework_exit -ne 0 ]; then
                         exit_code=$framework_exit
                       fi

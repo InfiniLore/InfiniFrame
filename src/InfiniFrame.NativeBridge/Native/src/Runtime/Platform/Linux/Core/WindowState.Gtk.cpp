@@ -485,7 +485,19 @@ void InfiniFrameWindow::SetMaxSize(const int width, const int height) {
 
 void InfiniFrameWindow::SetSize(const int width, const int height) {
     // GTK4 removed gtk_window_resize. gtk_window_set_default_size resizes a mapped
-    // toplevel on both X11 and Wayland (runtime-verified; see blockers-resolution.md).
+    // toplevel on both X11 and Wayland (runtime-verified; see blockers-resolution.md),
+    // but the request is clobbered if it lands while the first map/size negotiation is
+    // still in flight. Remember the target and let OnSurfaceLayout re-assert it once the
+    // toplevel is fully allocated (Phase 07 flake fix).
+    if (g_getenv("INFINIFRAME_LINUX_WEBVIEW_DIAGNOSTICS") != nullptr) {
+        g_message("[InfiniFrame/Linux] SetSize requested: %dx%d (widget now %dx%d mapped=%d)",
+                  width, height,
+                  gtk_widget_get_width(GTK_WIDGET(m_impl->_window)),
+                  gtk_widget_get_height(GTK_WIDGET(m_impl->_window)),
+                  gtk_widget_get_mapped(GTK_WIDGET(m_impl->_window)));
+    }
+    m_impl->_pendingResizeWidth = width;
+    m_impl->_pendingResizeHeight = height;
     gtk_window_set_default_size(GTK_WINDOW(m_impl->_window), width, height);
 }
 

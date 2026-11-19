@@ -52,9 +52,10 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
     m_impl->configure_webkit_remote_debugging();
     infiniframe::linux_gtk::ConfigureGraphicsEnvironment();
 
-    // Create per-window WebKit context and network session, then the web view bound to
-    // both (construct-only properties; webkit_web_view_new_with_context is gone in 6.0).
-    // A per-window network session preserves per-window TLS-error policy behavior.
+    // Create per-window WebKit context and network session, then the web view bound to both
+    // (construct-only properties; webkit_web_view_new_with_context is gone in 6.0).
+    // A per-window network session preserves per-window TLS-error policy behavior and keeps
+    // the GTK3 parity of shared default storage directories.
     m_impl->_webContext = webkit_web_context_new();
     WebKitNetworkSession* networkSession = webkit_network_session_new(nullptr, nullptr);
 

@@ -69,10 +69,31 @@ void InfiniFrameWindow::OnSurfaceLayout(const int width, const int height) {
     // GTK4 delivers size changes through GdkSurface::layout (no x/y). The position is
     // queried where the platform exposes it (X11); on Wayland it stays at the last known
     // value so no spurious move events are raised.
+    if (g_getenv("INFINIFRAME_LINUX_WEBVIEW_DIAGNOSTICS") != nullptr) {
+        g_message("[InfiniFrame/Linux] surface layout: %dx%d (last %dx%d)", width, height,
+                  m_impl->_lastWidth, m_impl->_lastHeight);
+    }
     int x = m_impl->_lastLeft;
     int y = m_impl->_lastTop;
     m_impl->TryGetPosition(&x, &y);
     OnConfigureEvent(x, y, width, height);
+
+    // A SetSize request that landed during the first map/size negotiation was clobbered;
+    // re-assert it once now that the toplevel is fully allocated (Phase 07 flake fix).
+    if (m_impl->_pendingResizeWidth > 0 &&
+        (width != m_impl->_pendingResizeWidth || height != m_impl->_pendingResizeHeight)) {
+        const int targetWidth = m_impl->_pendingResizeWidth;
+        const int targetHeight = m_impl->_pendingResizeHeight;
+        m_impl->_pendingResizeWidth = 0;
+        m_impl->_pendingResizeHeight = 0;
+        if (g_getenv("INFINIFRAME_LINUX_WEBVIEW_DIAGNOSTICS") != nullptr) {
+            g_message("[InfiniFrame/Linux] re-asserting pending SetSize: %dx%d", targetWidth, targetHeight);
+        }
+        gtk_window_set_default_size(GTK_WINDOW(m_impl->_window), targetWidth, targetHeight);
+    } else if (width == m_impl->_pendingResizeWidth && height == m_impl->_pendingResizeHeight) {
+        m_impl->_pendingResizeWidth = 0;
+        m_impl->_pendingResizeHeight = 0;
+    }
 }
 
 void InfiniFrameWindow::OnSurfaceRealized() {
