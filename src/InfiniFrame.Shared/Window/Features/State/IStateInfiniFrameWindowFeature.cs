@@ -50,7 +50,7 @@ public interface IStateInfiniFrameWindowFeature {
     ///     silently ignored. On Windows, this also disables Ctrl+Scroll zoom.
     ///     On macOS, native pinch-to-zoom gestures are also suppressed.
     ///     On Linux, native Ctrl+Scroll gestures cannot be suppressed at
-    ///     the WebKit2GTK level, but programmatic zoom changes are blocked.
+    ///     the WebKitGTK level, but programmatic zoom changes are blocked.
     /// </summary>
     bool IsZoomEnabled { get; }
 
@@ -106,7 +106,7 @@ public interface IStateInfiniFrameWindowFeature {
     ///     silently ignored. On Windows, this also disables Ctrl+Scroll zoom.
     ///     On macOS, native pinch-to-zoom gestures are also suppressed.
     ///     On Linux, native Ctrl+Scroll gestures cannot be suppressed at
-    ///     the WebKit2GTK level, but programmatic zoom changes are blocked.
+    ///     the WebKitGTK level, but programmatic zoom changes are blocked.
     /// </summary>
     /// <param name="zoomEnabled">Whether zoom should be enabled.</param>
     void EnableZoom(bool zoomEnabled = true);

@@ -61,7 +61,7 @@ public struct InfiniFrameNativeWindowParameters() {
     ///     https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2environmentoptions.additionalbrowserarguments?view=webview2-dotnet-1.0.1938.49
     ///     https://www.chromium.org/developers/how-tos/run-chromium-with-flags/
     ///     LINUX: Webkit2Gtk specific string.
-    ///     https://webkitgtk.org/reference/webkit2gtk/2.5.1/WebKitSettings.html
+    ///     https://webkitgtk.org/reference/webkitgtk-6.0/WebKitSettings.html
     ///     https://lazka.github.io/pgi-docs/WebKit2-4.0/classes/Settings.html
     ///     MAC: Webkit specific string.
     ///     https://developer.apple.com/documentation/webkit/wkwebviewconfiguration?language=objc

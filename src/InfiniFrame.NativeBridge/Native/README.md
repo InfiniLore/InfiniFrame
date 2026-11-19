@@ -67,7 +67,7 @@ See [BUILDING.md](BUILDING.md) for build performance tips.
 - CMake 4.0+
 - C++23 compiler (MSVC 17+ on Windows, GCC 13+ on Linux, Clang 17+ on macOS)
 - Node.js 24.15+ and npm
-- Platform SDKs: WebView2 (Windows), WebKit2GTK 4.1 (Linux), macOS SDK (macOS)
+- Platform SDKs: WebView2 (Windows), WebKitGTK 6.0 (Linux), macOS SDK (macOS)
 
 On Windows, restore the NativeBridge project before configuring CMake. The C++ build consumes the WebView2 and WIL
 headers from the NuGet global package cache:

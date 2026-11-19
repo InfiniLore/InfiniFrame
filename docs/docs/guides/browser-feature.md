@@ -208,7 +208,7 @@ The `SetBrowserControlInitParameters` method passes raw flags to the underlying 
 // Windows: space-separated Chromium flags
 builder.SetBrowserControlInitParameters("--disable-gpu --no-sandbox")
 
-// Linux: JSON object matching WebKit2GTK settings
+// Linux: JSON object matching WebKitGTK 6.0 settings
 builder.SetBrowserControlInitParameters("{ \"enable_developer_extras\": true }")
 
 // macOS: JSON object matching WKPreferences keys

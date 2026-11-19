@@ -93,4 +93,4 @@ cmake -S src/InfiniFrame.NativeBridge/Native -B src/InfiniFrame.NativeBridge/Nat
 cmake --build src/InfiniFrame.NativeBridge/Native/build-linux --parallel
 ```
 
-If WebKit fails to start, verify `DISPLAY`, `/mnt/wslg`, and `pkg-config --modversion webkit2gtk-4.1`; do not substitute a Windows-built native library.
+If WebKit fails to start, verify `DISPLAY`, `/mnt/wslg`, and `pkg-config --modversion webkitgtk-6.0`; do not substitute a Windows-built native library.

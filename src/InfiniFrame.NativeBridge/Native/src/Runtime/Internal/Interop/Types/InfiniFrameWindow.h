@@ -55,7 +55,7 @@ enum class NativeOperationResult : int32_t;
  * @brief Main window class providing WebView-based UI
  *
  * Uses Pimpl idiom for encapsulation of platform-specific implementation.
- * Supports Windows (Win32 + WebView2), Linux (GTK3 + WebKit2GTK), macOS (Cocoa + WKWebView)
+ * Supports Windows (Win32 + WebView2), Linux (GTK4 + WebKitGTK), macOS (Cocoa + WKWebView)
  */
 class InfiniFrameWindow {
     public:
