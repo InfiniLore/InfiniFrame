@@ -148,6 +148,16 @@ window.Features.Menu.SetMenuItemEnabled("save", false);
 Native menu rendering is handled by the platform adapters (Win32, GTK, macOS NSMenu). The managed API is available on all platforms; native rendering support is being implemented incrementally.
 :::
 
+:::note Linux rendering
+On Linux the menu bar is rendered as a row of flat buttons (GTK4): top-level `Submenu`
+items open popover dropdowns and top-level `Normal` items render as single-click
+buttons. GTK4's `GtkPopoverMenuBar` widget accepts only submenus as top-level elements
+and silently drops command items, so the button row preserves the documented
+top-level command item behavior. Two GTK4 menubar niceties are therefore not
+available on Linux: hovering across top-level menus does not switch the open
+dropdown, and the F10/Alt menu-bar focus key does not target the menu bar.
+:::
+
 ## Migration from Photino
 
 The Photino ecosystem has an open issue for native menu support ([Photino.Native#44](https://github.com/tryphotino/photino.Native/issues/44)). InfiniFrame implements this as a first-class feature with the managed API.

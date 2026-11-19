@@ -36,8 +36,17 @@ sudo apt install libgtk-4-dev libwebkitgtk-6.0-dev libnotify-dev \
 Verify the expected pkg-config modules resolve:
 
 ```bash
-pkg-config --modversion gtk4 webkitgtk-6.0 libnotify
+pkg-config --modversion gtk4 webkitgtk-6.0 libnotify x11
 ```
+
+**X11 build dependency (intentional):** the native library builds against Xlib
+(`libx11-dev`) even for Wayland-only deployments. Window positioning, maximum-size
+hints, work-area queries, and the keep-above hint are implemented through X11 window
+manager properties (`_NET_WM_STATE_ABOVE`, `_NET_WORKAREA`) and the code that selects
+them is compiled unconditionally; making X11 optional would only add a runtime feature
+matrix without removing the header requirement for X11 users. This is a build-time
+dependency only - a pure-Wayland runtime works identically with no X11 libraries loaded
+for display purposes (GTK4 selects its Wayland backend at runtime).
 
 **Display servers:** both X11 and Wayland are supported. On Wayland the compositor owns
 window placement: arbitrary positioning (`SetLeft`/`SetTop`/`SetLocation`), topmost state,

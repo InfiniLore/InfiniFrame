@@ -29,6 +29,12 @@ function(infiniframe_configure_linux_target target_name common_sources test_sour
     pkg_check_modules(GTK4 REQUIRED IMPORTED_TARGET gtk4)
     pkg_check_modules(WEBKIT6 REQUIRED IMPORTED_TARGET webkitgtk-6.0)
     pkg_check_modules(LIBNOTIFY REQUIRED IMPORTED_TARGET libnotify)
+    # X11 is an intentional, non-optional build dependency (audit finding 7):
+    # window positioning, max-size hints, work-area queries and the keep-above hint
+    # use Xlib / _NET_WM_STATE hints and are compiled unconditionally. This is a
+    # build-time requirement only - Wayland runtime support is unaffected (GTK4 picks
+    # its backend at runtime and pure-Wayland hosts never exercise the X11 paths).
+    # See docs/docs/guides/getting-started.md ("X11 build dependency").
     pkg_check_modules(X11 REQUIRED IMPORTED_TARGET x11)
 
     target_include_directories(${target_name} PRIVATE
