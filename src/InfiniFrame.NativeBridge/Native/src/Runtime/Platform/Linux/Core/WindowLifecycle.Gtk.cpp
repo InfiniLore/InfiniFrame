@@ -73,7 +73,10 @@ G_GNUC_END_IGNORE_DEPRECATIONS
             GdkMonitor* first = GDK_MONITOR(g_list_model_get_item(monitors, 0));
             gdk_monitor_get_geometry(first, &screen);
             g_object_unref(first);
-            m_impl->MoveTo((screen.width - windowWidth) / 2, (screen.height - windowHeight) / 2);
+            m_impl->MoveTo(
+                screen.x + (screen.width - windowWidth) / 2,
+                screen.y + (screen.height - windowHeight) / 2
+                );
             return;
         }
         g_warning("No display monitor found for centering.");
@@ -82,7 +85,12 @@ G_GNUC_END_IGNORE_DEPRECATIONS
 
     gdk_monitor_get_geometry(monitor, &screen);
 
-    m_impl->MoveTo((screen.width - windowWidth) / 2, (screen.height - windowHeight) / 2);
+    // Include the monitor's offset: monitors placed away from the origin must center
+    // within their own geometry, not against (0, 0).
+    m_impl->MoveTo(
+        screen.x + (screen.width - windowWidth) / 2,
+        screen.y + (screen.height - windowHeight) / 2
+        );
 }
 
 void InfiniFrameWindow::ClearBrowserAutoFill() {

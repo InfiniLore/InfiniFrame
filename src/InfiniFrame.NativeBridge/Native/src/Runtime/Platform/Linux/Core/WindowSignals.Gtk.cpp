@@ -65,6 +65,14 @@ void InfiniFrameWindow::OnConfigureEvent(const int x, const int y, const int wid
     }
 }
 
+int InfiniFrameWindow::GetActiveEventState() const {
+    return m_impl->_activeEventState;
+}
+
+void InfiniFrameWindow::SetActiveEventState(const int state) {
+    m_impl->_activeEventState = state;
+}
+
 void InfiniFrameWindow::OnSurfaceLayout(const int width, const int height) {
     // GTK4 delivers size changes through GdkSurface::layout (no x/y). The position is
     // queried where the platform exposes it (X11); on Wayland it stays at the last known
@@ -111,8 +119,9 @@ void InfiniFrameWindow::OnWindowStateEvent(const GdkToplevelState newState) {
     // right after a maximize, each carrying the MAXIMIZED bit). Gate every callback on an actual state transition so
     // a single SetMaximized/SetMinimized/restore raises exactly one event, matching the Win32 WM_SIZE handling.
     const bool isMaximized = (newState & GDK_TOPLEVEL_STATE_MAXIMIZED) != 0;
-    const bool isMinimized =
-        (newState & GDK_TOPLEVEL_STATE_MINIMIZED) != 0 || !gtk_widget_get_mapped(m_impl->_window);
+    // Unmapped does not mean minimized: GTK4 reports pre-map/unmap states through the same
+    // toplevel notifications, so only the explicit MINIMIZED bit is trusted (audit finding 6).
+    const bool isMinimized = (newState & GDK_TOPLEVEL_STATE_MINIMIZED) != 0;
 
     if (isMaximized) {
         if (!m_impl->_maximized) {
@@ -226,7 +235,18 @@ void on_window_active_notify(GObject* object, GParamSpec* pspec, const gpointer 
                 return;
 
             auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
-            if (gtk_window_is_active(GTK_WINDOW(object)))
+            const bool active = gtk_window_is_active(GTK_WINDOW(object)) != FALSE;
+            // Emit focus events only on real activation transitions: GTK4 can deliver an
+            // initial notify::is-active at map time, which must not create a spurious
+            // focus-out before the first focus-in (audit finding 6).
+            const int previous = instance->GetActiveEventState();
+            const int current = active ? 1 : 0;
+            if (previous == current)
+                return;
+            instance->SetActiveEventState(current);
+            if (previous < 0 && !active)
+                return;
+            if (active)
                 instance->InvokeFocusIn();
             else
                 instance->InvokeFocusOut();

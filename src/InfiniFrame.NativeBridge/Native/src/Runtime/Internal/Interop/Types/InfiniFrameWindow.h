@@ -947,6 +947,14 @@ class InfiniFrameWindow {
 
     /// @param newState The new set of GdkToplevelState flags.
     void OnWindowStateEvent(GdkToplevelState newState);
+
+    /// @brief Gets the tracked activation state for focus-event gating (Linux).
+    /// @return -1 before the first notification, otherwise 0 (inactive) or 1 (active).
+    int GetActiveEventState() const;
+
+    /// @brief Sets the tracked activation state for focus-event gating (Linux).
+    /// @param state -1 (unknown), 0 (inactive), or 1 (active).
+    void SetActiveEventState(int state);
     /// Flush any queued web messages that have not yet been delivered.
     void FlushPendingWebMessages();
     /// Mark the window as destroyed (called after the GTK widget is finalized).

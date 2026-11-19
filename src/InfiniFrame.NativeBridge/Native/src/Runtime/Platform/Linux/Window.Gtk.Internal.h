@@ -25,15 +25,15 @@ struct InfiniFrameWindow::Impl {
     gulong _webMessageSignalHandlerId = 0;
     std::string _temporaryFilesPath;
 
-    GtkWidget* _menuBar = nullptr; // GtkPopoverMenuBar (GTK4 model-based menu bar)
+    GtkWidget* _menuBar = nullptr; // horizontal menu-bar row (flat submenu/command buttons)
     GtkWidget* _menuBox = nullptr; // vertical layout container: menu bar + webview
-    GMenu* _menuModel = nullptr;
     GSimpleActionGroup* _menuActions = nullptr;
     std::string _menuBarJson;
     std::unordered_map<std::string, guint> _menuItemIdToCommandId;
     std::unordered_map<guint, std::string> _menuCommandIdToItemId;
     std::unordered_map<std::string, bool> _menuEnabledOverrides;
     std::unordered_map<std::string, bool> _menuVisibleOverrides;
+    std::unordered_map<std::string, GtkWidget*> _menuWidgetById;
     guint _nextMenuCommandId = 1;
     std::vector<void*> _menuActivateDataList;
 
@@ -47,6 +47,9 @@ struct InfiniFrameWindow::Impl {
     bool _applicationNotified = false;
     bool _maximized = false;
     bool _minimized = false;
+    // Focus-event gating: -1 = unknown (before the first activation notification),
+    // 0 = inactive, 1 = active. Suppresses spurious initial focus events (audit finding 6).
+    int _activeEventState = -1;
     double _zoom = 100.0;
     int _minWidth = 0;
     int _minHeight = 0;
@@ -107,4 +110,7 @@ struct InfiniFrameWindow::Impl {
     // (Re)builds the window content layout: vertical box [menu bar, webview] when a
     // menu bar exists, otherwise the webview becomes the window child directly.
     void RelayoutWindow();
+
+    // Menu resource ownership (defined in Menu.Gtk.cpp).
+    void ReleaseMenuResources();
 };

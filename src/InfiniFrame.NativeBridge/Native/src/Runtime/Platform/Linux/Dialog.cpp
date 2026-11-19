@@ -109,6 +109,11 @@ G_GNUC_BEGIN_IGNORE_DEPRECATIONS
         gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), multiSelect);
     else if (defaultFileName != nullptr && defaultFileName[0] != '\0')
         gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog), defaultFileName);
+    // Save overwrite confirmation: GTK4 removed gtk_file_chooser_set_do_overwrite_confirmation
+    // because chooser dialogs now confirm overwrites unconditionally (GTK 3→4 migration guide;
+    // the built-in "A file named ... already exists. Do you want to replace it?" dialog ships in
+    // libgtk-4.so.1). The GTK3 code enabled this explicitly, so save-dialog behavior is
+    // preserved for both the synchronous and asynchronous paths (audit finding 3).
     if (type != OpenFolder)
         AddFilters(GTK_FILE_CHOOSER(dialog), filters, filterCount);
 G_GNUC_END_IGNORE_DEPRECATIONS

@@ -564,8 +564,28 @@ void InfiniFrameWindow::SetTransparentEnabled(const bool enabled) {
 
     gtk_window_set_decorated(GTK_WINDOW(m_impl->_window), !enabled);
 
-    // GTK4 always composites ARGB surfaces; gtk_widget_set_visual/gtk_widget_set_app_paintable
-    // and gdk_screen_get_rgba_visual are gone. The webview background alpha drives visibility.
+    // GTK4 always uses RGBA visuals for windows (GTK 3→4 migration guide), so the old
+    // gtk_widget_set_visual / app-paintable setup is obsolete. True desktop transparency
+    // additionally requires the toplevel's own CSS background to be transparent — otherwise
+    // the theme background shows through page alpha. A compositor blends the result:
+    // inherent on Wayland; required on X11 (audit finding 2).
+    static const gchar* kTransparentCss = "window.infiniframe-transparent { background: transparent; }";
+    static std::once_flag cssOnce;
+    GdkDisplay* display = gtk_widget_get_display(GTK_WIDGET(m_impl->_window));
+    std::call_once(
+        cssOnce, [display] {
+            GtkCssProvider* provider = gtk_css_provider_new();
+            gtk_css_provider_load_from_string(provider, kTransparentCss);
+            gtk_style_context_add_provider_for_display(
+                display, GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+            g_object_unref(provider);
+        });
+    if (enabled)
+        gtk_widget_add_css_class(GTK_WIDGET(m_impl->_window), "infiniframe-transparent");
+    else
+        gtk_widget_remove_css_class(GTK_WIDGET(m_impl->_window), "infiniframe-transparent");
+
+    // WebKit background alpha drives the page's own transparency.
     if (m_impl->_webview != nullptr) {
         GdkRGBA color;
         webkit_web_view_get_background_color(WEBKIT_WEB_VIEW(m_impl->_webview), &color);

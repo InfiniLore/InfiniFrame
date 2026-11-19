@@ -69,6 +69,11 @@ InfiniFrameWindow::~InfiniFrameWindow() {
             // finalize cannot call back into this object (Phase 07 fix).
             DetachWebviewFinalizeWatch();
 
+            // Release menu-owned GObjects exactly once before the widget hierarchy is
+            // destroyed (audit finding 5); the menu widgets themselves are released by
+            // the hierarchy.
+            m_impl->ReleaseMenuResources();
+
             if (m_impl->_window != nullptr) {
                 g_signal_handlers_disconnect_by_data(m_impl->_window, this);
                 gtk_window_destroy(GTK_WINDOW(m_impl->_window));
