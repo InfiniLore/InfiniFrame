@@ -11,7 +11,7 @@
 # Crash exit codes (e.g. 134=SIGABRT, 139=SIGSEGV) are reported explicitly — these are the
 # codes the CI exit-code workarounds are about.
 # ---------------------------------------------------------------------------------------------------------------------
-set -uo pipefail
+set -euo pipefail
 
 VARIANT="${1:?variant name required}"
 SOLIB="${2:?path to InfiniFrame.Native.so required}"
@@ -28,12 +28,11 @@ mkdir -p "$WORK/out-$VARIANT-teardown"
 NATIVE_LIB_DIR="$(cd "$(dirname "$SOLIB")" && pwd)"
 
 echo "=== building teardown stress harness: variant=$VARIANT ==="
-g++ -std=c++23 -O2 -Wall -Wextra \
-    -I "$ABI_INCLUDE" \
+g++ -std=c++23 -O2 -Wall -Wextra -I "$ABI_INCLUDE" $(pkg-config --cflags gtk4) \
     "$SCRIPT_DIR/teardown-stress.cpp" \
-    "$NATIVE_LIB_DIR/InfiniFrame.Native.so" \
-    -Wl,-rpath,"$NATIVE_LIB_DIR" \
-    -o "$WORK/teardown-$VARIANT"
+    -o "$WORK/teardown-$VARIANT" \
+    "$NATIVE_LIB_DIR/InfiniFrame.Native.so" -lX11 $(pkg-config --libs gtk4) \
+    -Wl,-rpath,"$NATIVE_LIB_DIR"
 
 echo "=== stress environment (CI-deterministic) ==="
 eval "$(dbus-launch --sh-syntax)"
@@ -57,6 +56,8 @@ SCENARIOS=(
     close-with-dialog
     repeated-start-stop
     multiple-windows
+    menu-window-lifecycle
+    transparency-render
     callback-triggered-close
     webprocess-kill-close
     host-teardown
@@ -66,8 +67,8 @@ failures=0
 for scenario in "${SCENARIOS[@]}"; do
     echo "--- scenario: $scenario ---"
     log="$WORK/out-$VARIANT-teardown/$scenario.log"
-    timeout 180 "$WORK/teardown-$VARIANT" "$scenario" 25 > "$log" 2>&1
-    code=$?
+    code=0
+    timeout 180 "$WORK/teardown-$VARIANT" "$scenario" 25 > "$log" 2>&1 || code=$?
     if [ $code -eq 0 ]; then
         status="PASS"
     elif [ $code -eq 124 ]; then
