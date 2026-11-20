@@ -337,6 +337,9 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
             try {
                 (window as IDisposable)?.Dispose();
                 if (window.LifecycleState != InfiniFrameWindowLifecycleState.Disposed)
+                    WaitForWindowTeardown(window);
+
+                if (window.LifecycleState != InfiniFrameWindowLifecycleState.Disposed)
                     throw new InvalidOperationException("A window did not complete native disposal.");
 
                 RemoveTrackedWindow(window);
@@ -591,6 +594,31 @@ public sealed class InfiniFrameApplication : IInfiniFrameApplication {
         }
 
         foreach (Task teardown in teardowns) teardown.GetAwaiter().GetResult();
+    }
+
+    /// <summary>
+    ///     Gives a window whose native teardown milestone is still pending a bounded window to complete.
+    /// </summary>
+    /// <remarks>
+    ///     The native teardown milestone is delivered through the platform run loop and completes
+    ///     asynchronously. A synchronous application disposal can otherwise observe the window before
+    ///     that completion lands and report a failed native disposal for a window that is in fact
+    ///     tearing down correctly.
+    /// </remarks>
+    private static void WaitForWindowTeardown(IInfiniFrameWindow window) {
+        try {
+            window.Features.Lifecycle.WaitForTeardownAsync()
+                .AsTask()
+                .WaitAsync(TimeSpan.FromSeconds(5))
+                .GetAwaiter()
+                .GetResult();
+        }
+        catch (TimeoutException) {
+            // The teardown milestone was not delivered. The disposal check reports the failure.
+        }
+        catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
+            // The teardown milestone could not be observed. The disposal check reports the failure.
+        }
     }
 
     private async Task DrainNaturalWindowTeardownsAsync() {
