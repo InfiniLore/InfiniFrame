@@ -87,44 +87,45 @@
         <NativeBuildInput Include="native-build.ps1"/>
     </ItemGroup>
 
+    <!--
+        Manifest of every native the NativeBridge package ships, with the runtime identifier and
+        the file name it is published under. The entries are deliberately unconditional: the
+        artifact may be downloaded after this project was evaluated, so the existence check has
+        to happen at execution time in IncludeNativeArtifactsForPack instead of here. Checking
+        at evaluation time made the result depend on when the native build artifacts happened
+        to land on disk, which intermittently dropped the native of the machine that was
+        running the pack.
+    -->
     <ItemGroup>
-        <_NativeArtifactForPack Include="$(WindowsX64)/InfiniFrame.Native.dll"
-                                Condition="Exists('$(WindowsX64)/InfiniFrame.Native.dll')">
+        <_NativeArtifactForPack Include="$(WindowsX64)/InfiniFrame.Native.dll">
             <RuntimeRid>win-x64</RuntimeRid>
             <LinkName>InfiniFrame.Native.dll</LinkName>
         </_NativeArtifactForPack>
-        <_NativeArtifactForPack Include="$(WindowsX64)/WebView2Loader.dll"
-                                Condition="Exists('$(WindowsX64)/WebView2Loader.dll')">
+        <_NativeArtifactForPack Include="$(WindowsX64)/WebView2Loader.dll">
             <RuntimeRid>win-x64</RuntimeRid>
             <LinkName>WebView2Loader.dll</LinkName>
         </_NativeArtifactForPack>
-        <_NativeArtifactForPack Include="$(WindowsArm64)/InfiniFrame.Native.dll"
-                                Condition="Exists('$(WindowsArm64)/InfiniFrame.Native.dll')">
+        <_NativeArtifactForPack Include="$(WindowsArm64)/InfiniFrame.Native.dll">
             <RuntimeRid>win-arm64</RuntimeRid>
             <LinkName>InfiniFrame.Native.dll</LinkName>
         </_NativeArtifactForPack>
-        <_NativeArtifactForPack Include="$(WindowsArm64)/WebView2Loader.dll"
-                                Condition="Exists('$(WindowsArm64)/WebView2Loader.dll')">
+        <_NativeArtifactForPack Include="$(WindowsArm64)/WebView2Loader.dll">
             <RuntimeRid>win-arm64</RuntimeRid>
             <LinkName>WebView2Loader.dll</LinkName>
         </_NativeArtifactForPack>
-        <_NativeArtifactForPack Include="$(LinuxX64)/InfiniFrame.Native.so"
-                                Condition="Exists('$(LinuxX64)/InfiniFrame.Native.so')">
+        <_NativeArtifactForPack Include="$(LinuxX64)/InfiniFrame.Native.so">
             <RuntimeRid>linux-x64</RuntimeRid>
             <LinkName>InfiniFrame.Native.so</LinkName>
         </_NativeArtifactForPack>
-        <_NativeArtifactForPack Include="$(LinuxArm64)/InfiniFrame.Native.so"
-                                Condition="Exists('$(LinuxArm64)/InfiniFrame.Native.so')">
+        <_NativeArtifactForPack Include="$(LinuxArm64)/InfiniFrame.Native.so">
             <RuntimeRid>linux-arm64</RuntimeRid>
             <LinkName>InfiniFrame.Native.so</LinkName>
         </_NativeArtifactForPack>
-        <_NativeArtifactForPack Include="$(MacOsX64)/InfiniFrame.Native.dylib"
-                                Condition="Exists('$(MacOsX64)/InfiniFrame.Native.dylib')">
+        <_NativeArtifactForPack Include="$(MacOsX64)/InfiniFrame.Native.dylib">
             <RuntimeRid>osx-x64</RuntimeRid>
             <LinkName>InfiniFrame.Native.dylib</LinkName>
         </_NativeArtifactForPack>
-        <_NativeArtifactForPack Include="$(MacOsArm64)/InfiniFrame.Native.dylib"
-                                Condition="Exists('$(MacOsArm64)/InfiniFrame.Native.dylib')">
+        <_NativeArtifactForPack Include="$(MacOsArm64)/InfiniFrame.Native.dylib">
             <RuntimeRid>osx-arm64</RuntimeRid>
             <LinkName>InfiniFrame.Native.dylib</LinkName>
         </_NativeArtifactForPack>
@@ -139,48 +140,18 @@
         <Touch Files="$(NativeStamp)" AlwaysCreate="true"/>
     </Target>
 
+    <!--
+        Single owner of the native files that end up in the package. Every runtime identifier is
+        handled the same way, including the one that matches the machine running the pack, and the
+        existence check runs at execution time so that an artifact downloaded after the project
+        was evaluated is still picked up.
+    -->
     <Target Name="IncludeNativeArtifactsForPack"
-            BeforeTargets="_GetPackageFiles"
-            Condition="'@(_NativeArtifactForPack)'!=''">
+            BeforeTargets="_GetPackageFiles">
         <ItemGroup>
-            <_PackageFiles Include="$(WindowsX64)/InfiniFrame.Native.dll"
-                           Condition="Exists('$(WindowsX64)/InfiniFrame.Native.dll')">
-                <PackagePath>runtimes/win-x64/native/InfiniFrame.Native.dll</PackagePath>
-                <BuildAction>Content</BuildAction>
-            </_PackageFiles>
-            <_PackageFiles Include="$(WindowsX64)/WebView2Loader.dll"
-                           Condition="Exists('$(WindowsX64)/WebView2Loader.dll')">
-                <PackagePath>runtimes/win-x64/native/WebView2Loader.dll</PackagePath>
-                <BuildAction>Content</BuildAction>
-            </_PackageFiles>
-            <_PackageFiles Include="$(WindowsArm64)/InfiniFrame.Native.dll"
-                           Condition="Exists('$(WindowsArm64)/InfiniFrame.Native.dll')">
-                <PackagePath>runtimes/win-arm64/native/InfiniFrame.Native.dll</PackagePath>
-                <BuildAction>Content</BuildAction>
-            </_PackageFiles>
-            <_PackageFiles Include="$(WindowsArm64)/WebView2Loader.dll"
-                           Condition="Exists('$(WindowsArm64)/WebView2Loader.dll')">
-                <PackagePath>runtimes/win-arm64/native/WebView2Loader.dll</PackagePath>
-                <BuildAction>Content</BuildAction>
-            </_PackageFiles>
-            <_PackageFiles Include="$(LinuxX64)/InfiniFrame.Native.so"
-                           Condition="Exists('$(LinuxX64)/InfiniFrame.Native.so')">
-                <PackagePath>runtimes/linux-x64/native/InfiniFrame.Native.so</PackagePath>
-                <BuildAction>Content</BuildAction>
-            </_PackageFiles>
-            <_PackageFiles Include="$(LinuxArm64)/InfiniFrame.Native.so"
-                           Condition="Exists('$(LinuxArm64)/InfiniFrame.Native.so')">
-                <PackagePath>runtimes/linux-arm64/native/InfiniFrame.Native.so</PackagePath>
-                <BuildAction>Content</BuildAction>
-            </_PackageFiles>
-            <_PackageFiles Include="$(MacOsX64)/InfiniFrame.Native.dylib"
-                           Condition="Exists('$(MacOsX64)/InfiniFrame.Native.dylib')">
-                <PackagePath>runtimes/osx-x64/native/InfiniFrame.Native.dylib</PackagePath>
-                <BuildAction>Content</BuildAction>
-            </_PackageFiles>
-            <_PackageFiles Include="$(MacOsArm64)/InfiniFrame.Native.dylib"
-                           Condition="Exists('$(MacOsArm64)/InfiniFrame.Native.dylib')">
-                <PackagePath>runtimes/osx-arm64/native/InfiniFrame.Native.dylib</PackagePath>
+            <_PackageFiles Include="@(_NativeArtifactForPack)"
+                           Condition="Exists('%(_NativeArtifactForPack.Identity)')">
+                <PackagePath>runtimes/%(_NativeArtifactForPack.RuntimeRid)/native/%(_NativeArtifactForPack.LinkName)</PackagePath>
                 <BuildAction>Content</BuildAction>
             </_PackageFiles>
         </ItemGroup>
@@ -202,14 +173,16 @@
                 <RuntimeRid>$(CurrentNativeRuntimeRid)</RuntimeRid>
                 <LinkName>WebView2Loader.dll</LinkName>
             </_CurrentNativeArtifact>
-
-            <_CurrentNativeArtifactToPack Include="%(_CurrentNativeArtifact.Identity)">
-                <RuntimeRid>%(_CurrentNativeArtifact.RuntimeRid)</RuntimeRid>
-                <LinkName>%(_CurrentNativeArtifact.LinkName)</LinkName>
-            </_CurrentNativeArtifactToPack>
-            <_CurrentNativeArtifactToPack Remove="@(_NativeArtifactForPack)"/>
         </ItemGroup>
 
+        <!--
+            Copy the native of the machine running the build next to the managed output. The
+            package itself is assembled by IncludeNativeArtifactsForPack, which treats every
+            runtime identifier the same way; adding the current runtime identifier here as well
+            used to depend on the artifact list evaluated before the native build artifacts were
+            downloaded, which intermittently left the current runtime identifier out of the
+            package.
+        -->
         <ItemGroup>
             <None Include="@(_CurrentNativeArtifact)">
                 <Visible>false</Visible>
@@ -219,10 +192,6 @@
                 <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
                 <Pack>false</Pack>
             </None>
-            <_PackageFiles Include="@(_CurrentNativeArtifactToPack)">
-                <PackagePath>runtimes/%(_CurrentNativeArtifactToPack.RuntimeRid)/native/%(_CurrentNativeArtifactToPack.LinkName)</PackagePath>
-                <BuildAction>Content</BuildAction>
-            </_PackageFiles>
         </ItemGroup>
     </Target>
 
