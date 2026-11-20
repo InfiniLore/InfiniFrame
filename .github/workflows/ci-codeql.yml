@@ -254,7 +254,7 @@ jobs:
             -   name: Restore NativeBridge
                 timeout-minutes: 10
                 run: |
-                    dotnet restore src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj --verbosity normal /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
+                    dotnet restore src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj --verbosity normal /p:WarningsAsErrors=NU1503 /p:NativeArch=${{ matrix.arch }}
 
             -   name: Initialize CodeQL
                 uses: github/codeql-action/init@v4
@@ -309,7 +309,7 @@ jobs:
                 uses: actions/checkout@v7
             -   name: Restore NativeBridge
                 timeout-minutes: 10
-                run: dotnet restore src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj --verbosity normal /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
+                run: dotnet restore src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj --verbosity normal /p:WarningsAsErrors=NU1503 /p:NativeArch=${{ matrix.arch }}
             -   name: Initialize CodeQL
                 uses: github/codeql-action/init@v4
                 with:

@@ -85,7 +85,7 @@ jobs:
                     artifact-type: testing
 
             -   name: Restore
-                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
+                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:WarningsAsErrors=NU1503 /p:NativeArch=${{ matrix.arch }}
 
             -   name: Build Release
                 run: |

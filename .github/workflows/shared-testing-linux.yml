@@ -96,7 +96,7 @@ jobs:
                 run: glib-compile-schemas /usr/share/glib-2.0/schemas/
 
             -   name: Restore
-                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
+                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:WarningsAsErrors=NU1503 /p:NativeArch=${{ matrix.arch }}
 
             -   name: Build Release
                 run: |

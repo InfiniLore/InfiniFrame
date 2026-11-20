@@ -116,7 +116,7 @@ jobs:
             -   name: Restore
                 run: |
                     dotnet restore InfiniFrame.GitHubActions.Testing.Automation.slnf `
-                      /p:NoWarn=NU1503
+                      /p:WarningsAsErrors=NU1503
 
             -   name: Build Tests
                 run: |
