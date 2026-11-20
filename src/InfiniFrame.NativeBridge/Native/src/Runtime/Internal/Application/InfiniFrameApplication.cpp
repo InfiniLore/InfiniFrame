@@ -295,11 +295,9 @@ void InfiniFrameApplication::Run() noexcept {
 }
 
 void InfiniFrameApplication::Shutdown() noexcept {
-    std::vector<InfiniFrameWindow*> windows;
     {
         std::lock_guard lock(_impl->mutex);
         _impl->shutdownRequested = true;
-        windows.assign(_impl->windows.begin(), _impl->windows.end());
     }
 #ifdef _WIN32
     {
@@ -308,13 +306,23 @@ void InfiniFrameApplication::Shutdown() noexcept {
             PostThreadMessage(_impl->runThreadId, WM_QUIT, 0, 0);
         }
     }
-#elif defined(__linux__)
-    (void)windows;
 #elif defined(__APPLE__)
+    // Snapshot the window list when the block runs on the main queue, not when
+    // shutdown is requested: a window can complete destruction between the two,
+    // and Close() on the stale pointer is a use-after-free (observed as SIGSEGV
+    // in DispatchToMainSync from InfiniFrameApplication::Shutdown during the
+    // macOS lifecycle tests). Native window destruction is serialized on the
+    // main queue as well, so the windows tracked at block execution stay alive
+    // for the duration of the loop.
     dispatch_async(
         dispatch_get_main_queue(), ^{
-        for (InfiniFrameWindow * window: windows)
-            window->Close();
+            std::vector<InfiniFrameWindow*> windows;
+            {
+                std::lock_guard lock(_impl->mutex);
+                windows.assign(_impl->windows.begin(), _impl->windows.end());
+            }
+            for (InfiniFrameWindow* window: windows)
+                window->Close();
         });
 #endif
 }
