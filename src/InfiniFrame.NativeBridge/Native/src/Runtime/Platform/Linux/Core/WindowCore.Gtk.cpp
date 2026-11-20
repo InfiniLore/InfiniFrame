@@ -66,11 +66,11 @@ InfiniFrameWindow::~InfiniFrameWindow() {
                 CloseWebView();
 
             // Detach the finalization weak watch before destruction so a late webview
-            // finalize cannot call back into this object (Phase 07 fix).
+            // finalize cannot call back into this object (teardown work fix).
             DetachWebviewFinalizeWatch();
 
             // Release menu-owned GObjects exactly once before the widget hierarchy is
-            // destroyed (audit finding 5); the menu widgets themselves are released by
+            // destroyed (migration requirement); the menu widgets themselves are released by
             // the hierarchy.
             m_impl->ReleaseMenuResources();
 
@@ -91,7 +91,7 @@ InfiniFrameWindow::~InfiniFrameWindow() {
             // Flush any pending deferred teardown completion inline (exactly-once via the
             // shared guard): the idle that would run it captures `this`, which is about to
             // be destroyed. Running here — on the owner thread — keeps the teardown
-            // callback and application notification intact (Phase 07 fix).
+            // callback and application notification intact (teardown work fix).
             {
                 std::lock_guard held(m_impl->_teardownGuard->mutex);
                 if (!m_impl->_teardownGuard->completed) {

@@ -1,6 +1,6 @@
 # Linux teardown / lifecycle stress
 
-Phase 07 (GTK4/WebKitGTK 6.0 migration) tooling: exercises window teardown scenarios through
+teardown work (GTK4/WebKitGTK 6.0 migration) tooling: exercises window teardown scenarios through
 the public native ABI and checks the lifecycle invariants that the WebKitGTK teardown
 workarounds exist for.
 

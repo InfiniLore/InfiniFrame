@@ -87,7 +87,7 @@ void InfiniFrameWindow::OnSurfaceLayout(const int width, const int height) {
     OnConfigureEvent(x, y, width, height);
 
     // A SetSize request that landed during the first map/size negotiation was clobbered;
-    // re-assert it once now that the toplevel is fully allocated (Phase 07 flake fix).
+    // re-assert it once now that the toplevel is fully allocated (teardown work flake fix).
     if (m_impl->_pendingResizeWidth > 0 &&
         (width != m_impl->_pendingResizeWidth || height != m_impl->_pendingResizeHeight)) {
         const int targetWidth = m_impl->_pendingResizeWidth;
@@ -120,7 +120,7 @@ void InfiniFrameWindow::OnWindowStateEvent(const GdkToplevelState newState) {
     // a single SetMaximized/SetMinimized/restore raises exactly one event, matching the Win32 WM_SIZE handling.
     const bool isMaximized = (newState & GDK_TOPLEVEL_STATE_MAXIMIZED) != 0;
     // Unmapped does not mean minimized: GTK4 reports pre-map/unmap states through the same
-    // toplevel notifications, so only the explicit MINIMIZED bit is trusted (audit finding 6).
+    // toplevel notifications, so only the explicit MINIMIZED bit is trusted (migration requirement).
     const bool isMinimized = (newState & GDK_TOPLEVEL_STATE_MINIMIZED) != 0;
 
     if (isMaximized) {
@@ -238,7 +238,7 @@ void on_window_active_notify(GObject* object, GParamSpec* pspec, const gpointer 
             const bool active = gtk_window_is_active(GTK_WINDOW(object)) != FALSE;
             // Emit focus events only on real activation transitions: GTK4 can deliver an
             // initial notify::is-active at map time, which must not create a spurious
-            // focus-out before the first focus-in (audit finding 6).
+            // focus-out before the first focus-in (migration requirement).
             const int previous = instance->GetActiveEventState();
             const int current = active ? 1 : 0;
             if (previous == current)

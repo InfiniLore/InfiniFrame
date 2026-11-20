@@ -9,7 +9,7 @@ namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
 ///     Focused regression tests for GTK4/WebKitGTK 6.0 migration-specific lifecycle behavior
-///     (Phase 09): teardown completion exactly-once, window churn survival, and SetSize
+///     (migration): teardown completion exactly-once, window churn survival, and SetSize
 ///     reliability when it races the first map (see 07-lifecycle-teardown-report.md).
 /// </summary>
 public class MigrationLifecycleRegressionTests {
@@ -36,7 +36,7 @@ public class MigrationLifecycleRegressionTests {
     [DefaultTimeout(120_000)]
     public async Task RepeatedCreateCloseCycles_KeepSubsequentWindowsHealthy(CancellationToken ct = default) {
         // Arrange: rapid create/close churn is the exact pattern that surfaced the
-        // deferred-teardown use-after-free and the UI-thread restart SIGABRT (Phase 07).
+        // deferred-teardown use-after-free and the UI-thread restart SIGABRT (teardown work).
         const int cycles = 10;
 
         // Act
@@ -92,7 +92,7 @@ public class MigrationLifecycleRegressionTests {
     [DefaultTimeout(120_000)]
     public async Task RapidClose_MultipleWindows_RaisesClosedExactlyOnceEach(CancellationToken ct = default) {
         // Arrange: the deferred-teardown completion must run exactly once per window
-        // regardless of how closes interleave (Phase 07 TeardownGuard contract).
+        // regardless of how closes interleave (teardown work TeardownGuard contract).
         const int windowCount = 4;
         int closedCount = 0;
         var utilities = new List<InfiniFrameTestWindow>();

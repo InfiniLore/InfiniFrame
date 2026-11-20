@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------------------------------------------------
-// InfiniFrame Linux teardown / lifecycle stress harness (Phase 07)
+// InfiniFrame Linux teardown / lifecycle stress harness (teardown work)
 // ---------------------------------------------------------------------------------------------------------------------
 // Exercises the WebKitGTK teardown scenarios from implementation-plans/gtk4-webkit6/07:
 //   close-during-load          close while custom-scheme resources are loading
@@ -402,10 +402,10 @@ namespace {
 
     InfiniFrameWindow* g_reentrantWindow = nullptr;
 
-    // Menu row structure check result (audit finding 5 follow-up): 1 = verified.
+    // Menu row structure check result (migration follow-up): 1 = verified.
     std::atomic<int> g_menuRowCheck{0};
 
-    // Menu JSON fixtures for the menu lifecycle scenario (audit finding 5).
+    // Menu JSON fixtures for the menu lifecycle scenario (migration requirement).
     constexpr const char* kMenuBarJson1 =
         "{\"items\":[{\"id\":\"file\",\"type\":2,\"label\":\"File\",\"children\":["
         "{\"id\":\"save\",\"type\":0,\"label\":\"Save\",\"isEnabled\":true,\"isVisible\":true}]},"
@@ -419,7 +419,7 @@ namespace {
     bool ScenarioMenuWindowLifecycle(const char* name, const int count) {
         // Menu resource lifecycle: create windows with menu bars, replace menus, toggle
         // enabled/visibility overrides, and close — repeatedly. Run under sanitizers for
-        // leak validation (audit finding 5).
+        // leak validation (migration requirement).
         for (int i = 0; i < count; i++) {
             g_pageReady.store(false);
             InfiniFrameWindow* window = nullptr;
@@ -525,7 +525,7 @@ namespace {
         return FinishScenario(name, g_closedCount.load() == 1, "expect_closed=1");
     }
 
-    // Transparent page for the transparency-render scenario (audit finding 2).
+    // Transparent page for the transparency-render scenario (migration requirement).
     const char* kTransparentPageHtml = R"HTML(
 <!DOCTYPE html><html><head><meta charset="utf-8"></head>
 <body style="background:transparent;margin:0">
@@ -540,7 +540,7 @@ namespace {
 )HTML";
 
     bool ScenarioTransparencyRender(const char* name) {
-        // Behavioral transparency validation (audit finding 2): verify the transparent
+        // Behavioral transparency validation (migration requirement): verify the transparent
         // window contract end-to-end — state flag, webview background alpha, the
         // transparency CSS class, and (X11) an ARGB window whose rendered pixels are
         // actually transparent. Wayland has no pixel readback (compositor-owned blending),

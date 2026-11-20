@@ -110,7 +110,7 @@ namespace infiniframe::linux_gtk::ui_thread {
         // A previous owner thread may have finished (its main loop stopped) without being
         // joined. Join it before starting a replacement: reassigning or destroying a joinable
         // std::thread calls std::terminate (SIGABRT — the historical "test host exits 134
-        // after all tests pass" crash, reproduced and root-caused in Phase 07).
+        // after all tests pass" crash, reproduced and root-caused in teardown work).
         std::unique_ptr<std::thread> previous;
         {
             std::lock_guard lock(initializeMutex);

@@ -2,7 +2,7 @@
 
 Repeatable benchmark for the Linux native bridge's high-frequency update pipeline
 (native → web message dispatch → web → native acknowledgement), used by the
-GTK4/WebKitGTK 6.0 migration (Phase 06) to compare rendering/messaging performance
+GTK4/WebKitGTK 6.0 migration (migration) to compare rendering/messaging performance
 before and after the port.
 
 ## What it measures

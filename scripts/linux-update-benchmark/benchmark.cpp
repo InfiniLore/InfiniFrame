@@ -153,7 +153,7 @@ namespace {
             if (seq > g_ackSeq) {
                 g_ackSeq = seq;
             }
-            // Latency samples are collected only during the sequential phase; burst
+            // Latency samples are collected only during the sequential segment; burst
             // round trips are queued behind each other and would distort percentiles.
             if (g_recordLatency.load())
                 g_latenciesMs.push_back((nowNs - sendNs) / 1e6);
@@ -277,7 +277,7 @@ int main() {
     const long rssBeforeKb = ReadStatusKb("VmRSS:");
     const long hwmBeforeKb = ReadStatusKb("VmHWM:");
 
-    // Phase 1: sequential round-trip latency.
+    // Sequential workload: round-trip latency.
     g_recordLatency.store(true);
     const auto latencyStart = Clock::now();
     for (long long i = 0; i < kLatencyRtts; i++) {
@@ -289,13 +289,13 @@ int main() {
         lock.lock();
         if (!g_cv.wait_for(lock, std::chrono::seconds(kTimeoutSeconds),
                            [&] { return g_ackSeq >= target; })) {
-            std::printf("ERROR: latency phase stalled at seq %lld\n", target);
+            std::printf("ERROR: latency segment stalled at seq %lld\n", target);
             return 1;
         }
     }
     const double latencySeconds = std::chrono::duration<double>(Clock::now() - latencyStart).count();
 
-    // Phase 2: burst throughput (queue every update back-to-back, wait for all acks).
+    // Burst workload: throughput (queue every update back-to-back, wait for all acks).
     g_recordLatency.store(false);
     const long long burstBase = 2000000;
     const long long burstStartAcks = g_burstAcks.load();
@@ -307,7 +307,7 @@ int main() {
         std::unique_lock lock(g_mutex);
         if (!g_cv.wait_for(lock, std::chrono::seconds(kTimeoutSeconds),
                            [&] { return g_burstAcks.load() >= burstTargetAcks; })) {
-            std::printf("ERROR: burst phase stalled at %lld/%lld acks\n",
+            std::printf("ERROR: burst segment stalled at %lld/%lld acks\n",
                         g_burstAcks.load() - burstStartAcks, kBurstMessages);
             return 1;
         }
@@ -325,7 +325,7 @@ int main() {
         std::lock_guard lock(g_mutex);
         PrintPercentiles(g_latenciesMs, "roundtrip_latency_ms");
     }
-    std::printf("latency_phase: %lld round trips in %.3fs -> %.1f round trips/s\n",
+    std::printf("latency_workload: %lld round trips in %.3fs -> %.1f round trips/s\n",
                 kLatencyRtts, latencySeconds, kLatencyRtts / latencySeconds);
     std::printf("burst_throughput: %lld updates in %.3fs -> %.1f updates/s\n",
                 kBurstMessages, burstSeconds, kBurstMessages / burstSeconds);

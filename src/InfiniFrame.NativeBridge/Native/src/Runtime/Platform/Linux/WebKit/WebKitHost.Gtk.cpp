@@ -48,7 +48,7 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
     }
 
     // Prepare the WebKit and graphics subsystems. The remote-debugging environment
-    // must be configured before the first WebKit object exists (blockers-resolution.md B6).
+    // must be configured before the first WebKit object exists (process-wide WebKit inspector requirement).
     m_impl->configure_webkit_remote_debugging();
     infiniframe::linux_gtk::ConfigureGraphicsEnvironment();
 

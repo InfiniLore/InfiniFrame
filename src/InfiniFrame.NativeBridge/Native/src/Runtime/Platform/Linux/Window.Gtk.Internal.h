@@ -48,7 +48,7 @@ struct InfiniFrameWindow::Impl {
     bool _maximized = false;
     bool _minimized = false;
     // Focus-event gating: -1 = unknown (before the first activation notification),
-    // 0 = inactive, 1 = active. Suppresses spurious initial focus events (audit finding 6).
+    // 0 = inactive, 1 = active. Suppresses spurious initial focus events (migration requirement).
     int _activeEventState = -1;
     double _zoom = 100.0;
     int _minWidth = 0;
@@ -65,7 +65,7 @@ struct InfiniFrameWindow::Impl {
     // gtk_window_set_default_size is silently clobbered when it lands while the first
     // map/size negotiation is in flight (widget unallocated). The request is kept here and
     // re-asserted once from the first layout callback, when the toplevel is fully allocated
-    // (Phase 07: SetSize flake fix).
+    // (teardown work: SetSize flake fix).
     int _pendingResizeWidth = 0;
     int _pendingResizeHeight = 0;
 
@@ -102,7 +102,7 @@ struct InfiniFrameWindow::Impl {
     void ConnectWindowSignals(InfiniFrameWindow* window);
     void ConnectWebViewSignals(InfiniFrameWindow* window);
 
-    // GTK4 window primitives (see 01-migration-matrix.md and blockers-resolution.md B1/B2).
+    // GTK4 window primitives.
     void ApplySizeConstraints();
     void MoveTo(int x, int y);
     bool TryGetPosition(int* x, int* y) const;

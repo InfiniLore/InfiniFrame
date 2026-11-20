@@ -8,7 +8,7 @@ namespace InfiniTests.InfiniFrame.Window.Features.Menu;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Regression tests for GTK4 menu resource lifecycle (audit finding 5): menu
+///     Regression tests for GTK4 menu resource lifecycle (migration requirement): menu
 ///     replacement, enabled/visibility overrides, nested submenus, and repeated
 ///     window creation/destruction with menus attached. GObject-level leak validation
 ///     for the same scenario runs under ASan/LSan in scripts/linux-teardown-stress

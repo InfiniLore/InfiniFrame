@@ -275,7 +275,7 @@ jobs:
                       # kills the host with SIGABRT (134) or SIGSEGV (139); the test platform
                       # then reports "the test host process exited unexpectedly" (7).
                       #
-                      # Phase 07 reduced but did not eliminate that race, and it is load
+                      # teardown work reduced but did not eliminate that race, and it is load
                       # sensitive, so it only reproduces intermittently when the runner is
                       # busy. The tolerances were removed when it looked fixed; a fresh
                       # reproduction exists now, so restore them as that change instructed.

@@ -113,7 +113,7 @@ G_GNUC_BEGIN_IGNORE_DEPRECATIONS
     // because chooser dialogs now confirm overwrites unconditionally (GTK 3→4 migration guide;
     // the built-in "A file named ... already exists. Do you want to replace it?" dialog ships in
     // libgtk-4.so.1). The GTK3 code enabled this explicitly, so save-dialog behavior is
-    // preserved for both the synchronous and asynchronous paths (audit finding 3).
+    // preserved for both the synchronous and asynchronous paths (migration requirement).
     if (type != OpenFolder)
         AddFilters(GTK_FILE_CHOOSER(dialog), filters, filterCount);
 G_GNUC_END_IGNORE_DEPRECATIONS

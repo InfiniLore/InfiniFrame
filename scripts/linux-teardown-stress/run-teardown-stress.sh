@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ---------------------------------------------------------------------------------------------------------------------
-# InfiniFrame Linux teardown/lifecycle stress runner (Phase 07).
+# InfiniFrame Linux teardown/lifecycle stress runner (teardown work).
 #
 # Usage: run-teardown-stress.sh <variant-name> <path-to-InfiniFrame.Native.so> [abi-include-root]
 #

@@ -9,7 +9,7 @@ namespace InfiniTests.InfiniFrame.Window.Features.Position;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Regression tests for native centering with monitor offsets (audit finding 1):
+///     Regression tests for native centering with monitor offsets (migration requirement):
 ///     <c>Center()</c> (and the start-centered path) must center within the target
 ///     monitor's geometry including monitors placed away from the origin - multi-monitor
 ///     layouts must not center against (0, 0). Runs where window positioning is

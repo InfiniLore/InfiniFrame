@@ -485,10 +485,10 @@ void InfiniFrameWindow::SetMaxSize(const int width, const int height) {
 
 void InfiniFrameWindow::SetSize(const int width, const int height) {
     // GTK4 removed gtk_window_resize. gtk_window_set_default_size resizes a mapped
-    // toplevel on both X11 and Wayland (runtime-verified; see blockers-resolution.md),
+    // toplevel on both X11 and Wayland (verified on supported Linux backends),
     // but the request is clobbered if it lands while the first map/size negotiation is
     // still in flight. Remember the target and let OnSurfaceLayout re-assert it once the
-    // toplevel is fully allocated (Phase 07 flake fix).
+    // toplevel is fully allocated (teardown work flake fix).
     if (g_getenv("INFINIFRAME_LINUX_WEBVIEW_DIAGNOSTICS") != nullptr) {
         g_message("[InfiniFrame/Linux] SetSize requested: %dx%d (widget now %dx%d mapped=%d)",
                   width, height,
@@ -568,7 +568,7 @@ void InfiniFrameWindow::SetTransparentEnabled(const bool enabled) {
     // gtk_widget_set_visual / app-paintable setup is obsolete. True desktop transparency
     // additionally requires the toplevel's own CSS background to be transparent — otherwise
     // the theme background shows through page alpha. A compositor blends the result:
-    // inherent on Wayland; required on X11 (audit finding 2).
+    // inherent on Wayland; required on X11 (migration requirement).
     static const gchar* kTransparentCss = "window.infiniframe-transparent { background: transparent; }";
     static std::once_flag cssOnce;
     GdkDisplay* display = gtk_widget_get_display(GTK_WIDGET(m_impl->_window));

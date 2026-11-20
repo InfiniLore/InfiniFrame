@@ -23,7 +23,7 @@ void InfiniFrameWindow::GetAllMonitors(const GetAllMonitorsCallback Callback) co
         gdk_monitor_get_geometry(monitor, reinterpret_cast<GdkRectangle*>(&props.monitor));
         if (GDK_IS_X11_DISPLAY(display)) {
             // GTK4 removed gdk_monitor_get_workarea from core GDK; the X11 backend still
-            // exposes it (deprecated 4.18, no replacement — blockers-resolution.md B5).
+            // exposes it (deprecated 4.18, no replacement — GTK4 monitor behavior).
 G_GNUC_BEGIN_IGNORE_DEPRECATIONS
             gdk_x11_monitor_get_workarea(monitor, reinterpret_cast<GdkRectangle*>(&props.work));
 G_GNUC_END_IGNORE_DEPRECATIONS

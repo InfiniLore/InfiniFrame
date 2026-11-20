@@ -307,7 +307,7 @@ namespace {
 }
 
 void InfiniFrameWindow::Impl::ReleaseMenuResources() {
-    // Release menu-owned GObjects exactly once at window destruction (audit finding 5):
+    // Release menu-owned GObjects exactly once at window destruction (migration requirement):
     // activation data, the action group (and its widget insertion), and the id maps.
     // The menu-bar row widget and its buttons (_menuBar/_menuBox) are released by the
     // GTK widget hierarchy when the window is destroyed.

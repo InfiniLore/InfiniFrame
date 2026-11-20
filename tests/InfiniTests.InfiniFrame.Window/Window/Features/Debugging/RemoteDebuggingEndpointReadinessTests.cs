@@ -15,7 +15,7 @@ public class RemoteDebuggingEndpointReadinessTests {
     [NotInParallelInfiniTests]
     // WebView2 startup and browser-process shutdown are substantially slower on native
     // Windows ARM64 runners. The assertions below already use bounded polling, so the
-    // test-level timeout must cover both polling phases plus deterministic window teardown.
+    // test-level timeout must cover both polling intervals plus deterministic window teardown.
     [Timeout(45_000)]
     public async Task AtWindowStage_ThroughBuilderAssignment_CloseTransitionsEndpointFromReachableToUnavailable(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) {

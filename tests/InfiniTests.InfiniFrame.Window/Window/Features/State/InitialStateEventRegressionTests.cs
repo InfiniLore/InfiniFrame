@@ -8,7 +8,7 @@ namespace InfiniTests.InfiniFrame.Window.Features.State;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Regression tests for spurious initial window-state events (audit finding 6):
+///     Regression tests for spurious initial window-state events (migration requirement):
 ///     a newly created window must not report itself minimized from the initial
 ///     unmapped/undecorated state, and must not raise a focus-out before the first
 ///     focus-in (the GTK4 initial active-state notification used to fabricate one).

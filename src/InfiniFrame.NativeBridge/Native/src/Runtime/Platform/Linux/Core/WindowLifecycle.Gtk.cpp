@@ -60,7 +60,7 @@ void InfiniFrameWindow::Center() {
         : nullptr;
     if (monitor == nullptr) {
         // GTK4 removed gdk_display_get_primary_monitor; the X11 backend still exposes it
-        // (deprecated 4.18, no core replacement — see blockers-resolution.md B5).
+        // (deprecated 4.18, no core replacement — see GTK4 monitor behavior).
         if (GDK_IS_X11_DISPLAY(display)) {
 G_GNUC_BEGIN_IGNORE_DEPRECATIONS
             monitor = gdk_x11_display_get_primary_monitor(GDK_X11_DISPLAY(display));
@@ -122,7 +122,7 @@ void InfiniFrameWindow::CloseWebView() {
     // tearing down. The webview itself is destroyed implicitly by GTK when the parent window is destroyed.
     // Explicit destruction here (destroying the webview, terminating the web process, pumping events) triggers
     // WebKit's web-process cleanup from inside a GTK signal handler, which caused SIGABRT on WebKitGTK 4.1 and
-    // remains unsafe on WebKitGTK 6.0 (revalidated in Phase 07: the teardown stress suite passes these close
+    // remains unsafe on WebKitGTK 6.0 (revalidated in teardown work: the teardown stress suite passes these close
     // paths only with this sequencing preserved; the deferred-teardown guard in the destructor covers the
     // remaining finalization races).
     // Do not unref _webContext here either. CloseWebView runs from the GTK delete/close path, and releasing
