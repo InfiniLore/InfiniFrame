@@ -73,6 +73,20 @@ RUN apt-get install -y --no-install-recommends \
     xfonts-base \
     xvfb
 
+# WebKit's bubblewrap sandbox needs unprivileged user namespaces, which the CI job
+# container does not allow: Docker's default seccomp profile blocks
+# unshare(CLONE_NEWUSER), so bwrap fails with "Creating new namespace failed:
+# Operation not permitted". WebKit launches xdg-dbus-proxy inside that sandbox and
+# treats the failure as fatal (g_error "Failed to fully launch dbus-proxy"), which
+# aborts the whole test host with SIGABRT.
+#
+# WebKit only detects containers through /run/.containerenv and never looks for
+# Docker's /.dockerenv, so it does not notice it is already containerised. Creating
+# the marker lets WebKit's own container probe run: it tries bubblewrap, sees that
+# it cannot work here, and disables the sandbox for this container instead of
+# aborting. The sandbox stays enabled if bubblewrap ever becomes usable in CI.
+RUN mkdir -p /run && touch /run/.containerenv
+
 # Optional native crash diagnostics and the pinned CMake release.
 RUN apt-get install -y --no-install-recommends \
     file \
