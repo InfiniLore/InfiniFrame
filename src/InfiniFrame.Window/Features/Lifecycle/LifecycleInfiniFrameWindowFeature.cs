@@ -37,6 +37,7 @@ public class LifecycleInfiniFrameWindowFeature(
     private int _disposed;
     private int _messageLoopExited;
     private int _messageLoopStarted;
+    private int _teardownSignalled;
     private GCHandle _milestoneRoot;
     private int _milestoneRootReleased;
     private int _nativeCallbackRootReleased;
@@ -69,8 +70,12 @@ public class LifecycleInfiniFrameWindowFeature(
         // Never wait re-entrantly from a native callback on the owning loop: the
         // callback must return before WM_NCDESTROY can schedule teardown. Once
         // WaitForClose has exited, or from any non-owning thread, blocking is safe.
+        // The same holds once the native teardown milestone has been signalled: the
+        // managed completion is already queued and no longer depends on the owning
+        // loop, so an owning-thread disposal can wait for it instead of racing it.
         => Volatile.Read(ref _messageLoopExited) != 0
-            || Environment.CurrentManagedThreadId != window.ManagedThreadId;
+            || Environment.CurrentManagedThreadId != window.ManagedThreadId
+            || Volatile.Read(ref _teardownSignalled) != 0;
 
     /// <inheritdoc cref="ILifecycleInfiniFrameWindowFeature.Initialize" />
     void ILifecycleInfiniFrameWindowFeature.Initialize() {
@@ -447,6 +452,10 @@ public class LifecycleInfiniFrameWindowFeature(
 
     private static void OnNativeTeardown(IntPtr context) {
         if (!TryGetLifecycle(context, out LifecycleInfiniFrameWindowFeature? lifecycle)) return;
+
+        // The native teardown milestone has been delivered. Record it so an owning-thread
+        // disposal can wait for the managed completion instead of racing it.
+        Volatile.Write(ref lifecycle._teardownSignalled, 1);
 
         // Complete outside the reverse P/Invoke so async disposal cannot release the
         // native instance while its teardown callback is still returning.
