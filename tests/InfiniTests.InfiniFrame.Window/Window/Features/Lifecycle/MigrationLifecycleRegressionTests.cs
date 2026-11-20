@@ -54,8 +54,8 @@ public class MigrationLifecycleRegressionTests {
         int originalWidth = window.Features.Size.Width;
         int targetWidth = originalWidth == 640 ? 660 : 640;
         window.Features.Size.SetSize(targetWidth, 480);
-        int updatedWidth = await PollUtility.WaitForChangeAsync(
-            getValue: () => window.Features.Size.Width, originalWidth, TimeSpan.FromSeconds(10), ct);
+        int updatedWidth = await PollUtility.WaitForValueAsync(
+            getValue: () => window.Features.Size.Width, targetWidth, TimeSpan.FromSeconds(10), ct);
         await Assert.That(updatedWidth).IsEqualTo(targetWidth);
     }
 

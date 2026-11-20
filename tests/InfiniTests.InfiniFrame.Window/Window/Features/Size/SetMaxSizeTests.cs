@@ -63,8 +63,8 @@ public class SetMaxSizeTests {
         window.Features.Size.SetMaxSize(targetMaxWidth, targetMaxHeight);
 
         // Assert
-        int newMaxWidth = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.MaxWidth, originalMaxWidth, TimeSpan.FromSeconds(5), ct);
-        int newMaxHeight = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.MaxHeight, originalMaxHeight, TimeSpan.FromSeconds(5), ct);
+        int newMaxWidth = await PollUtility.WaitForValueAsync(getValue: () => window.Features.Size.MaxWidth, targetMaxWidth, TimeSpan.FromSeconds(5), ct);
+        int newMaxHeight = await PollUtility.WaitForValueAsync(getValue: () => window.Features.Size.MaxHeight, targetMaxHeight, TimeSpan.FromSeconds(5), ct);
         await Assert.That(newMaxWidth).IsEqualTo(targetMaxWidth);
         await Assert.That(newMaxHeight).IsEqualTo(targetMaxHeight);
     }
