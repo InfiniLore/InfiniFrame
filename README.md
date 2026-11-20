@@ -3,7 +3,7 @@
 *A modern and cross-platform native window framework for .NET that lets you build desktop applications using web
 technologies load any URL, render HTML strings, or embed a full Blazor application inside a native window*
 
-Supports **Windows** (WebView2), **Linux** (WebKit2GTK), and **macOS** (WKWebView)
+Supports **Windows** (WebView2), **Linux** (WebKitGTK), and **macOS** (WKWebView)
 
 > [!NOTE]
 > This project is a modern rework
@@ -191,11 +191,11 @@ npm --prefix docs run build
 
 ## Platform Requirements
 
-| Platform | Browser Engine      | Requirement                           |
-|----------|---------------------|---------------------------------------|
-| Windows  | WebView2 (Chromium) | Windows 10 or later, WebView2 Runtime |
-| Linux    | WebKit2GTK          | GTK 3+                                |
-| macOS    | WKWebView           | macOS 10.15 Catalina or later         |
+| Platform | Browser Engine      | Requirement                                    |
+|----------|---------------------|------------------------------------------------|
+| Windows  | WebView2 (Chromium) | Windows 10 or later, WebView2 Runtime          |
+| Linux    | WebKitGTK 6.0       | GTK 4, WebKitGTK 6.0 (`libgtk-4-dev`, `libwebkitgtk-6.0-dev`) |
+| macOS    | WKWebView           | macOS 10.15 Catalina or later                  |
 
 ## Linux CI Images
 

@@ -17,5 +17,5 @@ done
 
 test "$(node --version | cut -d. -f1)" = "v$(jq -r '.nodeMajor' /usr/share/infiniframe/tool-versions.json)"
 test "$(cmake --version | sed -n '1s/^cmake version //p')" = "$(jq -r '.cmake' /usr/share/infiniframe/tool-versions.json)"
-pkg-config --exists gtk+-3.0 webkit2gtk-4.1 libnotify
+pkg-config --exists gtk4 webkitgtk-6.0 libnotify
 echo "Linux CI image smoke test passed for $(uname -m)."

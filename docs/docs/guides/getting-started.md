@@ -21,8 +21,51 @@ This guide walks you through installing InfiniFrame and creating your first nati
 | Platform | Requirement                                                                                                                                                       |
 |----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Windows  | [WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/); pre-installed on Windows 11 and available as a redistributable for Windows 10 |
-| Linux    | WebKitGTK 4.1, GTK 3, libnotify, X11 development headers, `pkg-config`, and an X11/Wayland display for GUI tests |
+| Linux    | GTK 4 and WebKitGTK 6.0 development packages (`libgtk-4-dev`, `libwebkitgtk-6.0-dev`), `libnotify-dev`, X11/Wayland development headers, `pkg-config`, and an X11 or Wayland display for GUI tests — see [Linux notes](#linux-notes) |
 | macOS    | macOS 10.15 Catalina or later (WKWebView is built into the OS)                                                                                                    |
+
+### Linux notes
+
+**Prerequisites (Debian/Ubuntu):**
+
+```bash
+sudo apt install libgtk-4-dev libwebkitgtk-6.0-dev libnotify-dev \
+    libx11-dev libwayland-dev pkg-config
+```
+
+Verify the expected pkg-config modules resolve:
+
+```bash
+pkg-config --modversion gtk4 webkitgtk-6.0 libnotify x11
+```
+
+**X11 build dependency (intentional):** the native library builds against Xlib
+(`libx11-dev`) even for Wayland-only deployments. Window positioning, maximum-size
+hints, work-area queries, and the keep-above hint are implemented through X11 window
+manager properties (`_NET_WM_STATE_ABOVE`, `_NET_WORKAREA`) and the code that selects
+them is compiled unconditionally; making X11 optional would only add a runtime feature
+matrix without removing the header requirement for X11 users. This is a build-time
+dependency only - a pure-Wayland runtime works identically with no X11 libraries loaded
+for display purposes (GTK4 selects its Wayland backend at runtime).
+
+**Display servers:** both X11 and Wayland are supported. On Wayland the compositor owns
+window placement: arbitrary positioning (`SetLeft`/`SetTop`/`SetLocation`), topmost state,
+and maximum-size constraints cannot be enforced and are ignored or best-effort, matching
+long-standing Linux behavior. On X11 these work through the window manager.
+
+**Rendering:** hardware rendering is the default whenever a render device (`/dev/dri`) is
+present. Set `INFINIFRAME_LINUX_FORCE_SOFTWARE_RENDERING=1` to force the software (llvmpipe)
+path, or `=0` to disable the automatic software fallback. At startup InfiniFrame logs a
+one-time diagnostics block with the GTK/WebKitGTK versions, display backend, renderer
+environment, and the software/hardware decision and its reason — attach it to bug reports
+for rendering issues. If a library is missing at startup, `ldd` on the native library and
+the `pkg-config` check above identify the gap.
+
+**Inspector / debugging:** enable DevTools through the window's debugging feature. Remote
+debugging can be bound to a port before window creation; the underlying WebKitGTK remote
+inspector is configured through the process environment (`WEBKIT_INSPECTOR_SERVER` /
+`WEBKIT_INSPECTOR_HTTP_SERVER`) and is process-scoped on Linux — it must be configured
+before the first window is created.
 
 ## Choose Your Integration
 

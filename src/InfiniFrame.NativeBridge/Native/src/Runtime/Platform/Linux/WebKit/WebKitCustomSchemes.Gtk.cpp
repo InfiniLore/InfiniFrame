@@ -4,7 +4,6 @@
 #include <exception>
 
 #include <gio/gio.h>
-#include <webkit2/webkit2.h>
 
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
 #include "Runtime/Platform/Linux/WebKit/WebKit.Gtk.Internal.h"

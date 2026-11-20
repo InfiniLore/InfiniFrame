@@ -27,6 +27,11 @@ public interface IMonitorsInfiniFrameWindowFeature {
     ///     as reported by the operating system. The standard minimum
     ///     DPI is 96 (100% scaling). Higher values indicate display
     ///     scaling (e.g., 192 for 200% scaling on a 4K display).
+    ///     On Linux this is the scale-derived logical DPI (96 × scale
+    ///     factor): GTK4 removed physical screen-DPI queries, and the
+    ///     scale-derived value keeps native and JavaScript DPI reporting
+    ///     in parity. It matches the historical value (96) on unscaled
+    ///     displays.
     /// </summary>
     /// <returns>The DPI value of the main monitor, guaranteed to be at least 96.</returns>
     int GetMainMonitorScreenDpi();

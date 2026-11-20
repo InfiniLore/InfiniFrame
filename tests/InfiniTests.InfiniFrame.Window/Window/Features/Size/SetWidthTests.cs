@@ -61,7 +61,7 @@ public class SetWidthTests {
         window.Features.Size.SetWidth(targetWidth);
 
         // Assert
-        int newWidth = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.Width, originalWidth, TimeSpan.FromSeconds(5), ct);
+        int newWidth = await PollUtility.WaitForValueAsync(getValue: () => window.Features.Size.Width, targetWidth, TimeSpan.FromSeconds(5), ct);
         await Assert.That(newWidth).IsEqualTo(targetWidth);
     }
 
@@ -79,7 +79,7 @@ public class SetWidthTests {
         IInfiniFrameWindow returnedWindow = window.SetWidth(targetWidth);
 
         // Assert
-        int newWidth = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.Width, originalWidth, TimeSpan.FromSeconds(5), ct);
+        int newWidth = await PollUtility.WaitForValueAsync(getValue: () => window.Features.Size.Width, targetWidth, TimeSpan.FromSeconds(5), ct);
         await Assert.That(newWidth).IsEqualTo(targetWidth);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }

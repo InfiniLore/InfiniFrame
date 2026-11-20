@@ -63,7 +63,13 @@ jobs:
                     artifact-type: testing
 
             -   name: Restore
-                run: dotnet restore InfiniFrame.GitHubActions.Release.slnf /p:NoWarn=NU1503
+                # NU1503 ("Skipping restore for project ... invalid or missing targets") is
+                # an error on purpose: a project skipped at restore silently disappears from
+                # the packed nuspec dependencies (NuGet's PackTaskLogic drops unresolvable
+                # project references with a bare continue), which intermittently produced
+                # meta-packages missing dependencies. The former /p:NoWarn=NU1503 hid
+                # exactly the signal that would have betrayed the skip.
+                run: dotnet restore InfiniFrame.GitHubActions.Release.slnf /p:WarningsAsErrors=NU1503
 
             -   name: Build Release
                 run: |

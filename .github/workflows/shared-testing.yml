@@ -146,7 +146,14 @@ jobs:
             target_sha: ${{ needs.prepare.outputs.sha }}
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
             enable_test_exports: ${{ inputs.enable_test_exports }}
-            enable_coverage: ${{ inputs.enable_coverage }}
+            # Coverage is disabled on macOS: Microsoft.Testing.Extensions.CodeCoverage
+            # 18.12.0 (the latest published release) corrupts its IL instrumentation and
+            # coverage data on macOS with .NET 11 - every net11.0 test host aborted with
+            # "BadImageFormatException: Bad IL format" and its own merge logged
+            # "CoverageHeaderReader.ValidateFileHeader: header magic is invalid", so the
+            # macOS coverage output was unusable for the badge anyway. Re-enable once a
+            # fixed coverage extension is published. Linux and Windows keep coverage.
+            enable_coverage: false
         secrets: inherit
 
     windows:
