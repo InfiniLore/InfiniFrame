@@ -27,6 +27,8 @@ namespace {
     bool initialized = false;
     std::thread::id ownerThreadId = {};
     GMainContext* ownerContext = nullptr;
+    // Serializes owner-thread (re)initialization, including joining a previous owner thread.
+    std::mutex initSequenceMutex;
     // The GTK owner is process-scoped. unique_ptr ensures explicit cleanup so
     // the heap-allocated std::thread is freed on every Shutdown path. The
     // pointer is kept outside any class to survive static-destruction ordering
@@ -79,7 +81,11 @@ namespace {
 
     void AtexitShutdown() {
         std::lock_guard lock(initializeMutex);
-        if (!initialized || gtkThread == nullptr || !gtkThread->joinable())
+        // Detach whenever a thread object exists and is joinable — including the window where
+        // the owner thread already finished (initialized == false) but was never joined.
+        // Destroying a joinable std::thread during static destruction calls std::terminate
+        // (SIGABRT, the historical "test host exits 134 after all tests pass" crash).
+        if (gtkThread == nullptr || !gtkThread->joinable())
             return;
         if (mainLoop != nullptr)
             g_main_loop_quit(mainLoop);
@@ -94,18 +100,35 @@ namespace {
 
 namespace infiniframe::linux_gtk::ui_thread {
     void EnsureInitialized() {
-        std::unique_lock lock(initializeMutex);
-        if (initialized)
-            return;
+        std::lock_guard sequence(initSequenceMutex);
+        {
+            std::lock_guard lock(initializeMutex);
+            if (initialized)
+                return;
+        }
+
+        // A previous owner thread may have finished (its main loop stopped) without being
+        // joined. Join it before starting a replacement: reassigning or destroying a joinable
+        // std::thread calls std::terminate (SIGABRT — the historical "test host exits 134
+        // after all tests pass" crash, reproduced and root-caused in teardown work).
+        std::unique_ptr<std::thread> previous;
+        {
+            std::lock_guard lock(initializeMutex);
+            previous = std::move(gtkThread);
+        }
+        if (previous != nullptr && previous->joinable())
+            previous->join();
+
         std::call_once(
             atexitRegistered, [] {
                 std::atexit(AtexitShutdown);
             });
-        gtkThread = std::make_unique<std::thread>(
+        auto thread = std::make_unique<std::thread>(
             [] {
                 linux_gtk::ConfigureGraphicsEnvironment();
                 XInitThreads();
-                gtk_init(nullptr, nullptr);
+                gtk_init();
+                linux_gtk::LogRenderingDiagnostics();
                 notify_init(NotifyAppName);
 
                 {
@@ -123,7 +146,7 @@ namespace infiniframe::linux_gtk::ui_thread {
                 // callbacks) so they complete while the X11 display connection
                 // is still valid. Without this, they fire later during process
                 // teardown when GLib/GDK/X11 objects are half-torn-down,
-                // causing SIGABRT on libwebkit2gtk-4.1.
+                // causing SIGABRT in WebKitGTK teardown.
                 while (g_main_context_pending(ownerContext)) {
                     g_main_context_iteration(ownerContext, FALSE);
                 }
@@ -139,7 +162,10 @@ namespace infiniframe::linux_gtk::ui_thread {
 
                 notify_uninit();
             });
-        lock.unlock();
+        {
+            std::lock_guard lock(initializeMutex);
+            gtkThread = std::move(thread);
+        }
         std::unique_lock waitLock(initializeMutex);
         initializeCompleted.wait(
             waitLock, [] {

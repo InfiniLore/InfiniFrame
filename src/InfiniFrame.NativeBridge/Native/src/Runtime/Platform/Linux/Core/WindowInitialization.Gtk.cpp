@@ -10,15 +10,19 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-gboolean on_configure_event(GtkWidget* widget, GdkEvent* event, gpointer self);
-gboolean on_window_state_event(GtkWidget* widget, GdkEventWindowState* event, gpointer self);
-gboolean on_widget_deleted(GtkWidget* widget, GdkEvent* event, gpointer self);
+// ---------------------------------------------------------------------------------------------------------------------
+// GTK4 signal handlers (defined in WindowSignals.Gtk.cpp)
+// ---------------------------------------------------------------------------------------------------------------------
+void on_surface_layout(GdkSurface* surface, int width, int height, gpointer self);
+void on_window_realized(GtkWidget* widget, gpointer self);
+void on_toplevel_state_notify(GObject* object, GParamSpec* pspec, gpointer self);
+gboolean on_window_close_request(GtkWindow* window, gpointer self);
 void on_widget_destroyed(GtkWidget* widget, gpointer self);
-gboolean on_focus_in_event(GtkWidget* widget, GdkEvent* event, gpointer self);
-gboolean on_focus_out_event(GtkWidget* widget, GdkEvent* event, gpointer self);
+void on_window_active_notify(GObject* object, GParamSpec* pspec, gpointer self);
+gboolean on_drop_target_drop(GtkDropTarget* target, const GValue* value, double x, double y, gpointer self);
 gboolean on_webview_context_menu(
     WebKitWebView* web_view,
-    GtkWidget* default_menu,
+    WebKitContextMenu* context_menu,
     WebKitHitTestResult* hit_test_result,
     gboolean triggered_with_keyboard,
     gpointer user_data
@@ -107,7 +111,7 @@ void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameWindowInitPa
 void InfiniFrameWindow::Impl::ConfigureInitialWindow(
     InfiniFrameWindow* window,
     InfiniFrameWindowInitParams* initParams) {
-    _window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    _window = gtk_window_new();
     common._dialog = std::make_unique<InfiniFrameDialog>();
 
     if (initParams->FullScreen) {
@@ -130,11 +134,11 @@ void InfiniFrameWindow::Impl::ConfigureInitialWindow(
     window->SetMaxSize(initParams->MaxWidth, initParams->MaxHeight);
 
     if (initParams->UseOsDefaultLocation) {
-        gtk_window_set_position(GTK_WINDOW(_window), GTK_WIN_POS_NONE);
+        // GTK4 has no positioning API; the compositor/WM picks the initial location.
     } else if (initParams->CenterOnInitialize) {
-        gtk_window_set_position(GTK_WINDOW(_window), GTK_WIN_POS_CENTER);
+        // Handled by ApplyInitialWindowState -> Center().
     } else {
-        gtk_window_move(GTK_WINDOW(_window), initParams->Left, initParams->Top);
+        MoveTo(initParams->Left, initParams->Top);
     }
 }
 
@@ -170,63 +174,25 @@ void InfiniFrameWindow::Impl::ApplyInitialWindowState(
 }
 
 void InfiniFrameWindow::Impl::ConnectWindowSignals(InfiniFrameWindow* window) {
-    g_signal_connect(G_OBJECT(_window), "configure-event", G_CALLBACK(on_configure_event), window);
+    // GTK4: "close-request" replaces "delete-event" (return TRUE cancels the close).
+    g_signal_connect(G_OBJECT(_window), "close-request", G_CALLBACK(on_window_close_request), window);
 
-    g_signal_connect(G_OBJECT(_window), "window-state-event", G_CALLBACK(on_window_state_event), window);
-
-    g_signal_connect(G_OBJECT(_window), "delete-event", G_CALLBACK(on_widget_deleted), window);
-
+    // GtkWidget::destroy survives in GTK4 and fires when the toplevel is destroyed.
     g_signal_connect(G_OBJECT(_window), "destroy", G_CALLBACK(on_widget_destroyed), window);
 
-    g_signal_connect(G_OBJECT(_window), "focus-in-event", G_CALLBACK(on_focus_in_event), window);
+    // GTK4: window activation replaces the GTK3 focus-in/focus-out GdkEvents.
+    g_signal_connect(G_OBJECT(_window), "notify::is-active", G_CALLBACK(on_window_active_notify), window);
 
-    g_signal_connect(G_OBJECT(_window), "focus-out-event", G_CALLBACK(on_focus_out_event), window);
+    // GTK4: GdkSurface signals ("layout", "notify::state") only exist after
+    // realization, so they are connected from the realize handler.
+    g_signal_connect(G_OBJECT(_window), "realize", G_CALLBACK(on_window_realized), window);
 
     if (common._dragDropEnabled) {
-        constexpr GtkTargetEntry targets[] = {};
-        gtk_drag_dest_set(GTK_WIDGET(_window), GTK_DEST_DEFAULT_ALL, targets, 0, GDK_ACTION_COPY);
-
-        g_signal_connect(
-            G_OBJECT(_window), "drag-data-received",
-            G_CALLBACK(
-                +[](
-                    GtkWidget* /*widget*/,
-                    GdkDragContext* context,
-                    const gint x,
-                    const gint y,
-                    GtkSelectionData* data,
-                    guint /*info*/,
-                    const guint time,
-                    const gpointer userData) {
-                    auto* instance = static_cast<InfiniFrameWindow*>(userData);
-
-                    gchar** uris = gtk_selection_data_get_uris(data);
-                    if (uris) {
-                        int count = 0;
-                        while (uris[count])
-                            count++;
-
-                        std::vector<std::string> paths;
-                        for (int i = 0; i < count; i++) {
-                            gchar* filename = g_filename_from_uri(uris[i], nullptr, nullptr);
-                            if (filename) {
-                                paths.push_back(filename);
-                                g_free(filename);
-                            }
-                        }
-
-                        std::vector<const char*> autoStrings;
-                        autoStrings.reserve(paths.size());
-                        for (const auto& p : paths) {
-                            autoStrings.push_back(p.c_str());
-                        }
-
-                        instance->InvokeFileDropped(autoStrings.data(), static_cast<int>(autoStrings.size()), x, y);
-                    }
-                    g_free(uris);
-                    gtk_drag_finish(context, TRUE, FALSE, time);
-                }), window
-            );
+        // GTK4: GtkDropTarget replaces gtk_drag_dest_set/GtkSelectionData. File drops
+        // arrive as a GdkFileList value on the "drop" signal.
+        GtkDropTarget* dropTarget = gtk_drop_target_new(GDK_TYPE_FILE_LIST, GDK_ACTION_COPY);
+        g_signal_connect(G_OBJECT(dropTarget), "drop", G_CALLBACK(on_drop_target_drop), window);
+        gtk_widget_add_controller(GTK_WIDGET(_window), GTK_EVENT_CONTROLLER(dropTarget));
     }
 }
 

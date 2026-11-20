@@ -55,7 +55,7 @@ enum class NativeOperationResult : int32_t;
  * @brief Main window class providing WebView-based UI
  *
  * Uses Pimpl idiom for encapsulation of platform-specific implementation.
- * Supports Windows (Win32 + WebView2), Linux (GTK3 + WebKit2GTK), macOS (Cocoa + WKWebView)
+ * Supports Windows (Win32 + WebView2), Linux (GTK4 + WebKitGTK), macOS (Cocoa + WKWebView)
  */
 class InfiniFrameWindow {
     public:
@@ -934,8 +934,27 @@ class InfiniFrameWindow {
     /// @param height New window height.
     void OnConfigureEvent(int x, int y, int width, int height);
     /// Handle a GTK window-state-changed event.
-    /// @param newState The new set of GdkWindowState flags.
-    void OnWindowStateEvent(GdkWindowState newState);
+    /// @brief Handles surface layout changes (GTK4 replacement for size/configure events).
+    /// @param width The new surface width.
+    /// @param height The new surface height.
+    void OnSurfaceLayout(int width, int height);
+
+    /// @brief Handles surface realization (applies pending move, size constraints, icon).
+    void OnSurfaceRealized();
+
+    /// @brief Detaches the webview finalization weak watch (destructor path; Linux).
+    void DetachWebviewFinalizeWatch();
+
+    /// @param newState The new set of GdkToplevelState flags.
+    void OnWindowStateEvent(GdkToplevelState newState);
+
+    /// @brief Gets the tracked activation state for focus-event gating (Linux).
+    /// @return -1 before the first notification, otherwise 0 (inactive) or 1 (active).
+    int GetActiveEventState() const;
+
+    /// @brief Sets the tracked activation state for focus-event gating (Linux).
+    /// @param state -1 (unknown), 0 (inactive), or 1 (active).
+    void SetActiveEventState(int state);
     /// Flush any queued web messages that have not yet been delivered.
     void FlushPendingWebMessages();
     /// Mark the window as destroyed (called after the GTK widget is finalized).

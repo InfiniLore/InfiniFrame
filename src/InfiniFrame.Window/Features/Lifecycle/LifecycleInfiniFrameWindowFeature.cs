@@ -29,7 +29,7 @@ public class LifecycleInfiniFrameWindowFeature(
     private readonly TaskCompletionSource _closed = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly TaskCompletionSource _closedCallbacksDelivered = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly TaskCompletionSource _messageLoopCompleted = new(TaskCreationOptions.RunContinuationsAsynchronously);
-    private readonly TaskCompletionSource _ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private readonly TaskCompletionSource _ready = CreateReadySource();
     private readonly TaskCompletionSource _teardown = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private int _cleanupCompleted;
     private TaskCompletionSource? _closeAttempt;
@@ -42,6 +42,27 @@ public class LifecycleInfiniFrameWindowFeature(
     private int _milestoneRootReleased;
     private int _nativeCallbackRootReleased;
     public InfiniFrameWindowLifecycleState State => window.LifecycleState;
+
+    /// <summary>
+    ///     Creates the readiness source with an internal fault observer.
+    /// </summary>
+    /// <remarks>
+    ///     A window that closes before becoming ready faults this source with
+    ///     <see cref="ObjectDisposedException" />. Closing before ready is legitimate
+    ///     (rapid create/close cycles) and often has no readiness awaiter at all;
+    ///     without an observer every such close surfaced as an unobserved task
+    ///     exception (hundreds per macOS test session). Awaiters of
+    ///     WaitForReadyAsync still receive the exception as before.
+    /// </remarks>
+    private static TaskCompletionSource CreateReadySource() {
+        TaskCompletionSource source = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        _ = source.Task.ContinueWith(
+            static task => _ = task.Exception,
+            CancellationToken.None,
+            TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
+            TaskScheduler.Default);
+        return source;
+    }
 
     /// <summary>Synchronization lock for thread-safe access to pending task state.</summary>
     private readonly Lock _closeAttemptLock = new();

@@ -65,9 +65,18 @@ InfiniFrameWindow::~InfiniFrameWindow() {
             if (m_impl->_webview != nullptr && !m_impl->_webviewClosed)
                 CloseWebView();
 
+            // Detach the finalization weak watch before destruction so a late webview
+            // finalize cannot call back into this object (teardown work fix).
+            DetachWebviewFinalizeWatch();
+
+            // Release menu-owned GObjects exactly once before the widget hierarchy is
+            // destroyed (migration requirement); the menu widgets themselves are released by
+            // the hierarchy.
+            m_impl->ReleaseMenuResources();
+
             if (m_impl->_window != nullptr) {
                 g_signal_handlers_disconnect_by_data(m_impl->_window, this);
-                gtk_widget_destroy(m_impl->_window);
+                gtk_window_destroy(GTK_WINDOW(m_impl->_window));
                 m_impl->_window = nullptr;
             }
 
@@ -78,6 +87,27 @@ InfiniFrameWindow::~InfiniFrameWindow() {
                 m_impl->_destroyed = true;
             }
             m_impl->_lifecycleClosed.notify_all();
+
+            // Flush any pending deferred teardown completion inline (exactly-once via the
+            // shared guard): the idle that would run it captures `this`, which is about to
+            // be destroyed. Running here — on the owner thread — keeps the teardown
+            // callback and application notification intact (teardown work fix).
+            {
+                std::lock_guard held(m_impl->_teardownGuard->mutex);
+                if (!m_impl->_teardownGuard->completed) {
+                    m_impl->_teardownGuard->completed = true;
+                    SignalTeardown();
+                    if (!m_impl->_applicationNotified && _application != nullptr) {
+                        m_impl->_applicationNotified = true;
+                        _application->NotifyWindowClosed(this);
+                    }
+                    {
+                        std::lock_guard lock(m_impl->_lifecycleMutex);
+                        m_impl->_teardownCompleted = true;
+                    }
+                    m_impl->_lifecycleClosed.notify_all();
+                }
+            }
         });
 
     if (!infiniframe::linux_gtk::ui_thread::IsCurrentThread()) {

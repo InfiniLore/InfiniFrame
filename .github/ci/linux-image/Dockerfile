@@ -45,25 +45,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -f /tmp/powershell.tar.gz \
     && rm -f /tmp/dotnet-install.sh
 
-# GTK/WebKit, X11, Wayland, and software-rendering dependencies.
+# GTK4/WebKitGTK6, X11, Wayland, and software-rendering dependencies.
 RUN apt-get install -y --no-install-recommends \
     at-spi2-core \
     dbus-x11 \
     fonts-liberation \
     gsettings-desktop-schemas \
-    libatk1.0-dev \
     libegl1 \
     libepoxy-dev \
     libgdk-pixbuf-2.0-dev \
     libgl1-mesa-dri \
     libglib2.0-bin \
     libglib2.0-dev \
-    libgtk-3-dev \
+    libgtk-4-dev \
     libharfbuzz-dev \
     libnotify-dev \
     libnotify4 \
     libpango1.0-dev \
-    libwebkit2gtk-4.1-dev \
+    libwebkitgtk-6.0-dev \
     libwayland-dev \
     libx11-dev \
     mesa-utils \
@@ -73,6 +72,20 @@ RUN apt-get install -y --no-install-recommends \
     x11-xserver-utils \
     xfonts-base \
     xvfb
+
+# WebKit's bubblewrap sandbox needs unprivileged user namespaces, which the CI job
+# container does not allow: Docker's default seccomp profile blocks
+# unshare(CLONE_NEWUSER), so bwrap fails with "Creating new namespace failed:
+# Operation not permitted". WebKit launches xdg-dbus-proxy inside that sandbox and
+# treats the failure as fatal (g_error "Failed to fully launch dbus-proxy"), which
+# aborts the whole test host with SIGABRT.
+#
+# WebKit only detects containers through /run/.containerenv and never looks for
+# Docker's /.dockerenv, so it does not notice it is already containerised. Creating
+# the marker lets WebKit's own container probe run: it tries bubblewrap, sees that
+# it cannot work here, and disables the sandbox for this container instead of
+# aborting. The sandbox stays enabled if bubblewrap ever becomes usable in CI.
+RUN mkdir -p /run && touch /run/.containerenv
 
 # Optional native crash diagnostics and the pinned CMake release.
 RUN apt-get install -y --no-install-recommends \

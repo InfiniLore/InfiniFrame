@@ -99,7 +99,10 @@ jobs:
 
             -   name: Build Pack Solution
                 run: |
-                    dotnet restore InfiniFrame.GitHubActions.Release.slnf /p:NoWarn=NU1503
+                    # NU1503 as error: a project skipped at restore silently disappears from
+                    # the packed nuspec dependencies (NuGet PackTaskLogic drops unresolvable
+                    # project references without a warning). Never suppress it on release paths.
+                    dotnet restore InfiniFrame.GitHubActions.Release.slnf /p:WarningsAsErrors=NU1503
 
                     dotnet build InfiniFrame.GitHubActions.Release.slnf \
                       --configuration Release \

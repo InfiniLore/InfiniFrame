@@ -61,9 +61,9 @@ public class SetLeftTests {
         window.Features.Position.SetLeft(value);
 
         // Assert
-        int newValue = await PollUtility.WaitForChangeAsync(
+        int newValue = await PollUtility.WaitForValueAsync(
             getValue: () => window.Features.Position.Left,
-            originalLocation,
+            value,
             TimeSpan.FromSeconds(5),
             ct
         );
@@ -84,9 +84,9 @@ public class SetLeftTests {
         IInfiniFrameWindow returnedWindow = window.SetLeft(value);
 
         // Assert
-        int newValue = await PollUtility.WaitForChangeAsync(
+        int newValue = await PollUtility.WaitForValueAsync(
             getValue: () => window.Features.Position.Left,
-            originalLocation,
+            value,
             TimeSpan.FromSeconds(5),
             ct
         );

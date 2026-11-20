@@ -61,7 +61,7 @@ public class SetResizableTests {
         window.Features.Size.SetResizable(value);
 
         // Assert
-        bool newResizable = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.IsResizable, currentResizable, TimeSpan.FromSeconds(5), ct);
+        bool newResizable = await PollUtility.WaitForValueAsync(getValue: () => window.Features.Size.IsResizable, value, TimeSpan.FromSeconds(5), ct);
         await Assert.That(newResizable).IsEqualTo(value);
     }
 
@@ -83,7 +83,7 @@ public class SetResizableTests {
         IInfiniFrameWindow returnedWindow = window.SetResizable(value);
 
         // Assert
-        bool newResizable = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.IsResizable, currentResizable, TimeSpan.FromSeconds(5), ct);
+        bool newResizable = await PollUtility.WaitForValueAsync(getValue: () => window.Features.Size.IsResizable, value, TimeSpan.FromSeconds(5), ct);
         await Assert.That(newResizable).IsEqualTo(value);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }

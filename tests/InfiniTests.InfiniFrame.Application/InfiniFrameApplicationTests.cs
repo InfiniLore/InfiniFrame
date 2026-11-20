@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
 using InfiniFrame;
 using InfiniFrame.Application;
 using InfiniTests.Native;
@@ -12,6 +13,17 @@ namespace InfiniTests.InfiniFrame.Application;
 
 [NotInParallelInfiniTests]
 public sealed partial class InfiniFrameApplicationTests {
+    /// <summary>
+    ///     Waits for the deterministic drain signal of RunAsync: the run task completes
+    ///     only after the native loop has exited, every window reached native teardown,
+    ///     and application disposal finished. The wait completes exactly when the drain
+    ///     completes - wall-clock bounds belong to the test timeout, not to the drain
+    ///     wait itself. A fixed inner cut-off previously turned slow WebView2 startup on
+    ///     loaded runners into spurious drain failures.
+    /// </summary>
+    private static Task WaitForDrainAsync(Task runTask, CancellationToken ct)
+        => runTask.WaitAsync(ct);
+
     [Test]
     [NotInParallelInfiniTests]
     [OnlyRunOnWindows]
@@ -97,7 +109,7 @@ public sealed partial class InfiniFrameApplicationTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [Timeout(60_000)]
+    [Timeout(120_000)]
     public async Task ShutdownBeforeWebView2InitializationCompletesDrainsRunAsync(CancellationToken ct = default) {
         await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
             .WithWindow("main", configure: static builder => builder.SetStartPageContent("<html><body>Main</body></html>"));
@@ -106,7 +118,11 @@ public sealed partial class InfiniFrameApplicationTests {
         application.Shutdown();
         application.Shutdown();
 
-        await runTask.WaitAsync(TimeSpan.FromSeconds(30), ct);
+        await WaitForDrainAsync(runTask, ct);
+
+        // Drained deterministically: the native loop exited and every window reached
+        // native teardown before application disposal completed.
+        await Assert.That(application.Windows).IsEmpty();
     }
 
     [Test]
@@ -158,7 +174,7 @@ public sealed partial class InfiniFrameApplicationTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [Timeout(60_000)]
+    [Timeout(120_000)]
     [OnlyRunOnMacOs]
     public async Task RunAsyncShutdownDuringStartup_DrainsRunAsync(CancellationToken ct = default) {
         await using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
@@ -168,7 +184,11 @@ public sealed partial class InfiniFrameApplicationTests {
         application.Shutdown();
         application.Shutdown();
 
-        await runTask.WaitAsync(TimeSpan.FromSeconds(30), ct);
+        await WaitForDrainAsync(runTask, ct);
+
+        // Drained deterministically: the native loop exited and every window reached
+        // native teardown before application disposal completed.
+        await Assert.That(application.Windows).IsEmpty();
     }
 
     [Test]
@@ -218,6 +238,7 @@ public sealed partial class InfiniFrameApplicationTests {
     [NotInParallelInfiniTests]
     [Timeout(60_000)]
     [OnlyRunOnMacOs]
+    [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
     public async Task MacOsRun_StartsAppKitAndShowsTheNativeWindow(CancellationToken ct = default) {
         using InfiniFrameApplication application = InfiniFrameApplication.Initialize()
             .WithWindow("main", static builder => builder

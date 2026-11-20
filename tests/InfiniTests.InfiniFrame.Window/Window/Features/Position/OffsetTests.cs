@@ -26,8 +26,8 @@ public class OffsetTests {
         window.Features.Position.Offset(40, 30);
 
         // Assert
-        int newLeft = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Position.Left, initialLeft, TimeSpan.FromSeconds(5), ct);
-        int newTop = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Position.Top, initialTop, TimeSpan.FromSeconds(5), ct);
+        int newLeft = await PollUtility.WaitForValueAsync(getValue: () => window.Features.Position.Left, initialLeft + 40, TimeSpan.FromSeconds(5), ct);
+        int newTop = await PollUtility.WaitForValueAsync(getValue: () => window.Features.Position.Top, initialTop + 30, TimeSpan.FromSeconds(5), ct);
         await Assert.That(newLeft).IsEqualTo(initialLeft + 40);
         await Assert.That(newTop).IsEqualTo(initialTop + 30);
     }
@@ -50,8 +50,8 @@ public class OffsetTests {
         IInfiniFrameWindow returnedWindow = window.Offset(offset);
 
         // Assert
-        int newLeft = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Position.Left, initialLeft, TimeSpan.FromSeconds(5), ct);
-        int newTop = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Position.Top, initialTop, TimeSpan.FromSeconds(5), ct);
+        int newLeft = await PollUtility.WaitForValueAsync(getValue: () => window.Features.Position.Left, initialLeft + offset.X, TimeSpan.FromSeconds(5), ct);
+        int newTop = await PollUtility.WaitForValueAsync(getValue: () => window.Features.Position.Top, initialTop + offset.Y, TimeSpan.FromSeconds(5), ct);
         await Assert.That(newLeft).IsEqualTo(initialLeft + offset.X);
         await Assert.That(newTop).IsEqualTo(initialTop + offset.Y);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
@@ -76,8 +76,8 @@ public class OffsetTests {
         IInfiniFrameWindow returnedWindow = window.Offset(leftOffset, topOffset);
 
         // Assert
-        int newLeft = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Position.Left, initialLeft, TimeSpan.FromSeconds(5), ct);
-        int newTop = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Position.Top, initialTop, TimeSpan.FromSeconds(5), ct);
+        int newLeft = await PollUtility.WaitForValueAsync(getValue: () => window.Features.Position.Left, initialLeft + (int)leftOffset, TimeSpan.FromSeconds(5), ct);
+        int newTop = await PollUtility.WaitForValueAsync(getValue: () => window.Features.Position.Top, initialTop + (int)topOffset, TimeSpan.FromSeconds(5), ct);
         await Assert.That(newLeft).IsEqualTo(initialLeft + (int)leftOffset);
         await Assert.That(newTop).IsEqualTo(initialTop + (int)topOffset);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
