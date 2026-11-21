@@ -382,9 +382,11 @@ void InfiniFrameWindow::SetMinimized(bool minimized)
 {
     if (m_impl->_window.isMiniaturized == minimized) return;
 
-    if (minimized)
+    if (minimized) {
+        [NSApp activateIgnoringOtherApps:YES];
+        [m_impl->_window makeKeyAndOrderFront:nil];
         [m_impl->_window miniaturize: nullptr];
-    else
+    } else
         [m_impl->_window deminiaturize: nullptr];
 
 }
