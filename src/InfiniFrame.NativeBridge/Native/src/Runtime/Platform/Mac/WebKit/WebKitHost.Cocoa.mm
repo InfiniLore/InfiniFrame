@@ -108,8 +108,10 @@ void InfiniFrameWindow::ShowAfterInitialNavigation()
     if (m_impl->_startupVisibilityShown || m_impl->_isClosingOrClosed || m_impl->_window == nil)
         return;
     m_impl->_startupVisibilityShown = true;
+    [NSApp activateIgnoringOtherApps:YES];
     [m_impl->_window makeKeyAndOrderFront: m_impl->_window];
     [m_impl->_window orderFrontRegardless];
+    [m_impl->_window makeKeyWindow];
     if (m_impl->_startupMinimized)
         [m_impl->_window miniaturize:nil];
     else if (m_impl->_startupMaximized)
