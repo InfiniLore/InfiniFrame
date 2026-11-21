@@ -120,6 +120,13 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
         m_impl->common._backgroundColorR, m_impl->common._backgroundColorG,
         m_impl->common._backgroundColorB, m_impl->common._backgroundColorA);
 
+    // GTK/WebKit may not start the first load until the toplevel has been
+    // realized. Map it fully transparent so realization does not expose the
+    // default GTK/WebKit frame; ShowAfterInitialNavigation restores opacity
+    // after the first load succeeds or fails.
+    gtk_widget_set_opacity(GTK_WIDGET(m_impl->_window), 0.0);
+    gtk_widget_set_visible(GTK_WIDGET(m_impl->_window), TRUE);
+
     // Navigate to the initial content. Log an error if neither URL nor raw string
     // was provided (GTK4 forbids the old nested-loop error dialog).
     if (!m_impl->common._startUrl.empty()) {
@@ -137,6 +144,7 @@ void InfiniFrameWindow::ShowAfterInitialNavigation() {
     if (m_impl->_startupVisibilityShown || m_impl->_windowDestroyed || m_impl->_window == nullptr)
         return;
     m_impl->_startupVisibilityShown = true;
+    gtk_widget_set_opacity(GTK_WIDGET(m_impl->_window), 1.0);
     gtk_widget_set_visible(GTK_WIDGET(m_impl->_window), TRUE);
 }
 

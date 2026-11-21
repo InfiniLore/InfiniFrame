@@ -101,8 +101,6 @@ void InfiniFrameWindow::Show(bool isAlreadyShown)
         AttachWebView();
 
     (void)isAlreadyShown;
-    m_impl->_startupMinimized = m_impl->_window.isMiniaturized;
-    m_impl->_startupMaximized = m_impl->_preMaximizedWidth > 0;
 }
 
 void InfiniFrameWindow::ShowAfterInitialNavigation()

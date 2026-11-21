@@ -384,6 +384,8 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) : 
         this->SetMaxSize(params->MaxWidth, params->MaxHeight);
         this->SetSize(params->Width, params->Height);
 
+        this->m_impl->_startupMinimized = params->Minimized;
+        this->m_impl->_startupMaximized = params->Maximized;
         this->SetMinimized(params->Minimized);
         this->SetMaximized(params->Maximized);
         this->SetResizable(params->Resizable);
@@ -512,8 +514,10 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) : 
                 handler->requestHandler = this->m_impl->common._customSchemeCallback;
             this->AttachWebView();
             if (params->CenterOnInitialize) this->Center();
-            this->SetMinimized(params->Minimized);
-            this->SetMaximized(params->Maximized);
+             this->m_impl->_startupMinimized = params->Minimized;
+             this->m_impl->_startupMaximized = params->Maximized;
+             this->SetMinimized(params->Minimized);
+             this->SetMaximized(params->Maximized);
             this->SetFullScreen(params->FullScreen);
         }
 
