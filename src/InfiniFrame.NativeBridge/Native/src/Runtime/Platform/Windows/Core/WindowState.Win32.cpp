@@ -143,6 +143,9 @@ void InfiniFrameWindow::SendWebMessage(const char* message) {
 }
 
 void InfiniFrameWindow::SetFullScreen(const bool fullScreen) {
+    // Startup visibility is deferred until the first navigation. Ensure a
+    // fullscreen request made by web content operates on a shown HWND.
+    ShowWindow(m_impl->_hWnd, SW_SHOW);
     LONG_PTR style = GetWindowLongPtr(m_impl->_hWnd, GWL_STYLE);
     if (fullScreen) {
         GetWindowRect(m_impl->_hWnd, &m_impl->_savedRect);
@@ -159,12 +162,12 @@ void InfiniFrameWindow::SetFullScreen(const bool fullScreen) {
             RECT rc = monitorInfo.rcMonitor;
             SetWindowPos(
                 m_impl->_hWnd, HWND_TOP, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
-                SWP_FRAMECHANGED | SWP_NOOWNERZORDER
+                SWP_FRAMECHANGED | SWP_NOOWNERZORDER | SWP_SHOWWINDOW
                 );
         } else {
             SetWindowPos(
                 m_impl->_hWnd, HWND_TOP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN),
-                SWP_FRAMECHANGED | SWP_NOOWNERZORDER
+                 SWP_FRAMECHANGED | SWP_NOOWNERZORDER | SWP_SHOWWINDOW
                 );
         }
     } else {
@@ -176,7 +179,7 @@ void InfiniFrameWindow::SetFullScreen(const bool fullScreen) {
             RECT& r = m_impl->_savedRect;
             SetWindowPos(
                 m_impl->_hWnd, HWND_TOP, r.left, r.top, r.right - r.left, r.bottom - r.top,
-                SWP_FRAMECHANGED | SWP_NOOWNERZORDER
+                SWP_FRAMECHANGED | SWP_NOOWNERZORDER | SWP_SHOWWINDOW
                 );
             m_impl->_hasSavedRect = false;
         }
