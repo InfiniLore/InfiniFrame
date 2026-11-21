@@ -67,6 +67,15 @@
         <Folder Include="wwwroot/"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <!-- The generated bridge is also embedded so external host providers receive it through the public
+             host contract (InfiniFrameHostWindowRequest.BridgeScript) instead of reading core's source tree.
+             A build that skips the frontend build and has no generated bridge (for example an analyzer-only build)
+             leaves the resource out; a host provider started from such an assembly fails with a clear error. -->
+        <EmbeddedResource Include="$(FrontendProdFile)" LogicalName="InfiniFrame.Js.HostBridge.js" Visible="false"
+                          Condition="'$(SkipTypeScriptBuild)'!='true' or Exists('$(FrontendProdFile)')"/>
+    </ItemGroup>
+
     <Target Name="BuildFrontend"
             BeforeTargets="DispatchToInnerBuilds;ResolveProjectStaticWebAssets;ResolveStaticWebAssets"
             Condition="'$(DesignTimeBuild)'!='true'

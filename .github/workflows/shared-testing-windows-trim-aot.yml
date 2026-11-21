@@ -86,7 +86,7 @@ jobs:
                         -p:InfiniFrameSkipNativeBuild=true `
                         -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} `
                         -p:EnableTrimAnalyzer=true -p:EnableAotAnalyzer=true `
-                        -p:GeneratePackageOnBuild=false -p:SkipTypeScriptBuild=true
+                        -p:GeneratePackageOnBuild=false
 
                       dotnet build src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj `
                         --configuration Release --framework $framework `
@@ -94,7 +94,7 @@ jobs:
                         -p:InfiniFrameSkipNativeBuild=true `
                         -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} `
                         -p:EnableTrimAnalyzer=true -p:EnableAotAnalyzer=true `
-                        -p:GeneratePackageOnBuild=false -p:SkipTypeScriptBuild=true
+                        -p:GeneratePackageOnBuild=false
                     }
 
             -   name: NativeAOT Smoke Publish (Consumer Example)
@@ -106,7 +106,7 @@ jobs:
                         -p:SolutionDir=$env:GITHUB_WORKSPACE/ -p:Platform=x64 `
                         -p:InfiniFrameSkipNativeBuild=true `
                         -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} `
-                        -p:GeneratePackageOnBuild=false -p:SkipTypeScriptBuild=true
+                        -p:GeneratePackageOnBuild=false
                     }
 
             -   name: Validate NativeAOT Output

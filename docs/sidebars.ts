@@ -58,6 +58,7 @@ const sidebars: SidebarsConfig = {
           label: "Integrations",
           items: [
             "guides/blazor-webview",
+            "guides/external-host-providers",
             "guides/web-server",
             "guides/custom-window-chrome",
             "guides/javascript-window-features",

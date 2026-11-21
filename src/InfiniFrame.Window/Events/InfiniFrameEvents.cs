@@ -23,6 +23,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     // Native receives function pointers during construction. Keep their targets alive until the
     // native window has fully exited its message loop and lifecycle cleanup releases the root.
     private static readonly ConcurrentDictionary<Guid, InfiniFrameEvents> NativeCallbackRoots = new();
+    internal static int ActiveNativeCallbackRoots => NativeCallbackRoots.Count;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
