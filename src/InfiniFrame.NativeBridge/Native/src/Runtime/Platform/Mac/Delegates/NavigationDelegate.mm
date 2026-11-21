@@ -54,6 +54,7 @@ namespace {
             nullptr
         );
         infiniFrame->FlushPendingWebMessages();
+        infiniFrame->ShowAfterInitialNavigation();
         infiniFrame->CompleteNavigationAndSignalReady(
             reinterpret_cast<uint64_t>(navigation), true, 0, nullptr
         );
@@ -72,6 +73,7 @@ namespace {
             unix_timestamp_milliseconds_utc(),
             nullptr
         );
+        infiniFrame->ShowAfterInitialNavigation();
         infiniFrame->CompleteNavigationAndSignalReady(
             reinterpret_cast<uint64_t>(navigation), false,
             error == nil ? 0 : (int)error.code,
@@ -92,6 +94,7 @@ namespace {
             unix_timestamp_milliseconds_utc(),
             nullptr
         );
+        infiniFrame->ShowAfterInitialNavigation();
         infiniFrame->CompleteNavigationAndSignalReady(
             reinterpret_cast<uint64_t>(navigation), false,
             error == nil ? 0 : (int)error.code,

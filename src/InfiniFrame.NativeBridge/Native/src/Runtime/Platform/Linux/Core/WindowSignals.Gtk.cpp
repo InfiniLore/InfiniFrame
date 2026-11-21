@@ -369,6 +369,7 @@ void on_webview_load_changed(WebKitWebView* web_view, const WebKitLoadEvent load
 
             if (load_event == WEBKIT_LOAD_FINISHED) {
                 instance->FlushPendingWebMessages();
+                instance->ShowAfterInitialNavigation();
                 instance->CompleteNavigationAndSignalReady(0, true, 0, nullptr);
             }
         });
@@ -398,6 +399,7 @@ gboolean on_webview_load_failed(
                 unix_timestamp_milliseconds_utc(),
                 payload.c_str()
                 );
+            instance->ShowAfterInitialNavigation();
             instance->CompleteNavigationAndSignalReady(
                 0, false, error ? error->code : 0,
                 error ? error->message : "WebKit navigation failed"
