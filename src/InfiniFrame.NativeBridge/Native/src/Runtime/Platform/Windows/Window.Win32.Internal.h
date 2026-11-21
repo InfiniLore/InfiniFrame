@@ -29,6 +29,9 @@ struct InfiniFrameWindow::Impl {
     std::string _platformDefaultNotificationIcon;
     bool _isInitialized = false;
     bool _isWebView2Initializing = false;
+    bool _startupVisibilityShown = false;
+    bool _startupMinimized = false;
+    bool _startupMaximized = false;
     std::atomic<bool> _isClosingOrClosed = false;
     bool _centerOnInitialize = false;
     bool _chromeless = false;

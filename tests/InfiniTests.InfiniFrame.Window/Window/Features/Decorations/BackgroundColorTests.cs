@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.NativeBridge.Parameters.Window;
 using InfiniFrame.Utilities;
 using InfiniFrame.Window.Builder;
 
@@ -44,6 +45,22 @@ public class BackgroundColorTests {
         // Assert
         await Assert.That(builder.Features.Decorations.BackgroundColor).IsEqualTo(value);
         await Assert.That(returnedBuilder).IsSameReferenceAs(builder);
+    }
+
+    [Test]
+    public async Task AtBuilderStage_DarkStartupColor_IsPreservedInNativeParameters(CancellationToken ct) {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create();
+        builder.SetBackgroundColor("#000000");
+
+        // Act
+        InfiniFrameNativeWindowParameters parameters = builder.CollectNativeParameters();
+
+        // Assert
+        await Assert.That(parameters.BackgroundColorR).IsEqualTo((byte)0);
+        await Assert.That(parameters.BackgroundColorG).IsEqualTo((byte)0);
+        await Assert.That(parameters.BackgroundColorB).IsEqualTo((byte)0);
+        await Assert.That(parameters.BackgroundColorA).IsEqualTo((byte)255);
     }
 
     [Test]
