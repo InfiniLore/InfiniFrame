@@ -275,6 +275,11 @@ void InfiniFrameWindow::SetResizable(const bool resizable) {
 
 void InfiniFrameWindow::SetSize(const int width, const int height) {
     SetWindowPos(m_impl->_hWnd, HWND_TOP, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
+    // A resize can be issued while WebView2 is completing its first
+    // navigation. WM_SIZE is not guaranteed to be observed after the
+    // controller becomes available, so synchronize the controller bounds
+    // explicitly as well.
+    RefitContent();
 }
 
 void InfiniFrameWindow::SetTitle(const char* title) {

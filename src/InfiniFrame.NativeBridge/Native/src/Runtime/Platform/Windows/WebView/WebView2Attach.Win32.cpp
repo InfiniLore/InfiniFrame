@@ -25,9 +25,14 @@ namespace {
 }
 
 void InfiniFrameWindow::Show(const bool isAlreadyShown) {
-    // Keep the HWND hidden while WebView2 initializes.  Minimized/maximized
-    // state is applied by ShowAfterInitialNavigation.
-    (void)isAlreadyShown;
+    // Show the native host immediately.  The HWND paints the configured
+    // background while WebView2 initializes, and keeping it mapped is
+    // important: WebView2 can finish navigation and accept automation input
+    // while a hidden parent still has no visible compositor surface.
+    if (!isAlreadyShown)
+        ShowWindow(m_impl->_hWnd, SW_SHOWNOACTIVATE);
+
+    UpdateWindow(m_impl->_hWnd);
     if (!m_impl->_webviewController) {
         if (!m_impl->common._webView2RuntimePath.empty() || EnsureWebViewIsInstalled())
             AttachWebView();
@@ -41,7 +46,9 @@ void InfiniFrameWindow::ShowAfterInitialNavigation() {
         m_impl->_hWnd == nullptr)
         return;
     m_impl->_startupVisibilityShown = true;
-    ShowWindow(m_impl->_hWnd, SW_SHOWDEFAULT);
+    ShowWindow(m_impl->_hWnd, SW_SHOWNOACTIVATE);
+    RefitContent();
+    InvalidateRect(m_impl->_hWnd, nullptr, TRUE);
     UpdateWindow(m_impl->_hWnd);
     if (m_impl->_startupMinimized)
         ShowWindow(m_impl->_hWnd, SW_MINIMIZE);

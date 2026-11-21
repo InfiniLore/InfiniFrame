@@ -17,6 +17,7 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
 
     [Test]
     [NotInParallelInfiniAutomationTests]
+    [Timeout(30_000)]
     public async Task FullscreenHtmlButton_ShouldToggleInfiniFrameFullscreen(CancellationToken ct = default) {
         bool originalFullscreenState = RuntimeContext.Window.Features.State.IsFullScreen;
         IPage page = await GetRootPageAsync();

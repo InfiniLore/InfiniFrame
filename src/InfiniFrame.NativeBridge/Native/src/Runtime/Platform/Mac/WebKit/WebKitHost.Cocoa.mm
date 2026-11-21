@@ -100,7 +100,15 @@ void InfiniFrameWindow::Show(bool isAlreadyShown)
     if (m_impl->_webview == nil)
         AttachWebView();
 
-    (void)isAlreadyShown;
+    // Keep the native window ordered while WebKit finishes its first load.
+    // WebKit can be navigable before its navigation delegate callback runs;
+    // delaying ordering until that callback leaves automation attached to a
+    // window that is not visually composited.
+    if (!isAlreadyShown) {
+        [NSApp activateIgnoringOtherApps:YES];
+        [m_impl->_window makeKeyAndOrderFront:m_impl->_window];
+        [m_impl->_window orderFrontRegardless];
+    }
 }
 
 void InfiniFrameWindow::ShowAfterInitialNavigation()

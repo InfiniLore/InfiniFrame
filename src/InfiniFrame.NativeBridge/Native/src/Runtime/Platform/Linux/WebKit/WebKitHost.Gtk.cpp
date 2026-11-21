@@ -120,11 +120,9 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
         m_impl->common._backgroundColorR, m_impl->common._backgroundColorG,
         m_impl->common._backgroundColorB, m_impl->common._backgroundColorA);
 
-    // GTK/WebKit may not start the first load until the toplevel has been
-    // realized. Map it fully transparent so realization does not expose the
-    // default GTK/WebKit frame; ShowAfterInitialNavigation restores opacity
-    // after the first load succeeds or fails.
-    gtk_widget_set_opacity(GTK_WIDGET(m_impl->_window), 0.0);
+    // Keep the toplevel mapped while WebKit initializes. The configured
+    // background is already applied above, and a transparent toplevel can
+    // prevent the WebKit compositor from attaching its first visible surface.
     gtk_widget_set_visible(GTK_WIDGET(m_impl->_window), TRUE);
 
     // Navigate to the initial content. Log an error if neither URL nor raw string
