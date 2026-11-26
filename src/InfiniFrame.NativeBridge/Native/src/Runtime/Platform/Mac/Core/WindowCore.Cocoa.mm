@@ -123,6 +123,10 @@ bool InfiniFrameWindow::Impl::LeasePooledMacHost(const std::string& compatibilit
     _window = found->window; _webview = found->webview; _webviewConfiguration = found->webviewConfiguration;
     _uiDelegate = found->uiDelegate; _navigationDelegate = found->navigationDelegate;
     _windowDelegate = found->windowDelegate; _urlSchemeHandlers = std::move(found->urlSchemeHandlers);
+    _startupVisibilityShown = false;
+    _startupMinimized = false;
+    _startupMaximized = false;
+    [_window orderOut:nil];
     pool.erase(found);
     return true;
 }
@@ -380,6 +384,8 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) : 
         this->SetMaxSize(params->MaxWidth, params->MaxHeight);
         this->SetSize(params->Width, params->Height);
 
+        this->m_impl->_startupMinimized = params->Minimized;
+        this->m_impl->_startupMaximized = params->Maximized;
         this->SetMinimized(params->Minimized);
         this->SetMaximized(params->Maximized);
         this->SetResizable(params->Resizable);
@@ -508,8 +514,10 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) : 
                 handler->requestHandler = this->m_impl->common._customSchemeCallback;
             this->AttachWebView();
             if (params->CenterOnInitialize) this->Center();
-            this->SetMinimized(params->Minimized);
-            this->SetMaximized(params->Maximized);
+             this->m_impl->_startupMinimized = params->Minimized;
+             this->m_impl->_startupMaximized = params->Maximized;
+             this->SetMinimized(params->Minimized);
+             this->SetMaximized(params->Maximized);
             this->SetFullScreen(params->FullScreen);
         }
 

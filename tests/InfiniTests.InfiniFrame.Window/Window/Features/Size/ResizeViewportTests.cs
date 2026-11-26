@@ -15,7 +15,7 @@ public sealed class ResizeViewportTests {
     [NotInParallelInfiniTests]
     [SkipOnLinux]
     [SkipOnWindowsArm("Test is flaky on ARM")]
-    [DefaultTimeout(35_000)]
+    [DefaultTimeout(70_000)]
     public async Task NativeResize_ShouldUpdateBrowserViewport(CancellationToken ct = default) {
         // Arrange
         var firstViewport = new TaskCompletionSource<(int Width, int Height)>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -95,7 +95,9 @@ public sealed class ResizeViewportTests {
         _ = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.Width, originalWidth, TimeSpan.FromSeconds(5), ct);
         _ = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.Height, originalHeight, TimeSpan.FromSeconds(5), ct);
 
-        (int Width, int Height) newViewport = await resizedViewport.Task.WaitAsync(TimeSpan.FromSeconds(15), ct);
+        // Startup visibility is intentionally deferred until the first navigation
+        // completes; allow slower WebView2 CI runners to deliver the resize event.
+        (int Width, int Height) newViewport = await resizedViewport.Task.WaitAsync(TimeSpan.FromSeconds(60), ct);
 
         // Assert
         await Assert.That(newViewport.Width).IsGreaterThan(initialViewport.Width);

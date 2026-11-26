@@ -446,6 +446,9 @@ class InfiniFrameWindow {
         int nativeCode,
         const char* failureUtf8
         );
+    /// Reveal the native window after the first startup navigation (success or failure).
+    /// This is idempotent; later navigations never affect startup visibility.
+    void ShowAfterInitialNavigation();
     /// Complete all pending navigation operations as cancelled, called during window close.
     void CompleteNavigationForClose();
 

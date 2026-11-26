@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
 using InfiniFrame;
 
 namespace InfiniTests.InfiniFrame.Window.Features.State;
@@ -18,6 +19,7 @@ public class InitialStateEventRegressionTests {
     [Test]
     [NotInParallelInfiniTests]
     [DefaultTimeout(60_000)]
+    [SuppressMessage("ReSharper", "AccessToModifiedClosure")]
     public async Task Startup_RaisesNoFalseMinimizedAndNoLeadingFocusOut(CancellationToken ct = default) {
         // Arrange: track every state/focus notification from native startup.
         if (!OperatingSystem.IsLinux()) return; // Linux migration regression tests
@@ -52,6 +54,7 @@ public class InitialStateEventRegressionTests {
     [Test]
     [NotInParallelInfiniTests]
     [DefaultTimeout(60_000)]
+    [SuppressMessage("ReSharper", "AccessToModifiedClosure")]
     public async Task Startup_MinimizedFlagFalse_AcrossRepeatedCreation(CancellationToken ct = default) {
         // Arrange + Act: the false-minimized regression is timing sensitive; repeat
         // window creation to cover map-race variations.
