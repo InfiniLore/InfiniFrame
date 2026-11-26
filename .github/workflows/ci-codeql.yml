@@ -396,3 +396,47 @@ jobs:
                 uses: github/codeql-action/analyze@v4
                 with:
                     category: "/language:python"
+
+    codeql-result:
+        name: CodeQL
+        if: always()
+        needs:
+            - changes
+            - analyze-actions
+            - analyze-csharp
+            - analyze-cpp
+            - analyze-cpp-linux
+            - analyze-javascript-typescript
+            - analyze-python
+        runs-on: ubuntu-26.04
+        permissions:
+            contents: read
+        steps:
+            -   name: Evaluate CodeQL results
+                env:
+                    CHANGES_RESULT: ${{ needs.changes.result }}
+                    ACTIONS_RESULT: ${{ needs.analyze-actions.result }}
+                    CSHARP_RESULT: ${{ needs.analyze-csharp.result }}
+                    CPP_RESULT: ${{ needs.analyze-cpp.result }}
+                    CPP_LINUX_RESULT: ${{ needs.analyze-cpp-linux.result }}
+                    JAVASCRIPT_RESULT: ${{ needs.analyze-javascript-typescript.result }}
+                    PYTHON_RESULT: ${{ needs.analyze-python.result }}
+                shell: bash
+                run: |
+                    set -euo pipefail
+
+                    for result in \
+                        "$CHANGES_RESULT" \
+                        "$ACTIONS_RESULT" \
+                        "$CSHARP_RESULT" \
+                        "$CPP_RESULT" \
+                        "$CPP_LINUX_RESULT" \
+                        "$JAVASCRIPT_RESULT" \
+                        "$PYTHON_RESULT"; do
+                        if [[ "$result" == "failure" || "$result" == "cancelled" ]]; then
+                            echo "CodeQL analysis failed with result: $result"
+                            exit 1
+                        fi
+                    done
+
+                    echo "CodeQL analysis passed or was intentionally skipped."
