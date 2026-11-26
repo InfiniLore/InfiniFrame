@@ -24,8 +24,6 @@ on:
 
 permissions:
     contents: read
-    checks: write
-    statuses: write
 
 jobs:
     windows-playwright:
@@ -53,19 +51,17 @@ jobs:
                         path: InfiniAutomationTests.BlazorWebView.MudBlazor
                         sourceFolder: ""
                         check-slug: blazor-mudblazor
-        
+
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
             WORKFLOW_URL: ${{ inputs.workflow_url }}
-        
+
         permissions:
             contents: read
-            statuses: write
-            checks: write
-        
+
         steps:
             -   name: Checkout
-                uses: actions/checkout@v7
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
@@ -74,19 +70,6 @@ jobs:
                 uses: ./.github/actions/setup-dependencies
                 with:
                     cache-dotnet: false
-
-            -   name: Set Playwright Check Pending
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ inputs.target_sha }}
-                    context: "CI: win-x64/automation/${{ matrix.project.check-slug }}"
-                    state: pending
-                    status-description: Windows Automation Tests tests in progress
-                    target-url: ${{ inputs.workflow_url }}
-                    allow-status-422: 'true'
 
             -   name: Download Testing Native Build Artifacts
                 uses: ./.github/actions/download-native-binaries
@@ -132,7 +115,7 @@ jobs:
                 run: |
                     $framework = "net$((Get-Content tool-versions.json -Raw | ConvertFrom-Json).dotnet[-1])"
                     $script = "tests/${{ matrix.project.path }}/bin/Release/$framework/playwright.ps1"
-                    
+
                     if (-not (Test-Path $script)) {
                       throw "Playwright script not found: $script"
                     }
@@ -153,7 +136,7 @@ jobs:
                     }
 
             -   name: Export Actions Runtime
-                uses: actions/github-script@v9
+                uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
                 with:
                     script: |
                         core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
@@ -173,17 +156,3 @@ jobs:
                         /p:InfiniFrameSkipNativeBuild=true `
                         /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
                     }
-
-            -   name: Update Playwright Check
-                if: always()
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ inputs.target_sha }}
-                    context: "CI: win-x64/automation/${{ matrix.project.check-slug }}"
-                    target-url: ${{ inputs.workflow_url }}
-                    job-status: ${{ job.status }}
-                    success-description: Windows Automation Tests tests passed
-                    failure-description: Windows Automation Tests tests failed

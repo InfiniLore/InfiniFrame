@@ -16,10 +16,10 @@ jobs:
         runs-on: ubuntu-26.04
         steps:
             - name: Checkout
-              uses: actions/checkout@v7
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
             - name: Run actionlint
-              uses: raven-actions/actionlint@v2
+              uses: raven-actions/actionlint@3d39aea434753780c3b3d4a1a31c854b4dbf49d7 # v2
               with:
                   version: 1.7.12
                   files: ".github/workflows/*.yml"

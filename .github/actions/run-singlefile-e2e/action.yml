@@ -27,18 +27,6 @@ runs:
           uses: ./.github/actions/download-native-binaries
           with:
               artifact-type: testing
-        - name: Set SingleFile E2E Check Pending
-          env:
-              GITHUB_TOKEN: ${{ inputs.github-token }}
-          uses: ./.github/actions/sync-check
-          with:
-              repo: ${{ github.repository }}
-              sha: ${{ inputs.target-sha }}
-              context: "CI: ${{ inputs.rid }}/singlefile"
-              state: pending
-              status-description: SingleFile E2E tests in progress
-              target-url: ${{ inputs.workflow-url }}
-              allow-status-422: 'true'
         - name: Publish single-file via MSBuild target
           shell: bash
           run: |
@@ -62,16 +50,3 @@ runs:
               [ -f "$main_output" ] || { echo "Expected single-file output is missing: $main_output"; exit 1; }
               unexpected="$(find "$output_dir" -mindepth 1 -maxdepth 1 ! -name "${{ inputs.main-output-name }}" | sed 's|.*/||')"
               [ -z "$unexpected" ] || { echo "Unexpected output: $unexpected"; exit 1; }
-        - name: Update SingleFile E2E Check
-          if: always()
-          env:
-              GITHUB_TOKEN: ${{ inputs.github-token }}
-          uses: ./.github/actions/sync-check
-          with:
-              repo: ${{ github.repository }}
-              sha: ${{ inputs.target-sha }}
-              context: "CI: ${{ inputs.rid }}/singlefile"
-              target-url: ${{ inputs.workflow-url }}
-              job-status: ${{ job.status }}
-              success-description: SingleFile E2E tests passed
-              failure-description: SingleFile E2E tests failed

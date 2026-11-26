@@ -136,7 +136,10 @@
             Condition="'$(InfiniFrameSkipNativeBuild)' != 'true' and ('$(IsCrossTargetingBuild)' == 'true' or '$(TargetFramework)' != '')"
             Inputs="@(NativeBuildInput)"
             Outputs="$(NativeStamp);$(CurrentNativeArtifact)">
-        <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)native-build.ps1&quot; $(Configuration) $(NativeArch) $(InfiniFrameEnableTestExports)"/>
+        <PropertyGroup>
+            <InfiniFrameNativeCompilerCache Condition="'$(InfiniFrameNativeCompilerCache)' == ''">AUTO</InfiniFrameNativeCompilerCache>
+        </PropertyGroup>
+        <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)native-build.ps1&quot; $(Configuration) $(NativeArch) $(InfiniFrameEnableTestExports) None $(InfiniFrameNativeCompilerCache)"/>
         <Touch Files="$(NativeStamp)" AlwaysCreate="true"/>
     </Target>
 

@@ -23,7 +23,6 @@ on:
 permissions:
     contents: write
     pull-requests: write
-    checks: write
 
 jobs:
     coverage:
@@ -31,22 +30,22 @@ jobs:
         runs-on: ubuntu-26.04
         steps:
             -   name: Checkout
-                uses: actions/checkout@v7
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
             -   name: Download TS Coverage Artifact
-                uses: actions/download-artifact@v8
+                uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
                 with:
                     name: ts-coverage
                     path: ts-coverage
 
             -   name: Download Python Coverage Artifact
-                uses: actions/download-artifact@v8
+                uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
                 with:
                     name: python-coverage
                     path: python-coverage
 
             -   name: Download C# Coverage Artifacts
-                uses: actions/download-artifact@v8
+                uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
                 with:
                     pattern: cs-coverage-*
                     path: cs-coverage
@@ -72,34 +71,3 @@ jobs:
                         --ref-name "${{ github.ref_name }}"
                 env:
                     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-            -   name: Sync Checks to Badge Commit
-                if: ${{ inputs.target_sha != '' && inputs.target_sha != '0' }}
-                shell: bash
-                env:
-                    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                run: |
-                    NEW_SHA=$(git rev-parse HEAD)
-                    ORIGINAL_SHA="${{ inputs.target_sha }}"
-                    if [ "$NEW_SHA" = "$ORIGINAL_SHA" ]; then
-                      echo "No badge commit pushed, skipping check sync"
-                      exit 0
-                    fi
-                    echo "Syncing checks from $ORIGINAL_SHA to $NEW_SHA"
-                    CHECKS=$(gh api "repos/${{ github.repository }}/commits/$ORIGINAL_SHA/check-runs?per_page=100" --jq '.check_runs[] | "\(.name)|\(.conclusion // "pending")|\(.details_url // "")"')
-                    while IFS='|' read -r name conclusion url; do
-                      if [ -z "$name" ] || [ "$conclusion" = "pending" ] || [ "$conclusion" = "in_progress" ] || [ "$conclusion" = "queued" ]; then
-                        continue
-                      fi
-                      echo "  Creating check: $name -> $conclusion"
-                      gh api "repos/${{ github.repository }}/check-runs" -X POST \
-                        -f name="$name" \
-                        -f head_sha="$NEW_SHA" \
-                        -f status="completed" \
-                        -f conclusion="$conclusion" \
-                        -f details_url="$url" \
-                        -f "output[title]=$name" \
-                        -f "output[summary]=Copied from $ORIGINAL_SHA" \
-                        > /dev/null 2>&1 || echo "  Failed to create check: $name"
-                    done <<< "$CHECKS"
-                    echo "Check sync complete"

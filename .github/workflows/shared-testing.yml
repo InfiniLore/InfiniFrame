@@ -3,8 +3,6 @@ name: "Shared: tests"
 permissions:
     contents: read
     packages: read
-    statuses: write
-    checks: write
 on:
     workflow_call:
         inputs:
@@ -54,82 +52,57 @@ on:
 
 jobs:
 
-    prepare:
-        name: Resolve Target SHA
-        runs-on: ubuntu-26.04
-        outputs:
-            sha: ${{ steps.resolve.outputs.sha }}
-
-        steps:
-            -   name: Resolve PR SHA
-                id: resolve
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                run: |
-                    if [ -n "${{ inputs.pr_number }}" ]; then
-                      SHA=$(curl -s \
-                        -H "Authorization: Bearer $GITHUB_TOKEN" \
-                        -H "Accept: application/vnd.github+json" \
-                        "https://api.github.com/repos/${{ github.repository }}/pulls/${{ inputs.pr_number }}" \
-                        | jq -r .head.sha)
-                    else
-                      SHA="${{ github.sha }}"
-                    fi
-
-                    if [ -z "$SHA" ] || [ "$SHA" = "null" ]; then
-                      echo "Failed to resolve a valid commit SHA. Check pr_number input."
-                      exit 1
-                    fi
-
-                    echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+    python:
+        name: "CI: python"
+        uses: ./.github/workflows/shared-testing-python.yml
+        with:
+            enable_coverage: ${{ inputs.enable_coverage }}
+            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
 
     docs-validation:
         name: "CI: docs"
         if: ${{ inputs.run_docs == true }}
-        needs: [ prepare ]
         uses: ./.github/workflows/shared-testing-docs.yml
         with:
             checkout_ref: ${{ inputs.checkout_ref }}
-            target_sha: ${{ needs.prepare.outputs.sha }}
+            target_sha: ${{ github.sha }}
         secrets: inherit
 
     js-validation:
         name: "CI: js"
-        needs: [ prepare ]
         uses: ./.github/workflows/shared-testing-js.yml
         with:
             checkout_ref: ${{ inputs.checkout_ref }}
-            target_sha: ${{ needs.prepare.outputs.sha }}
+            target_sha: ${{ github.sha }}
             enable_coverage: ${{ inputs.enable_coverage }}
 
     native-build:
         name: Build Native Artifacts
-        needs: [ prepare ]
         uses: ./.github/workflows/shared-testing-build.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
-            target_sha: ${{ needs.prepare.outputs.sha }}
+            target_sha: ${{ github.sha }}
             enable_test_exports: ${{ inputs.enable_test_exports }}
 
     dotnetpack-validation:
         name: "CI: linux-x64/dotnet-pack"
-        needs: [ prepare, native-build ]
+        needs: [ native-build ]
         uses: ./.github/workflows/shared-testing-dotnetpack.yml
         with:
             checkout_ref: ${{ inputs.checkout_ref }}
-            target_sha: ${{ needs.prepare.outputs.sha }}
+            target_sha: ${{ github.sha }}
             enable_test_exports: ${{ inputs.enable_test_exports }}
 
     linux:
         name: "CI: linux"
         if: ${{ inputs.run_linux == true }}
-        needs: [ prepare, native-build ]
+        needs: [ native-build ]
         uses: ./.github/workflows/shared-testing-linux.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
-            target_sha: ${{ needs.prepare.outputs.sha }}
+            target_sha: ${{ github.sha }}
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
             enable_test_exports: ${{ inputs.enable_test_exports }}
             enable_coverage: ${{ inputs.enable_coverage }}
@@ -138,12 +111,12 @@ jobs:
     macos:
         name: "CI: osx"
         if: ${{ inputs.run_macos == true }}
-        needs: [ prepare, native-build ]
+        needs: [ native-build ]
         uses: ./.github/workflows/shared-testing-macos.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
-            target_sha: ${{ needs.prepare.outputs.sha }}
+            target_sha: ${{ github.sha }}
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
             enable_test_exports: ${{ inputs.enable_test_exports }}
             # Coverage is disabled on macOS: Microsoft.Testing.Extensions.CodeCoverage
@@ -159,12 +132,12 @@ jobs:
     windows:
         name: "CI: win"
         if: ${{ inputs.run_windows == true }}
-        needs: [ prepare, native-build ]
+        needs: [ native-build ]
         uses: ./.github/workflows/shared-testing-windows.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
-            target_sha: ${{ needs.prepare.outputs.sha }}
+            target_sha: ${{ github.sha }}
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
             enable_test_exports: ${{ inputs.enable_test_exports }}
             enable_coverage: ${{ inputs.enable_coverage }}
@@ -173,32 +146,32 @@ jobs:
     windows-playwright:
         name: "CI: win/automation"
         if: ${{ inputs.run_windows_playwright == true }}
-        needs: [ prepare, native-build ]
+        needs: [ native-build ]
         uses: ./.github/workflows/shared-testing-windows-automation.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
-            target_sha: ${{ needs.prepare.outputs.sha }}
+            target_sha: ${{ github.sha }}
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
             enable_test_exports: ${{ inputs.enable_test_exports }}
         secrets: inherit
 
     singlefile-e2e:
         name: "CI: singlefile"
-        needs: [ prepare, native-build ]
+        needs: [ native-build ]
         uses: ./.github/workflows/shared-testing-singlefile-e2e.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
-            target_sha: ${{ needs.prepare.outputs.sha }}
+            target_sha: ${{ github.sha }}
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
 
     windows-trim-aot:
         name: "CI: win/trim-aot"
         if: ${{ inputs.run_trim_aot == true }}
-        needs: [ prepare, native-build ]
+        needs: [ native-build ]
         uses: ./.github/workflows/shared-testing-windows-trim-aot.yml
         with:
             checkout_ref: ${{ inputs.checkout_ref }}
-            target_sha: ${{ needs.prepare.outputs.sha }}
+            target_sha: ${{ github.sha }}
             enable_test_exports: ${{ inputs.enable_test_exports }}

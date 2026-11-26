@@ -66,26 +66,11 @@ jobs:
         permissions:
             contents: read
             packages: read
-            statuses: write
-            checks: write
         steps:
-            -   uses: actions/checkout@v7
+            -   uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
-
-            -   name: Set Linux Check Pending
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ inputs.target_sha }}
-                    context: "CI: linux-${{ matrix.arch }}/${{ matrix.display_server }}"
-                    state: pending
-                    status-description: Linux tests in progress
-                    target-url: ${{ inputs.workflow_url }}
-                    allow-status-422: 'true'
 
             -   name: Download Testing Native Build Artifacts
                 uses: ./.github/actions/download-native-binaries
@@ -109,7 +94,7 @@ jobs:
                       -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
             -   name: Export Actions Runtime
-                uses: actions/github-script@v9
+                uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
                 with:
                     script: |
                         core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
@@ -233,9 +218,9 @@ jobs:
 
                     echo "=== OpenGL Info ==="
                     glxinfo | grep -E "OpenGL renderer|OpenGL vendor|OpenGL version" || true
-                    
+
                     echo "=== Running Tests ==="
-                    
+
                     mkdir -p artifacts/native-crash artifacts/testresults
                     ulimit -c unlimited
                     sysctl -w kernel.core_uses_pid=1 || true
@@ -355,8 +340,8 @@ jobs:
                     exit $exit_code
 
             -   name: Upload Native Crash Diagnostics
-                if: always()
-                uses: actions/upload-artifact@v7
+                if: ${{ always() && github.event_name != 'pull_request' }}
+                uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
                 with:
                     name: linux-native-crash-${{ matrix.arch }}-${{ matrix.display_server }}
                     path: |
@@ -366,23 +351,9 @@ jobs:
 
             -   name: Upload C# Coverage
                 if: ${{ inputs.enable_coverage == true && success() }}
-                uses: actions/upload-artifact@v7
+                uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
                 with:
                     name: cs-coverage-linux-${{ matrix.arch }}-${{ matrix.display_server }}
                     path: artifacts/testresults/**/*.cobertura.xml
                     if-no-files-found: warn
                     retention-days: 1
-
-            -   name: Update Linux Check
-                if: always()
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ inputs.target_sha }}
-                    context: "CI: linux-${{ matrix.arch }}/${{ matrix.display_server }}"
-                    target-url: ${{ inputs.workflow_url }}
-                    job-status: ${{ job.status }}
-                    success-description: Linux tests passed
-                    failure-description: Linux tests failed

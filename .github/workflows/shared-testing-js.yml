@@ -21,8 +21,6 @@ on:
 
 permissions:
     contents: read
-    statuses: write
-    checks: write
 
 jobs:
     js-validation:
@@ -30,10 +28,10 @@ jobs:
         runs-on: ubuntu-26.04
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
-        
+
         steps:
             -   name: Checkout
-                uses: actions/checkout@v7
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || env.TARGET_SHA }}
 
@@ -42,7 +40,7 @@ jobs:
                 uses: ./.github/actions/read-tool-versions
 
             -   name: Configure Node
-                uses: actions/setup-node@v7
+                uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
                 with:
                     node-version: ${{ steps.versions.outputs.node }}
 
@@ -68,23 +66,9 @@ jobs:
 
             -   name: Upload TS Coverage
                 if: ${{ inputs.enable_coverage == true && success() }}
-                uses: actions/upload-artifact@v7
+                uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
                 with:
                     name: ts-coverage
                     path: src/InfiniFrame.Js/coverage/lcov.info
                     if-no-files-found: warn
                     retention-days: 1
-
-            -   name: Complete Js Check
-                if: always()
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ env.TARGET_SHA }}
-                    context: "CI: js"
-                    target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
-                    job-status: ${{ job.status }}
-                    success-description: Js validation finished successfully
-                    failure-description: Js validation failed

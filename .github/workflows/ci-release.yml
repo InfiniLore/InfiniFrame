@@ -34,8 +34,6 @@ on:
 permissions:
     contents: write
     packages: write
-    statuses: write
-    checks: write
     pages: write
     id-token: write
 
@@ -44,7 +42,6 @@ jobs:
         name: "CI: python"
         uses: ./.github/workflows/shared-testing-python.yml
         with:
-            target_sha: ${{ github.sha }}
             workflow_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
     tests-platform:
@@ -104,4 +101,3 @@ jobs:
         with:
             checkout_ref: ${{ needs.bump-version.outputs.tag_name }}
         secrets: inherit
-

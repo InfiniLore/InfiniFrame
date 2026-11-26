@@ -4,6 +4,8 @@ param(
     [string]$EnableTestExports = "",
     [ValidateSet("None", "AddressUndefined", "Thread")]
     [string]$Sanitizer = "None",
+    [ValidateSet("AUTO", "OFF")]
+    [string]$CompilerCache = "AUTO",
     [switch]$Clean
 )
 
@@ -266,8 +268,9 @@ try
         $CMakeArgs += "Ninja"
     }
 
-    $CMakeArgs += "-DINFINIFRAME_BUILD_TEST_EXPORTS=$EnableTestExportsCMakeValue"
-    $CMakeArgs += "-DINFINIFRAME_SANITIZER=$Sanitizer"
+$CMakeArgs += "-DINFINIFRAME_BUILD_TEST_EXPORTS=$EnableTestExportsCMakeValue"
+$CMakeArgs += "-DINFINIFRAME_SANITIZER=$Sanitizer"
+$CMakeArgs += "-DINFINIFRAME_COMPILER_CACHE=$CompilerCache"
 
     Write-Host ""
     Write-Host "CMake Configure Arguments:"

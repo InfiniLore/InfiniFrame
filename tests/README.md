@@ -37,7 +37,6 @@ End-to-end tests using **Playwright** for browser automation:
 
 Python unit tests for repository scripts (in `tests/scripts/`):
 - `test_coverage_report.py`
-- `test_sync_github_checks.py`
 - `test_update_native_vendor_deps.py`
 - `test_validate_package_id_prefix.py`
 

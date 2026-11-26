@@ -1,17 +1,11 @@
 #file: noinspection UndefinedAction,UndefinedParamsPresent
-name: "CI: Full Test Suite"
+name: "CI: Core Full Test Suite (Manual)"
 
 permissions:
     contents: read
     packages: read
-    statuses: write
-    checks: write
 
 on:
-    push:
-        branches:
-            - core
-    
     workflow_dispatch:
         inputs:
             pr_number:
@@ -48,45 +42,35 @@ on:
                 default: true
 
 concurrency:
-    group: ${{ github.event_name == 'push' && github.ref == 'refs/heads/core' && format('core-{0}', github.workflow) || format('manual-{0}', github.run_id) }}
-    cancel-in-progress: ${{ github.event_name == 'push' && github.ref == 'refs/heads/core' }}
+    group: ${{ format('core-manual-{0}', github.run_id) }}
+    cancel-in-progress: false
 
 jobs:
-    python-tests:
-        name: "CI: python"
-        uses: ./.github/workflows/shared-testing-python.yml
-        with:
-            enable_coverage: ${{ github.event_name == 'push' || inputs.enable_coverage }}
-            target_sha: ${{ github.sha }}
-            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
-
     run:
         name: "CI: tests"
-        needs: python-tests
         uses: ./.github/workflows/shared-testing.yml
         with:
             pr_number: ${{ inputs.pr_number }}
+            checkout_ref: ${{ inputs.pr_number != '' && format('refs/pull/{0}/merge', inputs.pr_number) || '' }}
 
-            run_windows: ${{ github.event_name == 'push' || inputs.run_windows }}
-            run_windows_playwright: ${{ github.event_name == 'push' || inputs.run_windows_playwright }}
-            run_linux: ${{ github.event_name == 'push' || inputs.run_linux }}
-            run_macos: ${{ github.event_name == 'push' || inputs.run_macos }}
-            run_docs: ${{ github.event_name == 'push' || inputs.run_docs }}
-            run_trim_aot: ${{ github.event_name == 'push' || inputs.run_trim_aot }}
+            run_windows: ${{ inputs.run_windows == true }}
+            run_windows_playwright: ${{ inputs.run_windows_playwright == true }}
+            run_linux: ${{ inputs.run_linux == true }}
+            run_macos: ${{ inputs.run_macos == true }}
+            run_docs: ${{ inputs.run_docs == true }}
+            run_trim_aot: ${{ inputs.run_trim_aot == true }}
 
             enable_test_exports: true
-            enable_coverage: ${{ github.event_name == 'push' || inputs.enable_coverage }}
+            enable_coverage: ${{ inputs.enable_coverage == true }}
         secrets: inherit
 
     coverage:
         name: "CI: coverage"
-        needs: [ run ]
-        if: ${{ github.event_name == 'push' || inputs.enable_coverage }}
+        needs: run
+        if: ${{ inputs.enable_coverage == true }}
         uses: ./.github/workflows/shared-coverage.yml
         with:
             pr_number: ${{ inputs.pr_number }}
-            target_sha: ${{ github.sha }}
         permissions:
             contents: write
             pull-requests: write
-            checks: write

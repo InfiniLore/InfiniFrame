@@ -48,7 +48,7 @@ runs:
                 echo "root=$root" >> "$GITHUB_OUTPUT"
 
         -   name: Download Native Build Artifacts
-            uses: actions/download-artifact@v8
+            uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
             with:
                 path: artifacts/native
                 pattern: ${{ steps.resolve-native-artifact-settings.outputs.pattern }}

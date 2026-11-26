@@ -1,0 +1,33 @@
+#file: noinspection UndefinedAction,UndefinedParamsPresent
+name: "CI: Full Test Suite (Pull Request)"
+
+on:
+    pull_request:
+        types:
+            - opened
+            - synchronize
+            - reopened
+            - ready_for_review
+
+permissions:
+    contents: read
+    packages: read
+
+concurrency:
+    group: ${{ format('pr-{0}', github.event.pull_request.number) }}
+    cancel-in-progress: true
+
+jobs:
+    run:
+        name: "CI: tests"
+        uses: ./.github/workflows/shared-testing.yml
+        with:
+            pr_number: ''
+            run_windows: true
+            run_windows_playwright: true
+            run_linux: true
+            run_macos: true
+            run_docs: true
+            run_trim_aot: true
+            enable_test_exports: true
+            enable_coverage: false

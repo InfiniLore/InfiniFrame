@@ -2,12 +2,18 @@
 name: "CI: codeql"
 
 concurrency:
-    group: codeql-${{ github.workflow }}-${{ github.ref }}
+    group: ${{ github.event_name == 'pull_request' && format('codeql-pr-{0}', github.event.pull_request.number) || format('codeql-{0}', github.ref) }}
     cancel-in-progress: true
 
 on:
     push:
         branches: [ "core" ]
+    pull_request:
+        types:
+            - opened
+            - synchronize
+            - reopened
+            - ready_for_review
     
     workflow_dispatch:
         inputs:
@@ -47,13 +53,13 @@ jobs:
         
         steps:
             -   name: Checkout
-                uses: actions/checkout@v7
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
                 with:
                     fetch-depth: 0
 
             -   name: Detect Changes
                 id: filter
-                uses: dorny/paths-filter@v4
+                uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4
                 with:
                     filters: |
                         actions:
@@ -131,15 +137,13 @@ jobs:
             security-events: write
             actions: read
             packages: read
-            pull-requests: write
-            checks: write
         
         steps:
             -   name: Checkout
-                uses: actions/checkout@v7
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
             -   name: Initialize CodeQL
-                uses: github/codeql-action/init@v4
+                uses: github/codeql-action/init@bf58c2ac1f8060aa73f1225f461c80391348076 # v4
                 with:
                     languages: actions
                     build-mode: none
@@ -147,7 +151,7 @@ jobs:
                     config-file: ./.github/codeql-config.yml
 
             -   name: Perform CodeQL Analysis
-                uses: github/codeql-action/analyze@v4
+                uses: github/codeql-action/analyze@bf58c2ac1f8060aa73f1225f461c80391348076 # v4
                 with:
                     category: "/language:actions"
     
@@ -175,15 +179,13 @@ jobs:
             security-events: write
             actions: read
             packages: read
-            pull-requests: write
-            checks: write
         
         steps:
             -   name: Checkout
-                uses: actions/checkout@v7
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
             -   name: Initialize CodeQL
-                uses: github/codeql-action/init@v4
+                uses: github/codeql-action/init@bf58c2ac1f8060aa73f1225f461c80391348076 # v4
                 with:
                     languages: csharp
                     build-mode: manual
@@ -203,7 +205,7 @@ jobs:
                       /p:SolutionDir=$env:GITHUB_WORKSPACE/ 
 
             -   name: Perform CodeQL Analysis
-                uses: github/codeql-action/analyze@v4
+                uses: github/codeql-action/analyze@bf58c2ac1f8060aa73f1225f461c80391348076 # v4
                 with:
                     category: "/language:csharp"
     
@@ -212,7 +214,6 @@ jobs:
         needs: changes
         runs-on: ${{ matrix.os }}
         timeout-minutes: 90
-
         if: >
             (
               github.event_name == 'workflow_dispatch' &&
@@ -236,12 +237,10 @@ jobs:
             security-events: write
             actions: read
             packages: read
-            pull-requests: write
-            checks: write
 
         steps:
             -   name: Checkout
-                uses: actions/checkout@v7
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
             -   name: Setup dependencies
                 uses: ./.github/actions/setup-dependencies
@@ -257,7 +256,7 @@ jobs:
                     dotnet restore src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj --verbosity normal /p:WarningsAsErrors=NU1503 /p:NativeArch=${{ matrix.arch }}
 
             -   name: Initialize CodeQL
-                uses: github/codeql-action/init@v4
+                uses: github/codeql-action/init@bf58c2ac1f8060aa73f1225f461c80391348076 # v4
                 with:
                     languages: c-cpp
                     build-mode: manual
@@ -267,10 +266,10 @@ jobs:
             -   name: Build NativeBridge
                 timeout-minutes: 45
                 run: |
-                    dotnet build src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj --configuration Release --no-restore /p:SolutionDir=${{ github.workspace }}/ /p:NativeArch=${{ matrix.arch }}
+                    dotnet build src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj --configuration Release --no-restore /p:SolutionDir=${{ github.workspace }}/ /p:NativeArch=${{ matrix.arch }} /p:InfiniFrameNativeCompilerCache=OFF
 
             -   name: Perform CodeQL Analysis
-                uses: github/codeql-action/analyze@v4
+                uses: github/codeql-action/analyze@bf58c2ac1f8060aa73f1225f461c80391348076 # v4
                 with:
                     category: "/language:c-cpp/${{ matrix.os }}-${{ matrix.arch }}"
 
@@ -302,16 +301,14 @@ jobs:
             security-events: write
             actions: read
             packages: read
-            pull-requests: write
-            checks: write
         steps:
             -   name: Checkout
-                uses: actions/checkout@v7
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
             -   name: Restore NativeBridge
                 timeout-minutes: 10
                 run: dotnet restore src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj --verbosity normal /p:WarningsAsErrors=NU1503 /p:NativeArch=${{ matrix.arch }}
             -   name: Initialize CodeQL
-                uses: github/codeql-action/init@v4
+                uses: github/codeql-action/init@bf58c2ac1f8060aa73f1225f461c80391348076 # v4
                 with:
                     languages: c-cpp
                     build-mode: manual
@@ -321,7 +318,7 @@ jobs:
                 timeout-minutes: 45
                 run: dotnet build src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj --configuration Release --no-restore /p:SolutionDir=${{ github.workspace }}/ /p:NativeArch=${{ matrix.arch }}
             -   name: Perform CodeQL Analysis
-                uses: github/codeql-action/analyze@v4
+                uses: github/codeql-action/analyze@bf58c2ac1f8060aa73f1225f461c80391348076 # v4
                 with:
                     category: "/language:c-cpp/linux-${{ matrix.arch }}"
     
@@ -344,15 +341,13 @@ jobs:
             security-events: write
             actions: read
             packages: read
-            pull-requests: write
-            checks: write
         
         steps:
             -   name: Checkout
-                uses: actions/checkout@v7
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
             -   name: Initialize CodeQL
-                uses: github/codeql-action/init@v4
+                uses: github/codeql-action/init@bf58c2ac1f8060aa73f1225f461c80391348076 # v4
                 with:
                     languages: javascript-typescript
                     build-mode: none
@@ -360,7 +355,7 @@ jobs:
                     config-file: ./.github/codeql-config.yml
 
             -   name: Perform CodeQL Analysis
-                uses: github/codeql-action/analyze@v4
+                uses: github/codeql-action/analyze@bf58c2ac1f8060aa73f1225f461c80391348076 # v4
                 with:
                     category: "/language:javascript-typescript"
     
@@ -383,15 +378,13 @@ jobs:
             security-events: write
             actions: read
             packages: read
-            pull-requests: write
-            checks: write
         
         steps:
             -   name: Checkout
-                uses: actions/checkout@v7
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
             -   name: Initialize CodeQL
-                uses: github/codeql-action/init@v4
+                uses: github/codeql-action/init@bf58c2ac1f8060aa73f1225f461c80391348076 # v4
                 with:
                     languages: python
                     build-mode: none
@@ -399,6 +392,50 @@ jobs:
                     config-file: ./.github/codeql-config.yml
 
             -   name: Perform CodeQL Analysis
-                uses: github/codeql-action/analyze@v4
+                uses: github/codeql-action/analyze@bf58c2ac1f8060aa73f1225f461c80391348076 # v4
                 with:
                     category: "/language:python"
+
+    codeql-result:
+        name: CodeQL
+        if: always()
+        needs:
+            - changes
+            - analyze-actions
+            - analyze-csharp
+            - analyze-cpp
+            - analyze-cpp-linux
+            - analyze-javascript-typescript
+            - analyze-python
+        runs-on: ubuntu-26.04
+        permissions:
+            contents: read
+        steps:
+            -   name: Evaluate CodeQL results
+                env:
+                    CHANGES_RESULT: ${{ needs.changes.result }}
+                    ACTIONS_RESULT: ${{ needs.analyze-actions.result }}
+                    CSHARP_RESULT: ${{ needs.analyze-csharp.result }}
+                    CPP_RESULT: ${{ needs.analyze-cpp.result }}
+                    CPP_LINUX_RESULT: ${{ needs.analyze-cpp-linux.result }}
+                    JAVASCRIPT_RESULT: ${{ needs.analyze-javascript-typescript.result }}
+                    PYTHON_RESULT: ${{ needs.analyze-python.result }}
+                shell: bash
+                run: |
+                    set -euo pipefail
+
+                    for result in \
+                        "$CHANGES_RESULT" \
+                        "$ACTIONS_RESULT" \
+                        "$CSHARP_RESULT" \
+                        "$CPP_RESULT" \
+                        "$CPP_LINUX_RESULT" \
+                        "$JAVASCRIPT_RESULT" \
+                        "$PYTHON_RESULT"; do
+                        if [[ "$result" == "failure" || "$result" == "cancelled" ]]; then
+                            echo "CodeQL analysis failed with result: $result"
+                            exit 1
+                        fi
+                    done
+
+                    echo "CodeQL analysis passed or was intentionally skipped."

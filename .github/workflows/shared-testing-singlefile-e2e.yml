@@ -10,8 +10,6 @@ on:
 
 permissions:
     contents: read
-    statuses: write
-    checks: write
 
 jobs:
     singlefile-linux:
@@ -25,8 +23,6 @@ jobs:
         permissions:
             contents: read
             packages: read
-            statuses: write
-            checks: write
         strategy:
             fail-fast: false
             matrix:
@@ -38,7 +34,7 @@ jobs:
                         arch: arm64
                         rid: linux-arm64
         steps:
-            -   uses: actions/checkout@v7
+            -   uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
@@ -72,7 +68,7 @@ jobs:
                         rid: win-arm64
                         main-output-name: InfiniFrameExample.SingleFileExe.exe
         steps:
-            -   uses: actions/checkout@v7
+            -   uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
