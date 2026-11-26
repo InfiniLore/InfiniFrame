@@ -4,14 +4,13 @@ name: "CI: Full Test Suite"
 permissions:
     contents: read
     packages: read
-    statuses: write
-    checks: write
 
 on:
     push:
         branches:
             - core
-    
+    pull_request:
+
     workflow_dispatch:
         inputs:
             pr_number:
@@ -67,12 +66,12 @@ jobs:
         with:
             pr_number: ${{ inputs.pr_number }}
 
-            run_windows: ${{ github.event_name == 'push' || inputs.run_windows }}
-            run_windows_playwright: ${{ github.event_name == 'push' || inputs.run_windows_playwright }}
-            run_linux: ${{ github.event_name == 'push' || inputs.run_linux }}
-            run_macos: ${{ github.event_name == 'push' || inputs.run_macos }}
-            run_docs: ${{ github.event_name == 'push' || inputs.run_docs }}
-            run_trim_aot: ${{ github.event_name == 'push' || inputs.run_trim_aot }}
+            run_windows: ${{ github.event_name == 'push' || github.event_name == 'pull_request' || inputs.run_windows }}
+            run_windows_playwright: ${{ github.event_name == 'push' || github.event_name == 'pull_request' || inputs.run_windows_playwright }}
+            run_linux: ${{ github.event_name == 'push' || github.event_name == 'pull_request' || inputs.run_linux }}
+            run_macos: ${{ github.event_name == 'push' || github.event_name == 'pull_request' || inputs.run_macos }}
+            run_docs: ${{ github.event_name == 'push' || github.event_name == 'pull_request' || inputs.run_docs }}
+            run_trim_aot: ${{ github.event_name == 'push' || github.event_name == 'pull_request' || inputs.run_trim_aot }}
 
             enable_test_exports: true
             enable_coverage: ${{ github.event_name == 'push' || inputs.enable_coverage }}
@@ -89,4 +88,3 @@ jobs:
         permissions:
             contents: write
             pull-requests: write
-            checks: write

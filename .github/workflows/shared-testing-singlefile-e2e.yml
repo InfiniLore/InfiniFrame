@@ -10,8 +10,6 @@ on:
 
 permissions:
     contents: read
-    statuses: write
-    checks: write
 
 jobs:
     singlefile-linux:
@@ -25,8 +23,6 @@ jobs:
         permissions:
             contents: read
             packages: read
-            statuses: write
-            checks: write
         strategy:
             fail-fast: false
             matrix:

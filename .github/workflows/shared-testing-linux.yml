@@ -66,27 +66,11 @@ jobs:
         permissions:
             contents: read
             packages: read
-            statuses: write
-            checks: write
         steps:
             -   uses: actions/checkout@v7
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
-
-            -   name: Set Linux Check Pending
-                if: ${{ github.event_name != 'pull_request' }}
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ inputs.target_sha }}
-                    context: "CI: linux-${{ matrix.arch }}/${{ matrix.display_server }}"
-                    state: pending
-                    status-description: Linux tests in progress
-                    target-url: ${{ inputs.workflow_url }}
-                    allow-status-422: 'true'
 
             -   name: Download Testing Native Build Artifacts
                 uses: ./.github/actions/download-native-binaries
@@ -234,9 +218,9 @@ jobs:
 
                     echo "=== OpenGL Info ==="
                     glxinfo | grep -E "OpenGL renderer|OpenGL vendor|OpenGL version" || true
-                    
+
                     echo "=== Running Tests ==="
-                    
+
                     mkdir -p artifacts/native-crash artifacts/testresults
                     ulimit -c unlimited
                     sysctl -w kernel.core_uses_pid=1 || true
@@ -305,7 +289,7 @@ jobs:
                       # success when every test assertion passed (failed: 0 in output).
                       if [ $framework_exit -eq 134 ] || [ $framework_exit -eq 139 ] || [ $framework_exit -eq 7 ]; then
                         if all_assertions_passed; then
-                          echo "WARN: test host exited $framework_exit during teardown with all tests passing (WebKitGTK cleanup race) — ignoring"
+                          echo "WARN: test host exited $framework_exit during teardown with all tests passing (WebKitGTK cleanup race) ÔÇö ignoring"
                           framework_exit=0
                         fi
                       fi
@@ -373,17 +357,3 @@ jobs:
                     path: artifacts/testresults/**/*.cobertura.xml
                     if-no-files-found: warn
                     retention-days: 1
-
-            -   name: Update Linux Check
-                if: ${{ always() && github.event_name != 'pull_request' }}
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ inputs.target_sha }}
-                    context: "CI: linux-${{ matrix.arch }}/${{ matrix.display_server }}"
-                    target-url: ${{ inputs.workflow_url }}
-                    job-status: ${{ job.status }}
-                    success-description: Linux tests passed
-                    failure-description: Linux tests failed

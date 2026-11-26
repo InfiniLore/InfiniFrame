@@ -21,8 +21,6 @@ on:
 
 permissions:
     contents: read
-    statuses: write
-    checks: write
 
 jobs:
     windows-trim-aot:
@@ -43,20 +41,6 @@ jobs:
                     cache-dotnet: false
                     brew-cache-key: ${{ runner.os }}-x64-brew-native-${{ hashFiles('.github/actions/setup-dependencies/action.yml', '.github/workflows/shared-testing-windows-trim-aot.yml') }}
                     brew-restore-key: ${{ runner.os }}-x64-brew-native-
-
-            -   name: Set Trim/AOT Check Pending
-                if: ${{ github.event_name != 'pull_request' }}
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ env.TARGET_SHA }}
-                    context: "CI: win-x64/trim-aot"
-                    state: pending
-                    status-description: Trim and AOT validation in progress
-                    target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
-                    allow-status-422: 'true'
 
             -   name: Setup Native dependencies
                 uses: ./.github/actions/setup-dependencies
@@ -138,17 +122,3 @@ jobs:
                     if ($missing.Count -gt 0) {
                       throw "Expected NativeAOT output not found for: $($missing -join ', ')"
                     }
-
-            -   name: Complete Trim/AOT Check
-                if: ${{ always() && github.event_name != 'pull_request' }}
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ env.TARGET_SHA }}
-                    context: "CI: win-x64/trim-aot"
-                    target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
-                    job-status: ${{ job.status }}
-                    success-description: Trim and AOT validation finished successfully
-                    failure-description: Trim and AOT validation failed

@@ -23,7 +23,6 @@ Build, CI/CD, and developer tooling scripts for the InfiniFrame repository.
 | Script                         | Description                                                                                                                                  |
 |--------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
 | `coverage_report.py`           | Aggregates TypeScript, C#, and Python coverage data, generates badge JSON, posts PR comments with coverage tables.                           |
-| `sync_github_checks.py`        | Posts commit statuses and completes GitHub check-runs via the GitHub API. Handles SSL fallback for CI environments.                          |
 | `update_native_vendor_deps.py` | Updates vendored native (C/C++) dependencies from GitHub releases. Reads `native-vendor-deps.json` manifest. Supports `--check-only` for CI. |
 
 ## Debugging

@@ -42,7 +42,6 @@
     <File Path=".github/ci/linux-image/validate.sh" />
   </Folder>
   <Folder Name="/.dev-tools/github/workflows/">
-    <File Path=".github/workflows/ci-pull-request.yml" />
     <File Path=".github/workflows/ci-release-docs.yml" />
     <File Path=".github/workflows/ci-testing.yml" />
     <File Path=".github/workflows/ci-update-native-vendor-deps.yml" />

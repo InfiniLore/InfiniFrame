@@ -34,8 +34,6 @@ on:
 permissions:
     contents: write
     packages: write
-    statuses: write
-    checks: write
     pages: write
     id-token: write
 
@@ -104,4 +102,3 @@ jobs:
         with:
             checkout_ref: ${{ needs.bump-version.outputs.tag_name }}
         secrets: inherit
-
