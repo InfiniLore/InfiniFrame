@@ -214,6 +214,9 @@ jobs:
         needs: changes
         runs-on: ${{ matrix.os }}
         timeout-minutes: 90
+        env:
+            # ccache can hide compiler invocations from CodeQL's C/C++ tracer.
+            CCACHE_DISABLE: '1'
 
         if: >
             (
