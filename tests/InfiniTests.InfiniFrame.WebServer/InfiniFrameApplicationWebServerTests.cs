@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
 using InfiniFrame;
 using InfiniFrame.Application;
 using InfiniFrame.WebServer;
@@ -15,6 +16,8 @@ namespace InfiniTests.InfiniFrame.WebServer;
 // ---------------------------------------------------------------------------------------------------------------------
 [NotInParallelInfiniTests]
 public sealed class InfiniFrameApplicationWebServerTests {
+    private static readonly HttpClient TestClient = new();
+
     [Test]
     [NotInParallelInfiniTests]
     public async Task WithWebServer_ReturnsApplicationAndDefersWindowBuild(CancellationToken ct = default) {
@@ -158,14 +161,13 @@ public sealed class InfiniFrameApplicationWebServerTests {
 
         Task runTask = application.RunAsync(ct);
         try {
-            using var client = new HttpClient();
             string? responseBody = null;
 
             for (int attempt = 0; attempt < 300; attempt++) {
                 if (runTask.IsFaulted) await runTask;
 
                 try {
-                    using HttpResponseMessage response = await client.GetAsync(
+                    using HttpResponseMessage response = await TestClient.GetAsync(
                         $"http://127.0.0.1:{port}/",
                         ct
                     );
@@ -203,6 +205,7 @@ public sealed class InfiniFrameApplicationWebServerTests {
     [NotInParallelInfiniTests]
     [Timeout(60_000)]
     [OnlyRunOnMacOs]
+    [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
     public async Task WithWebServer_MacOsRun_PresentsWindowAndServesContent(CancellationToken ct = default) {
         int port = PortUtils.GetOpenPortValue();
         using InfiniFrameApplication application = InfiniFrameApplication.CreateBuilder()
@@ -220,10 +223,9 @@ public sealed class InfiniFrameApplicationWebServerTests {
         var observed = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         _ = Task.Run(async () => {
             try {
-                using var client = new HttpClient();
                 for (int attempt = 0; attempt < 300; attempt++) {
                     try {
-                        using HttpResponseMessage response = await client.GetAsync(
+                        using HttpResponseMessage response = await TestClient.GetAsync(
                             $"http://127.0.0.1:{port}/",
                             ct
                         );

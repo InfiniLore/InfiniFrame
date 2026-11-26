@@ -48,8 +48,7 @@ void InfiniFrameWindow::AttachWebView()
     [infiniFrameWebView setInfiniFrameZoomEnabled:m_impl->common._zoomEnabled ? YES : NO];
     [m_impl->_webview setMagnification: m_impl->_zoom / 100.0];
     SetTransparentEnabled(m_impl->common._transparentEnabled);
-    if (m_impl->common._backgroundColorR != 0 || m_impl->common._backgroundColorG != 0 || m_impl->common._backgroundColorB != 0 || m_impl->common._backgroundColorA != 0)
-        SetBackgroundColor(m_impl->common._backgroundColorR, m_impl->common._backgroundColorG, m_impl->common._backgroundColorB, m_impl->common._backgroundColorA);
+    SetBackgroundColor(m_impl->common._backgroundColorR, m_impl->common._backgroundColorG, m_impl->common._backgroundColorB, m_impl->common._backgroundColorA);
 
     SEL setInspectableSelector = NSSelectorFromString(@"setInspectable:");
     if ([m_impl->_webview respondsToSelector: setInspectableSelector])
@@ -92,6 +91,7 @@ void InfiniFrameWindow::AttachWebView()
         NSAlert *alert = [[[NSAlert alloc] init] autorelease];
         [alert setMessageText: @"Neither StartUrl nor StartString was specified"];
         [alert runModal];
+        ShowAfterInitialNavigation();
     }
 }
 
@@ -100,9 +100,28 @@ void InfiniFrameWindow::Show(bool isAlreadyShown)
     if (m_impl->_webview == nil)
         AttachWebView();
 
-    if (isAlreadyShown)
-        return;
+    // Keep the native window ordered while WebKit finishes its first load.
+    // WebKit can be navigable before its navigation delegate callback runs;
+    // delaying ordering until that callback leaves automation attached to a
+    // window that is not visually composited.
+    if (!isAlreadyShown) {
+        [NSApp activateIgnoringOtherApps:YES];
+        [m_impl->_window makeKeyAndOrderFront:m_impl->_window];
+        [m_impl->_window orderFrontRegardless];
+    }
+}
 
+void InfiniFrameWindow::ShowAfterInitialNavigation()
+{
+    if (m_impl->_startupVisibilityShown || m_impl->_isClosingOrClosed || m_impl->_window == nil)
+        return;
+    m_impl->_startupVisibilityShown = true;
+    [NSApp activateIgnoringOtherApps:YES];
     [m_impl->_window makeKeyAndOrderFront: m_impl->_window];
     [m_impl->_window orderFrontRegardless];
+    [m_impl->_window makeKeyWindow];
+    if (m_impl->_startupMinimized)
+        [m_impl->_window miniaturize:nil];
+    else if (m_impl->_startupMaximized)
+        SetMaximized(true);
 }

@@ -382,9 +382,11 @@ void InfiniFrameWindow::SetMinimized(bool minimized)
 {
     if (m_impl->_window.isMiniaturized == minimized) return;
 
-    if (minimized)
+    if (minimized) {
+        [NSApp activateIgnoringOtherApps:YES];
+        [m_impl->_window makeKeyAndOrderFront:nil];
         [m_impl->_window miniaturize: nullptr];
-    else
+    } else
         [m_impl->_window deminiaturize: nullptr];
 
 }
@@ -533,5 +535,7 @@ void InfiniFrameWindow::SetBackgroundColor(uint8_t r, uint8_t g, uint8_t b, uint
     CGFloat cb = b / 255.0;
     CGFloat ca = a / 255.0;
     NSColor* nsColor = [NSColor colorWithCalibratedRed:cr green:cg blue:cb alpha:ca];
+    [m_impl->_window setOpaque:(a == 255) ? YES : NO];
+    [m_impl->_window setBackgroundColor:nsColor];
     [m_impl->_webview setUnderPageBackgroundColor:nsColor];
 }

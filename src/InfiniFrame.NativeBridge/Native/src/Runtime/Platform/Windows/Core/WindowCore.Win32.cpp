@@ -311,11 +311,8 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameWindowInitParams* initParams) {
     if (centerOnInitialize)
         Center();
 
-    if (initParams->Minimized)
-        SetMinimized(true);
-
-    if (initParams->Maximized)
-        SetMaximized(true);
+    m_impl->_startupMinimized = initParams->Minimized;
+    m_impl->_startupMaximized = initParams->Maximized;
 
     SetResizable(initParams->Resizable);
 
