@@ -6,6 +6,7 @@
 #include "Runtime/Internal/Application/InfiniFrameApplication.h"
 #include "Runtime/Internal/Operations/NativeOperation.h"
 #include "Runtime/Internal/Interop/Types/InfiniFrameWindow.h"
+#include "Runtime/Internal/Window/CommonWindowState.h"
 #include <shellapi.h>
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -59,11 +60,14 @@ namespace {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps);
 
-        if (IsDarkModeEnabled()) {
-            FillRect(hdc, &ps.rcPaint, GetDarkBrush());
-        } else {
-            FillRect(hdc, &ps.rcPaint, GetLightBrush());
-        }
+        auto* instance = LookupWindowInstance(hwnd);
+        if (instance != nullptr) {
+            const auto* state = GetCommonWindowState(instance);
+            HBRUSH brush = CreateSolidBrush(RGB(state->_backgroundColorR, state->_backgroundColorG, state->_backgroundColorB));
+            FillRect(hdc, &ps.rcPaint, brush);
+            DeleteObject(brush);
+        } else
+            FillRect(hdc, &ps.rcPaint, IsDarkModeEnabled() ? GetDarkBrush() : GetLightBrush());
 
         EndPaint(hwnd, &ps);
     }

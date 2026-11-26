@@ -25,17 +25,35 @@ namespace {
 }
 
 void InfiniFrameWindow::Show(const bool isAlreadyShown) {
+    // Show the native host immediately.  The HWND paints the configured
+    // background while WebView2 initializes, and keeping it mapped is
+    // important: WebView2 can finish navigation and accept automation input
+    // while a hidden parent still has no visible compositor surface.
     if (!isAlreadyShown)
-        ShowWindow(m_impl->_hWnd, SW_SHOWDEFAULT);
+        ShowWindow(m_impl->_hWnd, SW_SHOWNOACTIVATE);
 
     UpdateWindow(m_impl->_hWnd);
-
     if (!m_impl->_webviewController) {
         if (!m_impl->common._webView2RuntimePath.empty() || EnsureWebViewIsInstalled())
             AttachWebView();
         else
             throw std::runtime_error("WebView2 Runtime is not installed and automatic installation failed.");
     }
+}
+
+void InfiniFrameWindow::ShowAfterInitialNavigation() {
+    if (m_impl->_startupVisibilityShown || m_impl->_isClosingOrClosed.load(std::memory_order_acquire) ||
+        m_impl->_hWnd == nullptr)
+        return;
+    m_impl->_startupVisibilityShown = true;
+    ShowWindow(m_impl->_hWnd, SW_SHOWNOACTIVATE);
+    RefitContent();
+    InvalidateRect(m_impl->_hWnd, nullptr, TRUE);
+    UpdateWindow(m_impl->_hWnd);
+    if (m_impl->_startupMinimized)
+        ShowWindow(m_impl->_hWnd, SW_MINIMIZE);
+    else if (m_impl->_startupMaximized)
+        ShowWindow(m_impl->_hWnd, SW_MAXIMIZE);
 }
 
 // Initializes and attaches the WebView2 instance to this window.
@@ -130,11 +148,13 @@ void InfiniFrameWindow::AttachWebView() {
                 }
                 if (result != S_OK) {
                     m_impl->_isWebView2Initializing = false;
+                    ShowAfterInitialNavigation();
                     TraceTeardown(L"CreateEnvironment callback failed hr=0x%08X", static_cast<unsigned>(result));
                     return result;
                 }
                 if (env == nullptr) {
                     m_impl->_isWebView2Initializing = false;
+                    ShowAfterInitialNavigation();
                     return E_POINTER;
                 }
                 // The asynchronous controller operation owns its environment until completion.
@@ -165,6 +185,7 @@ void InfiniFrameWindow::AttachWebView() {
                             }
                             if (result != S_OK) {
                                 m_impl->_isWebView2Initializing = false;
+                                ShowAfterInitialNavigation();
                                 TraceTeardown(
                                     L"CreateController callback failed hr=0x%08X", static_cast<unsigned>(result)
                                     );
@@ -172,6 +193,7 @@ void InfiniFrameWindow::AttachWebView() {
                             }
                             if (controller == nullptr) {
                                 m_impl->_isWebView2Initializing = false;
+                                ShowAfterInitialNavigation();
                                 return E_POINTER;
                             }
 
@@ -179,6 +201,7 @@ void InfiniFrameWindow::AttachWebView() {
                             HRESULT envResult = controller->QueryInterface(&m_impl->_webviewController);
                             if (envResult != S_OK) {
                                 m_impl->_isWebView2Initializing = false;
+                                ShowAfterInitialNavigation();
                                 return envResult;
                             }
                             m_impl->_webviewController->get_CoreWebView2(&m_impl->_webviewWindow);
@@ -211,6 +234,7 @@ void InfiniFrameWindow::AttachWebView() {
                                             L"[InfiniFrame] ERROR: Neither StartUrl nor StartString was specified\n"
                                             );
                                         self->m_impl->_isWebView2Initializing = false;
+                                        self->ShowAfterInitialNavigation();
                                     }
                                 }
                             };
@@ -219,6 +243,7 @@ void InfiniFrameWindow::AttachWebView() {
                             HRESULT settingsResult = ApplyInitialWebViewSettings();
                             if (FAILED(settingsResult)) {
                                 m_impl->_isWebView2Initializing = false;
+                                ShowAfterInitialNavigation();
                                 SignalReadyFailure();
                                 return settingsResult;
                             }
@@ -397,6 +422,7 @@ void InfiniFrameWindow::AttachWebView() {
                                                 m_impl->_webviewWindow->PostWebMessageAsString(msg.c_str());
                                             m_impl->_pendingWebMessages.clear();
                                         }
+                                        ShowAfterInitialNavigation();
                                         CompleteNavigationAndSignalReady(
                                             navigationId, isSuccess != FALSE, static_cast<int>(webErrorStatus),
                                             isSuccess ? nullptr : "WebView2 navigation failed."
@@ -480,8 +506,10 @@ void InfiniFrameWindow::AttachWebView() {
                         }
                         ).Get()
                     );
-                if (FAILED(createControllerHr))
+                if (FAILED(createControllerHr)) {
                     m_impl->_isWebView2Initializing = false;
+                    ShowAfterInitialNavigation();
+                }
 
                 return createControllerHr;
             }
@@ -490,6 +518,7 @@ void InfiniFrameWindow::AttachWebView() {
 
     if (envResult != S_OK) {
         m_impl->_isWebView2Initializing = false;
+        ShowAfterInitialNavigation();
         _com_error err(envResult);
         LPCTSTR errMsg = err.ErrorMessage();
         MessageBox(m_impl->_hWnd, errMsg, L"Error instantiating webview", MB_OK);

@@ -39,6 +39,7 @@ struct InfiniFrameWindow::Impl {
 
     bool _isFullScreen = false;
     bool _webviewReady = false;
+    bool _startupVisibilityShown = false;
     bool _webviewClosed = false;
     bool _webviewFinalized = false;
     bool _windowDestroyed = false;

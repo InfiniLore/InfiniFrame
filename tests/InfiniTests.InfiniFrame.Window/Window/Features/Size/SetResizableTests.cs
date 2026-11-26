@@ -54,7 +54,7 @@ public class SetResizableTests {
         bool currentResizable = window.Features.Size.IsResizable;
         if (currentResizable == value) {
             window.Features.Size.SetResizable(!value);
-            currentResizable = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.IsResizable, currentResizable, TimeSpan.FromSeconds(5), ct);
+            await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.IsResizable, currentResizable, TimeSpan.FromSeconds(5), ct);
         }
 
         // Act
@@ -76,7 +76,7 @@ public class SetResizableTests {
         bool currentResizable = window.Features.Size.IsResizable;
         if (currentResizable == value) {
             window.Features.Size.SetResizable(!value);
-            currentResizable = await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.IsResizable, currentResizable, TimeSpan.FromSeconds(5), ct);
+            await PollUtility.WaitForChangeAsync(getValue: () => window.Features.Size.IsResizable, currentResizable, TimeSpan.FromSeconds(5), ct);
         }
 
         // Act

@@ -55,7 +55,6 @@ public class SetLeftTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
-        int originalLocation = window.Features.Position.Left;
 
         // Act
         window.Features.Position.SetLeft(value);
@@ -78,7 +77,6 @@ public class SetLeftTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
-        int originalLocation = window.Features.Position.Left;
 
         // Act
         IInfiniFrameWindow returnedWindow = window.SetLeft(value);

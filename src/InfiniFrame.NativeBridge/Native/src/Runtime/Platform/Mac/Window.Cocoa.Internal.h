@@ -61,6 +61,9 @@ struct InfiniFrameWindow::Impl {
 
     bool _chromeless = false;
     bool _webviewReady = false;
+    bool _startupVisibilityShown = false;
+    bool _startupMinimized = false;
+    bool _startupMaximized = false;
     bool _isClosingOrClosed = false;
     bool _nativeDestructionScheduled = false;
     bool _applicationNotifiedClosed = false;

@@ -69,7 +69,11 @@ jobs:
                 # project references with a bare continue), which intermittently produced
                 # meta-packages missing dependencies. The former /p:NoWarn=NU1503 hid
                 # exactly the signal that would have betrayed the skip.
-                run: dotnet restore InfiniFrame.GitHubActions.Release.slnf /p:WarningsAsErrors=NU1503
+                # Parallel restore can intermittently race generated/project targets and emit
+                # NU1503 for a project that is valid on a subsequent restore. Keep the warning
+                # fatal, but serialize this small release graph so the package dependency graph
+                # cannot be nondeterministically incomplete.
+                run: dotnet restore InfiniFrame.GitHubActions.Release.slnf --disable-parallel /p:WarningsAsErrors=NU1503
 
             -   name: Build Release
                 run: |

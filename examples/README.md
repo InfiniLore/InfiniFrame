@@ -7,6 +7,7 @@ Runnable examples demonstrating different InfiniFrame integration patterns
 | Example                                                                          | Integration      | Demonstrates                                                  |
 |----------------------------------------------------------------------------------|------------------|---------------------------------------------------------------|
 | [BlazorWebView](InfiniFrameExample.BlazorWebView/)                               | `BlazorWebView`  | Basic Blazor app in a native window                           |
+| [DarkStartup](InfiniFrameExample.DarkStartup/)                                   | `Core Window`   | Dark RGBA background applied before initial navigation         |
 | [NativeMenu](InfiniFrameExample.NativeMenu/)                                     | `NativeMenu`     | Native menu integration                                       |
 | [TrimAotSmoke](InfiniFrameExample.TrimAotSmoke/)                                 | `TrimAotSmoke`   | Trim and AOT compilation smoke test                           |
 | [SingleFileExe](SingleFileExe/InfiniFrameExample.SingleFileExe/)                 | `SingleFile`     | Embedded wwwroot in a single-file executable                  |
@@ -29,6 +30,13 @@ cmake --build artifacts/native/windows/x64/Debug
 
 # Then run an example
 dotnet run --project examples/InfiniFrameExample.BlazorWebView
+```
+
+The `DarkStartup` example demonstrates a black native background together with
+dark initial HTML content:
+
+```bash
+dotnet run --project examples/InfiniFrameExample.DarkStartup
 ```
 
 ## Guides

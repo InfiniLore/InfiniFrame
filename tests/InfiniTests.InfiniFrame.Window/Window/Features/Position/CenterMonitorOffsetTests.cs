@@ -63,7 +63,7 @@ public class CenterMonitorOffsetTests {
         // Move the window onto the target monitor first so native centering resolves
         // this monitor as the window's current monitor.
         window.Features.Position.SetLocation(area.X + 8, area.Y + 8);
-        Point placed = await WaitForPositionAsync(
+        await WaitForPositionAsync(
             () => window.Features.Position.Location,
             p => Math.Abs(p.X - (area.X + 8)) <= Tolerance && Math.Abs(p.Y - (area.Y + 8)) <= Tolerance,
             TimeSpan.FromSeconds(10),
