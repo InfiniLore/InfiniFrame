@@ -26,7 +26,7 @@ jobs:
 
         steps:
             -   name: Checkout
-                uses: actions/checkout@v7
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || env.TARGET_SHA }}
 
@@ -35,7 +35,7 @@ jobs:
                 uses: ./.github/actions/read-tool-versions
 
             -   name: Setup Node
-                uses: actions/setup-node@v7
+                uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
                 with:
                     node-version: ${{ steps.versions.outputs.node }}
                     cache: npm

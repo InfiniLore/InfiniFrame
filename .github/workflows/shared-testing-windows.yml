@@ -49,7 +49,7 @@ jobs:
 
         steps:
             -   name: Checkout
-                uses: actions/checkout@v7
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
@@ -66,7 +66,7 @@ jobs:
 
             -   name: Cache WebView2 fixed runtime
                 if: matrix.arch == 'x64'
-                uses: actions/cache@v6
+                uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
                 with:
                     path: artifacts/webview2-fixed-runtime/150.0.4078.99
                     key: webview2-fixed-runtime-150.0.4078.99-x64
@@ -153,7 +153,7 @@ jobs:
                     }
 
             -   name: Export Actions Runtime
-                uses: actions/github-script@v9
+                uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
                 with:
                     script: |
                         core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
@@ -207,7 +207,7 @@ jobs:
 
             -   name: Upload C# Coverage
                 if: ${{ inputs.enable_coverage == true && success() }}
-                uses: actions/upload-artifact@v7
+                uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
                 with:
                     name: cs-coverage-windows-${{ matrix.arch }}
                     path: TestResults/**/*.cobertura.xml
@@ -237,7 +237,7 @@ jobs:
 
             -   name: Upload ARM64 Crash Diagnostics
                 if: always() && matrix.arch == 'arm64'
-                uses: actions/upload-artifact@v7
+                uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
                 with:
                     name: windows-arm64-test-crash-diagnostics
                     if-no-files-found: warn

@@ -37,14 +37,14 @@ jobs:
 
         steps:
             -   name: Checkout
-                uses: actions/checkout@v7
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
                 with:
                     fetch-depth: 0
                     token: ${{ secrets.RELEASE_TOKEN }}
 
             -   name: Bump Version
                 id: bump
-                uses: Code-Of-Chaos/action-version-bumper@v2
+                uses: Code-Of-Chaos/action-version-bumper@178d33033049af70a42d5c580ed9ece4e7165267 # v2
                 with:
                     version_file: src/Directory.Build.props
                     additional_version_files: |

@@ -76,7 +76,7 @@ jobs:
             -   name: Verify linked issue
                 if: steps.exemption.outputs.exempt != 'true'
                 # Immutable pin for the v1 release currently used by this workflow.
-                uses: Code-Of-Chaos/action-verify-linked-issue@dbc22bb5b922bcf798bcab78ea3ab17c00730542
+                uses: Code-Of-Chaos/action-verify-linked-issue@dbc22bb5b922bcf798bcab78ea3ab17c00730542 # v1
                 with:
                     token: ${{ secrets.GITHUB_TOKEN }}
 

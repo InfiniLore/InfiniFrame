@@ -61,7 +61,7 @@ jobs:
 
         steps:
             -   name: Checkout
-                uses: actions/checkout@v7
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
@@ -136,7 +136,7 @@ jobs:
                     }
 
             -   name: Export Actions Runtime
-                uses: actions/github-script@v9
+                uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
                 with:
                     script: |
                         core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);

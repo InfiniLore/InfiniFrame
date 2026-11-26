@@ -16,10 +16,10 @@ jobs:
             issues: write
         steps:
             -   name: Checkout
-                uses: actions/checkout@v7
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
             -   name: Sync Todo Issues
-                uses: alstr/todo-to-issue-action@v5
+                uses: alstr/todo-to-issue-action@37bb7b56e58569ef273b60678048030a7f0c261a # v5
                 with:
                     PROJECT: organization/InfiniLore/1
                     PROJECTS_SECRET: ${{ secrets.PROJECTS_SECRET }}
