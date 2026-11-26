@@ -51,6 +51,7 @@ jobs:
         uses: ./.github/workflows/shared-testing.yml
         with:
             pr_number: ${{ inputs.pr_number }}
+            checkout_ref: ${{ inputs.pr_number != '' && format('refs/pull/{0}/merge', inputs.pr_number) || '' }}
 
             run_windows: ${{ inputs.run_windows == true }}
             run_windows_playwright: ${{ inputs.run_windows_playwright == true }}
