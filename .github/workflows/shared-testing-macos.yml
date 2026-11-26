@@ -176,7 +176,7 @@ jobs:
                     exit $exit_code
 
             -   name: Upload macOS Test Diagnostics
-                if: ${{ always() && github.event_name != 'pull_request' }}
+                if: always()
                 uses: actions/upload-artifact@v7
                 with:
                     name: macos-test-diagnostics-${{ matrix.arch }}
@@ -197,6 +197,20 @@ jobs:
                     if-no-files-found: warn
                     retention-days: 1
 
+    macos-sanitizers:
+        name: "CI: osx-arm64/sanitizers"
+        runs-on: macos-latest
+        timeout-minutes: 90
+        permissions:
+            contents: read
+        env:
+            # ASan must own fatal-signal handling. LeakSanitizer is unavailable on GitHub's
+            # Apple Silicon runtime and aborts before test discovery when enabled.
+            INFINIFRAME_NATIVE_DIAGNOSTICS: '0'
+            ASAN_OPTIONS: abort_on_error=1:detect_leaks=0:strict_string_checks=1
+            UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+
+        steps:
             -   name: Checkout
                 uses: actions/checkout@v7
                 with:
