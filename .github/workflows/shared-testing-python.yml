@@ -9,9 +9,6 @@ on:
                 type: boolean
                 required: false
                 default: true
-            target_sha:
-                type: string
-                required: true
             workflow_url:
                 type: string
                 required: true
