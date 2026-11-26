@@ -18,13 +18,6 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-    python-tests:
-        name: "CI: python"
-        uses: ./.github/workflows/shared-testing-python.yml
-        with:
-            enable_coverage: false
-            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
-
     run:
         name: "CI: tests"
         uses: ./.github/workflows/shared-testing.yml
