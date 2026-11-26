@@ -11,6 +11,10 @@ provide the required merge checks with read-only permissions.
 Runs are grouped by pull request number. When a new commit is pushed to a PR,
 an older in-progress run is cancelled.
 
+CodeQL also runs automatically on pull requests. It analyzes only changed
+areas, uses the merge commit, and is grouped per PR so stale analyses are
+cancelled.
+
 ## Manual Core validation
 
 `CI: Core Full Test Suite (Manual)` is available through **Actions →

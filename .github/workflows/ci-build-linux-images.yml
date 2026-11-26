@@ -5,10 +5,12 @@ on:
     schedule:
         - cron: '23 3 * * 0'
     push:
+        branches:
+            - core
         paths:
             - .github/ci/linux-image/**
             - tool-versions.json
-            - .github/workflows/build-linux-ci-images.yml
+            - .github/workflows/ci-build-linux-images.yml
             - .github/workflows/shared-testing-linux.yml
             - .github/actions/setup-dependencies/action.yml
             - .github/actions/read-tool-versions/**

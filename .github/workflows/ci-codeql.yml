@@ -2,12 +2,18 @@
 name: "CI: codeql"
 
 concurrency:
-    group: codeql-${{ github.workflow }}-${{ github.ref }}
+    group: ${{ github.event_name == 'pull_request' && format('codeql-pr-{0}', github.event.pull_request.number) || format('codeql-{0}', github.ref) }}
     cancel-in-progress: true
 
 on:
     push:
         branches: [ "core" ]
+    pull_request:
+        types:
+            - opened
+            - synchronize
+            - reopened
+            - ready_for_review
     
     workflow_dispatch:
         inputs:
@@ -131,8 +137,6 @@ jobs:
             security-events: write
             actions: read
             packages: read
-            pull-requests: write
-            checks: write
         
         steps:
             -   name: Checkout
@@ -175,8 +179,6 @@ jobs:
             security-events: write
             actions: read
             packages: read
-            pull-requests: write
-            checks: write
         
         steps:
             -   name: Checkout
@@ -236,8 +238,6 @@ jobs:
             security-events: write
             actions: read
             packages: read
-            pull-requests: write
-            checks: write
 
         steps:
             -   name: Checkout
@@ -302,8 +302,6 @@ jobs:
             security-events: write
             actions: read
             packages: read
-            pull-requests: write
-            checks: write
         steps:
             -   name: Checkout
                 uses: actions/checkout@v7
@@ -344,8 +342,6 @@ jobs:
             security-events: write
             actions: read
             packages: read
-            pull-requests: write
-            checks: write
         
         steps:
             -   name: Checkout
@@ -383,8 +379,6 @@ jobs:
             security-events: write
             actions: read
             packages: read
-            pull-requests: write
-            checks: write
         
         steps:
             -   name: Checkout
