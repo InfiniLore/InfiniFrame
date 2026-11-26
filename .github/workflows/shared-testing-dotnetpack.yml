@@ -45,6 +45,7 @@ jobs:
                     fetch-depth: 1
 
             -   name: Set Dotnet Pack Check Pending
+                if: ${{ github.event_name != 'pull_request' }}
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 uses: ./.github/actions/sync-check
@@ -219,7 +220,7 @@ jobs:
                     echo "✅ No forbidden test exports found"
 
             -   name: Complete Dotnet Pack Check
-                if: always()
+                if: ${{ always() && github.event_name != 'pull_request' }}
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 # noinspection UndefinedAction, UndefinedParamsPresent

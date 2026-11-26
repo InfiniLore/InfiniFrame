@@ -75,6 +75,7 @@ jobs:
                     fetch-depth: 1
 
             -   name: Set Linux Check Pending
+                if: ${{ github.event_name != 'pull_request' }}
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 uses: ./.github/actions/sync-check
@@ -355,7 +356,7 @@ jobs:
                     exit $exit_code
 
             -   name: Upload Native Crash Diagnostics
-                if: always()
+                if: ${{ always() && github.event_name != 'pull_request' }}
                 uses: actions/upload-artifact@v7
                 with:
                     name: linux-native-crash-${{ matrix.arch }}-${{ matrix.display_server }}
@@ -374,7 +375,7 @@ jobs:
                     retention-days: 1
 
             -   name: Update Linux Check
-                if: always()
+                if: ${{ always() && github.event_name != 'pull_request' }}
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 uses: ./.github/actions/sync-check

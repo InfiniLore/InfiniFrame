@@ -45,6 +45,7 @@ jobs:
                     brew-restore-key: ${{ runner.os }}-x64-brew-native-
 
             -   name: Set Trim/AOT Check Pending
+                if: ${{ github.event_name != 'pull_request' }}
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 uses: ./.github/actions/sync-check
@@ -139,7 +140,7 @@ jobs:
                     }
 
             -   name: Complete Trim/AOT Check
-                if: always()
+                if: ${{ always() && github.event_name != 'pull_request' }}
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 uses: ./.github/actions/sync-check

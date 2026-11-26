@@ -62,6 +62,7 @@ jobs:
                     cache-dotnet: false
 
             -   name: Set Windows Check Pending
+                if: ${{ github.event_name != 'pull_request' }}
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 uses: ./.github/actions/sync-check
@@ -265,7 +266,7 @@ jobs:
                         TestResults
 
             -   name: Update Windows Check
-                if: always()
+                if: ${{ always() && github.event_name != 'pull_request' }}
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 uses: ./.github/actions/sync-check

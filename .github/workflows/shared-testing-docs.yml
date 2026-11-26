@@ -49,6 +49,7 @@ jobs:
                 run: npm ci --prefix docs
 
             -   name: Set Docs Pending
+                if: ${{ github.event_name != 'pull_request' }}
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 uses: ./.github/actions/sync-check
@@ -66,7 +67,7 @@ jobs:
                 run: npm --prefix docs run build
 
             -   name: Complete Docs Check
-                if: always()
+                if: ${{ always() && github.event_name != 'pull_request' }}
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 uses: ./.github/actions/sync-check

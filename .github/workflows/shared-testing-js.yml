@@ -76,7 +76,7 @@ jobs:
                     retention-days: 1
 
             -   name: Complete Js Check
-                if: always()
+                if: ${{ always() && github.event_name != 'pull_request' }}
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 uses: ./.github/actions/sync-check

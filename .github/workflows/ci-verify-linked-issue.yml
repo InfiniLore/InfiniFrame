@@ -3,8 +3,10 @@ name: "CI: Verify Linked Issue"
 
 # The check runs on `pull_request_target` so that the workflow definition always comes from the
 # base branch: a pull request cannot remove or weaken the check it has to pass.
-# The action neither checks out nor executes any pull request code, so the writable token of the
-# workflow stays safe for forks (and the explanatory comment is posted for them as well).
+# This privileged event is intentional: the action needs pull-request write permission to report
+# the result. The workflow neither checks out nor executes pull-request code, so the writable token
+# remains safe for forks. Keep the repository Actions policy explicitly allowlisted for this event;
+# GitHub's public-repository default policy is scheduled to block it on 2026-12-02.
 on:
     pull_request_target:
 
@@ -73,10 +75,14 @@ jobs:
 
             -   name: Verify linked issue
                 if: steps.exemption.outputs.exempt != 'true'
-                uses: Code-Of-Chaos/action-verify-linked-issue@v1
+                # Immutable pin for the v1 release currently used by this workflow.
+                uses: Code-Of-Chaos/action-verify-linked-issue@dbc22bb5b922bcf798bcab78ea3ab17c00730542
                 with:
                     token: ${{ secrets.GITHUB_TOKEN }}
 
             -   name: Skip the linked issue check
                 if: steps.exemption.outputs.exempt == 'true'
-                run: echo "The linked issue check is skipped because ${{ steps.exemption.outputs.reason }}."
+                env:
+                    EXEMPTION_REASON: ${{ steps.exemption.outputs.reason }}
+                shell: bash
+                run: echo "The linked issue check is skipped because ${EXEMPTION_REASON}."

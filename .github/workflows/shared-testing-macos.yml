@@ -67,6 +67,7 @@ jobs:
                     brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
 
             -   name: Set macOS Check Pending
+                if: ${{ github.event_name != 'pull_request' }}
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 uses: ./.github/actions/sync-check
@@ -191,7 +192,7 @@ jobs:
                     exit $exit_code
 
             -   name: Upload macOS Test Diagnostics
-                if: always()
+                if: ${{ always() && github.event_name != 'pull_request' }}
                 uses: actions/upload-artifact@v7
                 with:
                     name: macos-test-diagnostics-${{ matrix.arch }}
@@ -213,7 +214,7 @@ jobs:
                     retention-days: 1
 
             -   name: Update macOS Check
-                if: always()
+                if: ${{ always() && github.event_name != 'pull_request' }}
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 uses: ./.github/actions/sync-check

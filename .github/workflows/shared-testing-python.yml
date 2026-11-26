@@ -31,6 +31,7 @@ jobs:
                 uses: actions/checkout@v7
 
             -   name: Set Python Check Pending
+                if: ${{ github.event_name != 'pull_request' }}
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 uses: ./.github/actions/sync-check
@@ -80,7 +81,7 @@ jobs:
                       --prefix InfiniLore
 
             -   name: Update Python Check
-                if: always()
+                if: ${{ always() && github.event_name != 'pull_request' }}
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 uses: ./.github/actions/sync-check
